@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class LoginResponse {
+public class UserLoginResponse {
 
     private String token;
 
@@ -17,4 +17,8 @@ public class LoginResponse {
     private String refreshToken;
     @JsonProperty("user_type")
     private String userType;
+
+    public static UserLoginResponse of(String token, String refreshToken, String userType) {
+        return new UserLoginResponse(token, refreshToken, userType);
+    }
 }

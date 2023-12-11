@@ -110,4 +110,8 @@ public class User extends BaseEntity {
         this.resetToken = resetToken;
         this.resetExpiredAt = resetExpiredAt;
     }
+
+    public boolean isSamePassword(String password) {
+        return this.password.equals(password);
+    }
 }

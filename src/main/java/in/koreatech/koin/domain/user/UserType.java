@@ -4,13 +4,15 @@ import lombok.Getter;
 
 @Getter
 public enum UserType {
-    STUDENT("학생"),
-    USER("사용자"),
+    STUDENT("STUDENT", "학생"),
+    USER("USER", "사용자"),
     ;
 
     private final String value;
+    private final String description;
 
-    UserType(String value) {
+    UserType(String value, String description) {
         this.value = value;
+        this.description = description;
     }
 }
