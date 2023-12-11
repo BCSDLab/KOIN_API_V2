@@ -45,7 +45,6 @@ public class User extends BaseEntity {
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
-    @Size(max = 20)
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", nullable = false, length = 20)
