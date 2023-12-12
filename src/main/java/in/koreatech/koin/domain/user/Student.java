@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
@@ -17,6 +18,7 @@ public class Student {
 
     @Id
     @OneToOne(orphanRemoval = true)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Size(max = 255)
@@ -26,7 +28,6 @@ public class Student {
     @Size(max = 20)
     @Column(name = "student_number", length = 20)
     private String studentNumber;
-
 
     @Size(max = 50)
     @Column(name = "major", length = 50)

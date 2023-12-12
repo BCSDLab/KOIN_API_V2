@@ -14,6 +14,7 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import java.time.format.DateTimeFormatter;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,9 +23,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.containers.MySQLContainer;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
+@ActiveProfiles("test")
 class TrackApiTest {
 
     @LocalServerPort
@@ -39,9 +43,17 @@ class TrackApiTest {
     @Autowired
     private MemberRepository memberRepository;
 
+    private MySQLContainer mySQLContainer = new MySQLContainer("mysql:8");
+
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
+        mySQLContainer.start();
+    }
+
+    @AfterEach
+    void tearDown() {
+        mySQLContainer.stop();
     }
 
     @Test
@@ -119,7 +131,8 @@ class TrackApiTest {
                 softly.assertThat(response.body().jsonPath().getString("TrackName")).isEqualTo(track.getName());
 
                 softly.assertThat(response.body().jsonPath().getList("Members")).hasSize(1);
-                softly.assertThat(response.body().jsonPath().getInt("Members[0].id")).isEqualTo(member.getId());
+                softly.assertThat(response.body().jsonPath().getInt("Members[0].id"))
+                    .isEqualTo(member.getId().longValue());
                 softly.assertThat(response.body().jsonPath().getString("Members[0].name")).isEqualTo(member.getName());
                 softly.assertThat(response.body().jsonPath().getString("Members[0].student_number"))
                     .isEqualTo(member.getStudentNumber());
