@@ -50,7 +50,9 @@ public abstract class AcceptanceTest {
 
     @BeforeEach
     void delete() {
+        if (RestAssured.port == RestAssured.UNDEFINED_PORT) {
+            RestAssured.port = port;
+        }
         dataInitializer.clear();
-        RestAssured.port = port;
     }
 }
