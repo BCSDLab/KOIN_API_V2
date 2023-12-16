@@ -40,10 +40,11 @@ public abstract class AcceptanceTest {
     }
 
     static {
-        container = new MySQLContainer("mysql:8")
+        container = (MySQLContainer) new MySQLContainer("mysql:5.7.34")
             .withDatabaseName("test")
             .withUsername(ROOT)
-            .withPassword(ROOT_PASSWORD);
+            .withPassword(ROOT_PASSWORD)
+            .withCommand("--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci");
         container.start();
     }
 
