@@ -116,4 +116,8 @@ public class User extends BaseEntity {
     public boolean isSamePassword(String password) {
         return this.password.equals(password);
     }
+
+    public void updateLastLoggedTime(LocalDateTime lastLoggedTime) {
+        lastLoggedAt = lastLoggedTime;
+    }
 }

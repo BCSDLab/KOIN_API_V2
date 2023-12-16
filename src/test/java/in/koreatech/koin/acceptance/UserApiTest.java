@@ -61,7 +61,7 @@ class UserApiTest extends AcceptanceTest {
             .extract();
 
         User userResult = userRepository.findById(user.getId()).get();
-        UserToken token = tokenRepository.findById(user.getId()).get();
+        UserToken token = tokenRepository.findById(userResult.getId()).get();
 
         assertSoftly(
             softly -> {
@@ -70,6 +70,7 @@ class UserApiTest extends AcceptanceTest {
                 softly.assertThat(response.jsonPath().getString("refresh_token"))
                     .isEqualTo(token.getRefreshToken());
                 softly.assertThat(response.jsonPath().getString("user_type")).isEqualTo("STUDENT");
+                softly.assertThat(userResult.getLastLoggedAt()).isNotNull();
             }
         );
     }

@@ -7,6 +7,7 @@ import in.koreatech.koin.dto.UserLoginRequest;
 import in.koreatech.koin.dto.UserLoginResponse;
 import in.koreatech.koin.repository.UserRepository;
 import in.koreatech.koin.repository.UserTokenRepository;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,9 @@ public class UserService {
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = String.format("%s%d", UUID.randomUUID(), user.getId());
         UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        user.updateLastLoggedTime(LocalDateTime.now());
+        User saved = userRepository.save(user);
 
-        return UserLoginResponse.of(accessToken, savedToken.getRefreshToken(), user.getUserType().getValue());
+        return UserLoginResponse.of(accessToken, savedToken.getRefreshToken(), saved.getUserType().getValue());
     }
 }
