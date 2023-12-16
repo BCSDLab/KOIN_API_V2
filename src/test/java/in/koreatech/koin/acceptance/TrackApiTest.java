@@ -1,8 +1,6 @@
 package in.koreatech.koin.acceptance;
 
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
-
+import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.Member;
 import in.koreatech.koin.domain.TechStack;
 import in.koreatech.koin.domain.Track;
@@ -14,25 +12,12 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import java.time.format.DateTimeFormatter;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.containers.MySQLContainer;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
-@ActiveProfiles("test")
-class TrackApiTest {
-
-    @LocalServerPort
-    int port;
+class TrackApiTest extends AcceptanceTest {
 
     @Autowired
     private TrackRepository trackRepository;
@@ -42,19 +27,6 @@ class TrackApiTest {
 
     @Autowired
     private MemberRepository memberRepository;
-
-    private MySQLContainer mySQLContainer = new MySQLContainer("mysql:8");
-
-    @BeforeEach
-    void setUp() {
-        RestAssured.port = port;
-        mySQLContainer.start();
-    }
-
-    @AfterEach
-    void tearDown() {
-        mySQLContainer.stop();
-    }
 
     @Test
     @DisplayName("BCSDLab 트랙 정보를 조회한다")
