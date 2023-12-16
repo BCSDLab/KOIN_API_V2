@@ -12,7 +12,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -64,7 +64,7 @@ public class User extends BaseEntity {
     private Boolean isAuthed = false;
 
     @Column(name = "last_logged_at")
-    private Instant lastLoggedAt;
+    private LocalDateTime lastLoggedAt;
 
     @Size(max = 255)
     @Column(name = "profile_image_url")
@@ -91,9 +91,11 @@ public class User extends BaseEntity {
     private String resetExpiredAt;
 
     @Builder
-    private User(String password, String nickname, String name, String phoneNumber, UserType userType, String email,
-                 UserGender gender, Boolean isAuthed, Instant lastLoggedAt, String profileImageUrl, Boolean isDeleted,
-                 String authToken, String authExpiredAt, String resetToken, String resetExpiredAt) {
+    public User(String password, String nickname, String name, String phoneNumber, UserType userType,
+                String email,
+                UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+                Boolean isDeleted,
+                String authToken, String authExpiredAt, String resetToken, String resetExpiredAt) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;

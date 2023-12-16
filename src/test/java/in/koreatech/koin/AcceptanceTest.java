@@ -12,8 +12,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.utility.DockerImageName;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Import(DBInitializer.class)
@@ -29,23 +30,31 @@ public abstract class AcceptanceTest {
     @Autowired
     private DBInitializer dataInitializer;
 
-    @Container
-    protected static MySQLContainer container;
+    protected static MySQLContainer mySqlContainer;
+    protected static GenericContainer<?> redisContainer;
 
     @DynamicPropertySource
     private static void configureProperties(final DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", container::getJdbcUrl);
+        registry.add("spring.datasource.url", mySqlContainer::getJdbcUrl);
         registry.add("spring.datasource.username", () -> ROOT);
         registry.add("spring.datasource.password", () -> ROOT_PASSWORD);
+        registry.add("spring.data.redis.host", redisContainer::getHost);
+        registry.add("spring.data.redis.port", () -> redisContainer.getMappedPort(6379).toString());
     }
 
     static {
-        container = (MySQLContainer) new MySQLContainer("mysql:5.7.34")
+        mySqlContainer = (MySQLContainer) new MySQLContainer("mysql:5.7.34")
             .withDatabaseName("test")
             .withUsername(ROOT)
             .withPassword(ROOT_PASSWORD)
             .withCommand("--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci");
-        container.start();
+
+        redisContainer = new GenericContainer<>(
+            DockerImageName.parse("redis:4.0.10"))
+            .withExposedPorts(6379);
+
+        mySqlContainer.start();
+        redisContainer.start();
     }
 
     @BeforeEach

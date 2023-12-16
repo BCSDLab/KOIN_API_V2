@@ -1,5 +1,5 @@
 jwt:
-  secret-key: test-secret-key
+  secret-key: EXAMPLE7A3E4F37B3DAD9CD8KEY6AA4B1AF7123!@#
   access-token:
     expiration-time: 600000
 
@@ -11,12 +11,6 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: create
-
-
-  data:
-    redis:
-      port: 8888
-      host: localhost
 
 logging:
   level:
