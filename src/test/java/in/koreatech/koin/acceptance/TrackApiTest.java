@@ -1,8 +1,6 @@
 package in.koreatech.koin.acceptance;
 
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
-
+import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.Member;
 import in.koreatech.koin.domain.TechStack;
 import in.koreatech.koin.domain.Track;
@@ -14,21 +12,12 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import java.time.format.DateTimeFormatter;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.annotation.DirtiesContext;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
-class TrackApiTest {
-
-    @LocalServerPort
-    int port;
+class TrackApiTest extends AcceptanceTest {
 
     @Autowired
     private TrackRepository trackRepository;
@@ -38,11 +27,6 @@ class TrackApiTest {
 
     @Autowired
     private MemberRepository memberRepository;
-
-    @BeforeEach
-    void setUp() {
-        RestAssured.port = port;
-    }
 
     @Test
     @DisplayName("BCSDLab 트랙 정보를 조회한다")
@@ -119,7 +103,8 @@ class TrackApiTest {
                 softly.assertThat(response.body().jsonPath().getString("TrackName")).isEqualTo(track.getName());
 
                 softly.assertThat(response.body().jsonPath().getList("Members")).hasSize(1);
-                softly.assertThat(response.body().jsonPath().getInt("Members[0].id")).isEqualTo(member.getId());
+                softly.assertThat(response.body().jsonPath().getInt("Members[0].id"))
+                    .isEqualTo(member.getId().longValue());
                 softly.assertThat(response.body().jsonPath().getString("Members[0].name")).isEqualTo(member.getName());
                 softly.assertThat(response.body().jsonPath().getString("Members[0].student_number"))
                     .isEqualTo(member.getStudentNumber());
