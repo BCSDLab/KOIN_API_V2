@@ -10,6 +10,8 @@ import org.springframework.data.redis.core.TimeToLive;
 @RedisHash("refreshToken")
 public class UserToken {
 
+    private static final long REFRESH_TOKEN_EXPIRE_DAY = 14L;
+
     @Id
     private Long id;
 
@@ -22,10 +24,9 @@ public class UserToken {
         this.id = id;
         this.refreshToken = refreshToken;
         this.expiration = expiration;
-
     }
 
     public static UserToken create(Long userId, String refreshToken) {
-        return new UserToken(userId, refreshToken, 3L);
+        return new UserToken(userId, refreshToken, REFRESH_TOKEN_EXPIRE_DAY);
     }
 }
