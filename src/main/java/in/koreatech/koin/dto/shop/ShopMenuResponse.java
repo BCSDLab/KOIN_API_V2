@@ -29,15 +29,44 @@ public class ShopMenuResponse {
     private final List<Long> categoryIds;
     private final List<String> imageUrls;
 
-    public static ShopMenuResponse of(Menu menu, List<MenuCategory> shopMenuCategories) {
+    public static ShopMenuResponse createForSingleOption(Menu menu, List<MenuCategory> shopMenuCategories) {
+        if (menu.getMenuOptions().size() != 1) {
+            //TODO 개발자 위한 예외처리 방법 모색
+            throw new IllegalStateException("옵션이 하나를 초과한 메뉴입니다. 다른 팩터리 메서드를 활용해주세요.");
+        }
+
         return new ShopMenuResponse(
             menu.getId().longValue(),
             menu.getShopId(),
             menu.getName(),
             menu.getIsHidden(),
-            menu.getMenuOptions().size() == 1,
-            menu.getMenuOptions().size() == 1 ? menu.getMenuOptions().get(0).getPrice() : null,
-            menu.getMenuOptions().size() == 1 ? null : menu.getMenuOptions().stream()
+            true,
+            menu.getMenuOptions().get(0).getPrice(),
+            null,
+            menu.getDescription(),
+            shopMenuCategories.stream()
+                .map(MenuCategory::getId)
+                .toList(),
+            menu.getMenuImages().stream()
+                .map(MenuImage::getImageUrl)
+                .toList()
+        );
+    }
+
+    public static ShopMenuResponse createForMultipleOption(Menu menu, List<MenuCategory> shopMenuCategories) {
+        if (menu.getMenuOptions().size() <= 1) {
+            //TODO 개발자 위한 예외처리 방법 모색
+            throw new IllegalStateException("옵션이 하나 이하인 메뉴입니다. 다른 팩터리 메서드를 활용해주세요.");
+        }
+
+        return new ShopMenuResponse(
+            menu.getId().longValue(),
+            menu.getShopId(),
+            menu.getName(),
+            menu.getIsHidden(),
+            false,
+            null,
+            menu.getMenuOptions().stream()
                 .map(InnerOptionPriceResponse::of)
                 .toList(),
             menu.getDescription(),

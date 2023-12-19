@@ -30,6 +30,14 @@ public class ShopService {
             .map(MenuCategoryMap::getMenuCategory)
             .toList();
 
-        return ShopMenuResponse.of(menu, menuCategories);
+        return createShopMenuResponse(menu, menuCategories);
     }
+
+    private ShopMenuResponse createShopMenuResponse(Menu menu, List<MenuCategory> menuCategories) {
+        if (menu.getMenuOptions().size() > 1) {
+            return ShopMenuResponse.createForMultipleOption(menu, menuCategories);
+        }
+        return ShopMenuResponse.createForSingleOption(menu, menuCategories);
+    }
+
 }
