@@ -1,4 +1,4 @@
-package in.koreatech.koin.repository;
+package in.koreatech.koin.repository.shop;
 
 import java.util.Optional;
 

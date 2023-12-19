@@ -1,4 +1,4 @@
-package in.koreatech.koin.service;
+package in.koreatech.koin.service.shop;
 
 import java.util.List;
 
@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.shop.Menu;
 import in.koreatech.koin.domain.shop.MenuCategory;
 import in.koreatech.koin.domain.shop.MenuCategoryMap;
-import in.koreatech.koin.dto.ShopMenuResponse;
-import in.koreatech.koin.repository.MenuRepository;
+import in.koreatech.koin.dto.shop.ShopMenuResponse;
+import in.koreatech.koin.repository.shop.MenuRepository;
 
 @Service
 @Transactional(readOnly = true)

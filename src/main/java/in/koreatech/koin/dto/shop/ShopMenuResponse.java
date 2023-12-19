@@ -1,4 +1,4 @@
-package in.koreatech.koin.dto;
+package in.koreatech.koin.dto.shop;
 
 import java.util.List;
 
