@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import in.koreatech.koin.domain.BaseEntity;
@@ -41,7 +42,7 @@ public final class MenuCategory extends BaseEntity {
     private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "menuCategory")
-    private List<MenuCategoryMap> menuCategoryMaps;
+    private List<MenuCategoryMap> menuCategoryMaps = new ArrayList<>();
 
     @Builder
     private MenuCategory(Long shopId, String name) {

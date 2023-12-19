@@ -1,5 +1,6 @@
 package in.koreatech.koin.acceptance;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,31 +57,39 @@ class ShopApiTest extends AcceptanceTest {
             .name("중식")
             .build();
 
-        MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
-            .menu(menu)
-            .menuCategory(menuCategory)
-            .build();
+        MenuCategoryMap menuCategoryMap = MenuCategoryMap.create();
+        menuCategoryMap.map(menu, menuCategory);
 
         menuRepository.save(menu);
-        menuCategoryRepository.save(menuCategory);
 
-        menuCategoryMapRepository.save(menuCategoryMap);
-
-        // when
-        Long menuId = 1L;
-        Long shopId = 1L;
+        // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
             .log().all()
             .when()
             .log().all()
-            .get("/shops/{shopId}/menus/{menuId}", shopId, menuId)
+            .get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
             .then()
             .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
-        // then
 
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getLong("id")).isEqualTo(menu.getId());
+                softly.assertThat(response.body().jsonPath().getLong("shop_id")).isEqualTo(menu.getShopId());
+                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(menu.getName());
+                softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.getIsHidden());
+                softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isTrue();
+                softly.assertThat(response.body().jsonPath().getInt("single_price")).isEqualTo(menuOption.getPrice());
+                softly.assertThat(response.body().jsonPath().getList("option_prices")).isNull();
+                softly.assertThat(response.body().jsonPath().getString("description")).isEqualTo(menu.getDescription());
+                softly.assertThat(response.body().jsonPath().getList("category_ids"))
+                    .hasSize(menu.getMenuCategoryMaps().size());
+                softly.assertThat(response.body().jsonPath().getList("image_urls"))
+                    .hasSize(menu.getMenuImages().size());
+            }
+        );
     }
 
     @Test
@@ -121,93 +130,48 @@ class ShopApiTest extends AcceptanceTest {
             .name("중식")
             .build();
 
-        MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
-            .menu(menu)
-            .menuCategory(menuCategory)
-            .build();
-
-        // menuOptionRepository.save(menuOption1);
-        // menuImageRepository.save(menuImage);
+        MenuCategoryMap menuCategoryMap = MenuCategoryMap.create();
+        menuCategoryMap.map(menu, menuCategory);
 
         menuRepository.save(menu);
-        menuCategoryRepository.save(menuCategory);
 
-        menuCategoryMapRepository.save(menuCategoryMap);
-
-        // when
-        Long menuId = 1L;
-        Long shopId = 1L;
+        // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
             .log().all()
             .when()
             .log().all()
-            .get("/shops/{shopId}/menus/{menuId}", shopId, menuId)
+            .get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
             .then()
             .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
-        // then
+
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getLong("id")).isEqualTo(menu.getId());
+                softly.assertThat(response.body().jsonPath().getLong("shop_id")).isEqualTo(menu.getShopId());
+                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(menu.getName());
+                softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.getIsHidden());
+                softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
+                softly.assertThat((Integer)response.body().jsonPath().get("single_price")).isNull();
+                softly.assertThat(response.body().jsonPath().getList("option_prices")).hasSize(2);
+                softly.assertThat(response.body().jsonPath().getString("option_prices[0].option"))
+                    .isEqualTo(menu.getMenuOptions().get(0).getOption());
+                softly.assertThat(response.body().jsonPath().getInt("option_prices[0].price"))
+                    .isEqualTo(menu.getMenuOptions().get(0).getPrice());
+                softly.assertThat(response.body().jsonPath().getString("option_prices[1].option"))
+                    .isEqualTo(menu.getMenuOptions().get(1).getOption());
+                softly.assertThat(response.body().jsonPath().getInt("option_prices[1].price"))
+                    .isEqualTo(menu.getMenuOptions().get(1).getPrice());
+                softly.assertThat(response.body().jsonPath().getString("description")).isEqualTo(menu.getDescription());
+                softly.assertThat(response.body().jsonPath().getList("category_ids"))
+                    .hasSize(menu.getMenuCategoryMaps().size());
+                softly.assertThat(response.body().jsonPath().getList("image_urls"))
+                    .hasSize(menu.getMenuImages().size());
+            }
+        );
 
     }
 
 }
-
-
-/*
-*
-*
-*
-단일 옵션
-```
-{
-  "id": 170,
-  "shop_id": 13,
-  "name": "원조김밥",
-  "is_hidden": false,
-  "is_single": true,
-  "single_price": 1500,
-  "option_prices": null,
-  "description": null,
-  "category_ids": [
-    144
-  ],
-  "image_urls": []
-}
-```
-여러 옵션
-
-```
-{
-  "id": 1502,
-  "shop_id": 98,
-  "name": "따뜻한족발",
-  "is_hidden": false,
-  "is_single": false,
-  "single_price": null,
-  "option_prices": [
-    {
-      "option": "대",
-      "price": 37000
-    },
-    {
-      "option": "소",
-      "price": 27000
-    },
-    {
-      "option": "중",
-      "price": 32000
-    },
-    {
-      "option": "특",
-      "price": 42000
-    }
-  ],
-  "description": null,
-  "category_ids": [
-    234
-  ],
-  "image_urls": []
-}
-```
-* */
