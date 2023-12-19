@@ -14,6 +14,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -30,7 +31,10 @@ public abstract class AcceptanceTest {
     @Autowired
     private DBInitializer dataInitializer;
 
+    @Container
     protected static MySQLContainer mySqlContainer;
+
+    @Container
     protected static GenericContainer<?> redisContainer;
 
     @DynamicPropertySource
