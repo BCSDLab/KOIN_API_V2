@@ -12,7 +12,9 @@ import in.koreatech.koin.domain.shop.MenuOption;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -30,9 +32,9 @@ public class ShopMenuResponse {
     private final List<String> imageUrls;
 
     public static ShopMenuResponse createForSingleOption(Menu menu, List<MenuCategory> shopMenuCategories) {
-        if (menu.getMenuOptions().size() != 1) {
-            //TODO 개발자 위한 예외처리 방법 모색
-            throw new IllegalStateException("옵션이 하나를 초과한 메뉴입니다. 다른 팩터리 메서드를 활용해주세요.");
+        if (menu.hasMultipleOption()) {
+            log.warn("{}는 옵션이 하나 이상인 메뉴입니다. createForMultipleOption 메서드를 이용해야 합니다.", menu.toString());
+            throw new IllegalStateException("서버에 에러가 발생했습니다.");
         }
 
         return new ShopMenuResponse(
@@ -54,9 +56,9 @@ public class ShopMenuResponse {
     }
 
     public static ShopMenuResponse createForMultipleOption(Menu menu, List<MenuCategory> shopMenuCategories) {
-        if (menu.getMenuOptions().size() <= 1) {
-            //TODO 개발자 위한 예외처리 방법 모색
-            throw new IllegalStateException("옵션이 하나 이하인 메뉴입니다. 다른 팩터리 메서드를 활용해주세요.");
+        if (menu.hasMultipleOption()) {
+            log.error("{}는 옵션이 하나인 메뉴입니다. createForSingleOption 메서드를 이용해야합니다.", menu.toString());
+            throw new IllegalStateException("서버에 에러가 발생했습니다.");
         }
 
         return new ShopMenuResponse(
@@ -82,7 +84,7 @@ public class ShopMenuResponse {
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     private static class InnerOptionPriceResponse {
-        
+
         private final String option;
         private final Integer price;
 

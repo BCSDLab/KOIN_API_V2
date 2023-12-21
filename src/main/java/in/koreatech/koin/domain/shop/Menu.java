@@ -72,4 +72,13 @@ public class Menu extends BaseEntity {
     public boolean hasMultipleOption() {
         return menuOptions.size() > SINGLE_OPTION_COUNT;
     }
+
+    @Override
+    public String toString() {
+        return "Menu{" +
+            "id=" + id +
+            ", shopId=" + shopId +
+            ", name='" + name + '\'' +
+            '}';
+    }
 }
