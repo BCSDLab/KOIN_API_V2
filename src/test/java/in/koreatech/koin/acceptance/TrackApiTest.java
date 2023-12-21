@@ -1,21 +1,23 @@
 package in.koreatech.koin.acceptance;
 
-import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.Member;
-import in.koreatech.koin.domain.TechStack;
-import in.koreatech.koin.domain.Track;
-import in.koreatech.koin.repository.MemberRepository;
-import in.koreatech.koin.repository.TechStackRepository;
-import in.koreatech.koin.repository.TrackRepository;
-import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 import java.time.format.DateTimeFormatter;
+
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+
+import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.track.domain.Member;
+import in.koreatech.koin.domain.track.domain.TechStack;
+import in.koreatech.koin.domain.track.domain.Track;
+import in.koreatech.koin.domain.track.repository.MemberRepository;
+import in.koreatech.koin.domain.track.repository.TechStackRepository;
+import in.koreatech.koin.domain.track.repository.TrackRepository;
+import io.restassured.RestAssured;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 
 class TrackApiTest extends AcceptanceTest {
 

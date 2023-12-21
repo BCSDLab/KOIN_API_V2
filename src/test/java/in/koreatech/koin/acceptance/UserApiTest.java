@@ -1,22 +1,22 @@
 package in.koreatech.koin.acceptance;
 
-
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.user.User;
-import in.koreatech.koin.domain.user.UserToken;
-import in.koreatech.koin.domain.user.UserType;
-import in.koreatech.koin.repository.UserRepository;
-import in.koreatech.koin.repository.UserTokenRepository;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+
+import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.user.domain.User;
+import in.koreatech.koin.domain.user.domain.UserToken;
+import in.koreatech.koin.domain.user.domain.UserType;
+import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 
 class UserApiTest extends AcceptanceTest {
 
