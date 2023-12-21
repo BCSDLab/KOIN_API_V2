@@ -35,7 +35,7 @@ class UserApiTest extends AcceptanceTest {
             .name("최준호")
             .phoneNumber("010-1234-5678")
             .userType(UserType.STUDENT)
-            .email("test@example.com")
+            .email("test@koreatech.ac.kr")
             .isAuthed(true)
             .isDeleted(false)
             .build();
@@ -47,7 +47,7 @@ class UserApiTest extends AcceptanceTest {
             .log().all()
             .body("""
                 {
-                  "email": "test@example.com",
+                  "email": "test@koreatech.ac.kr",
                   "password": "1234"
                 }
                 """)
