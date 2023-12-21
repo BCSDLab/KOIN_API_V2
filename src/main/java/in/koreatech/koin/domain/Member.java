@@ -22,7 +22,7 @@ public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Size(max = 50)
     @NotNull
@@ -55,8 +55,8 @@ public class Member extends BaseEntity {
     private Boolean isDeleted = false;
 
     @Builder
-    public Member(String name, String studentNumber, Long trackId, String position, String email, String imageUrl,
-                  Boolean isDeleted) {
+    private Member(String name, String studentNumber, Long trackId, String position, String email, String imageUrl,
+                   Boolean isDeleted) {
         this.name = name;
         this.studentNumber = studentNumber;
         this.trackId = trackId;

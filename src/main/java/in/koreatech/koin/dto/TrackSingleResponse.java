@@ -73,7 +73,7 @@ public class TrackSingleResponse {
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class InnerMemberResponse {
 
-        private Integer id;
+        private Long id;
         private String name;
         private String studentNumber;
         private String position;
