@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "shop_menus")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Menu extends BaseEntity {
+    public static final int SINGLE_OPTION_COUNT = 1;
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,5 +65,9 @@ public class Menu extends BaseEntity {
         this.shopId = shopId;
         this.name = name;
         this.description = description;
+    }
+
+    public boolean hasMultipleOption() {
+        return menuOptions.size() > SINGLE_OPTION_COUNT;
     }
 }

@@ -14,7 +14,6 @@ import in.koreatech.koin.repository.shop.MenuRepository;
 @Service
 @Transactional(readOnly = true)
 public class ShopService {
-
     private final MenuRepository menuRepository;
 
     public ShopService(MenuRepository menuRepository) {
@@ -34,10 +33,9 @@ public class ShopService {
     }
 
     private ShopMenuResponse createShopMenuResponse(Menu menu, List<MenuCategory> menuCategories) {
-        if (menu.getMenuOptions().size() > 1) {
+        if (menu.hasMultipleOption()) {
             return ShopMenuResponse.createForMultipleOption(menu, menuCategories);
         }
         return ShopMenuResponse.createForSingleOption(menu, menuCategories);
     }
-
 }
