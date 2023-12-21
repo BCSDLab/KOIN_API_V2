@@ -26,10 +26,10 @@ public class UserService {
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(request.email())
             .orElseThrow(() -> new IllegalArgumentException("잘못된 로그인 정보입니다."));
 
-        if (!user.isSamePassword(request.getPassword())) {
+        if (!user.isSamePassword(request.password())) {
             throw new IllegalArgumentException("잘못된 로그인 정보입니다.");
         }
 

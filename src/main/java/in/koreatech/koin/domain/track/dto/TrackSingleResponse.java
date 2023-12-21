@@ -11,22 +11,12 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.track.domain.Member;
 import in.koreatech.koin.domain.track.domain.TechStack;
 import in.koreatech.koin.domain.track.domain.Track;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class TrackSingleResponse {
-
-    @JsonProperty("TrackName")
-    private String trackName;
-
-    @JsonProperty("TechStacks")
-    private List<InnerTechStackResponse> innerTechStackResponses;
-
-    @JsonProperty("Members")
-    private List<InnerMemberResponse> innerMemberResponses;
+public record TrackSingleResponse(
+    @JsonProperty("TrackName") String trackName,
+    @JsonProperty("TechStacks") List<InnerTechStackResponse> innerTechStackResponses,
+    @JsonProperty("Members") List<InnerMemberResponse> innerMemberResponses
+) {
 
     public static TrackSingleResponse of(Track track, List<Member> members, List<TechStack> techStacks) {
         return new TrackSingleResponse(
@@ -40,21 +30,17 @@ public class TrackSingleResponse {
         );
     }
 
-    @Getter
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class InnerTechStackResponse {
-
-        private Long id;
-        private String name;
-        private String description;
-        private String imageUrl;
-        private Long trackId;
-        private Boolean isDeleted;
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime createdAt;
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime updatedAt;
+    private record InnerTechStackResponse(
+        Long id,
+        String name,
+        String description,
+        String imageUrl,
+        Long trackId,
+        Boolean isDeleted,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
+    ) {
 
         public static InnerTechStackResponse from(TechStack techStack) {
             return new InnerTechStackResponse(
@@ -70,23 +56,19 @@ public class TrackSingleResponse {
         }
     }
 
-    @Getter
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class InnerMemberResponse {
-
-        private Long id;
-        private String name;
-        private String studentNumber;
-        private String position;
-        private String track;
-        private String email;
-        private String imageUrl;
-        private Boolean isDeleted;
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime createdAt;
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime updatedAt;
+    private record InnerMemberResponse(
+        Long id,
+        String name,
+        String studentNumber,
+        String position,
+        String track,
+        String email,
+        String imageUrl,
+        Boolean isDeleted,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
+    ) {
 
         public static InnerMemberResponse from(Member member, String trackName) {
             return new InnerMemberResponse(
