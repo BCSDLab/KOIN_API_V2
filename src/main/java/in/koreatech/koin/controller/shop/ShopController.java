@@ -7,15 +7,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.dto.shop.ShopMenuResponse;
 import in.koreatech.koin.service.shop.ShopService;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 public class ShopController {
 
     private final ShopService shopService;
-
-    public ShopController(ShopService shopService) {
-        this.shopService = shopService;
-    }
 
     @GetMapping("/shops/{shopId}/menus/{menuId}")
     public ResponseEntity<ShopMenuResponse> findMenu(@PathVariable Long shopId, @PathVariable Long menuId) {

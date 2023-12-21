@@ -10,17 +10,15 @@ import in.koreatech.koin.domain.shop.MenuCategory;
 import in.koreatech.koin.domain.shop.MenuCategoryMap;
 import in.koreatech.koin.dto.shop.ShopMenuResponse;
 import in.koreatech.koin.repository.shop.MenuRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class ShopService {
 
     private final MenuRepository menuRepository;
-
-    public ShopService(MenuRepository menuRepository) {
-        this.menuRepository = menuRepository;
-    }
-
+    
     public ShopMenuResponse findMenu(Long menuId) {
         Menu menu = menuRepository.findById(menuId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다."));
