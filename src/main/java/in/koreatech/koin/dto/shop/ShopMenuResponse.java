@@ -36,7 +36,7 @@ public class ShopMenuResponse {
         }
 
         return new ShopMenuResponse(
-            menu.getId().longValue(),
+            menu.getId(),
             menu.getShopId(),
             menu.getName(),
             menu.getIsHidden(),
@@ -60,7 +60,7 @@ public class ShopMenuResponse {
         }
 
         return new ShopMenuResponse(
-            menu.getId().longValue(),
+            menu.getId(),
             menu.getShopId(),
             menu.getName(),
             menu.getIsHidden(),
@@ -81,7 +81,7 @@ public class ShopMenuResponse {
 
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class InnerOptionPriceResponse {
+    private static class InnerOptionPriceResponse {
         private final String option;
         private final Integer price;
 
