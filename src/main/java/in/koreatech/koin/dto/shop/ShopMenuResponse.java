@@ -82,6 +82,7 @@ public class ShopMenuResponse {
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     private static class InnerOptionPriceResponse {
+        
         private final String option;
         private final Integer price;
 

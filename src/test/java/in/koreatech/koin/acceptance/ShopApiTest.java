@@ -18,6 +18,7 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
 class ShopApiTest extends AcceptanceTest {
+
     @Autowired
     private MenuRepository menuRepository;
 

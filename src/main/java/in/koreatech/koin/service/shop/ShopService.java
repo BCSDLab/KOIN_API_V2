@@ -14,6 +14,7 @@ import in.koreatech.koin.repository.shop.MenuRepository;
 @Service
 @Transactional(readOnly = true)
 public class ShopService {
+
     private final MenuRepository menuRepository;
 
     public ShopService(MenuRepository menuRepository) {

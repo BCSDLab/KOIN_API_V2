@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "shop_menu_categories")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public final class MenuCategory extends BaseEntity {
+
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

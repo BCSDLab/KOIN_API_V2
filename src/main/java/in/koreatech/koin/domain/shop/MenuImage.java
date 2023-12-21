@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "shop_menu_images")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MenuImage {
+
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

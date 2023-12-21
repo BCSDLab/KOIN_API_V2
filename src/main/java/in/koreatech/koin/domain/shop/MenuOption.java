@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "shop_menu_details")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MenuOption extends BaseEntity {
+
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "shop_menu_category_map")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MenuCategoryMap {
+
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
