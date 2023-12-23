@@ -45,6 +45,7 @@ public class MenuImage {
         if (menu.equals(this.menu)) {
             return;
         }
+
         if (this.menu != null) {
             this.menu.getMenuImages().remove(this);
         }

@@ -50,6 +50,7 @@ public class MenuOption extends BaseEntity {
         if (menu.equals(this.menu)) {
             return;
         }
+
         if (this.menu != null) {
             this.menu.getMenuOptions().remove(this);
         }
