@@ -33,7 +33,7 @@ public class MenuOption extends BaseEntity {
     private Menu menu;
 
     @Size(max = 255)
-    @Column(name = "`option`")
+    @Column(name = "option")
     private String option;
 
     @NotNull
