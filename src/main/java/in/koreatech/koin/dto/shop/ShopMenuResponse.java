@@ -39,7 +39,7 @@ public record ShopMenuResponse(Long id, Long shopId, String name, Boolean isHidd
 
     public static ShopMenuResponse createForMultipleOption(Menu menu, List<MenuCategory> shopMenuCategories) {
         if (!menu.hasMultipleOption()) {
-            log.error("{}는 옵션이 하나인 메뉴입니다. createForSingleOption 메서드를 이용해야합니다.", menu);
+            log.error("{}는 옵션이 하나인 메뉴입니다. createForSingleOption 메서드를 이용해야 합니다.", menu);
             throw new IllegalStateException("서버에 에러가 발생했습니다.");
         }
 
