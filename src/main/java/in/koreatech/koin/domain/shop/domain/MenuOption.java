@@ -1,6 +1,6 @@
-package in.koreatech.koin.domain.shop;
+package in.koreatech.koin.domain.shop.domain;
 
-import in.koreatech.koin.domain.BaseEntity;
+import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

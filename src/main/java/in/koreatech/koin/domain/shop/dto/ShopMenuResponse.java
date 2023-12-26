@@ -1,14 +1,14 @@
-package in.koreatech.koin.dto.shop;
+package in.koreatech.koin.domain.shop.dto;
 
 import java.util.List;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.shop.Menu;
-import in.koreatech.koin.domain.shop.MenuCategory;
-import in.koreatech.koin.domain.shop.MenuImage;
-import in.koreatech.koin.domain.shop.MenuOption;
+import in.koreatech.koin.domain.shop.domain.Menu;
+import in.koreatech.koin.domain.shop.domain.MenuCategory;
+import in.koreatech.koin.domain.shop.domain.MenuImage;
+import in.koreatech.koin.domain.shop.domain.MenuOption;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

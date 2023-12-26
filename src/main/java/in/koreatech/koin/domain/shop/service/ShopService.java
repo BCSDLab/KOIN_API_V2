@@ -1,15 +1,15 @@
-package in.koreatech.koin.service.shop;
+package in.koreatech.koin.domain.shop.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.shop.Menu;
-import in.koreatech.koin.domain.shop.MenuCategory;
-import in.koreatech.koin.domain.shop.MenuCategoryMap;
-import in.koreatech.koin.dto.shop.ShopMenuResponse;
-import in.koreatech.koin.repository.shop.MenuRepository;
+import in.koreatech.koin.domain.shop.domain.Menu;
+import in.koreatech.koin.domain.shop.domain.MenuCategory;
+import in.koreatech.koin.domain.shop.domain.MenuCategoryMap;
+import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
+import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class ShopService {
 
     private final MenuRepository menuRepository;
-    
+
     public ShopMenuResponse findMenu(Long menuId) {
         Menu menu = menuRepository.findById(menuId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다."));

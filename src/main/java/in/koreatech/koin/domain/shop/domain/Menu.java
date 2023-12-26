@@ -1,9 +1,9 @@
-package in.koreatech.koin.domain.shop;
+package in.koreatech.koin.domain.shop.domain;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import in.koreatech.koin.domain.BaseEntity;
+import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

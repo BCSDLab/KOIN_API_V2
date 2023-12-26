@@ -1,12 +1,12 @@
-package in.koreatech.koin.controller.shop;
+package in.koreatech.koin.domain.shop.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.dto.shop.ShopMenuResponse;
-import in.koreatech.koin.service.shop.ShopService;
+import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
+import in.koreatech.koin.domain.shop.service.ShopService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
