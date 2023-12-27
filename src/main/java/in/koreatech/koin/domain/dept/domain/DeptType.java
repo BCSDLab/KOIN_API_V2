@@ -19,4 +19,9 @@ public enum DeptType {
     DeptType(String deptName) {
         this.deptName = deptName;
     }
+
+    @Override
+    public String toString() {
+        return deptName;
+    }
 }

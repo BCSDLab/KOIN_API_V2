@@ -1,13 +1,13 @@
 package in.koreatech.koin.domain.dept.dto;
 
-import in.koreatech.koin.domain.dept.domain.DeptNum;
+import in.koreatech.koin.domain.dept.domain.Dept;
 
 public record DeptResponse(Long dept_num, String name) {
 
-    public static DeptResponse from(DeptNum deptNum) {
+    public static DeptResponse from(Dept dept, Long deptId) {
         return new DeptResponse(
-            deptNum.getNumber(),
-            deptNum.getName().getDeptName()
+            deptId,
+            dept.getName().getDeptName()
         );
     }
 }
