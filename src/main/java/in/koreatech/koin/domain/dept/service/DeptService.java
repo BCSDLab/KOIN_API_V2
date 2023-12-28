@@ -16,6 +16,6 @@ public class DeptService {
     public DeptResponse findDeptBy(Long id) {
         Dept deptWithoutNumber = deptRepository.findByDeptNumNumber(id)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 학부 코드입니다."));
-        return DeptResponse.from(deptWithoutNumber, id);
+        return DeptResponse.of(deptWithoutNumber, id);
     }
 }
