@@ -9,11 +9,15 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
 @Table(name = "lands")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Land {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -148,4 +152,25 @@ public class Land {
     @NotNull
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
+
+    @Builder
+    private Land(String internalName, String name, String size, String roomType, String latitude, String longitude,
+        String phone, String imageUrls, String address, String description, Long floor, String deposit,
+        String monthlyFee, String charterFee, String managementFee) {
+        this.internalName = internalName;
+        this.name = name;
+        this.size = size;
+        this.roomType = roomType;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.phone = phone;
+        this.imageUrls = imageUrls;
+        this.address = address;
+        this.description = description;
+        this.floor = floor;
+        this.deposit = deposit;
+        this.monthlyFee = monthlyFee;
+        this.charterFee = charterFee;
+        this.managementFee = managementFee;
+    }
 }

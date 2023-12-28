@@ -9,4 +9,6 @@ import in.koreatech.koin.domain.land.domain.Land;
 public interface LandRepository extends Repository<Land, Long> {
 
     List<Land> findAll();
+
+    Land save(Land request);
 }
