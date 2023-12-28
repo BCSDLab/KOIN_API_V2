@@ -2,8 +2,6 @@ package in.koreatech.koin.domain.dept.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -22,16 +20,15 @@ public class DeptNum {
     @Id
     @NotNull
     @Size(max = 45)
-    @Enumerated(EnumType.STRING)
     @Column(name = "dept_name", nullable = false, length = 45)
-    private DeptType name;
+    private String name;
 
     @NotNull
     @Column(name = "dept_num", nullable = false)
     private Long number;
 
     @Builder
-    private DeptNum(DeptType name, Long number) {
+    private DeptNum(String name, Long number) {
         this.name = name;
         this.number = number;
     }

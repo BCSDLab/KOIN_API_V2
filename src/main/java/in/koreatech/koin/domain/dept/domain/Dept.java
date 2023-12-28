@@ -2,8 +2,6 @@ package in.koreatech.koin.domain.dept.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -25,9 +23,8 @@ public class Dept {
     @Id
     @NotNull
     @Size(max = 45)
-    @Enumerated(EnumType.STRING)
     @Column(name = "name", nullable = false, length = 45)
-    private DeptType name;
+    private String name;
 
     @NotNull
     @Size(max = 255)
@@ -43,7 +40,7 @@ public class Dept {
     private DeptNum deptNum;
 
     @Builder
-    private Dept(DeptType name, String curriculumLink) {
+    private Dept(String name, String curriculumLink) {
         this.name = name;
         this.curriculumLink = curriculumLink;
     }
