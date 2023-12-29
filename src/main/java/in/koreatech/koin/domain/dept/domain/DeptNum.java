@@ -22,17 +22,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DeptNum {
 
-    /*@MapsId
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "dept_name", nullable = false)
-    private Dept deptName;*/
-
-    //@MapsId
-    // @NotNull
-    // @Size(max = 45)
-    // @Column(name = "dept_name", nullable = false, length = 45)
-    // private String name;
-
     @Id
     @NotNull
     @Column(name = "dept_num", nullable = false)
