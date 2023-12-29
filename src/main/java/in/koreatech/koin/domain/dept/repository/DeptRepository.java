@@ -10,5 +10,5 @@ public interface DeptRepository extends Repository<Dept, String> {
 
     Dept save(Dept dept);
 
-    Optional<Dept> findByDeptNumNumber(Long number);
+    Optional<Dept> findByDeptNumsNumber(Long number);
 }

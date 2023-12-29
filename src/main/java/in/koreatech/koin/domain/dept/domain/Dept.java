@@ -1,11 +1,12 @@
 package in.koreatech.koin.domain.dept.domain;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -35,9 +36,9 @@ public class Dept {
     @Column(name = "is_deleted", nullable = true)
     private Boolean isDeleted = false;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "name", referencedColumnName = "name")
-    private DeptNum deptNum;
+    @OneToMany(mappedBy = "dept")
+    private Set<DeptNum> deptNums = new LinkedHashSet<>();
+
 
     @Builder
     private Dept(String name, String curriculumLink) {
