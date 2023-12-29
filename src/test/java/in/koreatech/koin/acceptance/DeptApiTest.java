@@ -33,16 +33,17 @@ class DeptApiTest extends AcceptanceTest {
             .curriculumLink("https://cse.koreatech.ac.kr/page_izgw21")
             .build();
 
+        deptRepository.save(dept);
+
         DeptNum deptNum1 = DeptNum.builder()
-            .name("컴퓨터공학부")
+            .dept(dept)
             .number(35L)
             .build();
         DeptNum deptNum2 = DeptNum.builder()
-            .name("컴퓨터공학부")
+            .dept(dept)
             .number(36L)
             .build();
 
-        deptRepository.save(dept);
         deptNumRepository.save(deptNum1);
         deptNumRepository.save(deptNum2);
 
