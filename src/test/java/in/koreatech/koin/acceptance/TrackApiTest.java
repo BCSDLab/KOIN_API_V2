@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.track.domain.Member;
-import in.koreatech.koin.domain.track.domain.TechStack;
-import in.koreatech.koin.domain.track.domain.Track;
+import in.koreatech.koin.domain.track.model.Member;
+import in.koreatech.koin.domain.track.model.TechStack;
+import in.koreatech.koin.domain.track.model.Track;
 import in.koreatech.koin.domain.track.repository.MemberRepository;
 import in.koreatech.koin.domain.track.repository.TechStackRepository;
 import in.koreatech.koin.domain.track.repository.TrackRepository;

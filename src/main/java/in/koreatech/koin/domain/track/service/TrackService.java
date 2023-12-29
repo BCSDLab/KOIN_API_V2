@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.track.domain.Member;
-import in.koreatech.koin.domain.track.domain.TechStack;
-import in.koreatech.koin.domain.track.domain.Track;
+import in.koreatech.koin.domain.track.model.Member;
+import in.koreatech.koin.domain.track.model.TechStack;
+import in.koreatech.koin.domain.track.model.Track;
 import in.koreatech.koin.domain.track.dto.TrackResponse;
 import in.koreatech.koin.domain.track.dto.TrackSingleResponse;
 import in.koreatech.koin.domain.track.repository.MemberRepository;

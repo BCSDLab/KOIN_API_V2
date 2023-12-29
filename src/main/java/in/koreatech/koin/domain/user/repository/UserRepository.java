@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.user.domain.User;
+import in.koreatech.koin.domain.user.model.User;
 
 public interface UserRepository extends Repository<User, Long> {
 

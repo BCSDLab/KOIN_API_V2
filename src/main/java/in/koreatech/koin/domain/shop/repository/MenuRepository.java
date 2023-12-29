@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.shop.domain.Menu;
+import in.koreatech.koin.domain.shop.model.Menu;
 
 public interface MenuRepository extends Repository<Menu, Long> {
 

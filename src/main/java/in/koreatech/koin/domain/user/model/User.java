@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.domain;
+package in.koreatech.koin.domain.user.model;
 
 import java.time.LocalDateTime;
 

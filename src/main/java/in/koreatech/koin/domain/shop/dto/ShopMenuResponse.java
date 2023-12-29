@@ -5,10 +5,10 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.shop.domain.Menu;
-import in.koreatech.koin.domain.shop.domain.MenuCategory;
-import in.koreatech.koin.domain.shop.domain.MenuImage;
-import in.koreatech.koin.domain.shop.domain.MenuOption;
+import in.koreatech.koin.domain.shop.model.Menu;
+import in.koreatech.koin.domain.shop.model.MenuCategory;
+import in.koreatech.koin.domain.shop.model.MenuImage;
+import in.koreatech.koin.domain.shop.model.MenuOption;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

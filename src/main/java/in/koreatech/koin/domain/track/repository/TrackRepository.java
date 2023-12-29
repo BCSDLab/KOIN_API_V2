@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.track.domain.Track;
+import in.koreatech.koin.domain.track.model.Track;
 
 public interface TrackRepository extends Repository<Track, Long> {
 
