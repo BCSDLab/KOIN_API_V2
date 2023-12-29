@@ -1,7 +1,7 @@
 package in.koreatech.koin.domain.dept.domain;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,7 +37,7 @@ public class Dept {
     private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "dept")
-    private Set<DeptNum> deptNums = new LinkedHashSet<>();
+    private List<DeptNum> deptNums = new ArrayList<>();
 
 
     @Builder
