@@ -4,12 +4,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.dept.domain.DeptInfo;
 import in.koreatech.koin.domain.dept.domain.DeptNum;
 import in.koreatech.koin.domain.dept.dto.DeptResponse;
 import in.koreatech.koin.domain.dept.dto.DeptsResponse;
-import in.koreatech.koin.domain.dept.repository.DeptNumRepository;
 import in.koreatech.koin.domain.dept.repository.DeptInfoRepository;
+import in.koreatech.koin.domain.dept.repository.DeptNumRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,16 +19,15 @@ public class DeptService {
     private final DeptNumRepository deptNumRepository;
 
     public DeptResponse findDeptBy(Long id) {
-        DeptNum deptWithoutNumber = deptNumRepository.findByNumber(id)
+        DeptNum deptNum = deptNumRepository.findByNumber(id)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 학부 코드입니다."));
 
-        return DeptResponse.from(deptWithoutNumber);
+        return DeptResponse.from(deptNum);
     }
 
     public List<DeptsResponse> findAllDept() {
-        List<DeptInfo> response = deptInfoRepository.findAll();
-
-        return response.stream()
+        return deptInfoRepository.findAll()
+            .stream()
             .map(DeptsResponse::from)
             .toList();
     }
