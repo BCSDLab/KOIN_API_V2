@@ -27,7 +27,6 @@ public class DeptNum {
     @Column(name = "dept_num", nullable = false)
     private Long number;
 
-    // @MapsId
     @MapsId
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dept_name")
