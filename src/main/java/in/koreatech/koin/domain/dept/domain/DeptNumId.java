@@ -18,5 +18,5 @@ public class DeptNumId implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dept_name")
-    private Dept dept;
+    private DeptInfo deptInfo;
 }

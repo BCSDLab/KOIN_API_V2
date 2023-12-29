@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "dept_infos")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Dept {
+public class DeptInfo {
 
     @Id
     @NotNull
@@ -36,12 +36,12 @@ public class Dept {
     @Column(name = "is_deleted", nullable = true)
     private Boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "dept")
+    @OneToMany(mappedBy = "deptInfo")
     private List<DeptNum> deptNums = new ArrayList<>();
 
 
     @Builder
-    private Dept(String name, String curriculumLink) {
+    private DeptInfo(String name, String curriculumLink) {
         this.name = name;
         this.curriculumLink = curriculumLink;
     }

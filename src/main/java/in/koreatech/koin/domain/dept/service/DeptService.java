@@ -4,19 +4,19 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.dept.domain.Dept;
+import in.koreatech.koin.domain.dept.domain.DeptInfo;
 import in.koreatech.koin.domain.dept.domain.DeptNum;
 import in.koreatech.koin.domain.dept.dto.DeptResponse;
 import in.koreatech.koin.domain.dept.dto.DeptsResponse;
 import in.koreatech.koin.domain.dept.repository.DeptNumRepository;
-import in.koreatech.koin.domain.dept.repository.DeptRepository;
+import in.koreatech.koin.domain.dept.repository.DeptInfoRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class DeptService {
 
-    private final DeptRepository deptRepository;
+    private final DeptInfoRepository deptInfoRepository;
     private final DeptNumRepository deptNumRepository;
 
     public DeptResponse findDeptBy(Long id) {
@@ -27,7 +27,7 @@ public class DeptService {
     }
 
     public List<DeptsResponse> findAllDept() {
-        List<Dept> response = deptRepository.findAll();
+        List<DeptInfo> response = deptInfoRepository.findAll();
 
         return response.stream()
             .map(DeptsResponse::from)

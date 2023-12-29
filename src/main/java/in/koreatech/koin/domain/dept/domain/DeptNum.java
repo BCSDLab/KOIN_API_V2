@@ -31,11 +31,11 @@ public class DeptNum {
     @MapsId
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dept_name")
-    private Dept dept;
+    private DeptInfo deptInfo;
 
     @Builder
-    private DeptNum(Long number, Dept dept) {
+    private DeptNum(Long number, DeptInfo deptInfo) {
         this.number = number;
-        this.dept = dept;
+        this.deptInfo = deptInfo;
     }
 }
