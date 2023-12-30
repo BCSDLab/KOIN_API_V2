@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.track.domain;
+package in.koreatech.koin.domain.track.model;
 
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,32 +15,42 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
-@Table(name = "tracks")
+@Entity
+@Table(name = "tech_stacks")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Track extends BaseEntity {
+public class TechStack extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Lob
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Size(max = 50)
     @NotNull
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @NotNull
-    @Column(name = "headcount", nullable = false)
-    private Integer headcount;
+    @Size(max = 100)
+    @Column(name = "description", length = 100)
+    private String description;
+
+    @Column(name = "track_id")
+    private Long trackId;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
     @Builder
-    private Track(String name) {
+    private TechStack(String imageUrl, String name, String description, Long trackId, Boolean isDeleted) {
+        this.imageUrl = imageUrl;
         this.name = name;
-        this.headcount = 0;
+        this.description = description;
+        this.trackId = trackId;
+        this.isDeleted = isDeleted;
     }
 }

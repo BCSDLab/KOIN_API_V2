@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.shop.domain.Menu;
-import in.koreatech.koin.domain.shop.domain.MenuCategory;
-import in.koreatech.koin.domain.shop.domain.MenuCategoryMap;
-import in.koreatech.koin.domain.shop.domain.MenuImage;
-import in.koreatech.koin.domain.shop.domain.MenuOption;
+import in.koreatech.koin.domain.shop.model.Menu;
+import in.koreatech.koin.domain.shop.model.MenuCategory;
+import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
+import in.koreatech.koin.domain.shop.model.MenuImage;
+import in.koreatech.koin.domain.shop.model.MenuOption;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.shop.domain;
+package in.koreatech.koin.domain.shop.model;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

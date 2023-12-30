@@ -1,9 +1,10 @@
-package in.koreatech.koin.domain.shop.domain;
+package in.koreatech.koin.domain.shop.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import in.koreatech.koin.global.common.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,9 +21,11 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "shop_menu_categories")
+@Table(name = "shop_menus")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public final class MenuCategory extends BaseEntity {
+public class Menu extends BaseEntity {
+
+    private static final int SINGLE_OPTION_COUNT = 1;
 
     @Id
     @Column(name = "id", nullable = false)
@@ -38,16 +41,44 @@ public final class MenuCategory extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Size(max = 255)
+    @Column(name = "description")
+    private String description;
+
+    @NotNull
+    @Column(name = "is_hidden", nullable = false)
+    private Boolean isHidden = false;
+
     @NotNull
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "menuCategory")
+    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<MenuCategoryMap> menuCategoryMaps = new ArrayList<>();
 
+    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<MenuOption> menuOptions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<MenuImage> menuImages = new ArrayList<>();
+
     @Builder
-    private MenuCategory(Long shopId, String name) {
+    private Menu(Long shopId, String name, String description) {
         this.shopId = shopId;
         this.name = name;
+        this.description = description;
+    }
+
+    public boolean hasMultipleOption() {
+        return menuOptions.size() > SINGLE_OPTION_COUNT;
+    }
+
+    @Override
+    public String toString() {
+        return "Menu{" +
+            "id=" + id +
+            ", shopId=" + shopId +
+            ", name='" + name + '\'' +
+            '}';
     }
 }

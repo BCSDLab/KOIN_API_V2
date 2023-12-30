@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.dept.domain.DeptNum;
+import in.koreatech.koin.domain.dept.model.DeptNum;
 import in.koreatech.koin.domain.dept.dto.DeptResponse;
 import in.koreatech.koin.domain.dept.dto.DeptsResponse;
 import in.koreatech.koin.domain.dept.repository.DeptInfoRepository;

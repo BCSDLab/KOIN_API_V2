@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.dept.domain;
+package in.koreatech.koin.domain.dept.model;
 
 import java.io.Serializable;
 

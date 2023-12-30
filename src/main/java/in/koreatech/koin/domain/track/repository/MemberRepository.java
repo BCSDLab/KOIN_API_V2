@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.track.domain.Member;
+import in.koreatech.koin.domain.track.model.Member;
 
 public interface MemberRepository extends Repository<Member, Long> {
 

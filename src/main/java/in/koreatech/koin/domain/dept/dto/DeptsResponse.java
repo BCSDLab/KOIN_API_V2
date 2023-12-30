@@ -5,8 +5,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.dept.domain.DeptInfo;
-import in.koreatech.koin.domain.dept.domain.DeptNum;
+import in.koreatech.koin.domain.dept.model.DeptInfo;
+import in.koreatech.koin.domain.dept.model.DeptNum;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record DeptsResponse(String name, String curriculumLink, List<String> deptNums) {

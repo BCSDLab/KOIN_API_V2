@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.track.domain;
+package in.koreatech.koin.domain.track.model;
 
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;

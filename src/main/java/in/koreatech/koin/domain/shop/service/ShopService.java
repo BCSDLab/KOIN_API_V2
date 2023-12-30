@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.shop.domain.Menu;
-import in.koreatech.koin.domain.shop.domain.MenuCategory;
-import in.koreatech.koin.domain.shop.domain.MenuCategoryMap;
+import in.koreatech.koin.domain.shop.model.Menu;
+import in.koreatech.koin.domain.shop.model.MenuCategory;
+import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import lombok.RequiredArgsConstructor;

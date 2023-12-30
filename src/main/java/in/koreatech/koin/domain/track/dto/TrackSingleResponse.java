@@ -8,9 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.track.domain.Member;
-import in.koreatech.koin.domain.track.domain.TechStack;
-import in.koreatech.koin.domain.track.domain.Track;
+import in.koreatech.koin.domain.track.model.Member;
+import in.koreatech.koin.domain.track.model.TechStack;
+import in.koreatech.koin.domain.track.model.Track;
 
 public record TrackSingleResponse(
     @JsonProperty("TrackName") String trackName,

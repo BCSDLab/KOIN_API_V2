@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.dept.domain.DeptInfo;
-import in.koreatech.koin.domain.dept.domain.DeptNum;
+import in.koreatech.koin.domain.dept.model.DeptInfo;
+import in.koreatech.koin.domain.dept.model.DeptNum;
 import in.koreatech.koin.domain.dept.repository.DeptNumRepository;
 import in.koreatech.koin.domain.dept.repository.DeptInfoRepository;
 import io.restassured.RestAssured;
