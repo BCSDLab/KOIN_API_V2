@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.dept.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.dept.model.DeptNum;
 import in.koreatech.koin.domain.dept.dto.DeptResponse;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DeptService {
 
     private final DeptInfoRepository deptInfoRepository;
