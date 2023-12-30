@@ -66,7 +66,7 @@ class DeptApiTest extends AcceptanceTest {
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getLong("dept_num")).isEqualTo(deptNum1.getNumber());
+                softly.assertThat(response.body().jsonPath().getString("dept_num")).isEqualTo(deptNum1.getNumber().toString());
                 softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(deptInfo.getName());
             }
         );
