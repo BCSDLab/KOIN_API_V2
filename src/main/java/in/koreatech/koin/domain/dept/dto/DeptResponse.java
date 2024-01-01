@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.dept.model.DeptNum;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record DeptResponse(String deptNum, String name) {
+public record DeptResponse(Long deptNum, String name) {
 
     public static DeptResponse from(DeptNum deptNum) {
-        return new DeptResponse(deptNum.getNumber().toString(), deptNum.getDeptInfo().getName());
+        return new DeptResponse(deptNum.getNumber(), deptNum.getDeptInfo().getName());
     }
 }

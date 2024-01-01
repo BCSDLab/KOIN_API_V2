@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.dept.model.DeptInfo;
 import in.koreatech.koin.domain.dept.model.DeptNum;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record DeptsResponse(String name, String curriculumLink, List<String> deptNums) {
+public record DeptsResponse(String name, String curriculumLink, List<Long> deptNums) {
 
     public static DeptsResponse from(DeptInfo deptInfo) {
         return new DeptsResponse(
@@ -17,7 +17,6 @@ public record DeptsResponse(String name, String curriculumLink, List<String> dep
             deptInfo.getCurriculumLink(),
             deptInfo.getDeptNums().stream()
                 .map(DeptNum::getNumber)
-                .map(String::valueOf)
                 .toList()
         );
     }
