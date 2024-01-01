@@ -121,7 +121,7 @@ class DeptApiTest extends AcceptanceTest {
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(2);
+                softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(DEPT_SIZE);
 
                 List<Boolean> deptNamesExists = Stream.generate(() -> false).limit(DEPT_SIZE).collect(Collectors.toList());
                 for (int i = 0; i < DEPT_SIZE; i++) {
