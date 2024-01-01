@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.dept.model.DeptNum;
 import in.koreatech.koin.domain.dept.dto.DeptResponse;
-import in.koreatech.koin.domain.dept.dto.DeptsResponse;
+import in.koreatech.koin.domain.dept.dto.DeptListItemResponse;
 import in.koreatech.koin.domain.dept.repository.DeptInfoRepository;
 import in.koreatech.koin.domain.dept.repository.DeptNumRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +27,10 @@ public class DeptService {
         return DeptResponse.from(deptNum);
     }
 
-    public List<DeptsResponse> findAllDept() {
+    public List<DeptListItemResponse> findAllDept() {
         return deptInfoRepository.findAll()
             .stream()
-            .map(DeptsResponse::from)
+            .map(DeptListItemResponse::from)
             .toList();
     }
 }

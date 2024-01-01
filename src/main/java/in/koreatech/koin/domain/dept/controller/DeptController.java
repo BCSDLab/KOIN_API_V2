@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.dept.dto.DeptResponse;
-import in.koreatech.koin.domain.dept.dto.DeptsResponse;
+import in.koreatech.koin.domain.dept.dto.DeptListItemResponse;
 import in.koreatech.koin.domain.dept.service.DeptService;
 import lombok.RequiredArgsConstructor;
 
@@ -25,8 +25,8 @@ public class DeptController {
     }
 
     @GetMapping("/depts")
-    public ResponseEntity<List<DeptsResponse>> findAllDept() {
-        List<DeptsResponse> response = deptService.findAllDept();
+    public ResponseEntity<List<DeptListItemResponse>> findAllDept() {
+        List<DeptListItemResponse> response = deptService.findAllDept();
         return ResponseEntity.ok(response);
     }
 }
