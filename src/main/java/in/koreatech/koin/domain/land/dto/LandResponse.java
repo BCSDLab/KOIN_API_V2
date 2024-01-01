@@ -1,18 +1,21 @@
 package in.koreatech.koin.domain.land.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.land.model.Land;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record LandResponse(
-    @JsonProperty("internal_name") String internalName,
-    @JsonProperty("monthly_fee") String monthlyFee,
-    @JsonProperty("latitude") String latitude,
-    @JsonProperty("charter_fee") String charterFee,
-    @JsonProperty("name") String name,
-    @JsonProperty("id") Long id,
-    @JsonProperty("longitude") String longitude,
-    @JsonProperty("room_type") String roomType) {
+    String internalName,
+    String monthlyFee,
+    String latitude,
+    String charterFee,
+    String name,
+    Long id,
+    String longitude,
+    String roomType) {
 
     public static LandResponse from(Land land) {
         return new LandResponse(
