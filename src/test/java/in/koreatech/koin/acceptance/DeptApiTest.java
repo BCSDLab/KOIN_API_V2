@@ -129,22 +129,18 @@ class DeptApiTest extends AcceptanceTest {
                         deptNamesExists.set(i, true);
                         softly.assertThat(response.body().jsonPath().getString("["+ i + "].curriculum_link")).isEqualTo(
                             deptInfo1.getCurriculumLink());
-                        softly.assertThat(parseLong(response.body().jsonPath().getString("["+ i + "].dept_nums[0]"))).isEqualTo(deptNum1_1.getNumber());
-                        softly.assertThat(parseLong(response.body().jsonPath().getString("["+ i + "].dept_nums[1]"))).isEqualTo(deptNum1_2.getNumber());
+                        softly.assertThat(response.body().jsonPath().getLong("[" + i + "].dept_nums[0]")).isEqualTo(deptNum1_1.getNumber());
+                        softly.assertThat(response.body().jsonPath().getLong("[" + i + "].dept_nums[1]")).isEqualTo(deptNum1_2.getNumber());
                     }
                     if (response.body().jsonPath().getString("[" + i + "].name").equals(deptInfo2.getName())) {
                         deptNamesExists.set(i, true);
                         softly.assertThat(response.body().jsonPath().getString("[" + i + "].curriculum_link")).isEqualTo(
                             deptInfo2.getCurriculumLink());
-                        softly.assertThat(parseLong(response.body().jsonPath().getString("[" + i + "].dept_nums"))).isEqualTo(deptNum2.getNumber());
+                        softly.assertThat(response.body().jsonPath().getLong("[" + i + "].dept_nums[0]")).isEqualTo(deptNum2.getNumber());
                     }
                 }
                 softly.assertThat(deptNamesExists.contains(false)).isFalse();
             }
         );
-    }
-
-    private Long parseLong(String jsonString) {
-        return Long.valueOf(jsonString.replaceAll("[\\[\\]]", ""));
     }
 }
