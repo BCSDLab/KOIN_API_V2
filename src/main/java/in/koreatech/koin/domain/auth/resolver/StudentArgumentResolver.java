@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.auth.resolver;
 
 import in.koreatech.koin.domain.auth.JwtProvider;
 import in.koreatech.koin.domain.auth.StudentAuth;
+import in.koreatech.koin.domain.auth.exception.AuthException;
+import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.repository.StudentRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -35,10 +37,10 @@ public class StudentArgumentResolver implements HandlerMethodArgumentResolver {
             if (request != null) {
                 Long userId = jwtProvider.getUserId(request);
                 return studentRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 인증정보입니다."));
+                    .orElseThrow(() -> UserNotFoundException.witDetail("request: " + request));
             }
         }
 
-        throw new IllegalArgumentException("올바르지 않은 인증정보입니다.");
+        throw new AuthException("request: " + nativeRequest);
     }
 }

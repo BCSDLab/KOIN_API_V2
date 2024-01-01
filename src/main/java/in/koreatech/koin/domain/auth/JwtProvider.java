@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.auth;
 
+import in.koreatech.koin.domain.auth.exception.AuthException;
+import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -27,7 +29,7 @@ public class JwtProvider {
 
     public String createToken(User user) {
         if (user == null) {
-            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+            throw new UserNotFoundException("존재하지 않는 사용자입니다. user: " + user);
         }
 
         Key key = getSecretKey();
@@ -44,7 +46,7 @@ public class JwtProvider {
 
     public Long getUserId(String requestToken) {
         if (requestToken == null || !requestToken.toUpperCase().startsWith(BEARER_PREFIX)) {
-            throw new IllegalArgumentException("잘못된 인증 정보입니다.");
+            throw AuthException.witDetail("token: " + requestToken);
         }
         String token = requestToken.substring(BEARER_PREFIX.length());
 
@@ -59,7 +61,7 @@ public class JwtProvider {
             return Long.parseLong(userId);
 
         } catch (JwtException e) {
-            throw new IllegalArgumentException("잘못된 인증 정보입니다.");
+            throw AuthException.witDetail("token: " + token);
         }
     }
 

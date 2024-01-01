@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.user.service;
 
+import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -27,10 +28,10 @@ public class UserService {
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
         User user = userRepository.findByEmail(request.email())
-            .orElseThrow(() -> new IllegalArgumentException("잘못된 로그인 정보입니다."));
+            .orElseThrow(() -> UserNotFoundException.witDetail("request: " + request));
 
         if (!user.isSamePassword(request.password())) {
-            throw new IllegalArgumentException("잘못된 로그인 정보입니다.");
+            throw new IllegalArgumentException("잘못된 로그인 정보입니다. request: " + request);
         }
 
         String accessToken = jwtProvider.createToken(user);

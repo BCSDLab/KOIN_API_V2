@@ -9,6 +9,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserIdentity;
 import in.koreatech.koin.domain.user.model.UserType;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.repository.StudentRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -22,6 +23,9 @@ class UserApiTest extends AcceptanceTest {
 
     @Autowired
     private StudentRepository studentRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -87,5 +91,77 @@ class UserApiTest extends AcceptanceTest {
                     .isEqualTo(student.getStudentNumber());
             }
         );
+    }
+
+
+    @Test
+    @DisplayName("올바른 학생계정인지 확인한다 - 토큰 정보가 올바르지 않으면  401")
+    void studentCheckMeUnAuthorized() {
+        Student student = Student.builder()
+            .studentNumber("2019136135")
+            .anonymousNickname("익명")
+            .department("컴퓨터공학부")
+            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .isGraduated(false)
+            .user(
+                User.builder()
+                    .password("1234")
+                    .nickname("주노")
+                    .name("최준호")
+                    .phoneNumber("010-1234-5678")
+                    .userType(UserType.STUDENT)
+                    .gender(UserGender.MAN)
+                    .email("test@koreatech.ac.kr")
+                    .isAuthed(true)
+                    .isDeleted(false)
+                    .build()
+            )
+            .build();
+
+        studentRepository.save(student);
+        String token = "invalidToken";
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .log().all()
+            .header("Authorization", "BEARER " + token)
+            .when()
+            .log().all()
+            .get("/user/student/me")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.UNAUTHORIZED.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("올바른 학생계정인지 확인한다 - 회원을 찾을 수 없으면 404")
+    void studentCheckMeNotFound() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(UserType.STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+        String token = jwtProvider.createToken(user);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .log().all()
+            .header("Authorization", "BEARER " + token)
+            .when()
+            .log().all()
+            .get("/user/student/me")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .extract();
     }
 }

@@ -11,4 +11,6 @@ public interface StudentRepository extends Repository<Student, Long> {
     Optional<Student> findById(Long id);
 
     Boolean existsById(Long id);
+
+    void delete(Student student);
 }
