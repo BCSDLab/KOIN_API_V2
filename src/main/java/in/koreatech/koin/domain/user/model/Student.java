@@ -5,17 +5,25 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
 @Table(name = "students")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Student {
 
     @Id
-    private Long userId;
+    @Column(name = "user_id")
+    private Long id;
 
     @Size(max = 255)
     @Column(name = "anonymous_nickname")
@@ -35,4 +43,20 @@ public class Student {
 
     @Column(name = "is_graduated")
     private Boolean isGraduated;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Builder
+    public Student(String anonymousNickname, String studentNumber, String department, UserIdentity userIdentity,
+                   Boolean isGraduated, User user) {
+        this.anonymousNickname = anonymousNickname;
+        this.studentNumber = studentNumber;
+        this.department = department;
+        this.userIdentity = userIdentity;
+        this.isGraduated = isGraduated;
+        this.user = user;
+    }
 }

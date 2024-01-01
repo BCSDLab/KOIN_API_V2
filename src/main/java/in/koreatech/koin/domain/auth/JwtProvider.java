@@ -1,21 +1,23 @@
 package in.koreatech.koin.domain.auth;
 
+import in.koreatech.koin.domain.user.model.User;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
-
 import javax.crypto.SecretKey;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.user.model.User;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-
 @Component
+@RequiredArgsConstructor
 public class JwtProvider {
+
+    private static final String BEARER_PREFIX = "BEARER ";
 
     @Value("${jwt.secret-key}")
     private String secretKey;
@@ -40,8 +42,30 @@ public class JwtProvider {
             .compact();
     }
 
+    public Long getUserId(String requestToken) {
+        if (requestToken == null || !requestToken.toUpperCase().startsWith(BEARER_PREFIX)) {
+            throw new IllegalArgumentException("잘못된 인증 정보입니다.");
+        }
+        String token = requestToken.substring(BEARER_PREFIX.length());
+
+        try {
+            String userId = Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("id")
+                .toString();
+            return Long.parseLong(userId);
+
+        } catch (JwtException e) {
+            throw new IllegalArgumentException("잘못된 인증 정보입니다.");
+        }
+    }
+
     private SecretKey getSecretKey() {
         String encoded = Base64.getEncoder().encodeToString(secretKey.getBytes());
         return Keys.hmacShaKeyFor(encoded.getBytes());
     }
+
 }
