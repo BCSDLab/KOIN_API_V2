@@ -20,14 +20,14 @@ public class DeptService {
     private final DeptInfoRepository deptInfoRepository;
     private final DeptNumRepository deptNumRepository;
 
-    public DeptResponse findDeptBy(Long id) {
+    public DeptResponse findById(Long id) {
         DeptNum deptNum = deptNumRepository.findByNumber(id)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 학부 코드입니다."));
 
         return DeptResponse.from(deptNum);
     }
 
-    public List<DeptListItemResponse> findAllDept() {
+    public List<DeptListItemResponse> findAll() {
         return deptInfoRepository.findAll()
             .stream()
             .map(DeptListItemResponse::from)
