@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
 public class DeptNumId implements Serializable {
+
     @Column(name = "dept_num", nullable = false)
     private Long number;
 
