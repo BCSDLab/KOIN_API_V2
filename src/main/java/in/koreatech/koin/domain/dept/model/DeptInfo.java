@@ -39,7 +39,6 @@ public class DeptInfo {
     @OneToMany(mappedBy = "deptInfo")
     private List<DeptNum> deptNums = new ArrayList<>();
 
-
     @Builder
     private DeptInfo(String name, String curriculumLink) {
         this.name = name;
