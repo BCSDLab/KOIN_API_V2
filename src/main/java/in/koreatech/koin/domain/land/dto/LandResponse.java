@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.land.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import in.koreatech.koin.domain.land.domain.Land;
+import in.koreatech.koin.domain.land.model.Land;
 
 public record LandResponse(
     @JsonProperty("internal_name") String internalName,

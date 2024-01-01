@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.land.domain.Land;
+import in.koreatech.koin.domain.land.model.Land;
 
 public interface LandRepository extends Repository<Land, Long> {
 

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.land.domain;
+package in.koreatech.koin.domain.land.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

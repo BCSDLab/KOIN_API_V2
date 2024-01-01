@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.land.domain.Land;
+import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.domain.land.repository.LandRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
