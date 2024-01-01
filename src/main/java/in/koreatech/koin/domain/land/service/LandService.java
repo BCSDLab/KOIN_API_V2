@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.land.dto.LandResponse;
-
 import in.koreatech.koin.domain.land.repository.LandRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +16,6 @@ public class LandService {
 
     private final LandRepository landRepository;
 
-    @Transactional
     public List<LandResponse> getLands() {
         return landRepository.findAll()
             .stream()
