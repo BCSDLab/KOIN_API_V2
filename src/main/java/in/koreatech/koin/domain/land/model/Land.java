@@ -19,9 +19,10 @@ import lombok.NoArgsConstructor;
 @Table(name = "lands")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Land {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "int UNSIGNED not null")
+    @Column(name = "id")
     private Long id;
 
     @Size(max = 255)
@@ -66,7 +67,7 @@ public class Land {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "floor", columnDefinition = "int UNSIGNED")
+    @Column(name = "floor")
     private Long floor;
 
     @Size(max = 255)
