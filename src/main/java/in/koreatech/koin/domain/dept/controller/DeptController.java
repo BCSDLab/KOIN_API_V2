@@ -19,9 +19,9 @@ public class DeptController {
     private final DeptService deptService;
 
     @GetMapping("/dept")
-    public ResponseEntity<DeptResponse> findDept(@RequestParam(value = "dept_num") Long id) {
-        DeptResponse response = deptService.findDeptBy(id);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<DeptResponse> findDept(@RequestParam(value = "dept_num") Long deptNumber) {
+        DeptResponse foundDepartment = deptService.findDeptBy(deptNumber);
+        return ResponseEntity.ok(foundDepartment);
     }
 
     @GetMapping("/depts")
