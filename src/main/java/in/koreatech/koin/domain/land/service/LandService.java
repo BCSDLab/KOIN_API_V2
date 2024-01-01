@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.land.dto.LandResponse;
+import in.koreatech.koin.domain.land.dto.LandListItemResponse;
 import in.koreatech.koin.domain.land.repository.LandRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -16,10 +16,10 @@ public class LandService {
 
     private final LandRepository landRepository;
 
-    public List<LandResponse> getLands() {
+    public List<LandListItemResponse> getLands() {
         return landRepository.findAll()
             .stream()
-            .map(LandResponse::from)
+            .map(LandListItemResponse::from)
             .toList();
     }
 }

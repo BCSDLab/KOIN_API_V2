@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.land.model.Land;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record LandResponse(
+public record LandListItemResponse(
     String internalName,
     String monthlyFee,
     String latitude,
@@ -17,8 +17,8 @@ public record LandResponse(
     String longitude,
     String roomType) {
 
-    public static LandResponse from(Land land) {
-        return new LandResponse(
+    public static LandListItemResponse from(Land land) {
+        return new LandListItemResponse(
             land.getInternalName(),
             land.getMonthlyFee(),
             land.getLatitude(),
