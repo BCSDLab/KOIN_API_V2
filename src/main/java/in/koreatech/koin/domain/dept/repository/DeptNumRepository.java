@@ -5,8 +5,9 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.dept.model.DeptNum;
+import in.koreatech.koin.domain.dept.model.DeptNumId;
 
-public interface DeptNumRepository extends Repository<DeptNum, Long> {
+public interface DeptNumRepository extends Repository<DeptNum, DeptNumId> {
 
     DeptNum save(DeptNum deptNum);
 
