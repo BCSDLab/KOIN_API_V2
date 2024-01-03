@@ -31,16 +31,15 @@ public class StudentArgumentResolver implements HandlerMethodArgumentResolver {
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
         HttpServletRequest nativeRequest = webRequest.getNativeRequest(HttpServletRequest.class);
-        if (nativeRequest != null) {
-            String request = nativeRequest.getHeader("Authorization");
-
-            if (request != null) {
-                Long userId = jwtProvider.getUserId(request);
-                return studentRepository.findById(userId)
-                    .orElseThrow(() -> UserNotFoundException.witDetail("request: " + request));
-            }
+        if (nativeRequest == null) {
+            throw new AuthException("요청 값이 비어있습니다.");
         }
-
-        throw new AuthException("request: " + nativeRequest);
+        String request = nativeRequest.getHeader("Authorization");
+        if (request == null) {
+            throw new AuthException("인증 헤더값이 비어있습니다. request: " + nativeRequest);
+        }
+        Long userId = jwtProvider.getUserId(request);
+        return studentRepository.findById(userId)
+            .orElseThrow(() -> UserNotFoundException.witDetail("request: " + request));
     }
 }
