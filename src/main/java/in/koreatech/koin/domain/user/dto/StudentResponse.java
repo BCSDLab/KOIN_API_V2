@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record StudentResponse(
     String anonymousNickname,

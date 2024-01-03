@@ -9,8 +9,8 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserIdentity;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -92,7 +92,6 @@ class UserApiTest extends AcceptanceTest {
             }
         );
     }
-
 
     @Test
     @DisplayName("올바른 학생계정인지 확인한다 - 토큰 정보가 올바르지 않으면  401")
