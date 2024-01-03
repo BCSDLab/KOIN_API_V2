@@ -2,8 +2,8 @@ package in.koreatech.koin.domain.user.controller;
 
 import in.koreatech.koin.domain.auth.StudentAuth;
 import in.koreatech.koin.domain.user.model.Student;
-import in.koreatech.koin.dto.StudentResponse;
-import in.koreatech.koin.service.StudentService;
+import in.koreatech.koin.domain.user.dto.StudentResponse;
+import in.koreatech.koin.domain.user.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

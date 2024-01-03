@@ -4,7 +4,7 @@ import in.koreatech.koin.domain.auth.JwtProvider;
 import in.koreatech.koin.domain.auth.StudentAuth;
 import in.koreatech.koin.domain.auth.exception.AuthException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
-import in.koreatech.koin.repository.StudentRepository;
+import in.koreatech.koin.domain.user.repository.StudentRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;

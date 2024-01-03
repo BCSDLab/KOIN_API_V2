@@ -1,4 +1,4 @@
-package in.koreatech.koin.repository;
+package in.koreatech.koin.domain.user.repository;
 
 import in.koreatech.koin.domain.user.model.Student;
 import java.util.Optional;

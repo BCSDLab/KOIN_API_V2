@@ -1,8 +1,8 @@
-package in.koreatech.koin.service;
+package in.koreatech.koin.domain.user.service;
 
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.Student;
-import in.koreatech.koin.dto.StudentResponse;
+import in.koreatech.koin.domain.user.dto.StudentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
