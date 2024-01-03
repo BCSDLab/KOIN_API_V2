@@ -18,6 +18,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @RequiredArgsConstructor
 public class StudentArgumentResolver implements HandlerMethodArgumentResolver {
 
+    private static final String AUTHORIZATION = "Authorization";
+
     private final JwtProvider jwtProvider;
     private final StudentRepository studentRepository;
 
@@ -34,12 +36,13 @@ public class StudentArgumentResolver implements HandlerMethodArgumentResolver {
         if (nativeRequest == null) {
             throw new AuthException("요청 값이 비어있습니다.");
         }
-        String request = nativeRequest.getHeader("Authorization");
-        if (request == null) {
-            throw new AuthException("인증 헤더값이 비어있습니다. request: " + nativeRequest);
+
+        String authorizationHeader = nativeRequest.getHeader(AUTHORIZATION);
+        if (authorizationHeader == null) {
+            throw new AuthException("인증 헤더값이 비어있습니다. authorizationHeader: " + nativeRequest);
         }
-        Long userId = jwtProvider.getUserId(request);
+        Long userId = jwtProvider.getUserId(authorizationHeader);
         return studentRepository.findById(userId)
-            .orElseThrow(() -> UserNotFoundException.witDetail("request: " + request));
+            .orElseThrow(() -> UserNotFoundException.witDetail("authorizationHeader: " + authorizationHeader));
     }
 }
