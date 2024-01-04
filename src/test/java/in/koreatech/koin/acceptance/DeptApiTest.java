@@ -2,10 +2,6 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +10,8 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.dept.model.DeptInfo;
 import in.koreatech.koin.domain.dept.model.DeptNum;
-import in.koreatech.koin.domain.dept.repository.DeptNumRepository;
 import in.koreatech.koin.domain.dept.repository.DeptInfoRepository;
+import in.koreatech.koin.domain.dept.repository.DeptNumRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -122,24 +118,13 @@ class DeptApiTest extends AcceptanceTest {
         assertSoftly(
             softly -> {
                 softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(DEPT_SIZE);
-
-                List<Boolean> deptNamesExists = Stream.generate(() -> false).limit(DEPT_SIZE).collect(Collectors.toList());
-                for (int i = 0; i < DEPT_SIZE; i++) {
-                    if (response.body().jsonPath().getString("[" + i + "].name").equals(deptInfo1.getName())) {
-                        deptNamesExists.set(i, true);
-                        softly.assertThat(response.body().jsonPath().getString("["+ i + "].curriculum_link")).isEqualTo(
-                            deptInfo1.getCurriculumLink());
-                        softly.assertThat(response.body().jsonPath().getLong("[" + i + "].dept_nums[0]")).isEqualTo(deptNum1_1.getNumber());
-                        softly.assertThat(response.body().jsonPath().getLong("[" + i + "].dept_nums[1]")).isEqualTo(deptNum1_2.getNumber());
-                    }
-                    if (response.body().jsonPath().getString("[" + i + "].name").equals(deptInfo2.getName())) {
-                        deptNamesExists.set(i, true);
-                        softly.assertThat(response.body().jsonPath().getString("[" + i + "].curriculum_link")).isEqualTo(
-                            deptInfo2.getCurriculumLink());
-                        softly.assertThat(response.body().jsonPath().getLong("[" + i + "].dept_nums[0]")).isEqualTo(deptNum2.getNumber());
-                    }
-                }
-                softly.assertThat(deptNamesExists.contains(false)).isFalse();
+                softly.assertThat(response.body().jsonPath().getString("[0].name")).isEqualTo(deptInfo2.getName());
+                softly.assertThat(response.body().jsonPath().getString("[1].name")).isEqualTo(deptInfo1.getName());
+                softly.assertThat(response.body().jsonPath().getString("[0].curriculum_link")).isEqualTo(deptInfo2.getCurriculumLink());
+                softly.assertThat(response.body().jsonPath().getString("[1].curriculum_link")).isEqualTo(deptInfo1.getCurriculumLink());
+                softly.assertThat(response.body().jsonPath().getLong("[0].dept_nums[0]")).isEqualTo(deptInfo2.getDeptNums().get(0));
+                softly.assertThat(response.body().jsonPath().getLong("[1].dept_nums[0]")).isEqualTo(deptInfo1.getDeptNums().get(0));
+                softly.assertThat(response.body().jsonPath().getLong("[1].dept_nums[1]")).isEqualTo(deptInfo1.getDeptNums().get(1));
             }
         );
     }
