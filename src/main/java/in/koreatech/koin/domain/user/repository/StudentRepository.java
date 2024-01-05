@@ -9,8 +9,4 @@ public interface StudentRepository extends Repository<Student, Long> {
     Student save(Student student);
 
     Optional<Student> findById(Long id);
-
-    Boolean existsById(Long id);
-
-    void delete(Student student);
 }
