@@ -31,7 +31,7 @@ public class UserService {
             .orElseThrow(() -> UserNotFoundException.withDetail("request: " + request));
 
         if (!user.isSamePassword(request.password())) {
-            throw new IllegalArgumentException("잘못된 로그인 정보입니다. request: " + request);
+            throw new IllegalArgumentException("비밀번호가 틀렸습니다. request: " + request);
         }
 
         String accessToken = jwtProvider.createToken(user);
