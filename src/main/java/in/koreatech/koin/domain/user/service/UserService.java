@@ -28,7 +28,7 @@ public class UserService {
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
         User user = userRepository.findByEmail(request.email())
-            .orElseThrow(() -> UserNotFoundException.witDetail("request: " + request));
+            .orElseThrow(() -> UserNotFoundException.withDetail("request: " + request));
 
         if (!user.isSamePassword(request.password())) {
             throw new IllegalArgumentException("잘못된 로그인 정보입니다. request: " + request);

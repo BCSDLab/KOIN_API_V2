@@ -43,6 +43,6 @@ public class StudentArgumentResolver implements HandlerMethodArgumentResolver {
         }
         Long userId = jwtProvider.getUserId(authorizationHeader);
         return studentRepository.findById(userId)
-            .orElseThrow(() -> UserNotFoundException.witDetail("authorizationHeader: " + authorizationHeader));
+            .orElseThrow(() -> UserNotFoundException.withDetail("authorizationHeader: " + authorizationHeader));
     }
 }

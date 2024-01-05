@@ -11,7 +11,7 @@ public class AuthException extends RuntimeException {
         super(message);
     }
 
-    public static AuthException witDetail(String detail) {
+    public static AuthException withDetail(String detail) {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new AuthException(message);
     }

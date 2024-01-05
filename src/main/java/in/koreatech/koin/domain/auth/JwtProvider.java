@@ -46,7 +46,7 @@ public class JwtProvider {
 
     public Long getUserId(String requestToken) {
         if (requestToken == null || !requestToken.toUpperCase().startsWith(BEARER_PREFIX)) {
-            throw AuthException.witDetail("token: " + requestToken);
+            throw AuthException.withDetail("token: " + requestToken);
         }
         String token = requestToken.substring(BEARER_PREFIX.length());
 
@@ -61,7 +61,7 @@ public class JwtProvider {
             return Long.parseLong(userId);
 
         } catch (JwtException e) {
-            throw AuthException.witDetail("token: " + token);
+            throw AuthException.withDetail("token: " + token);
         }
     }
 

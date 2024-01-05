@@ -8,7 +8,7 @@ public class UserNotFoundException extends RuntimeException {
         super(message);
     }
 
-    public static UserNotFoundException witDetail(String detail) {
+    public static UserNotFoundException withDetail(String detail) {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new UserNotFoundException(message);
     }
