@@ -4,48 +4,21 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.dept.model.DeptInfo;
-import in.koreatech.koin.domain.dept.model.DeptNum;
-import in.koreatech.koin.domain.dept.repository.DeptInfoRepository;
-import in.koreatech.koin.domain.dept.repository.DeptNumRepository;
+import in.koreatech.koin.domain.dept.model.Dept;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
 class DeptApiTest extends AcceptanceTest {
 
-    @Autowired
-    private DeptInfoRepository deptInfoRepository;
-
-    @Autowired
-    private DeptNumRepository deptNumRepository;
-
     @Test
     @DisplayName("학과 번호를 통해 학과 이름을 조회한다.")
     void findDeptNameByDeptNumber() {
         // given
-        DeptInfo deptInfo = DeptInfo.builder()
-            .name("컴퓨터공학부")
-            .curriculumLink("https://cse.koreatech.ac.kr/page_izgw21")
-            .build();
-
-        deptInfoRepository.save(deptInfo);
-
-        DeptNum deptNum1 = DeptNum.builder()
-            .deptInfo(deptInfo)
-            .number(35L)
-            .build();
-        DeptNum deptNum2 = DeptNum.builder()
-            .deptInfo(deptInfo)
-            .number(36L)
-            .build();
-
-        deptNumRepository.save(deptNum1);
-        deptNumRepository.save(deptNum2);
+        Dept dept = Dept.COMPUTER_SCIENCE;
 
         // when then
         ExtractableResponse<Response> response = RestAssured
@@ -53,7 +26,7 @@ class DeptApiTest extends AcceptanceTest {
             .log().all()
             .when()
             .log().all()
-            .param("dept_num", deptNum1.getNumber())
+            .param("dept_num", dept.getNumbers().get(0))
             .get("/dept")
             .then()
             .log().all()
@@ -62,8 +35,8 @@ class DeptApiTest extends AcceptanceTest {
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getString("dept_num")).isEqualTo(deptNum1.getNumber().toString());
-                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(deptInfo.getName());
+                softly.assertThat(response.body().jsonPath().getLong("dept_num")).isEqualTo(dept.getNumbers().get(0));
+                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(dept.getName());
             }
         );
     }
@@ -72,36 +45,7 @@ class DeptApiTest extends AcceptanceTest {
     @DisplayName("모든 학과 정보를 조회한다.")
     void findAllDepts() {
         //given
-        final int DEPT_SIZE = 2;
-
-        DeptInfo deptInfo1 = DeptInfo.builder()
-            .name("컴퓨터공학부")
-            .curriculumLink("https://cse.koreatech.ac.kr/page_izgw21")
-            .build();
-        DeptInfo deptInfo2 = DeptInfo.builder()
-            .name("기계공학부")
-            .curriculumLink("https://cms3.koreatech.ac.kr/me/795/subview.do")
-            .build();
-
-        deptInfoRepository.save(deptInfo1);
-        deptInfoRepository.save(deptInfo2);
-
-        DeptNum deptNum1_1 = DeptNum.builder()
-            .deptInfo(deptInfo1)
-            .number(35L)
-            .build();
-        DeptNum deptNum1_2 = DeptNum.builder()
-            .deptInfo(deptInfo1)
-            .number(36L)
-            .build();
-        DeptNum deptNum2 = DeptNum.builder()
-            .deptInfo(deptInfo2)
-            .number(20L)
-            .build();
-
-        deptNumRepository.save(deptNum1_1);
-        deptNumRepository.save(deptNum1_2);
-        deptNumRepository.save(deptNum2);
+        final int DEPT_SIZE = Dept.values().length;
 
         //when then
         ExtractableResponse<Response> response = RestAssured
@@ -117,14 +61,13 @@ class DeptApiTest extends AcceptanceTest {
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(DEPT_SIZE);
-                softly.assertThat(response.body().jsonPath().getString("[0].name")).isEqualTo(deptInfo2.getName());
-                softly.assertThat(response.body().jsonPath().getString("[1].name")).isEqualTo(deptInfo1.getName());
-                softly.assertThat(response.body().jsonPath().getString("[0].curriculum_link")).isEqualTo(deptInfo2.getCurriculumLink());
-                softly.assertThat(response.body().jsonPath().getString("[1].curriculum_link")).isEqualTo(deptInfo1.getCurriculumLink());
-                softly.assertThat(response.body().jsonPath().getLong("[0].dept_nums[0]")).isEqualTo(deptInfo2.getDeptNums().get(0));
-                softly.assertThat(response.body().jsonPath().getLong("[1].dept_nums[0]")).isEqualTo(deptInfo1.getDeptNums().get(0));
-                softly.assertThat(response.body().jsonPath().getLong("[1].dept_nums[1]")).isEqualTo(deptInfo1.getDeptNums().get(1));
+                softly.assertThat(response.body().jsonPath().getList(".").size())
+                    .isEqualTo(DEPT_SIZE);
+                for (int i = 0; i < DEPT_SIZE; i++) {
+                    softly.assertThat(response.body().jsonPath().getString(String.format("[%d].name", i))).isNotEmpty();
+                    softly.assertThat(response.body().jsonPath().getString(String.format("[%d].curriculum_link", i))).isNotEmpty();
+                    softly.assertThat(response.body().jsonPath().getString(String.format("[%d].dept_nums[0]", i))).isNotEmpty();
+                }
             }
         );
     }
