@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.dept.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +17,9 @@ import lombok.RequiredArgsConstructor;
 public class DeptService {
 
     public DeptResponse getById(Long id) {
-        Dept dept = Dept.findByNumber(id)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 학부 코드입니다."));
+        Optional<Dept> dept = Dept.findByNumber(id);
 
-        return DeptResponse.from(id, dept);
+        return dept.map(value -> DeptResponse.from(id, value)).orElse(null);
     }
 
     public List<DeptListItemResponse> getAll() {
