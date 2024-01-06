@@ -15,14 +15,14 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class DeptService {
 
-    public DeptResponse findById(Long id) {
+    public DeptResponse getById(Long id) {
         Dept dept = Dept.findByNumber(id)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 학부 코드입니다."));
 
         return DeptResponse.from(id, dept);
     }
 
-    public List<DeptListItemResponse> findAll() {
+    public List<DeptListItemResponse> getAll() {
         return Dept.findAll()
             .stream()
             .map(DeptListItemResponse::from)

@@ -20,13 +20,13 @@ public class DeptController {
 
     @GetMapping("/dept")
     public ResponseEntity<DeptResponse> findDept(@RequestParam(value = "dept_num") Long deptNumber) {
-        DeptResponse foundDepartment = deptService.findById(deptNumber);
+        DeptResponse foundDepartment = deptService.getById(deptNumber);
         return ResponseEntity.ok(foundDepartment);
     }
 
     @GetMapping("/depts")
     public ResponseEntity<List<DeptListItemResponse>> findAllDept() {
-        List<DeptListItemResponse> response = deptService.findAll();
+        List<DeptListItemResponse> response = deptService.getAll();
         return ResponseEntity.ok(response);
     }
 }
