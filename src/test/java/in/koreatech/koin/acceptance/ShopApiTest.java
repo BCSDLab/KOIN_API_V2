@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.MenuImage;
 import in.koreatech.koin.domain.shop.model.MenuOption;
+import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -21,6 +22,9 @@ class ShopApiTest extends AcceptanceTest {
 
     @Autowired
     private MenuRepository menuRepository;
+
+    @Autowired
+    private MenuCategoryRepository menuCategoryRepository;
 
     @Test
     @DisplayName("옵션이 하나 있는 상점의 메뉴를 조회한다.")
@@ -54,6 +58,7 @@ class ShopApiTest extends AcceptanceTest {
 
         menuCategoryMap.map(menu, menuCategory);
 
+        menuCategoryRepository.save(menuCategory);
         menuRepository.save(menu);
 
         ExtractableResponse<Response> response = RestAssured
@@ -133,6 +138,7 @@ class ShopApiTest extends AcceptanceTest {
 
         menuCategoryMap.map(menu, menuCategory);
 
+        menuCategoryRepository.save(menuCategory);
         menuRepository.save(menu);
 
         ExtractableResponse<Response> response = RestAssured
@@ -207,6 +213,8 @@ class ShopApiTest extends AcceptanceTest {
         menuCategoryMap1.map(menu, menuCategory1);
         menuCategoryMap2.map(menu, menuCategory2);
 
+        menuCategoryRepository.save(menuCategory1);
+        menuCategoryRepository.save(menuCategory2);
         menuRepository.save(menu);
 
         ExtractableResponse<Response> response = RestAssured

@@ -8,4 +8,6 @@ import in.koreatech.koin.domain.shop.model.MenuCategory;
 
 public interface MenuCategoryRepository extends Repository<MenuCategory, Long> {
     List<MenuCategory> findAllByShopId(Long shopId);
+
+    MenuCategory save(MenuCategory menuCategory);
 }
