@@ -9,12 +9,12 @@ import in.koreatech.koin.domain.shop.model.MenuCategory;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record MenuCategoriesResponse(Long count, List<MenuCategoryResponse> menuCategories) {
-    public static MenuCategoriesResponse of(Long count, List<MenuCategory> menuCategories) {
+    public static MenuCategoriesResponse from(List<MenuCategory> menuCategories) {
         List<MenuCategoryResponse> categories = menuCategories.stream()
             .map(menuCategory -> MenuCategoryResponse.of(menuCategory.getId(), menuCategory.getName()))
             .toList();
 
-        return new MenuCategoriesResponse(count, categories);
+        return new MenuCategoriesResponse((long)categories.size(), categories);
     }
 
     private record MenuCategoryResponse(Long id, String name) {
