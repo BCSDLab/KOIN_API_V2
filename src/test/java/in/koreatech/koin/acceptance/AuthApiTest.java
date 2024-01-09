@@ -12,6 +12,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import java.util.Map;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -165,16 +166,27 @@ class AuthApiTest extends AcceptanceTest {
             .given()
             .log().all()
             .header("Authorization", "BEARER " + response.jsonPath().getString("token"))
+            .body(
+                Map.of("refresh_token", response.jsonPath().getString("refresh_token"))
+            )
+            .contentType(ContentType.JSON)
             .when()
             .log().all()
-            .post("/user/logout")
+            .post("/user/refresh")
             .then()
             .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        Optional<UserToken> token = tokenRepository.findById(user.getId());
+        UserToken token = tokenRepository.findById(user.getId()).get();
 
-        Assertions.assertThat(token).isEmpty();
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.jsonPath().getString("token")).isNotNull();
+                softly.assertThat(response.jsonPath().getString("refresh_token")).isNotNull();
+                softly.assertThat(response.jsonPath().getString("refresh_token"))
+                    .isEqualTo(token.getRefreshToken());
+            }
+        );
     }
 }

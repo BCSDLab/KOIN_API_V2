@@ -52,7 +52,7 @@ public class UserService {
     public UserTokenRefreshResponse refresh(User user, UserTokenRefreshRequest request) {
         UserToken userToken = userTokenRepository.findById(user.getId())
             .orElseThrow(() -> new IllegalArgumentException("refresh token이 존재하지 않습니다. request: " + request));
-        if (Objects.equals(userToken.getRefreshToken(), request.refreshToken())) {
+        if (!Objects.equals(userToken.getRefreshToken(), request.refreshToken())) {
             throw new IllegalArgumentException("refresh token이 일치하지 않습니다. request: " + request);
         }
         String accessToken = jwtProvider.createToken(user);
