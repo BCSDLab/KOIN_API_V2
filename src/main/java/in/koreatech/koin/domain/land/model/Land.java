@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.land.model;
 
+import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "lands")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Land {
+public class Land extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
