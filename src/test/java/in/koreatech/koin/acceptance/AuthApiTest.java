@@ -126,4 +126,55 @@ class AuthApiTest extends AcceptanceTest {
 
         Assertions.assertThat(token).isEmpty();
     }
+
+    @Test
+    @DisplayName("사용자가 로그인 이후 refreshToken을 재발급한다")
+    void userRefreshToken() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(UserType.USER)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .log().all()
+            .body("""
+                {
+                  "email": "test@koreatech.ac.kr",
+                  "password": "1234"
+                }
+                """)
+            .contentType(ContentType.JSON)
+            .when()
+            .log().all()
+            .post("/user/login")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        RestAssured
+            .given()
+            .log().all()
+            .header("Authorization", "BEARER " + response.jsonPath().getString("token"))
+            .when()
+            .log().all()
+            .post("/user/logout")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Optional<UserToken> token = tokenRepository.findById(user.getId());
+
+        Assertions.assertThat(token).isEmpty();
+    }
 }
