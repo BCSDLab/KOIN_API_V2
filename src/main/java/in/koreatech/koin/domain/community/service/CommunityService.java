@@ -20,7 +20,7 @@ public class CommunityService {
         Board board = boardRepository.findById(boardId)
             .orElseThrow(); //TODO: 404 Not Found Handling
         Article article = articleRepository.findByBoardId(boardId)
-            .orElse(null);
+            .orElseThrow(); //TODO: 404 Not Found Handling - errorResponse, "There is no article"
 
         return null;
     }
