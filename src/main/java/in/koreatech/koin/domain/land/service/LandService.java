@@ -1,7 +1,10 @@
 package in.koreatech.koin.domain.land.service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,13 @@ public class LandService {
         Land land = landRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 복덕방입니다."));
 
-        return LandResponse.from(land);
+        String image = land.getImageUrls();
+        List<String> imageUrls = null;
+
+        if (image != null) {
+            imageUrls = new JSONArray(image).toList().stream().map(Object::toString).toList();
+        }
+
+        return LandResponse.of(land, imageUrls, URLEncoder.encode(land.getInternalName(), StandardCharsets.UTF_8));
     }
 }

@@ -1,8 +1,7 @@
 package in.koreatech.koin.domain.land.dto;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -18,12 +17,12 @@ public record LandResponse(
     Boolean optElevator,
     Boolean optWaterPurifier,
     Boolean optWasher,
-    String latitude,
+    Double latitude,
     String charterFee,
     Boolean optVeranda,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
     String description,
-    String imageUrls,
+    List<String> imageUrls,
     Boolean optGasRange,
     Boolean optInduction,
     String internalName,
@@ -37,10 +36,10 @@ public record LandResponse(
     String managementFee,
     Boolean optDesk,
     Boolean optCloset,
-    String longitude,
+    Double longitude,
     String address,
     Boolean optBed,
-    String size,
+    Double size,
     String phone,
     Boolean optAirConditioner,
     String name,
@@ -49,7 +48,7 @@ public record LandResponse(
     String permalink,
     String roomType) {
 
-    public static LandResponse from(Land land) {
+    public static LandResponse of(Land land, List<String> imageUrls, String permalink) {
         return new LandResponse(
             land.getOptElectronicDoorLocks(),
             land.getOptTv(),
@@ -62,7 +61,7 @@ public record LandResponse(
             land.getOptVeranda(),
             land.getCreatedAt(),
             land.getDescription(),
-            land.getImageUrls(),
+            imageUrls,
             land.getOptGasRange(),
             land.getOptInduction(),
             land.getInternalName(),
@@ -85,7 +84,7 @@ public record LandResponse(
             land.getName(),
             land.getDeposit(),
             land.getOptMicrowave(),
-            URLEncoder.encode(land.getInternalName(), StandardCharsets.UTF_8),
+            permalink,
             land.getRoomType()
         );
     }

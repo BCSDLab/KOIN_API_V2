@@ -36,21 +36,18 @@ public class Land extends BaseEntity {
     @Column(name = "internal_name", nullable = false, length = 50)
     private String internalName;
 
-    @Size(max = 20)
     @Column(name = "size", length = 20)
-    private String size;
+    private Double size;
 
     @Size(max = 20)
     @Column(name = "room_type", length = 20)
     private String roomType;
 
-    @Size(max = 20)
     @Column(name = "latitude", length = 20)
-    private String latitude;
+    private Double latitude;
 
-    @Size(max = 20)
     @Column(name = "longitude", length = 20)
-    private String longitude;
+    private Double longitude;
 
     @Size(max = 20)
     @Column(name = "phone", length = 20)
@@ -156,7 +153,7 @@ public class Land extends BaseEntity {
     private Boolean isDeleted = false;
 
     @Builder
-    private Land(String internalName, String name, String size, String roomType, String latitude, String longitude,
+    private Land(String internalName, String name, Double size, String roomType, Double latitude, Double longitude,
         String phone, String imageUrls, String address, String description, Long floor, String deposit,
         String monthlyFee, String charterFee, String managementFee) {
         this.internalName = internalName;
