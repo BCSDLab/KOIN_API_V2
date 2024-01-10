@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.community.model;
 
+import org.jsoup.Jsoup;
+
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,6 +24,9 @@ import lombok.Setter;
 @Table(name = "articles")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Article extends BaseEntity {
+
+    private static final int SUMMARY_MIN_LENGTH = 0;
+    private static final int SUMMARY_MAX_LENGTH = 100;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -82,6 +87,16 @@ public class Article extends BaseEntity {
 
     @Column(name = "notice_article_id")
     private Long noticeArticleId;
+
+    public String getContentSummary() {
+        if (content == null)
+            return "";
+        String summary = Jsoup.parse(content).text();
+        summary = summary.replace("&nbsp", "").trim();
+        summary = (summary.length() > SUMMARY_MAX_LENGTH) ?
+            summary.substring(SUMMARY_MIN_LENGTH, SUMMARY_MAX_LENGTH) : summary;
+        return summary;
+    }
 
     @Builder
     private Article(Long boardId, String title, String content, Long userId, String nickname, Long hit,

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -39,9 +40,11 @@ public record ArticlesResponse(
         Boolean isDeleted,
         Byte commentCount,
         String meta,
+        Boolean isNotice,
         Long noticeArticleId,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt,
+        @JsonProperty("contentSummary") String contentSummary
     ) {
 
         public static InnerArticleResponse from(Article article) {
@@ -58,23 +61,27 @@ public record ArticlesResponse(
                 article.getIsDeleted(),
                 article.getCommentCount(),
                 article.getMeta(),
+                article.getIsNotice(),
                 article.getNoticeArticleId(),
                 article.getCreatedAt(),
-                article.getUpdatedAt()
+                article.getUpdatedAt(),
+                article.getContentSummary()
             );
         }
     }
 
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static record InnerBoardResponse(
+    public record InnerBoardResponse(
         Long id,
         String tag,
         String name,
         Boolean isAnonymous,
         Long articleCount,
         Boolean isDeleted,
+        Boolean isNotice,
         Long parentId,
         Long seq,
+        List<InnerBoardResponse> children,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
     ) {
@@ -87,8 +94,11 @@ public record ArticlesResponse(
                 board.getIsAnonymous(),
                 board.getArticleCount(),
                 board.getIsDeleted(),
+                board.getIsNotice(),
                 board.getParentId(),
                 board.getSeq(),
+                board.getChildren().isEmpty() ?
+                    null : board.getChildren().stream().map(InnerBoardResponse::from).toList(),
                 board.getCreatedAt(),
                 board.getUpdatedAt()
             );

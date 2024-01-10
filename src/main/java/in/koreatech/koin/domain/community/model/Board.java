@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.community.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -58,6 +61,10 @@ public class Board extends BaseEntity {
     @NotNull
     @Column(name = "seq", nullable = false)
     private Long seq;
+
+    public List<Board> getChildren() {
+        return new ArrayList<>();
+    }
 
     @Builder
     private Board(String tag, String name, Boolean isAnonymous, Long articleCount, Boolean isDeleted,
