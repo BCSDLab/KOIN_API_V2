@@ -36,10 +36,9 @@ public class UserController {
 
     @PostMapping("/user/refresh")
     public ResponseEntity<UserTokenRefreshResponse> refresh(
-        @UserAuth User user,
         @RequestBody @Valid UserTokenRefreshRequest request
     ) {
-        UserTokenRefreshResponse tokenGroupResponse = userService.refresh(user, request);
+        UserTokenRefreshResponse tokenGroupResponse = userService.refresh(request);
         return ResponseEntity.ok().body(tokenGroupResponse);
     }
 }

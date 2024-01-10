@@ -49,12 +49,14 @@ public class UserService {
         userTokenRepository.deleteById(user.getId());
     }
 
-    public UserTokenRefreshResponse refresh(User user, UserTokenRefreshRequest request) {
-        UserToken userToken = userTokenRepository.findById(user.getId())
+    public UserTokenRefreshResponse refresh(UserTokenRefreshRequest request) {
+        UserToken userToken = userTokenRepository.findByRefreshToken(request.refreshToken())
             .orElseThrow(() -> new IllegalArgumentException("refresh token이 존재하지 않습니다. request: " + request));
         if (!Objects.equals(userToken.getRefreshToken(), request.refreshToken())) {
             throw new IllegalArgumentException("refresh token이 일치하지 않습니다. request: " + request);
         }
+        User user = userRepository.findById(userToken.getId())
+            .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다. refreshToken: " + userToken));
         String accessToken = jwtProvider.createToken(user);
         return UserTokenRefreshResponse.of(accessToken, userToken.getRefreshToken());
     }
