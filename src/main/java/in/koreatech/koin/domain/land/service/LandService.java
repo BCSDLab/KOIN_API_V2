@@ -36,7 +36,11 @@ public class LandService {
         List<String> imageUrls = null;
 
         if (image != null) {
-            imageUrls = new JSONArray(image).toList().stream().map(Object::toString).toList();
+            imageUrls = new JSONArray(image)
+                .toList()
+                .stream()
+                .map(Object::toString)
+                .toList();
         }
 
         return LandResponse.of(land, imageUrls, URLEncoder.encode(land.getInternalName(), StandardCharsets.UTF_8));
