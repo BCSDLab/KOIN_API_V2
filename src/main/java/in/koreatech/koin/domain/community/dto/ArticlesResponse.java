@@ -42,6 +42,7 @@ public record ArticlesResponse(
         String meta,
         Boolean isNotice,
         Long noticeArticleId,
+        String summary,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt,
         @JsonProperty("contentSummary") String contentSummary
@@ -63,6 +64,7 @@ public record ArticlesResponse(
                 article.getMeta(),
                 article.getIsNotice(),
                 article.getNoticeArticleId(),
+                article.getSummary(),
                 article.getCreatedAt(),
                 article.getUpdatedAt(),
                 article.getContentSummary()

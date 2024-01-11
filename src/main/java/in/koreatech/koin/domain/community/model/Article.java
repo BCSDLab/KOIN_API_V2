@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -89,6 +90,9 @@ public class Article extends BaseEntity {
 
     @Column(name = "notice_article_id")
     private Long noticeArticleId;
+
+    @Transient
+    private String summary;
 
     public String getContentSummary() {
         if (content == null)
