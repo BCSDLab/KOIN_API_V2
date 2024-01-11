@@ -99,8 +99,8 @@ public record ArticlesResponse(
                 board.getIsNotice(),
                 board.getParentId(),
                 board.getSeq(),
-                board.getChildren().isEmpty() ?
-                    null : board.getChildren().stream().map(InnerBoardResponse::from).toList(),
+                board.getChildren().isEmpty()
+                    ? null : board.getChildren().stream().map(InnerBoardResponse::from).toList(),
                 board.getCreatedAt(),
                 board.getUpdatedAt()
             );

@@ -95,13 +95,14 @@ public class Article extends BaseEntity {
     private String summary;
 
     public String getContentSummary() {
-        if (content == null)
+        if (content == null) {
             return "";
-        String summary = Jsoup.parse(content).text();
-        summary = summary.replace("&nbsp", "").trim();
-        summary = (summary.length() > SUMMARY_MAX_LENGTH) ?
-            summary.substring(SUMMARY_MIN_LENGTH, SUMMARY_MAX_LENGTH) : summary;
-        return summary;
+        }
+        String contentSummary = Jsoup.parse(content).text();
+        contentSummary = contentSummary.replace("&nbsp", "").trim();
+        contentSummary = (contentSummary.length() > SUMMARY_MAX_LENGTH)
+            ? contentSummary.substring(SUMMARY_MIN_LENGTH, SUMMARY_MAX_LENGTH) : contentSummary;
+        return contentSummary;
     }
 
     @Builder
