@@ -16,8 +16,8 @@ public class CommunityController {
     private final CommunityService communityService;
 
     @GetMapping("/articles")
-    public ResponseEntity<ArticlesResponse> getArticles(@RequestParam Long boardId, @RequestParam(required = false, defaultValue = "1") Long page,
-        @RequestParam(required = false, defaultValue = "10") Long limit) {
+    public ResponseEntity<ArticlesResponse> getArticles(@RequestParam Long boardId, @RequestParam(required = false) Long page,
+        @RequestParam(required = false) Long limit) {
         ArticlesResponse foundArticles = communityService.getArticles(boardId, page, limit);
         return ResponseEntity.ok().body(foundArticles);
     }

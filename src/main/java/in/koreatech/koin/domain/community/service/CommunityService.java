@@ -9,6 +9,7 @@ import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.domain.community.model.Board;
+import in.koreatech.koin.domain.community.model.Criteria;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +23,12 @@ public class CommunityService {
     private final BoardRepository boardRepository;
 
     public ArticlesResponse getArticles(Long boardId, Long page, Long limit) {
+        Criteria criteria = Criteria.of(page, limit);
         Board board = boardRepository.findById(boardId);
-
-        PageRequest pageRequest = PageRequest.of(page.intValue() - 1, limit.intValue());
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
         Page<Article> articles = articleRepository.findByBoardId(boardId, pageRequest);
         if (articles.getContent().isEmpty()) {
-            throw ArticleNotFoundException.withDetail("boardId: " + boardId + ", page: " + page + ", limit: " + limit);
+            throw ArticleNotFoundException.withDetail("boardId: " + boardId + ", page: " + criteria.getPage() + ", limit: " + criteria.getLimit());
         }
 
         return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
