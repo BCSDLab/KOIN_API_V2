@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.community.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.Where;
+
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,6 +24,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "boards")
+@Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Board extends BaseEntity {
     @Id

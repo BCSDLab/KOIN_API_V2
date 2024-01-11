@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.model;
 
+import org.hibernate.annotations.Where;
 import org.jsoup.Jsoup;
 
 import in.koreatech.koin.global.common.BaseEntity;
@@ -22,6 +23,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "articles")
+@Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Article extends BaseEntity {
 

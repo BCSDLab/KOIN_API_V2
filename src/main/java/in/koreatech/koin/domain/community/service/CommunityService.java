@@ -24,11 +24,14 @@ public class CommunityService {
 
     public ArticlesResponse getArticles(Long boardId, Long page, Long limit) {
         Criteria criteria = Criteria.of(page, limit);
-        Board board = boardRepository.findById(boardId);
+        Board board = boardRepository.findById(boardId)
+            .orElseThrow(() -> ArticleNotFoundException.withDetail(
+                "boardId: " + boardId + ", page: " + criteria.getPage() + ", limit: " + criteria.getLimit()));
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
         Page<Article> articles = articleRepository.findByBoardId(boardId, pageRequest);
         if (articles.getContent().isEmpty()) {
-            throw ArticleNotFoundException.withDetail("boardId: " + boardId + ", page: " + criteria.getPage() + ", limit: " + criteria.getLimit());
+            throw ArticleNotFoundException.withDetail(
+                "boardId: " + boardId + ", page: " + criteria.getPage() + ", limit: " + criteria.getLimit());
         }
 
         return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
