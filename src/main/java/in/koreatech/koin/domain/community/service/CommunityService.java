@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.community.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,12 +23,14 @@ public class CommunityService {
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
 
+    public static final Sort SORT_ORDER_BY = Sort.by(Sort.Direction.DESC, "id");
+
     public ArticlesResponse getArticles(Long boardId, Long page, Long limit) {
         Criteria criteria = Criteria.of(page, limit);
         Board board = boardRepository.findById(boardId)
             .orElseThrow(() -> ArticleNotFoundException.withDetail(
                 "boardId: " + boardId + ", page: " + criteria.getPage() + ", limit: " + criteria.getLimit()));
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), SORT_ORDER_BY);
         Page<Article> articles = articleRepository.findByBoardId(boardId, pageRequest);
         if (articles.getContent().isEmpty()) {
             throw ArticleNotFoundException.withDetail(
