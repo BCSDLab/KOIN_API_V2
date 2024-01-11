@@ -165,7 +165,6 @@ class AuthApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .log().all()
-            .header("Authorization", "BEARER " + response.jsonPath().getString("token"))
             .body(
                 Map.of("refresh_token", response.jsonPath().getString("refresh_token"))
             )
