@@ -24,10 +24,10 @@ public class Criteria {
         if (page == null) {
             page = DEFAULT_PAGE;
         }
-        page -= 1; // start from 0
         if (page < MIN_PAGE) {
             page = MIN_PAGE;
         }
+        page -= 1; // start from 0
         return page.intValue();
     }
 
