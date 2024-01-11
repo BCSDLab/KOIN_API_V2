@@ -9,4 +9,6 @@ import in.koreatech.koin.domain.community.model.Article;
 public interface ArticleRepository extends Repository<Article, Long> {
 
     Page<Article> findByBoardId(Long boardId, Pageable pageable);
+
+    Article save(Article article);
 }
