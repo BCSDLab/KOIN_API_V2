@@ -99,10 +99,11 @@ public class Article extends BaseEntity {
             return "";
         }
         String contentSummary = Jsoup.parse(content).text();
-        contentSummary = contentSummary.replace("&nbsp", "").trim();
-        contentSummary = (contentSummary.length() > SUMMARY_MAX_LENGTH)
-            ? contentSummary.substring(SUMMARY_MIN_LENGTH, SUMMARY_MAX_LENGTH) : contentSummary;
-        return contentSummary;
+        contentSummary = contentSummary.replace("&nbsp", "").strip();
+        if (contentSummary.length() < SUMMARY_MAX_LENGTH) {
+            return contentSummary;
+        }
+        return contentSummary.substring(SUMMARY_MIN_LENGTH, SUMMARY_MAX_LENGTH);
     }
 
     @Builder
