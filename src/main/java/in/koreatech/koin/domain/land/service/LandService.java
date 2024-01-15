@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.land.dto.LandListItemResponse;
 import in.koreatech.koin.domain.land.dto.LandResponse;
+import in.koreatech.koin.domain.land.exception.LandNotFoundException;
 import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.domain.land.repository.LandRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class LandService {
 
     public LandResponse getLand(Long id) {
         Land land = landRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 복덕방입니다. id: " + id));
+            .orElseThrow(() -> LandNotFoundException.withDetail("id: " + id));
 
         String image = land.getImageUrls();
         List<String> imageUrls = null;
