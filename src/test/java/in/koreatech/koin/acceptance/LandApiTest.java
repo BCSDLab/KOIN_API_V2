@@ -86,6 +86,10 @@ class LandApiTest extends AcceptanceTest {
             .phone("010-1234-5678")
             .address("서울시 강남구")
             .size(100.0)
+            .imageUrls("""
+                ["https://example1.test.com/image.jpeg",
+                "https://example2.test.com/image.jpeg"]
+                """)
             .build();
 
         Land land = landRepository.save(request);
@@ -124,8 +128,6 @@ class LandApiTest extends AcceptanceTest {
                     .isEqualTo(land.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 softly.assertThat(response.body().jsonPath().getString("description"))
                     .isEqualTo(land.getDescription());
-                softly.assertThat(response.body().jsonPath().getList("image_urls"))
-                    .isEqualTo(land.getImageUrls());
                 softly.assertThat(response.body().jsonPath().getBoolean("opt_gas_range"))
                     .isEqualTo(land.getOptGasRange());
                 softly.assertThat(response.body().jsonPath().getBoolean("opt_induction"))
@@ -172,6 +174,7 @@ class LandApiTest extends AcceptanceTest {
                     .isEqualTo(URLEncoder.encode(land.getInternalName(), StandardCharsets.UTF_8));
                 softly.assertThat(response.body().jsonPath().getString("room_type"))
                     .isEqualTo(land.getRoomType());
+                softly.assertThat(response.body().jsonPath().getList("image_urls")).hasSize(2);
             }
         );
     }
