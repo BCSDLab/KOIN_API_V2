@@ -10,5 +10,7 @@ public interface UserTokenRepository extends Repository<UserToken, Long> {
 
     Optional<UserToken> findById(Long userId);
 
+    Optional<UserToken> findByRefreshToken(String refreshToken);
+
     void deleteById(Long id);
 }

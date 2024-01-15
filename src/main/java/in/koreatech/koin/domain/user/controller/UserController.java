@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.user.controller;
 import in.koreatech.koin.domain.auth.UserAuth;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
+import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.service.UserService;
 import jakarta.validation.Valid;
@@ -30,5 +32,13 @@ public class UserController {
     public ResponseEntity<Void> logout(@UserAuth User user) {
         userService.logout(user);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/user/refresh")
+    public ResponseEntity<UserTokenRefreshResponse> refresh(
+        @RequestBody @Valid UserTokenRefreshRequest request
+    ) {
+        UserTokenRefreshResponse tokenGroupResponse = userService.refresh(request);
+        return ResponseEntity.ok().body(tokenGroupResponse);
     }
 }

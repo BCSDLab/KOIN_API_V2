@@ -12,6 +12,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import java.util.Map;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -125,5 +126,66 @@ class AuthApiTest extends AcceptanceTest {
         Optional<UserToken> token = tokenRepository.findById(user.getId());
 
         Assertions.assertThat(token).isEmpty();
+    }
+
+    @Test
+    @DisplayName("사용자가 로그인 이후 refreshToken을 재발급한다")
+    void userRefreshToken() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(UserType.USER)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .log().all()
+            .body("""
+                {
+                  "email": "test@koreatech.ac.kr",
+                  "password": "1234"
+                }
+                """)
+            .contentType(ContentType.JSON)
+            .when()
+            .log().all()
+            .post("/user/login")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        RestAssured
+            .given()
+            .log().all()
+            .body(
+                Map.of("refresh_token", response.jsonPath().getString("refresh_token"))
+            )
+            .contentType(ContentType.JSON)
+            .when()
+            .log().all()
+            .post("/user/refresh")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        UserToken token = tokenRepository.findById(user.getId()).get();
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.jsonPath().getString("token")).isNotNull();
+                softly.assertThat(response.jsonPath().getString("refresh_token")).isNotNull();
+                softly.assertThat(response.jsonPath().getString("refresh_token"))
+                    .isEqualTo(token.getRefreshToken());
+            }
+        );
     }
 }
