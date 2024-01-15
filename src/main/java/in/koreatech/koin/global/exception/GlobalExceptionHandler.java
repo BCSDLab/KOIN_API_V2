@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import in.koreatech.koin.domain.auth.exception.AuthException;
+import in.koreatech.koin.domain.community.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.land.exception.LandNotFoundException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.global.exception.ErrorResponse.ErrorResponseWrapper;
@@ -47,5 +48,12 @@ public class GlobalExceptionHandler {
         log.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(ErrorResponseWrapper.from(ErrorResponse.from("복덕방이 존재하지 않습니다.")));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponseWrapper> handleArticleNotFoundException(ArticleNotFoundException e) {
+        log.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(ErrorResponseWrapper.from(ErrorResponse.from("There is no article")));
     }
 }
