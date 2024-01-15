@@ -30,7 +30,7 @@ public class LandService {
 
     public LandResponse getLand(Long id) {
         Land land = landRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 복덕방입니다."));
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 복덕방입니다. id: " + id));
 
         String image = land.getImageUrls();
         List<String> imageUrls = null;
