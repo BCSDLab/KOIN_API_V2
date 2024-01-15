@@ -49,16 +49,15 @@ class ShopApiTest extends AcceptanceTest {
             .shopId(1L)
             .name("중식")
             .build();
+        menuCategoryRepository.save(menuCategory);
 
         MenuCategoryMap menuCategoryMap = MenuCategoryMap.create();
 
-        // when then
         menuOption.setMenu(menu);
         menuImage.setMenu(menu);
 
+        // when then
         menuCategoryMap.map(menu, menuCategory);
-
-        menuCategoryRepository.save(menuCategory);
         menuRepository.save(menu);
 
         ExtractableResponse<Response> response = RestAssured
@@ -129,6 +128,7 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         MenuCategoryMap menuCategoryMap = MenuCategoryMap.create();
+        menuCategoryRepository.save(menuCategory);
 
         // when then
         menuOption1.setMenu(menu);
@@ -138,7 +138,6 @@ class ShopApiTest extends AcceptanceTest {
 
         menuCategoryMap.map(menu, menuCategory);
 
-        menuCategoryRepository.save(menuCategory);
         menuRepository.save(menu);
 
         ExtractableResponse<Response> response = RestAssured
@@ -205,6 +204,9 @@ class ShopApiTest extends AcceptanceTest {
             .shopId(SHOP_ID)
             .name("메인 메뉴")
             .build();
+        
+        menuCategoryRepository.save(menuCategory1);
+        menuCategoryRepository.save(menuCategory2);
 
         MenuCategoryMap menuCategoryMap1 = MenuCategoryMap.create();
         MenuCategoryMap menuCategoryMap2 = MenuCategoryMap.create();
@@ -213,8 +215,6 @@ class ShopApiTest extends AcceptanceTest {
         menuCategoryMap1.map(menu, menuCategory1);
         menuCategoryMap2.map(menu, menuCategory2);
 
-        menuCategoryRepository.save(menuCategory1);
-        menuCategoryRepository.save(menuCategory2);
         menuRepository.save(menu);
 
         ExtractableResponse<Response> response = RestAssured
