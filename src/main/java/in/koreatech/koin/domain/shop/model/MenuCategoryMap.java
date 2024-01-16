@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.shop.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,7 +28,7 @@ public class MenuCategoryMap {
     @JoinColumn(name = "shop_menu_id")
     private Menu menu;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_menu_category_id")
     private MenuCategory menuCategory;
 
