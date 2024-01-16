@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
+import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.domain.community.model.ArticleViewLog;
 import in.koreatech.koin.domain.community.model.Board;
@@ -72,5 +74,9 @@ public class CommunityService {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), SORT_ORDER_BY);
         Page<Article> articles = articleRepository.getByBoardId(boardId, pageRequest);
         return ArticlesResponse.of(articles.getContent(), board, (long) articles.getTotalPages());
+    }
+
+    public List<HotArticleItemResponse> getHotArticles() {
+        return null;
     }
 }
