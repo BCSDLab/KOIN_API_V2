@@ -10,11 +10,11 @@ import in.koreatech.koin.domain.land.model.Land;
 public record LandListItemResponse(
     String internalName,
     String monthlyFee,
-    String latitude,
+    Double latitude,
     String charterFee,
     String name,
     Long id,
-    String longitude,
+    Double longitude,
     String roomType) {
 
     public static LandListItemResponse from(Land land) {
