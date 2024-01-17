@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.MenuImage;
 import in.koreatech.koin.domain.shop.model.MenuOption;
+import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -21,6 +22,9 @@ class ShopApiTest extends AcceptanceTest {
 
     @Autowired
     private MenuRepository menuRepository;
+
+    @Autowired
+    private MenuCategoryRepository menuCategoryRepository;
 
     @Test
     @DisplayName("옵션이 하나 있는 상점의 메뉴를 조회한다.")
@@ -45,15 +49,15 @@ class ShopApiTest extends AcceptanceTest {
             .shopId(1L)
             .name("중식")
             .build();
+        menuCategoryRepository.save(menuCategory);
 
         MenuCategoryMap menuCategoryMap = MenuCategoryMap.create();
 
-        // when then
         menuOption.setMenu(menu);
         menuImage.setMenu(menu);
 
+        // when then
         menuCategoryMap.map(menu, menuCategory);
-
         menuRepository.save(menu);
 
         ExtractableResponse<Response> response = RestAssured
@@ -124,6 +128,7 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         MenuCategoryMap menuCategoryMap = MenuCategoryMap.create();
+        menuCategoryRepository.save(menuCategory);
 
         // when then
         menuOption1.setMenu(menu);
@@ -155,7 +160,7 @@ class ShopApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.getIsHidden());
 
                 softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
-                softly.assertThat((Integer)response.body().jsonPath().get("single_price")).isNull();
+                softly.assertThat((Integer) response.body().jsonPath().get("single_price")).isNull();
 
                 softly.assertThat(response.body().jsonPath().getList("option_prices")).hasSize(2);
                 softly.assertThat(response.body().jsonPath().getString("option_prices[0].option"))
@@ -174,6 +179,71 @@ class ShopApiTest extends AcceptanceTest {
 
                 softly.assertThat(response.body().jsonPath().getList("image_urls"))
                     .hasSize(menu.getMenuImages().size());
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("상점의 메뉴 카테고리들을 조회한다.")
+    void findShopMenuCategories() {
+        // given
+        final long SHOP_ID = 1L;
+
+        Menu menu = Menu.builder()
+            .shopId(SHOP_ID)
+            .name("짜장면")
+            .description("맛있는 짜장면")
+            .build();
+
+        MenuCategory menuCategory1 = MenuCategory.builder()
+            .shopId(SHOP_ID)
+            .name("이벤트 메뉴")
+            .build();
+
+        MenuCategory menuCategory2 = MenuCategory.builder()
+            .shopId(SHOP_ID)
+            .name("메인 메뉴")
+            .build();
+
+        menuCategoryRepository.save(menuCategory1);
+        menuCategoryRepository.save(menuCategory2);
+
+        MenuCategoryMap menuCategoryMap1 = MenuCategoryMap.create();
+        MenuCategoryMap menuCategoryMap2 = MenuCategoryMap.create();
+
+        // when then
+        menuCategoryMap1.map(menu, menuCategory1);
+        menuCategoryMap2.map(menu, menuCategory2);
+
+        menuRepository.save(menu);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .log().all()
+            .when()
+            .log().all()
+            .get("/shops/{shopId}/menus/categories", menu.getShopId())
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getLong("count")).isEqualTo(2);
+
+                softly.assertThat(response.body().jsonPath().getList("menu_categories"))
+                    .hasSize(2);
+
+                softly.assertThat(response.body().jsonPath().getLong("menu_categories[0].id"))
+                    .isEqualTo(menuCategory1.getId());
+                softly.assertThat(response.body().jsonPath().getString("menu_categories[0].name"))
+                    .isEqualTo(menuCategory1.getName());
+
+                softly.assertThat(response.body().jsonPath().getLong("menu_categories[1].id"))
+                    .isEqualTo(menuCategory2.getId());
+                softly.assertThat(response.body().jsonPath().getString("menu_categories[1].name"))
+                    .isEqualTo(menuCategory2.getName());
             }
         );
     }
