@@ -26,9 +26,8 @@ public class CommunityService {
 
     public static final Sort SORT_ORDER_BY = Sort.by(Sort.Direction.DESC, "id");
 
-    public ArticleResponse getArticle(Long id, String token) {
-        Article article = articleRepository.findById(id)
-            .orElseThrow(() -> ArticleNotFoundException.withDetail("id: " + id));
+    public ArticleResponse getArticle(Long articleId, String token) {
+        Article article = articleRepository.getById(articleId);
 
         return null;
     }
