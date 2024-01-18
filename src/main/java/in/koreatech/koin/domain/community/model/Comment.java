@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.community.model;
 
+import org.hibernate.annotations.Where;
+
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,6 +21,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "comments")
+@Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseEntity {
 
@@ -62,16 +65,9 @@ public class Comment extends BaseEntity {
         }
     }
 
-    public Boolean getGrantEdit() {
-        return grantEdit;
-    }
-
-    public Boolean getGrantDelete() {
-        return grantDelete;
-    }
-
     @Builder
-    public Comment(Long id, Long articleId, String content, Long userId, String nickname, Boolean isDeleted) {
+    public Comment(Long id, Long articleId, String content, Long userId,
+        String nickname, Boolean isDeleted) {
         this.id = id;
         this.articleId = articleId;
         this.content = content;

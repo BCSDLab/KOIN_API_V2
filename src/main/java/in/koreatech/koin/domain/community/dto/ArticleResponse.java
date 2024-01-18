@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.domain.community.model.Board;
 import in.koreatech.koin.domain.community.model.Comment;
 
@@ -21,12 +22,32 @@ public record ArticleResponse(
     Boolean is_notice,
     String contentSummary,
     Long hit,
-    Long comment_count,
+    Byte comment_count,
     InnerBoardResponse board,
     List<InnerCommentResponse> comments,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime created_at,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updated_at
 ) {
+
+    public static ArticleResponse of(Article article, Board board, List<Comment> comments) {
+        return new ArticleResponse(
+            article.getId(),
+            article.getBoardId(),
+            article.getTitle(),
+            article.getContent(),
+            article.getNickname(),
+            article.getIsSolved(),
+            article.getIsNotice(),
+            article.getContentSummary(),
+            article.getHit(),
+            article.getCommentCount(),
+            InnerBoardResponse.from(board),
+            comments.stream().map(InnerCommentResponse::from).toList(),
+            article.getCreatedAt(),
+            article.getUpdatedAt()
+        );
+    }
+
 
     private record InnerBoardResponse(
         Long id,
