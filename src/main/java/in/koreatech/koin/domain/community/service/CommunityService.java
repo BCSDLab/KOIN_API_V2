@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.community.model.Article;
@@ -24,6 +25,13 @@ public class CommunityService {
     private final BoardRepository boardRepository;
 
     public static final Sort SORT_ORDER_BY = Sort.by(Sort.Direction.DESC, "id");
+
+    public ArticleResponse getArticle(Long id, String token) {
+        Article article = articleRepository.findById(id)
+            .orElseThrow(() -> ArticleNotFoundException.withDetail("id: " + id));
+
+        return null;
+    }
 
     public ArticlesResponse getArticles(Long boardId, Long page, Long limit) {
         Criteria criteria = Criteria.of(page, limit);
