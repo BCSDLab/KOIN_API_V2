@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import in.koreatech.koin.domain.track.dto.TrackResponse;
+import in.koreatech.koin.domain.track.dto.TrackSingleResponse;
 import in.koreatech.koin.domain.track.model.Member;
 import in.koreatech.koin.domain.track.model.TechStack;
 import in.koreatech.koin.domain.track.model.Track;
-import in.koreatech.koin.domain.track.dto.TrackResponse;
-import in.koreatech.koin.domain.track.dto.TrackSingleResponse;
 import in.koreatech.koin.domain.track.repository.MemberRepository;
 import in.koreatech.koin.domain.track.repository.TechStackRepository;
 import in.koreatech.koin.domain.track.repository.TrackRepository;
@@ -29,8 +29,7 @@ public class TrackService {
     }
 
     public TrackSingleResponse getTrack(Long id) {
-        Track track = trackRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 트랙입니다."));
+        Track track = trackRepository.getById(id);
         List<Member> member = memberRepository.findAllByTrackId(id);
         List<TechStack> techStacks = techStackRepository.findAllByTrackId(id);
 

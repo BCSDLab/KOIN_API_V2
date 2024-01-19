@@ -1,9 +1,8 @@
 package in.koreatech.koin.domain.land.dto;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import in.koreatech.koin.domain.land.model.Land;
 
 @JsonNaming(value = SnakeCaseStrategy.class)

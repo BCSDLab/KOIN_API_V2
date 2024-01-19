@@ -7,10 +7,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import in.koreatech.koin.domain.auth.exception.AuthException;
-import in.koreatech.koin.domain.community.exception.ArticleNotFoundException;
-import in.koreatech.koin.domain.land.exception.LandNotFoundException;
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
-import in.koreatech.koin.global.exception.ErrorResponse.ErrorResponseWrapper;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -30,13 +26,6 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException e) {
-        log.warn(e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(ErrorResponse.from("사용자를 찾을 수 없습니다."));
-    }
-
-    @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleAuthException(AuthException e) {
         log.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -44,16 +33,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponseWrapper> handleAuthException(LandNotFoundException e) {
+    public ResponseEntity<ErrorResponse> handleDataNotFoundException(DataNotFoundException e) {
         log.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(ErrorResponseWrapper.from(ErrorResponse.from("복덕방이 존재하지 않습니다.")));
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<ErrorResponseWrapper> handleArticleNotFoundException(ArticleNotFoundException e) {
-        log.warn(e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(ErrorResponseWrapper.from(ErrorResponse.from("There is no article")));
+            .body(ErrorResponse.from("데이터를 찾을 수 없습니다."));
     }
 }

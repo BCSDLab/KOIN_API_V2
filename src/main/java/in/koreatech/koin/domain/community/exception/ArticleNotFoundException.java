@@ -1,6 +1,9 @@
 package in.koreatech.koin.domain.community.exception;
 
-public class ArticleNotFoundException extends RuntimeException {
+import in.koreatech.koin.global.exception.DataNotFoundException;
+
+public class ArticleNotFoundException extends DataNotFoundException {
+
     private static final String DEFAULT_MESSAGE = "게시글이 존재하지 않습니다.";
 
     public ArticleNotFoundException(String message) {
