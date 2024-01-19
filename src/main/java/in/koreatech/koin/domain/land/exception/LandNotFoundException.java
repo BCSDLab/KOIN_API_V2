@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.land.exception;
 
-public class LandNotFoundException extends RuntimeException {
+import in.koreatech.koin.global.exception.DataNotFoundException;
+
+public class LandNotFoundException extends DataNotFoundException {
 
     private static final String DEFAULT_MESSAGE = "복덕방이 존재하지 않습니다.";
 

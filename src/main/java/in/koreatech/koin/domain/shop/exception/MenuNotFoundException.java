@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.shop.exception;
 
-public class MenuNotFoundException extends RuntimeException {
+import in.koreatech.koin.global.exception.DataNotFoundException;
+
+public class MenuNotFoundException extends DataNotFoundException {
 
     private static final String DEFAULT_MESSAGE = "존재하지 않는 메뉴입니다.";
 
