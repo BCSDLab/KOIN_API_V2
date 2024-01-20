@@ -1,20 +1,21 @@
 package in.koreatech.koin.domain.version.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
+import in.koreatech.koin.domain.version.exception.VersionException;
 import in.koreatech.koin.domain.version.model.Version;
+import in.koreatech.koin.domain.version.model.VersionType;
 
 public interface VersionRepository extends Repository<Version, Long> {
 
-    List<Version> findAll();
-
     Version save(Version version);
 
-    void delete(Version version);
+    Optional<Version> findByType(VersionType type);
 
-    Optional<Version> findByType(String type);
+    default Version getByType(VersionType type) {
+        return this.findByType(type).orElseThrow(() -> VersionException.withDetail("일치하는 타입이 존재하지 않습니다."));
+    }
 
 }

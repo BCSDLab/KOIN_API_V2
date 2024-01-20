@@ -8,12 +8,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.version.model.Version;
+import in.koreatech.koin.domain.version.model.VersionType;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record VersionResponse(
     @JsonProperty("id") Long id,
     @JsonProperty("version") String version,
-    @JsonProperty("type") String type,
+    @JsonProperty("type") VersionType type,
     @JsonProperty("created_at") LocalDateTime createdAt,
     @JsonProperty("updated_at") LocalDateTime updatedAt) {
 
