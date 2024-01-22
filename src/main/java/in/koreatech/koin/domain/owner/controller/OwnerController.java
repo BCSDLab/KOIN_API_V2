@@ -16,7 +16,7 @@ public class OwnerController {
 
     private final OwnerService ownerService;
 
-    @PostMapping("/owners/register/verification/email")
+    @PostMapping("/owners/verification/email")
     public ResponseEntity<Void> requestVerificationToRegister(@RequestBody @Valid VerifyEmailRequest request) {
         ownerService.requestVerificationToRegister(request);
         return ResponseEntity.ok().build();
