@@ -17,6 +17,10 @@ public class Email {
     private final LocalParts localParts;
     private final Domain domain;
 
+    public String getEmail() {
+        return localParts.getValue() + domainSeparator + domain.getValue();
+    }
+
     public static Email from(String fullAddress) {
         emailValidator.validate(fullAddress);
         return new Email(LocalParts.from(fullAddress), Domain.from(fullAddress));
