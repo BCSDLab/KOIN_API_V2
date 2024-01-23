@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -14,19 +15,19 @@ import in.koreatech.koin.domain.community.model.Comment;
 @JsonNaming(SnakeCaseStrategy.class)
 public record ArticleResponse(
     Long id,
-    Long board_id,
+    Long boardId,
     String title,
     String content,
     String nickname,
-    Boolean is_solved,
-    Boolean is_notice,
-    String contentSummary,
+    Boolean isSolved,
+    Boolean isNotice,
+    @JsonProperty("contentSummary") String contentSummary,
     Long hit,
-    Byte comment_count,
+    Byte commentCount,
     InnerBoardResponse board,
     List<InnerCommentResponse> comments,
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime created_at,
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updated_at
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
 ) {
 
     public static ArticleResponse of(Article article, Board board, List<Comment> comments) {
@@ -48,20 +49,20 @@ public record ArticleResponse(
         );
     }
 
-
+    @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerBoardResponse(
         Long id,
         String tag,
         String name,
-        Boolean is_anonymous,
-        Long article_count,
-        Boolean is_deleted,
-        Boolean is_notice,
-        Long parent_id,
+        Boolean isAnonymous,
+        Long articleCount,
+        Boolean isDeleted,
+        Boolean isNotice,
+        Long parentId,
         Long seq,
         List<InnerBoardResponse> children,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime created_at,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updated_at
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
         ) {
 
         public static InnerBoardResponse from(Board board) {
@@ -83,17 +84,18 @@ public record ArticleResponse(
         }
     }
 
+    @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerCommentResponse(
         Long id,
-        Long article_id,
+        Long articleId,
         String content,
-        Long user_id,
+        Long userId,
         String nickname,
-        Boolean is_deleted,
-        Boolean grantEdit,
-        Boolean grantDelete,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime created_at,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updated_at
+        Boolean isDeleted,
+        @JsonProperty("grantEdit") Boolean grantEdit,
+        @JsonProperty("grantDelete") Boolean grantDelete,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
     ) {
 
         public static InnerCommentResponse from(Comment comment) {
