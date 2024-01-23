@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.auth.JwtProvider;
+import in.koreatech.koin.domain.auth.exception.AuthException;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.model.Article;
@@ -32,12 +33,20 @@ public class CommunityService {
 
     public static final Sort SORT_ORDER_BY = Sort.by(Sort.Direction.DESC, "id");
 
-    public ArticleResponse getArticle(Long articleId, String token) {
+    public ArticleResponse getArticle(Long articleId, String loginToken) {
         Article article = articleRepository.getById(articleId);
         Board board = boardRepository.getById(article.getBoardId());
         List<Comment> comments = commentRepository.findAllByArticleId(articleId);
-        comments.forEach(comment -> comment.updateAuthority(jwtProvider.getUserId(token)));
+        comments.forEach(comment -> comment.updateAuthority(getUserId(loginToken)));
         return ArticleResponse.of(article, board, comments);
+    }
+
+    private Long getUserId(String loginToken) {
+        try {
+            return jwtProvider.getUserId(loginToken);
+        } catch (AuthException e) {
+            return null;
+        }
     }
 
     public ArticlesResponse getArticles(Long boardId, Long page, Long limit) {

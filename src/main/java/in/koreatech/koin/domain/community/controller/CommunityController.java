@@ -21,8 +21,9 @@ public class CommunityController {
     private final CommunityService communityService;
 
     @GetMapping("/articles/{id}")
-    public ResponseEntity<ArticleResponse> getArticle(@PathVariable Long id, @RequestHeader(AUTHORIZATION) String token) {
-        ArticleResponse foundArticle = communityService.getArticle(id, token);
+    public ResponseEntity<ArticleResponse> getArticle(@PathVariable Long id,
+        @RequestHeader(name = AUTHORIZATION, required = false) String loginToken) {
+        ArticleResponse foundArticle = communityService.getArticle(id, loginToken);
         return ResponseEntity.ok().body(foundArticle);
     }
 
