@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
@@ -94,16 +95,22 @@ public class Article extends BaseEntity {
     @Transient
     private String summary;
 
-    public String getContentSummary() {
+    @Transient
+    private String contentSummary;
+
+    @PostLoad
+    public void updateContentSummary() {
         if (content == null) {
-            return "";
+            contentSummary = "";
+            return;
         }
-        String contentSummary = Jsoup.parse(content).text();
-        contentSummary = contentSummary.replace("&nbsp", "").strip();
-        if (contentSummary.length() < SUMMARY_MAX_LENGTH) {
-            return contentSummary;
+        String parseResult = Jsoup.parse(content).text();
+        parseResult = parseResult.replace("&nbsp", "").strip();
+        if (parseResult.length() < SUMMARY_MAX_LENGTH) {
+            contentSummary = parseResult;
+            return;
         }
-        return contentSummary.substring(SUMMARY_MIN_LENGTH, SUMMARY_MAX_LENGTH);
+        contentSummary = parseResult.substring(SUMMARY_MIN_LENGTH, SUMMARY_MAX_LENGTH);
     }
 
     @Builder
