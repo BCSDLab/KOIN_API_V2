@@ -113,6 +113,10 @@ public class Article extends BaseEntity {
         contentSummary = parseResult.substring(SUMMARY_MIN_LENGTH, SUMMARY_MAX_LENGTH);
     }
 
+    public void increaseHit() {
+        hit++;
+    }
+
     @Builder
     private Article(Long boardId, String title, String content, Long userId, String nickname, Long hit,
         String ip, Boolean isSolved, Boolean isDeleted, Byte commentCount, String meta, Boolean isNotice,
