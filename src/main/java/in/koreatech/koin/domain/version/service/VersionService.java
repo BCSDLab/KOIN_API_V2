@@ -16,7 +16,6 @@ public class VersionService {
 
     private final VersionRepository versionRepository;
 
-    @Transactional(readOnly = true)
     public VersionResponse getVersion(VersionType type) {
         Version version = versionRepository.getByType(type);
 

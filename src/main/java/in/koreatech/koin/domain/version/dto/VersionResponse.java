@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 
-@JsonNaming(value = SnakeCaseStrategy.class)
 public record VersionResponse(
     @JsonProperty("id") Long id,
     @JsonProperty("version") String version,

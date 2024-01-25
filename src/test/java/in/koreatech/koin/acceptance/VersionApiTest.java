@@ -2,11 +2,6 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
@@ -14,6 +9,10 @@ import in.koreatech.koin.domain.version.repository.VersionRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 class VersionApiTest extends AcceptanceTest {
 
@@ -36,13 +35,11 @@ class VersionApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log()
-            .all()
+            .log().all()
             .when()
             .get("/versions/" + versionType.name())
             .then()
-            .log()
-            .all()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
