@@ -21,6 +21,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ArticleViewLog {
 
+    private static final Long EXPIRED_HOUR = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -35,12 +37,16 @@ public class ArticleViewLog {
 
     @NotNull
     @Column(name = "expired_at", nullable = false)
-    private LocalDateTime expiredAt;
+    private LocalDateTime expiredAt = LocalDateTime.now().plusHours(EXPIRED_HOUR);
 
     @Size(max = 45)
     @NotNull
     @Column(name = "ip", nullable = false, length = 45)
     private String ip;
+
+    public void updateExpiredTime() {
+        expiredAt = LocalDateTime.now().plusHours(EXPIRED_HOUR);
+    }
 
     @Builder
     public ArticleViewLog(Long articleId, Long userId, LocalDateTime expiredAt, String ip) {

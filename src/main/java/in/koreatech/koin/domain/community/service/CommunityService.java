@@ -33,7 +33,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class CommunityService {
 
-    private static final Long EXPIRED_HOUR = 1L;
     private static final String AUTHORIZATION = "Authorization";
     public static final Sort SORT_ORDER_BY = Sort.by(Sort.Direction.DESC, "id");
 
@@ -63,15 +62,18 @@ public class CommunityService {
         }
         LocalDateTime now = LocalDateTime.now();
         Optional<ArticleViewLog> foundLog = articleViewLogRepository.findByArticleIdAndUserId(articleId, userId);
-        if (foundLog.isEmpty() || now.isAfter(foundLog.get().getExpiredAt())) {
+        if (foundLog.isEmpty()) {
             articleViewLogRepository.save(
                 ArticleViewLog.builder()
                     .articleId(articleId)
                     .userId(userId)
                     .ip(ipAddress)
-                    .expiredAt(now.plusHours(EXPIRED_HOUR))
                     .build()
             );
+            return true;
+        }
+        if (now.isAfter(foundLog.get().getExpiredAt())) {
+            foundLog.get().updateExpiredTime();
             return true;
         }
         return false;
