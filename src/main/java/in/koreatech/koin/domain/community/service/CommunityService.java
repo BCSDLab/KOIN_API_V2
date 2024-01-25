@@ -103,7 +103,7 @@ public class CommunityService {
         Criteria criteria = Criteria.of(page, limit);
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), SORT_ORDER_BY);
-        Page<Article> articles = articleRepository.findByBoardId(boardId, pageRequest);
+        Page<Article> articles = articleRepository.getByBoardId(boardId, pageRequest);
         return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
     }
 }
