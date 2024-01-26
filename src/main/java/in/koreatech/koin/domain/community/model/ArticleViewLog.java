@@ -49,10 +49,10 @@ public class ArticleViewLog {
     }
 
     @Builder
-    public ArticleViewLog(Long articleId, Long userId, LocalDateTime expiredAt, String ip) {
+    public ArticleViewLog(Long articleId, Long userId, String ip) {
         this.articleId = articleId;
         this.userId = userId;
-        this.expiredAt = expiredAt;
         this.ip = ip;
+        updateExpiredTime();
     }
 }
