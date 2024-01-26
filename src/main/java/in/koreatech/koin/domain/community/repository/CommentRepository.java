@@ -9,4 +9,6 @@ import in.koreatech.koin.domain.community.model.Comment;
 public interface CommentRepository extends Repository<Comment, Long> {
 
     List<Comment> findAllByArticleId(Long articleId);
+
+    Comment save(Comment comment);
 }
