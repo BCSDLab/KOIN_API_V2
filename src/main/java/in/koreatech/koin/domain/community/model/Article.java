@@ -104,8 +104,7 @@ public class Article extends BaseEntity {
             contentSummary = "";
             return;
         }
-        String parseResult = Jsoup.parse(content).text();
-        parseResult = parseResult.replace("&nbsp", "").strip();
+        String parseResult = Jsoup.parse(content).text().replace("&nbsp", "").strip();
         if (parseResult.length() < SUMMARY_MAX_LENGTH) {
             contentSummary = parseResult;
             return;
