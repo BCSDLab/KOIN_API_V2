@@ -489,7 +489,7 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 페이지가 최대 페이지 수를 넘어가면 404")
+    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 요청된 페이지에 게시글이 존재하지 않으면 빈 게시글 배열을 반환한다.")
     void getArticlesByPagination_overMaxPageNotFound() {
         // given
         final long PAGE_NUMBER = 10000L;
@@ -506,7 +506,13 @@ class CommunityApiTest extends AcceptanceTest {
             .get("/articles")
             .then()
             .log().all()
-            .statusCode(HttpStatus.NOT_FOUND.value())
+            .statusCode(HttpStatus.OK.value())
             .extract();
+
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(response.jsonPath().getList("articles")).hasSize(0);
+            }
+        );
     }
 }
