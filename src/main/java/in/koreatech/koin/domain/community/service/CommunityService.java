@@ -25,6 +25,7 @@ import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.repository.BoardRepository;
 import in.koreatech.koin.domain.community.repository.CommentRepository;
+import in.koreatech.koin.global.util.ClientUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -48,7 +49,7 @@ public class CommunityService {
         Board board = boardRepository.getById(article.getBoardId());
         Long userId = getUserId();
         String ipAddress = getIpAddress();
-        if (canIncreaseArticleHit(articleId, userId, ipAddress)) {
+        if (isHittable(articleId, userId, ipAddress)) {
             article.increaseHit();
         }
         List<Comment> comments = commentRepository.findAllByArticleId(articleId);
@@ -56,7 +57,7 @@ public class CommunityService {
         return ArticleResponse.of(article, board, comments);
     }
 
-    private boolean canIncreaseArticleHit(Long articleId, Long userId, String ipAddress) {
+    private boolean isHittable(Long articleId, Long userId, String ipAddress) {
         if (userId == null) {
             return false;
         }
