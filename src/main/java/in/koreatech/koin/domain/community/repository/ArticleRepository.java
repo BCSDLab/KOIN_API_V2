@@ -16,14 +16,7 @@ public interface ArticleRepository extends Repository<Article, Long> {
     Page<Article> findByBoardId(Long boardId, Pageable pageable);
 
     default Page<Article> getByBoardId(Long boardId, Pageable pageable) {
-        Page<Article> articles = findByBoardId(boardId, pageable);
-        if (articles.getContent().isEmpty()) {
-            throw ArticleNotFoundException.withDetail(
-                "boardId: " + boardId
-                    + ", pageNumber: " + pageable.getPageNumber() + ","
-                    + " pageSize: " + pageable.getPageSize());
-        }
-        return articles;
+        return findByBoardId(boardId, pageable);
     }
 
     Optional<Article> findById(Long articleId);
