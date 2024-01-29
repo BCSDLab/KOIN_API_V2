@@ -93,11 +93,7 @@ public class CommunityService {
     private String getIpAddress() {
         HttpServletRequest request =
             ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
-        String ipAddress = request.getHeader("X-FORWARDED-FOR");
-        if (ipAddress == null) {
-            ipAddress = request.getRemoteAddr();
-        }
-        return ipAddress;
+        return ClientUtil.getClientIP(request);
     }
 
     public ArticlesResponse getArticles(Long boardId, Long page, Long limit) {
