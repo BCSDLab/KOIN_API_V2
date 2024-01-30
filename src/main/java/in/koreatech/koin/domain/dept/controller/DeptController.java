@@ -19,7 +19,7 @@ public class DeptController {
     private final DeptService deptService;
 
     @GetMapping("/dept")
-    public ResponseEntity<DeptResponse> getDept(@RequestParam(value = "dept_num") Long deptNumber) {
+    public ResponseEntity<DeptResponse> getDept(@RequestParam(value = "dept_num") String deptNumber) {
         DeptResponse foundDepartment = deptService.getById(deptNumber);
         if (foundDepartment == null) {
             return ResponseEntity.ok().build();

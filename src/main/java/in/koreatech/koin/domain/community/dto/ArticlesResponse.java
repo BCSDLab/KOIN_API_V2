@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.community.model.Article;
@@ -27,7 +27,7 @@ public record ArticlesResponse(
         );
     }
 
-    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerArticleResponse(
         Long id,
         Long boardId,
@@ -51,10 +51,10 @@ public record ArticlesResponse(
         public static InnerArticleResponse from(Article article) {
             return new InnerArticleResponse(
                 article.getId(),
-                article.getBoardId(),
+                article.getBoard().getId(),
                 article.getTitle(),
                 article.getContent(),
-                article.getUserId(),
+                article.getUser().getId(),
                 article.getNickname(),
                 article.getHit(),
                 article.getIp(),
@@ -72,7 +72,7 @@ public record ArticlesResponse(
         }
     }
 
-    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerBoardResponse(
         Long id,
         String tag,

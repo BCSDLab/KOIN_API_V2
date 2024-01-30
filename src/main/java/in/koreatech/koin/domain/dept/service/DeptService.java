@@ -12,7 +12,7 @@ import in.koreatech.koin.domain.dept.model.Dept;
 @Service
 public class DeptService {
 
-    public DeptResponse getById(Long id) {
+    public DeptResponse getById(String id) {
         Optional<Dept> dept = Dept.findByNumber(id);
 
         return dept.map(value -> DeptResponse.from(id, value)).orElse(null);
