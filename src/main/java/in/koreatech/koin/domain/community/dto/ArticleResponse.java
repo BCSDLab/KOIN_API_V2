@@ -30,10 +30,10 @@ public record ArticleResponse(
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
 ) {
 
-    public static ArticleResponse of(Article article, Board board, List<Comment> comments) {
+    public static ArticleResponse of(Article article) {
         return new ArticleResponse(
             article.getId(),
-            article.getBoardId(),
+            article.getBoard().getId(),
             article.getTitle(),
             article.getContent(),
             article.getNickname(),
@@ -42,8 +42,8 @@ public record ArticleResponse(
             article.getContentSummary(),
             article.getHit(),
             article.getCommentCount(),
-            InnerBoardResponse.from(board),
-            comments.stream().map(InnerCommentResponse::from).toList(),
+            InnerBoardResponse.from(article.getBoard()),
+            article.getComment().stream().map(InnerCommentResponse::from).toList(),
             article.getCreatedAt(),
             article.getUpdatedAt()
         );
@@ -63,7 +63,7 @@ public record ArticleResponse(
         List<InnerBoardResponse> children,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
-        ) {
+    ) {
 
         public static InnerBoardResponse from(Board board) {
             return new InnerBoardResponse(
@@ -101,7 +101,7 @@ public record ArticleResponse(
         public static InnerCommentResponse from(Comment comment) {
             return new InnerCommentResponse(
                 comment.getId(),
-                comment.getArticleId(),
+                comment.getArticle().getId(),
                 comment.getContent(),
                 comment.getUserId(),
                 comment.getNickname(),

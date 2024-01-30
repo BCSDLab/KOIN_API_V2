@@ -51,10 +51,10 @@ public record ArticlesResponse(
         public static InnerArticleResponse from(Article article) {
             return new InnerArticleResponse(
                 article.getId(),
-                article.getBoardId(),
+                article.getBoard().getId(),
                 article.getTitle(),
                 article.getContent(),
-                article.getUserId(),
+                article.getUser().getId(),
                 article.getNickname(),
                 article.getHit(),
                 article.getIp(),

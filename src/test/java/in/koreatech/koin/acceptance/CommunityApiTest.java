@@ -48,9 +48,32 @@ class CommunityApiTest extends AcceptanceTest {
 
     private Board board;
     private Article article1, article2;
+    private Student student;
 
     @BeforeEach
     void givenBeforeEach() {
+        Student studentRequest = Student.builder()
+            .studentNumber("202020136070")
+            .anonymousNickname("익명")
+            .department("컴퓨터공학부")
+            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .isGraduated(false)
+            .user(
+                User.builder()
+                    .password("0000")
+                    .nickname("BCSD")
+                    .name("송선권")
+                    .phoneNumber("010-1234-5678")
+                    .userType(UserType.STUDENT)
+                    .gender(UserGender.MAN)
+                    .email("test@koreatech.ac.kr")
+                    .isAuthed(true)
+                    .isDeleted(false)
+                    .build()
+            )
+            .build();
+        student = studentRepository.save(studentRequest);
+
         Board boardRequest = Board.builder()
             .tag("FA001")
             .name("자유게시판")
@@ -61,12 +84,13 @@ class CommunityApiTest extends AcceptanceTest {
             .parentId(null)
             .seq(1L)
             .build();
+        board = boardRepository.save(boardRequest);
 
         Article article1Request = Article.builder()
-            .boardId(1L)
+            .board(board)
             .title("제목")
             .content("<p>내용</p>")
-            .userId(1L)
+            .user(student.getUser())
             .nickname("BCSD")
             .hit(14L)
             .ip("123.21.234.321")
@@ -77,12 +101,13 @@ class CommunityApiTest extends AcceptanceTest {
             .isNotice(false)
             .noticeArticleId(null)
             .build();
+        article1 = articleRepository.save(article1Request);
 
         Article article2Request = Article.builder()
-            .boardId(1L)
+            .board(board)
             .title("TITLE")
             .content("<p> CONTENT</p>")
-            .userId(1L)
+            .user(student.getUser())
             .nickname("BCSD")
             .hit(14L)
             .ip("123.14.321.213")
@@ -94,10 +119,7 @@ class CommunityApiTest extends AcceptanceTest {
             .noticeArticleId(null)
             .build();
 
-        board = boardRepository.save(boardRequest);
-        article1 = articleRepository.save(article1Request);
         article2 = articleRepository.save(article2Request);
-        System.out.println("article2 = " + article2);
     }
 
     @Test
@@ -105,7 +127,7 @@ class CommunityApiTest extends AcceptanceTest {
     void getArticle() {
         // given
         Comment request = Comment.builder()
-            .articleId(article1.getId())
+            .article(article1)
             .content("댓글")
             .userId(1L)
             .nickname("BCSD")
@@ -130,7 +152,7 @@ class CommunityApiTest extends AcceptanceTest {
         SoftAssertions.assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getLong("id")).isEqualTo(article1.getId());
-                softly.assertThat(response.jsonPath().getLong("board_id")).isEqualTo(article1.getBoardId());
+                softly.assertThat(response.jsonPath().getLong("board_id")).isEqualTo(article1.getBoard().getId());
                 softly.assertThat(response.jsonPath().getString("title")).isEqualTo(article1.getTitle());
                 softly.assertThat(response.jsonPath().getString("content")).isEqualTo(article1.getContent());
                 softly.assertThat(response.jsonPath().getString("nickname")).isEqualTo(article1.getNickname());
@@ -152,7 +174,7 @@ class CommunityApiTest extends AcceptanceTest {
                 softly.assertThat(response.jsonPath().getString("board.children")).isEqualTo(board.getChildren().isEmpty() ? null : board.getChildren());
 
                 softly.assertThat(response.jsonPath().getLong("comments[0].id")).isEqualTo(comment.getId());
-                softly.assertThat(response.jsonPath().getLong("comments[0].article_id")).isEqualTo(comment.getArticleId());
+                softly.assertThat(response.jsonPath().getLong("comments[0].article_id")).isEqualTo(comment.getArticle().getId());
                 softly.assertThat(response.jsonPath().getString("comments[0].content")).isEqualTo(comment.getContent());
                 softly.assertThat(response.jsonPath().getLong("comments[0].user_id")).isEqualTo(comment.getUserId());
                 softly.assertThat(response.jsonPath().getString("comments[0].nickname")).isEqualTo(comment.getNickname());
@@ -167,32 +189,10 @@ class CommunityApiTest extends AcceptanceTest {
     @DisplayName("특정 게시글을 단일 조회한다. - 댓글 작성자가 본인이면 수정 및 제거 권한이 부여된다.")
     void getArticleAuthorizationComment() {
         // given
-        Student student = Student.builder()
-            .studentNumber("202020136070")
-            .anonymousNickname("익명")
-            .department("컴퓨터공학부")
-            .userIdentity(UserIdentity.UNDERGRADUATE)
-            .isGraduated(false)
-            .user(
-                User.builder()
-                    .password("0000")
-                    .nickname("BCSD")
-                    .name("송선권")
-                    .phoneNumber("010-1234-5678")
-                    .userType(UserType.STUDENT)
-                    .gender(UserGender.MAN)
-                    .email("test@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
-
-        student = studentRepository.save(student);
         String token = jwtProvider.createToken(student.getUser());
 
         Comment request = Comment.builder()
-            .articleId(article1.getId())
+            .article(article1)
             .content("댓글")
             .userId(1L)
             .nickname("BCSD")
@@ -259,10 +259,10 @@ class CommunityApiTest extends AcceptanceTest {
                 softly.assertThat(response.jsonPath().getString("board.children")).isEqualTo(board.getChildren().isEmpty() ? null : board.getChildren());
 
                 softly.assertThat(response.jsonPath().getLong("articles[0].id")).isEqualTo(article2.getId());
-                softly.assertThat(response.jsonPath().getLong("articles[0].board_id")).isEqualTo(article2.getBoardId());
+                softly.assertThat(response.jsonPath().getLong("articles[0].board_id")).isEqualTo(article2.getBoard().getId());
                 softly.assertThat(response.jsonPath().getString("articles[0].title")).isEqualTo(article2.getTitle());
                 softly.assertThat(response.jsonPath().getString("articles[0].content")).isEqualTo(article2.getContent());
-                softly.assertThat(response.jsonPath().getLong("articles[0].user_id")).isEqualTo(article2.getUserId());
+                softly.assertThat(response.jsonPath().getLong("articles[0].user_id")).isEqualTo(article2.getUser().getId());
                 softly.assertThat(response.jsonPath().getString("articles[0].nickname")).isEqualTo(article2.getNickname());
                 softly.assertThat(response.jsonPath().getLong("articles[0].hit")).isEqualTo(article2.getHit());
                 softly.assertThat(response.jsonPath().getString("articles[0].ip")).isEqualTo(article2.getIp());
@@ -401,10 +401,10 @@ class CommunityApiTest extends AcceptanceTest {
 
         for (int i = 0; i < ADD_ARTICLE_COUNT; i++) {
             Article article = Article.builder()
-                .boardId(1L)
+                .board(board)
                 .title("제목")
                 .content("<p>내용</p>")
-                .userId(1L)
+                .user(student.getUser())
                 .nickname("BCSD")
                 .hit(14L)
                 .ip("123.21.234.321")
@@ -450,10 +450,10 @@ class CommunityApiTest extends AcceptanceTest {
 
         for (int i = 0; i < ADD_ARTICLE_COUNT; i++) {
             Article article = Article.builder()
-                .boardId(1L)
+                .board(board)
                 .title("제목")
                 .content("<p>내용</p>")
-                .userId(1L)
+                .user(student.getUser())
                 .nickname("BCSD")
                 .hit(14L)
                 .ip("123.21.234.321")

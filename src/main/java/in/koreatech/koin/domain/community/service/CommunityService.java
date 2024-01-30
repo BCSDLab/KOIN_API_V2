@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.community.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -19,12 +18,10 @@ import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.domain.community.model.ArticleViewLog;
 import in.koreatech.koin.domain.community.model.Board;
-import in.koreatech.koin.domain.community.model.Comment;
 import in.koreatech.koin.domain.community.model.Criteria;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.repository.BoardRepository;
-import in.koreatech.koin.domain.community.repository.CommentRepository;
 import in.koreatech.koin.global.util.ClientUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -41,20 +38,17 @@ public class CommunityService {
     private final ArticleRepository articleRepository;
     private final ArticleViewLogRepository articleViewLogRepository;
     private final BoardRepository boardRepository;
-    private final CommentRepository commentRepository;
 
     @Transactional
     public ArticleResponse getArticle(Long articleId) {
         Article article = articleRepository.getById(articleId);
-        Board board = boardRepository.getById(article.getBoardId());
         Long userId = getUserId();
         String ipAddress = getIpAddress();
         if (isHittable(articleId, userId, ipAddress)) {
             article.increaseHit();
         }
-        List<Comment> comments = commentRepository.findAllByArticleId(articleId);
-        comments.forEach(comment -> comment.updateAuthority(userId));
-        return ArticleResponse.of(article, board, comments);
+        article.getComment().forEach(comment -> comment.updateAuthority(userId));
+        return ArticleResponse.of(article);
     }
 
     private boolean isHittable(Long articleId, Long userId, String ipAddress) {

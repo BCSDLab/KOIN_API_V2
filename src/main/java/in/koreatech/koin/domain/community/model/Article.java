@@ -1,15 +1,22 @@
 package in.koreatech.koin.domain.community.model;
 
+import java.util.List;
+
 import org.hibernate.annotations.Where;
 import org.jsoup.Jsoup;
 
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -37,9 +44,9 @@ public class Article extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @NotNull
-    @Column(name = "board_id", nullable = false)
-    private Long boardId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id", nullable = false)
+    private Board board;
 
     @Size(max = 255)
     @NotNull
@@ -51,9 +58,9 @@ public class Article extends BaseEntity {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @NotNull
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Size(max = 50)
     @NotNull
@@ -76,6 +83,9 @@ public class Article extends BaseEntity {
     @NotNull
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY)
+    private List<Comment> comment;
 
     @NotNull
     @Column(name = "comment_count", nullable = false)
@@ -117,13 +127,13 @@ public class Article extends BaseEntity {
     }
 
     @Builder
-    private Article(Long boardId, String title, String content, Long userId, String nickname, Long hit,
+    private Article(Board board, String title, String content, User user, String nickname, Long hit,
         String ip, Boolean isSolved, Boolean isDeleted, Byte commentCount, String meta, Boolean isNotice,
         Long noticeArticleId) {
-        this.boardId = boardId;
+        this.board = board;
         this.title = title;
         this.content = content;
-        this.userId = userId;
+        this.user = user;
         this.nickname = nickname;
         this.hit = hit;
         this.ip = ip;
