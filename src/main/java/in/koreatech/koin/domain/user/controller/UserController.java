@@ -1,19 +1,23 @@
 package in.koreatech.koin.domain.user.controller;
 
-import in.koreatech.koin.domain.auth.UserAuth;
+import java.net.URI;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import in.koreatech.koin.domain.auth.Auth;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.model.User;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.USER;
 import in.koreatech.koin.domain.user.service.UserService;
 import jakarta.validation.Valid;
-import java.net.URI;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +33,7 @@ public class UserController {
     }
 
     @PostMapping("/user/logout")
-    public ResponseEntity<Void> logout(@UserAuth User user) {
+    public ResponseEntity<Void> logout(@Auth(permit = {USER, STUDENT}) User user) {
         userService.logout(user);
         return ResponseEntity.ok().build();
     }
