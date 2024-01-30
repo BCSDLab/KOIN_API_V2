@@ -29,6 +29,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     implementation 'com.mysql:mysql-connector-j'
     implementation 'org.jsoup:jsoup:1.15.3'
+    implementation 'com.amazonaws:aws-java-sdk-ses:1.12.188'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
     runtimeOnly 'com.h2database:h2'
