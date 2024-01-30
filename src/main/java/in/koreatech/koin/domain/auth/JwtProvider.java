@@ -1,25 +1,26 @@
 package in.koreatech.koin.domain.auth;
 
+import java.security.Key;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Date;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import in.koreatech.koin.domain.auth.exception.AuthException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import java.security.Key;
-import java.time.Instant;
-import java.util.Base64;
-import java.util.Date;
-import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
-
-    private static final String BEARER_PREFIX = "BEARER ";
 
     @Value("${jwt.secret-key}")
     private String secretKey;
@@ -29,7 +30,7 @@ public class JwtProvider {
 
     public String createToken(User user) {
         if (user == null) {
-            throw new UserNotFoundException("존재하지 않는 사용자입니다. user: " + user);
+            throw UserNotFoundException.withDetail("user: " + null);
         }
 
         Key key = getSecretKey();
@@ -44,12 +45,7 @@ public class JwtProvider {
             .compact();
     }
 
-    public Long getUserId(String requestToken) {
-        if (requestToken == null || !requestToken.toUpperCase().startsWith(BEARER_PREFIX)) {
-            throw AuthException.withDetail("token: " + requestToken);
-        }
-        String token = requestToken.substring(BEARER_PREFIX.length());
-
+    public Long getUserId(String token) {
         try {
             String userId = Jwts.parser()
                 .verifyWith(getSecretKey())

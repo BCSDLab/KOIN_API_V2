@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.auth.resolver;
+package in.koreatech.koin.domain.auth;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,8 +10,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import in.koreatech.koin.domain.auth.Auth;
-import in.koreatech.koin.domain.auth.AuthContext;
 import in.koreatech.koin.domain.auth.exception.AuthException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
@@ -39,11 +37,25 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
         Auth authAt = parameter.getParameterAnnotation(Auth.class);
         requireNonNull(authAt);
         List<UserType> permitStatus = Arrays.asList(authAt.permit());
-        User user = userRepository.getById(authContext.getUserId());
+        Long userId = authContext.getUserId();
+        if (isAnonymous(userId, authAt)) {
+            return null;
+        }
+        User user = userRepository.getById(userId);
         if (permitStatus.contains(user.getUserType())) {
             return user.getId();
         }
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         throw AuthException.withDetail("header: " + request);
+    }
+
+    private static boolean isAnonymous(Long userId, Auth authAt) {
+        if (userId == null) {
+            if (authAt.anonymous()) {
+                return true;
+            }
+            throw AuthException.withDetail("userId is null");
+        }
+        return false;
     }
 }

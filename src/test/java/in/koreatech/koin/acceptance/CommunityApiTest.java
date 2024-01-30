@@ -206,7 +206,7 @@ class CommunityApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .log().all()
-            .header("Authorization", "BEARER " + token)
+            .header("Authorization", "Bearer " + token)
             .when()
             .log().all()
             .get("/articles/{articleId}", article1.getId())

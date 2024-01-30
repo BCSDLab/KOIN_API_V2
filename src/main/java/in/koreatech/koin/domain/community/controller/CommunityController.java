@@ -6,9 +6,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.auth.Auth;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.service.CommunityService;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.USER;
+import in.koreatech.koin.global.ipaddress.IpAddress;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -18,8 +22,12 @@ public class CommunityController {
     private final CommunityService communityService;
 
     @GetMapping("/articles/{id}")
-    public ResponseEntity<ArticleResponse> getArticle(@PathVariable Long id) {
-        ArticleResponse foundArticle = communityService.getArticle(id);
+    public ResponseEntity<ArticleResponse> getArticle(
+        @Auth(permit = {USER, STUDENT}, anonymous = true) Long userId,
+        @PathVariable("id") Long articleId,
+        @IpAddress String ipAddress
+    ) {
+        ArticleResponse foundArticle = communityService.getArticle(userId, articleId, ipAddress);
         return ResponseEntity.ok().body(foundArticle);
     }
 

@@ -46,8 +46,8 @@ public class UserService {
     }
 
     @Transactional
-    public void logout(User user) {
-        userTokenRepository.deleteById(user.getId());
+    public void logout(Long userId) {
+        userTokenRepository.deleteById(userId);
     }
 
     public UserTokenRefreshResponse refresh(UserTokenRefreshRequest request) {

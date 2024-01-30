@@ -60,7 +60,7 @@ class UserApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .log().all()
-            .header("Authorization", "BEARER " + token)
+            .header("Authorization", "Bearer " + token)
             .when()
             .log().all()
             .get("/user/student/me")
@@ -123,7 +123,7 @@ class UserApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .log().all()
-            .header("Authorization", "BEARER " + token)
+            .header("Authorization", "Bearer " + token)
             .when()
             .log().all()
             .get("/user/student/me")
@@ -154,7 +154,7 @@ class UserApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .log().all()
-            .header("Authorization", "BEARER " + token)
+            .header("Authorization", "Bearer " + token)
             .when()
             .log().all()
             .get("/user/student/me")
