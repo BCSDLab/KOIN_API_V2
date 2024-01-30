@@ -22,6 +22,7 @@ import in.koreatech.koin.domain.community.model.Criteria;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.repository.BoardRepository;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.util.ClientUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class CommunityService {
     private final ArticleRepository articleRepository;
     private final ArticleViewLogRepository articleViewLogRepository;
     private final BoardRepository boardRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public ArticleResponse getArticle(Long articleId) {
@@ -60,8 +62,8 @@ public class CommunityService {
         if (foundLog.isEmpty()) {
             articleViewLogRepository.save(
                 ArticleViewLog.builder()
-                    .articleId(articleId)
-                    .userId(userId)
+                    .article(articleRepository.getById(articleId))
+                    .user(userRepository.getById(userId))
                     .ip(ipAddress)
                     .build()
             );

@@ -2,11 +2,14 @@ package in.koreatech.koin.domain.community.model;
 
 import java.time.LocalDateTime;
 
+import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,12 +31,13 @@ public class ArticleViewLog {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @NotNull
-    @Column(name = "article_id", nullable = false)
-    private Long articleId;
+    @OneToOne
+    @JoinColumn(name = "article_id", nullable = false)
+    private Article article;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @NotNull
     @Column(name = "expired_at", nullable = false)
@@ -49,9 +53,9 @@ public class ArticleViewLog {
     }
 
     @Builder
-    public ArticleViewLog(Long articleId, Long userId, String ip) {
-        this.articleId = articleId;
-        this.userId = userId;
+    public ArticleViewLog(Article article, User user, String ip) {
+        this.article = article;
+        this.user = user;
         this.ip = ip;
         updateExpiredTime();
     }
