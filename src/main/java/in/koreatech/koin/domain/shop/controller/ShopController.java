@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class ShopController {
+public class ShopController implements ShopApi {
 
     private final ShopService shopService;
 
