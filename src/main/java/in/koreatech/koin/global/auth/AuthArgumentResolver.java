@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.auth;
+package in.koreatech.koin.global.auth;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +10,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import in.koreatech.koin.domain.auth.exception.AuthException;
+import in.koreatech.koin.global.auth.exception.AuthException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;

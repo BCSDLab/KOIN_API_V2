@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.auth.JwtProvider;
+import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.domain.community.model.Board;
 import in.koreatech.koin.domain.community.model.Comment;
@@ -24,6 +24,7 @@ import in.koreatech.koin.domain.user.repository.StudentRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import static org.assertj.core.api.SoftAssertions.*;
 
 class CommunityApiTest extends AcceptanceTest {
 
@@ -149,7 +150,7 @@ class CommunityApiTest extends AcceptanceTest {
             .extract();
 
         article1.updateContentSummary();
-        SoftAssertions.assertSoftly(
+        assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getLong("id")).isEqualTo(article1.getId());
                 softly.assertThat(response.jsonPath().getLong("board_id")).isEqualTo(article1.getBoard().getId());
@@ -216,7 +217,7 @@ class CommunityApiTest extends AcceptanceTest {
             .extract();
 
         article1.updateContentSummary();
-        SoftAssertions.assertSoftly(
+        assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getBoolean("comments[0].grantEdit")).isEqualTo(comment.getGrantEdit());
                 softly.assertThat(response.jsonPath().getBoolean("comments[0].grantDelete")).isEqualTo(comment.getGrantDelete());
@@ -245,7 +246,7 @@ class CommunityApiTest extends AcceptanceTest {
             .extract();
 
         article2.updateContentSummary();
-        SoftAssertions.assertSoftly(
+        assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getLong("board.id")).isEqualTo(board.getId());
                 softly.assertThat(response.jsonPath().getString("board.tag")).isEqualTo(board.getTag());
@@ -301,7 +302,7 @@ class CommunityApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
+        assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getLong("articles[0].id")).isEqualTo(article2.getId());
             }
@@ -329,7 +330,7 @@ class CommunityApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
+        assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getLong("articles[0].id")).isEqualTo(article2.getId());
             }
@@ -357,7 +358,7 @@ class CommunityApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
+        assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getLong("totalPage")).isEqualTo(ARTICLE_COUNT / PAGE_LIMIT);
             }
@@ -384,7 +385,7 @@ class CommunityApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
+        assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getLong("totalPage")).isEqualTo(ARTICLE_COUNT / PAGE_LIMIT);
             }
@@ -433,7 +434,7 @@ class CommunityApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
+        assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getLong("totalPage")).isEqualTo((long)Math.ceil(((double)ARTICLE_COUNT + ADD_ARTICLE_COUNT) / MAX_PAGE_LIMIT));
             }
@@ -480,7 +481,7 @@ class CommunityApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
+        assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getLong("articles[0].id")).isEqualTo(FINAL_ARTICLE_ID);
                 softly.assertThat(response.jsonPath().getLong("totalPage")).isEqualTo((long)Math.ceil(((double)ARTICLE_COUNT + ADD_ARTICLE_COUNT) / DEFAULT_LIMIT));
@@ -509,7 +510,7 @@ class CommunityApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
+        assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getList("articles")).hasSize(0);
             }

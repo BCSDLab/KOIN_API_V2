@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.auth.Auth;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static in.koreatech.koin.domain.user.model.UserType.USER;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

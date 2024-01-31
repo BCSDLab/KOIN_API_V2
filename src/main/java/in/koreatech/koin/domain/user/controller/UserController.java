@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.auth.Auth;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -18,6 +17,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static in.koreatech.koin.domain.user.model.UserType.USER;
 import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
+import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

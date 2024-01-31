@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.auth.Auth;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.service.CommunityService;

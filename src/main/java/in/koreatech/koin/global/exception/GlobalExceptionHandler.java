@@ -6,7 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import in.koreatech.koin.domain.auth.exception.AuthException;
+import in.koreatech.koin.global.auth.exception.AuthException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
