@@ -3,7 +3,7 @@ package in.koreatech.koin.acceptance;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.auth.JwtProvider;
+import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;

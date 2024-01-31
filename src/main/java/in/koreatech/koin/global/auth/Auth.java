@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.auth;
+package in.koreatech.koin.global.auth;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

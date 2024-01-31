@@ -8,8 +8,8 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import in.koreatech.koin.domain.auth.AuthArgumentResolver;
-import in.koreatech.koin.domain.auth.ExtractAuthenticationInterceptor;
+import in.koreatech.koin.global.auth.AuthArgumentResolver;
+import in.koreatech.koin.global.auth.ExtractAuthenticationInterceptor;
 import in.koreatech.koin.global.ipaddress.IpAddressArgumentResolver;
 import in.koreatech.koin.global.ipaddress.IpAddressInterceptor;
 import lombok.RequiredArgsConstructor;

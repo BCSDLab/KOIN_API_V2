@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.auth;
+package in.koreatech.koin.global.auth;
 
 import java.security.Key;
 import java.time.Instant;
@@ -10,7 +10,7 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.auth.exception.AuthException;
+import in.koreatech.koin.global.auth.exception.AuthException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import io.jsonwebtoken.JwtException;
