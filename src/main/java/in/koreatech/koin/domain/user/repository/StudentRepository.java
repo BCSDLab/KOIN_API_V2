@@ -14,6 +14,6 @@ public interface StudentRepository extends Repository<Student, Long> {
     Optional<Student> findById(Long id);
 
     default Student getById(Long id) {
-        return findById(id).orElseThrow(() -> UserNotFoundException.withDetail("id" + id));
+        return findById(id).orElseThrow(() -> UserNotFoundException.withDetail("id: " + id));
     }
 }
