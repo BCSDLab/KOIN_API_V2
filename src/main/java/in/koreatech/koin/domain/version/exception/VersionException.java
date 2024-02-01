@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.version.exception;
 
 public class VersionException extends RuntimeException {
 
-    private static final String DEFAULT_MESSAGE = "올바르지 않은 버전입니다.";
+    public static final String DEFAULT_MESSAGE = "올바르지 않은 버전입니다.";
 
     public VersionException() {
     }

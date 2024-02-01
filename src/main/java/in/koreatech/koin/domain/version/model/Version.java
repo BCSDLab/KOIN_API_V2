@@ -3,8 +3,6 @@ package in.koreatech.koin.domain.version.model;
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,7 +30,6 @@ public class Version extends BaseEntity {
     private String version;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "type", length = 50)
     private VersionType type;
 
