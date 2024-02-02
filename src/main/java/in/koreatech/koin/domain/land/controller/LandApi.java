@@ -10,6 +10,7 @@ import in.koreatech.koin.domain.land.dto.LandListItemResponse;
 import in.koreatech.koin.domain.land.dto.LandResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -38,6 +39,6 @@ public interface LandApi {
     @Operation(summary = "복덕방 단건 조회")
     @GetMapping("/lands/{id}")
     ResponseEntity<LandResponse> getLand(
-        @Parameter(hidden = true) @PathVariable Long id
+        @Parameter(in = PATH) @PathVariable Long id
     );
 }
