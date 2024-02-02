@@ -11,7 +11,6 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-import static in.koreatech.koin.domain.user.model.UserType.USER;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -66,7 +65,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/logout")
     ResponseEntity<Void> logout(
-        @Auth(permit = {USER, STUDENT}) Long userId
+        @Auth(permit = {STUDENT}) Long userId
     );
 
     @ApiResponses(

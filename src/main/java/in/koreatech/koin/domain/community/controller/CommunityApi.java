@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-import static in.koreatech.koin.domain.user.model.UserType.USER;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +31,7 @@ public interface CommunityApi {
     @Operation(summary = "게시글 단건 조회")
     @GetMapping("/articles/{id}")
     ResponseEntity<ArticleResponse> getArticle(
-        @Auth(permit = {USER, STUDENT}, anonymous = true) Long userId,
+        @Auth(permit = {STUDENT}, anonymous = true) Long userId,
         @Parameter(in = PATH) @PathVariable("id") Long articleId,
         @IpAddress String ipAddress
     );

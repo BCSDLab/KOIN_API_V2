@@ -14,7 +14,6 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-import static in.koreatech.koin.domain.user.model.UserType.USER;
 import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
@@ -42,7 +41,7 @@ public class UserController implements UserApi {
     }
 
     @PostMapping("/user/logout")
-    public ResponseEntity<Void> logout(@Auth(permit = {USER, STUDENT}) Long userId) {
+    public ResponseEntity<Void> logout(@Auth(permit = {STUDENT}) Long userId) {
         userService.logout(userId);
         return ResponseEntity.ok().build();
     }
