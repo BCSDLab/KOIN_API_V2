@@ -13,7 +13,6 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-import static in.koreatech.koin.domain.user.model.UserType.USER;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import io.restassured.RestAssured;
@@ -87,7 +86,7 @@ class AuthApiTest extends AcceptanceTest {
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
-            .userType(USER)
+            .userType(STUDENT)
             .email("test@koreatech.ac.kr")
             .isAuthed(true)
             .isDeleted(false)
@@ -138,7 +137,7 @@ class AuthApiTest extends AcceptanceTest {
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
-            .userType(USER)
+            .userType(STUDENT)
             .email("test@koreatech.ac.kr")
             .isAuthed(true)
             .isDeleted(false)
