@@ -25,6 +25,7 @@ public class OwnerService {
         Email email = Email.from(request.email());
         validateEmailUniqueness(email);
 
+        email.validateSendable();
         CertificationCode certificationCode = mailService.sendMail(email, OWNER_REGISTRATION_MAIL_FORM);
     }
 
