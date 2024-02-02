@@ -1,5 +1,7 @@
 package in.koreatech.koin.global.common.email.service;
 
+import static in.koreatech.koin.global.common.email.model.MailFormContent.NO_REPLY_EMAIL_ADDRESS;
+
 import java.io.StringWriter;
 
 import org.apache.velocity.Template;
@@ -29,8 +31,8 @@ public class MailService {
         return certificationCode;
     }
 
-    private void sendMailFor(Email email, String mailForm, String subject) {
-
+    private void sendMailFor(Email email, String mailForm, String purpose) {
+        sesMailSender.sendMail(NO_REPLY_EMAIL_ADDRESS.getContent(), email.getEmail(), purpose, mailForm);
     }
 
     private String mailFormFor(CertificationCode certificationCode, String formLocation) {
