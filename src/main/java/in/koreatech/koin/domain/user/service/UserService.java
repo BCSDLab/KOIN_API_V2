@@ -7,8 +7,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.auth.JwtProvider;
-import in.koreatech.koin.domain.auth.exception.AuthException;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.exception.AuthException;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
@@ -46,8 +46,8 @@ public class UserService {
     }
 
     @Transactional
-    public void logout(User user) {
-        userTokenRepository.deleteById(user.getId());
+    public void logout(Long userId) {
+        userTokenRepository.deleteById(userId);
     }
 
     public UserTokenRefreshResponse refresh(UserTokenRefreshRequest request) {
