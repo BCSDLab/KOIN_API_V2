@@ -1,25 +1,37 @@
 package in.koreatech.koin.domain.user.controller;
 
-import in.koreatech.koin.domain.auth.UserAuth;
+import java.net.URI;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
-import in.koreatech.koin.domain.user.model.User;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
+import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
-import java.net.URI;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+    private final StudentService studentService;
+
+    @GetMapping("/user/student/me")
+    public ResponseEntity<StudentResponse> getStudent(@Auth(permit = STUDENT) Long userId) {
+        StudentResponse studentResponse = studentService.getStudent(userId);
+        return ResponseEntity.ok().body(studentResponse);
+    }
 
     @PostMapping("/user/login")
     public ResponseEntity<UserLoginResponse> login(@RequestBody @Valid UserLoginRequest request) {
@@ -29,8 +41,8 @@ public class UserController {
     }
 
     @PostMapping("/user/logout")
-    public ResponseEntity<Void> logout(@UserAuth User user) {
-        userService.logout(user);
+    public ResponseEntity<Void> logout(@Auth(permit = {STUDENT}) Long userId) {
+        userService.logout(userId);
         return ResponseEntity.ok().build();
     }
 

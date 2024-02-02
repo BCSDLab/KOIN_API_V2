@@ -1,8 +1,24 @@
-package in.koreatech.koin.global.util;
+package in.koreatech.koin.global.ipaddress;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
-public class ClientUtil {
+@Component
+@RequiredArgsConstructor
+public class IpAddressInterceptor implements HandlerInterceptor {
+
+    private final NetworkContext networkContext;
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        String clientIP = getClientIP(request);
+        networkContext.setIpAddress(clientIP);
+        return true;
+    }
 
     public static String getClientIP(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");

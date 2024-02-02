@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.auth.exception;
+package in.koreatech.koin.global.auth.exception;
 
 public class AuthException extends RuntimeException {
 
