@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
+import in.koreatech.koin.domain.owner.model.OwnerInVerification;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.common.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.common.email.model.CertificationCode;
@@ -27,6 +28,10 @@ public class OwnerService {
 
         email.validateSendable();
         CertificationCode certificationCode = mailService.sendMail(email, OWNER_REGISTRATION_MAIL_FORM);
+
+        OwnerInVerification ownerInVerification = OwnerInVerification.from(email.getEmail(),
+            certificationCode.getValue());
+
     }
 
     private void validateEmailUniqueness(Email email) {
