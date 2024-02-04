@@ -19,3 +19,6 @@ logging:
         type:
           descriptor:
             sql: trace
+
+swagger:
+  server-url: http://localhost:8080

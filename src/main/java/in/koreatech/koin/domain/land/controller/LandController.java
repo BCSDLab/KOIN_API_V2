@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class LandController {
+public class LandController implements LandApi {
 
     private final LandService landService;
 
