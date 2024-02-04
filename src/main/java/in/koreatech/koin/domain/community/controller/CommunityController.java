@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class CommunityController {
+public class CommunityController implements CommunityApi {
 
     private final CommunityService communityService;
 
