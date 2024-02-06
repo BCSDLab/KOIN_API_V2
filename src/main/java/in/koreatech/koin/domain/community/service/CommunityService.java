@@ -17,9 +17,11 @@ import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.domain.community.model.ArticleViewLog;
 import in.koreatech.koin.domain.community.model.Board;
 import in.koreatech.koin.domain.community.model.Criteria;
+import in.koreatech.koin.domain.community.model.HotArticle;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.repository.BoardRepository;
+import in.koreatech.koin.domain.community.repository.HotArticleRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -34,12 +36,13 @@ public class CommunityService {
     private final ArticleViewLogRepository articleViewLogRepository;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+    private final HotArticleRepository hotArticleRepository;
 
     @Transactional
     public ArticleResponse getArticle(Long userId, Long articleId, String ipAddress) {
         Article article = articleRepository.getById(articleId);
         if (isHittable(articleId, userId, ipAddress)) {
-            article.increaseHit();
+            hitArticle(article);
         }
         article.getComment().forEach(comment -> comment.updateAuthority(userId));
         return ArticleResponse.of(article);
@@ -66,6 +69,17 @@ public class CommunityService {
             return true;
         }
         return false;
+    }
+
+    private void hitArticle(Article article) {
+        article.increaseHit();
+        HotArticle hotArticle = hotArticleRepository.findById(article.getId());
+        if (hotArticle == null) {
+            hotArticleRepository.save(HotArticle.from(article.getId()));
+            return;
+        }
+        hotArticle.hit();
+        hotArticleRepository.save(hotArticle);
     }
 
     public ArticlesResponse getArticles(Long boardId, Long page, Long limit) {
