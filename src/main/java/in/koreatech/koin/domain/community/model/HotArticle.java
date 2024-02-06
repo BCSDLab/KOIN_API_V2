@@ -9,8 +9,10 @@ import org.springframework.data.redis.core.RedisHash;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @RedisHash(value = "hot-article")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,24 +29,26 @@ public class HotArticle {
 
     public void hit() {
         hit++;
-        // expiredTimes.add(LocalDateTime.now().plusDays(EXPIRED_DAYS));
-        expiredTimes.add(LocalDateTime.now().plusSeconds(10L));
-        updateHit();
+        expiredTimes.add(getNewExpiredTime());
+        // expiredTimes.add(LocalDateTime.now().plusSeconds(10L));
     }
 
-    public Long getHit() {
-        updateHit();
-        return hit;
-    }
-
-    private void updateHit() {
+    public void validate() {
         int beforeTimeSize = expiredTimes.size();
         expiredTimes.removeIf(expiredTime -> LocalDateTime.now().isAfter(expiredTime));
         int removedTimeCount = beforeTimeSize - expiredTimes.size();
         hit -= removedTimeCount;
     }
 
+    public boolean isEmpty() {
+        return hit == 0;
+    }
+
+    private static LocalDateTime getNewExpiredTime() {
+        return LocalDateTime.now().plusDays(EXPIRED_DAYS);
+    }
+
     public static HotArticle from(Long articleId) {
-        return new HotArticle(articleId, 1L, List.of(LocalDateTime.now()));
+        return new HotArticle(articleId, 1L, List.of(getNewExpiredTime()));
     }
 }
