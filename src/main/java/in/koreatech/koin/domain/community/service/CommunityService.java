@@ -101,4 +101,14 @@ public class CommunityService {
             .map(HotArticleItemResponse::from)
             .toList();
     }
+
+    public void validateHits() {
+        List<HotArticle> hotArticles = hotArticleRepository.findAll();
+        hotArticles.forEach(HotArticle::validate);
+        hotArticles.forEach(hotArticleRepository::save);
+        hotArticles.stream()
+            .filter(HotArticle::isEmpty)
+            .map(HotArticle::getId)
+            .forEach(hotArticleRepository::deleteById);
+    }
 }
