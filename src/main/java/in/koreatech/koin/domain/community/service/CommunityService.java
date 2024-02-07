@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class CommunityService {
 
-    public static final Sort SORT_ORDER_BY = Sort.by(Sort.Direction.DESC, "id");
+    private static final Long HOT_ARTICLE_LIMIT = 10L;
+    private static final Sort SORT_ORDER_BY = Sort.by(Sort.Direction.DESC, "id");
 
     private final ArticleRepository articleRepository;
     private final ArticleViewLogRepository articleViewLogRepository;
@@ -87,10 +89,16 @@ public class CommunityService {
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), SORT_ORDER_BY);
         Page<Article> articles = articleRepository.getByBoardId(boardId, pageRequest);
-        return ArticlesResponse.of(articles.getContent(), board, (long) articles.getTotalPages());
+        return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
     }
 
     public List<HotArticleItemResponse> getHotArticles() {
-        return null;
+        return hotArticleRepository.findAll().stream()
+            .sorted(Comparator.reverseOrder())
+            .limit(HOT_ARTICLE_LIMIT)
+            .map(HotArticle::getId)
+            .map(articleRepository::getById)
+            .map(HotArticleItemResponse::from)
+            .toList();
     }
 }

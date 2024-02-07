@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @RedisHash(value = "hot-article")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class HotArticle {
+public class HotArticle implements Comparable<HotArticle> {
 
     private static final Long EXPIRED_DAYS = 1L;
 
@@ -30,7 +30,6 @@ public class HotArticle {
     public void hit() {
         hit++;
         expiredTimes.add(getNewExpiredTime());
-        // expiredTimes.add(LocalDateTime.now().plusSeconds(10L));
     }
 
     public void validate() {
@@ -50,5 +49,10 @@ public class HotArticle {
 
     public static HotArticle from(Long articleId) {
         return new HotArticle(articleId, 1L, List.of(getNewExpiredTime()));
+    }
+
+    @Override
+    public int compareTo(HotArticle other) {
+        return Long.compare(hit, other.hit);
     }
 }
