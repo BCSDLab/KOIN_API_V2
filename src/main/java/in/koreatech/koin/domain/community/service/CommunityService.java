@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,8 +32,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class CommunityService {
 
-    private static final Long HOT_ARTICLE_LIMIT = 10L;
-    private static final Sort SORT_ORDER_BY = Sort.by(Sort.Direction.DESC, "id");
+    private static final int HOT_ARTICLE_LIMIT = 10;
+    private static final Sort ARTICLES_SORT = Sort.by(Sort.Direction.DESC, "id");
 
     private final ArticleRepository articleRepository;
     private final ArticleViewLogRepository articleViewLogRepository;
@@ -87,19 +88,37 @@ public class CommunityService {
     public ArticlesResponse getArticles(Long boardId, Long page, Long limit) {
         Criteria criteria = Criteria.of(page, limit);
         Board board = boardRepository.getById(boardId);
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), SORT_ORDER_BY);
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
         Page<Article> articles = articleRepository.getByBoardId(boardId, pageRequest);
         return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
     }
 
     public List<HotArticleItemResponse> getHotArticles() {
+        List<Long> articles = getRecentlyArticlesId();
+        List<Long> hotArticlesId = getHotArticlesId();
+        hotArticlesId.addAll(articles);
+
+        return hotArticlesId.stream()
+            .distinct()
+            .limit(HOT_ARTICLE_LIMIT)
+            .map(articleRepository::getById)
+            .map(HotArticleItemResponse::from)
+            .toList();
+    }
+
+    private List<Long> getRecentlyArticlesId() {
+        PageRequest pageRequest = PageRequest.of(0, HOT_ARTICLE_LIMIT, ARTICLES_SORT);
+        return articleRepository.findAll(pageRequest).stream()
+            .map(Article::getId)
+            .toList();
+    }
+
+    private List<Long> getHotArticlesId() {
         return hotArticleRepository.findAll().stream()
             .sorted(Comparator.reverseOrder())
             .limit(HOT_ARTICLE_LIMIT)
             .map(HotArticle::getId)
-            .map(articleRepository::getById)
-            .map(HotArticleItemResponse::from)
-            .toList();
+            .collect(Collectors.toList());
     }
 
     public void validateHits() {

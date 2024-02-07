@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -20,6 +21,8 @@ public interface ArticleRepository extends Repository<Article, Long> {
     }
 
     Optional<Article> findById(Long articleId);
+
+    List<Article> findAll(Pageable pageable);
 
     default Article getById(Long articleId) {
         return findById(articleId).orElseThrow(
