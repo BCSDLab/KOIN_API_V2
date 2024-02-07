@@ -8,14 +8,13 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @RedisHash(value = "hot-article")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class HotArticle implements Comparable<HotArticle> {
 
     private static final Long EXPIRED_DAYS = 1L;
@@ -48,7 +47,18 @@ public class HotArticle implements Comparable<HotArticle> {
     }
 
     public static HotArticle from(Long articleId) {
-        return new HotArticle(articleId, 1L, List.of(getNewExpiredTime()));
+        return builder()
+            .id(articleId)
+            .hit(1L)
+            .expiredTimes(List.of(getNewExpiredTime()))
+            .build();
+    }
+
+    @Builder
+    public HotArticle(Long id, Long hit, List<LocalDateTime> expiredTimes) {
+        this.id = id;
+        this.hit = hit;
+        this.expiredTimes = expiredTimes;
     }
 
     @Override
