@@ -124,10 +124,12 @@ public class CommunityService {
     public void validateHits() {
         List<HotArticle> hotArticles = hotArticleRepository.findAll();
         hotArticles.forEach(HotArticle::validate);
-        hotArticles.forEach(hotArticleRepository::save);
-        hotArticles.stream()
-            .filter(HotArticle::isEmpty)
-            .map(HotArticle::getId)
-            .forEach(hotArticleRepository::deleteById);
+        hotArticles.forEach(hotArticle -> {
+            if (hotArticle.isEmpty()) {
+                hotArticleRepository.deleteById(hotArticle.getId());
+            } else {
+                hotArticleRepository.save(hotArticle);
+            }
+        });
     }
 }
