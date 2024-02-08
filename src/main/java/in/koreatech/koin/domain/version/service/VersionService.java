@@ -21,5 +21,4 @@ public class VersionService {
 
         return VersionResponse.from(version);
     }
-
 }

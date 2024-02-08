@@ -17,5 +17,4 @@ public interface VersionRepository extends Repository<Version, Long> {
     default Version getByType(VersionType type) {
         return this.findByType(type).orElseThrow(() -> VersionException.withDetail("versionType: " + type));
     }
-
 }

@@ -21,5 +21,4 @@ public class VersionController {
 
         return ResponseEntity.ok(response);
     }
-
 }
