@@ -174,7 +174,7 @@ class UserApiTest extends AcceptanceTest {
         userRepository.save(user);
         String token = jwtProvider.createToken(user);
 
-        var response = RestAssured
+        RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
