@@ -7,8 +7,6 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.auth.exception.AuthException;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
@@ -17,6 +15,8 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -62,11 +62,17 @@ public class UserService {
         return UserTokenRefreshResponse.of(accessToken, userToken.getRefreshToken());
     }
 
-    private static String getUserId(String refreshToken) {
+    private String getUserId(String refreshToken) {
         String[] split = refreshToken.split("-");
         if (split.length == 0) {
             throw new AuthException("올바르지 않은 인증 토큰입니다. refreshToken: " + refreshToken);
         }
         return split[split.length - 1];
+    }
+
+    @Transactional
+    public void withdraw(Long userId) {
+        User user = userRepository.getById(userId);
+        userRepository.delete(user);
     }
 }
