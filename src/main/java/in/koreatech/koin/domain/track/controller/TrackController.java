@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class TrackController {
+public class TrackController implements TrackApi {
 
     private final TrackService trackService;
 
