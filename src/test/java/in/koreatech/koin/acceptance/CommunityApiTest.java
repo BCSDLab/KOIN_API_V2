@@ -148,12 +148,9 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/articles/{articleId}", article1.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -223,13 +220,10 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .header("Authorization", "Bearer " + token)
             .when()
-            .log().all()
             .get("/articles/{articleId}", article1.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -252,15 +246,12 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER)
             .param("limit", PAGE_LIMIT)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -323,15 +314,12 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER_ZERO)
             .param("limit", PAGE_LIMIT)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -351,15 +339,12 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER_MINUS)
             .param("limit", PAGE_LIMIT)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -379,15 +364,12 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER)
             .param("limit", PAGE_LIMIT_ZERO)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -407,15 +389,12 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER)
             .param("limit", PAGE_LIMIT_ZERO)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -456,15 +435,12 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER)
             .param("limit", PAGE_LIMIT_ZERO)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -506,13 +482,10 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -534,15 +507,12 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER)
             .param("limit", PAGE_LIMIT)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -607,12 +577,9 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/articles/hot/list")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
