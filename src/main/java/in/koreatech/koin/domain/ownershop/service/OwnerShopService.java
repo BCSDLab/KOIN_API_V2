@@ -1,20 +1,20 @@
-package in.koreatech.koin.domain.owner.service;
+package in.koreatech.koin.domain.ownershop.service;
 
 import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.domain.owner.domain.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
-import in.koreatech.koin.domain.owner.dto.OwnerResponse;
+import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class OwnerService {
+public class OwnerShopService {
 
     private final OwnerRepository ownerRepository;
 
-    public OwnerResponse getOwnerShops(Long ownerId) {
+    public OwnerShopsResponse getOwnerShops(Long ownerId) {
         Owner foundOwner = ownerRepository.getById(ownerId);
-        return OwnerResponse.from(foundOwner);
+        return OwnerShopsResponse.from(foundOwner);
     }
 }
