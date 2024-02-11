@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.shop.model;
 
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,7 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "shops")
 @Where(clause = "is_deleted=0")
-public class Shop {
+public class Shop extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
