@@ -2,13 +2,17 @@ package in.koreatech.koin.domain.shop.model;
 
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin.domain.owner.domain.Owner;
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,8 +32,9 @@ public class Shop extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "owner_id")
-    private Long ownerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", referencedColumnName = "user_id")
+    private Owner owner;
 
     @Size(max = 50)
     @NotNull
@@ -89,11 +94,20 @@ public class Shop extends BaseEntity {
     @Column(name = "hit", nullable = false)
     private Long hit;
 
+    public void setOwner(Owner owner) {
+        if (this.owner != null) {
+            this.owner.getShops().remove(this);
+        }
+        this.owner = owner;
+        if (!owner.getShops().contains(this)) {
+            owner.getShops().add(this);
+        }
+    }
+
     @Builder
-    public Shop(Long ownerId, String name, String internalName, String chosung, String phone, String address,
+    public Shop(String name, String internalName, String chosung, String phone, String address,
         String description, Boolean delivery, Long deliveryPrice, Boolean payCard, Boolean payBank,
         Boolean isDeleted, Boolean isEvent, String remarks, Long hit) {
-        this.ownerId = ownerId;
         this.name = name;
         this.internalName = internalName;
         this.chosung = chosung;
