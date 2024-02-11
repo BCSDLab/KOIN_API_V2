@@ -1,5 +1,7 @@
 package in.koreatech.koin.global.common.email.model;
 
+import org.springframework.stereotype.Component;
+
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceAsync;
 import com.amazonaws.services.simpleemail.model.Body;
 import com.amazonaws.services.simpleemail.model.Content;
@@ -9,10 +11,11 @@ import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 
 import lombok.RequiredArgsConstructor;
 
+@Component
 @RequiredArgsConstructor
 public class SesMailSender {
 
-    private AmazonSimpleEmailServiceAsync amazonSimpleEmailServiceAsync;
+    private final AmazonSimpleEmailServiceAsync amazonSimpleEmailServiceAsync;
 
     public void sendMail(String from, String to, String subject, String htmlBody) {
         SendEmailRequest request = new SendEmailRequest()

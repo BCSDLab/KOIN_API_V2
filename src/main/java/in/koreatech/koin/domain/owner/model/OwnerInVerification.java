@@ -1,6 +1,11 @@
 package in.koreatech.koin.domain.owner.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+
+@RedisHash("owner@")
 public record OwnerInVerification(
+    @Id
     String email,
     String certificationCode
 ) {
