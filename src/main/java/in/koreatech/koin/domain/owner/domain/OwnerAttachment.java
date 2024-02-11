@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 public class OwnerAttachment extends BaseEntity {
 
     private static final String NAME_SEPARATOR = "/";
-    public static final int NOT_FOUND_IDX = -1;
+    private static final int NOT_FOUND_IDX = -1;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
