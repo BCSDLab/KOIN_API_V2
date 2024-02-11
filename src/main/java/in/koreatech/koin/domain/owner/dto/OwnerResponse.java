@@ -8,12 +8,22 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.owner.domain.Owner;
 import in.koreatech.koin.domain.owner.domain.OwnerAttachment;
 import in.koreatech.koin.domain.shop.model.Shop;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public record OwnerResponse(
+    @Schema(description = "이메일", example = "example@gmail.com")
     String email,
+
+    @Schema(description = "이름", example = "홍길동")
     String name,
+
+    @Schema(description = "사업자 등록 번호", example = "123-45-67890")
     String company_number,
+
+    @Schema(description = "첨부 파일 목록")
     List<InnerAttachmentResponse> attachments,
+
+    @Schema(description = "상점 목록")
     List<InnerShopResponse> shops
 ) {
 
@@ -31,8 +41,13 @@ public record OwnerResponse(
 
     @JsonNaming(SnakeCaseStrategy.class)
     private record InnerAttachmentResponse(
+        @Schema(description = "첨부 파일 ID", example = "1")
         Long id,
+
+        @Schema(description = "첨부 파일 URL", example = "https://test.com/test.jpg")
         String fileUrl,
+
+        @Schema(description = "첨부 파일 이름", example = "test.jpg")
         String fileName
     ) {
 
@@ -47,7 +62,10 @@ public record OwnerResponse(
 
     @JsonNaming(SnakeCaseStrategy.class)
     private record InnerShopResponse(
+        @Schema(description = "상점 ID", example = "1")
         Long id,
+
+        @Schema(description = "상점 이름", example = "테스트 상점")
         String name
     ) {
 
