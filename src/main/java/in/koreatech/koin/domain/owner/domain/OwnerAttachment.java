@@ -15,11 +15,14 @@ import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
 @Table(name = "owner_attachments")
+@NoArgsConstructor
 public class OwnerAttachment extends BaseEntity {
 
     private static final String NAME_SEPARATOR = "/";
@@ -56,5 +59,21 @@ public class OwnerAttachment extends BaseEntity {
         }
 
         name = url.substring(separateIndex + NAME_SEPARATOR.length());
+    }
+
+    @Builder
+    public OwnerAttachment(Owner owner, String url, Boolean isDeleted, String name) {
+        this.owner = owner;
+        this.url = url;
+        this.isDeleted = isDeleted;
+        this.name = name;
+    }
+
+    public void setOwner(Owner owner) {
+        if (this.owner != null) {
+            this.owner.getAttachments().remove(this);
+        }
+        this.owner = owner;
+        owner.getAttachments().add(this);
     }
 }
