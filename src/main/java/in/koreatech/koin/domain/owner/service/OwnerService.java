@@ -16,7 +16,7 @@ public class OwnerService {
     private final OwnerRepository ownerRepository;
 
     public OwnerResponse getOwnerShops(Long ownerId) {
-        Owner foundOwner = ownerRepository.findById(ownerId);
+        Owner foundOwner = ownerRepository.getById(ownerId);
         return OwnerResponse.from(foundOwner);
     }
 }

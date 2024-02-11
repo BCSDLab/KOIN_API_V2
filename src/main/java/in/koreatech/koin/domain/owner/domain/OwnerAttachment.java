@@ -55,7 +55,7 @@ public class OwnerAttachment extends BaseEntity {
         int separateIndex = url.lastIndexOf(NAME_SEPARATOR);
 
         if (separateIndex == NOT_FOUND_IDX) {
-            throw AttachmentNotFoundException.withDetail("코인 파일 저장 형식(static.koreatech.in)이 아닙니다.");
+            throw AttachmentNotFoundException.withDetail("코인 파일 저장 형식(static.koreatech.in)이 아닙니다. url: " + url);
         }
 
         name = url.substring(separateIndex + NAME_SEPARATOR.length());
