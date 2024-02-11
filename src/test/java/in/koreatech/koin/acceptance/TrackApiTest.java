@@ -38,12 +38,9 @@ class TrackApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/tracks")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -91,12 +88,9 @@ class TrackApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/tracks/{id}", track.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -153,12 +147,9 @@ class TrackApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/tracks/{id}", track.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

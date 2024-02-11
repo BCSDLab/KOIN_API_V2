@@ -62,12 +62,9 @@ class ShopApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -142,12 +139,9 @@ class ShopApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -219,12 +213,9 @@ class ShopApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/shops/{shopId}/menus/categories", menu.getShopId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

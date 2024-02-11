@@ -24,4 +24,6 @@ public interface UserRepository extends Repository<User, Long> {
         return findById(userId)
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
     }
+
+    void delete(User user);
 }

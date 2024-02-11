@@ -47,7 +47,6 @@ class AuthApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .body("""
                 {
                   "email": "test@koreatech.ac.kr",
@@ -56,10 +55,8 @@ class AuthApiTest extends AcceptanceTest {
                 """)
             .contentType(ContentType.JSON)
             .when()
-            .log().all()
             .post("/user/login")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -96,7 +93,6 @@ class AuthApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .body("""
                 {
                   "email": "test@koreatech.ac.kr",
@@ -105,22 +101,17 @@ class AuthApiTest extends AcceptanceTest {
                 """)
             .contentType(ContentType.JSON)
             .when()
-            .log().all()
             .post("/user/login")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
         RestAssured
             .given()
-            .log().all()
             .header("Authorization", "Bearer " + response.jsonPath().getString("token"))
             .when()
-            .log().all()
             .post("/user/logout")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -147,7 +138,6 @@ class AuthApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .body("""
                 {
                   "email": "test@koreatech.ac.kr",
@@ -156,25 +146,20 @@ class AuthApiTest extends AcceptanceTest {
                 """)
             .contentType(ContentType.JSON)
             .when()
-            .log().all()
             .post("/user/login")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
         RestAssured
             .given()
-            .log().all()
             .body(
                 Map.of("refresh_token", response.jsonPath().getString("refresh_token"))
             )
             .contentType(ContentType.JSON)
             .when()
-            .log().all()
             .post("/user/refresh")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

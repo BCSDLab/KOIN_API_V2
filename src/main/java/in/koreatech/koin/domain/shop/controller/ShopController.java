@@ -17,13 +17,18 @@ public class ShopController implements ShopApi {
     private final ShopService shopService;
 
     @GetMapping("/shops/{shopId}/menus/{menuId}")
-    public ResponseEntity<ShopMenuResponse> findMenu(@PathVariable Long shopId, @PathVariable Long menuId) {
+    public ResponseEntity<ShopMenuResponse> findMenu(
+        @PathVariable Long shopId,
+        @PathVariable Long menuId
+    ) {
         ShopMenuResponse shopMenu = shopService.findMenu(menuId);
         return ResponseEntity.ok(shopMenu);
     }
 
     @GetMapping("/shops/{shopId}/menus/categories")
-    public ResponseEntity<MenuCategoriesResponse> findMenuCategories(@PathVariable Long shopId) {
+    public ResponseEntity<MenuCategoriesResponse> findMenuCategories(
+        @PathVariable Long shopId
+    ) {
         MenuCategoriesResponse menuCategories = shopService.getMenuCategories(shopId);
         return ResponseEntity.ok(menuCategories);
     }
