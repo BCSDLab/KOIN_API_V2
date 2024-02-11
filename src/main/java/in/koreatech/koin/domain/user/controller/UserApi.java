@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.user.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -80,5 +81,20 @@ public interface UserApi {
     @PostMapping("/user/refresh")
     ResponseEntity<UserTokenRefreshResponse> refresh(
         @RequestBody @Valid UserTokenRefreshRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "회원 탈퇴")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @DeleteMapping("/user")
+    ResponseEntity<UserTokenRefreshResponse> withdraw(
+        @Auth(permit = {STUDENT}) Long userId
     );
 }

@@ -1,7 +1,5 @@
 package in.koreatech.koin.acceptance;
 
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -11,6 +9,7 @@ import in.koreatech.koin.domain.dept.model.Dept;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class DeptApiTest extends AcceptanceTest {
 
@@ -23,13 +22,10 @@ class DeptApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("dept_num", dept.getNumbers().get(0))
             .get("/dept")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -50,12 +46,9 @@ class DeptApiTest extends AcceptanceTest {
         //when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/depts")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -65,8 +58,10 @@ class DeptApiTest extends AcceptanceTest {
                     .isEqualTo(DEPT_SIZE);
                 for (int i = 0; i < DEPT_SIZE; i++) {
                     softly.assertThat(response.body().jsonPath().getString(String.format("[%d].name", i))).isNotEmpty();
-                    softly.assertThat(response.body().jsonPath().getString(String.format("[%d].curriculum_link", i))).isNotEmpty();
-                    softly.assertThat(response.body().jsonPath().getString(String.format("[%d].dept_nums[0]", i))).isNotEmpty();
+                    softly.assertThat(response.body().jsonPath().getString(String.format("[%d].curriculum_link", i)))
+                        .isNotEmpty();
+                    softly.assertThat(response.body().jsonPath().getString(String.format("[%d].dept_nums[0]", i)))
+                        .isNotEmpty();
                 }
             }
         );
