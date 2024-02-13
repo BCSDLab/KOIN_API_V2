@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.user.controller;
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,20 +29,25 @@ public class UserController implements UserApi {
     private final StudentService studentService;
 
     @GetMapping("/user/student/me")
-    public ResponseEntity<StudentResponse> getStudent(@Auth(permit = STUDENT) Long userId) {
+    public ResponseEntity<StudentResponse> getStudent(
+        @Auth(permit = STUDENT) Long userId
+    ) {
         StudentResponse studentResponse = studentService.getStudent(userId);
         return ResponseEntity.ok().body(studentResponse);
     }
 
     @PostMapping("/user/login")
-    public ResponseEntity<UserLoginResponse> login(@RequestBody @Valid UserLoginRequest request) {
+    public ResponseEntity<UserLoginResponse> login(
+        @RequestBody @Valid UserLoginRequest request
+    ) {
         UserLoginResponse response = userService.login(request);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }
 
     @PostMapping("/user/logout")
-    public ResponseEntity<Void> logout(@Auth(permit = {STUDENT}) Long userId) {
+    public ResponseEntity<Void> logout(
+        @Auth(permit = {STUDENT}) Long userId) {
         userService.logout(userId);
         return ResponseEntity.ok().build();
     }
@@ -52,5 +58,13 @@ public class UserController implements UserApi {
     ) {
         UserTokenRefreshResponse tokenGroupResponse = userService.refresh(request);
         return ResponseEntity.ok().body(tokenGroupResponse);
+    }
+
+    @DeleteMapping("/user")
+    public ResponseEntity<UserTokenRefreshResponse> withdraw(
+        @Auth(permit = {STUDENT}) Long userId
+    ) {
+        userService.withdraw(userId);
+        return ResponseEntity.noContent().build();
     }
 }

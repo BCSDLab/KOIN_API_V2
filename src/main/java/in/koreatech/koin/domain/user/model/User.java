@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.user.model;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.global.common.BaseEntity;
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "users")
 @Where(clause = "is_deleted=0")
+@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
 
