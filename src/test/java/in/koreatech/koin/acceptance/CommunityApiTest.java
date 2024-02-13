@@ -3,7 +3,7 @@ package in.koreatech.koin.acceptance;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -42,9 +42,6 @@ class CommunityApiTest extends AcceptanceTest {
 
     @Autowired
     private StudentRepository studentRepository;
-
-    @Autowired
-    private HotArticleRepository hotArticleRepository;
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -525,52 +522,30 @@ class CommunityApiTest extends AcceptanceTest {
     @DisplayName("인기많은 게시글 목록을 조회한다.")
     void getHotArticles() {
         // given
-        final int ADD_ARTICLE_COUNT = 30;
+        final int ARTICLE_COUNT = 30;
         final int HOT_ARTICLE_LIMIT = 10;
-        LocalDateTime expiredTime = LocalDateTime.now().plusDays(1L);
+        List<Article> articles = new ArrayList<>();
 
-        HotArticle hotArticle1 = HotArticle.builder()
-            .id(1L)
-            .hit(1L)
-            .expiredTimes(List.of(expiredTime))
-            .build();
-
-        HotArticle hotArticle2 = HotArticle.builder()
-            .id(2L)
-            .hit(2L)
-            .expiredTimes(List.of(expiredTime, expiredTime))
-            .build();
-
-        HotArticle hotArticle3 = HotArticle.builder()
-            .id(3L)
-            .hit(3L)
-            .expiredTimes(List.of(expiredTime, expiredTime, expiredTime))
-            .build();
-
-        hotArticleRepository.save(hotArticle1);
-        hotArticleRepository.save(hotArticle2);
-        hotArticleRepository.save(hotArticle3);
-
-        for (int i = 3; i <= ADD_ARTICLE_COUNT; i++) {
-            Article article = Article.builder()
-                .board(board)
-                .title(String.format("Article %d", i))
-                .content("<p>내용</p>")
-                .user(student.getUser())
-                .nickname("BCSD")
-                .hit(14L)
-                .ip("123.21.234.321")
-                .isSolved(false)
-                .isDeleted(false)
-                .commentCount((byte)2)
-                .meta(null)
-                .isNotice(false)
-                .noticeArticleId(null)
-                .build();
-            articleRepository.save(article);
+        for (int i = 1; i <= ARTICLE_COUNT; i++) {
+            articles.add(
+                Article.builder()
+                    .board(board)
+                    .title(String.format("Article %d", i))
+                    .content("<p>내용</p>")
+                    .user(student.getUser())
+                    .nickname("BCSD")
+                    .hit((long)i)
+                    .ip("123.21.234.321")
+                    .isSolved(false)
+                    .isDeleted(false)
+                    .commentCount((byte)2)
+                    .meta(null)
+                    .isNotice(false)
+                    .noticeArticleId(null)
+                    .build()
+            );
+            articleRepository.save(articles.get(i - 1));
         }
-
-        Article hottestArticle = articleRepository.getById(hotArticle3.getId());
 
         // when then
         ExtractableResponse<Response> response = RestAssured
@@ -585,22 +560,24 @@ class CommunityApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.jsonPath().getList("").size()).isEqualTo(HOT_ARTICLE_LIMIT);
 
-                softly.assertThat(response.jsonPath().getLong("[0].id")).isEqualTo(hotArticle3.getId());
+                softly.assertThat(response.jsonPath().getLong("[0].id")).isEqualTo(articles.get(ARTICLE_COUNT - 1).getId());
                 softly.assertThat(response.jsonPath().getLong("[0].board_id")).isEqualTo(board.getId());
-                softly.assertThat(response.jsonPath().getString("[0].title")).isEqualTo(hottestArticle.getTitle());
-                softly.assertThat(response.jsonPath().getString("[0].contentSummary")).isEqualTo(hottestArticle.getContentSummary());
-                softly.assertThat(response.jsonPath().getByte("[0].comment_count")).isEqualTo((byte)hottestArticle.getCommentCount());
-                softly.assertThat(response.jsonPath().getLong("[0].hit")).isEqualTo(hottestArticle.getHit());
+                softly.assertThat(response.jsonPath().getString("[0].title")).isEqualTo(articles.get(ARTICLE_COUNT - 1).getTitle());
+                softly.assertThat(response.jsonPath().getString("[0].contentSummary"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 1).getContentSummary());
+                softly.assertThat(response.jsonPath().getByte("[0].comment_count"))
+                    .isEqualTo((byte)articles.get(ARTICLE_COUNT - 1).getCommentCount());
+                softly.assertThat(response.jsonPath().getLong("[0].hit")).isEqualTo(articles.get(ARTICLE_COUNT - 1).getHit());
 
-                softly.assertThat(response.jsonPath().getLong("[1].id")).isEqualTo(hotArticle2.getId());
-                softly.assertThat(response.jsonPath().getLong("[2].id")).isEqualTo(hotArticle1.getId());
-                softly.assertThat(response.jsonPath().getLong("[3].id")).isEqualTo(ADD_ARTICLE_COUNT);
-                softly.assertThat(response.jsonPath().getLong("[4].id")).isEqualTo(ADD_ARTICLE_COUNT - 1);
-                softly.assertThat(response.jsonPath().getLong("[5].id")).isEqualTo(ADD_ARTICLE_COUNT - 2);
-                softly.assertThat(response.jsonPath().getLong("[6].id")).isEqualTo(ADD_ARTICLE_COUNT - 3);
-                softly.assertThat(response.jsonPath().getLong("[7].id")).isEqualTo(ADD_ARTICLE_COUNT - 4);
-                softly.assertThat(response.jsonPath().getLong("[8].id")).isEqualTo(ADD_ARTICLE_COUNT - 5);
-                softly.assertThat(response.jsonPath().getLong("[9].id")).isEqualTo(ADD_ARTICLE_COUNT - 6);
+                softly.assertThat(response.jsonPath().getLong("[1].id")).isEqualTo(articles.get(ARTICLE_COUNT - 2).getId());
+                softly.assertThat(response.jsonPath().getLong("[2].id")).isEqualTo(articles.get(ARTICLE_COUNT - 3).getId());
+                softly.assertThat(response.jsonPath().getLong("[3].id")).isEqualTo(articles.get(ARTICLE_COUNT - 4).getId());
+                softly.assertThat(response.jsonPath().getLong("[4].id")).isEqualTo(articles.get(ARTICLE_COUNT - 5).getId());
+                softly.assertThat(response.jsonPath().getLong("[5].id")).isEqualTo(articles.get(ARTICLE_COUNT - 6).getId());
+                softly.assertThat(response.jsonPath().getLong("[6].id")).isEqualTo(articles.get(ARTICLE_COUNT - 7).getId());
+                softly.assertThat(response.jsonPath().getLong("[7].id")).isEqualTo(articles.get(ARTICLE_COUNT - 8).getId());
+                softly.assertThat(response.jsonPath().getLong("[8].id")).isEqualTo(articles.get(ARTICLE_COUNT - 9).getId());
+                softly.assertThat(response.jsonPath().getLong("[9].id")).isEqualTo(articles.get(ARTICLE_COUNT - 10).getId());
             }
         );
     }
