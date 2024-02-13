@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public enum UserType {
     STUDENT("STUDENT", "학생"),
+    OWNER("OWNER", "사장님"),
     ;
 
     private final String value;
