@@ -27,15 +27,17 @@ public record OwnerResponse(
     List<InnerShopResponse> shops
 ) {
 
-    public static OwnerResponse from(Owner owner) {
+    public static OwnerResponse of(Owner owner, List<OwnerAttachment> attachments, List<Shop> shops) {
         return new OwnerResponse(
             owner.getUser().getEmail(),
             owner.getUser().getName(),
             owner.getCompanyRegistrationNumber(),
-            owner.getAttachments().stream()
-                .map(InnerAttachmentResponse::from).toList(),
-            owner.getShops().stream()
-                .map(InnerShopResponse::from).toList()
+            attachments.stream()
+                .map(InnerAttachmentResponse::from)
+                .toList(),
+            shops.stream()
+                .map(InnerShopResponse::from)
+                .toList()
             );
     }
 

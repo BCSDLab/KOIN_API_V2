@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
@@ -50,10 +51,10 @@ public class OwnerAttachment extends BaseEntity {
     @Transient
     private String name;
 
+    @PostPersist
     @PostLoad
     public void updateName() {
         int separateIndex = url.lastIndexOf(NAME_SEPARATOR);
-
         if (separateIndex == NOT_FOUND_IDX) {
             throw AttachmentNotFoundException.withDetail("코인 파일 저장 형식(static.koreatech.in)이 아닙니다. url: " + url);
         }
@@ -67,13 +68,5 @@ public class OwnerAttachment extends BaseEntity {
         this.url = url;
         this.isDeleted = isDeleted;
         this.name = name;
-    }
-
-    public void setOwner(Owner owner) {
-        if (this.owner != null) {
-            this.owner.getAttachments().remove(this);
-        }
-        this.owner = owner;
-        owner.getAttachments().add(this);
     }
 }

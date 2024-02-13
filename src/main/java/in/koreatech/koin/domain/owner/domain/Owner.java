@@ -1,9 +1,5 @@
 package in.koreatech.koin.domain.owner.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -11,7 +7,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -35,12 +30,6 @@ public class Owner {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    private List<Shop> shops = new ArrayList<>();
-
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    private List<OwnerAttachment> attachments = new ArrayList<>();
-
     @Size(max = 12)
     @NotNull
     @Column(name = "company_registration_number", nullable = false, length = 12)
@@ -57,11 +46,9 @@ public class Owner {
     private Boolean grantEvent;
 
     @Builder
-    public Owner(User user, List<Shop> shops, List<OwnerAttachment> attachments, String companyRegistrationNumber,
+    public Owner(User user, String companyRegistrationNumber,
         String companyRegistrationCertificateImageUrl, Boolean grantShop, Boolean grantEvent) {
         this.user = user;
-        this.shops = shops;
-        this.attachments = attachments;
         this.companyRegistrationNumber = companyRegistrationNumber;
         this.companyRegistrationCertificateImageUrl = companyRegistrationCertificateImageUrl;
         this.grantShop = grantShop;
