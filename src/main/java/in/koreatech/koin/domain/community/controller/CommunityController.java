@@ -1,5 +1,9 @@
 package in.koreatech.koin.domain.community.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
+import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.service.CommunityService;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +42,11 @@ public class CommunityController implements CommunityApi {
     ) {
         ArticlesResponse foundArticles = communityService.getArticles(boardId, page, limit);
         return ResponseEntity.ok().body(foundArticles);
+    }
+
+    @GetMapping("/articles/hot/list")
+    public ResponseEntity<List<HotArticleItemResponse>> getHotArticles() {
+        List<HotArticleItemResponse> hotArticles = communityService.getHotArticles();
+        return ResponseEntity.ok().body(hotArticles);
     }
 }
