@@ -20,7 +20,7 @@ public class OwnerController implements OwnerApi {
     public ResponseEntity<OwnerResponse> getOwner(
         @Auth(permit = {OWNER}) Long ownerId
     ) {
-        OwnerResponse ownerInfo = ownerService.getOwnerShops(ownerId);
+        OwnerResponse ownerInfo = ownerService.getOwner(ownerId);
         return ResponseEntity.ok().body(ownerInfo);
     }
 }
