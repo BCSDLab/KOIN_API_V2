@@ -25,7 +25,7 @@ public class OwnerService {
 
     public OwnerResponse getOwnerShops(Long ownerId) {
         Owner foundOwner = ownerRepository.getById(ownerId);
-        List<OwnerAttachment> attachments = ownerAttachmentRepository.findAllByOwner(foundOwner);
+        List<OwnerAttachment> attachments = ownerAttachmentRepository.findAllByOwnerId(ownerId);
         List<Shop> shops = shopRepository.findAllByOwner(foundOwner);
         return OwnerResponse.of(foundOwner, attachments, shops);
     }

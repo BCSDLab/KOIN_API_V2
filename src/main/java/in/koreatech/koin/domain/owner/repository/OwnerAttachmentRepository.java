@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.owner.domain.Owner;
 import in.koreatech.koin.domain.owner.domain.OwnerAttachment;
 
 public interface OwnerAttachmentRepository extends Repository<OwnerAttachment, Long> {
@@ -13,5 +12,5 @@ public interface OwnerAttachmentRepository extends Repository<OwnerAttachment, L
 
     OwnerAttachment findById(Long id);
 
-    List<OwnerAttachment> findAllByOwner(Owner owner);
+    List<OwnerAttachment> findAllByOwnerId(Long ownerId);
 }

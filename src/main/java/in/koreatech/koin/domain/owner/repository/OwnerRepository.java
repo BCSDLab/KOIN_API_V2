@@ -11,7 +11,7 @@ public interface OwnerRepository extends Repository<Owner, Long> {
 
     Optional<Owner> findById(Long ownerId);
 
-    default  Owner getById(Long ownerId) {
+    default Owner getById(Long ownerId) {
         return findById(ownerId).orElseThrow(() -> OwnerNotFoundException.withDetail("ownerId: " + ownerId));
     }
 
