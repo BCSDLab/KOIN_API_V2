@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.user.model;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.Where;
+
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,6 +24,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "users")
+@Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
 

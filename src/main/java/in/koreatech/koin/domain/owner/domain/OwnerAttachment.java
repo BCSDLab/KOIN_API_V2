@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.owner.domain;
 
+import org.hibernate.annotations.Where;
+
 import in.koreatech.koin.domain.owner.exception.AttachmentNotFoundException;
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
@@ -23,6 +25,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Where(clause = "is_deleted=0")
 @Table(name = "owner_attachments")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OwnerAttachment extends BaseEntity {
