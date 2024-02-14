@@ -39,12 +39,9 @@ class LandApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/lands")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -96,12 +93,9 @@ class LandApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/lands/{id}", land.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

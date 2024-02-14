@@ -1,5 +1,6 @@
 package in.koreatech.koin.acceptance;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,13 +60,10 @@ class UserApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .header("Authorization", "Bearer " + token)
             .when()
-            .log().all()
             .get("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -122,13 +120,10 @@ class UserApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .header("Authorization", "Bearer " + token)
             .when()
-            .log().all()
             .get("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .extract();
     }
@@ -153,14 +148,41 @@ class UserApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .header("Authorization", "Bearer " + token)
             .when()
-            .log().all()
             .get("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("회원이 탈퇴한다")
+    void userWithdraw() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+        String token = jwtProvider.createToken(user);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .delete("/user")
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract();
+
+        Assertions.assertThat(userRepository.findById(user.getId())).isNotPresent();
     }
 }

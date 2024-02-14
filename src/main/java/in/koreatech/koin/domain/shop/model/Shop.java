@@ -16,13 +16,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "shops")
 @Where(clause = "is_deleted=0")
 public class Shop extends BaseEntity {
@@ -94,20 +95,11 @@ public class Shop extends BaseEntity {
     @Column(name = "hit", nullable = false)
     private Long hit;
 
-    public void setOwner(Owner owner) {
-        if (this.owner != null) {
-            this.owner.getShops().remove(this);
-        }
-        this.owner = owner;
-        if (!owner.getShops().contains(this)) {
-            owner.getShops().add(this);
-        }
-    }
-
     @Builder
-    public Shop(String name, String internalName, String chosung, String phone, String address,
+    public Shop(Owner owner, String name, String internalName, String chosung, String phone, String address,
         String description, Boolean delivery, Long deliveryPrice, Boolean payCard, Boolean payBank,
         Boolean isDeleted, Boolean isEvent, String remarks, Long hit) {
+        this.owner = owner;
         this.name = name;
         this.internalName = internalName;
         this.chosung = chosung;

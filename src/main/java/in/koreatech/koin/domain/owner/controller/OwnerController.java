@@ -17,8 +17,10 @@ public class OwnerController implements OwnerApi {
     private final OwnerService ownerService;
 
     @Override
-    public ResponseEntity<OwnerResponse> getOwner(@Auth(permit = {OWNER}) Long ownerId) {
-        OwnerResponse ownerInfo = ownerService.getOwnerShops(ownerId);
+    public ResponseEntity<OwnerResponse> getOwner(
+        @Auth(permit = {OWNER}) Long ownerId
+    ) {
+        OwnerResponse ownerInfo = ownerService.getOwner(ownerId);
         return ResponseEntity.ok().body(ownerInfo);
     }
 }

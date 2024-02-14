@@ -1,5 +1,11 @@
 package in.koreatech.koin.acceptance;
 
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,13 +23,11 @@ import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserIdentity;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class CommunityApiTest extends AcceptanceTest {
 
@@ -88,7 +92,7 @@ class CommunityApiTest extends AcceptanceTest {
 
         Article article1Request = Article.builder()
             .board(board)
-            .title("제목")
+            .title("Article 1")
             .content("<p>내용</p>")
             .user(student.getUser())
             .nickname("BCSD")
@@ -96,7 +100,7 @@ class CommunityApiTest extends AcceptanceTest {
             .ip("123.21.234.321")
             .isSolved(false)
             .isDeleted(false)
-            .commentCount((byte) 2)
+            .commentCount((byte)2)
             .meta(null)
             .isNotice(false)
             .noticeArticleId(null)
@@ -105,7 +109,7 @@ class CommunityApiTest extends AcceptanceTest {
 
         Article article2Request = Article.builder()
             .board(board)
-            .title("TITLE")
+            .title("Article 2")
             .content("<p> CONTENT</p>")
             .user(student.getUser())
             .nickname("BCSD")
@@ -113,7 +117,7 @@ class CommunityApiTest extends AcceptanceTest {
             .ip("123.14.321.213")
             .isSolved(false)
             .isDeleted(false)
-            .commentCount((byte) 2)
+            .commentCount((byte)2)
             .meta(null)
             .isNotice(false)
             .noticeArticleId(null)
@@ -139,12 +143,9 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/articles/{articleId}", article1.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -214,13 +215,10 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .header("Authorization", "Bearer " + token)
             .when()
-            .log().all()
             .get("/articles/{articleId}", article1.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -243,15 +241,12 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER)
             .param("limit", PAGE_LIMIT)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -314,15 +309,12 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER_ZERO)
             .param("limit", PAGE_LIMIT)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -342,15 +334,12 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER_MINUS)
             .param("limit", PAGE_LIMIT)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -370,15 +359,12 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER)
             .param("limit", PAGE_LIMIT_ZERO)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -398,15 +384,12 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER)
             .param("limit", PAGE_LIMIT_ZERO)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -436,7 +419,7 @@ class CommunityApiTest extends AcceptanceTest {
                 .ip("123.21.234.321")
                 .isSolved(false)
                 .isDeleted(false)
-                .commentCount((byte) 2)
+                .commentCount((byte)2)
                 .meta(null)
                 .isNotice(false)
                 .noticeArticleId(null)
@@ -447,22 +430,19 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER)
             .param("limit", PAGE_LIMIT_ZERO)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
         assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getLong("totalPage"))
-                    .isEqualTo((long) Math.ceil(((double) ARTICLE_COUNT + ADD_ARTICLE_COUNT) / MAX_PAGE_LIMIT));
+                    .isEqualTo((long)Math.ceil(((double)ARTICLE_COUNT + ADD_ARTICLE_COUNT) / MAX_PAGE_LIMIT));
             }
         );
     }
@@ -486,7 +466,7 @@ class CommunityApiTest extends AcceptanceTest {
                 .ip("123.21.234.321")
                 .isSolved(false)
                 .isDeleted(false)
-                .commentCount((byte) 2)
+                .commentCount((byte)2)
                 .meta(null)
                 .isNotice(false)
                 .noticeArticleId(null)
@@ -497,13 +477,10 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -511,7 +488,7 @@ class CommunityApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.jsonPath().getLong("articles[0].id")).isEqualTo(FINAL_ARTICLE_ID);
                 softly.assertThat(response.jsonPath().getLong("totalPage"))
-                    .isEqualTo((long) Math.ceil(((double) ARTICLE_COUNT + ADD_ARTICLE_COUNT) / DEFAULT_LIMIT));
+                    .isEqualTo((long)Math.ceil(((double)ARTICLE_COUNT + ADD_ARTICLE_COUNT) / DEFAULT_LIMIT));
             }
         );
     }
@@ -525,21 +502,82 @@ class CommunityApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("boardId", board.getId())
             .param("page", PAGE_NUMBER)
             .param("limit", PAGE_LIMIT)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
         assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getList("articles")).hasSize(0);
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("인기많은 게시글 목록을 조회한다.")
+    void getHotArticles() {
+        // given
+        final int ARTICLE_COUNT = 30;
+        final int HOT_ARTICLE_LIMIT = 10;
+        List<Article> articles = new ArrayList<>();
+
+        for (int i = 1; i <= ARTICLE_COUNT; i++) {
+            articles.add(
+                Article.builder()
+                    .board(board)
+                    .title(String.format("Article %d", i))
+                    .content("<p>내용</p>")
+                    .user(student.getUser())
+                    .nickname("BCSD")
+                    .hit((long)i)
+                    .ip("123.21.234.321")
+                    .isSolved(false)
+                    .isDeleted(false)
+                    .commentCount((byte)2)
+                    .meta(null)
+                    .isNotice(false)
+                    .noticeArticleId(null)
+                    .build()
+            );
+            articleRepository.save(articles.get(i - 1));
+        }
+
+        // when then
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .get("/articles/hot/list")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.jsonPath().getList("").size()).isEqualTo(HOT_ARTICLE_LIMIT);
+
+                softly.assertThat(response.jsonPath().getLong("[0].id")).isEqualTo(articles.get(ARTICLE_COUNT - 1).getId());
+                softly.assertThat(response.jsonPath().getLong("[0].board_id")).isEqualTo(board.getId());
+                softly.assertThat(response.jsonPath().getString("[0].title")).isEqualTo(articles.get(ARTICLE_COUNT - 1).getTitle());
+                softly.assertThat(response.jsonPath().getString("[0].contentSummary"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 1).getContentSummary());
+                softly.assertThat(response.jsonPath().getByte("[0].comment_count"))
+                    .isEqualTo((byte)articles.get(ARTICLE_COUNT - 1).getCommentCount());
+                softly.assertThat(response.jsonPath().getLong("[0].hit")).isEqualTo(articles.get(ARTICLE_COUNT - 1).getHit());
+
+                softly.assertThat(response.jsonPath().getLong("[1].id")).isEqualTo(articles.get(ARTICLE_COUNT - 2).getId());
+                softly.assertThat(response.jsonPath().getLong("[2].id")).isEqualTo(articles.get(ARTICLE_COUNT - 3).getId());
+                softly.assertThat(response.jsonPath().getLong("[3].id")).isEqualTo(articles.get(ARTICLE_COUNT - 4).getId());
+                softly.assertThat(response.jsonPath().getLong("[4].id")).isEqualTo(articles.get(ARTICLE_COUNT - 5).getId());
+                softly.assertThat(response.jsonPath().getLong("[5].id")).isEqualTo(articles.get(ARTICLE_COUNT - 6).getId());
+                softly.assertThat(response.jsonPath().getLong("[6].id")).isEqualTo(articles.get(ARTICLE_COUNT - 7).getId());
+                softly.assertThat(response.jsonPath().getLong("[7].id")).isEqualTo(articles.get(ARTICLE_COUNT - 8).getId());
+                softly.assertThat(response.jsonPath().getLong("[8].id")).isEqualTo(articles.get(ARTICLE_COUNT - 9).getId());
+                softly.assertThat(response.jsonPath().getLong("[9].id")).isEqualTo(articles.get(ARTICLE_COUNT - 10).getId());
             }
         );
     }

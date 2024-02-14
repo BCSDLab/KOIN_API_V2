@@ -3,8 +3,6 @@ package in.koreatech.koin.acceptance;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-import java.util.ArrayList;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,6 @@ import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -29,6 +26,9 @@ class OwnerApiTest extends AcceptanceTest {
 
     @Autowired
     private OwnerRepository ownerRepository;
+
+    @Autowired
+    private ShopRepository shopRepository;
 
     @Autowired
     private OwnerAttachmentRepository ownerAttachmentRepository;
@@ -52,7 +52,17 @@ class OwnerApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        Shop shop = Shop.builder()
+        Owner ownerRequest = Owner.builder()
+            .companyRegistrationNumber("123-45-67890")
+            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
+            .grantShop(true)
+            .grantEvent(true)
+            .user(user)
+            .build();
+        Owner owner = ownerRepository.save(ownerRequest);
+
+        Shop shopRequest = Shop.builder()
+            .owner(owner)
             .name("테스트 상점")
             .internalName("테스트")
             .chosung("테스트")
@@ -68,27 +78,16 @@ class OwnerApiTest extends AcceptanceTest {
             .remarks("비고")
             .hit(0L)
             .build();
+        Shop shop = shopRepository.save(shopRequest);
 
         OwnerAttachment attachmentRequest = OwnerAttachment.builder()
+            .owner(owner)
             .url("https://test.com/test.jpg")
             .isDeleted(false)
             .build();
+        OwnerAttachment attachment = ownerAttachmentRepository.save(attachmentRequest);
 
-        Owner ownerRequest = Owner.builder()
-            .companyRegistrationNumber("123-45-67890")
-            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
-            .grantShop(true)
-            .grantEvent(true)
-            .attachments(new ArrayList<>())
-            .shops(new ArrayList<>())
-            .user(user)
-            .build();
-        attachmentRequest.setOwner(ownerRequest);
-        shop.setOwner(ownerRequest);
-
-        Owner owner = ownerRepository.save(ownerRequest);
-        OwnerAttachment attachment = ownerAttachmentRepository.findById(attachmentRequest.getId());
-        String token = jwtProvider.createToken(ownerRequest.getUser());
+        String token = jwtProvider.createToken(owner.getUser());
 
         // when then
         ExtractableResponse<Response> response = RestAssured

@@ -23,19 +23,21 @@ public record OwnerResponse(
     @Schema(description = "첨부 파일 목록")
     List<InnerAttachmentResponse> attachments,
 
-    @Schema(description = "상점 목록")
+    @Schema(description = "가게 목록")
     List<InnerShopResponse> shops
 ) {
 
-    public static OwnerResponse from(Owner owner) {
+    public static OwnerResponse of(Owner owner, List<OwnerAttachment> attachments, List<Shop> shops) {
         return new OwnerResponse(
             owner.getUser().getEmail(),
             owner.getUser().getName(),
             owner.getCompanyRegistrationNumber(),
-            owner.getAttachments().stream()
-                .map(InnerAttachmentResponse::from).toList(),
-            owner.getShops().stream()
-                .map(InnerShopResponse::from).toList()
+            attachments.stream()
+                .map(InnerAttachmentResponse::from)
+                .toList(),
+            shops.stream()
+                .map(InnerShopResponse::from)
+                .toList()
             );
     }
 
@@ -44,10 +46,10 @@ public record OwnerResponse(
         @Schema(description = "첨부 파일 ID", example = "1")
         Long id,
 
-        @Schema(description = "첨부 파일 URL", example = "https://test.com/test.jpg")
+        @Schema(description = "첨부 파일 URL", example = "https://static.koreatech.in/1.png")
         String fileUrl,
 
-        @Schema(description = "첨부 파일 이름", example = "test.jpg")
+        @Schema(description = "첨부 파일 이름", example = "1.jpg")
         String fileName
     ) {
 
@@ -62,10 +64,10 @@ public record OwnerResponse(
 
     @JsonNaming(SnakeCaseStrategy.class)
     private record InnerShopResponse(
-        @Schema(description = "상점 ID", example = "1")
+        @Schema(description = "가게 ID", example = "1")
         Long id,
 
-        @Schema(description = "상점 이름", example = "테스트 상점")
+        @Schema(description = "가게 이름", example = "가게1")
         String name
     ) {
 

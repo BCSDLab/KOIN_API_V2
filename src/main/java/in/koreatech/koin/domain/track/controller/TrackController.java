@@ -25,7 +25,9 @@ public class TrackController implements TrackApi {
     }
 
     @GetMapping("/tracks/{id}")
-    public ResponseEntity<TrackSingleResponse> getTrack(@PathVariable Long id) {
+    public ResponseEntity<TrackSingleResponse> getTrack(
+        @PathVariable Long id
+    ) {
         TrackSingleResponse response = trackService.getTrack(id);
         return ResponseEntity.ok(response);
     }

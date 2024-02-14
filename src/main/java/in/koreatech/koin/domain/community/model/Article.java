@@ -18,6 +18,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
@@ -26,10 +27,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "articles")
 @Where(clause = "is_deleted=0")
@@ -108,6 +107,7 @@ public class Article extends BaseEntity {
     @Transient
     private String contentSummary;
 
+    @PostPersist
     @PostLoad
     public void updateContentSummary() {
         if (content == null) {
