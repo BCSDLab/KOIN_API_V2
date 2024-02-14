@@ -2,8 +2,6 @@ package in.koreatech.koin.domain.owner.service;
 
 import static in.koreatech.koin.global.common.email.model.MailForm.OWNER_REGISTRATION_MAIL_FORM;
 
-import java.io.IOException;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +24,7 @@ public class OwnerService {
     private final OwnerInVerificationRepository ownerInVerificationRepository;
     private final MailService mailService;
 
-    public void requestVerificationToRegister(VerifyEmailRequest request) throws IOException {
+    public void requestVerificationToRegister(VerifyEmailRequest request) {
         Email email = Email.from(request.email());
         validateEmailUniqueness(email);
 

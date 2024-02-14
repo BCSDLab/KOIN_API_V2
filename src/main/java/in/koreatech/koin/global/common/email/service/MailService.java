@@ -3,9 +3,11 @@ package in.koreatech.koin.global.common.email.service;
 import static in.koreatech.koin.global.common.email.model.MailFormContent.NO_REPLY_EMAIL_ADDRESS;
 
 import java.io.StringWriter;
+import java.util.Properties;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,7 @@ public class MailService {
 
     private SesMailSender sesMailSender;
     private VelocityEngine velocityEngine;
+    private Velocity velocity;
 
     public CertificationCode sendMail(Email email, MailForm form) {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
@@ -36,7 +39,13 @@ public class MailService {
     }
 
     private String mailFormFor(CertificationCode certificationCode, String formLocation) {
-        Template template = velocityEngine.getTemplate(formLocation);
+        Properties p = new Properties();
+        p.setProperty("resource.loader", "class");
+        p.setProperty("class.resource.loader.class",
+            "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        Velocity.init(p);
+
+        Template template = Velocity.getTemplate(formLocation);
         StringWriter writer = new StringWriter();
 
         Mail mail = Mail.builder()
