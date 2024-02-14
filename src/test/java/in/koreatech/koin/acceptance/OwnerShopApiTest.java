@@ -3,8 +3,6 @@ package in.koreatech.koin.acceptance;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-import java.util.ArrayList;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,8 +43,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
             .grantShop(true)
             .grantEvent(true)
-            .attachments(new ArrayList<>())
-            .shops(new ArrayList<>())
             .user(
                 User.builder()
                     .password("1234")
@@ -65,6 +61,7 @@ class OwnerShopApiTest extends AcceptanceTest {
         token = jwtProvider.createToken(owner.getUser());
 
         Shop shopRequest = Shop.builder()
+            .owner(owner)
             .name("테스트 상점")
             .internalName("테스트")
             .chosung("테스트")
@@ -80,7 +77,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .remarks("비고")
             .hit(0L)
             .build();
-        shopRequest.setOwner(owner);
         shop = shopRepository.save(shopRequest);
     }
 
@@ -91,6 +87,7 @@ class OwnerShopApiTest extends AcceptanceTest {
         final int SHOP_COUNT = 2;
 
         Shop shopRequest = Shop.builder()
+            .owner(owner)
             .name("테스트 상점2")
             .internalName("테스트")
             .chosung("테스트")
@@ -106,7 +103,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .remarks("비고2")
             .hit(10L)
             .build();
-        shopRequest.setOwner(owner);
         Shop shop2 = shopRepository.save(shopRequest);
 
         // when then

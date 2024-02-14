@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.ownershop.dto;
 
 import java.util.List;
 
-import in.koreatech.koin.domain.owner.domain.Owner;
 import in.koreatech.koin.domain.shop.model.Shop;
 
 public record OwnerShopsResponse(
@@ -10,10 +9,10 @@ public record OwnerShopsResponse(
     List<InnerShopResponse> shops
 ) {
 
-    public static OwnerShopsResponse from(Owner owner) {
+    public static OwnerShopsResponse from(List<Shop> shops) {
         return new OwnerShopsResponse(
-            (long)owner.getShops().size(),
-            owner.getShops().stream()
+            (long)shops.size(),
+            shops.stream()
                 .map(InnerShopResponse::from)
                 .toList()
         );
