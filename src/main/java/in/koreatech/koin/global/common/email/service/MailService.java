@@ -8,7 +8,6 @@ import java.util.Properties;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.VelocityEngine;
 import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.global.common.RandomGenerator;
@@ -23,9 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MailService {
 
-    private SesMailSender sesMailSender;
-    private VelocityEngine velocityEngine;
-    private Velocity velocity;
+    private final SesMailSender sesMailSender;
 
     public CertificationCode sendMail(Email email, MailForm form) {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();

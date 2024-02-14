@@ -31,7 +31,7 @@
                         회원가입 페이지로 돌아가 아래에 있는 인증번호를 입력해주세요.<br><br><br>
 
                         <p style="font-size: 26px;background:#faf9fa;border:1px solid;border-style:solid;border-color:#dad8de;display:inline;padding-bottom:5px;padding-left:5px;padding-right:5px;padding-top:5px">
-                            $certification-code
+                            ${certificationCode}
                         </p>
                     </td>
                 </tr>

@@ -10,7 +10,7 @@ import lombok.Builder;
 @Builder
 public class Mail {
 
-    private static final String CERTIFICATION_CODE = "certification-code";
+    private static final String CERTIFICATION_CODE = "certificationCode";
 
     private final String certificationCode;
 
