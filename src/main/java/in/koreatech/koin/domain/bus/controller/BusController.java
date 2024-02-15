@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.bus.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,7 +15,7 @@ public class BusController implements BusApi {
 
     private final BusService busService;
 
-    @Override
+    @GetMapping("/bus")
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
         @RequestParam(value = "bus_type") String busType,
         @RequestParam String depart,
