@@ -27,6 +27,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.mysql:mysql-connector-j'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     implementation 'com.mysql:mysql-connector-j'
     implementation 'org.jsoup:jsoup:1.15.3'
