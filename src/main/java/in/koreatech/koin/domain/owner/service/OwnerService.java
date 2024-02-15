@@ -38,6 +38,8 @@ public class OwnerService {
 
     private void validateEmailUniqueness(Email email) {
         userRepository.findByEmail(email.getEmail())
-            .orElseThrow(() -> DuplicationEmailException.withDetail("이미 존재하는 이메일입니다. email: " + email));
+            .ifPresent(user -> {
+                throw DuplicationEmailException.withDetail("이미 존재하는 이메일입니다. email: " + email);
+            });
     }
 }
