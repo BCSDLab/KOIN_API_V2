@@ -26,9 +26,18 @@ public class MailService {
 
     public CertificationCode sendMail(Email email, MailForm form) {
         CertificationCode certificationCode = RandomGenerator.getCertificationCode();
+        mailFormLoaderInit();
         String mailForm = mailFormFor(certificationCode, form.getPath());
         sendMailFor(email, mailForm, form.getSubject());
         return certificationCode;
+    }
+
+    private void mailFormLoaderInit() {
+        Properties properties = new Properties();
+        properties.setProperty("resource.loader", "class");
+        properties.setProperty("class.resource.loader.class",
+            "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        Velocity.init(properties);
     }
 
     private void sendMailFor(Email email, String mailForm, String purpose) {
@@ -36,21 +45,14 @@ public class MailService {
     }
 
     private String mailFormFor(CertificationCode certificationCode, String formLocation) {
-        Properties p = new Properties();
-        p.setProperty("resource.loader", "class");
-        p.setProperty("class.resource.loader.class",
-            "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-        Velocity.init(p);
-
         Template template = Velocity.getTemplate(formLocation);
-        StringWriter writer = new StringWriter();
 
         Mail mail = Mail.builder()
             .certificationCode(certificationCode.getValue())
             .build();
-
         VelocityContext context = mail.convertToMap();
 
+        StringWriter writer = new StringWriter();
         template.merge(context, writer);
 
         return writer.toString();
