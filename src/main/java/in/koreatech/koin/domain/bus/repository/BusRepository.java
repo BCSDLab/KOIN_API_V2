@@ -14,7 +14,7 @@ public interface BusRepository extends MongoRepository<Bus, String> {
 
     Optional<Bus> findByBusTypeAndDirection(String busType, String direction);
 
-    default Bus getBusByBusTypeAndDirection(String busType, String direction) {
+    default Bus getByBusTypeAndDirection(String busType, String direction) {
         return findByBusTypeAndDirection(busType, direction)
             .orElseThrow(() -> BusNotFoundException.withDetail("busType: " + busType + ", direction: " + direction));
     }

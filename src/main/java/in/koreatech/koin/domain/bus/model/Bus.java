@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.bus.model;
 
+import java.util.List;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -24,5 +26,5 @@ public class Bus {
     private String direction;
 
     @Field("routes")
-    private String routes;
+    private List<Route> routes;
 }
