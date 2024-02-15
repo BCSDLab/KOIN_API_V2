@@ -1,4 +1,29 @@
 package in.koreatech.koin.domain.bus.dto;
 
-public record BusRemainTimeResponse() {
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+import in.koreatech.koin.domain.bus.model.Bus;
+
+@JsonNaming(SnakeCaseStrategy.class)
+public record BusRemainTimeResponse(
+    String busType,
+    InnerBusResponse nextBus,
+    InnerBusResponse now_bus
+) {
+    public static BusRemainTimeResponse from(Bus bus) {
+        return null;
+    }
+
+    @JsonNaming(SnakeCaseStrategy.class)
+    private record InnerBusResponse(
+        Long busNumber,
+        Long remainTime
+    ) {
+
+        public static InnerBusResponse from(Bus bus) {
+            return null;
+        }
+    }
 }
