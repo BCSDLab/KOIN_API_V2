@@ -17,7 +17,9 @@ public class OwnerShopContoller implements OwnerShopApi {
     private final OwnerShopService ownerShopService;
 
     @Override
-    public ResponseEntity<OwnerShopsResponse> getOwnerShops(@Auth(permit = {OWNER}) Long ownerId) {
+    public ResponseEntity<OwnerShopsResponse> getOwnerShops(
+        @Auth(permit = {OWNER}) Long ownerId
+    ) {
         OwnerShopsResponse ownerShopsResponses = ownerShopService.getOwnerShops(ownerId);
         return ResponseEntity.ok().body(ownerShopsResponses);
     }
