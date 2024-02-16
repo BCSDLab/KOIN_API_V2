@@ -4,7 +4,7 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.bus.model.Bus;
+import in.koreatech.koin.domain.bus.model.BusCourse;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record BusRemainTimeResponse(
@@ -12,7 +12,7 @@ public record BusRemainTimeResponse(
     InnerBusResponse nextBus,
     InnerBusResponse now_bus
 ) {
-    public static BusRemainTimeResponse from(Bus bus) {
+    public static BusRemainTimeResponse from(BusCourse busCourse) {
         return null;
     }
 
@@ -22,7 +22,7 @@ public record BusRemainTimeResponse(
         Long remainTime
     ) {
 
-        public static InnerBusResponse from(Bus bus) {
+        public static InnerBusResponse from(BusCourse busCourse) {
             return null;
         }
     }

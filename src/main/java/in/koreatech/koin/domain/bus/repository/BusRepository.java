@@ -1,21 +1,20 @@
 package in.koreatech.koin.domain.bus.repository;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.bus.exception.BusNotFoundException;
-import in.koreatech.koin.domain.bus.model.Bus;
+import in.koreatech.koin.domain.bus.model.BusCourse;
 
-public interface BusRepository extends MongoRepository<Bus, String> {
+public interface BusRepository extends Repository<BusCourse, String> {
 
-    List<Bus> findAll();
+    List<BusCourse> findAll();
 
-    Optional<Bus> findByBusTypeAndDirection(String busType, String direction);
+    List<BusCourse> findByBusTypeAndDirection(String busType, String direction);
 
-    default Bus getByBusTypeAndDirection(String busType, String direction) {
-        return findByBusTypeAndDirection(busType, direction)
-            .orElseThrow(() -> BusNotFoundException.withDetail("busType: " + busType + ", direction: " + direction));
+    default List<BusCourse> getByBusTypeAndDirection(String busType, String direction) {
+        List<BusCourse> busCourses = findByBusTypeAndDirection(busType, direction);
+        busCourses.removeIf(busCourse -> !busCourse.isRunning());
+        return busCourses;
     }
 }
