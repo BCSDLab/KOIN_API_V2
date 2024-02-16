@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.bus.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -10,7 +11,7 @@ import lombok.Getter;
 
 @Getter
 @Document(collection = "bus_timetables")
-public class Bus {
+public class BusCourse {
 
     @Id
     @Field("_id")
@@ -26,5 +27,10 @@ public class Bus {
     private String direction;
 
     @Field("routes")
-    private List<Route> routes;
+    private List<Route> routes = new ArrayList<>();
+
+    public boolean isRunning() {
+        routes.removeIf(route -> !route.isRunning());
+        return !routes.isEmpty();
+    }
 }
