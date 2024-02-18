@@ -13,6 +13,7 @@ import in.koreatech.koin.global.common.email.exception.DuplicationEmailException
 import in.koreatech.koin.global.common.email.model.CertificationCode;
 import in.koreatech.koin.global.common.email.model.Email;
 import in.koreatech.koin.global.common.email.service.MailService;
+import in.koreatech.koin.global.common.slack.service.SlackService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,6 +24,7 @@ public class OwnerService {
     private final UserRepository userRepository;
     private final OwnerInVerificationRepository ownerInVerificationRepository;
     private final MailService mailService;
+    private final SlackService slackService;
 
     public void requestVerificationToRegister(VerifyEmailRequest request) {
         Email email = Email.from(request.email());
@@ -34,6 +36,8 @@ public class OwnerService {
         OwnerInVerification ownerInVerification = OwnerInVerification.from(email.getEmail(),
             certificationCode.getValue());
         ownerInVerificationRepository.save(ownerInVerification);
+
+        slackService.noticeEmailVerification(ownerInVerification);
     }
 
     private void validateEmailUniqueness(Email email) {
