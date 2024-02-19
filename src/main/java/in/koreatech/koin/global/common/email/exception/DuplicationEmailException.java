@@ -1,8 +1,10 @@
 package in.koreatech.koin.global.common.email.exception;
 
-public class DuplicationEmailException extends RuntimeException {
+import in.koreatech.koin.global.exception.DuplicationException;
 
-    private static final String DEFAULT_MESSAGE = "존재하는 이메일입니다.";
+public class DuplicationEmailException extends DuplicationException {
+
+    private static final String DEFAULT_MESSAGE = "존재하는 이메일입니다. ";
 
     public DuplicationEmailException(String message) {
         super(message);
