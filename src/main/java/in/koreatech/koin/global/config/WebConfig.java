@@ -1,23 +1,41 @@
 package in.koreatech.koin.global.config;
 
-import in.koreatech.koin.domain.auth.resolver.StudentArgumentResolver;
-import in.koreatech.koin.domain.auth.resolver.UserArgumentResolver;
+
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import in.koreatech.koin.global.auth.AuthArgumentResolver;
+import in.koreatech.koin.global.auth.ExtractAuthenticationInterceptor;
+import in.koreatech.koin.global.ipaddress.IpAddressArgumentResolver;
+import in.koreatech.koin.global.ipaddress.IpAddressInterceptor;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    private final UserArgumentResolver userArgumentResolver;
-    private final StudentArgumentResolver studentArgumentResolver;
+    private final ExtractAuthenticationInterceptor extractAuthenticationInterceptor;
+    private final IpAddressArgumentResolver ipAddressArgumentResolver;
+    private final AuthArgumentResolver authArgumentResolver;
+    private final IpAddressInterceptor ipAddressInterceptor;
 
     @Override
-    public void addArgumentResolvers(final List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(userArgumentResolver);
-        resolvers.add(studentArgumentResolver);
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(extractAuthenticationInterceptor)
+            .addPathPatterns("/**")
+            .order(0);
+        registry.addInterceptor(ipAddressInterceptor)
+            .addPathPatterns("/**")
+            .order(1);
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(authArgumentResolver);
+        resolvers.add(ipAddressArgumentResolver);
     }
 }

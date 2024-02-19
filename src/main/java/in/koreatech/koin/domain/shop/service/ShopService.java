@@ -23,8 +23,7 @@ public class ShopService {
     private final MenuCategoryRepository menuCategoryRepository;
 
     public ShopMenuResponse findMenu(Long menuId) {
-        Menu menu = menuRepository.findById(menuId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 메뉴입니다."));
+        Menu menu = menuRepository.getById(menuId);
 
         List<MenuCategory> menuCategories = menu.getMenuCategoryMaps()
             .stream()

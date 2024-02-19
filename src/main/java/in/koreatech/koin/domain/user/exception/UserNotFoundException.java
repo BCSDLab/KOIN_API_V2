@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.user.exception;
 
-public class UserNotFoundException extends RuntimeException {
+import in.koreatech.koin.global.exception.DataNotFoundException;
+
+public class UserNotFoundException extends DataNotFoundException {
 
     private static final String DEFAULT_MESSAGE = "존재하지 않는 사용자입니다.";
 

@@ -1,15 +1,24 @@
 package in.koreatech.koin.domain.community.model;
 
+import java.util.List;
+
 import org.hibernate.annotations.Where;
 import org.jsoup.Jsoup;
 
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
@@ -18,10 +27,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "articles")
 @Where(clause = "is_deleted=0")
@@ -36,9 +43,9 @@ public class Article extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @NotNull
-    @Column(name = "board_id", nullable = false)
-    private Long boardId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id", nullable = false)
+    private Board board;
 
     @Size(max = 255)
     @NotNull
@@ -50,9 +57,9 @@ public class Article extends BaseEntity {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @NotNull
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Size(max = 50)
     @NotNull
@@ -76,6 +83,9 @@ public class Article extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY)
+    private List<Comment> comment;
+
     @NotNull
     @Column(name = "comment_count", nullable = false)
     private Byte commentCount;
@@ -94,26 +104,36 @@ public class Article extends BaseEntity {
     @Transient
     private String summary;
 
-    public String getContentSummary() {
+    @Transient
+    private String contentSummary;
+
+    @PostPersist
+    @PostLoad
+    public void updateContentSummary() {
         if (content == null) {
-            return "";
+            contentSummary = "";
+            return;
         }
-        String contentSummary = Jsoup.parse(content).text();
-        contentSummary = contentSummary.replace("&nbsp", "").strip();
-        if (contentSummary.length() < SUMMARY_MAX_LENGTH) {
-            return contentSummary;
+        String parseResult = Jsoup.parse(content).text().replace("&nbsp", "").strip();
+        if (parseResult.length() < SUMMARY_MAX_LENGTH) {
+            contentSummary = parseResult;
+            return;
         }
-        return contentSummary.substring(SUMMARY_MIN_LENGTH, SUMMARY_MAX_LENGTH);
+        contentSummary = parseResult.substring(SUMMARY_MIN_LENGTH, SUMMARY_MAX_LENGTH);
+    }
+
+    public void increaseHit() {
+        hit++;
     }
 
     @Builder
-    private Article(Long boardId, String title, String content, Long userId, String nickname, Long hit,
+    private Article(Board board, String title, String content, User user, String nickname, Long hit,
         String ip, Boolean isSolved, Boolean isDeleted, Byte commentCount, String meta, Boolean isNotice,
         Long noticeArticleId) {
-        this.boardId = boardId;
+        this.board = board;
         this.title = title;
         this.content = content;
-        this.userId = userId;
+        this.user = user;
         this.nickname = nickname;
         this.hit = hit;
         this.ip = ip;

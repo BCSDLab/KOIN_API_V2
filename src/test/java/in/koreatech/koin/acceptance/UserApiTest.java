@@ -1,23 +1,24 @@
 package in.koreatech.koin.acceptance;
 
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
-
-import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.auth.JwtProvider;
-import in.koreatech.koin.domain.user.model.Student;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.model.UserIdentity;
-import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.domain.user.repository.StudentRepository;
-import in.koreatech.koin.domain.user.repository.UserRepository;
-import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+
+import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.domain.user.model.UserIdentity;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import in.koreatech.koin.domain.user.repository.StudentRepository;
+import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.JwtProvider;
+import io.restassured.RestAssured;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class UserApiTest extends AcceptanceTest {
 
@@ -45,7 +46,7 @@ class UserApiTest extends AcceptanceTest {
                     .nickname("주노")
                     .name("최준호")
                     .phoneNumber("010-1234-5678")
-                    .userType(UserType.STUDENT)
+                    .userType(STUDENT)
                     .gender(UserGender.MAN)
                     .email("test@koreatech.ac.kr")
                     .isAuthed(true)
@@ -59,13 +60,10 @@ class UserApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
-            .header("Authorization", "BEARER " + token)
+            .header("Authorization", "Bearer " + token)
             .when()
-            .log().all()
             .get("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -108,7 +106,7 @@ class UserApiTest extends AcceptanceTest {
                     .nickname("주노")
                     .name("최준호")
                     .phoneNumber("010-1234-5678")
-                    .userType(UserType.STUDENT)
+                    .userType(STUDENT)
                     .gender(UserGender.MAN)
                     .email("test@koreatech.ac.kr")
                     .isAuthed(true)
@@ -122,13 +120,10 @@ class UserApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
-            .header("Authorization", "BEARER " + token)
+            .header("Authorization", "Bearer " + token)
             .when()
-            .log().all()
             .get("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .extract();
     }
@@ -141,7 +136,7 @@ class UserApiTest extends AcceptanceTest {
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
-            .userType(UserType.STUDENT)
+            .userType(STUDENT)
             .gender(UserGender.MAN)
             .email("test@koreatech.ac.kr")
             .isAuthed(true)
@@ -153,14 +148,41 @@ class UserApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
-            .header("Authorization", "BEARER " + token)
+            .header("Authorization", "Bearer " + token)
             .when()
-            .log().all()
             .get("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("회원이 탈퇴한다")
+    void userWithdraw() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+        String token = jwtProvider.createToken(user);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .delete("/user")
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract();
+
+        Assertions.assertThat(userRepository.findById(user.getId())).isNotPresent();
     }
 }

@@ -3,10 +3,9 @@ package in.koreatech.koin.domain.owner.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-@RedisHash("owner@")
+@RedisHash(value = "owner@", timeToLive = 60 * 60 * 2)
 public record OwnerInVerification(
-    @Id
-    String email,
+    @Id String email,
     String certificationCode
 ) {
 

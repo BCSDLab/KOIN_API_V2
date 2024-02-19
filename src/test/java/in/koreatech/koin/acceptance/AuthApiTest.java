@@ -1,24 +1,25 @@
 package in.koreatech.koin.acceptance;
 
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import java.util.Map;
+import java.util.Optional;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.model.UserType;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import java.util.Map;
-import java.util.Optional;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class AuthApiTest extends AcceptanceTest {
 
@@ -36,7 +37,7 @@ class AuthApiTest extends AcceptanceTest {
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
-            .userType(UserType.STUDENT)
+            .userType(STUDENT)
             .email("test@koreatech.ac.kr")
             .isAuthed(true)
             .isDeleted(false)
@@ -46,7 +47,6 @@ class AuthApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .body("""
                 {
                   "email": "test@koreatech.ac.kr",
@@ -55,10 +55,8 @@ class AuthApiTest extends AcceptanceTest {
                 """)
             .contentType(ContentType.JSON)
             .when()
-            .log().all()
             .post("/user/login")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -85,7 +83,7 @@ class AuthApiTest extends AcceptanceTest {
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
-            .userType(UserType.USER)
+            .userType(STUDENT)
             .email("test@koreatech.ac.kr")
             .isAuthed(true)
             .isDeleted(false)
@@ -95,7 +93,6 @@ class AuthApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .body("""
                 {
                   "email": "test@koreatech.ac.kr",
@@ -104,22 +101,17 @@ class AuthApiTest extends AcceptanceTest {
                 """)
             .contentType(ContentType.JSON)
             .when()
-            .log().all()
             .post("/user/login")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
         RestAssured
             .given()
-            .log().all()
-            .header("Authorization", "BEARER " + response.jsonPath().getString("token"))
+            .header("Authorization", "Bearer " + response.jsonPath().getString("token"))
             .when()
-            .log().all()
             .post("/user/logout")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -136,7 +128,7 @@ class AuthApiTest extends AcceptanceTest {
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
-            .userType(UserType.USER)
+            .userType(STUDENT)
             .email("test@koreatech.ac.kr")
             .isAuthed(true)
             .isDeleted(false)
@@ -146,7 +138,6 @@ class AuthApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .body("""
                 {
                   "email": "test@koreatech.ac.kr",
@@ -155,25 +146,20 @@ class AuthApiTest extends AcceptanceTest {
                 """)
             .contentType(ContentType.JSON)
             .when()
-            .log().all()
             .post("/user/login")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
         RestAssured
             .given()
-            .log().all()
             .body(
                 Map.of("refresh_token", response.jsonPath().getString("refresh_token"))
             )
             .contentType(ContentType.JSON)
             .when()
-            .log().all()
             .post("/user/refresh")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

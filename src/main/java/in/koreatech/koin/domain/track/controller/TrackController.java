@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class TrackController {
+public class TrackController implements TrackApi {
 
     private final TrackService trackService;
 
@@ -25,7 +25,9 @@ public class TrackController {
     }
 
     @GetMapping("/tracks/{id}")
-    public ResponseEntity<TrackSingleResponse> getTrack(@PathVariable Long id) {
+    public ResponseEntity<TrackSingleResponse> getTrack(
+        @PathVariable Long id
+    ) {
         TrackSingleResponse response = trackService.getTrack(id);
         return ResponseEntity.ok(response);
     }

@@ -11,9 +11,10 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.track.model.Member;
 import in.koreatech.koin.domain.track.model.TechStack;
 import in.koreatech.koin.domain.track.model.Track;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public record TrackSingleResponse(
-    @JsonProperty("TrackName") String trackName,
+    @Schema(description = "트랙 명", example = "Backend") @JsonProperty("TrackName") String trackName,
     @JsonProperty("TechStacks") List<InnerTechStackResponse> innerTechStackResponses,
     @JsonProperty("Members") List<InnerMemberResponse> innerMemberResponses
 ) {
@@ -32,13 +33,28 @@ public record TrackSingleResponse(
 
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     private record InnerTechStackResponse(
+        @Schema(description = "기술 스택 고유 ID", example = "1")
         Long id,
+
+        @Schema(description = "기술 이름", example = "Backend")
         String name,
+
+        @Schema(description = "기술 설명", example = "15")
         String description,
+
+        @Schema(description = "이미지 Url", example = "https://static.koreatech.in/example/image.png")
         String imageUrl,
+
+        @Schema(description = "트랙 ID", example = "1")
         Long trackId,
+
+        @Schema(description = "삭제 여부", example = "false")
         Boolean isDeleted,
+
+        @Schema(description = "생성 일자", example = "2023-01-04 12:00:01")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+
+        @Schema(description = "수정 일자", example = "2023-01-04 12:00:01")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
     ) {
 
@@ -58,15 +74,34 @@ public record TrackSingleResponse(
 
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     private record InnerMemberResponse(
+        @Schema(description = "BCSD 회원 고유 ID", example = "1")
         Long id,
+
+        @Schema(description = "이름", example = "최준호")
         String name,
+
+        @Schema(description = "학번", example = "2019136135")
         String studentNumber,
+
+        @Schema(description = "동아리 포지션 `Beginner`, `Regular`, `Mentor`", example = "Regular")
         String position,
+
+        @Schema(description = "트랙 명", example = "Backend")
         String track,
+
+        @Schema(description = "이메일", example = "koin123@koreatech.ac.kr")
         String email,
+
+        @Schema(description = "이미지 Url", example = "https://static.koreatech.in/example/image.png")
         String imageUrl,
+
+        @Schema(description = "삭제 여부", example = "false")
         Boolean isDeleted,
+
+        @Schema(description = "생성 일자", example = "2023-01-04 12:00:01")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+
+        @Schema(description = "수정 일자", example = "2023-01-04 12:00:01")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
     ) {
 

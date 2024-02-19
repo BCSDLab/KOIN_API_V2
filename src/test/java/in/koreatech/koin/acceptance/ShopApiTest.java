@@ -62,12 +62,9 @@ class ShopApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -142,12 +139,9 @@ class ShopApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -160,7 +154,7 @@ class ShopApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.getIsHidden());
 
                 softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
-                softly.assertThat((Integer)response.body().jsonPath().get("single_price")).isNull();
+                softly.assertThat((Integer) response.body().jsonPath().get("single_price")).isNull();
 
                 softly.assertThat(response.body().jsonPath().getList("option_prices")).hasSize(2);
                 softly.assertThat(response.body().jsonPath().getString("option_prices[0].option"))
@@ -204,7 +198,7 @@ class ShopApiTest extends AcceptanceTest {
             .shopId(SHOP_ID)
             .name("메인 메뉴")
             .build();
-        
+
         menuCategoryRepository.save(menuCategory1);
         menuCategoryRepository.save(menuCategory2);
 
@@ -219,12 +213,9 @@ class ShopApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .get("/shops/{shopId}/menus/categories", menu.getShopId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
