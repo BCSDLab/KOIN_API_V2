@@ -1,6 +1,9 @@
 package in.koreatech.koin.domain.bus.model;
 
+import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -19,10 +22,11 @@ public class Route {
     private List<ArrivalNode> arrivalInfos;
 
     public boolean isRunning() {
-        if (routeName.equals("미운행")) {
+        if (routeName.equals("미운행") || arrivalInfos.isEmpty()) {
             return false;
         }
-        return !arrivalInfos.isEmpty();
+        String todayOfWeek = LocalDateTime.now().getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.US).toUpperCase();
+        return runningDays.contains(todayOfWeek);
     }
 
     @Getter

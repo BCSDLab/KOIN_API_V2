@@ -19,7 +19,6 @@ public class BusService {
     private final BusRepository busRepository;
 
     /**
-     * TODO
      * 궁금한 점
      * - 천안역-> 한기대의 경우: 천안 셔틀 하교(시간표: 한기대->터미널->천안역->...->한기대)에서 천안역->한기대 부분도 포함해야 하나? 시간표명은 하교인데 등교를 위해 사용할 수 있는가??
      * - now_bus와 next_bus 응답은 오늘 남은 버스가 없으면 null이 응답되는 것인지?(클라 출력: 운행 정보 없음)    (BusRemainTime 주석처리된 부분)
@@ -36,6 +35,7 @@ public class BusService {
             .map(BusCourse::getRoutes)
             .flatMap(routes ->
                 routes.stream()
+                    .filter(Route::isRunning)
                     .map(route -> route.getArrivalInfos().get(0))
                     .map(Route.ArrivalNode::getArrivalTime)
                     .map(BusRemainTime::from)
