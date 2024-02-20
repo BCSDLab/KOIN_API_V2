@@ -16,15 +16,16 @@ public class Route {
     private List<String> runningDays;
 
     @Field("arrival_info")
-    private List<ArrivalNode> arrivalInfo;
+    private List<ArrivalNode> arrivalInfos;
 
     public boolean isRunning() {
         if (routeName.equals("미운행")) {
             return false;
         }
-        return !arrivalInfo.isEmpty();
+        return !arrivalInfos.isEmpty();
     }
 
+    @Getter
     public static class ArrivalNode {
 
         @Field("node_name")

@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 
 import lombok.Builder;
 
-public class BusRemainTime {
+public class BusRemainTime implements Comparable<BusRemainTime> {
 
     private final LocalTime busArrivalTime;
 
@@ -36,5 +36,10 @@ public class BusRemainTime {
     @Builder
     private BusRemainTime(LocalTime busArrivalTime) {
         this.busArrivalTime = busArrivalTime;
+    }
+
+    @Override
+    public int compareTo(BusRemainTime o) {
+        return busArrivalTime.compareTo(o.busArrivalTime);
     }
 }
