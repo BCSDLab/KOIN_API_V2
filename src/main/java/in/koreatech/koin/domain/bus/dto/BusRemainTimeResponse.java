@@ -18,22 +18,23 @@ public record BusRemainTimeResponse(
     public static BusRemainTimeResponse of(String busType, List<BusRemainTime> remainTimes) {
         return new BusRemainTimeResponse(
             busType,
-            InnerBusResponse.from(remainTimes, 0),
-            InnerBusResponse.from(remainTimes, 1)
+            InnerBusResponse.of(remainTimes, 0),
+            InnerBusResponse.of(remainTimes, 1)
         );
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
     private record InnerBusResponse(
+        Long busNumber,
         Long remainTime
     ) {
 
-        public static InnerBusResponse from(List<BusRemainTime> remainTimes, int index) {
+        public static InnerBusResponse of(List<BusRemainTime> remainTimes, int index) {
             Long result = null;
             if (index < remainTimes.size()) {
                 result = remainTimes.get(index).getRemainSeconds();
             }
-            return new InnerBusResponse(result);
+            return new InnerBusResponse(null, result);
         }
     }
 }

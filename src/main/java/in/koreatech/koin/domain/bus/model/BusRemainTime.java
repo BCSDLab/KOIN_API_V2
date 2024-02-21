@@ -5,7 +5,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public class BusRemainTime implements Comparable<BusRemainTime> {
 
     private final LocalTime busArrivalTime;
@@ -19,7 +21,6 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
             return Duration.between(LocalTime.now(), busArrivalTime).toSeconds();
         }
         return null;
-        // return 86400L - Duration.between(busArrivalTime, LocalTime.now()).toSeconds();
     }
 
     public static BusRemainTime from(String remainTime) {
