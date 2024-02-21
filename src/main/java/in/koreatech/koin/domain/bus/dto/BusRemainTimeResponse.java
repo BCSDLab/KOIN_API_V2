@@ -7,6 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.model.BusType;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record BusRemainTimeResponse(
@@ -15,9 +16,9 @@ public record BusRemainTimeResponse(
     InnerBusResponse nextBus
 ) {
 
-    public static BusRemainTimeResponse of(String busType, List<BusRemainTime> remainTimes) {
+    public static BusRemainTimeResponse of(BusType busType, List<BusRemainTime> remainTimes) {
         return new BusRemainTimeResponse(
-            busType,
+            busType.getName(),
             InnerBusResponse.of(remainTimes, 0),
             InnerBusResponse.of(remainTimes, 1)
         );

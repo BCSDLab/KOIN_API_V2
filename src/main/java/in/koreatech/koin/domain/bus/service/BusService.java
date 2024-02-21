@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusCourse;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.model.BusStation;
 import in.koreatech.koin.domain.bus.model.BusType;
 import in.koreatech.koin.domain.bus.model.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
@@ -26,8 +27,10 @@ public class BusService {
      * -> X. 테스트 코드는 LocalDateTime을 mocking한다.
      */
 
-    public BusRemainTimeResponse getBusRemainTime(String busType, String depart, String arrival) {
-        BusType.validate(busType);
+    public BusRemainTimeResponse getBusRemainTime(String busTypeStr, String departStr, String arrivalStr) {
+        BusStation departStation = BusStation.from(departStr);
+        BusStation arrivalStation = BusStation.from(arrivalStr);
+        BusType busType = BusType.from(busTypeStr);
         List<BusRemainTime> remainTimes = busRepository.getByBusType(busType)
             .stream()
             .map(BusCourse::getRoutes)
