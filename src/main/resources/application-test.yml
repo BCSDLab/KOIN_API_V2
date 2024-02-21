@@ -24,4 +24,9 @@ swagger:
   server-url: http://localhost:8080
 
 slack:
-  notify_koin_event_url: https://test-slack-url.com
+  notify_koin_event_url:
+
+aws:
+  ses:
+    access-key:
+    secret-key:

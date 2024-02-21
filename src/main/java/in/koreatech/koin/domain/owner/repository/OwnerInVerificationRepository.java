@@ -11,9 +11,9 @@ public interface OwnerInVerificationRepository extends Repository<OwnerInVerific
 
     OwnerInVerification save(OwnerInVerification ownerInVerification);
 
-    Optional<OwnerInVerification> findByEmail(String email);
+    Optional<OwnerInVerification> findById(String email);
 
     default OwnerInVerification getByEmail(String email) {
-        return findByEmail(email).orElseThrow(() -> EmailNotFoundException.withDetail("email: " + email));
+        return findById(email).orElseThrow(() -> EmailNotFoundException.withDetail("email: " + email));
     }
 }

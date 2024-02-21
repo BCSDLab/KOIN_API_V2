@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.domain.Owner;
 import in.koreatech.koin.domain.owner.domain.OwnerAttachment;
+import in.koreatech.koin.domain.owner.model.OwnerInVerification;
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
+import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
@@ -19,6 +21,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.global.auth.JwtProvider;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
@@ -32,6 +35,9 @@ class OwnerApiTest extends AcceptanceTest {
 
     @Autowired
     private OwnerAttachmentRepository ownerAttachmentRepository;
+
+    @Autowired
+    private OwnerInVerificationRepository ownerInVerificationRepository;
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -104,11 +110,15 @@ class OwnerApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getString("email")).isEqualTo(user.getEmail());
                 softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(user.getName());
-                softly.assertThat(response.body().jsonPath().getString("company_number")).isEqualTo(owner.getCompanyRegistrationNumber());
+                softly.assertThat(response.body().jsonPath().getString("company_number"))
+                    .isEqualTo(owner.getCompanyRegistrationNumber());
 
-                softly.assertThat(response.body().jsonPath().getLong("attachments[0].id")).isEqualTo(attachment.getId().intValue());
-                softly.assertThat(response.body().jsonPath().getString("attachments[0].file_url")).isEqualTo(attachment.getUrl());
-                softly.assertThat(response.body().jsonPath().getString("attachments[0].file_name")).isEqualTo(attachment.getName());
+                softly.assertThat(response.body().jsonPath().getLong("attachments[0].id"))
+                    .isEqualTo(attachment.getId().intValue());
+                softly.assertThat(response.body().jsonPath().getString("attachments[0].file_url"))
+                    .isEqualTo(attachment.getUrl());
+                softly.assertThat(response.body().jsonPath().getString("attachments[0].file_name"))
+                    .isEqualTo(attachment.getName());
 
                 softly.assertThat(response.body().jsonPath().getLong("shops[0].id")).isEqualTo(shop.getId().intValue());
                 softly.assertThat(response.body().jsonPath().getString("shops[0].name")).isEqualTo(shop.getName());
@@ -117,5 +127,24 @@ class OwnerApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getList("shops").size()).isEqualTo(1);
             }
         );
+    }
+
+    @Test
+    @DisplayName("사장님이 회원가입 인증번호 전송 요청을 한다. - 슬랙 전송 실패")
+    void requestVerificationToRegister() {
+        RestAssured
+            .given()
+            .body("""
+                {
+                  "email": "test@gmail.com"
+                }
+                """)
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/verification/email")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+
+        OwnerInVerification ownerInVerification = ownerInVerificationRepository.getByEmail("test@gmail.com");
     }
 }

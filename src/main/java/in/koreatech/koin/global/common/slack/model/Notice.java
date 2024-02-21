@@ -43,7 +43,7 @@ public class Notice {
 
     public static Notice noticeEmailVerification(OwnerInVerification user, String url) {
         List<Object> attachment = new ArrayList<>();
-        attachment.add(addColor(COLOR_GOOD, user.email() + EMAIL_VERIFICATION_REQUEST_SUFFIX));
+        attachment.add(addColor(COLOR_GOOD, user.getEmail() + EMAIL_VERIFICATION_REQUEST_SUFFIX));
 
         return Notice.builder()
             .channel(CHANNEL_EVENT_NOTIFICATION)
