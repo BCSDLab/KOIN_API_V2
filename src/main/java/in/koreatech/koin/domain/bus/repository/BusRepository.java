@@ -8,12 +8,10 @@ import in.koreatech.koin.domain.bus.model.BusCourse;
 
 public interface BusRepository extends Repository<BusCourse, String> {
 
-    List<BusCourse> findAll();
+    List<BusCourse> findByBusType(String busType);
 
-    List<BusCourse> findByBusTypeAndDirection(String busType, String direction);
-
-    default List<BusCourse> getByBusTypeAndDirection(String busType, String direction) {
-        List<BusCourse> busCourses = findByBusTypeAndDirection(busType, direction);
+    default List<BusCourse> getByBusType(String busType) {
+        List<BusCourse> busCourses = findByBusType(busType);
         busCourses.removeIf(busCourse -> !busCourse.isRunning());
         return busCourses;
     }
