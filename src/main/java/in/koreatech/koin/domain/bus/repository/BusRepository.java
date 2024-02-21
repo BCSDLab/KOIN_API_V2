@@ -12,8 +12,6 @@ public interface BusRepository extends Repository<BusCourse, String> {
     List<BusCourse> findByBusType(String busType);
 
     default List<BusCourse> getByBusType(BusType busType) {
-        List<BusCourse> busCourses = findByBusType(busType.getName());
-        busCourses.removeIf(busCourse -> !busCourse.isRunning());
-        return busCourses;
+        return findByBusType(busType.getName());
     }
 }
