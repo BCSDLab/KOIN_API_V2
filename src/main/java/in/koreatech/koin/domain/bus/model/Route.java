@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.bus.model;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.List;
@@ -22,22 +23,22 @@ public class Route {
     @Field("arrival_info")
     private List<ArrivalNode> arrivalInfos;
 
-    public boolean isRunning() {
+    public boolean isRunning(Clock clock) {
         if (routeName.equals("미운행") || arrivalInfos.isEmpty()) {
             return false;
         }
-        String todayOfWeek = LocalDateTime.now()
+        String todayOfWeek = LocalDateTime.now(clock)
             .getDayOfWeek()
             .getDisplayName(TextStyle.SHORT, Locale.US)
             .toUpperCase();
         return runningDays.contains(todayOfWeek);
     }
 
-    public boolean isCorrectRoute(BusStation depart, BusStation arrival) {
+    public boolean isCorrectRoute(BusStation depart, BusStation arrival, Clock clock) {
         boolean foundDepart = false;
         for (ArrivalNode node : arrivalInfos) {
             if (depart.getDisplayNames().contains(node.getNodeName())
-                && (BusRemainTime.from(node.getArrivalTime()).isBefore())) {
+                && (BusRemainTime.from(node.getArrivalTime()).isBefore(clock))) {
                 foundDepart = true;
             }
             if (arrival.getDisplayNames().contains(node.getNodeName()) && foundDepart) {

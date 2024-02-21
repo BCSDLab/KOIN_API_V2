@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.bus.model;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -12,13 +13,13 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
 
     private final LocalTime busArrivalTime;
 
-    public boolean isBefore() {
-        return LocalTime.now().isBefore(busArrivalTime);
+    public boolean isBefore(Clock clock) {
+        return LocalTime.now(clock).isBefore(busArrivalTime);
     }
 
-    public Long getRemainSeconds() {
-        if (isBefore()) {
-            return Duration.between(LocalTime.now(), busArrivalTime).toSeconds();
+    public Long getRemainSeconds(Clock clock) {
+        if (isBefore(clock)) {
+            return Duration.between(LocalTime.now(clock), busArrivalTime).toSeconds();
         }
         return null;
     }
