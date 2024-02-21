@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import in.koreatech.koin.domain.bus.exception.BusArrivalNodeNotFoundException;
 import lombok.Getter;
 
 @Getter
@@ -25,8 +26,37 @@ public class Route {
         if (routeName.equals("미운행") || arrivalInfos.isEmpty()) {
             return false;
         }
-        String todayOfWeek = LocalDateTime.now().getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.US).toUpperCase();
+        String todayOfWeek = LocalDateTime.now()
+            .getDayOfWeek()
+            .getDisplayName(TextStyle.SHORT, Locale.US)
+            .toUpperCase();
         return runningDays.contains(todayOfWeek);
+    }
+
+    public boolean isCorrectRoute(BusStation depart, BusStation arrival) {
+        boolean foundDepart = false;
+        for (ArrivalNode node : arrivalInfos) {
+            if (depart.getDisplayNames().contains(node.getNodeName())
+                && (BusRemainTime.from(node.getArrivalTime()).isBefore())) {
+                foundDepart = true;
+            }
+            if (arrival.getDisplayNames().contains(node.getNodeName()) && foundDepart) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public BusRemainTime getRemainTime(BusStation busStation) {
+        ArrivalNode convertedNode = convertToArrivalNode(busStation);
+        return BusRemainTime.from(convertedNode.arrivalTime);
+    }
+
+    private ArrivalNode convertToArrivalNode(BusStation busStation) {
+        return arrivalInfos.stream()
+            .filter(node -> busStation.getDisplayNames().contains(node.getNodeName()))
+            .findFirst()
+            .orElseThrow(() -> BusArrivalNodeNotFoundException.withDetail("routeName: " + routeName + ", busStation: " + busStation.getName()));
     }
 
     @Getter
