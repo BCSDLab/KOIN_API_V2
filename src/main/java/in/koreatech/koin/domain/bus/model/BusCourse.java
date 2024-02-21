@@ -28,9 +28,4 @@ public class BusCourse {
 
     @Field("routes")
     private List<Route> routes = new ArrayList<>();
-
-    public boolean isRunning() {
-        routes.removeIf(route -> !route.isRunning());
-        return !routes.isEmpty();
-    }
 }
