@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.common.email.model;
+package in.koreatech.koin.global.domain.email.model;
 
 import java.util.Hashtable;
 
@@ -7,7 +7,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
-import in.koreatech.koin.global.common.email.exception.InvalidEmailDomainException;
+import in.koreatech.koin.global.domain.email.exception.InvalidEmailDomainException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

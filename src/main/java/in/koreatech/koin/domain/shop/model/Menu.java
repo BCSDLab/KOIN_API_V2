@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.shop.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import in.koreatech.koin.global.common.BaseEntity;
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

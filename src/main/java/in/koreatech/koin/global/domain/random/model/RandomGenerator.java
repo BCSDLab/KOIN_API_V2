@@ -1,8 +1,8 @@
-package in.koreatech.koin.global.common;
+package in.koreatech.koin.global.domain.random.model;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import in.koreatech.koin.global.common.email.model.CertificationCode;
+import in.koreatech.koin.global.domain.email.model.CertificationCode;
 
 public class RandomGenerator {
 

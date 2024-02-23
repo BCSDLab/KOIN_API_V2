@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.owner.service;
 
-import static in.koreatech.koin.global.common.email.model.MailForm.OWNER_REGISTRATION_MAIL_FORM;
+import static in.koreatech.koin.global.domain.email.model.MailForm.OWNER_REGISTRATION_MAIL_FORM;
 
 import java.util.List;
 
@@ -18,11 +18,11 @@ import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.common.email.exception.DuplicationEmailException;
-import in.koreatech.koin.global.common.email.model.CertificationCode;
-import in.koreatech.koin.global.common.email.model.Email;
-import in.koreatech.koin.global.common.email.service.MailService;
-import in.koreatech.koin.global.common.slack.service.SlackService;
+import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
+import in.koreatech.koin.global.domain.email.model.CertificationCode;
+import in.koreatech.koin.global.domain.email.model.Email;
+import in.koreatech.koin.global.domain.email.service.MailService;
+import in.koreatech.koin.global.domain.slack.service.SlackService;
 import lombok.RequiredArgsConstructor;
 
 @Service

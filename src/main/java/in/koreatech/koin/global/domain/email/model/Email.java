@@ -1,9 +1,9 @@
-package in.koreatech.koin.global.common.email.model;
+package in.koreatech.koin.global.domain.email.model;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import in.koreatech.koin.global.common.email.exception.InvalidEmailFormatException;
+import in.koreatech.koin.global.domain.email.exception.InvalidEmailFormatException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 

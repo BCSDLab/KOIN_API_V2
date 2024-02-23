@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.common.email.exception;
+package in.koreatech.koin.global.domain.email.exception;
 
 public class InvalidEmailFormatException extends RuntimeException {
 

@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.common.slack.model;
+package in.koreatech.koin.global.domain.slack.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;

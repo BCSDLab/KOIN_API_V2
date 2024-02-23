@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.track.model;
 
-import in.koreatech.koin.global.common.BaseEntity;
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

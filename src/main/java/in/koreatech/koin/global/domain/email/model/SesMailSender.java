@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.common.email.model;
+package in.koreatech.koin.global.domain.email.model;
 
 import org.springframework.stereotype.Component;
 

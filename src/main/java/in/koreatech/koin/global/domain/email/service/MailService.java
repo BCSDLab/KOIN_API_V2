@@ -1,6 +1,6 @@
-package in.koreatech.koin.global.common.email.service;
+package in.koreatech.koin.global.domain.email.service;
 
-import static in.koreatech.koin.global.common.email.model.MailFormContent.NO_REPLY_EMAIL_ADDRESS;
+import static in.koreatech.koin.global.domain.email.model.MailFormContent.NO_REPLY_EMAIL_ADDRESS;
 
 import java.io.StringWriter;
 import java.util.Properties;
@@ -10,12 +10,12 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.global.common.RandomGenerator;
-import in.koreatech.koin.global.common.email.model.CertificationCode;
-import in.koreatech.koin.global.common.email.model.Email;
-import in.koreatech.koin.global.common.email.model.Mail;
-import in.koreatech.koin.global.common.email.model.MailForm;
-import in.koreatech.koin.global.common.email.model.SesMailSender;
+import in.koreatech.koin.global.domain.random.model.RandomGenerator;
+import in.koreatech.koin.global.domain.email.model.CertificationCode;
+import in.koreatech.koin.global.domain.email.model.Email;
+import in.koreatech.koin.global.domain.email.model.Mail;
+import in.koreatech.koin.global.domain.email.model.MailForm;
+import in.koreatech.koin.global.domain.email.model.SesMailSender;
 import lombok.RequiredArgsConstructor;
 
 @Service

@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.land.model;
 
-import in.koreatech.koin.global.common.BaseEntity;
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -154,8 +154,8 @@ public class Land extends BaseEntity {
 
     @Builder
     private Land(String internalName, String name, Double size, String roomType, Double latitude, Double longitude,
-                 String phone, String imageUrls, String address, String description, Long floor, String deposit,
-                 String monthlyFee, String charterFee, String managementFee) {
+        String phone, String imageUrls, String address, String description, Long floor, String deposit,
+        String monthlyFee, String charterFee, String managementFee) {
         this.internalName = internalName;
         this.name = name;
         this.size = size;

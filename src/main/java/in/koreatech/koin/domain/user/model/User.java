@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.global.common.BaseEntity;
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -98,10 +98,10 @@ public class User extends BaseEntity {
 
     @Builder
     public User(String password, String nickname, String name, String phoneNumber, UserType userType,
-                String email,
-                UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-                Boolean isDeleted,
-                String authToken, String authExpiredAt, String resetToken, String resetExpiredAt) {
+        String email,
+        UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+        Boolean isDeleted,
+        String authToken, String authExpiredAt, String resetToken, String resetExpiredAt) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;
