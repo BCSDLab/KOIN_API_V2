@@ -9,6 +9,8 @@ import in.koreatech.koin.domain.bus.model.BusType;
 
 public interface BusRepository extends Repository<BusCourse, String> {
 
+    BusCourse save(BusCourse busCourse);
+
     List<BusCourse> findByBusType(String busType);
 
     default List<BusCourse> getByBusType(BusType busType) {

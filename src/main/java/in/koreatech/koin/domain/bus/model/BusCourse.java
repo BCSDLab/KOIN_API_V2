@@ -7,10 +7,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Document(collection = "bus_timetables")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BusCourse {
 
     @Id
@@ -28,4 +32,12 @@ public class BusCourse {
 
     @Field("routes")
     private List<Route> routes = new ArrayList<>();
+
+    @Builder
+    public BusCourse(String busType, String region, String direction, List<Route> routes) {
+        this.busType = busType;
+        this.region = region;
+        this.direction = direction;
+        this.routes = routes;
+    }
 }
