@@ -9,9 +9,13 @@ import java.util.Locale;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import in.koreatech.koin.domain.bus.exception.BusArrivalNodeNotFoundException;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Route {
 
     @Field("route_name")
@@ -60,6 +64,13 @@ public class Route {
             .orElseThrow(() -> BusArrivalNodeNotFoundException.withDetail("routeName: " + routeName + ", busStation: " + busStation.getName()));
     }
 
+    @Builder
+    public Route(String routeName, List<String> runningDays, List<ArrivalNode> arrivalInfos) {
+        this.routeName = routeName;
+        this.runningDays = runningDays;
+        this.arrivalInfos = arrivalInfos;
+    }
+
     @Getter
     public static class ArrivalNode {
 
@@ -68,5 +79,11 @@ public class Route {
 
         @Field("arrival_time")
         private String arrivalTime;
+
+        @Builder
+        public ArrivalNode(String nodeName, String arrivalTime) {
+            this.nodeName = nodeName;
+            this.arrivalTime = arrivalTime;
+        }
     }
 }

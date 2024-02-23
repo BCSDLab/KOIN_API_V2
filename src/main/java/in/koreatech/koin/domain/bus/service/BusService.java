@@ -21,9 +21,9 @@ public class BusService {
     private final BusRepository busRepository;
 
     /**
-     * 궁금한 점
-     * - 테스트를 위해 이번 API 요청 파라미터에 현재 시각을 기입할 수 있도록 하자는 한수형의 의견이 있었는데, 지금 바로 도입해야 할지(하위호환성)
-     * -> X. 테스트 코드는 LocalDateTime을 mocking한다.
+     * TODO
+     * 1. city (시내버스) 구현
+     * 2. express (시외버스) 구현
      */
 
     public BusRemainTimeResponse getBusRemainTime(String busTypeStr, String departStr, String arrivalStr) {
