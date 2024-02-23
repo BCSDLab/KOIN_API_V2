@@ -38,9 +38,9 @@ public class OwnerService {
     private final OwnerRepository ownerRepository;
     private final OwnerAttachmentRepository ownerAttachmentRepository;
 
-    public void requestVerificationToRegister(VerifyEmailRequest request) {
+    public void requestSignUpEmailVerification(VerifyEmailRequest request) {
         Email email = Email.from(request.email());
-        validateEmailUniqueness(email);
+        validateEmailExist(email);
 
         email.validateSendable();
         CertificationCode certificationCode = mailService.sendMail(email, OWNER_REGISTRATION_MAIL_FORM);
@@ -52,7 +52,7 @@ public class OwnerService {
         slackService.noticeEmailVerification(ownerInVerification);
     }
 
-    private void validateEmailUniqueness(Email email) {
+    private void validateEmailExist(Email email) {
         userRepository.findByEmail(email.getEmail())
             .ifPresent(user -> {
                 throw DuplicationEmailException.withDetail("email: " + email.getEmail());

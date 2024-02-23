@@ -11,7 +11,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class Notice {
+public class SlackNotification {
 
     private static final String EMAIL_VERIFICATION_REQUEST_SUFFIX = "님이 이메일 인증을 요청하였습니다.";
     private static final String CHANNEL_EVENT_NOTIFICATION = "#코인_이벤트알림";
@@ -41,11 +41,11 @@ public class Notice {
         return params;
     }
 
-    public static Notice noticeEmailVerification(OwnerInVerification user, String url) {
+    public static SlackNotification noticeEmailVerification(OwnerInVerification user, String url) {
         List<Object> attachment = new ArrayList<>();
         attachment.add(addColor(COLOR_GOOD, user.getEmail() + EMAIL_VERIFICATION_REQUEST_SUFFIX));
 
-        return Notice.builder()
+        return SlackNotification.builder()
             .channel(CHANNEL_EVENT_NOTIFICATION)
             .username(USERNAME_MEMBER_PLATFORM)
             .attachments(attachment)

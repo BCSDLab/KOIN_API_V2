@@ -24,7 +24,7 @@ public class OwnerController implements OwnerApi {
     public ResponseEntity<Void> requestVerificationToRegister(
         @RequestBody @Valid VerifyEmailRequest request
     ) {
-        ownerService.requestVerificationToRegister(request);
+        ownerService.requestSignUpEmailVerification(request);
         return ResponseEntity.ok().build();
     }
 
