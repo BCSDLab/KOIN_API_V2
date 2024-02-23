@@ -20,7 +20,7 @@ import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.domain.email.model.CertificationCode;
-import in.koreatech.koin.global.domain.email.model.Email;
+import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.domain.email.service.MailService;
 import in.koreatech.koin.global.domain.slack.service.SlackService;
 import lombok.RequiredArgsConstructor;
@@ -39,23 +39,22 @@ public class OwnerService {
     private final OwnerAttachmentRepository ownerAttachmentRepository;
 
     public void requestSignUpEmailVerification(VerifyEmailRequest request) {
-        Email email = Email.from(request.email());
+        EmailAddress email = new EmailAddress(request.email());
         validateEmailExist(email);
 
-        email.validateSendable();
         CertificationCode certificationCode = mailService.sendMail(email, OWNER_REGISTRATION_MAIL_FORM);
 
-        OwnerInVerification ownerInVerification = OwnerInVerification.from(email.getEmail(),
+        OwnerInVerification ownerInVerification = OwnerInVerification.from(email.email(),
             certificationCode.getValue());
         ownerInVerificationRepository.save(ownerInVerification);
 
         slackService.noticeEmailVerification(ownerInVerification);
     }
 
-    private void validateEmailExist(Email email) {
-        userRepository.findByEmail(email.getEmail())
+    private void validateEmailExist(EmailAddress email) {
+        userRepository.findByEmail(email.email())
             .ifPresent(user -> {
-                throw DuplicationEmailException.withDetail("email: " + email.getEmail());
+                throw DuplicationEmailException.withDetail("email: " + email.email());
             });
     }
 

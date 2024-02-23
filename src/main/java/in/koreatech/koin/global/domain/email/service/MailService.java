@@ -11,7 +11,7 @@ import org.apache.velocity.app.Velocity;
 import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.global.domain.email.model.CertificationCode;
-import in.koreatech.koin.global.domain.email.model.Email;
+import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.domain.email.model.Mail;
 import in.koreatech.koin.global.domain.email.model.MailForm;
 import in.koreatech.koin.global.domain.email.model.SesMailSender;
@@ -24,7 +24,7 @@ public class MailService {
 
     private final SesMailSender sesMailSender;
 
-    public CertificationCode sendMail(Email email, MailForm form) {
+    public CertificationCode sendMail(EmailAddress email, MailForm form) {
         CertificationCode certificationCode = RandomCertificationNumber.getCertificationCode();
         mailFormLoaderInit();
         String mailForm = mailFormFor(certificationCode, form.getPath());
@@ -40,8 +40,8 @@ public class MailService {
         Velocity.init(properties);
     }
 
-    private void sendMailFor(Email email, String mailForm, String purpose) {
-        sesMailSender.sendMail(NO_REPLY_EMAIL_ADDRESS.getContent(), email.getEmail(), purpose, mailForm);
+    private void sendMailFor(EmailAddress email, String mailForm, String purpose) {
+        sesMailSender.sendMail(NO_REPLY_EMAIL_ADDRESS.getContent(), email.email(), purpose, mailForm);
     }
 
     private String mailFormFor(CertificationCode certificationCode, String formLocation) {
