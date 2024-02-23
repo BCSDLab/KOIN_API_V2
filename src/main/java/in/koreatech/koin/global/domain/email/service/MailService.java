@@ -10,12 +10,12 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.global.domain.random.model.RandomGenerator;
 import in.koreatech.koin.global.domain.email.model.CertificationCode;
 import in.koreatech.koin.global.domain.email.model.Email;
 import in.koreatech.koin.global.domain.email.model.Mail;
 import in.koreatech.koin.global.domain.email.model.MailForm;
 import in.koreatech.koin.global.domain.email.model.SesMailSender;
+import in.koreatech.koin.global.domain.random.model.RandomCertificationNumber;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,7 +25,7 @@ public class MailService {
     private final SesMailSender sesMailSender;
 
     public CertificationCode sendMail(Email email, MailForm form) {
-        CertificationCode certificationCode = RandomGenerator.getCertificationCode();
+        CertificationCode certificationCode = RandomCertificationNumber.getCertificationCode();
         mailFormLoaderInit();
         String mailForm = mailFormFor(certificationCode, form.getPath());
         sendMailFor(email, mailForm, form.getSubject());

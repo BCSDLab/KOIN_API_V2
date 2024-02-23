@@ -2,18 +2,9 @@ package in.koreatech.koin.global.domain.random.model;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import in.koreatech.koin.global.domain.email.model.CertificationCode;
-
 public class RandomGenerator {
 
-    public static final int CERTIFICATION_NUMBER_ORIGIN = 0;
-    private static final int CERTIFICATION_NUMBER_BOUND = 1_000_000;
-
-    private static int getCertificationCodeNumber() {
-        return ThreadLocalRandom.current().nextInt(CERTIFICATION_NUMBER_ORIGIN, CERTIFICATION_NUMBER_BOUND);
-    }
-
-    public static CertificationCode getCertificationCode() {
-        return CertificationCode.from(String.format("%06d", getCertificationCodeNumber()));
+    public static int createNumber(int min, int max) {
+        return ThreadLocalRandom.current().nextInt(min, max);
     }
 }
