@@ -131,7 +131,7 @@ class OwnerApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("사장님이 회원가입 인증번호 전송 요청을 한다. - 슬랙 전송 실패")
-    void requestVerificationToRegister() {
+    void requestSignUpEmailVerification() {
         RestAssured
             .given()
             .body("""
