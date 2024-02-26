@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.bus.model;
 
-import in.koreatech.koin.domain.bus.exception.BusStationNotFoundException;
+import in.koreatech.koin.domain.bus.exception.BusTypeNotFoundException;
 import lombok.Getter;
 
 @Getter
@@ -23,6 +23,6 @@ public enum BusType {
                 return values()[i];
             }
         }
-        throw BusStationNotFoundException.withDetail("busType: " + busType);
+        throw BusTypeNotFoundException.withDetail("busType: " + busType);
     }
 }
