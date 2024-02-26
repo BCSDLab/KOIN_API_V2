@@ -30,4 +30,15 @@ public enum BusStation {
         }
         throw BusStationNotFoundException.withDetail("busStation: " + busStation);
     }
+
+    public static BusDirection getDirection(BusStation depart, BusStation arrival) {
+        if (depart.ordinal() < arrival.ordinal()) {
+            return BusDirection.SOUTH;
+        }
+        return BusDirection.NORTH;
+    }
+
+    public String getNodeId(BusDirection direction) {
+        return node.getId(direction);
+    }
 }
