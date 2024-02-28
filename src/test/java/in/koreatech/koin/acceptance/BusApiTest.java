@@ -26,9 +26,6 @@ import io.restassured.response.Response;
 
 class BusApiTest extends AcceptanceTest {
 
-    // @MockBean
-    // private Clock clock;
-
     @Autowired
     private BusRepository busRepository;
 
@@ -37,8 +34,6 @@ class BusApiTest extends AcceptanceTest {
     void getNextShuttleBusRemainTime() {
         final String arrivalTime = "18:10";
 
-        // BDDMockito.given(clock.instant()).willReturn(ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
-        // BDDMockito.given(clock.getZone()).willReturn(Clock.systemDefaultZone().getZone());
         when(clock.instant()).thenReturn(
             ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
         when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());

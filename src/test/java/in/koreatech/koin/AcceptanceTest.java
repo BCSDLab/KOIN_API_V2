@@ -32,11 +32,11 @@ public abstract class AcceptanceTest {
     @LocalServerPort
     protected int port;
 
-    @Autowired
-    private DBInitializer dataInitializer;
-
     @MockBean
     protected Clock clock;
+
+    @Autowired
+    private DBInitializer dataInitializer;
 
     @Container
     protected static MySQLContainer mySqlContainer;
