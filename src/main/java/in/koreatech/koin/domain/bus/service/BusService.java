@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusCourse;
@@ -14,6 +15,7 @@ import in.koreatech.koin.domain.bus.repository.BusRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BusService {
 
