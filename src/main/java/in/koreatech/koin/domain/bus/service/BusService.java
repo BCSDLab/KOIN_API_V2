@@ -20,12 +20,6 @@ public class BusService {
     private final Clock clock;
     private final BusRepository busRepository;
 
-    /**
-     * TODO
-     * 1. city (시내버스) 구현
-     * 2. express (시외버스) 구현
-     */
-
     public BusRemainTimeResponse getBusRemainTime(String busTypeStr, String departStr, String arrivalStr) {
         BusStation departStation = BusStation.from(departStr);
         BusStation arrivalStation = BusStation.from(arrivalStr);
