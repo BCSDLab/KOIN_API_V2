@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import in.koreatech.koin.domain.owner.model.OwnerInVerification;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -41,9 +40,9 @@ public class SlackNotification {
         return params;
     }
 
-    public static SlackNotification noticeEmailVerification(OwnerInVerification user, String url) {
+    public static SlackNotification noticeEmailVerification(String email, String url) {
         List<Object> attachment = new ArrayList<>();
-        attachment.add(addColor(COLOR_GOOD, user.getEmail() + EMAIL_VERIFICATION_REQUEST_SUFFIX));
+        attachment.add(addColor(COLOR_GOOD, email + EMAIL_VERIFICATION_REQUEST_SUFFIX));
 
         return SlackNotification.builder()
             .channel(CHANNEL_EVENT_NOTIFICATION)

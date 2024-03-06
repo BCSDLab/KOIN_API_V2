@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import in.koreatech.koin.domain.owner.model.OwnerInVerification;
 import in.koreatech.koin.global.domain.slack.model.SlackNotification;
 
 @Service
@@ -15,8 +14,8 @@ public class SlackService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public void noticeEmailVerification(OwnerInVerification user) {
-        SlackNotification slackNotification = SlackNotification.noticeEmailVerification(user, notify_koin_event_url);
+    public void noticeEmailVerification(String email) {
+        SlackNotification slackNotification = SlackNotification.noticeEmailVerification(email, notify_koin_event_url);
         noticeFor(slackNotification);
     }
 
