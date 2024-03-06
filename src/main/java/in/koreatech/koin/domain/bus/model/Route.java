@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.bus.model;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -22,10 +23,10 @@ public class Route {
     private String routeName;
 
     @Field("running_days")
-    private List<String> runningDays;
+    private List<String> runningDays = new ArrayList<>();
 
     @Field("arrival_info")
-    private List<ArrivalNode> arrivalInfos;
+    private List<ArrivalNode> arrivalInfos = new ArrayList<>();
 
     public boolean isRunning(Clock clock) {
         if (routeName.equals("미운행") || arrivalInfos.isEmpty()) {
