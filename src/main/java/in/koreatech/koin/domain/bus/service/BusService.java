@@ -27,7 +27,7 @@ public class BusService {
         BusStation arrivalStation = BusStation.from(arrivalStr);
         BusType busType = BusType.from(busTypeStr);
 
-        List<BusRemainTime> remainTimes = busRepository.getByBusType(busType).stream()
+        List<BusRemainTime> remainTimes = busRepository.findByBusType(busType.getName()).stream()
             .map(BusCourse::getRoutes)
             .flatMap(routes ->
                 routes.stream()
