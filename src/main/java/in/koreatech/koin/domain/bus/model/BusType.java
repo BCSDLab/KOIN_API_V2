@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.bus.model;
 
-import in.koreatech.koin.domain.bus.exception.BusTypeNotFoundException;
+import java.util.Arrays;
+
+import in.koreatech.koin.domain.bus.exception.BusStationNotFoundException;
 import lombok.Getter;
 
 @Getter
@@ -17,12 +19,10 @@ public enum BusType {
         this.name = name;
     }
 
-    public static BusType from(String busType) {
-        for (int i = 0; i < values().length; i++) {
-            if (values()[i].name.equals(busType)) {
-                return values()[i];
-            }
-        }
-        throw BusTypeNotFoundException.withDetail("busType: " + busType);
+    public static BusType from(String busTypeName) {
+        return Arrays.stream(values())
+            .filter(busType -> busType.name.equals(busTypeName))
+            .findAny()
+            .orElseThrow(() -> BusStationNotFoundException.withDetail("busType: " + busTypeName));
     }
 }

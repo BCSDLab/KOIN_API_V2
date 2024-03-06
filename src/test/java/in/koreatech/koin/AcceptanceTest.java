@@ -2,9 +2,12 @@ package in.koreatech.koin;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+import java.time.Clock;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,6 +31,9 @@ public abstract class AcceptanceTest {
 
     @LocalServerPort
     protected int port;
+
+    @MockBean
+    protected Clock clock;
 
     @Autowired
     private DBInitializer dataInitializer;

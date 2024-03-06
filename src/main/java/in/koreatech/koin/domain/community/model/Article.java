@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.Where;
@@ -84,7 +85,7 @@ public class Article extends BaseEntity {
     private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "article", fetch = FetchType.LAZY)
-    private List<Comment> comment;
+    private List<Comment> comment = new ArrayList<>();
 
     @NotNull
     @Column(name = "comment_count", nullable = false)

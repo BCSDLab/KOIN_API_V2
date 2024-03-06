@@ -8,10 +8,18 @@ import org.springframework.stereotype.Service;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusCourse;
 import in.koreatech.koin.domain.bus.model.BusDirection;
+import org.springframework.transaction.annotation.Transactional;
+
+import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.model.BusCourse;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusStation;
 import in.koreatech.koin.domain.bus.model.BusType;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@Transactional(readOnly = true)
 import in.koreatech.koin.domain.bus.util.BusOpenApiRequestor;
 import lombok.RequiredArgsConstructor;
 
@@ -23,12 +31,12 @@ public class BusService {
     private final BusRepository busRepository;
     private final BusOpenApiRequestor busOpenApiRequestor;
 
-    public BusRemainTimeResponse getBusRemainTime(String busTypeStr, String departStr, String arrivalStr) {
+    public BusRemainTimeResponse getBusRemainTime(String busTypeName, String departName, String arrivalName) {
+        BusStation depart = BusStation.from(departName);
+        BusStation arrival = BusStation.from(arrivalName);
+        BusDirection direction = BusStation.getDirection(depart, arrival);
+        BusType busType = BusType.from(busTypeName);
 
-        BusStation departStation = BusStation.from(departStr);
-        BusStation arrivalStation = BusStation.from(arrivalStr);
-        BusDirection direction = BusStation.getDirection(departStation, arrivalStation);
-        BusType busType = BusType.from(busTypeStr);
 
 
         // =====================================
@@ -39,13 +47,14 @@ public class BusService {
 
         // =====================================
 
-        List<BusRemainTime> remainTimes = busRepository.getByBusType(busType).stream()
+        List<BusCourse> busCourses = busRepository.findByBusType(busType.getName());
+        List<BusRemainTime> remainTimes = busCourses.stream()
             .map(BusCourse::getRoutes)
             .flatMap(routes ->
                 routes.stream()
                     .filter(route -> route.isRunning(clock))
-                    .filter(route -> route.isCorrectRoute(departStation, arrivalStation, clock))
-                    .map(route -> route.getRemainTime(departStation))
+                    .filter(route -> route.isCorrectRoute(depart, arrival, clock))
+                    .map(route -> route.getRemainTime(depart))
             )
             .distinct()
             .sorted()

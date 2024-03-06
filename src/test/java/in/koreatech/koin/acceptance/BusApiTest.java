@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
+<<<<<<< HEAD
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+=======
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+>>>>>>> feature/99-get-bus-shuttle-and-commuting
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -30,9 +36,6 @@ import io.restassured.response.Response;
 
 @ExtendWith(MockitoExtension.class)
 class BusApiTest extends AcceptanceTest {
-
-    @MockBean
-    private Clock clock;
 
     @Autowired
     private BusRepository busRepository;

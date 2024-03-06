@@ -1,5 +1,9 @@
 package in.koreatech.koin.domain.bus.model;
 
+<<<<<<< HEAD
+=======
+import java.util.Arrays;
+>>>>>>> feature/99-get-bus-shuttle-and-commuting
 import java.util.List;
 
 import in.koreatech.koin.domain.bus.exception.BusStationNotFoundException;
@@ -22,13 +26,11 @@ public enum BusStation {
         this.node = node;
     }
 
-    public static BusStation from(String busStation) {
-        for (int i = 0; i < values().length; i++) {
-            if (values()[i].name.equals(busStation)) {
-                return values()[i];
-            }
-        }
-        throw BusStationNotFoundException.withDetail("busStation: " + busStation);
+    public static BusStation from(String busStationName) {
+        return Arrays.stream(values())
+            .filter(busStation -> busStation.name.equals(busStationName))
+            .findAny()
+            .orElseThrow(() -> BusStationNotFoundException.withDetail("busStation: " + busStationName));
     }
 
     public static BusDirection getDirection(BusStation depart, BusStation arrival) {
