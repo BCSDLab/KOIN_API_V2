@@ -6,12 +6,16 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.domain.Owner;
 import in.koreatech.koin.domain.owner.domain.OwnerAttachment;
+import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
+import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
@@ -41,6 +45,9 @@ class OwnerApiTest extends AcceptanceTest {
 
     @Autowired
     private JwtProvider jwtProvider;
+
+    @MockBean
+    private OwnerEventListener ownerEventListener;
 
     @Test
     @DisplayName("로그인된 사장님 정보를 조회한다.")
@@ -148,5 +155,26 @@ class OwnerApiTest extends AcceptanceTest {
         assertDoesNotThrow(() ->
             ownerInVerificationRepository.getByEmail("test@gmail.com")
         );
+    }
+
+    @Test
+    @DisplayName("사장님 회원가입 인증번호 전송 요청 이벤트 발생 시 슬랙 전송 이벤트가 발생한다.")
+    void checkOwnerEventListener() {
+        RestAssured
+            .given()
+            .body("""
+                {
+                  "email": "test@gmail.com"
+                }
+                """)
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/verification/email")
+            .then()
+            .statusCode(HttpStatus.OK.value());
+
+        OwnerEmailRequestEvent event = new OwnerEmailRequestEvent("test@gmail.com");
+
+        Mockito.verify(ownerEventListener).onOwnerEmailRequest(event);
     }
 }

@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-@Transactional(propagation = Propagation.REQUIRES_NEW) // 무슨 일이 일어날까
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class OwnerEventListener {
 
     private final SlackService slackService;
