@@ -22,10 +22,10 @@ public class BusService {
     private final Clock clock;
     private final BusRepository busRepository;
 
-    public BusRemainTimeResponse getBusRemainTime(String busTypeStr, String departStr, String arrivalStr) {
-        BusStation departStation = BusStation.from(departStr);
-        BusStation arrivalStation = BusStation.from(arrivalStr);
-        BusType busType = BusType.from(busTypeStr);
+    public BusRemainTimeResponse getBusRemainTime(String busTypeName, String departName, String arrivalName) {
+        BusStation depart = BusStation.from(departName);
+        BusStation arrival = BusStation.from(arrivalName);
+        BusType busType = BusType.from(busTypeName);
 
         List<BusCourse> busCourses = busRepository.findByBusType(busType.getName());
         List<BusRemainTime> remainTimes = busCourses.stream()
@@ -33,8 +33,8 @@ public class BusService {
             .flatMap(routes ->
                 routes.stream()
                     .filter(route -> route.isRunning(clock))
-                    .filter(route -> route.isCorrectRoute(departStation, arrivalStation, clock))
-                    .map(route -> route.getRemainTime(departStation))
+                    .filter(route -> route.isCorrectRoute(depart, arrival, clock))
+                    .map(route -> route.getRemainTime(depart))
             )
             .distinct()
             .sorted()
