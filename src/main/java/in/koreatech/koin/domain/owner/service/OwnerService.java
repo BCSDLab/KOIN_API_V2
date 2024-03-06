@@ -46,7 +46,7 @@ public class OwnerService {
 
         CertificationCode certificationCode = mailService.sendMail(email, OWNER_REGISTRATION_MAIL_FORM);
 
-        OwnerInVerification ownerInVerification = OwnerInVerification.from(email.email(),
+        OwnerInVerification ownerInVerification = OwnerInVerification.of(email.email(),
             certificationCode.getValue());
         ownerInVerificationRepository.save(ownerInVerification);
 
