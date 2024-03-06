@@ -3,7 +3,7 @@ package in.koreatech.koin.global.domain.email.model;
 public enum MailForm {
 
     OWNER_REGISTRATION_MAIL_FORM("코인 사장님 회원가입 이메일 인증",
-        "mail/owner_register_certificate_number.vm"),
+        "owner_register_certificate_number"),
     ;
 
     private final String subject;
