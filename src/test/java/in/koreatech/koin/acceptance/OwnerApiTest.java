@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.domain.Owner;
 import in.koreatech.koin.domain.owner.domain.OwnerAttachment;
-import in.koreatech.koin.domain.owner.model.OwnerInVerification;
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
@@ -130,7 +130,7 @@ class OwnerApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님이 회원가입 인증번호 전송 요청을 한다. - 슬랙 전송 실패")
+    @DisplayName("사장님이 회원가입 인증번호 전송 요청을 한다. - 슬랙 전송 실패해도 200으로 응답")
     void requestSignUpEmailVerification() {
         RestAssured
             .given()
@@ -143,8 +143,10 @@ class OwnerApiTest extends AcceptanceTest {
             .when()
             .post("/owners/verification/email")
             .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
+            .statusCode(HttpStatus.OK.value());
 
-        OwnerInVerification ownerInVerification = ownerInVerificationRepository.getByEmail("test@gmail.com");
+        assertDoesNotThrow(() ->
+            ownerInVerificationRepository.getByEmail("test@gmail.com")
+        );
     }
 }
