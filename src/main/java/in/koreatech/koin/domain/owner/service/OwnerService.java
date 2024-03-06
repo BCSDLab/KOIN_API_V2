@@ -41,7 +41,7 @@ public class OwnerService {
 
     @Transactional
     public void requestSignUpEmailVerification(VerifyEmailRequest request) {
-        EmailAddress email = new EmailAddress(request.email());
+        EmailAddress email = EmailAddress.from(request.email());
         validateEmailExist(email);
 
         CertificationCode certificationCode = mailService.sendMail(email, OWNER_REGISTRATION_MAIL_FORM);
