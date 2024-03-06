@@ -1,8 +1,5 @@
 package in.koreatech.koin.global.domain.email.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.thymeleaf.context.Context;
 
 import lombok.Builder;
@@ -14,7 +11,6 @@ public class Mail {
 
     private final String certificationCode;
 
-    private final Map<String, Object> model = new HashMap<>();
     private final Context context = new Context();
 
     public Context convertToMap() {
