@@ -8,7 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -46,7 +46,7 @@ class OwnerApiTest extends AcceptanceTest {
     @Autowired
     private JwtProvider jwtProvider;
 
-    @MockBean
+    @SpyBean
     private OwnerEventListener ownerEventListener;
 
     @Test
