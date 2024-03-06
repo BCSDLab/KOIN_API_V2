@@ -29,7 +29,7 @@ public class Route {
     private List<ArrivalNode> arrivalInfos = new ArrayList<>();
 
     public boolean isRunning(Clock clock) {
-        if (routeName.equals("미운행") || arrivalInfos.isEmpty()) {
+        if ("미운행".equals(routeName) || arrivalInfos.isEmpty()) {
             return false;
         }
         String todayOfWeek = LocalDateTime.now(clock)
@@ -62,7 +62,8 @@ public class Route {
         return arrivalInfos.stream()
             .filter(node -> busStation.getDisplayNames().contains(node.getNodeName()))
             .findFirst()
-            .orElseThrow(() -> BusArrivalNodeNotFoundException.withDetail("routeName: " + routeName + ", busStation: " + busStation.getName()));
+            .orElseThrow(() -> BusArrivalNodeNotFoundException.withDetail(
+                "routeName: " + routeName + ", busStation: " + busStation.getName()));
     }
 
     @Builder
