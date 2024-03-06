@@ -1,6 +1,5 @@
 package in.koreatech.koin.global.domain.slack.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +40,7 @@ public class SlackNotification {
     }
 
     public static SlackNotification noticeEmailVerification(String email, String url) {
-        List<Object> attachment = new ArrayList<>();
-        attachment.add(addColor(COLOR_GOOD, email + EMAIL_VERIFICATION_REQUEST_SUFFIX));
+        List<Object> attachment = List.of(addColor(COLOR_GOOD, email + EMAIL_VERIFICATION_REQUEST_SUFFIX));
 
         return SlackNotification.builder()
             .channel(CHANNEL_EVENT_NOTIFICATION)
