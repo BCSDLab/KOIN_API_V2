@@ -63,7 +63,7 @@ public class Route {
             .filter(node -> busStation.getDisplayNames().contains(node.getNodeName()))
             .findFirst()
             .orElseThrow(() -> BusArrivalNodeNotFoundException.withDetail(
-                "routeName: " + routeName + ", busStation: " + busStation.getName()));
+                "routeName: " + routeName + ", busStation: " + busStation.name()));
     }
 
     @Builder

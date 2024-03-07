@@ -7,21 +7,15 @@ import lombok.Getter;
 
 @Getter
 public enum BusType {
-    CITY("city"),
-    EXPRESS("express"),
-    SHUTTLE("shuttle"),
-    COMMUTING("commuting"),
+    CITY,
+    EXPRESS,
+    SHUTTLE,
+    COMMUTING,
     ;
-
-    private String name;
-
-    BusType(String name) {
-        this.name = name;
-    }
 
     public static BusType from(String busTypeName) {
         return Arrays.stream(values())
-            .filter(busType -> busType.name.equals(busTypeName))
+            .filter(busType -> busType.name().equalsIgnoreCase(busTypeName))
             .findAny()
             .orElseThrow(() -> BusStationNotFoundException.withDetail("busType: " + busTypeName));
     }
