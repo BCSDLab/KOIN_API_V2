@@ -67,7 +67,7 @@ public class Route {
     }
 
     @Builder
-    public Route(String routeName, List<String> runningDays, List<ArrivalNode> arrivalInfos) {
+    private Route(String routeName, List<String> runningDays, List<ArrivalNode> arrivalInfos) {
         this.routeName = routeName;
         this.runningDays = runningDays;
         this.arrivalInfos = arrivalInfos;
@@ -83,7 +83,7 @@ public class Route {
         private String arrivalTime;
 
         @Builder
-        public ArrivalNode(String nodeName, String arrivalTime) {
+        private ArrivalNode(String nodeName, String arrivalTime) {
             this.nodeName = nodeName;
             this.arrivalTime = arrivalTime;
         }

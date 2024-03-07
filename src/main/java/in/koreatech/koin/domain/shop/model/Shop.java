@@ -96,7 +96,7 @@ public class Shop extends BaseEntity {
     private Long hit;
 
     @Builder
-    public Shop(Owner owner, String name, String internalName, String chosung, String phone, String address,
+    private Shop(Owner owner, String name, String internalName, String chosung, String phone, String address,
         String description, Boolean delivery, Long deliveryPrice, Boolean payCard, Boolean payBank,
         Boolean isDeleted, Boolean isEvent, String remarks, Long hit) {
         this.owner = owner;

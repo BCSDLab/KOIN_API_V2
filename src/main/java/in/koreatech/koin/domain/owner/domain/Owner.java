@@ -47,7 +47,7 @@ public class Owner {
     private Boolean grantEvent;
 
     @Builder
-    public Owner(User user, String companyRegistrationNumber,
+    private Owner(User user, String companyRegistrationNumber,
         String companyRegistrationCertificateImageUrl, Boolean grantShop, Boolean grantEvent) {
         this.user = user;
         this.companyRegistrationNumber = companyRegistrationNumber;
