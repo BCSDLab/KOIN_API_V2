@@ -5,7 +5,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
@@ -16,7 +15,6 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
-import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
 
@@ -30,9 +28,6 @@ public abstract class AcceptanceTest {
 
     @LocalServerPort
     protected int port;
-
-    @MockBean
-    protected OwnerEventListener ownerEventListener;
 
     @Autowired
     private DBInitializer dataInitializer;
