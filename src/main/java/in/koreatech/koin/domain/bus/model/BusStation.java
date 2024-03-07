@@ -1,9 +1,6 @@
 package in.koreatech.koin.domain.bus.model;
 
-<<<<<<< HEAD
-=======
 import java.util.Arrays;
->>>>>>> feature/99-get-bus-shuttle-and-commuting
 import java.util.List;
 
 import in.koreatech.koin.domain.bus.exception.BusStationNotFoundException;

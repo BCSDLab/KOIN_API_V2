@@ -4,26 +4,20 @@ import java.time.Clock;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-
-import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
-import in.koreatech.koin.domain.bus.model.BusCourse;
-import in.koreatech.koin.domain.bus.model.BusDirection;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusCourse;
+import in.koreatech.koin.domain.bus.model.BusDirection;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusStation;
 import in.koreatech.koin.domain.bus.model.BusType;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
-import lombok.RequiredArgsConstructor;
-
-@Service
-@Transactional(readOnly = true)
 import in.koreatech.koin.domain.bus.util.BusOpenApiRequestor;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BusService {
 
@@ -31,6 +25,7 @@ public class BusService {
     private final BusRepository busRepository;
     private final BusOpenApiRequestor busOpenApiRequestor;
 
+    @Transactional
     public BusRemainTimeResponse getBusRemainTime(String busTypeName, String departName, String arrivalName) {
         BusStation depart = BusStation.from(departName);
         BusStation arrival = BusStation.from(arrivalName);
