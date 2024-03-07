@@ -8,14 +8,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.domain.Owner;
 import in.koreatech.koin.domain.owner.domain.OwnerAttachment;
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
-import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
@@ -45,9 +43,6 @@ class OwnerApiTest extends AcceptanceTest {
 
     @Autowired
     private JwtProvider jwtProvider;
-
-    @MockBean
-    private OwnerEventListener ownerEventListener;
 
     @Test
     @DisplayName("로그인된 사장님 정보를 조회한다.")
