@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
@@ -18,7 +17,6 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.auth.exception.AuthException;
-import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -82,5 +80,13 @@ public class UserService {
         userRepository.findByEmail(request.email()).ifPresent(user -> {
             throw DuplicationEmailException.withDetail("email: " + user.getEmail());
         });
+    }
+
+    public void checkUserNickname(String nickname){
+        try {
+            userRepository.getByNickname(nickname);
+            throw AlreadyExistNicknameException.withDetail("nickname: " + nickname);
+        } catch (UserNotFoundException e){
+        }
     }
 }

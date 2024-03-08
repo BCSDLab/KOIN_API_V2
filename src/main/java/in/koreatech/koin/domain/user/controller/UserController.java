@@ -5,13 +5,11 @@ import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.user.dto.StudentResponse;
-import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
@@ -77,5 +75,25 @@ public class UserController implements UserApi {
     ) {
         userService.checkExistsEmail(request);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/user/check/nickname")
+    public ResponseEntity<Void> checkDuplicationOfNickname(
+        @RequestParam("nickname") String nickname) {
+        checkNicknameConstraintViolation(nickname);
+        userService.checkUserNickname(nickname);
+        return ResponseEntity.ok().build();
+    }
+
+    private void checkNicknameConstraintViolation(String nickname) {
+        if (nickname == null) {
+            throw new IllegalArgumentException("닉네임은 필수입니다.");
+        }
+        if (nickname.length() > 10) {
+            throw new IllegalArgumentException("닉네임은 최대 10자입니다.");
+        }
+        if (StringUtils.isBlank(nickname)) {
+            throw new IllegalArgumentException("닉네임은 공백 문자로만 이루어져 있으면 안됩니다,");
+        }
     }
 }
