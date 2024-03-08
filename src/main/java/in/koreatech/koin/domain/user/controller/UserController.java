@@ -63,7 +63,7 @@ public class UserController implements UserApi {
     }
 
     @DeleteMapping("/user")
-    public ResponseEntity<UserTokenRefreshResponse> withdraw(
+    public ResponseEntity<Void> withdraw(
         @Auth(permit = {STUDENT}) Long userId
     ) {
         userService.withdraw(userId);

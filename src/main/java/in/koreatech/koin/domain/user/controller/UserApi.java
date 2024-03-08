@@ -96,7 +96,7 @@ public interface UserApi {
     @Operation(summary = "회원 탈퇴")
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/user")
-    ResponseEntity<UserTokenRefreshResponse> withdraw(
+    ResponseEntity<Void> withdraw(
         @Auth(permit = {STUDENT}) Long userId
     );
 
