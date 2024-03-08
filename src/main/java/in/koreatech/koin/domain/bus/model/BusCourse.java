@@ -34,7 +34,7 @@ public class BusCourse {
     private List<Route> routes = new ArrayList<>();
 
     @Builder
-    public BusCourse(String busType, String region, String direction, List<Route> routes) {
+    private BusCourse(String busType, String region, String direction, List<Route> routes) {
         this.busType = busType;
         this.region = region;
         this.direction = direction;

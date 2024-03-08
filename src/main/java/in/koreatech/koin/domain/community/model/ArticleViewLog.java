@@ -53,7 +53,7 @@ public class ArticleViewLog {
     }
 
     @Builder
-    public ArticleViewLog(Article article, User user, String ip) {
+    private ArticleViewLog(Article article, User user, String ip) {
         this.article = article;
         this.user = user;
         this.ip = ip;

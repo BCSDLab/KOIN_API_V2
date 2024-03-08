@@ -63,11 +63,11 @@ public class Route {
             .filter(node -> busStation.getDisplayNames().contains(node.getNodeName()))
             .findFirst()
             .orElseThrow(() -> BusArrivalNodeNotFoundException.withDetail(
-                "routeName: " + routeName + ", busStation: " + busStation.getName()));
+                "routeName: " + routeName + ", busStation: " + busStation.name()));
     }
 
     @Builder
-    public Route(String routeName, List<String> runningDays, List<ArrivalNode> arrivalInfos) {
+    private Route(String routeName, List<String> runningDays, List<ArrivalNode> arrivalInfos) {
         this.routeName = routeName;
         this.runningDays = runningDays;
         this.arrivalInfos = arrivalInfos;
@@ -83,7 +83,7 @@ public class Route {
         private String arrivalTime;
 
         @Builder
-        public ArrivalNode(String nodeName, String arrivalTime) {
+        private ArrivalNode(String nodeName, String arrivalTime) {
             this.nodeName = nodeName;
             this.arrivalTime = arrivalTime;
         }

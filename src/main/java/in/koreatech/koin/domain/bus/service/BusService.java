@@ -8,12 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusCourse;
-import in.koreatech.koin.domain.bus.model.BusDirection;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusStation;
 import in.koreatech.koin.domain.bus.model.BusType;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
-import in.koreatech.koin.domain.bus.util.BusOpenApiRequestor;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -42,7 +40,7 @@ public class BusService {
 
         // =====================================
 
-        List<BusCourse> busCourses = busRepository.findByBusType(busType.getName());
+        List<BusCourse> busCourses = busRepository.findByBusType(busType.name().toLowerCase());
         List<BusRemainTime> remainTimes = busCourses.stream()
             .map(BusCourse::getRoutes)
             .flatMap(routes ->

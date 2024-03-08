@@ -19,7 +19,7 @@ public record BusRemainTimeResponse(
 
     public static BusRemainTimeResponse of(BusType busType, List<BusRemainTime> remainTimes, Clock clock) {
         return new BusRemainTimeResponse(
-            busType.getName(),
+            busType.name().toLowerCase(),
             InnerBusResponse.of(remainTimes, 0, clock),
             InnerBusResponse.of(remainTimes, 1, clock)
         );

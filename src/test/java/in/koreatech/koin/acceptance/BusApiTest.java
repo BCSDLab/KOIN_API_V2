@@ -95,9 +95,9 @@ class BusApiTest extends AcceptanceTest {
             .log().all()
             .when()
             .log().all()
-            .param("bus_type", busType.getName())
-            .param("depart", depart.getName())
-            .param("arrival", arrival.getName())
+            .param("bus_type", busType.name().toLowerCase())
+            .param("depart", depart.name())
+            .param("arrival", arrival.name())
             .get("/bus")
             .then()
             .log().all()
@@ -106,7 +106,7 @@ class BusApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getString("bus_type")).isEqualTo(busType.getName());
+                softly.assertThat(response.body().jsonPath().getString("bus_type")).isEqualTo(busType.name().toLowerCase());
                 softly.assertThat((Long)response.body().jsonPath().get("now_bus.bus_number")).isNull();
                 softly.assertThat(response.body().jsonPath().getLong("now_bus.remain_time")).isEqualTo(
                     BusRemainTime.from(arrivalTime).getRemainSeconds(clock));
