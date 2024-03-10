@@ -34,8 +34,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BusOpenApiRequestor {
 
-    private static final String CHEONAN_CITY_CODE = "34010";
     private static final String ENCODE_TYPE = "UTF-8";
+    private static final String CHEONAN_CITY_CODE = "34010";
+    private static final List<Integer> AVAILABLE_CITY_BUS = List.of(400, 401, 402, 405, 815);
 
     @Value("${OPEN_API_KEY}")
     private String OPEN_API_KEY;
@@ -47,11 +48,9 @@ public class BusOpenApiRequestor {
 
     public List<CityBusArrivalInfo> getCityBusArrivalInfoByOpenApi(String nodeId) {
         List<CityBusArrivalInfo> arrivalInfos = extractBusArrivalInfo(getCityBusArrivalInfo(nodeId));
-
-        // TODO
-        // 특정 버스번호 필터링
-
-        return null;
+        arrivalInfos.removeIf(arrivalInfo -> !AVAILABLE_CITY_BUS.contains(arrivalInfo.getRouteno()));
+        //TODO: 레디스 캐싱
+        return arrivalInfos;
     }
 
     private String getCityBusArrivalInfo(String nodeId) {
@@ -92,8 +91,32 @@ public class BusOpenApiRequestor {
         return urlBuilder.toString();
     }
 
-    // 캐싱 전까지 작업하고 푸시 (파싱 끝내고)
     private List<CityBusArrivalInfo> extractBusArrivalInfo(String jsonResponse) {
+        jsonResponse = "{\n"
+            + "\"response\": {\n"
+            + "\"header\": {\n"
+            + "\"resultCode\": \"00\",\n"
+            + "\"resultMsg\": \"NORMAL SERVICE.\"\n"
+            + "},\n"
+            + "\"body\": {\n"
+            + "\"items\": {\n"
+            + "\"item\": {\n"
+            + "\"arrprevstationcnt\": 4,\n"
+            + "\"arrtime\": 218,\n"
+            + "\"nodeid\": \"CAB285000405\",\n"
+            + "\"nodenm\": \"코리아텍\",\n"
+            + "\"routeid\": \"CAB285000143\",\n"
+            + "\"routeno\": 400,\n"
+            + "\"routetp\": \"일반버스\",\n"
+            + "\"vehicletp\": \"일반차량\"\n"
+            + "}\n"
+            + "},\n"
+            + "\"numOfRows\": 30,\n"
+            + "\"pageNo\": 1,\n"
+            + "\"totalCount\": 1\n"
+            + "}\n"
+            + "}\n"
+            + "}";
         List<CityBusArrivalInfo> result = new ArrayList<>();
 
         try {
