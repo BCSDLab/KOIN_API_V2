@@ -12,12 +12,14 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.domain.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.global.auth.JwtProvider;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
@@ -125,6 +127,43 @@ class OwnerShopApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getLong("shops[1].id")).isEqualTo(shop2.getId());
                 softly.assertThat(response.body().jsonPath().getString("shops[1].name")).isEqualTo(shop2.getName());
             }
+        );
+    }
+
+    @Test
+    @DisplayName("상점을 생성한다.")
+    void createOwnerShop() {
+        // given
+        final int SHOP_COUNT = 2;
+
+        OwnerShopsRequest ownerShopsRequest = new OwnerShopsRequest(
+            "대전광역시 유성구 대학로 291",
+            null,
+            true,
+            4000L,
+            "테스트 상점2입니다.",
+            null,
+            "테스트 상점2",
+            null,
+            true,
+            true,
+            "010-1234-5678"
+        );
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token)
+            .body(ownerShopsRequest)
+            .when()
+            .post("/owner/shops")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        assertSoftly(
+            softly -> softly.assertThat(response.statusCode() == 201)
         );
     }
 }

@@ -4,6 +4,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,7 +48,7 @@ public abstract class AcceptanceTest {
     }
 
     static {
-        mySqlContainer = (MySQLContainer) new MySQLContainer("mysql:5.7.34")
+        mySqlContainer = (MySQLContainer)new MySQLContainer("mysql:5.7.34")
             .withDatabaseName("test")
             .withUsername(ROOT)
             .withPassword(ROOT_PASSWORD)
