@@ -8,10 +8,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.owner.domain.Owner;
-import in.koreatech.koin.domain.owner.domain.OwnerAttachment;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
+import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerInVerification;
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.owner.domain;
+package in.koreatech.koin.domain.owner.model;
 
 import static lombok.AccessLevel.PROTECTED;
 

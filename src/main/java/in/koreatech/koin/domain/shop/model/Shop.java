@@ -4,7 +4,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.domain.owner.domain.Owner;
+import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
