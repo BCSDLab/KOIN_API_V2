@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.community.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -16,7 +18,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +26,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "comments")
 @Where(clause = "is_deleted=0")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 public class Comment extends BaseEntity {
 
     @Id

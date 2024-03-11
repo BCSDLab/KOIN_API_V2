@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLDelete;
@@ -17,7 +19,6 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 @Where(clause = "is_deleted=0")
 @SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 public class User extends BaseEntity {
 
     @Id

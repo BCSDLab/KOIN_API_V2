@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.owner.domain;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.owner.exception.AttachmentNotFoundException;
@@ -18,7 +20,6 @@ import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Where(clause = "is_deleted=0")
 @Table(name = "owner_attachments")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 public class OwnerAttachment extends BaseEntity {
 
     private static final String NAME_SEPARATOR = "/";
