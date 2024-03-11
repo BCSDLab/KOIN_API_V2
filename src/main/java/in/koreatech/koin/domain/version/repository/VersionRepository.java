@@ -12,9 +12,9 @@ public interface VersionRepository extends Repository<Version, Long> {
 
     Version save(Version version);
 
-    Optional<Version> findByType(VersionType type);
+    Optional<Version> findByType(String type);
 
     default Version getByType(VersionType type) {
-        return this.findByType(type).orElseThrow(() -> VersionException.withDetail("versionType: " + type));
+        return this.findByType(type.getValue()).orElseThrow(() -> VersionException.withDetail("versionType: " + type));
     }
 }

@@ -31,10 +31,10 @@ public class Version extends BaseEntity {
 
     @NotNull
     @Column(name = "type", length = 50)
-    private VersionType type;
+    private String type;
 
     @Builder
-    private Version(@NotNull String version, @NotNull VersionType type) {
+    private Version(@NotNull String version, @NotNull String type) {
         this.version = version;
         this.type = type;
     }

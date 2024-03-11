@@ -17,7 +17,7 @@ public record VersionResponse(
         return new VersionResponse(
             version.getId(),
             version.getVersion(),
-            version.getType().getValue(),
+            version.getType(),
             version.getCreatedAt(),
             version.getUpdatedAt()
         );
