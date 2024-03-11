@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
+import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -17,13 +18,13 @@ public class LectureService {
     private final LectureRepository lectureRepository;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
+        List<Lecture> lectures = lectureRepository.findBySemester(semester);
 
-        if(!lectureRepository.existsBySemester(semester)){
-            throw SemesterNotFoundException.withDetail(semester + "는 ");
+        if (lectures.isEmpty()) {
+            throw SemesterNotFoundException.withDetail(semester);
         }
 
-        return lectureRepository.findBySemester(semester)
-            .stream()
+        return lectures.stream()
             .map(LectureResponse::from)
             .toList();
     }

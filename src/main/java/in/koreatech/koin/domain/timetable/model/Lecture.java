@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "lectures")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Lecture {
+
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -86,14 +87,14 @@ public class Lecture {
     private String classTime;
 
     @Builder
-    private Lecture(String code, String semester,
-        String name,
-        String grades, String lectureClass,
+    private Lecture(
+        String code, String semester,
+        String name, String grades, String lectureClass,
         String regularNumber, String department,
         String target, String professor,
         String isEnglish, String designScore,
-        String isElearning, String classTime) {
-
+        String isElearning, String classTime
+    ) {
         this.code = code;
         this.semester = semester;
         this.name = name;

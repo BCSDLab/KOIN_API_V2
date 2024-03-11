@@ -14,11 +14,13 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class LectureController implements LectureApi {
+
     private final LectureService lectureService;
 
     @GetMapping("/lectures")
-    public ResponseEntity<List<LectureResponse>> getLectureList(@RequestParam(name = "semester_date") String semester) {
-
+    public ResponseEntity<List<LectureResponse>> getLectureList(
+        @RequestParam(name = "semester_date") String semester
+    ) {
         List<LectureResponse> lectureList = lectureService.getLecturesBySemester(semester);
         return ResponseEntity.ok(lectureList);
     }

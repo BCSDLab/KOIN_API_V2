@@ -11,11 +11,7 @@ public class SemesterNotFoundException extends DataNotFoundException {
     }
 
     public static SemesterNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", detail, DEFAULT_MESSAGE);
+        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new SemesterNotFoundException(message);
     }
 }
-
-
-
-

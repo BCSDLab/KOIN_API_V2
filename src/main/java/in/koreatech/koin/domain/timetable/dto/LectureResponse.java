@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record LectureResponse(
+
     @Schema(name = "과목 코드", example = "ARB244")
     String code,
 
@@ -35,7 +36,7 @@ public record LectureResponse(
     @Schema(name = "영어 수업인지", example = "N")
     String isEnglish,
 
-    @Schema
+    @Schema(name = "설계 학점", example = "0")
     String designScore,
 
     @Schema(name = "이러닝인지", example = "Y")
