@@ -1,9 +1,11 @@
 package in.koreatech.koin.domain.shop.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import in.koreatech.koin.global.common.BaseEntity;
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +16,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "shop_menus")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 public class Menu extends BaseEntity {
 
     private static final int SINGLE_OPTION_COUNT = 1;

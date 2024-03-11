@@ -2,11 +2,10 @@ package in.koreatech.koin;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-import in.koreatech.koin.support.DBInitializer;
-import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
@@ -16,6 +15,10 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
+
+import in.koreatech.koin.domain.owner.model.OwnerEventListener;
+import in.koreatech.koin.support.DBInitializer;
+import io.restassured.RestAssured;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Import(DBInitializer.class)
@@ -27,6 +30,9 @@ public abstract class AcceptanceTest {
 
     @LocalServerPort
     protected int port;
+
+    @MockBean
+    protected OwnerEventListener ownerEventListener;
 
     @Autowired
     private DBInitializer dataInitializer;
@@ -47,7 +53,7 @@ public abstract class AcceptanceTest {
     }
 
     static {
-        mySqlContainer = (MySQLContainer) new MySQLContainer("mysql:5.7.34")
+        mySqlContainer = (MySQLContainer)new MySQLContainer("mysql:5.7.34")
             .withDatabaseName("test")
             .withUsername(ROOT)
             .withPassword(ROOT_PASSWORD)

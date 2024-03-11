@@ -5,8 +5,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.owner.domain.Owner;
-import in.koreatech.koin.domain.owner.domain.OwnerAttachment;
+import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.shop.model.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -38,7 +38,7 @@ public record OwnerResponse(
             shops.stream()
                 .map(InnerShopResponse::from)
                 .toList()
-            );
+        );
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
