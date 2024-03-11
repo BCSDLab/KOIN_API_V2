@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.version.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.time.Clock;
 import java.time.LocalDate;
 
@@ -12,7 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "versions")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 public class Version extends BaseEntity {
 
     @Id
