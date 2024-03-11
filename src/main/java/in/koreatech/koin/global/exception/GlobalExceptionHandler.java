@@ -6,7 +6,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import in.koreatech.koin.domain.version.exception.VersionException;
 import in.koreatech.koin.global.auth.exception.AuthException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,12 +30,6 @@ public class GlobalExceptionHandler {
         log.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body(ErrorResponse.from("잘못된 인증정보입니다."));
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<String> handleVersionException(VersionException e) {
-        log.warn(e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
     @ExceptionHandler
