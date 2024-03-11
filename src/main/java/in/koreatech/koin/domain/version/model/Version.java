@@ -5,7 +5,7 @@ import static lombok.AccessLevel.PROTECTED;
 import java.time.Clock;
 import java.time.LocalDate;
 
-import in.koreatech.koin.global.common.BaseEntity;
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
