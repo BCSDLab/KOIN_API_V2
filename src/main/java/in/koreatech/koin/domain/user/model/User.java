@@ -97,7 +97,7 @@ public class User extends BaseEntity {
     private String resetExpiredAt;
 
     @Builder
-    public User(String password, String nickname, String name, String phoneNumber, UserType userType,
+    private User(String password, String nickname, String name, String phoneNumber, UserType userType,
         String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
         Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt) {
         this.password = password;
