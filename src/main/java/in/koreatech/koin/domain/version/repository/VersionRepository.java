@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.version.exception.VersionException;
+import in.koreatech.koin.domain.version.exception.VersionTypeNotFoundException;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 
@@ -15,6 +15,6 @@ public interface VersionRepository extends Repository<Version, Long> {
     Optional<Version> findByType(String type);
 
     default Version getByType(VersionType type) {
-        return this.findByType(type.getValue()).orElseThrow(() -> VersionException.withDetail("versionType: " + type));
+        return this.findByType(type.getValue()).orElseThrow(() -> VersionTypeNotFoundException.withDetail("versionType: " + type));
     }
 }

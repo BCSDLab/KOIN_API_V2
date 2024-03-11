@@ -28,7 +28,7 @@ class VersionApiTest extends AcceptanceTest {
 
         Version version = Version.builder()
             .version(versionDetail)
-            .type(versionType)
+            .type(versionType.getValue())
             .build();
 
         versionRepository.save(version);
@@ -75,7 +75,7 @@ class VersionApiTest extends AcceptanceTest {
             .get("/versions/" + undefinedType)
             .then()
             .log().all()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
 
     }
