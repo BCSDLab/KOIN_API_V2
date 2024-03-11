@@ -30,6 +30,12 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
             .build();
     }
 
+    public static BusRemainTime from(Long remainTime) {
+        return builder()
+            .busArrivalTime(LocalTime.now().plusSeconds(remainTime))
+            .build();
+    }
+
     private static LocalTime toLocalTime(String remainTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         return LocalTime.parse(remainTime, formatter);

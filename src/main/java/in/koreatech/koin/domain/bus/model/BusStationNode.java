@@ -3,12 +3,17 @@ package in.koreatech.koin.domain.bus.model;
 import static in.koreatech.koin.domain.bus.model.BusDirection.NORTH;
 import static in.koreatech.koin.domain.bus.model.BusDirection.SOUTH;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+
+import lombok.Getter;
 
 /**
  * OpenApi 상세: 국토교통부_전국 버스정류장 위치정보 (버스 정류장 노드 ID)
  * https://www.data.go.kr/data/15067528/fileData.do
  */
+@Getter
 public enum BusStationNode {
     TERMINAL(Map.of(NORTH, "CAB285000686", SOUTH, "CAB285000685")), // 종합터미널
     KOREATECH(Map.of(NORTH, "CAB285000406", SOUTH, "CAB285000405")), // 코리아텍
@@ -23,5 +28,11 @@ public enum BusStationNode {
 
     public String getId(BusDirection direction) {
         return node.get(direction);
+    }
+
+    public static List<String> getNodeIds() {
+        return Arrays.stream(values())
+            .flatMap(station -> station.node.values().stream())
+            .toList();
     }
 }

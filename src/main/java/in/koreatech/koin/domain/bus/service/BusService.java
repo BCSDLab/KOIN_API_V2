@@ -36,9 +36,7 @@ public class BusService {
 
         // =====================================
 
-
-        // String result1 = busOpenApiRequestor.getCityBusArrivalInfo(departStation.getNodeId(direction));
-
+        List<BusRemainTime> cityBusRemainTime = busOpenApiRequestor.getCityBusRemainTime(depart.getNodeId(direction));
 
         // =====================================
 
