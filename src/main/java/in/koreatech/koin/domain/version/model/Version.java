@@ -2,6 +2,9 @@ package in.koreatech.koin.domain.version.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.Clock;
+import java.time.LocalDate;
+
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,11 +35,26 @@ public class Version extends BaseEntity {
 
     @NotNull
     @Column(name = "type", length = 50)
-    private VersionType type;
+    private String type;
 
     @Builder
-    private Version(@NotNull String version, @NotNull VersionType type) {
+    private Version(@NotNull String version, @NotNull String type) {
         this.version = version;
         this.type = type;
+    }
+
+    public void update(Clock clock) {
+        version = generateVersionName(clock);
+    }
+
+    public void updateAndroid(String version) {
+        this.version = version;
+    }
+
+    private String generateVersionName(Clock clock) {
+        String year = Integer.toString(LocalDate.now().getYear());
+        String padding = "0_";
+        String epochSeconds = Long.toString(clock.instant().getEpochSecond());
+        return year + padding + epochSeconds;
     }
 }

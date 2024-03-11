@@ -18,7 +18,6 @@ public class VersionService {
 
     public VersionResponse getVersion(String type) {
         Version version = versionRepository.getByType(VersionType.from(type));
-
         return VersionResponse.from(version);
     }
 }
