@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.version.model;
 
+import java.time.Clock;
+import java.time.LocalDate;
+
 import in.koreatech.koin.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,5 +40,16 @@ public class Version extends BaseEntity {
     private Version(@NotNull String version, @NotNull VersionType type) {
         this.version = version;
         this.type = type;
+    }
+
+    public void update(Clock clock) {
+        generateVersionName(clock);
+    }
+
+    private String generateVersionName(Clock clock) {
+        String year = Integer.toString(LocalDate.now().getYear());
+        String padding = "0_";
+        String epochSeconds = Long.toString(clock.instant().getEpochSecond());
+        return year + padding + epochSeconds;
     }
 }
