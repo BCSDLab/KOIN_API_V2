@@ -49,11 +49,13 @@ class VersionApiTest extends AcceptanceTest {
             softly.assertThat(response.body().jsonPath().getString("version")).isEqualTo(versionDetail);
             softly.assertThat(response.body().jsonPath().getString("type")).isEqualTo(versionType.getValue());
         });
+    }
 
-        // 실패 케이스 설정
+
+    @Test
+    @DisplayName("버전 타입을 통해 버전 정보를 조회한다. - 저장되지 않은 버전 타입을 요청한 경우 에러가 발생한다.")
+    void findVersionByTypeError() {
         VersionType failureType = VersionType.TIMETABLE;
-
-        // 실패 케이스 테스트
         ExtractableResponse<Response> notFoundFailureResponse = RestAssured
             .given()
             .log().all()
@@ -64,10 +66,7 @@ class VersionApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
 
-        // 존재하지 않는 Enum 케이스
         String undefinedType = "undefined";
-
-        // 정의되지 않은 버전 타입으로 API 호출
         ExtractableResponse<Response> enumTypeFailureResponse = RestAssured
             .given()
             .log().all()
@@ -77,6 +76,5 @@ class VersionApiTest extends AcceptanceTest {
             .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
-
     }
 }
