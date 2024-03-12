@@ -2,7 +2,6 @@ package in.koreatech.koin.global.exception;
 
 import java.time.format.DateTimeParseException;
 
-import in.koreatech.koin.domain.version.exception.VersionException;
 import in.koreatech.koin.global.auth.exception.AuthException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,9 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import in.koreatech.koin.global.auth.exception.AuthException;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
