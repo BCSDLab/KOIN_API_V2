@@ -15,15 +15,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class LectureService {
+
     private final LectureRepository lectureRepository;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
         List<Lecture> lectures = lectureRepository.findBySemester(semester);
-
         if (lectures.isEmpty()) {
             throw SemesterNotFoundException.withDetail(semester);
         }
-
         return lectures.stream()
             .map(LectureResponse::from)
             .toList();
