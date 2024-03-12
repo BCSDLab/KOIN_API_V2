@@ -12,6 +12,9 @@ import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import static org.junit.Assert.assertArrayEquals;
+
+import java.util.Arrays;
 
 public class LectureApiTest extends AcceptanceTest {
 
@@ -21,7 +24,7 @@ public class LectureApiTest extends AcceptanceTest {
     @Test
     @DisplayName("특정 학기 강의를 조회한다")
     void getSemesterLecture() {
-        Lecture request1 = Lecture.builder()
+        Lecture lecture1 = Lecture.builder()
             .code("ARB244")
             .semester("20192")
             .name("건축구조의 이해 및 실습")
@@ -37,7 +40,7 @@ public class LectureApiTest extends AcceptanceTest {
             .classTime("[200,201,202,203,204,205,206,207]")
             .build();
 
-        Lecture request2 = Lecture.builder()
+        Lecture lecture2 = Lecture.builder()
             .code("ARB244")
             .semester("20201")
             .name("건축구조의 이해 및 실습")
@@ -53,8 +56,8 @@ public class LectureApiTest extends AcceptanceTest {
             .classTime("[200,201,202,203,204,205,206,207]")
             .build();
 
-        lectureRepository.save(request1);
-        lectureRepository.save(request2);
+        lectureRepository.save(lecture1);
+        lectureRepository.save(lecture2);
 
         ExtractableResponse<Response> response = RestAssured
             .given()
@@ -65,28 +68,30 @@ public class LectureApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
+        Integer[] classTime = {200, 201, 202, 203, 204, 205, 206, 207};
+
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getString("[0].code")).isEqualTo(request1.getCode());
-                softly.assertThat(response.body().jsonPath().getString("[0].name")).isEqualTo(request1.getName());
-                softly.assertThat(response.body().jsonPath().getString("[0].grades")).isEqualTo(request1.getGrades());
+                softly.assertThat(response.body().jsonPath().getString("[0].code")).isEqualTo(lecture1.getCode());
+                softly.assertThat(response.body().jsonPath().getString("[0].name")).isEqualTo(lecture1.getName());
+                softly.assertThat(response.body().jsonPath().getString("[0].grades")).isEqualTo(lecture1.getGrades());
                 softly.assertThat(response.body().jsonPath().getString("[0].lecture_class"))
-                    .isEqualTo(request1.getLectureClass());
+                    .isEqualTo(lecture1.getLectureClass());
                 softly.assertThat(response.body().jsonPath().getString("[0].regular_number"))
-                    .isEqualTo(request1.getRegularNumber());
+                    .isEqualTo(lecture1.getRegularNumber());
                 softly.assertThat(response.body().jsonPath().getString("[0].department"))
-                    .isEqualTo(request1.getDepartment());
-                softly.assertThat(response.body().jsonPath().getString("[0].target")).isEqualTo(request1.getTarget());
+                    .isEqualTo(lecture1.getDepartment());
+                softly.assertThat(response.body().jsonPath().getString("[0].target")).isEqualTo(lecture1.getTarget());
                 softly.assertThat(response.body().jsonPath().getString("[0].professor"))
-                    .isEqualTo(request1.getProfessor());
+                    .isEqualTo(lecture1.getProfessor());
                 softly.assertThat(response.body().jsonPath().getString("[0].is_english"))
-                    .isEqualTo(request1.getIsEnglish());
+                    .isEqualTo(lecture1.getIsEnglish());
                 softly.assertThat(response.body().jsonPath().getString("[0].design_score"))
-                    .isEqualTo(request1.getDesignScore());
+                    .isEqualTo(lecture1.getDesignScore());
                 softly.assertThat(response.body().jsonPath().getString("[0].is_elearning"))
-                    .isEqualTo(request1.getIsElearning());
-                softly.assertThat(response.body().jsonPath().getString("[0].class_time"))
-                    .isEqualTo(request1.getClassTime());
+                    .isEqualTo(lecture1.getIsElearning());
+                softly.assertThat(response.body().jsonPath().getList("[0].class_time", Integer.class))
+                    .containsExactlyInAnyOrderElementsOf(Arrays.asList(classTime));
             }
         );
     }
@@ -94,7 +99,7 @@ public class LectureApiTest extends AcceptanceTest {
     @Test
     @DisplayName("특정 학기 강의들을 조회한다")
     void getSemesterLectures() {
-        Lecture request1 = Lecture.builder()
+        Lecture lecture1 = Lecture.builder()
             .code("ARB244")
             .semester("20192")
             .name("건축구조의 이해 및 실습")
@@ -110,7 +115,7 @@ public class LectureApiTest extends AcceptanceTest {
             .classTime("[200,201,202,203,204,205,206,207]")
             .build();
 
-        Lecture request2 = Lecture.builder()
+        Lecture lecture2 = Lecture.builder()
             .code("ARB244")
             .semester("20192")
             .name("건축구조의 이해 및 실습")
@@ -126,7 +131,7 @@ public class LectureApiTest extends AcceptanceTest {
             .classTime("[200,201,202,203,204,205,206,207]")
             .build();
 
-        Lecture request3 = Lecture.builder()
+        Lecture lecture3 = Lecture.builder()
             .code("ARB244")
             .semester("20201")
             .name("건축구조의 이해 및 실습")
@@ -142,9 +147,9 @@ public class LectureApiTest extends AcceptanceTest {
             .classTime("[200,201,202,203,204,205,206,207]")
             .build();
 
-        lectureRepository.save(request1);
-        lectureRepository.save(request2);
-        lectureRepository.save(request3);
+        lectureRepository.save(lecture1);
+        lectureRepository.save(lecture2);
+        lectureRepository.save(lecture3);
 
         ExtractableResponse<Response> response = RestAssured
             .given()
@@ -163,7 +168,7 @@ public class LectureApiTest extends AcceptanceTest {
     @Test
     @DisplayName("존재하지 않는 학기를 조회하면 404")
     void isNotSemester() {
-        Lecture request1 = Lecture.builder()
+        Lecture lecture1 = Lecture.builder()
             .code("ARB244")
             .semester("20192")
             .name("건축구조의 이해 및 실습")
@@ -179,7 +184,7 @@ public class LectureApiTest extends AcceptanceTest {
             .classTime("[200,201,202,203,204,205,206,207]")
             .build();
 
-        Lecture request2 = Lecture.builder()
+        Lecture lecture2 = Lecture.builder()
             .code("ARB244")
             .semester("20201")
             .name("건축구조의 이해 및 실습")
@@ -195,8 +200,8 @@ public class LectureApiTest extends AcceptanceTest {
             .classTime("[200,201,202,203,204,205,206,207]")
             .build();
 
-        lectureRepository.save(request1);
-        lectureRepository.save(request2);
+        lectureRepository.save(lecture1);
+        lectureRepository.save(lecture2);
 
         ExtractableResponse<Response> response = RestAssured
             .given()

@@ -43,8 +43,22 @@ public record LectureResponse(
     String isElearning,
 
     @Schema(name = "강의 시간", example = "[200,201,202,203,204,205,206,207]")
-    String classTime
+    Integer[] classTime
 ) {
+
+    public static Integer[] toListClassTime(String classTime){
+         classTime = classTime.substring(1,classTime.length() - 1);
+
+         String[] numbers = classTime.split(",");
+
+         Integer[] classTimes = new Integer[numbers.length];
+
+         for(int i = 0; i < numbers.length; i++){
+             classTimes[i] = Integer.parseInt(numbers[i]);
+         }
+
+         return classTimes;
+    }
 
     public static LectureResponse from(Lecture lecture) {
         return new LectureResponse(
@@ -59,7 +73,7 @@ public record LectureResponse(
             lecture.getIsEnglish(),
             lecture.getDesignScore(),
             lecture.getIsElearning(),
-            lecture.getClassTime()
+            toListClassTime(lecture.getClassTime())
         );
     }
 }
