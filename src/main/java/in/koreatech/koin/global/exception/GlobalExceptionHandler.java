@@ -46,11 +46,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(ErrorResponse.from("이미 존재하는 데이터입니다."));
     }
-
-    @ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleAlreadyExistDataException(AlreadyExistDataException e) {
-        log.warn(e.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-            .body(ErrorResponse.from("이미 존재하는 데이터입니다."));
-    }
 }
