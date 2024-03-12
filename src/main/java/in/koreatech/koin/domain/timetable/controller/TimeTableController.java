@@ -8,20 +8,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
-import in.koreatech.koin.domain.timetable.service.LectureService;
+import in.koreatech.koin.domain.timetable.service.TimeTableService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class LectureController implements LectureApi {
+public class TimeTableController implements TimeTableApi {
 
-    private final LectureService lectureService;
+    private final TimeTableService timeTableService;
 
     @GetMapping("/lectures")
     public ResponseEntity<List<LectureResponse>> getLectureList(
         @RequestParam(name = "semester_date") String semester
     ) {
-        List<LectureResponse> lectureList = lectureService.getLecturesBySemester(semester);
+        List<LectureResponse> lectureList = timeTableService.getLecturesBySemester(semester);
         return ResponseEntity.ok(lectureList);
     }
 }

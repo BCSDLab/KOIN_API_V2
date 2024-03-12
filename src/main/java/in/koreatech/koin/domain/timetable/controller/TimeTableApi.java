@@ -13,8 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "(Normal) Lecture: 강의", description = "강의 정보를 관리한다")
-public interface LectureApi {
+@Tag(name = "(Normal) Lecture: 시간표", description = "시간표 정보를 관리한다")
+public interface TimeTableApi {
 
     @ApiResponses(
         value = {

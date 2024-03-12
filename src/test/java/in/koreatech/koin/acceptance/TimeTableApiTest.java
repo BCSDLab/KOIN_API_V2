@@ -1,7 +1,5 @@
 package in.koreatech.koin.acceptance;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
@@ -17,7 +15,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
-class LectureApiTest extends AcceptanceTest {
+class TimeTableApiTest extends AcceptanceTest {
 
     @Autowired
     private LectureRepository lectureRepository;
