@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.dining.model;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import jakarta.persistence.Column;
@@ -18,13 +18,13 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "dinings")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(SnakeCaseStrategy.class)
 public class Dining {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(name = "date", nullable = false)
     private String date;
@@ -48,7 +48,7 @@ public class Dining {
     private String menu;
 
     @Builder
-    private Dining(Integer id, String date, String type, String place, Integer priceCard, Integer priceCash,
+    private Dining(Long id, String date, String type, String place, Integer priceCard, Integer priceCash,
         Integer kcal, String menu) {
         this.id = id;
         this.date = date;

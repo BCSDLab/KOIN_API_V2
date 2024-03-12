@@ -1,16 +1,17 @@
 package in.koreatech.koin.domain.dining.dto;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.dining.model.Dining;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(SnakeCaseStrategy.class)
 public record DiningResponse(
 
     @Schema(description = "메뉴 고유 ID", example = "1")
-    Integer id,
+    Long id,
 
     @Schema(description = "식단 제공 날짜", example = "2024-03-11")
     String date,
