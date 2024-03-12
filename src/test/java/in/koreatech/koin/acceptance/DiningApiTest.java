@@ -22,7 +22,7 @@ public class DiningApiTest extends AcceptanceTest {
     @DisplayName("오늘 날짜의 모든 식단들을 조회한다.")
     void findDinings() {
         Dining request1 = Dining.builder()
-            .id(1)
+            .id(1L)
             .date("2024-03-11")
             .type("LUNCH")
             .place("A코스")
@@ -35,7 +35,7 @@ public class DiningApiTest extends AcceptanceTest {
             .build();
 
         Dining request2 = Dining.builder()
-            .id(2)
+            .id(2L)
             .date("2024-03-01")
             .type("LUNCH")
             .place("2캠퍼스")
@@ -48,7 +48,7 @@ public class DiningApiTest extends AcceptanceTest {
             .build();
 
         Dining request3 = Dining.builder()
-            .id(3)
+            .id(3L)
             .date("2024-03-11")
             .type("LUNCH")
             .place("능수관")
@@ -76,7 +76,7 @@ public class DiningApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(2);
 
-                softly.assertThat(response.body().jsonPath().getInt("[0].id")).isEqualTo(dining1.getId());
+                softly.assertThat(response.body().jsonPath().getLong("[0].id")).isEqualTo(dining1.getId());
                 softly.assertThat(response.body().jsonPath().getString("[0].date")).isEqualTo(dining1.getDate());
                 softly.assertThat(response.body().jsonPath().getString("[0].type")).isEqualTo(dining1.getType());
                 softly.assertThat(response.body().jsonPath().getString("[0].place")).isEqualTo(dining1.getPlace());
@@ -87,7 +87,7 @@ public class DiningApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getInt("[0].kcal")).isEqualTo(dining1.getKcal());
                 softly.assertThat(response.body().jsonPath().getString("[0].menu")).isEqualTo(dining1.getMenu());
 
-                softly.assertThat(response.body().jsonPath().getInt("[1].id")).isEqualTo(dining3.getId());
+                softly.assertThat(response.body().jsonPath().getLong("[1].id")).isEqualTo(dining3.getId());
                 softly.assertThat(response.body().jsonPath().getString("[1].date")).isEqualTo(dining3.getDate());
                 softly.assertThat(response.body().jsonPath().getString("[1].type")).isEqualTo(dining3.getType());
                 softly.assertThat(response.body().jsonPath().getString("[1].place")).isEqualTo(dining3.getPlace());
@@ -105,7 +105,7 @@ public class DiningApiTest extends AcceptanceTest {
     @DisplayName("잘못된 형식의 날짜로 조회한다. - 날짜의 형식이 잘못되었다면 400")
     void invalidFormatDate() {
         Dining request = Dining.builder()
-            .id(1)
+            .id(1L)
             .date("2024-03-11")
             .type("LUNCH")
             .place("A코스")
@@ -132,7 +132,7 @@ public class DiningApiTest extends AcceptanceTest {
     @DisplayName("날짜가 비어있다. - 오늘 날짜를 받아 조회한다.")
     void nullDate() {
         Dining request1 = Dining.builder()
-            .id(1)
+            .id(1L)
             .date("2024-03-12")
             .type("LUNCH")
             .place("A코스")
@@ -145,7 +145,7 @@ public class DiningApiTest extends AcceptanceTest {
             .build();
 
         Dining request2 = Dining.builder()
-            .id(2)
+            .id(2L)
             .date("2024-03-13")
             .type("LUNCH")
             .place("2캠퍼스")
@@ -172,7 +172,7 @@ public class DiningApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(1);
 
-                softly.assertThat(response.body().jsonPath().getInt("[0].id")).isEqualTo(dining1.getId());
+                softly.assertThat(response.body().jsonPath().getLong("[0].id")).isEqualTo(dining1.getId());
                 softly.assertThat(response.body().jsonPath().getString("[0].date")).isEqualTo(dining1.getDate());
                 softly.assertThat(response.body().jsonPath().getString("[0].type")).isEqualTo(dining1.getType());
                 softly.assertThat(response.body().jsonPath().getString("[0].place")).isEqualTo(dining1.getPlace());
