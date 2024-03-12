@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.exception.BusIllegalStation;
 import in.koreatech.koin.domain.bus.model.BusCourse;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusStation;
@@ -26,6 +27,7 @@ public class BusService {
         BusStation depart = BusStation.from(departName);
         BusStation arrival = BusStation.from(arrivalName);
         BusType busType = BusType.from(busTypeName);
+        validateBusCourse(depart, arrival);
 
         List<BusCourse> busCourses = busRepository.findByBusType(busType.name().toLowerCase());
         List<BusRemainTime> remainTimes = busCourses.stream()
@@ -41,5 +43,11 @@ public class BusService {
             .toList();
 
         return BusRemainTimeResponse.of(busType, remainTimes, clock);
+    }
+
+    private void validateBusCourse(BusStation depart, BusStation arrival) {
+        if (depart.equals(arrival)) {
+            throw BusIllegalStation.withDetail("depart: " + depart.name() + ", arrival: " + arrival.name());
+        }
     }
 }
