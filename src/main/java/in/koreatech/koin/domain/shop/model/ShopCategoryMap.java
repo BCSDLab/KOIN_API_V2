@@ -34,11 +34,11 @@ public class ShopCategoryMap extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", referencedColumnName = "id")
+    @JoinColumn(name = "shop_id", referencedColumnName = "id", nullable = false)
     private Shop shop;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_category_id", referencedColumnName = "id")
+    @JoinColumn(name = "shop_category_id", referencedColumnName = "id", nullable = false)
     private ShopCategory shopCategory;
 
     @Builder

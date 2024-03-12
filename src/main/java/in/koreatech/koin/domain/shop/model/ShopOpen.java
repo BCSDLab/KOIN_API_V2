@@ -36,27 +36,29 @@ public class ShopOpen extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", referencedColumnName = "id")
+    @JoinColumn(name = "shop_id", referencedColumnName = "id", nullable = false)
     private Shop shop;
 
     @Size(max = 10)
-    @Column(name = "day_of_week")
+    @Column(name = "day_of_week", nullable = false)
     private String dayOfWeek;
 
     @NotNull
-    @Column(name = "closed")
+    @Column(name = "closed", nullable = false)
     private Boolean closed;
 
-    @Size(max = 10)
+    // @Size(max = 10)
+    @NotNull
     @Column(name = "open_time")
     private LocalTime openTime;
 
-    @Size(max = 10)
+    // @Size(max = 10)
+    @NotNull
     @Column(name = "close_time")
     private LocalTime closeTime;
 
     @NotNull
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
     @Builder

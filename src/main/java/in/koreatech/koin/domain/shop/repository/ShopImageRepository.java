@@ -13,11 +13,5 @@ import in.koreatech.koin.domain.shop.model.ShopImage;
 
 public interface ShopImageRepository extends Repository<ShopImage, Long> {
 
-    Optional<ShopImage> findById(Long shopImageId);
-
     ShopImage save(ShopImage shopImage);
-
-    default ShopImage getById(Long shopImageId) {
-        return findById(shopImageId).orElseThrow(() -> ShopImageNotFoundException.withDetail("shopImageId: " + shopImageId));
-    }
 }

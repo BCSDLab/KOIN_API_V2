@@ -38,7 +38,7 @@ public class ShopCategory extends BaseEntity {
     private String name;
 
     @Size(max = 255)
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url")
     private String imageUrl;
 
     @NotNull
@@ -51,5 +51,17 @@ public class ShopCategory extends BaseEntity {
         this.name = name;
         this.imageUrl = imageUrl;
         this.isDeleted = isDeleted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o == null) return false;
+        ShopCategory otherShopCategory = (ShopCategory) o;
+        return (
+            id.equals(otherShopCategory.getId()) &&
+            name.equals(otherShopCategory.getName()) &&
+            imageUrl.equals(otherShopCategory.getImageUrl()) &&
+            isDeleted.equals(otherShopCategory.getIsDeleted())
+        );
     }
 }

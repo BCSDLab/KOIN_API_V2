@@ -12,11 +12,6 @@ import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 
 public interface ShopCategoryMapRepository extends Repository<ShopCategoryMap, Long> {
 
-    Optional<ShopCategoryMap> findById(Long shopCategroyMapId);
+    ShopCategoryMap save(ShopCategoryMap shopCategoryMap);
 
-    ShopCategoryMap save(Menu menu);
-
-    default ShopCategoryMap getById(Long shopCategroyMapId) {
-        return findById(shopCategroyMapId).orElseThrow(() -> ShopCategoryMapNotFoundException.withDetail("shopCategroyMapId: " + shopCategroyMapId));
-    }
 }

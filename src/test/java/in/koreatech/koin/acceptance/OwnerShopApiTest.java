@@ -3,6 +3,12 @@ package in.koreatech.koin.acceptance;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.experimental.categories.Categories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +20,8 @@ import in.koreatech.koin.domain.owner.domain.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.shop.model.Shop;
+import in.koreatech.koin.domain.shop.model.ShopCategory;
+import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
@@ -32,11 +40,16 @@ class OwnerShopApiTest extends AcceptanceTest {
     private ShopRepository shopRepository;
 
     @Autowired
+    private ShopCategoryRepository shopCategoryRepository;
+
+    @Autowired
     private JwtProvider jwtProvider;
 
     private Owner owner;
+    private ShopCategory shopCategory;
     private Shop shop;
     private String token;
+
 
     @BeforeEach
     void setUp() {
@@ -80,6 +93,13 @@ class OwnerShopApiTest extends AcceptanceTest {
             .hit(0L)
             .build();
         shop = shopRepository.save(shopRequest);
+
+        ShopCategory shopCategoryRequest = ShopCategory.builder()
+            .isDeleted(false)
+            .name("테스트1")
+            .imageUrl("https://test.com/test.jpg")
+            .build();
+        shopCategory = shopCategoryRepository.save(shopCategoryRequest);
     }
 
     @Test
@@ -136,15 +156,28 @@ class OwnerShopApiTest extends AcceptanceTest {
         // given
         final int SHOP_COUNT = 2;
 
+        List<Long> categoryIds = new ArrayList<>(Arrays.asList(1L));
+        List<String> imageUrls = new ArrayList<>(Arrays.asList(
+            "https://test.com/test.jpg",
+            "https://test.com/test.jpg",
+            "https://test.com/test.jpg"
+        ));
+        OwnerShopsRequest.InnerOpenRequest open = new OwnerShopsRequest.InnerOpenRequest(
+            LocalTime.of(21, 0),
+            false,
+            "MONDAY",
+            LocalTime.of(9, 0)
+        );
+
         OwnerShopsRequest ownerShopsRequest = new OwnerShopsRequest(
             "대전광역시 유성구 대학로 291",
-            null,
+            categoryIds,
             true,
             4000L,
             "테스트 상점2입니다.",
-            null,
+            imageUrls,
             "테스트 상점2",
-            null,
+            open,
             true,
             true,
             "010-1234-5678"
@@ -162,8 +195,14 @@ class OwnerShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
+        List<Shop> shops =  shopRepository.findAllByOwnerId(owner.getId());
+        Shop createdShop = shops.get(1);
+
         assertSoftly(
-            softly -> softly.assertThat(response.statusCode() == 201)
+            softly -> {
+                softly.assertThat(response.statusCode() == 201);
+                // softly.assertThat(createdShop.getOwner().);
+            }
         );
     }
 }

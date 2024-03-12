@@ -13,11 +13,5 @@ import in.koreatech.koin.domain.shop.model.ShopOpen;
 
 public interface ShopOpenRepository extends Repository<ShopOpen, Long> {
 
-    Optional<ShopOpen> findById(Long shopOpenId);
-
     ShopOpen save(ShopOpen shopOpen);
-
-    default ShopOpen getById(Long shopOpenId) {
-        return findById(shopOpenId).orElseThrow(() -> ShopOpenNotFoundException.withDetail("shopOpenId: " + shopOpenId));
-    }
 }

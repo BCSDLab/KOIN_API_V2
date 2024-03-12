@@ -14,7 +14,7 @@ public record OwnerShopsRequest(
     String address,
 
     @Schema(description = "상점 카테고리 고유 id 리스트", example = "[1]")
-    List<Integer> categoryIds,
+    List<Long> categoryIds,
 
     @Schema(description = "배달 가능 여부", example = "false")
 
@@ -46,7 +46,7 @@ public record OwnerShopsRequest(
     @NotBlank(message = "전화번호를 입력해주세요.")
     String phone
 ) {
-    private record InnerOpenRequest(
+    public record InnerOpenRequest(
 
         @Schema(description = "닫는 시간", example = "22:30")
         LocalTime closeTime,
