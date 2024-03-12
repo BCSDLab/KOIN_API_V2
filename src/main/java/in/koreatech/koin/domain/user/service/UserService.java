@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.auth.exception.AuthException;
+import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -74,5 +75,11 @@ public class UserService {
     public void withdraw(Long userId) {
         User user = userRepository.getById(userId);
         userRepository.delete(user);
+    }
+
+    public void checkExistsEmail(String email) {
+        userRepository.findByEmail(email).ifPresent( user -> {
+            throw DuplicationEmailException.withDetail("email: " + email);
+        });
     }
 }

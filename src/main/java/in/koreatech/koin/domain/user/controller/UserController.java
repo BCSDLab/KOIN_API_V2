@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.user.dto.StudentResponse;
@@ -19,6 +20,8 @@ import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -66,5 +69,16 @@ public class UserController implements UserApi {
     ) {
         userService.withdraw(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/user/check/email")
+    public ResponseEntity<Void> checkUserEmailExist(
+        @RequestParam(value = "address")
+        @Email(message = "이메일 형식을 지켜주세요.")
+        @NotBlank(message = "이메일을 입력해주세요.")
+        String email
+    ) {
+        userService.checkExistsEmail(email);
+        return ResponseEntity.ok().build();
     }
 }
