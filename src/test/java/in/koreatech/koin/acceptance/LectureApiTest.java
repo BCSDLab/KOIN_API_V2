@@ -1,5 +1,9 @@
 package in.koreatech.koin.acceptance;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,11 +16,8 @@ import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import static org.junit.Assert.assertArrayEquals;
 
-import java.util.Arrays;
-
-public class LectureApiTest extends AcceptanceTest {
+class LectureApiTest extends AcceptanceTest {
 
     @Autowired
     private LectureRepository lectureRepository;
@@ -68,7 +69,7 @@ public class LectureApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        Integer[] classTime = {200, 201, 202, 203, 204, 205, 206, 207};
+        List<Long> classTime = List.of(200L, 201L, 202L, 203L, 204L, 205L, 206L, 207L);
 
         SoftAssertions.assertSoftly(
             softly -> {
@@ -90,8 +91,8 @@ public class LectureApiTest extends AcceptanceTest {
                     .isEqualTo(lecture1.getDesignScore());
                 softly.assertThat(response.body().jsonPath().getString("[0].is_elearning"))
                     .isEqualTo(lecture1.getIsElearning());
-                softly.assertThat(response.body().jsonPath().getList("[0].class_time", Integer.class))
-                    .containsExactlyInAnyOrderElementsOf(Arrays.asList(classTime));
+                softly.assertThat(response.body().jsonPath().getList("[0].class_time", Long.class))
+                    .containsExactlyInAnyOrderElementsOf(classTime);
             }
         );
     }

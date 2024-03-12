@@ -9,5 +9,6 @@ import in.koreatech.koin.domain.timetable.model.Lecture;
 public interface LectureRepository extends Repository<Lecture, Long> {
 
     List<Lecture> findBySemester(String semesterDate);
+
     Lecture save(Lecture lecture);
 }

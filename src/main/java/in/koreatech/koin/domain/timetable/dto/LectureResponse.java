@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.timetable.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -43,23 +45,8 @@ public record LectureResponse(
     String isElearning,
 
     @Schema(name = "강의 시간", example = "[200,201,202,203,204,205,206,207]")
-    Integer[] classTime
+    List<Long> classTime
 ) {
-
-    public static Integer[] toListClassTime(String classTime){
-         classTime = classTime.substring(1,classTime.length() - 1);
-
-         String[] numbers = classTime.split(",");
-
-         Integer[] classTimes = new Integer[numbers.length];
-
-         for(int i = 0; i < numbers.length; i++){
-             classTimes[i] = Integer.parseInt(numbers[i]);
-         }
-
-         return classTimes;
-    }
-
     public static LectureResponse from(Lecture lecture) {
         return new LectureResponse(
             lecture.getCode(),
@@ -75,5 +62,14 @@ public record LectureResponse(
             lecture.getIsElearning(),
             toListClassTime(lecture.getClassTime())
         );
+    }
+
+    public static List<Long> toListClassTime(String classTime) {
+        classTime = classTime.substring(1, classTime.length() - 1);
+        List<String> numbers = List.of(classTime.split(","));
+
+        return numbers.stream()
+            .map(Long::parseLong)
+            .toList();
     }
 }
