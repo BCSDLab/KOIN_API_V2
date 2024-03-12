@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
@@ -77,9 +78,9 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public void checkExistsEmail(String email) {
-        userRepository.findByEmail(email).ifPresent( user -> {
-            throw DuplicationEmailException.withDetail("email: " + email);
+    public void checkExistsEmail(EmailCheckExistsRequest request) {
+        userRepository.findByEmail(request.email()).ifPresent( user -> {
+            throw DuplicationEmailException.withDetail("email: " + user.getEmail());
         });
     }
 }
