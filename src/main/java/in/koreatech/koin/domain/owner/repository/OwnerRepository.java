@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.owner.domain.Owner;
 import in.koreatech.koin.domain.owner.exception.OwnerNotFoundException;
+import in.koreatech.koin.domain.owner.model.Owner;
 
 public interface OwnerRepository extends Repository<Owner, Long> {
 
