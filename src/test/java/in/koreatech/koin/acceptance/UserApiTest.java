@@ -204,6 +204,32 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("이메일이 중복인지 확인한다 - 이메일을 보내지 않으면 400")
+    void emailCheckExistsNull() {
+        RestAssured
+            .when()
+            .get("/user/check/email")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("이메일이 중복인지 확인한다 - 잘못된 이메일 형식이면 400")
+    void emailCheckExistsWrongFormat() {
+        String email = "wrong email format";
+
+        RestAssured
+            .given()
+            .param("address", email)
+            .when()
+            .get("/user/check/email")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
+
+    @Test
     @DisplayName("이메일이 중복인지 확인한다 - 중복이면 422")
     void emailCheckExistsAlreadyExists() {
         User user = User.builder()
