@@ -33,7 +33,7 @@ public class ShopImage extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "shop_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id", referencedColumnName = "id")
     private Shop shop;
 
