@@ -18,6 +18,7 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
+import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
 
@@ -34,6 +35,9 @@ public abstract class AcceptanceTest {
 
     @MockBean
     protected Clock clock;
+
+    @MockBean
+    protected OwnerEventListener ownerEventListener;
 
     @Autowired
     private DBInitializer dataInitializer;
@@ -60,7 +64,7 @@ public abstract class AcceptanceTest {
     }
 
     static {
-        mySqlContainer = (MySQLContainer) new MySQLContainer("mysql:5.7.34")
+        mySqlContainer = (MySQLContainer)new MySQLContainer("mysql:5.7.34")
             .withDatabaseName("test")
             .withUsername(ROOT)
             .withPassword(ROOT_PASSWORD)
