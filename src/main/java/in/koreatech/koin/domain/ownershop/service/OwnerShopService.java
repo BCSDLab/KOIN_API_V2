@@ -30,6 +30,11 @@ public class OwnerShopService {
     @Transactional
     public void createOwnerShops(Long ownerId, OwnerShopsRequest ownerShopsRequest) {
         Owner owner = ownerRepository.getById(ownerId);
+        // TODO: shop패키지 model 생성(shop_images, shop_opens, shop_category_map), repository 생성
+        // select * from shops;
+        // select * from shop_images;
+        // select * from shop_opens;
+        // select * from shop_category_map;
         Shop newShop = Shop.builder()
             .owner(owner)
             .address(ownerShopsRequest.address())
@@ -40,6 +45,12 @@ public class OwnerShopService {
             .payCard(ownerShopsRequest.payCard())
             .phone(ownerShopsRequest.phone())
             .name(ownerShopsRequest.name())
+            .internalName(ownerShopsRequest.name())
+            .chosung(ownerShopsRequest.name().substring(1))
+            .isDeleted(false)
+            .isEvent(false)
+            .remarks("")
+            .hit(0L)
             .build();
         shopRepository.save(newShop);
     }
