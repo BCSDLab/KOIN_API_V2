@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.TimeTable.model;
+package in.koreatech.koin.domain.timetable.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

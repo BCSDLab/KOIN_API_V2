@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.TimeTable.model.Semester;
-import in.koreatech.koin.domain.TimeTable.repository.SemesterRepository;
+import in.koreatech.koin.domain.timetable.model.Semester;
+import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 import io.restassured.RestAssured;

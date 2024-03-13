@@ -1,10 +1,10 @@
-package in.koreatech.koin.domain.TimeTable.repository;
+package in.koreatech.koin.domain.timetable.repository;
 
 import java.util.List;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.TimeTable.model.Semester;
+import in.koreatech.koin.domain.timetable.model.Semester;
 
 public interface SemesterRepository extends Repository<Semester, Long> {
 

@@ -1,9 +1,9 @@
-package in.koreatech.koin.domain.TimeTable.dto;
+package in.koreatech.koin.domain.timetable.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.TimeTable.model.Semester;
+import in.koreatech.koin.domain.timetable.model.Semester;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)

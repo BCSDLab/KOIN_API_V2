@@ -1,12 +1,12 @@
-package in.koreatech.koin.domain.TimeTable.service;
+package in.koreatech.koin.domain.timetable.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.TimeTable.dto.SemesterResponse;
-import in.koreatech.koin.domain.TimeTable.repository.SemesterRepository;
+import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
+import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
