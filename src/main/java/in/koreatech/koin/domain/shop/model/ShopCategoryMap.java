@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.model;
 
+import java.util.Objects;
+
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.owner.domain.Owner;
@@ -25,7 +27,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "shop_category_map")
-@Where(clause = "is_deleted=0")
 public class ShopCategoryMap extends BaseEntity {
 
     @Id

@@ -25,7 +25,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "shop_images")
-@Where(clause = "is_deleted=0")
 public class ShopImage extends BaseEntity {
 
     @Id

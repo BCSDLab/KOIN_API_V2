@@ -21,7 +21,13 @@ import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
+import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
+import in.koreatech.koin.domain.shop.model.ShopImage;
+import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.ShopCategoryMapRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
+import in.koreatech.koin.domain.shop.repository.ShopImageRepository;
+import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
@@ -41,6 +47,15 @@ class OwnerShopApiTest extends AcceptanceTest {
 
     @Autowired
     private ShopCategoryRepository shopCategoryRepository;
+
+    @Autowired
+    private ShopOpenRepository shopOpenRepository;
+
+    @Autowired
+    private ShopImageRepository shopImageRepository;
+
+    @Autowired
+    private ShopCategoryMapRepository shopCategoryMapRepository;
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -106,8 +121,6 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("사장님의 가게 목록을 조회한다.")
     void getOwnerShops() {
         // given
-        final int SHOP_COUNT = 2;
-
         Shop shopRequest = Shop.builder()
             .owner(owner)
             .name("테스트 상점2")
@@ -140,8 +153,8 @@ class OwnerShopApiTest extends AcceptanceTest {
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getLong("count")).isEqualTo(SHOP_COUNT);
-                softly.assertThat(response.body().jsonPath().getList("shops").size()).isEqualTo(SHOP_COUNT);
+                softly.assertThat(response.body().jsonPath().getLong("count")).isEqualTo(2);
+                softly.assertThat(response.body().jsonPath().getList("shops").size()).isEqualTo(2);
                 softly.assertThat(response.body().jsonPath().getLong("shops[0].id")).isEqualTo(shop.getId());
                 softly.assertThat(response.body().jsonPath().getString("shops[0].name")).isEqualTo(shop.getName());
                 softly.assertThat(response.body().jsonPath().getLong("shops[1].id")).isEqualTo(shop2.getId());
@@ -154,20 +167,27 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("상점을 생성한다.")
     void createOwnerShop() {
         // given
-        final int SHOP_COUNT = 2;
 
-        List<Long> categoryIds = new ArrayList<>(Arrays.asList(1L));
-        List<String> imageUrls = new ArrayList<>(Arrays.asList(
-            "https://test.com/test.jpg",
-            "https://test.com/test.jpg",
-            "https://test.com/test.jpg"
-        ));
-        OwnerShopsRequest.InnerOpenRequest open = new OwnerShopsRequest.InnerOpenRequest(
+        OwnerShopsRequest.InnerOpenRequest open1 = new OwnerShopsRequest.InnerOpenRequest(
             LocalTime.of(21, 0),
             false,
             "MONDAY",
             LocalTime.of(9, 0)
         );
+        OwnerShopsRequest.InnerOpenRequest open2 = new OwnerShopsRequest.InnerOpenRequest(
+            LocalTime.of(21, 0),
+            false,
+            "WEDNESDAY",
+            LocalTime.of(9, 0)
+        );
+
+        List<Long> categoryIds = List.of(1L);
+        List<String> imageUrls = List.of(
+            "https://test.com/test1.jpg",
+            "https://test.com/test2.jpg",
+            "https://test.com/test3.jpg"
+        );
+        List<OwnerShopsRequest.InnerOpenRequest> opens = List.of(open1, open2);
 
         OwnerShopsRequest ownerShopsRequest = new OwnerShopsRequest(
             "대전광역시 유성구 대학로 291",
@@ -177,7 +197,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             "테스트 상점2입니다.",
             imageUrls,
             "테스트 상점2",
-            open,
+            opens,
             true,
             true,
             "010-1234-5678"
@@ -198,10 +218,26 @@ class OwnerShopApiTest extends AcceptanceTest {
         List<Shop> shops =  shopRepository.findAllByOwnerId(owner.getId());
         Shop createdShop = shops.get(1);
 
+        List<ShopOpen> shopOpens = shopOpenRepository.findAllByShopId(createdShop.getId());
+        List<ShopImage> shopImages = shopImageRepository.findAllByShopId(createdShop.getId());
+        List<ShopCategoryMap> shopCategoryMaps = shopCategoryMapRepository.findAllByShopId(createdShop.getId());
+
+
         assertSoftly(
             softly -> {
-                softly.assertThat(response.statusCode() == 201);
-                // softly.assertThat(createdShop.getOwner().);
+                softly.assertThat(createdShop.getAddress()).isEqualTo(ownerShopsRequest.address());
+                softly.assertThat(createdShop.getDelivery()).isEqualTo(ownerShopsRequest.delivery());
+                softly.assertThat(createdShop.getDeliveryPrice()).isEqualTo(ownerShopsRequest.deliveryPrice());
+                softly.assertThat(createdShop.getDescription()).isEqualTo(ownerShopsRequest.description());
+                softly.assertThat(createdShop.getName()).isEqualTo(ownerShopsRequest.name());
+                softly.assertThat(createdShop.getPayBank()).isEqualTo(ownerShopsRequest.payBank());
+                softly.assertThat(createdShop.getPayCard()).isEqualTo(ownerShopsRequest.payCard());
+                softly.assertThat(createdShop.getPhone()).isEqualTo(ownerShopsRequest.phone());
+                softly.assertThat(categoryIds).containsAnyElementsOf(shopCategoryMaps.stream()
+                    .map(shopCategory -> shopCategory.getShopCategory().getId()).toList());
+                softly.assertThat(imageUrls).containsAnyElementsOf(shopImages.stream()
+                    .map(ShopImage::getImageUrl).toList());
+                softly.assertThat(shopOpens).hasSize(2);
             }
         );
     }

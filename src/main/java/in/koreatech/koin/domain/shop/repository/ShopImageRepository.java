@@ -10,8 +10,12 @@ import in.koreatech.koin.domain.shop.exception.ShopImageNotFoundException;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopImage;
+import in.koreatech.koin.domain.shop.model.ShopOpen;
 
 public interface ShopImageRepository extends Repository<ShopImage, Long> {
 
     ShopImage save(ShopImage shopImage);
+
+    List<ShopImage> findAllByShopId(Long shopId);
+
 }

@@ -42,9 +42,9 @@ public class OwnerShopService {
 
     @Transactional
     public void createOwnerShops(Long ownerId, OwnerShopsRequest ownerShopsRequest) {
-        LocalTime openTime = ownerShopsRequest.open().openTime();
-        LocalTime closeTime = ownerShopsRequest.open().closeTime();
-        if(closeTime.isBefore(openTime)) throw new IllegalArgumentException();
+        // LocalTime openTime = ownerShopsRequest.open().openTime();
+        // LocalTime closeTime = ownerShopsRequest.open().closeTime();
+        // if(closeTime.isBefore(openTime)) throw new IllegalArgumentException();
 
         Owner owner = ownerRepository.getById(ownerId);
 
@@ -67,30 +67,32 @@ public class OwnerShopService {
             .build();
         shopRepository.save(newShop);
 
-        ownerShopsRequest.imageUrls().stream().forEach(imageUrl -> {
+        for (String imageUrl : ownerShopsRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(newShop)
                 .imageUrl(imageUrl)
                 .build();
             shopImageRepository.save(shopImage);
-        });
+        }
 
-        ShopOpen shopOpen = ShopOpen.builder()
-            .shop(newShop)
-            .openTime(ownerShopsRequest.open().openTime())
-            .closeTime(ownerShopsRequest.open().closeTime())
-            .dayOfWeek(ownerShopsRequest.open().dayOfWeek())
-            .closed(ownerShopsRequest.open().closed())
-            .build();
-        shopOpenRepository.save(shopOpen);
+        for (OwnerShopsRequest.InnerOpenRequest open : ownerShopsRequest.open()) {
+            ShopOpen shopOpen = ShopOpen.builder()
+                .shop(newShop)
+                .openTime(open.openTime())
+                .closeTime(open.closeTime())
+                .dayOfWeek(open.dayOfWeek())
+                .closed(open.closed())
+                .build();
+            shopOpenRepository.save(shopOpen);
+        }
 
-        ownerShopsRequest.categoryIds().stream().forEach(categoryId -> {
+        for (Long categoryId : ownerShopsRequest.categoryIds()) {
             ShopCategory shopCategory = shopCategoryRepository.getById(categoryId);
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
                 .shopCategory(shopCategory)
                 .shop(newShop)
                 .build();
             shopCategoryMapRepository.save(shopCategoryMap);
-        });
+        }
     }
 }

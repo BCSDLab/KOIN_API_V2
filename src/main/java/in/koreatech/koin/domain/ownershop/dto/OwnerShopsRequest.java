@@ -34,7 +34,7 @@ public record OwnerShopsRequest(
     String name,
 
     @Schema(description = "요일별 운영 시간과 휴무 여부")
-    InnerOpenRequest open,
+    List<InnerOpenRequest> open,
 
     @Schema(description = "계좌 이체 가능 여부", example = "true")
     Boolean payBank,

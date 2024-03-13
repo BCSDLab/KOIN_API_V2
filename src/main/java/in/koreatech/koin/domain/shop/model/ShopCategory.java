@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.model;
 
+import java.util.Objects;
+
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.owner.domain.Owner;
@@ -51,17 +53,5 @@ public class ShopCategory extends BaseEntity {
         this.name = name;
         this.imageUrl = imageUrl;
         this.isDeleted = isDeleted;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if(o == null) return false;
-        ShopCategory otherShopCategory = (ShopCategory) o;
-        return (
-            id.equals(otherShopCategory.getId()) &&
-            name.equals(otherShopCategory.getName()) &&
-            imageUrl.equals(otherShopCategory.getImageUrl()) &&
-            isDeleted.equals(otherShopCategory.getIsDeleted())
-        );
     }
 }

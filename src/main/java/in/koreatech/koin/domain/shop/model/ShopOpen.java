@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shop.model;
 
 import java.time.LocalTime;
+import java.util.Objects;
 
 import org.hibernate.annotations.Where;
 
