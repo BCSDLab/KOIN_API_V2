@@ -49,7 +49,7 @@ public class Student {
     private User user;
 
     @Builder
-    public Student(String anonymousNickname, String studentNumber, String department, UserIdentity userIdentity,
+    private Student(String anonymousNickname, String studentNumber, String department, UserIdentity userIdentity,
         Boolean isGraduated, User user) {
         this.anonymousNickname = anonymousNickname;
         this.studentNumber = studentNumber;
