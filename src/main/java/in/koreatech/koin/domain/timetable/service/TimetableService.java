@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class TimeTableService {
+public class TimetableService {
 
     private final LectureRepository lectureRepository;
 

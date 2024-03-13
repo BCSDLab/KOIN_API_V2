@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) Lecture: 시간표", description = "시간표 정보를 관리한다")
-public interface TimeTableApi {
+public interface TimetableApi {
 
     @ApiResponses(
         value = {
@@ -26,7 +26,7 @@ public interface TimeTableApi {
     )
     @Operation(summary = "강의 목록 조회")
     @GetMapping("/lectures")
-    ResponseEntity<List<LectureResponse>> getLectureList(
+    ResponseEntity<List<LectureResponse>> getLecture(
         String semesterDate
     );
 }

@@ -15,7 +15,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
-class TimeTableApiTest extends AcceptanceTest {
+class TimetableApiTest extends AcceptanceTest {
 
     @Autowired
     private LectureRepository lectureRepository;
