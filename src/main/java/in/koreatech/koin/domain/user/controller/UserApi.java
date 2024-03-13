@@ -3,10 +3,11 @@ package in.koreatech.koin.domain.user.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -118,13 +119,14 @@ public interface UserApi {
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "204"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
         }
     )
     @Operation(summary = "닉네임 중복 체크")
     @GetMapping("/user/check/nickname")
-    ResponseEntity<Void> checkDuplicationOfNickname(@RequestParam("nickname") String nickname);
+    ResponseEntity<Void> checkDuplicationOfNickname(
+        @ModelAttribute("nickname")
+        @Valid NicknameCheckExistsRequest request);
 }

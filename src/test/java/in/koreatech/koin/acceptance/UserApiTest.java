@@ -260,6 +260,38 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("닉네임 중복일때 상태코드 409를 반환한다.")
+    void checkDuplicationOfNicknameConflict(){
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .get("/user/check/nickname?nickname=" + user.getNickname())
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .extract();
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getString("message")).isEqualTo("이미 존재하는 데이터입니다.");
+            }
+        );
+    }
+
+    @Test
     @DisplayName("닉네임 중복이 아닐시 상태코드 200을 반환한다.")
     void checkDuplicationOfNickname() {
         User user = User.builder()
@@ -286,7 +318,7 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("닉네임 제약조건 위반시 상태코드 422를 반환한다.")
+    @DisplayName("닉네임 제약조건 위반시 상태코드 400를 반환한다.")
     void checkDuplicationOfNicknameBadRequest() {
         User user = User.builder()
             .password("1234")
