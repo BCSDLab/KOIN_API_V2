@@ -61,7 +61,8 @@ class TimetableApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
-            .get("/lectures?semester_date=20192")
+            .param("semester_date", lecture1.getSemester())
+            .get("/lectures")
             .then()
             .log().all()
             .statusCode(HttpStatus.OK.value())
@@ -153,7 +154,8 @@ class TimetableApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
-            .get("/lectures?semester_date=20192")
+            .param("semester_date", lecture1.getSemester())
+            .get("/lectures")
             .then()
             .log().all()
             .statusCode(HttpStatus.OK.value())
@@ -205,7 +207,8 @@ class TimetableApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
-            .get("/lectures?semester_date=20193")
+            .param("semester_date", 20193)
+            .get("/lectures")
             .then()
             .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
