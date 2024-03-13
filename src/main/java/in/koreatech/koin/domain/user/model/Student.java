@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,7 +11,6 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "students")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 public class Student {
 
     @Id
@@ -48,8 +49,8 @@ public class Student {
     private User user;
 
     @Builder
-    public Student(String anonymousNickname, String studentNumber, String department, UserIdentity userIdentity,
-                   Boolean isGraduated, User user) {
+    private Student(String anonymousNickname, String studentNumber, String department, UserIdentity userIdentity,
+        Boolean isGraduated, User user) {
         this.anonymousNickname = anonymousNickname;
         this.studentNumber = studentNumber;
         this.department = department;
