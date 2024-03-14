@@ -18,6 +18,7 @@ public class SemesterService {
 
     public List<SemesterResponse> getSemesters() {
         return semesterRepository.findAll().stream()
-            .map(SemesterResponse::from).toList();
+            .map(SemesterResponse::from)
+            .toList();
     }
 }

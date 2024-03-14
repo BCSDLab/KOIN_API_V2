@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class TimetableController {
+public class TimetableController implements TimetableApi{
 
     private final TimetableService timetableService;
     private final SemesterService semesterService;

@@ -11,5 +11,4 @@ public interface SemesterRepository extends Repository<Semester, Long> {
     List<Semester> findAll();
 
     Semester save(Semester semester);
-
 }

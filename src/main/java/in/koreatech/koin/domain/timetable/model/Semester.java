@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.timetable.model;
 
+import static jakarta.persistence.GenerationType.*;
+import static lombok.AccessLevel.*;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,11 +19,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "semester")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 public class Semester {
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     @Size(max = 10)
