@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.owner.domain.Owner;
+import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
@@ -42,10 +42,6 @@ public class OwnerShopService {
 
     @Transactional
     public void createOwnerShops(Long ownerId, OwnerShopsRequest ownerShopsRequest) {
-        // LocalTime openTime = ownerShopsRequest.open().openTime();
-        // LocalTime closeTime = ownerShopsRequest.open().closeTime();
-        // if(closeTime.isBefore(openTime)) throw new IllegalArgumentException();
-
         Owner owner = ownerRepository.getById(ownerId);
 
         Shop newShop = Shop.builder()

@@ -17,7 +17,6 @@ public record OwnerShopsRequest(
     List<Long> categoryIds,
 
     @Schema(description = "배달 가능 여부", example = "false")
-
     Boolean delivery,
 
     @Schema(description = "배달 금액", example = "1000")
@@ -47,7 +46,6 @@ public record OwnerShopsRequest(
     String phone
 ) {
     public record InnerOpenRequest(
-
         @Schema(description = "닫는 시간", example = "22:30")
         LocalTime closeTime,
 

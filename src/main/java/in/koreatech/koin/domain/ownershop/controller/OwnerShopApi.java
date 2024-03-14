@@ -29,7 +29,6 @@ public interface OwnerShopApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-
     @Operation(summary = "자신의 모든 상점 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/owner/shops")
@@ -45,12 +44,11 @@ public interface OwnerShopApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-
     @Operation(summary = "상점 생성")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owner/shops")
     ResponseEntity<Void> createOwnerShops(
-        @Auth(permit = {OWNER}) Long userId, @RequestBody OwnerShopsRequest ownerShopsRequest
+        @Auth(permit = {OWNER}) Long userId,
+        @RequestBody OwnerShopsRequest ownerShopsRequest
     );
-
 }
