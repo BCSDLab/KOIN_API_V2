@@ -1,0 +1,21 @@
+package in.koreatech.koin.domain.activity.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
+
+import in.koreatech.koin.domain.activity.model.Activity;
+
+public interface ActivityRepository extends Repository<Activity, Long> {
+
+    @Query(value = "SELECT * FROM activities WHERE is_deleted = 0 AND YEAR(date) = :year", nativeQuery = true)
+    List<Activity> getActivitiesByYear(@Param("year") String year);
+
+    List<Activity> findAllByIsDeleted(boolean bool);
+
+    Activity save(Activity activity);
+}
