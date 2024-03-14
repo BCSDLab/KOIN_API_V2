@@ -128,5 +128,6 @@ public interface UserApi {
     @GetMapping("/user/check/nickname")
     ResponseEntity<Void> checkDuplicationOfNickname(
         @ModelAttribute("nickname")
-        @Valid NicknameCheckExistsRequest request);
+        @Valid NicknameCheckExistsRequest request
+    );
 }

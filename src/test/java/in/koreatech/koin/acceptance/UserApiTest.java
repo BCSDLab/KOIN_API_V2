@@ -279,7 +279,8 @@ class UserApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
-            .get("/user/check/nickname?nickname=" + user.getNickname())
+            .param("nickname", user.getNickname())
+            .get("/user/check/nickname")
             .then()
             .statusCode(HttpStatus.CONFLICT.value())
             .extract();
@@ -311,7 +312,8 @@ class UserApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
-            .get("/user/check/nickname?nickname=" + "철수")
+            .param("nickname", "철수")
+            .get("/user/check/nickname")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -337,7 +339,8 @@ class UserApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .when()
-            .get("/user/check/nickname?nickname=" + "철".repeat(11))
+            .param("nickname", "철".repeat(11))
+            .get("/user/check/nickname")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
@@ -345,7 +348,8 @@ class UserApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .when()
-            .get("/user/check/nickname?nickname=")
+            .param("nickname", "")
+            .get("/user/check/nickname")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
