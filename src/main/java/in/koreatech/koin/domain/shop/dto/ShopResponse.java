@@ -2,9 +2,12 @@ package in.koreatech.koin.domain.shop.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.MenuCategory;
@@ -55,8 +58,9 @@ public record ShopResponse(
     @Schema(description = "소속된 상점 카테고리 리스트")
     List<InnerShopCategory> shopCategories,
 
-    @Schema(example = "2024-03-01 12:00:00", description = "업데이트 날짜")
-    String updatedAt
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Schema(example = "2024-03-01", description = "업데이트 날짜")
+    LocalDateTime updatedAt
 ) {
 
     public static ShopResponse from(Shop shop, List<ShopOpen> shopOpens, List<ShopImage> shopImages,
@@ -65,8 +69,8 @@ public record ShopResponse(
         List<InnerShopOpen> innerShopOpens = shopOpens.stream().map(shopOpen -> new InnerShopOpen(
             shopOpen.getDayOfWeek(),
             shopOpen.getClosed(),
-            shopOpen.getOpenTime().toString(),
-            shopOpen.getCloseTime().toString()
+            shopOpen.getOpenTime(),
+            shopOpen.getCloseTime()
         )).toList();
 
         List<String> imageUrls = shopImages.stream().map(shopImage -> shopImage.getImageUrl()).toList();
@@ -85,8 +89,6 @@ public record ShopResponse(
             ))
             .toList();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
         return new ShopResponse(
             shop.getAddress(),
             shop.getDelivery(),
@@ -101,7 +103,7 @@ public record ShopResponse(
             shop.getPayCard(),
             shop.getPhone(),
             innerShopCategories,
-            shop.getUpdatedAt().format(formatter)
+            shop.getUpdatedAt()
         );
     }
     private record InnerShopOpen(
@@ -114,10 +116,12 @@ public record ShopResponse(
         Boolean closed,
 
         @Schema(example = "02:00", description = "오픈 시간")
-        String openTime,
+        @JsonFormat(pattern = "HH:mm")
+        LocalTime openTime,
 
         @Schema(example = "16:00", description = "마감 시간")
-        String closeTime
+        @JsonFormat(pattern = "HH:mm")
+        LocalTime closeTime
     ) {
     }
 

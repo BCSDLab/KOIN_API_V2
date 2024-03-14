@@ -55,19 +55,17 @@ public class ShopService {
     }
 
     public MenuCategoriesResponse getMenuCategories(Long shopId) {
-        //TODO 존재하는 상점인지 검증하고, 없다면 401를 반환하여야 한다. 작업시점: 상점 도메인 조회 기능 추가시
-        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shopId);
+        Shop shop = shopRepository.getById(shopId);
+        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
         return MenuCategoriesResponse.from(menuCategories);
     }
 
     public ShopResponse getShop(Long shopId) {
         Shop shop = shopRepository.getById(shopId);
-
         List<ShopOpen> shopOpens = shopOpenRepository.findAllByShopId(shopId);
         List<ShopImage> shopImages = shopImageRepository.findAllByShopId(shopId);
         List<ShopCategoryMap> shopCategoryMaps = shopCategoryMapRepository.findAllByShopId(shopId);
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shopId);
-
         return ShopResponse.from(shop, shopOpens, shopImages, shopCategoryMaps, menuCategories);
     }
 }

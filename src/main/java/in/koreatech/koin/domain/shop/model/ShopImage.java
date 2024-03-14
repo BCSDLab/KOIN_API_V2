@@ -36,7 +36,7 @@ public class ShopImage extends BaseEntity {
     private String imageUrl;
 
     @Builder
-    public ShopImage(Long id, Shop shop, String imageUrl) {
+    private ShopImage(Long id, Shop shop, String imageUrl) {
         this.id = id;
         this.shop = shop;
         this.imageUrl = imageUrl;

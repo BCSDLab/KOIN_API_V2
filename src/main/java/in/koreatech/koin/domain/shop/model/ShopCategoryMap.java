@@ -35,7 +35,7 @@ public class ShopCategoryMap extends BaseEntity {
     private ShopCategory shopCategory;
 
     @Builder
-    public ShopCategoryMap(Long id, Shop shop, ShopCategory shopCategory) {
+    private ShopCategoryMap(Long id, Shop shop, ShopCategory shopCategory) {
         this.id = id;
         this.shop = shop;
         this.shopCategory = shopCategory;

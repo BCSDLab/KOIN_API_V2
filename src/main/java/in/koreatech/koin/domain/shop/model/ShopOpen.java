@@ -58,7 +58,7 @@ public class ShopOpen extends BaseEntity {
     private Boolean isDeleted = false;
 
     @Builder
-    public ShopOpen(Long id, Shop shop, String dayOfWeek, Boolean closed, LocalTime openTime, LocalTime closeTime) {
+    private ShopOpen(Long id, Shop shop, String dayOfWeek, Boolean closed, LocalTime openTime, LocalTime closeTime) {
         this.id = id;
         this.shop = shop;
         this.dayOfWeek = dayOfWeek;

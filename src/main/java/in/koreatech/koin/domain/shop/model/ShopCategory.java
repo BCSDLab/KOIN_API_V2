@@ -41,7 +41,7 @@ public class ShopCategory extends BaseEntity {
     private Boolean isDeleted = false;
 
     @Builder
-    public ShopCategory(Long id, String name, String imageUrl, Boolean isDeleted) {
+    private ShopCategory(Long id, String name, String imageUrl, Boolean isDeleted) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;

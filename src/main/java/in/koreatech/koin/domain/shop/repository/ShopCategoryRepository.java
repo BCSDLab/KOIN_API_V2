@@ -17,6 +17,7 @@ public interface ShopCategoryRepository extends Repository<ShopCategory, Long> {
     List<ShopCategory> findAllByIdIn(List<Long> ids);
 
     default ShopCategory getById(Long shopCategoryId) {
-        return findById(shopCategoryId).orElseThrow(() -> ShopCategoryNotFoundException.withDetail("shopCategoryId: " + shopCategoryId));
+        return findById(shopCategoryId)
+            .orElseThrow(() -> ShopCategoryNotFoundException.withDetail("shopCategoryId: " + shopCategoryId));
     }
 }
