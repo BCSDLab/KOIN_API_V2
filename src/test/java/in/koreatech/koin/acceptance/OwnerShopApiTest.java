@@ -64,7 +64,6 @@ class OwnerShopApiTest extends AcceptanceTest {
     private JwtProvider jwtProvider;
 
     private Owner owner;
-    private ShopCategory shopCategory1, shopCategory2;
     private Shop shop;
     private String token;
 
@@ -110,20 +109,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .hit(0L)
             .build();
         shop = shopRepository.save(shopRequest);
-
-        ShopCategory shopCategoryRequest1 = ShopCategory.builder()
-            .isDeleted(false)
-            .name("테스트1")
-            .imageUrl("https://test.com/test1.jpg")
-            .build();
-
-        ShopCategory shopCategoryRequest2 = ShopCategory.builder()
-            .isDeleted(false)
-            .name("테스트2")
-            .imageUrl("https://test.com/test2.jpg")
-            .build();
-        shopCategory1 = shopCategoryRepository.save(shopCategoryRequest1);
-        shopCategory2 = shopCategoryRepository.save(shopCategoryRequest2);
     }
 
     @Test
@@ -210,6 +195,20 @@ class OwnerShopApiTest extends AcceptanceTest {
             true,
             "010-1234-5678"
         );
+
+        ShopCategory shopCategoryRequest1 = ShopCategory.builder()
+            .isDeleted(false)
+            .name("테스트1")
+            .imageUrl("https://test.com/test1.jpg")
+            .build();
+
+        ShopCategory shopCategoryRequest2 = ShopCategory.builder()
+            .isDeleted(false)
+            .name("테스트2")
+            .imageUrl("https://test.com/test2.jpg")
+            .build();
+        shopCategoryRepository.save(shopCategoryRequest1);
+        shopCategoryRepository.save(shopCategoryRequest2);
 
         ExtractableResponse<Response> response = RestAssured
             .given()

@@ -41,26 +41,8 @@ public class OwnerShopService {
     @Transactional
     public void createOwnerShops(Long ownerId, OwnerShopsRequest ownerShopsRequest) {
         Owner owner = ownerRepository.getById(ownerId);
-
-        Shop newShop = Shop.builder()
-            .owner(owner)
-            .address(ownerShopsRequest.address())
-            .deliveryPrice(ownerShopsRequest.deliveryPrice())
-            .delivery(ownerShopsRequest.delivery())
-            .description(ownerShopsRequest.description())
-            .payBank(ownerShopsRequest.payBank())
-            .payCard(ownerShopsRequest.payCard())
-            .phone(ownerShopsRequest.phone())
-            .name(ownerShopsRequest.name())
-            .internalName(ownerShopsRequest.name())
-            .chosung(ownerShopsRequest.name().substring(0, 1))
-            .isDeleted(false)
-            .isEvent(false)
-            .remarks("")
-            .hit(0L)
-            .build();
+        Shop newShop = ownerShopsRequest.toEntity(owner);
         shopRepository.save(newShop);
-
         for (String imageUrl : ownerShopsRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(newShop)
@@ -68,7 +50,6 @@ public class OwnerShopService {
                 .build();
             shopImageRepository.save(shopImage);
         }
-
         for (OwnerShopsRequest.InnerOpenRequest open : ownerShopsRequest.open()) {
             ShopOpen shopOpen = ShopOpen.builder()
                 .shop(newShop)
@@ -79,9 +60,8 @@ public class OwnerShopService {
                 .build();
             shopOpenRepository.save(shopOpen);
         }
-
-        for (Long categoryId : ownerShopsRequest.categoryIds()) {
-            ShopCategory shopCategory = shopCategoryRepository.getById(categoryId);
+        List<ShopCategory> shopCategories = shopCategoryRepository.findAllByIdIn(ownerShopsRequest.categoryIds());
+        for (ShopCategory shopCategory : shopCategories) {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
                 .shopCategory(shopCategory)
                 .shop(newShop)

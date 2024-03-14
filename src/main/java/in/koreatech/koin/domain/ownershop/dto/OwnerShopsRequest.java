@@ -3,9 +3,9 @@ package in.koreatech.koin.domain.ownershop.dto;
 import java.time.LocalTime;
 import java.util.List;
 
+import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record OwnerShopsRequest(
@@ -45,6 +45,26 @@ public record OwnerShopsRequest(
     @NotBlank(message = "전화번호를 입력해주세요.")
     String phone
 ) {
+
+    public Shop toEntity(Owner owner) {
+        return Shop.builder()
+            .owner(owner)
+            .address(address)
+            .deliveryPrice(deliveryPrice)
+            .delivery(delivery)
+            .description(description)
+            .payBank(payBank)
+            .payCard(payCard)
+            .phone(phone)
+            .name(name)
+            .internalName(name)
+            .chosung(name().substring(0, 1))
+            .isDeleted(false)
+            .isEvent(false)
+            .remarks("")
+            .hit(0L)
+            .build();
+    }
 
     public record InnerOpenRequest(
         @Schema(description = "닫는 시간", example = "22:30")

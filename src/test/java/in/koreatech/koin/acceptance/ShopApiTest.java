@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
@@ -359,7 +360,9 @@ class ShopApiTest extends AcceptanceTest {
             .closed(false)
             .dayOfWeek("FRIDAY")
             .build();
-        List<ShopOpen> shopOpens = shopOpenRepository.saveAll(List.of(open1, open2));
+
+        ShopOpen newShopOpen1 = shopOpenRepository.save(open1);
+        ShopOpen newShopOpen2 = shopOpenRepository.save(open2);
 
         ShopCategoryMap shopCategoryMap1 = ShopCategoryMap.builder()
             .shop(shop)
@@ -371,8 +374,8 @@ class ShopApiTest extends AcceptanceTest {
             .shopCategory(shopCategory2)
             .build();
 
-        List<ShopCategoryMap> shopCategoryMaps = shopCategoryMapRepository.saveAll(
-            List.of(shopCategoryMap1, shopCategoryMap2));
+        ShopCategoryMap newShopCategoryMap1 = shopCategoryMapRepository.save(shopCategoryMap1);
+        ShopCategoryMap newShopCategoryMap2 = shopCategoryMapRepository.save(shopCategoryMap2);
 
         ShopImage shopImage1 = ShopImage.builder()
             .imageUrl("https://test.com/test1.jpg")
@@ -383,7 +386,9 @@ class ShopApiTest extends AcceptanceTest {
             .imageUrl("https://test.com/test2.jpg")
             .shop(shop)
             .build();
-        shopImageRepository.saveAll(List.of(shopImage1, shopImage2));
+
+        ShopImage newShopImage1 = shopImageRepository.save(shopImage1);
+        ShopImage newShopImage2 = shopImageRepository.save(shopImage2);
 
         ExtractableResponse<Response> response = RestAssured
             .given()
