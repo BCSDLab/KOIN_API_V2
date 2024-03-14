@@ -12,7 +12,6 @@ import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
@@ -66,6 +65,6 @@ public class ShopService {
         List<ShopImage> shopImages = shopImageRepository.findAllByShopId(shopId);
         List<ShopCategoryMap> shopCategoryMaps = shopCategoryMapRepository.findAllByShopId(shopId);
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shopId);
-        return ShopResponse.from(shop, shopOpens, shopImages, shopCategoryMaps, menuCategories);
+        return ShopResponse.of(shop, shopOpens, shopImages, shopCategoryMaps, menuCategories);
     }
 }
