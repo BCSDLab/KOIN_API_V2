@@ -19,6 +19,7 @@ public interface ShopRepository extends Repository<Shop, Long> {
     Optional<Shop> findById(Long shopId);
 
     default Shop getById(Long shopId) {
-        return findById(shopId).orElseThrow(() -> ShopNotFoundException.withDetail("shopId: " + shopId));
+        return findById(shopId)
+            .orElseThrow(() -> ShopNotFoundException.withDetail("shopId: " + shopId));
     }
 }

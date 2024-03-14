@@ -45,6 +45,7 @@ public record OwnerShopsRequest(
     @NotBlank(message = "전화번호를 입력해주세요.")
     String phone
 ) {
+
     public record InnerOpenRequest(
         @Schema(description = "닫는 시간", example = "22:30")
         LocalTime closeTime,

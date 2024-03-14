@@ -176,7 +176,6 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("상점을 생성한다.")
     void createOwnerShop() {
         // given
-
         OwnerShopsRequest.InnerOpenRequest open1 = new OwnerShopsRequest.InnerOpenRequest(
             LocalTime.of(21, 0),
             false,
@@ -220,7 +219,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .post("/owner/shops")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
