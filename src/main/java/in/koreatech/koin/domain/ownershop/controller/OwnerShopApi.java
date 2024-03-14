@@ -4,7 +4,10 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,4 +36,19 @@ public interface OwnerShopApi {
         @Auth(permit = {OWNER}) Long userId
     );
 
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 생성")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/owner/shops")
+    ResponseEntity<Void> createOwnerShops(
+        @Auth(permit = {OWNER}) Long userId,
+        @RequestBody OwnerShopsRequest ownerShopsRequest
+    );
 }
