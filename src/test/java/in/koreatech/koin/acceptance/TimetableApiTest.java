@@ -1,5 +1,7 @@
 package in.koreatech.koin.acceptance;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
@@ -10,7 +12,9 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
+import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -19,6 +23,9 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Autowired
     private LectureRepository lectureRepository;
+
+    @Autowired
+    private SemesterRepository semesterRepository;
 
     @Test
     @DisplayName("특정 학기 강의를 조회한다")
@@ -213,5 +220,25 @@ class TimetableApiTest extends AcceptanceTest {
             .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("모든 학기를 조회한다.")
+    void findAllSemesters() {
+        Semester request1 = Semester.builder().semester("20221").build();
+        Semester request2 = Semester.builder().semester("20222").build();
+        semesterRepository.save(request1);
+        semesterRepository.save(request2);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .get("/semesters")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertThat(response.body().jsonPath().getList(".")).hasSize(2);
     }
 }
