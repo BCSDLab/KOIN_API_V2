@@ -63,7 +63,7 @@ public record ShopResponse(
     LocalDateTime updatedAt
 ) {
 
-    public static ShopResponse from(Shop shop, List<ShopOpen> shopOpens, List<ShopImage> shopImages,
+    public static ShopResponse of(Shop shop, List<ShopOpen> shopOpens, List<ShopImage> shopImages,
         List<ShopCategoryMap> shopCategoryMaps, List<MenuCategory> menuCategories) {
 
         List<InnerShopOpen> innerShopOpens = shopOpens.stream().map(shopOpen -> new InnerShopOpen(
