@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.activity.dto.ActivityResponse;
 import in.koreatech.koin.domain.activity.service.ActivityService;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 public class ActivityController {
@@ -20,7 +19,8 @@ public class ActivityController {
     private ActivityService activityService;
 
     @GetMapping("/activities")
-    public ResponseEntity<List<ActivityResponse>> getActivities(@RequestParam(required = false) String year) {
+    public ResponseEntity<Map<String, List<ActivityResponse>>> getActivities(
+        @RequestParam(required = false) String year) {
         return ResponseEntity.ok(activityService.getActivities(year));
     }
 }
