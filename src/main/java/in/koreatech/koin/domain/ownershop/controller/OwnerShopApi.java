@@ -50,8 +50,7 @@ public interface OwnerShopApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owner/shops")
     ResponseEntity<Void> createOwnerShops(
-      @Auth(permit = {OWNER}) Long userId, @RequestBody OwnerShopsRequest ownerShopsRequest
+        @Auth(permit = {OWNER}) Long userId, @RequestBody OwnerShopsRequest ownerShopsRequest
     );
-
 
 }

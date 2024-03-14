@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop.repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,5 +17,13 @@ public interface ShopCategoryMapRepository extends Repository<ShopCategoryMap, L
     ShopCategoryMap save(ShopCategoryMap shopCategoryMap);
 
     List<ShopCategoryMap> findAllByShopId(Long shopId);
+
+    default List<ShopCategoryMap> saveAll(List<ShopCategoryMap> shopCategoryMaps) {
+        List<ShopCategoryMap> result = new ArrayList<>(shopCategoryMaps.size());
+        shopCategoryMaps.forEach(shopCategoryMap -> {
+            result.add(save(shopCategoryMap));
+        });
+        return result;
+    }
 
 }
