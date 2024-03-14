@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.community.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.time.LocalDateTime;
 
 import in.koreatech.koin.domain.user.model.User;
@@ -13,7 +15,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "article_view_logs")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 public class ArticleViewLog {
 
     private static final Long EXPIRED_HOUR = 1L;
@@ -53,7 +54,7 @@ public class ArticleViewLog {
     }
 
     @Builder
-    public ArticleViewLog(Article article, User user, String ip) {
+    private ArticleViewLog(Article article, User user, String ip) {
         this.article = article;
         this.user = user;
         this.ip = ip;

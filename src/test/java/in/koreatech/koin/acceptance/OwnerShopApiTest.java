@@ -17,7 +17,7 @@ import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.owner.domain.Owner;
+import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.shop.model.MenuCategory;

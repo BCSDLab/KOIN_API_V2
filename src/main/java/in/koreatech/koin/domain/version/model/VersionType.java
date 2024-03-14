@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.version.model;
 
 import java.util.Arrays;
 
+import in.koreatech.koin.domain.version.exception.VersionTypeNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -21,6 +22,6 @@ public enum VersionType {
         return Arrays.stream(values())
             .filter(versionType -> versionType.value.equals(value))
             .findAny()
-            .orElseThrow(() -> new IllegalArgumentException("잘못된 버전 타입입니다.. type: " + value));
+            .orElseThrow(() -> VersionTypeNotFoundException.withDetail("versionType: " + value));
     }
 }

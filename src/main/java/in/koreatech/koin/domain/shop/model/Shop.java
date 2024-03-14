@@ -1,9 +1,11 @@
 package in.koreatech.koin.domain.shop.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.domain.owner.domain.Owner;
-import in.koreatech.koin.global.common.BaseEntity;
+import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,14 +18,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 @Table(name = "shops")
 @Where(clause = "is_deleted=0")
 public class Shop extends BaseEntity {
@@ -96,7 +97,7 @@ public class Shop extends BaseEntity {
     private Long hit;
 
     @Builder
-    public Shop(Owner owner, String name, String internalName, String chosung, String phone, String address,
+    private Shop(Owner owner, String name, String internalName, String chosung, String phone, String address,
         String description, Boolean delivery, Long deliveryPrice, Boolean payCard, Boolean payBank,
         Boolean isDeleted, Boolean isEvent, String remarks, Long hit) {
         this.owner = owner;
