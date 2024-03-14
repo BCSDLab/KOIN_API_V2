@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.activity.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -41,7 +40,7 @@ public record ActivityResponse(
     @Schema(description = "제목", example = "코인 시간표 기능 추가")
     String title
 ) {
-    public static ActivityResponse of(Activity activity, List<String> imageUrls) {
+    public static ActivityResponse from(Activity activity, List<String> imageUrls) {
         return new ActivityResponse(
             activity.getDate(),
             activity.getIsDeleted(),

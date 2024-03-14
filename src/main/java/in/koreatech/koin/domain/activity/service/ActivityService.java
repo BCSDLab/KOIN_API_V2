@@ -2,10 +2,10 @@ package in.koreatech.koin.domain.activity.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-import org.json.JSONArray;
 import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.domain.activity.dto.ActivityResponse;
@@ -19,7 +19,7 @@ public class ActivityService {
 
     private final ActivityRepository activityRepository;
 
-    public List<ActivityResponse> getActivities(String year) {
+    public Map<String, List<ActivityResponse>> getActivities(String year) {
         List<Activity> activities;
 
         // String으로 되어 있는 imageURLs를 리스트로 바꿔주기 위한 과정
@@ -30,10 +30,10 @@ public class ActivityService {
             activities = activityRepository.getActivitiesByYear(year);
         }
 
-        return imageurlStringToList(activities);
+        return imageUrlStringToList(activities);
     }
 
-    private List<ActivityResponse> imageurlStringToList(List<Activity> activities) {
+    private Map<String, List<ActivityResponse>> imageUrlStringToList(List<Activity> activities) {
         List<ActivityResponse> activityResponseList = new ArrayList<ActivityResponse>();
 
         // string으로 들어 있는 image를 list로 반환
@@ -52,9 +52,15 @@ public class ActivityService {
             catch (Exception e) {
                 list.add(urls);
             }
-            activityResponseList.add(ActivityResponse.of(activity, list));
+            activityResponseList.add(ActivityResponse.from(activity, list));
         }
 
-        return activityResponseList;
+        return listToMap("Activities", activityResponseList);
+    }
+
+    private Map<String, List<ActivityResponse>> listToMap(String name, List<ActivityResponse> activityResponseList) {
+        Map<String, List<ActivityResponse>> actvitiesMap = new HashMap<>();
+        actvitiesMap.put(name, activityResponseList);
+        return actvitiesMap;
     }
 }

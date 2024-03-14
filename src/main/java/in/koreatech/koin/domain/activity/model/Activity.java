@@ -41,15 +41,6 @@ public class Activity extends BaseEntity {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    // @Builder
-    // public Activity(Long id, String title, String description, String imageUrls, String date, Boolean isDeleted) {
-    //     this.id = id;
-    //     this.title = title;
-    //     this.description = description;
-    //     this.imageUrls = imageUrls;
-    //     this.date = date;
-    //     this.isDeleted = isDeleted;
-    // }
     @Builder
     public Activity(Long id, String title, String description, String imageUrls, LocalDate date, Boolean isDeleted) {
         this.id = id;
