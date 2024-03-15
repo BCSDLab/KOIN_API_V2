@@ -35,7 +35,7 @@ public class Activity extends BaseEntity {
     private String imageUrls;
 
     @Column(name = "date")
-    // private String date;
+
     private LocalDate date;
 
     @Column(name = "is_deleted")
