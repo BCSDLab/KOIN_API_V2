@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.activity.dto.ActivityResponse;
 import in.koreatech.koin.domain.activity.service.ActivityService;
 
 @RestController
-public class ActivityController {
+public class ActivityController implements ActivityApi {
 
     @Autowired
     private ActivityService activityService;
