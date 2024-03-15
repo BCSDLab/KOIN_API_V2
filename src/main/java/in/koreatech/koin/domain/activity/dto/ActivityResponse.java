@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record ActivityResponse(
     @Schema(description = "활동 날짜", example = "2019-07-29")
-    // String date,
     LocalDate date,
 
     @Schema(description = "삭제 여부", example = "false")
