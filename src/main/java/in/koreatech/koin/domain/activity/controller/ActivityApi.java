@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.activity.controller;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,7 +21,7 @@ public interface ActivityApi {
     @ApiResponse(responseCode = "404", description = "해당하는 활동이 없음", content = @Content(schema = @Schema(hidden = true)))
     @Operation(summary = "BCSD Lab 활동 조회")
     @GetMapping("/activities")
-    ResponseEntity<ActivityResponse> getActivities(
+    ResponseEntity<Map<String, List<ActivityResponse>>> getActivities(
         @RequestParam(required = false) String year
     );
 }
