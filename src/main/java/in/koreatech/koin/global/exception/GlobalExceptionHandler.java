@@ -53,6 +53,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDateTimeParseException(DateTimeParseException e) {
         log.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse.from("잘못된 날짜 형식입니다. 올바른 형식: yyMMdd"));
+            .body(ErrorResponse.from("잘못된 날짜 형식입니다."));
     }
 }
