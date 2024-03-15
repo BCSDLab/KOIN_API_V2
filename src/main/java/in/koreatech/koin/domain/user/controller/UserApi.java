@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
@@ -96,7 +96,7 @@ public interface UserApi {
     @Operation(summary = "회원 탈퇴")
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/user")
-    ResponseEntity<UserTokenRefreshResponse> withdraw(
+    ResponseEntity<Void> withdraw(
         @Auth(permit = {STUDENT}) Long userId
     );
 
@@ -115,5 +115,19 @@ public interface UserApi {
     ResponseEntity<Void> checkUserEmailExist(
         @ModelAttribute("address")
         @Valid EmailCheckExistsRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "닉네임 중복 체크")
+    @GetMapping("/user/check/nickname")
+    ResponseEntity<Void> checkDuplicationOfNickname(
+        @ModelAttribute("nickname")
+        @Valid NicknameCheckExistsRequest request
     );
 }
