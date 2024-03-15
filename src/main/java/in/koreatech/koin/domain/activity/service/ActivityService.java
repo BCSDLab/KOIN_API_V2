@@ -23,11 +23,9 @@ public class ActivityService {
     public Map<String, List<ActivityResponse>> getActivities(String year) {
         List<Activity> activities;
 
-        // String으로 되어 있는 imageURLs를 리스트로 바꿔주기 위한 과정
-        // year parameter 값이 없는 경우 모든 값을 반환
         if (year == null) {
             activities = activityRepository.findAllByIsDeleted(false);
-        } else { // parameter가 있는 경우 해당 년도 값만 반환
+        } else {
             activities = activityRepository.getActivitiesByYear(year);
         }
 
@@ -49,9 +47,9 @@ public class ActivityService {
         if (imageUrls == null || imageUrls.trim().isEmpty()) {
             return Collections.emptyList();
         }
-        // 이미지 URL 분리 및 개행 문자 제거
+
         return Arrays.stream(imageUrls.split(","))
-            .map(String::trim) // 앞뒤 공백 제거
+            .map(String::trim)
             .map(url -> url.replace("\n", "").replace("\r", "")) // 개행 문자 제거
             .collect(Collectors.toList());
     }
