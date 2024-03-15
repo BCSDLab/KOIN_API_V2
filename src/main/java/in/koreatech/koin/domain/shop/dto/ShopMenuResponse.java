@@ -2,63 +2,72 @@ package in.koreatech.koin.domain.shop.dto;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
+import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.MenuImage;
 import in.koreatech.koin.domain.shop.model.MenuOption;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-@JsonNaming(value = SnakeCaseStrategy.class)
-public record ShopMenuResponse(Long id, Long shopId, String name, Boolean isHidden, Boolean isSingle,
-                               Integer singlePrice, List<InnerOptionPriceResponse> optionPrices, String description,
-                               List<Long> categoryIds, List<String> imageUrls) {
-
-    public static ShopMenuResponse createForSingleOption(Menu menu, List<MenuCategory> shopMenuCategories) {
-        if (menu.hasMultipleOption()) {
-            log.warn("{}는 옵션이 하나 이상인 메뉴입니다. createForMultipleOption 메서드를 이용해야 합니다.", menu);
-            throw new IllegalStateException("서버에 에러가 발생했습니다.");
-        }
-
+public record ShopMenuResponse(
+    Integer count,
+    List<InnerMenuCategoriesResponse> menuCategories
+) {
+    public static ShopMenuResponse createShopMenuResponse(List<MenuCategory> menuCategories) {
         return new ShopMenuResponse(
-            menu.getId(),
-            menu.getShopId(),
-            menu.getName(),
-            menu.getIsHidden(),
-            true,
-            menu.getMenuOptions().get(0).getPrice(),
-            null,
-            menu.getDescription(),
-            shopMenuCategories.stream().map(MenuCategory::getId).toList(),
-            menu.getMenuImages().stream().map(MenuImage::getImageUrl).toList()
+            menuCategories.size(),
+            menuCategories.stream().map(InnerMenuCategoriesResponse::of).toList()
         );
     }
 
-    public static ShopMenuResponse createForMultipleOption(Menu menu, List<MenuCategory> shopMenuCategories) {
-        if (!menu.hasMultipleOption()) {
-            log.error("{}는 옵션이 하나인 메뉴입니다. createForSingleOption 메서드를 이용해야 합니다.", menu);
-            throw new IllegalStateException("서버에 에러가 발생했습니다.");
+    public record InnerMenuCategoriesResponse(
+        Long id,
+        String name,
+        List<InnerMenuResponse> menuResponses
+    ) {
+        public static InnerMenuCategoriesResponse of(MenuCategory menuCategory) {
+            return new InnerMenuCategoriesResponse(
+                menuCategory.getId(),
+                menuCategory.getName(),
+                menuCategory.getMenuCategoryMaps().stream().map(InnerMenuResponse::of).toList()
+            );
         }
 
-        return new ShopMenuResponse(
-            menu.getId(),
-            menu.getShopId(),
-            menu.getName(),
-            menu.getIsHidden(),
-            false,
-            null,
-            menu.getMenuOptions().stream().map(InnerOptionPriceResponse::of).toList(), menu.getDescription(),
-            shopMenuCategories.stream().map(MenuCategory::getId).toList(),
-            menu.getMenuImages().stream().map(MenuImage::getImageUrl).toList()
-        );
-    }
+        public record InnerMenuResponse(
+            String description,
+            Long id,
+            List<String> imageUrls,
+            Boolean isHidden,
+            Boolean isSingle,
+            String name,
+            List<InnerOptionPrice> optionPrices,
+            Integer singlePrice
+        ) {
+            public static InnerMenuResponse of(MenuCategoryMap menuCategoryMap) {
+                Menu menu = menuCategoryMap.getMenu();
+                boolean isMultipleOption = menu.hasMultipleOption();
+                return new InnerMenuResponse(
+                    menu.getDescription(),
+                    menu.getId(),
+                    menu.getMenuImages().stream().map(MenuImage::getImageUrl).toList(),
+                    menu.getIsHidden(),
+                    isMultipleOption,
+                    menu.getName(),
+                    isMultipleOption? menu.getMenuOptions().stream().map(InnerOptionPrice::of).toList(): null,
+                    isMultipleOption? menu.getMenuOptions().get(0).getPrice(): null
+                );
+            }
 
-    private record InnerOptionPriceResponse(String option, Integer price) {
-        public static InnerOptionPriceResponse of(MenuOption menuOption) {
-            return new InnerOptionPriceResponse(menuOption.getOption(), menuOption.getPrice());
+            public record InnerOptionPrice(
+                String option,
+                Integer price
+            ) {
+                public static InnerOptionPrice of(MenuOption menuOption) {
+                    return new InnerOptionPrice(
+                        menuOption.getOption(),
+                        menuOption.getPrice()
+                    );
+                }
+            }
         }
     }
 }
