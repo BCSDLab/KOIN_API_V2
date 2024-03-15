@@ -2,9 +2,10 @@ package in.koreatech.koin.domain.activity.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -34,33 +35,24 @@ public class ActivityService {
     }
 
     private Map<String, List<ActivityResponse>> imageUrlStringToList(List<Activity> activities) {
-        List<ActivityResponse> activityResponseList = new ArrayList<ActivityResponse>();
+        List<ActivityResponse> activityResponseList = new ArrayList<>();
 
-        // string으로 들어 있는 image를 list로 반환
         for (Activity activity : activities) {
-            String urls = activity.getImageUrls();
-            List<String> list = new ArrayList<String>();
-
-            // image가 두 개 이상인 경우 //
-            try {
-                String[] array = urls.split(",");
-                List<String> imagelist = Arrays.asList(array);
-                list = imagelist;
-            }
-
-            //image가 한개인 경우
-            catch (Exception e) {
-                list.add(urls);
-            }
-            activityResponseList.add(ActivityResponse.from(activity, list));
+            List<String> imageUrlsList = parseImageUrls(activity.getImageUrls());
+            activityResponseList.add(ActivityResponse.from(activity, imageUrlsList));
         }
 
-        return listToMap("Activities", activityResponseList);
+        return Collections.singletonMap("Activities", activityResponseList);
     }
 
-    private Map<String, List<ActivityResponse>> listToMap(String name, List<ActivityResponse> activityResponseList) {
-        Map<String, List<ActivityResponse>> actvitiesMap = new HashMap<>();
-        actvitiesMap.put(name, activityResponseList);
-        return actvitiesMap;
+    private List<String> parseImageUrls(String imageUrls) {
+        if (imageUrls == null || imageUrls.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        // 이미지 URL 분리 및 개행 문자 제거
+        return Arrays.stream(imageUrls.split(","))
+            .map(String::trim) // 앞뒤 공백 제거
+            .map(url -> url.replace("\n", "").replace("\r", "")) // 개행 문자 제거
+            .collect(Collectors.toList());
     }
 }
