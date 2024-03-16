@@ -143,7 +143,7 @@ public class DiningApiTest extends AcceptanceTest {
     void nullDate() {
         Dining request1 = Dining.builder()
             .id(1L)
-            .date("2024-03-17")
+            .date("2024-03-16")
             .type("LUNCH")
             .place("A코스")
             .priceCard(6000)
