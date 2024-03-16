@@ -2,6 +2,9 @@ package in.koreatech.koin.domain.dining.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.dining.model.Dining;
@@ -34,7 +37,13 @@ public record DiningResponse(
     @Schema(description = "식단", example = """
         ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "오이소박이양념무침", "총각김치", "생야채샐러드&D", "누룽지탕"]
         """)
-    String menu
+    String menu,
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "생성 일자", example = "2024-03-15 14:02:48") LocalDateTime createdAt,
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "최신화 일자", example = "2024-03-15 14:02:48") LocalDateTime updatedAt
 ) {
     public static DiningResponse from(Dining dining) {
         return new DiningResponse(
@@ -45,7 +54,9 @@ public record DiningResponse(
             dining.getPriceCard(),
             dining.getPriceCash(),
             dining.getKcal(),
-            dining.getMenu()
+            dining.getMenu(),
+            dining.getCreatedAt(),
+            dining.getUpdatedAt()
         );
     }
 }

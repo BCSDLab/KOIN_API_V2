@@ -1,8 +1,10 @@
 package in.koreatech.koin.domain.dining.model;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "dinings")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonNaming(SnakeCaseStrategy.class)
-public class Dining {
+public class Dining extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
