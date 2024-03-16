@@ -11,6 +11,9 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: create
+  thymeleaf:
+    prefix: "classpath:/mail/"
+    suffix: ".html"
 
 logging:
   level:
@@ -22,3 +25,11 @@ logging:
 
 swagger:
   server-url: http://localhost:8080
+
+slack:
+  notify_koin_event_url:
+
+aws:
+  ses:
+    access-key:
+    secret-key:

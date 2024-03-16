@@ -8,19 +8,9 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
-<<<<<<< HEAD
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-=======
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
->>>>>>> feature/99-get-bus-shuttle-and-commuting
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -34,23 +24,19 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
-@ExtendWith(MockitoExtension.class)
 class BusApiTest extends AcceptanceTest {
 
     @Autowired
     private BusRepository busRepository;
 
-    @BeforeEach
-    void mockingClock() {
-        when(clock.instant()).thenReturn(
-            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-    }
-
     @Test
     @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
     void getNextShuttleBusRemainTime() {
         final String arrivalTime = "18:10";
+
+        when(clock.instant()).thenReturn(
+            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
 
         BusType busType = BusType.from("shuttle");
         BusStation depart = BusStation.from("koreatech");

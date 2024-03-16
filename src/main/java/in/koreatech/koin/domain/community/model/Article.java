@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.community.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +9,7 @@ import org.hibernate.annotations.Where;
 import org.jsoup.Jsoup;
 
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.global.common.BaseEntity;
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,7 +26,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,7 +34,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "articles")
 @Where(clause = "is_deleted=0")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 public class Article extends BaseEntity {
 
     private static final int SUMMARY_MIN_LENGTH = 0;

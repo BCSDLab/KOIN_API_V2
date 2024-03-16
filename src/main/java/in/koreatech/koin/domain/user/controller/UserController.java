@@ -5,10 +5,13 @@ import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -61,10 +64,27 @@ public class UserController implements UserApi {
     }
 
     @DeleteMapping("/user")
-    public ResponseEntity<UserTokenRefreshResponse> withdraw(
+    public ResponseEntity<Void> withdraw(
         @Auth(permit = {STUDENT}) Long userId
     ) {
         userService.withdraw(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/user/check/email")
+    public ResponseEntity<Void> checkUserEmailExist(
+        @ModelAttribute(value = "address")
+        @Valid EmailCheckExistsRequest request
+    ) {
+        userService.checkExistsEmail(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/user/check/nickname")
+    public ResponseEntity<Void> checkDuplicationOfNickname(
+        @ModelAttribute("nickname")
+        @Valid NicknameCheckExistsRequest request) {
+        userService.checkUserNickname(request);
+        return ResponseEntity.ok().build();
     }
 }

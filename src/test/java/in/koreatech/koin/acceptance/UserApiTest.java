@@ -185,4 +185,173 @@ class UserApiTest extends AcceptanceTest {
 
         Assertions.assertThat(userRepository.findById(user.getId())).isNotPresent();
     }
+
+    @Test
+    @DisplayName("이메일이 중복인지 확인한다")
+    void emailCheckExists() {
+        String email = "test@koreatech.ac.kr";
+
+        RestAssured
+            .given()
+            .param("address", email)
+            .when()
+            .get("/user/check/email")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Assertions.assertThat(userRepository.findByEmail(email)).isNotPresent();
+    }
+
+    @Test
+    @DisplayName("이메일이 중복인지 확인한다 - 이메일을 보내지 않으면 400")
+    void emailCheckExistsNull() {
+        RestAssured
+            .when()
+            .get("/user/check/email")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("이메일이 중복인지 확인한다 - 잘못된 이메일 형식이면 400")
+    void emailCheckExistsWrongFormat() {
+        String email = "wrong email format";
+
+        RestAssured
+            .given()
+            .param("address", email)
+            .when()
+            .get("/user/check/email")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("이메일이 중복인지 확인한다 - 중복이면 422")
+    void emailCheckExistsAlreadyExists() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .param("address", user.getEmail())
+            .when()
+            .get("/user/check/email")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .extract();
+
+        Assertions.assertThat(response.body().jsonPath().getString("message"))
+            .isEqualTo("이미 존재하는 데이터입니다.");
+    }
+
+    @Test
+    @DisplayName("닉네임 중복일때 상태코드 409를 반환한다.")
+    void checkDuplicationOfNicknameConflict(){
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .param("nickname", user.getNickname())
+            .get("/user/check/nickname")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .extract();
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getString("message")).isEqualTo("이미 존재하는 데이터입니다.");
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("닉네임 중복이 아닐시 상태코드 200을 반환한다.")
+    void checkDuplicationOfNickname() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .param("nickname", "철수")
+            .get("/user/check/nickname")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("닉네임 제약조건 위반시 상태코드 400를 반환한다.")
+    void checkDuplicationOfNicknameBadRequest() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+
+        RestAssured
+            .given()
+            .when()
+            .param("nickname", "철".repeat(11))
+            .get("/user/check/nickname")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+
+        RestAssured
+            .given()
+            .when()
+            .param("nickname", "")
+            .get("/user/check/nickname")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
 }
