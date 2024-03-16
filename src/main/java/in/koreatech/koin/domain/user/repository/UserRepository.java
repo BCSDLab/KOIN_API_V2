@@ -15,6 +15,8 @@ public interface UserRepository extends Repository<User, Long> {
 
     Optional<User> findById(Long id);
 
+    Optional<User> findByNickname(String nickname);
+
     default User getByEmail(String email) {
         return findByEmail(email)
             .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
@@ -23,6 +25,11 @@ public interface UserRepository extends Repository<User, Long> {
     default User getById(Long userId) {
         return findById(userId)
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
+    }
+
+    default User getByNickname(String nickname) {
+        return findByNickname(nickname)
+            .orElseThrow(() -> UserNotFoundException.withDetail("nickname: " + nickname));
     }
 
     void delete(User user);

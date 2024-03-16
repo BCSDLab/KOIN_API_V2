@@ -346,7 +346,7 @@ class ShopApiTest extends AcceptanceTest {
     void getShop() {
         // given
         ShopOpen open1 = ShopOpen.builder()
-            .openTime(LocalTime.of(9, 0))
+            .openTime(LocalTime.of(0, 0))
             .closeTime(LocalTime.of(21, 0))
             .shop(shop)
             .closed(false)
@@ -354,8 +354,8 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         ShopOpen open2 = ShopOpen.builder()
-            .openTime(LocalTime.of(10, 0))
-            .closeTime(LocalTime.of(20, 30))
+            .openTime(LocalTime.of(0, 0))
+            .closeTime(LocalTime.of(0, 0))
             .shop(shop)
             .closed(false)
             .dayOfWeek("FRIDAY")

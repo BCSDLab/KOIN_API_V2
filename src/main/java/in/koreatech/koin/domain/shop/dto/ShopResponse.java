@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.shop.dto;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -105,6 +105,8 @@ public record ShopResponse(
             shop.getUpdatedAt()
         );
     }
+
+    @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerShopOpen(
         @Schema(example = "MONDAY", description = """
             요일 = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
