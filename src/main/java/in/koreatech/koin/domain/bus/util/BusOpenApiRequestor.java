@@ -2,14 +2,18 @@ package in.koreatech.koin.domain.bus.util;
 
 import static java.net.URLEncoder.encode;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +68,7 @@ public class BusOpenApiRequestor {
      *
      * 현재: 레디스에 각 노드별 정보를 비어있어도 전부 저장한다.
      * 구상: mysql에 버전 최신화 시각 정보를 기준으로 판단한다. -> 정보가 없는건 저장하지 않아도 된다. -> 성능 향상
-     * -> Pair 미사용 가능
+     *
      *
      * BusRemainTIme 대신 ArrivalInfo를 하는게 확장성에 유리
      */
@@ -85,23 +89,17 @@ public class BusOpenApiRequestor {
     }
 
     private void getAllCityBusArrivalInfoByOpenApi() {
-        List<Pair<String, List<CityBusArrivalInfo>>> arrivalInfosList = BusStationNode.getNodeIds().stream()
+        List<List<CityBusArrivalInfo>> arrivalInfosList = BusStationNode.getNodeIds().stream()
             .map(this::getOpenApiResponse)
             .map(this::extractBusArrivalInfo)
-            .map(arrivalInfo -> {
-                if (arrivalInfo.getSecond().isEmpty()) {
-                    return Pair.of(arrivalInfo.getFirst(),
-                        List.of(CityBusArrivalInfo.getEmpty(arrivalInfo.getFirst())));
-                }
-                return arrivalInfo;
-            })
             .toList();
 
+        //TODO: 아래 내용 for문으로 수정(save는 forEach에서 하면 이슈 발생)
         arrivalInfosList.forEach(arrivalInfos ->
             cityBusCacheRepository.save(
                 CityBusCache.create(
-                    arrivalInfos.getFirst(),
-                    arrivalInfos.getSecond().stream()
+                    arrivalInfos.get(0).getNodeid(), //TODO: 비어있는 정보는 저장 전에 걸러내야 할 거임 (안그러면 에러남)
+                    arrivalInfos.stream()
                         .map(CityBusArrivalInfo::getArrtime)
                         .toList()
                 )
@@ -109,11 +107,9 @@ public class BusOpenApiRequestor {
         );
     }
 
-    private Pair<String, String> getOpenApiResponse(String nodeId) {
-        // try {
-            //TODO:TEST용, 지우기
-            return Pair.of(nodeId, "");
-            /*URL url = new URL(getRequestURL(CHEONAN_CITY_CODE, nodeId));
+    private String getOpenApiResponse(String nodeId) {
+        try {
+            URL url = new URL(getRequestURL(CHEONAN_CITY_CODE, nodeId));
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "application/json");
@@ -132,11 +128,10 @@ public class BusOpenApiRequestor {
             }
             input.close();
             conn.disconnect();
-            return Pair.of(nodeId, response.toString());
+            return response.toString();
         } catch (IOException e) {
-            //TODO: 외부 API 호출 예외처리
-            return Pair.of(nodeId, "");
-        }*/
+            return null;
+        }
     }
 
     private String getRequestURL(String cityCode, String nodeId) throws UnsupportedEncodingException {
@@ -150,37 +145,11 @@ public class BusOpenApiRequestor {
         return urlBuilder.toString();
     }
 
-    private Pair<String, List<CityBusArrivalInfo>> extractBusArrivalInfo(Pair<String, String> jsonResponse) {
-        jsonResponse = Pair.of("CAB285000405",
-            "{\n"
-                + "\"response\": {\n"
-                + "\"header\": {\n"
-                + "\"resultCode\": \"00\",\n"
-                + "\"resultMsg\": \"NORMAL SERVICE.\"\n"
-                + "},\n"
-                + "\"body\": {\n"
-                + "\"items\": {\n"
-                + "\"item\": {\n"
-                + "\"arrprevstationcnt\": 4,\n"
-                + "\"arrtime\": 218,\n"
-                + "\"nodeid\": \"CAB285000405\",\n"
-                + "\"nodenm\": \"코리아텍\",\n"
-                + "\"routeid\": \"CAB285000143\",\n"
-                + "\"routeno\": 400,\n"
-                + "\"routetp\": \"일반버스\",\n"
-                + "\"vehicletp\": \"일반차량\"\n"
-                + "}\n"
-                + "},\n"
-                + "\"numOfRows\": 30,\n"
-                + "\"pageNo\": 1,\n"
-                + "\"totalCount\": 1\n"
-                + "}\n"
-                + "}\n"
-                + "}");
+    private List<CityBusArrivalInfo> extractBusArrivalInfo(String jsonResponse) {
         List<CityBusArrivalInfo> result = new ArrayList<>();
 
         try {
-            JsonObject response = JsonParser.parseString(jsonResponse.getSecond())
+            JsonObject response = JsonParser.parseString(jsonResponse)
                 .getAsJsonObject()
                 .get("response")
                 .getAsJsonObject();
@@ -188,7 +157,7 @@ public class BusOpenApiRequestor {
             JsonObject body = response.get("body").getAsJsonObject();
 
             if (body.get("totalCount").getAsLong() == 0) {
-                return Pair.of(jsonResponse.getFirst(), result);
+                return result;
             }
 
             JsonElement item = body.get("items").getAsJsonObject().get("item");
@@ -198,9 +167,9 @@ public class BusOpenApiRequestor {
             if (item.isJsonObject()) {
                 result.add(gson.fromJson(item, CityBusArrivalInfo.class));
             }
-            return Pair.of(jsonResponse.getFirst(), result);
+            return result;
         } catch (JsonSyntaxException e) {
-            return Pair.of(jsonResponse.getFirst(), result);
+            return result;
         }
     }
 
