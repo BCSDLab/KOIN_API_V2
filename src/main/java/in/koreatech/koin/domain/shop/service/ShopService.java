@@ -71,6 +71,6 @@ public class ShopService {
 
     public ShopMenuResponse getShopMenu(Long shopId) {
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shopId);
-        return ShopMenuResponse.createShopMenuResponse(menuCategories);
+        return ShopMenuResponse.from(menuCategories);
     }
 }

@@ -462,7 +462,6 @@ class ShopApiTest extends AcceptanceTest {
         MenuCategoryMap menuCategoryMap1 = MenuCategoryMap.create();
         menuCategoryRepository.save(menuCategory1);
 
-        // when then
         menuOption1.setMenu(menu1);
         menuOption2.setMenu(menu1);
         menuImage1.setMenu(menu1);
@@ -503,7 +502,6 @@ class ShopApiTest extends AcceptanceTest {
         MenuCategoryMap menuCategoryMap2 = MenuCategoryMap.create();
         menuCategoryRepository.save(menuCategory2);
 
-        // when then
         menuOption3.setMenu(menu2);
         menuOption4.setMenu(menu2);
         menuImage3.setMenu(menu2);
@@ -533,7 +531,6 @@ class ShopApiTest extends AcceptanceTest {
 
         MenuCategoryMap menuCategoryMap3 = MenuCategoryMap.create();
 
-        // when then
         menuOption5.setMenu(menu3);
         menuImage5.setMenu(menu3);
         menuImage6.setMenu(menu3);
@@ -547,7 +544,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/1/menus")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
