@@ -64,7 +64,8 @@ class ActivityApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
-            .get("/activities?year=2019")
+            .param("year", 2019)
+            .get("/activities")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
