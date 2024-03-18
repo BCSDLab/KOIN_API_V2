@@ -1,5 +1,8 @@
 package in.koreatech.koin.acceptance;
 
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
@@ -11,8 +14,14 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
+import in.koreatech.koin.domain.timetable.model.TimeTable;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
+import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.JwtProvider;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -25,6 +34,15 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Autowired
     private SemesterRepository semesterRepository;
+
+    @Autowired
+    private TimeTableRepository timeTableRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JwtProvider jwtProvider;
 
     @Test
     @DisplayName("특정 학기 강의를 조회한다")
@@ -239,5 +257,164 @@ class TimetableApiTest extends AcceptanceTest {
             .extract();
 
         assertThat(response.body().jsonPath().getList(".")).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("시간표를 조회한다.")
+    void getTimeTables(){
+        User userT = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        User user = userRepository.save(userT);
+        String token = jwtProvider.createToken(user);
+
+        Semester semesterT = Semester.builder().
+            semester("20192")
+            .build();
+
+        Semester semester = semesterRepository.save(semesterT);
+
+        TimeTable timeTable1 = TimeTable.builder()
+            .user(user)
+            .semester(semester)
+            .code("CS101")
+            .classTitle("컴퓨터 구조")
+            .classTime("[14, 15, 16, 17, 204, 205, 206, 207]")
+            .classPlace(null)
+            .professor("김철수")
+            .grades("3")
+            .lectureClass("02")
+            .target("컴부전체")
+            .regularNumber("28")
+            .designScore("0")
+            .department("컴퓨터공학부")
+            .memo(null)
+            .isDeleted(false)
+            .build();
+
+        TimeTable timeTable2 = TimeTable.builder()
+            .user(user)
+            .semester(semester)
+            .code("CS102")
+            .classTitle("운영체제")
+            .classTime("[932]")
+            .classPlace(null)
+            .professor("홍길동")
+            .grades("3")
+            .lectureClass("01")
+            .target("컴부전체")
+            .regularNumber("40")
+            .designScore("0")
+            .department("컴퓨터공학부")
+            .memo(null)
+            .isDeleted(false)
+            .build();
+
+        TimeTable timeTable3 = TimeTable.builder()
+            .user(user)
+            .semester(semester)
+            .code("CS102")
+            .classTitle("운영체제")
+            .classTime("[]")
+            .classPlace(null)
+            .professor("홍길동")
+            .grades("3")
+            .lectureClass("01")
+            .target("컴부전체")
+            .regularNumber("40")
+            .designScore("0")
+            .department("컴퓨터공학부")
+            .memo(null)
+            .isDeleted(false)
+            .build();
+
+        timeTableRepository.save(timeTable1);
+        timeTableRepository.save(timeTable2);
+        timeTableRepository.save(timeTable3);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .param("semester", "20192")
+            .get("/timetables")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getString("[0].code")).
+                    isEqualTo(timeTable1.getCode());
+                softly.assertThat(response.body().jsonPath().getString("[0].class_title")).
+                    isEqualTo(timeTable1.getClassTitle());
+                softly.assertThat(response.body().jsonPath().getList("[0].class_time", Integer.class))
+                        .containsExactlyInAnyOrderElementsOf(List.of(14, 15, 16, 17, 204, 205, 206, 207));
+                softly.assertThat(response.body().jsonPath().getString("[0].class_place"))
+                    .isEqualTo(timeTable1.getClassPlace());
+                softly.assertThat(response.body().jsonPath().getString("[0].professor"))
+                    .isEqualTo(timeTable1.getProfessor());
+                softly.assertThat(response.body().jsonPath().getString("[0].grades"))
+                    .isEqualTo(timeTable1.getGrades());
+                softly.assertThat(response.body().jsonPath().getString("[0].lecture_class")).
+                    isEqualTo(timeTable1.getLectureClass());
+                softly.assertThat(response.body().jsonPath().getString("[0].target"))
+                    .isEqualTo(timeTable1.getTarget());
+                softly.assertThat(response.body().jsonPath().getString("[0].regular_number"))
+                    .isEqualTo(timeTable1.getRegularNumber());
+                softly.assertThat(response.body().jsonPath().getString("[0].design_score"))
+                    .isEqualTo(timeTable1.getDesignScore());
+                softly.assertThat(response.body().jsonPath().getString("[0].department"))
+                    .isEqualTo(timeTable1.getDepartment());
+                softly.assertThat(response.body().jsonPath().getList("[0].memo"))
+                    .isEqualTo(timeTable1.getMemo());
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("조회된 시간표가 없으면 404에러를 반환한다.")
+    void getTimeTablesNotFound(){
+        User userT = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        User user = userRepository.save(userT);
+        String token = jwtProvider.createToken(user);
+
+        Semester semester = Semester.builder().
+            semester("20192")
+            .build();
+
+        semesterRepository.save(semester);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .param("semester", "20192")
+            .get("/timetables")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .extract();
+
     }
 }
