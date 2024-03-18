@@ -27,7 +27,7 @@ class ActivityApiTest extends AcceptanceTest {
             .title("BCSD/KAP 통합")
             .description("BCSD와 KAP가 통합되었습니다.")
             .imageUrls(
-                "https://static.koreatech.in/upload/a26brbr.png")
+                "https://test.com.png")
             .date(LocalDate.of(2018, 9, 12))
             .isDeleted(false)
             .build();
@@ -36,8 +36,8 @@ class ActivityApiTest extends AcceptanceTest {
             .title("19-3기 모집")
             .description("BCSD Lab과 함께 성장해나갈 인재를 모집했습니다.")
             .imageUrls("""
-                https://static.koreatech.in/upload/a1tt.png,
-                https://static.koreatech.in/upload/a4bc.png
+                https://test2.com.png,
+                https://test3.com.png
                 """)
             .date(LocalDate.of(2019, 7, 29))
             .isDeleted(false)
@@ -47,7 +47,7 @@ class ActivityApiTest extends AcceptanceTest {
             .title("코인 시간표 기능 추가")
             .description("더 편리한 서비스 제공을 위해 시간표 기능을 추가했습니다")
             .imageUrls(
-                "https://static.koreatech.in/upload/a2tt.png"
+                "https://test4.com.png"
             )
             .date(LocalDate.of(2019, 8, 20))
             .isDeleted(false)
@@ -106,7 +106,7 @@ class ActivityApiTest extends AcceptanceTest {
             .title("BCSD/KAP 통합")
             .description("BCSD와 KAP가 통합되었습니다.")
             .imageUrls(
-                "https://static.koreatech.in/upload/a26brbr.png")
+                "https://test.com.png")
             .date(LocalDate.of(2018, 9, 12))
             .isDeleted(false)
             .build();
@@ -115,8 +115,8 @@ class ActivityApiTest extends AcceptanceTest {
             .title("19-3기 모집")
             .description("BCSD Lab과 함께 성장해나갈 인재를 모집했습니다.")
             .imageUrls("""
-                https://static.koreatech.in/upload/a1tt.png,
-                https://static.koreatech.in/upload/a4bc.png
+                https://test2.com.png,
+                https://test3.com.png
                 """)
             .date(LocalDate.of(2019, 7, 29))
             .isDeleted(false)
@@ -126,7 +126,7 @@ class ActivityApiTest extends AcceptanceTest {
             .title("코인 시간표 기능 추가")
             .description("더 편리한 서비스 제공을 위해 시간표 기능을 추가했습니다")
             .imageUrls(
-                "https://static.koreatech.in"
+                "https://test4.com.png"
             )
             .date(LocalDate.of(2019, 8, 20))
             .isDeleted(false)
