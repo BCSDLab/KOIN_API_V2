@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.dining.dto.DiningResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,6 +30,6 @@ public interface DiningApi {
     @GetMapping("/dinings")
     ResponseEntity<List<DiningResponse>> getDinings(
         @DateTimeFormat(pattern = "yyMMdd")
-        @RequestParam(required = false) LocalDate date
+        @Parameter(description = "조회 날짜(yyMMdd)") @RequestParam(required = false) LocalDate date
     );
 }
