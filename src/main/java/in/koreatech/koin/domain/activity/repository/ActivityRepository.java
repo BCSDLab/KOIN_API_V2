@@ -13,7 +13,7 @@ public interface ActivityRepository extends Repository<Activity, Long> {
     @Query(value = "SELECT * FROM activities WHERE is_deleted = 0 AND YEAR(date) = :year", nativeQuery = true)
     List<Activity> getActivitiesByYear(@Param("year") String year);
 
-    List<Activity> findAllByIsDeleted(boolean bool);
+    List<Activity> findAllByIsDeleted(boolean isDeleted);
 
     Activity save(Activity activity);
 }

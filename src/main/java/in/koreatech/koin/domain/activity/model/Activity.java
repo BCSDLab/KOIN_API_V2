@@ -30,19 +30,17 @@ public class Activity extends BaseEntity {
     @Column(name = "description")
     private String description;
 
-    // @Pattern(regexp = "\\[([\\\"\\']https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&\\/\\/=]*)[\\\"\\'],?\\s*)*\\]", message = "이미지 링크 형식이 올바르지 않습니다.")
     @Column(name = "image_urls")
     private String imageUrls;
 
     @Column(name = "date")
-
     private LocalDate date;
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
     @Builder
-    public Activity(Long id, String title, String description, String imageUrls, LocalDate date, Boolean isDeleted) {
+    private Activity(Long id, String title, String description, String imageUrls, LocalDate date, Boolean isDeleted) {
         this.id = id;
         this.title = title;
         this.description = description;

@@ -62,11 +62,11 @@ class ActivityApiTest extends AcceptanceTest {
         LocalDate expectedDate3 = request3.getDate();
 
         ExtractableResponse<Response> response = RestAssured
-            .given().log().all()
+            .given()
             .when()
             .get("/activities?year=2019")
-            .then().log().all()
-            .statusCode(HttpStatus.OK.value()).log().all()
+            .then()
+            .statusCode(HttpStatus.OK.value())
             .extract();
 
         SoftAssertions.assertSoftly(
@@ -97,7 +97,6 @@ class ActivityApiTest extends AcceptanceTest {
                     .isEqualTo(activity3.getIsDeleted());
             }
         );
-
     }
 
     @Test
@@ -142,11 +141,11 @@ class ActivityApiTest extends AcceptanceTest {
         LocalDate expectedDate3 = request3.getDate(); // LocalDate 객체
 
         ExtractableResponse<Response> response = RestAssured
-            .given().log().all()
-            .when().log().all()
+            .given()
+            .when()
             .get("/activities")
-            .then().log().all()
-            .statusCode(HttpStatus.OK.value()).log().all()
+            .then()
+            .statusCode(HttpStatus.OK.value())
             .extract();
 
         SoftAssertions.assertSoftly(
@@ -177,7 +176,5 @@ class ActivityApiTest extends AcceptanceTest {
                     .isEqualTo(activity2.getIsDeleted());
             }
         );
-
     }
-
 }
