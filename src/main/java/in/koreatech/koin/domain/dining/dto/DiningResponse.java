@@ -3,6 +3,9 @@ package in.koreatech.koin.domain.dining.dto;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -35,9 +38,8 @@ public record DiningResponse(
     Integer kcal,
 
     @Schema(description = "식단", example = """
-        ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "오이소박이양념무침", "총각김치", "생야채샐러드&D", "누룽지탕"]
-        """)
-    String menu,
+        ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "총각김치", "생야채샐러드&D", "누룽지탕"]""")
+    List<String> menu,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "생성 일자", example = "2024-03-15 14:02:48") LocalDateTime createdAt,
@@ -54,9 +56,17 @@ public record DiningResponse(
             dining.getPriceCard(),
             dining.getPriceCash(),
             dining.getKcal(),
-            dining.getMenu(),
+            toListMenus(dining.getMenu()),
             dining.getCreatedAt(),
             dining.getUpdatedAt()
         );
+    }
+
+    public static List<String> toListMenus(String menu) {
+        menu = menu.substring(1, menu.length() - 1);
+        List<String> menus = Stream.of(menu.split(","))
+            .map(str -> str.trim().replaceAll("\"", ""))
+            .collect(Collectors.toList());
+        return menus;
     }
 }
