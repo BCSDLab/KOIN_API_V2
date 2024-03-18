@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.dining.service;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -18,9 +19,11 @@ public class DiningService {
 
     private final DiningRepository diningRepository;
 
+    private final Clock clock;
+
     public List<DiningResponse> getDinings(LocalDate date) {
         if (date == null) {
-            date = LocalDate.now();
+            date = LocalDate.now(clock);
         }
         return diningRepository.findAllByDate(date.format(DateTimeFormatter.ISO_DATE))
             .stream()

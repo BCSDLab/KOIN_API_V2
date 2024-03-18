@@ -1,6 +1,13 @@
 package in.koreatech.koin.acceptance;
 
+import static io.restassured.RestAssured.given;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static org.mockito.Mockito.when;
+
+import java.time.Clock;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
@@ -11,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
-import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
@@ -21,7 +27,7 @@ public class DiningApiTest extends AcceptanceTest {
     private DiningRepository diningRepository;
 
     @Test
-    @DisplayName("오늘 날짜의 모든 식단들을 조회한다.")
+    @DisplayName("특정 날짜의 모든 식단들을 조회한다.")
     void findDinings() {
         Dining request1 = Dining.builder()
             .id(1L)
@@ -32,8 +38,7 @@ public class DiningApiTest extends AcceptanceTest {
             .priceCash(6000)
             .kcal(881)
             .menu("""
-                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]
-                """)
+                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
             .build();
 
         Dining request2 = Dining.builder()
@@ -45,8 +50,7 @@ public class DiningApiTest extends AcceptanceTest {
             .priceCash(6000)
             .kcal(881)
             .menu("""
-                ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]
-                """)
+                ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]""")
             .build();
 
         Dining request3 = Dining.builder()
@@ -58,21 +62,22 @@ public class DiningApiTest extends AcceptanceTest {
             .priceCash(6000)
             .kcal(300)
             .menu("""
-                ["참치김치볶음밥", "유부된장국", "땡초부추전", "누룽지탕"]
-                """)
+                ["참치김치볶음밥", "유부된장국", "땡초부추전", "누룽지탕"]""")
             .build();
 
         Dining dining1 = diningRepository.save(request1);
         Dining dining2 = diningRepository.save(request2);
         Dining dining3 = diningRepository.save(request3);
 
-        ExtractableResponse<Response> response = RestAssured
-            .given()
+        ExtractableResponse<Response> response = given()
             .when()
             .get("/dinings?date=240311")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
+
+        List<String> menus1 = List.of("병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕");
+        List<String> menus2 = List.of("참치김치볶음밥", "유부된장국", "땡초부추전", "누룽지탕");
 
         SoftAssertions.assertSoftly(
             softly -> {
@@ -91,7 +96,8 @@ public class DiningApiTest extends AcceptanceTest {
                     .isEqualTo(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 softly.assertThat(response.body().jsonPath().getString("[0].updated_at"))
                     .isEqualTo(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                softly.assertThat(response.body().jsonPath().getString("[0].menu")).isEqualTo(dining1.getMenu());
+                softly.assertThat(response.body().jsonPath().getList("[0].menu", String.class))
+                    .containsExactlyInAnyOrderElementsOf(menus1);
 
                 softly.assertThat(response.body().jsonPath().getLong("[1].id")).isEqualTo(dining3.getId());
                 softly.assertThat(response.body().jsonPath().getString("[1].date")).isEqualTo(dining3.getDate());
@@ -106,7 +112,9 @@ public class DiningApiTest extends AcceptanceTest {
                     .isEqualTo(dining3.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 softly.assertThat(response.body().jsonPath().getString("[1].updated_at"))
                     .isEqualTo(dining3.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                softly.assertThat(response.body().jsonPath().getString("[1].menu")).isEqualTo(dining3.getMenu());
+                softly.assertThat(response.body().jsonPath().getList("[1].menu", String.class))
+                    .containsExactlyInAnyOrderElementsOf(menus2);
+
             }
         );
     }
@@ -123,14 +131,12 @@ public class DiningApiTest extends AcceptanceTest {
             .priceCash(6000)
             .kcal(881)
             .menu("""
-                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]
-                """)
+                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
             .build();
 
         Dining dining = diningRepository.save(request);
 
-        RestAssured
-            .given()
+        given()
             .when()
             .get("/dinings?date=20240311")
             .then()
@@ -141,6 +147,10 @@ public class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("날짜가 비어있다. - 오늘 날짜를 받아 조회한다.")
     void nullDate() {
+        when(clock.instant()).thenReturn(
+            ZonedDateTime.parse("2024-03-16 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+
         Dining request1 = Dining.builder()
             .id(1L)
             .date("2024-03-16")
@@ -150,8 +160,7 @@ public class DiningApiTest extends AcceptanceTest {
             .priceCash(6000)
             .kcal(881)
             .menu("""
-                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]
-                """)
+                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "총각김치"]""")
             .build();
 
         Dining request2 = Dining.builder()
@@ -163,15 +172,15 @@ public class DiningApiTest extends AcceptanceTest {
             .priceCash(6000)
             .kcal(881)
             .menu("""
-                ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]
-                """)
+                ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]""")
             .build();
 
         Dining dining1 = diningRepository.save(request1);
         Dining dining2 = diningRepository.save(request2);
 
-        ExtractableResponse<Response> response = RestAssured
-            .given()
+        List<String> menus = List.of("병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "총각김치");
+
+        ExtractableResponse<Response> response = given()
             .when()
             .get("/dinings")
             .then()
@@ -195,7 +204,8 @@ public class DiningApiTest extends AcceptanceTest {
                     .isEqualTo(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 softly.assertThat(response.body().jsonPath().getString("[0].updated_at"))
                     .isEqualTo(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                softly.assertThat(response.body().jsonPath().getString("[0].menu")).isEqualTo(dining1.getMenu());
+                softly.assertThat(response.body().jsonPath().getList("[0].menu", String.class))
+                    .containsExactlyInAnyOrderElementsOf(menus);
             }
         );
     }
