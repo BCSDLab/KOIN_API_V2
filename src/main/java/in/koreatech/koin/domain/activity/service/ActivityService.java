@@ -1,15 +1,14 @@
 package in.koreatech.koin.domain.activity.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.activity.dto.ActivitiesResponseDTO;
 import in.koreatech.koin.domain.activity.dto.ActivityResponse;
 import in.koreatech.koin.domain.activity.model.Activity;
 import in.koreatech.koin.domain.activity.repository.ActivityRepository;
@@ -22,7 +21,7 @@ public class ActivityService {
 
     private final ActivityRepository activityRepository;
 
-    public Map<String, List<ActivityResponse>> getActivities(String year) {
+    public ActivitiesResponseDTO getActivities(String year) {
         List<Activity> activities;
 
         if (year == null) {
@@ -31,18 +30,14 @@ public class ActivityService {
             activities = activityRepository.getActivitiesByYear(year);
         }
 
-        return imageUrlStringToList(activities);
-    }
+        List<ActivityResponse> activityResponseList = activities.stream()
+            .map(activity -> {
+                List<String> imageUrlsList = parseImageUrls(activity.getImageUrls());
+                return ActivityResponse.from(activity, imageUrlsList);
+            })
+            .collect(Collectors.toList());
 
-    private Map<String, List<ActivityResponse>> imageUrlStringToList(List<Activity> activities) {
-        List<ActivityResponse> activityResponseList = new ArrayList<>();
-
-        for (Activity activity : activities) {
-            List<String> imageUrlsList = parseImageUrls(activity.getImageUrls());
-            activityResponseList.add(ActivityResponse.from(activity, imageUrlsList));
-        }
-
-        return Collections.singletonMap("Activities", activityResponseList);
+        return new ActivitiesResponseDTO(activityResponseList);
     }
 
     private List<String> parseImageUrls(String imageUrls) {
