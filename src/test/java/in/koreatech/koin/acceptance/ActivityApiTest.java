@@ -26,8 +26,7 @@ class ActivityApiTest extends AcceptanceTest {
         Activity request1 = Activity.builder()
             .title("BCSD/KAP 통합")
             .description("BCSD와 KAP가 통합되었습니다.")
-            .imageUrls(
-                "https://test.com.png")
+            .imageUrls("https://test.com.png")
             .date(LocalDate.of(2018, 9, 12))
             .isDeleted(false)
             .build();
@@ -46,9 +45,7 @@ class ActivityApiTest extends AcceptanceTest {
         Activity request3 = Activity.builder()
             .title("코인 시간표 기능 추가")
             .description("더 편리한 서비스 제공을 위해 시간표 기능을 추가했습니다")
-            .imageUrls(
-                "https://test4.com.png"
-            )
+            .imageUrls("https://test4.com.png")
             .date(LocalDate.of(2019, 8, 20))
             .isDeleted(false)
             .build();
@@ -106,8 +103,7 @@ class ActivityApiTest extends AcceptanceTest {
         Activity request1 = Activity.builder()
             .title("BCSD/KAP 통합")
             .description("BCSD와 KAP가 통합되었습니다.")
-            .imageUrls(
-                "https://test.com.png")
+            .imageUrls("https://test.com.png")
             .date(LocalDate.of(2018, 9, 12))
             .isDeleted(false)
             .build();
@@ -126,9 +122,7 @@ class ActivityApiTest extends AcceptanceTest {
         Activity request3 = Activity.builder()
             .title("코인 시간표 기능 추가")
             .description("더 편리한 서비스 제공을 위해 시간표 기능을 추가했습니다")
-            .imageUrls(
-                "https://test4.com.png"
-            )
+            .imageUrls("https://test4.com.png")
             .date(LocalDate.of(2019, 8, 20))
             .isDeleted(false)
             .build();
