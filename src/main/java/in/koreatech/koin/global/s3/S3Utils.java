@@ -13,7 +13,6 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @Component
-
 public class S3Utils {
 
     private static final int URL_EXPIRATION_MINUTE = 10;
