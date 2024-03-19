@@ -1,13 +1,15 @@
 package in.koreatech.koin.global.exception;
 
+import java.time.format.DateTimeParseException;
+
+import in.koreatech.koin.global.auth.exception.AuthException;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import in.koreatech.koin.global.auth.exception.AuthException;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
@@ -45,5 +47,12 @@ public class GlobalExceptionHandler {
         log.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(ErrorResponse.from("이미 존재하는 데이터입니다."));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleDateTimeParseException(DateTimeParseException e) {
+        log.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse.from("잘못된 날짜 형식입니다."));
     }
 }
