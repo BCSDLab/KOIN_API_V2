@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,9 +28,23 @@ public interface ShopApi {
     )
     @Operation(summary = "메뉴 단건 조회")
     @GetMapping("/shops/{shopId}/menus/{menuId}")
-    ResponseEntity<ShopMenuResponse> findMenu(
+    ResponseEntity<MenuDetailResponse> findMenu(
         @Parameter(in = PATH) @PathVariable Long shopId,
         @Parameter(in = PATH) @PathVariable Long menuId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 상점의 모든 메뉴 조회")
+    @GetMapping("/shops/{id}/menus")
+    ResponseEntity<ShopMenuResponse> findMenu(
+        @Parameter(in = PATH) @PathVariable Long id
     );
 
     @ApiResponses(

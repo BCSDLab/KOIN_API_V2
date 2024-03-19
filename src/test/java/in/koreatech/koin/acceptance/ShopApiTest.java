@@ -1,5 +1,6 @@
 package in.koreatech.koin.acceptance;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -421,6 +422,230 @@ class ShopApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getList("open")).hasSize(savedShopOpens.size());
                 softly.assertThat(response.body().jsonPath().getList("shop_categories"))
                     .hasSize(savedShopCategoryMaps.size());
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("특정 상점 모든 메뉴 조회")
+    void getShopMenus() {
+        // given
+        MenuOption menuOption1 = MenuOption.builder()
+            .option("일반")
+            .price(7000)
+            .build();
+
+        MenuOption menuOption2 = MenuOption.builder()
+            .option("곱빼기")
+            .price(7500)
+            .build();
+
+        MenuImage menuImage1 = MenuImage.builder()
+            .imageUrl("https://test.com/test.jpg")
+            .build();
+        MenuImage menuImage2 = MenuImage.builder()
+            .imageUrl("https://test.com/hello.jpg")
+            .build();
+
+        Menu menu1 = Menu.builder()
+            .shopId(1L)
+            .name("짜장면")
+            .description("맛있는 짜장면")
+            .build();
+
+        MenuCategory menuCategory1 = MenuCategory.builder()
+            .shopId(1L)
+            .name("중식")
+            .build();
+
+        MenuCategoryMap menuCategoryMap1 = MenuCategoryMap.create();
+        menuCategoryRepository.save(menuCategory1);
+
+        menuOption1.setMenu(menu1);
+        menuOption2.setMenu(menu1);
+        menuImage1.setMenu(menu1);
+        menuImage2.setMenu(menu1);
+
+        menuCategoryMap1.map(menu1, menuCategory1);
+
+        menuRepository.save(menu1);
+
+        MenuOption menuOption3 = MenuOption.builder()
+            .option("일반")
+            .price(7000)
+            .build();
+
+        MenuOption menuOption4 = MenuOption.builder()
+            .option("곱빼기")
+            .price(7500)
+            .build();
+
+        MenuImage menuImage3 = MenuImage.builder()
+            .imageUrl("https://test.com/test.jpg")
+            .build();
+        MenuImage menuImage4 = MenuImage.builder()
+            .imageUrl("https://test.com/hello.jpg")
+            .build();
+
+        Menu menu2 = Menu.builder()
+            .shopId(1L)
+            .name("짜장면2")
+            .description("맛있는 짜장면")
+            .build();
+
+        MenuCategory menuCategory2 = MenuCategory.builder()
+            .shopId(1L)
+            .name("한식")
+            .build();
+
+        MenuCategoryMap menuCategoryMap2 = MenuCategoryMap.create();
+        menuCategoryRepository.save(menuCategory2);
+
+        menuOption3.setMenu(menu2);
+        menuOption4.setMenu(menu2);
+        menuImage3.setMenu(menu2);
+        menuImage4.setMenu(menu2);
+
+        menuCategoryMap2.map(menu2, menuCategory2);
+
+        menuRepository.save(menu2);
+
+        MenuOption menuOption5 = MenuOption.builder()
+            .option("일반")
+            .price(7000)
+            .build();
+
+        MenuImage menuImage5 = MenuImage.builder()
+            .imageUrl("https://test.com/test.jpg")
+            .build();
+        MenuImage menuImage6 = MenuImage.builder()
+            .imageUrl("https://test.com/hello.jpg")
+            .build();
+
+        Menu menu3 = Menu.builder()
+            .shopId(1L)
+            .name("짜장면3")
+            .description("맛있는 짜장면")
+            .build();
+
+        MenuCategoryMap menuCategoryMap3 = MenuCategoryMap.create();
+
+        menuOption5.setMenu(menu3);
+        menuImage5.setMenu(menu3);
+        menuImage6.setMenu(menu3);
+
+        menuCategoryMap3.map(menu3, menuCategory2);
+
+        menuRepository.save(menu3);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .get("/shops/1/menus")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getLong("count")).isEqualTo(3);
+                softly.assertThat(response.body().jsonPath().getLong("menu_categories[0].id"))
+                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenuCategory().getId());
+                softly.assertThat(response.body().jsonPath().getString("menu_categories[0].name"))
+                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenuCategory().getName());
+                softly.assertThat(
+                        response.body().jsonPath().getString("menu_categories[0].menu_responses[0].description"))
+                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getDescription());
+                softly.assertThat(response.body().jsonPath().getLong("menu_categories[0].menu_responses[0].id"))
+                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getId());
+                softly.assertThat(response.body().jsonPath().getList("menu_categories[0].menu_responses[0].image_urls"))
+                    .hasSize(2);
+                softly.assertThat(
+                        response.body().jsonPath().getBoolean("menu_categories[0].menu_responses[0].is_hidden"))
+                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getIsHidden());
+                softly.assertThat(
+                        response.body().jsonPath().getBoolean("menu_categories[0].menu_responses[0].is_single"))
+                    .isEqualTo(false);
+                softly.assertThat(response.body().jsonPath().getString("menu_categories[0].menu_responses[0].name"))
+                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getName());
+                softly.assertThat(response.body().jsonPath()
+                        .getString("menu_categories[0].menu_responses[0].option_prices[0].option"))
+                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(0).getOption());
+                softly.assertThat(
+                        response.body().jsonPath().getInt("menu_categories[0].menu_responses[0].option_prices[0].price"))
+                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(0).getPrice());
+                softly.assertThat(response.body().jsonPath()
+                        .getString("menu_categories[0].menu_responses[0].option_prices[1].option"))
+                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getOption());
+                softly.assertThat(
+                        response.body().jsonPath().getInt("menu_categories[0].menu_responses[0].option_prices[1].price"))
+                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getPrice());
+                softly.assertThat(
+                        (Object) response.body().jsonPath().get("menu_categories[0].menu_responses[0].single_price"))
+                    .isNull();
+                softly.assertThat(response.body().jsonPath().getString("updated_at"))
+                    .isEqualTo(LocalDate.now().toString());
+
+                softly.assertThat(response.body().jsonPath().getLong("menu_categories[1].id"))
+                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenuCategory().getId());
+                softly.assertThat(response.body().jsonPath().getString("menu_categories[1].name"))
+                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenuCategory().getName());
+                softly.assertThat(
+                        response.body().jsonPath().getString("menu_categories[1].menu_responses[0].description"))
+                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getDescription());
+                softly.assertThat(response.body().jsonPath().getLong("menu_categories[1].menu_responses[0].id"))
+                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getId());
+                softly.assertThat(response.body().jsonPath().getList("menu_categories[1].menu_responses[0].image_urls"))
+                    .hasSize(2);
+                softly.assertThat(
+                        response.body().jsonPath().getBoolean("menu_categories[1].menu_responses[0].is_hidden"))
+                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getIsHidden());
+                softly.assertThat(
+                        response.body().jsonPath().getBoolean("menu_categories[1].menu_responses[0].is_single"))
+                    .isEqualTo(false);
+                softly.assertThat(response.body().jsonPath().getString("menu_categories[1].menu_responses[0].name"))
+                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getName());
+                softly.assertThat(response.body().jsonPath()
+                        .getString("menu_categories[1].menu_responses[0].option_prices[0].option"))
+                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(0).getOption());
+                softly.assertThat(
+                        response.body().jsonPath().getInt("menu_categories[1].menu_responses[0].option_prices[0].price"))
+                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(0).getPrice());
+                softly.assertThat(response.body().jsonPath()
+                        .getString("menu_categories[1].menu_responses[0].option_prices[1].option"))
+                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getOption());
+                softly.assertThat(
+                        response.body().jsonPath().getInt("menu_categories[1].menu_responses[0].option_prices[1].price"))
+                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getPrice());
+                softly.assertThat(
+                        (Object) response.body().jsonPath().get("menu_categories[1].menu_responses[0].single_price"))
+                    .isNull();
+                softly.assertThat(response.body().jsonPath().getString("updated_at"))
+                    .isEqualTo(LocalDate.now().toString());
+
+                softly.assertThat(
+                        response.body().jsonPath().getString("menu_categories[1].menu_responses[1].description"))
+                    .isEqualTo(menu3.getMenuCategoryMaps().get(0).getMenu().getDescription());
+                softly.assertThat(response.body().jsonPath().getLong("menu_categories[1].menu_responses[1].id"))
+                    .isEqualTo(menu3.getMenuCategoryMaps().get(0).getMenu().getId());
+                softly.assertThat(response.body().jsonPath().getList("menu_categories[1].menu_responses[1].image_urls"))
+                    .hasSize(2);
+                softly.assertThat(
+                        response.body().jsonPath().getBoolean("menu_categories[1].menu_responses[1].is_hidden"))
+                    .isEqualTo(menu3.getMenuCategoryMaps().get(0).getMenu().getIsHidden());
+                softly.assertThat(
+                        response.body().jsonPath().getBoolean("menu_categories[1].menu_responses[1].is_single"))
+                    .isEqualTo(true);
+                softly.assertThat(response.body().jsonPath().getString("menu_categories[1].menu_responses[1].name"))
+                    .isEqualTo(menu3.getMenuCategoryMaps().get(0).getMenu().getName());
+                softly.assertThat(
+                        response.body().jsonPath().getString("menu_categories[1].menu_responses[1].option_prices"))
+                    .isEqualTo(null);
+                softly.assertThat(
+                        response.body().jsonPath().getInt("menu_categories[1].menu_responses[1].single_price"))
+                    .isEqualTo(menu3.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(0).getPrice());
+                softly.assertThat(response.body().jsonPath().getString("updated_at"))
+                    .isEqualTo(LocalDate.now().toString());
             }
         );
     }
