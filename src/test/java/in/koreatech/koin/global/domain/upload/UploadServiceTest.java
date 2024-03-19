@@ -11,7 +11,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
 import in.koreatech.koin.AcceptanceTest;
-import static in.koreatech.koin.global.domain.upload.ImageUploadDomain.OWNERS;
+import in.koreatech.koin.global.domain.upload.dto.UploadUrlRequest;
+import static in.koreatech.koin.global.domain.upload.model.ImageUploadDomain.OWNERS;
+import in.koreatech.koin.global.domain.upload.service.UploadService;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

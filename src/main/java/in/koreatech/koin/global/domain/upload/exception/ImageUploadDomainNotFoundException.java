@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.domain.upload;
+package in.koreatech.koin.global.domain.upload.exception;
 
 import in.koreatech.koin.global.exception.DataNotFoundException;
 

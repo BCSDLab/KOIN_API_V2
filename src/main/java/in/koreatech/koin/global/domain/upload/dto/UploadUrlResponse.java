@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.domain.upload;
+package in.koreatech.koin.global.domain.upload.dto;
 
 import java.time.LocalDateTime;
 

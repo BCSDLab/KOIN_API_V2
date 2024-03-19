@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.domain.upload;
+package in.koreatech.koin.global.domain.upload.controller;
 
 
 import org.springframework.http.ResponseEntity;
@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import in.koreatech.koin.domain.user.model.UserType;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.domain.upload.dto.UploadUrlRequest;
+import in.koreatech.koin.global.domain.upload.dto.UploadUrlResponse;
+import in.koreatech.koin.global.domain.upload.model.ImageUploadDomain;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

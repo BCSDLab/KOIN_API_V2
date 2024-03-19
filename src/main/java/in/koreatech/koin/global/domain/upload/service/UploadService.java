@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.domain.upload;
+package in.koreatech.koin.global.domain.upload.service;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.global.domain.upload.dto.UploadUrlRequest;
+import in.koreatech.koin.global.domain.upload.dto.UploadUrlResponse;
+import in.koreatech.koin.global.domain.upload.model.ImageUploadDomain;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;

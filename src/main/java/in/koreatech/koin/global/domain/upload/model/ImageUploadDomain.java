@@ -1,6 +1,8 @@
-package in.koreatech.koin.global.domain.upload;
+package in.koreatech.koin.global.domain.upload.model;
 
 import java.util.Arrays;
+
+import in.koreatech.koin.global.domain.upload.exception.ImageUploadDomainNotFoundException;
 
 /**
  * 이미지 업로드 시 사용되는 도메인별 디렉터리 명
