@@ -1,63 +1,30 @@
 package in.koreatech.koin.global.domain.upload.service;
 
 import java.time.Clock;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.StringJoiner;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlRequest;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlResponse;
 import in.koreatech.koin.global.domain.upload.model.ImageUploadDomain;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import in.koreatech.koin.global.s3.S3Utils;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UploadService {
 
-    private static final int URL_EXPIRATION_MINUTE = 10;
-
-    private final S3Presigner.Builder presignerBuilder;
-    private final String bucketName;
-    private final String domainUrlPrefix;
+    private final S3Utils s3Util;
     private final Clock clock;
 
-    public UploadService(
-        S3Presigner.Builder presigner,
-        @Value("${s3.bucket}") String bucketName,
-        @Value("${s3.custom_domain}") String domainUrlPrefix,
-        Clock clock
-    ) {
-        this.presignerBuilder = presigner;
-        this.bucketName = bucketName;
-        this.domainUrlPrefix = domainUrlPrefix;
-        this.clock = clock;
-    }
-
     public UploadUrlResponse getPresignedUrl(ImageUploadDomain domain, UploadUrlRequest request) {
-        try (S3Presigner presigner = presignerBuilder.build()) {
-            String uploadFilePath = generateFilePath(domain.name(), request.fileName());
-            PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(URL_EXPIRATION_MINUTE))
-                .putObjectRequest(builder -> builder
-                    .bucket(bucketName)
-                    .key(uploadFilePath)
-                    .build()
-                ).build();
-
-            PresignedPutObjectRequest presignedRequest = presigner.presignPutObject(presignRequest);
-            return new UploadUrlResponse(
-                presignedRequest.url().toExternalForm(),
-                domainUrlPrefix + uploadFilePath,
-                LocalDateTime.now(clock).plusMinutes(URL_EXPIRATION_MINUTE)
-            );
-        }
+        var filePath = generateFilePath(domain.name(), request.fileName());
+        return s3Util.getUploadUrl(filePath);
     }
 
     private String generateFilePath(String domainName, String fileName) {
