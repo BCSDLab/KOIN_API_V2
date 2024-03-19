@@ -64,9 +64,8 @@ public record DiningResponse(
 
     public static List<String> toListMenus(String menu) {
         menu = menu.substring(1, menu.length() - 1);
-        List<String> menus = Stream.of(menu.split(","))
+        return Stream.of(menu.split(","))
             .map(str -> str.trim().replaceAll("\"", ""))
             .collect(Collectors.toList());
-        return menus;
     }
 }

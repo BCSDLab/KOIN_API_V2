@@ -21,7 +21,7 @@ import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
-public class DiningApiTest extends AcceptanceTest {
+class DiningApiTest extends AcceptanceTest {
 
     @Autowired
     private DiningRepository diningRepository;
@@ -209,5 +209,4 @@ public class DiningApiTest extends AcceptanceTest {
             }
         );
     }
-
 }
