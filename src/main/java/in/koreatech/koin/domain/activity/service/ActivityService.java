@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.activity.dto.ActivitiesResponseList;
+import in.koreatech.koin.domain.activity.dto.ActivitiesResponse;
 import in.koreatech.koin.domain.activity.dto.ActivityResponse;
 import in.koreatech.koin.domain.activity.model.Activity;
 import in.koreatech.koin.domain.activity.repository.ActivityRepository;
@@ -21,7 +21,7 @@ public class ActivityService {
 
     private final ActivityRepository activityRepository;
 
-    public ActivitiesResponseList getActivities(String year) {
+    public ActivitiesResponse getActivities(String year) {
         List<Activity> activities;
 
         if (year == null) {
@@ -37,7 +37,7 @@ public class ActivityService {
             })
             .collect(Collectors.toList());
 
-        return new ActivitiesResponseList(activityResponseList);
+        return new ActivitiesResponse(activityResponseList);
     }
 
     private List<String> parseImageUrls(String imageUrls) {
