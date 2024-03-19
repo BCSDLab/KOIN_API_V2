@@ -62,7 +62,7 @@ class UploadServiceTest extends AcceptanceTest {
         assertThat(url.preSignedUrl()).contains(
             "https://test-bucket.s3.amazonaws.com/",
             "OWNERS/",
-            ".png",
+            "hello.png",
             "X-Amz-Expires=" + 60 * 10
         );
     }
