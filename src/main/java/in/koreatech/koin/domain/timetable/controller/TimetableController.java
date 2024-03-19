@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
+import in.koreatech.koin.domain.timetable.dto.UpdateTimeTableRequest;
 import in.koreatech.koin.domain.timetable.service.SemesterService;
 import in.koreatech.koin.domain.timetable.service.TimetableService;
 import in.koreatech.koin.global.auth.Auth;
@@ -64,7 +65,7 @@ public class TimetableController implements TimetableApi {
 
     @PutMapping("/timetables")
     public ResponseEntity<List<TimeTableResponse>> updateTimeTable(
-        @Valid @RequestBody TimeTableRequest request,
+        @Valid @RequestBody UpdateTimeTableRequest request,
         @Auth(permit = {STUDENT}) Long userId
     ) {
         List<TimeTableResponse> timeTableResponse = timetableService.updateTimeTables(userId, request);

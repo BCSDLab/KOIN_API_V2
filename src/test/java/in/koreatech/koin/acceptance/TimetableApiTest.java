@@ -655,27 +655,8 @@ class TimetableApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        TimeTable timeTable3 = TimeTable.builder()
-            .user(user)
-            .semester(semester)
-            .code("CS102")
-            .classTitle("운영체제")
-            .classTime("[]")
-            .classPlace(null)
-            .professor("홍길동")
-            .grades("3")
-            .lectureClass("01")
-            .target("컴부전체")
-            .regularNumber("40")
-            .designScore("0")
-            .department("컴퓨터공학부")
-            .memo(null)
-            .isDeleted(false)
-            .build();
-
         timeTableRepository.save(timeTable1);
         timeTableRepository.save(timeTable2);
-        timeTableRepository.save(timeTable3);
 
         ExtractableResponse<Response> response = RestAssured
             .given()
@@ -685,6 +666,7 @@ class TimetableApiTest extends AcceptanceTest {
                 {
                   "timetable": [
                     {
+                      "id": 1,
                       "code": "CPC490",
                       "class_title": "운영체제",
                       "class_time": [
@@ -702,6 +684,7 @@ class TimetableApiTest extends AcceptanceTest {
                       "memo": null
                     },
                                         {
+                      "id": 2,
                       "code": "CSE201",
                       "class_title": "컴퓨터구조",
                       "class_time": [
@@ -731,9 +714,9 @@ class TimetableApiTest extends AcceptanceTest {
         SoftAssertions.assertSoftly(
             softly -> {
                 softly.assertThat(response.body().jsonPath().getLong("[0].id")).
-                    isEqualTo(4L);
+                    isEqualTo(1L);
                 softly.assertThat(response.body().jsonPath().getLong("[1].id")).
-                    isEqualTo(5L);
+                    isEqualTo(2L);
 
                 softly.assertThat(response.body().jsonPath().getString("[0].code")).
                     isEqualTo("CPC490");

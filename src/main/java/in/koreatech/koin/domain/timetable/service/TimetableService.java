@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
+import in.koreatech.koin.domain.timetable.dto.UpdateTimeTableRequest;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
@@ -17,7 +18,6 @@ import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
 import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -65,18 +65,14 @@ public class TimetableService {
     }
 
     @Transactional
-    public List<TimeTableResponse> updateTimeTables(Long userId, TimeTableRequest request){
-        User user = userRepository.getById(userId);
+    public List<TimeTableResponse> updateTimeTables(Long userId, UpdateTimeTableRequest request){
         Semester semester = semesterRepository.getBySemester(request.semester());
 
-        List<TimeTable> timeTables = timeTableRepository.getByUserIdAndSemesterId(userId, semester.getId());
-        timeTables.forEach(timeTable -> timeTableRepository.deleteByUserIdAndSemesterId(userId, semester.getId()));
+        List<UpdateTimeTableRequest.InnerTimeTableRequest> timeTableRequests = request.timetable();
 
-        List<TimeTableRequest.InnerTimeTableRequest> timeTableRequests = request.timetable();
-
-        for(TimeTableRequest.InnerTimeTableRequest timeTableRequest : timeTableRequests){
-            TimeTable timeTable = TimeTableRequest.toEntity(user, semester, timeTableRequest);
-            timeTableRepository.save(timeTable);
+        for(UpdateTimeTableRequest.InnerTimeTableRequest timeTableRequest : timeTableRequests){
+            TimeTable timeTable = timeTableRepository.getById(timeTableRequest.id());
+            timeTable.update(timeTableRequest);
         }
 
         return getTimeTables(userId, semester.getSemester());
