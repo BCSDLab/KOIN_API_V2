@@ -67,7 +67,7 @@ public abstract class AcceptanceTest {
     }
 
     static {
-        mySqlContainer = (MySQLContainer) new MySQLContainer("mysql:5.7.34")
+        mySqlContainer = (MySQLContainer)new MySQLContainer("mysql:5.7.34")
             .withDatabaseName("test")
             .withUsername(ROOT)
             .withPassword(ROOT_PASSWORD)

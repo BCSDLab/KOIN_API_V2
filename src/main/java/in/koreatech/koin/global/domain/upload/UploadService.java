@@ -48,7 +48,6 @@ public class UploadService {
                     .build()
                 ).build();
 
-            // team-kap-koin-storage/upload/owners/2024/03/14/UUID/DATE.ext
             PresignedPutObjectRequest presignedRequest = presigner.presignPutObject(presignRequest);
             return new UploadUrlResponse(
                 presignedRequest.url().toExternalForm(),
@@ -58,7 +57,6 @@ public class UploadService {
         }
     }
 
-    // team-kap-koin-storage/upload/owners/2024/03/14/UUID/DATE.ext
     private String generateFilePath(String domainName, String fileName) {
         var now = LocalDateTime.now(clock);
         StringJoiner uploadPrefix = new StringJoiner("/");
