@@ -158,6 +158,19 @@ class ActivityApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getBoolean("Activities[0].is_deleted"))
                     .isEqualTo(activity1.getIsDeleted());
 
+                // activity2
+                softly.assertThat(response.body().jsonPath().getList("Activities").size()).isEqualTo(3);
+                softly.assertThat(response.body().jsonPath().getLong("Activities[1].id")).isEqualTo(activity2.getId());
+                softly.assertThat(response.body().jsonPath().getString("Activities[1].title"))
+                    .isEqualTo(activity2.getTitle());
+                softly.assertThat(response.body().jsonPath().getString("Activities[1].description"))
+                    .isEqualTo(activity2.getDescription());
+                softly.assertThat(response.body().jsonPath().getList("Activities[1].image_urls")).hasSize(2);
+                LocalDate actualDate2 = LocalDate.parse(response.body().jsonPath().getString("Activities[1].date"));
+                softly.assertThat(actualDate2).isEqualTo(expectedDate2);
+                softly.assertThat(response.body().jsonPath().getBoolean("Activities[1].is_deleted"))
+                    .isEqualTo(activity2.getIsDeleted());
+
                 //activity3
                 softly.assertThat(response.body().jsonPath().getLong("Activities[2].id")).isEqualTo(activity3.getId());
                 softly.assertThat(response.body().jsonPath().getString("Activities[2].title"))
@@ -165,8 +178,8 @@ class ActivityApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getString("Activities[2].description"))
                     .isEqualTo(activity3.getDescription());
                 softly.assertThat(response.body().jsonPath().getList("Activities[2].image_urls")).hasSize(1);
-                LocalDate actualDate2 = LocalDate.parse(response.body().jsonPath().getString("Activities[2].date"));
-                softly.assertThat(actualDate2).isEqualTo(expectedDate3);
+                LocalDate actualDate3 = LocalDate.parse(response.body().jsonPath().getString("Activities[2].date"));
+                softly.assertThat(actualDate3).isEqualTo(expectedDate3);
                 softly.assertThat(response.body().jsonPath().getBoolean("Activities[2].is_deleted"))
                     .isEqualTo(activity2.getIsDeleted());
             }
