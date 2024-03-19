@@ -114,4 +114,8 @@ public class TimeTable extends BaseEntity {
         this.memo = memo;
         this.isDeleted = isDeleted;
     }
+
+    public void updateIsDeleted(Boolean isDeleted){
+        this.isDeleted = isDeleted;
+    }
 }

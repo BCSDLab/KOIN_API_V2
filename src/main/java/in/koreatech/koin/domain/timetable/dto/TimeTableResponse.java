@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record TimeTableResponse(
+    @Schema(name = "시간표 번호", example = "1")
+    Long id,
+
     @Schema(name = "과목 코드", example = "ARB244")
     String code,
 
@@ -50,6 +53,7 @@ public record TimeTableResponse(
 ) {
     public static TimeTableResponse from(TimeTable timeTable){
         return new TimeTableResponse(
+            timeTable.getId(),
             timeTable.getCode(),
             timeTable.getClassTitle(),
             toListClassTime(timeTable.getClassTime()),

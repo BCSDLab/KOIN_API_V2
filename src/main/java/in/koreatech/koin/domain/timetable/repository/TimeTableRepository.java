@@ -12,9 +12,11 @@ public interface TimeTableRepository extends Repository<TimeTable, Long> {
 
     TimeTable save(TimeTable timeTable);
 
-    List<TimeTable> findByUserIdAndSemesterId(Long userID, Long semesterId);
+    List<TimeTable> findByUserIdAndSemesterId(Long userId, Long semesterId);
 
     Optional<TimeTable> findById(Long id);
+
+    void deleteByUserIdAndSemesterId(Long userId, Long semesterId);
 
     default List<TimeTable> getByUserIdAndSemesterId(Long userId, Long semesterId){
 
@@ -25,5 +27,10 @@ public interface TimeTableRepository extends Repository<TimeTable, Long> {
         }
 
         return timeTables;
+    }
+
+    default TimeTable getById(Long id){
+        return findById(id)
+            .orElseThrow(() -> TimeTableNotFoundException.withDetail("id: " + id));
     }
 }

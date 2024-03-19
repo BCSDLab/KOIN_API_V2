@@ -5,8 +5,10 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,5 +60,23 @@ public class TimetableController implements TimetableApi {
     ){
         List<TimeTableResponse> timeTableResponse = timetableService.createTimeTables(userId, request);
         return ResponseEntity.ok(timeTableResponse);
+    }
+
+    @PutMapping("/timetables")
+    public ResponseEntity<List<TimeTableResponse>> updateTimeTable(
+        @Valid @RequestBody TimeTableRequest request,
+        @Auth(permit = {STUDENT}) Long userId
+    ) {
+        List<TimeTableResponse> timeTableResponse = timetableService.updateTimeTables(userId, request);
+        return ResponseEntity.ok(timeTableResponse);
+    }
+
+    @DeleteMapping("/timetable")
+    public ResponseEntity deleteTimeTableById(
+        @RequestParam(name = "id") Long id,
+        @Auth(permit = {STUDENT}) Long userId
+    ) {
+        timetableService.deleteTimeTable(id);
+        return ResponseEntity.ok().build();
     }
 }

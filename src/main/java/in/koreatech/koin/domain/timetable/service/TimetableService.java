@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
 import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -61,5 +62,29 @@ public class TimetableService {
         }
 
         return getTimeTables(userId, semester.getSemester());
+    }
+
+    @Transactional
+    public List<TimeTableResponse> updateTimeTables(Long userId, TimeTableRequest request){
+        User user = userRepository.getById(userId);
+        Semester semester = semesterRepository.getBySemester(request.semester());
+
+        List<TimeTable> timeTables = timeTableRepository.getByUserIdAndSemesterId(userId, semester.getId());
+        timeTables.forEach(timeTable -> timeTableRepository.deleteByUserIdAndSemesterId(userId, semester.getId()));
+
+        List<TimeTableRequest.InnerTimeTableRequest> timeTableRequests = request.timetable();
+
+        for(TimeTableRequest.InnerTimeTableRequest timeTableRequest : timeTableRequests){
+            TimeTable timeTable = TimeTableRequest.toEntity(user, semester, timeTableRequest);
+            timeTableRepository.save(timeTable);
+        }
+
+        return getTimeTables(userId, semester.getSemester());
+    }
+
+    @Transactional
+    public void deleteTimeTable(Long id){
+        TimeTable timeTable = timeTableRepository.getById(id);
+        timeTable.updateIsDeleted(true);
     }
 }

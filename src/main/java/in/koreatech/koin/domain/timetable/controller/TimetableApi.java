@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -81,6 +82,38 @@ public interface TimetableApi {
     @PostMapping("/timetables")
     ResponseEntity<List<TimeTableResponse>> createTimeTables(
         @RequestBody TimeTableRequest timeTableRequest,
+        @Auth(permit = {STUDENT}) Long userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "시간표 정보 수정")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/timetables")
+    ResponseEntity<List<TimeTableResponse>> updateTimeTable(
+        @RequestBody TimeTableRequest timeTableRequest,
+        @Auth(permit = {STUDENT}) Long userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "204", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "시간표 삭제")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/timetables")
+    ResponseEntity deleteTimeTableById(
+        @RequestParam(value = "id") Long id,
         @Auth(permit = {STUDENT}) Long userId
     );
 }

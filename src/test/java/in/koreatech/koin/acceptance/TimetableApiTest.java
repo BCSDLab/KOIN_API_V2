@@ -354,6 +354,13 @@ class TimetableApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
+                softly.assertThat(response.body().jsonPath().getLong("[0].id")).
+                    isEqualTo(1L);
+                softly.assertThat(response.body().jsonPath().getLong("[1].id")).
+                    isEqualTo(2L);
+                softly.assertThat(response.body().jsonPath().getLong("[2].id")).
+                    isEqualTo(3L);
+
                 softly.assertThat(response.body().jsonPath().getString("[0].code")).
                     isEqualTo(timeTable1.getCode());
                 softly.assertThat(response.body().jsonPath().getString("[0].class_title")).
@@ -420,7 +427,7 @@ class TimetableApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("게시글을 생성한다.")
+    @DisplayName("시간표를 생성한다.")
     void createTimeTables(){
         User userT = User.builder()
             .password("1234")
@@ -496,6 +503,11 @@ class TimetableApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
+                softly.assertThat(response.body().jsonPath().getLong("[0].id")).
+                    isEqualTo(1L);
+                softly.assertThat(response.body().jsonPath().getLong("[1].id")).
+                    isEqualTo(2L);
+
                 softly.assertThat(response.body().jsonPath().getString("[0].code")).
                     isEqualTo("CPC490");
                 softly.assertThat(response.body().jsonPath().getString("[0].class_title")).
@@ -525,7 +537,7 @@ class TimetableApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("게시글 생성시 필수 필드를 안넣을때 에러코드400을 반환한다.")
+    @DisplayName("시간표 생성시 필수 필드를 안넣을때 에러코드400을 반환한다.")
     void createTimeTablesBadRequest(){
         User userT = User.builder()
             .password("1234")
@@ -581,5 +593,281 @@ class TimetableApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("시간표 수정한다.")
+    void updateTimeTables() {
+        User userT = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        User user = userRepository.save(userT);
+        String token = jwtProvider.createToken(user);
+
+        Semester semesterT = Semester.builder().
+            semester("20192")
+            .build();
+
+        Semester semester = semesterRepository.save(semesterT);
+
+        TimeTable timeTable1 = TimeTable.builder()
+            .user(user)
+            .semester(semester)
+            .code("CS101")
+            .classTitle("컴퓨터 구조")
+            .classTime("[14, 15, 16, 17, 204, 205, 206, 207]")
+            .classPlace(null)
+            .professor("김철수")
+            .grades("3")
+            .lectureClass("02")
+            .target("컴부전체")
+            .regularNumber("28")
+            .designScore("0")
+            .department("컴퓨터공학부")
+            .memo(null)
+            .isDeleted(false)
+            .build();
+
+        TimeTable timeTable2 = TimeTable.builder()
+            .user(user)
+            .semester(semester)
+            .code("CS102")
+            .classTitle("운영체제")
+            .classTime("[932]")
+            .classPlace(null)
+            .professor("홍길동")
+            .grades("3")
+            .lectureClass("01")
+            .target("컴부전체")
+            .regularNumber("40")
+            .designScore("0")
+            .department("컴퓨터공학부")
+            .memo(null)
+            .isDeleted(false)
+            .build();
+
+        TimeTable timeTable3 = TimeTable.builder()
+            .user(user)
+            .semester(semester)
+            .code("CS102")
+            .classTitle("운영체제")
+            .classTime("[]")
+            .classPlace(null)
+            .professor("홍길동")
+            .grades("3")
+            .lectureClass("01")
+            .target("컴부전체")
+            .regularNumber("40")
+            .designScore("0")
+            .department("컴퓨터공학부")
+            .memo(null)
+            .isDeleted(false)
+            .build();
+
+        timeTableRepository.save(timeTable1);
+        timeTableRepository.save(timeTable2);
+        timeTableRepository.save(timeTable3);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "timetable": [
+                    {
+                      "code": "CPC490",
+                      "class_title": "운영체제",
+                      "class_time": [
+                        210,
+                        211
+                      ],
+                      "class_place": null,
+                      "professor": "이돈우",
+                      "grades": "3",
+                      "lecture_class": "01",
+                      "target": "디자 1 건축",
+                      "regular_number": "25",
+                      "design_score": "0",
+                      "department": "디자인ㆍ건축공학부",
+                      "memo": null
+                    },
+                                        {
+                      "code": "CSE201",
+                      "class_title": "컴퓨터구조",
+                      "class_time": [
+                      ],
+                      "class_place": null,
+                      "professor": "이강환",
+                      "grades": "1",
+                      "lecture_class": "02",
+                      "target": "컴퓨 3",
+                      "regular_number": "38",
+                      "design_score": "0",
+                      "department": "컴퓨터공학부",
+                      "memo": null
+                    }
+                  ],
+                  "semester": "20192"
+                }
+                """)
+            .when()
+            .put("/timetables")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertThat(response.body().jsonPath().getList("timetable")).hasSize(2);
+
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getLong("[0].id")).
+                    isEqualTo(4L);
+                softly.assertThat(response.body().jsonPath().getLong("[1].id")).
+                    isEqualTo(5L);
+
+                softly.assertThat(response.body().jsonPath().getString("[0].code")).
+                    isEqualTo("CPC490");
+                softly.assertThat(response.body().jsonPath().getString("[0].class_title")).
+                    isEqualTo("운영체제");
+                softly.assertThat(response.body().jsonPath().getList("[0].class_time", Integer.class))
+                    .containsExactlyInAnyOrderElementsOf(List.of(210, 211));
+                softly.assertThat(response.body().jsonPath().getString("[0].class_place"))
+                    .isEqualTo(null);
+                softly.assertThat(response.body().jsonPath().getString("[0].professor"))
+                    .isEqualTo("이돈우");
+                softly.assertThat(response.body().jsonPath().getString("[0].grades"))
+                    .isEqualTo("3");
+                softly.assertThat(response.body().jsonPath().getString("[0].lecture_class")).
+                    isEqualTo("01");
+                softly.assertThat(response.body().jsonPath().getString("[0].target"))
+                    .isEqualTo("디자 1 건축");
+                softly.assertThat(response.body().jsonPath().getString("[0].regular_number"))
+                    .isEqualTo("25");
+                softly.assertThat(response.body().jsonPath().getString("[0].design_score"))
+                    .isEqualTo("0");
+                softly.assertThat(response.body().jsonPath().getString("[0].department"))
+                    .isEqualTo("디자인ㆍ건축공학부");
+                softly.assertThat(response.body().jsonPath().getList("[0].memo"))
+                    .isEqualTo(null);
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("시간표 삭제한다.")
+    void deleteTimeTable(){
+        User userT = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        User user = userRepository.save(userT);
+        String token = jwtProvider.createToken(user);
+
+        Semester semesterT = Semester.builder().
+            semester("20192")
+            .build();
+
+        Semester semester = semesterRepository.save(semesterT);
+
+        TimeTable timeTable = TimeTable.builder()
+            .user(user)
+            .semester(semester)
+            .code("CS101")
+            .classTitle("컴퓨터 구조")
+            .classTime("[14, 15, 16, 17, 204, 205, 206, 207]")
+            .classPlace(null)
+            .professor("김철수")
+            .grades("3")
+            .lectureClass("02")
+            .target("컴부전체")
+            .regularNumber("28")
+            .designScore("0")
+            .department("컴퓨터공학부")
+            .memo(null)
+            .isDeleted(false)
+            .build();
+
+        timeTableRepository.save(timeTable);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .param("id", 1L)
+            .delete("/timetable")
+            .then()
+            .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    @DisplayName("시간표 삭제 실패시(=조회 실패시) 404 에러코드를 반환한다.")
+    void deleteTimeTableNotFound(){
+        User userT = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        User user = userRepository.save(userT);
+        String token = jwtProvider.createToken(user);
+
+        Semester semesterT = Semester.builder().
+            semester("20192")
+            .build();
+
+        Semester semester = semesterRepository.save(semesterT);
+
+        TimeTable timeTable = TimeTable.builder()
+            .user(user)
+            .semester(semester)
+            .code("CS101")
+            .classTitle("컴퓨터 구조")
+            .classTime("[14, 15, 16, 17, 204, 205, 206, 207]")
+            .classPlace(null)
+            .professor("김철수")
+            .grades("3")
+            .lectureClass("02")
+            .target("컴부전체")
+            .regularNumber("28")
+            .designScore("0")
+            .department("컴퓨터공학부")
+            .memo(null)
+            .isDeleted(false)
+            .build();
+
+        timeTableRepository.save(timeTable);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .param("id", 3)
+            .delete("/timetable")
+            .then()
+            .statusCode(HttpStatus.NOT_FOUND.value());
     }
 }
