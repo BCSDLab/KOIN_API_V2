@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 @Transactional(readOnly = true)
 public class UploadService {
 
-    private static final int URL_EXPIRATION = 10;
+    private static final int URL_EXPIRATION_MINUTE = 10;
 
     private final S3Presigner.Builder presignerBuilder;
     private final String bucketName;
@@ -41,7 +41,7 @@ public class UploadService {
         try (S3Presigner presigner = presignerBuilder.build()) {
             String uploadFilePath = generateFilePath(domain.name(), request.fileName());
             PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(URL_EXPIRATION))
+                .signatureDuration(Duration.ofMinutes(URL_EXPIRATION_MINUTE))
                 .putObjectRequest(builder -> builder
                     .bucket(bucketName)
                     .key(uploadFilePath)
@@ -53,7 +53,7 @@ public class UploadService {
             return new UploadUrlResponse(
                 presignedRequest.url().toExternalForm(),
                 domainUrlPrefix + uploadFilePath,
-                LocalDateTime.now(clock).plusMinutes(URL_EXPIRATION)
+                LocalDateTime.now(clock).plusMinutes(URL_EXPIRATION_MINUTE)
             );
         }
     }
