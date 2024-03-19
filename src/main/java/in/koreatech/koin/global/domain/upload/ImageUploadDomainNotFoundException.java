@@ -1,6 +1,5 @@
 package in.koreatech.koin.global.domain.upload;
 
-import in.koreatech.koin.domain.bus.exception.BusTypeNotFoundException;
 import in.koreatech.koin.global.exception.DataNotFoundException;
 
 public class ImageUploadDomainNotFoundException extends DataNotFoundException {
@@ -11,8 +10,8 @@ public class ImageUploadDomainNotFoundException extends DataNotFoundException {
         super(message);
     }
 
-    public static BusTypeNotFoundException withDetail(String detail) {
+    public static ImageUploadDomainNotFoundException withDetail(String detail) {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new BusTypeNotFoundException(message);
+        return new ImageUploadDomainNotFoundException(message);
     }
 }
