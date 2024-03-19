@@ -19,7 +19,7 @@ public class ActivityController implements ActivityApi {
     public ResponseEntity<ActivitiesResponseDTO> getActivities(
         @RequestParam(required = false) String year
     ) {
-        var response = activityService.getActivities(year);
+        ActivitiesResponseDTO response = activityService.getActivities(year);
         return ResponseEntity.ok(response);
     }
 
