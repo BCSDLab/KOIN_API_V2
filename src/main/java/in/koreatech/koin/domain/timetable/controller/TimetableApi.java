@@ -6,10 +6,13 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
+import in.koreatech.koin.domain.timetable.dto.TimeTableRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,6 +65,22 @@ public interface TimetableApi {
     @GetMapping("/timetables")
     ResponseEntity<List<TimeTableResponse>> getTimeTables(
         @RequestParam(value = "semester") String semester,
+        @Auth(permit = {STUDENT}) Long userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "시간표 정보 생성")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/timetables")
+    ResponseEntity<List<TimeTableResponse>> createTimeTables(
+        @RequestBody TimeTableRequest timeTableRequest,
         @Auth(permit = {STUDENT}) Long userId
     );
 }

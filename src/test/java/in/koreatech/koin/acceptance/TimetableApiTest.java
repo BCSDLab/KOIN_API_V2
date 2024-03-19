@@ -23,6 +23,7 @@ import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -416,5 +417,169 @@ class TimetableApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
 
+    }
+
+    @Test
+    @DisplayName("게시글을 생성한다.")
+    void createTimeTables(){
+        User userT = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        User user = userRepository.save(userT);
+        String token = jwtProvider.createToken(user);
+
+        Semester semester = Semester.builder().
+            semester("20192")
+            .build();
+
+        semesterRepository.save(semester);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "timetable": [
+                    {
+                      "code": "CPC490",
+                      "class_title": "운영체제",
+                      "class_time": [
+                        210,
+                        211
+                      ],
+                      "class_place": null,
+                      "professor": "이돈우",
+                      "grades": "3",
+                      "lecture_class": "01",
+                      "target": "디자 1 건축",
+                      "regular_number": "25",
+                      "design_score": "0",
+                      "department": "디자인ㆍ건축공학부",
+                      "memo": null
+                    },
+                                        {
+                      "code": "CSE201",
+                      "class_title": "컴퓨터구조",
+                      "class_time": [
+                      ],
+                      "class_place": null,
+                      "professor": "이강환",
+                      "grades": "1",
+                      "lecture_class": "02",
+                      "target": "컴퓨 3",
+                      "regular_number": "38",
+                      "design_score": "0",
+                      "department": "컴퓨터공학부",
+                      "memo": null
+                    }
+                  ],
+                  "semester": "20192"
+                }
+                """)
+            .when()
+            .post("/timetables")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertThat(response.body().jsonPath().getList("timetable")).hasSize(2);
+
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getString("[0].code")).
+                    isEqualTo("CPC490");
+                softly.assertThat(response.body().jsonPath().getString("[0].class_title")).
+                    isEqualTo("운영체제");
+                softly.assertThat(response.body().jsonPath().getList("[0].class_time", Integer.class))
+                    .containsExactlyInAnyOrderElementsOf(List.of(210, 211));
+                softly.assertThat(response.body().jsonPath().getString("[0].class_place"))
+                    .isEqualTo(null);
+                softly.assertThat(response.body().jsonPath().getString("[0].professor"))
+                    .isEqualTo("이돈우");
+                softly.assertThat(response.body().jsonPath().getString("[0].grades"))
+                    .isEqualTo("3");
+                softly.assertThat(response.body().jsonPath().getString("[0].lecture_class")).
+                    isEqualTo("01");
+                softly.assertThat(response.body().jsonPath().getString("[0].target"))
+                    .isEqualTo("디자 1 건축");
+                softly.assertThat(response.body().jsonPath().getString("[0].regular_number"))
+                    .isEqualTo("25");
+                softly.assertThat(response.body().jsonPath().getString("[0].design_score"))
+                    .isEqualTo("0");
+                softly.assertThat(response.body().jsonPath().getString("[0].department"))
+                    .isEqualTo("디자인ㆍ건축공학부");
+                softly.assertThat(response.body().jsonPath().getList("[0].memo"))
+                    .isEqualTo(null);
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("게시글 생성시 필수 필드를 안넣을때 에러코드400을 반환한다.")
+    void createTimeTablesBadRequest(){
+        User userT = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        User user = userRepository.save(userT);
+        String token = jwtProvider.createToken(user);
+
+        Semester semester = Semester.builder().
+            semester("20192")
+            .build();
+
+        semesterRepository.save(semester);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "timetable": [
+                    {
+                      "code": "CPC490",
+                      "class_title": null,
+                      "class_time": [
+                        210,
+                        211
+                      ],
+                      "class_place": null,
+                      "professor": null,
+                      "grades": null,
+                      "lecture_class": "01",
+                      "target": "디자 1 건축",
+                      "regular_number": "25",
+                      "design_score": "0",
+                      "department": "디자인ㆍ건축공학부",
+                      "memo": null
+                    }
+                  ],
+                  "semester": "20192"
+                }
+                """)
+            .when()
+            .post("/timetables")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
     }
 }
