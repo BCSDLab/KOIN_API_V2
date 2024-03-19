@@ -13,7 +13,6 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
@@ -50,9 +49,6 @@ public abstract class AcceptanceTest {
 
     @Container
     protected static GenericContainer<?> mongoContainer;
-
-    @Container
-    protected static LocalStackContainer localStackContainer;
 
     @DynamicPropertySource
     private static void configureProperties(final DynamicPropertyRegistry registry) {
