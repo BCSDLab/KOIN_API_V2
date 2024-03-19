@@ -32,8 +32,9 @@ public record ShopMenuResponse(
         for (MenuCategory menuCategory : menuCategories) {
             for (MenuCategoryMap menuCategoryMap : menuCategory.getMenuCategoryMaps()) {
                 LocalDateTime updatedAt = menuCategoryMap.getMenu().getUpdatedAt();
-                if (updatedAt.isAfter(lastUpdatedDate))
+                if (updatedAt.isAfter(lastUpdatedDate)) {
                     lastUpdatedDate = updatedAt;
+                }
                 ++count;
             }
         }

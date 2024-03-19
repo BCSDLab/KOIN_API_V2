@@ -9,13 +9,42 @@ import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuImage;
 import in.koreatech.koin.domain.shop.model.MenuOption;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record MenuDetailResponse(Long id, Long shopId, String name, Boolean isHidden, Boolean isSingle,
-                                 Integer singlePrice, List<InnerOptionPriceResponse> optionPrices, String description,
-                                 List<Long> categoryIds, List<String> imageUrls) {
+public record MenuDetailResponse(
+    @Schema(example = "1", description = "고유id")
+    Long id,
+
+    @Schema(example = "1", description = "메뉴가 소속된 상점의 고유 id ")
+    Long shopId,
+
+    @Schema(example = "탕수육", description = "이름")
+    String name,
+
+    @Schema(example = "false", description = "숨김 여부")
+    Boolean isHidden,
+
+    @Schema(example = "false", description = "단일 메뉴 여부")
+    Boolean isSingle,
+
+    @Schema(example = "7000", description = "단일 메뉴일때(is_single이 true일때)의 가격")
+    Integer singlePrice,
+
+    @Schema(description = "옵션이 있는 메뉴일때(is_single이 false일때)의 가격")
+    List<InnerOptionPriceResponse> optionPrices,
+
+    @Schema(example = "돼지고기 + 튀김", description = "구성 설명")
+    String description,
+
+    @Schema(description = "소속되어 있는 메뉴 카테고리 고유 id 리스트")
+    List<Long> categoryIds,
+
+    @Schema(description = "이미지 URL 리스트")
+    List<String> imageUrls
+) {
 
     public static MenuDetailResponse createForSingleOption(Menu menu, List<MenuCategory> shopMenuCategories) {
         if (menu.hasMultipleOption()) {
@@ -56,7 +85,13 @@ public record MenuDetailResponse(Long id, Long shopId, String name, Boolean isHi
         );
     }
 
-    private record InnerOptionPriceResponse(String option, Integer price) {
+    private record InnerOptionPriceResponse(
+        @Schema(example = "소", description = "옵션명")
+        String option,
+
+        @Schema(example = "10000", description = "옵션에 대한 가격")
+        Integer price
+    ) {
         public static InnerOptionPriceResponse of(MenuOption menuOption) {
             return new InnerOptionPriceResponse(menuOption.getOption(), menuOption.getPrice());
         }
