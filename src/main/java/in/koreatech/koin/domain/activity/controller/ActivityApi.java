@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.activity.dto.ActivitiesResponseDTO;
+import in.koreatech.koin.domain.activity.dto.ActivitiesResponseList;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,7 +23,7 @@ public interface ActivityApi {
     )
     @Operation(summary = "BCSD Lab 활동 조회")
     @GetMapping("/activities")
-    ResponseEntity<ActivitiesResponseDTO> getActivities(
+    ResponseEntity<ActivitiesResponseList> getActivities(
         @RequestParam(required = false) String year
     );
 }

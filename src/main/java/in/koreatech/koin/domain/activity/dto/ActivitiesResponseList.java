@@ -7,12 +7,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public class ActivitiesResponseDTO {
+public class ActivitiesResponseList {
 
     @JsonProperty("Activities")
     private List<ActivityResponse> activities;
 
-    public ActivitiesResponseDTO(List<ActivityResponse> activities) {
+    public ActivitiesResponseList(List<ActivityResponse> activities) {
         this.activities = activities;
     }
 }

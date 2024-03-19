@@ -98,7 +98,7 @@ class ActivityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("Year 파라미터 없이 모든 BCSD Lab 활동 내역을 조회한다.")
+    @DisplayName("BCSD Lab 활동 내역을 조회한다. - 파라미터가 없는 경우 전체조회")
     void getActivitiesWithoutYear() {
         Activity request1 = Activity.builder()
             .title("BCSD/KAP 통합")
