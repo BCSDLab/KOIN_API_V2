@@ -37,8 +37,8 @@ public class UploadService {
             .add(String.valueOf(now.getDayOfMonth()))
             .add(UUID.randomUUID().toString());
 
-        String[] split = fileName.split("\\.");
-        String fileExt = split[split.length - 1];
+        String[] fileNameExt = fileName.split("\\.");
+        String fileExt = fileNameExt[fileNameExt.length - 1];
         return uploadPrefix + "." + fileExt;
     }
 }
