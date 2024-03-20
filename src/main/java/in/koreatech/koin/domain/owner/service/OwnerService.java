@@ -70,9 +70,8 @@ public class OwnerService {
 
     @Transactional
     public OwnerResponse putOwner(Long userId, OwnerUpdateRequest request) {
-        // 인증되지 않은 사장님이어야 할까?
-        // 인증 사진이 기존에 없는 사장님이어야 할까?
-        // size 예외처리 MethodArgumentNotValidException
+        // TODO
+        // 기존에 있는건 중복안되게
         Owner foundOwner = ownerRepository.getById(userId);
         List<OwnerAttachment> attachments = request.attachmentUrls().stream()
             .map(url -> OwnerAttachment.builder()

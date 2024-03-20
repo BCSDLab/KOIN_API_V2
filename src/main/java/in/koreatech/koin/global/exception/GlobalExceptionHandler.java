@@ -2,14 +2,14 @@ package in.koreatech.koin.global.exception;
 
 import java.time.format.DateTimeParseException;
 
-import in.koreatech.koin.global.auth.exception.AuthException;
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import in.koreatech.koin.global.auth.exception.AuthException;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
@@ -18,7 +18,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.warn(e.getMessage());
-        return ResponseEntity.badRequest().body(ErrorResponse.from(e.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse.from("요청 파라미터가 잘못되었습니다."));
     }
 
     @ExceptionHandler
