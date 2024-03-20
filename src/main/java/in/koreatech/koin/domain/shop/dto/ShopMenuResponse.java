@@ -56,7 +56,7 @@ public record ShopMenuResponse(
         String name,
 
         @Schema(description = "해당 상점의 모든 메뉴 리스트")
-        List<InnerMenuResponse> menu
+        List<InnerMenuResponse> menus
     ) {
         public static InnerMenuCategoriesResponse from(MenuCategory menuCategory) {
             return new InnerMenuCategoriesResponse(
