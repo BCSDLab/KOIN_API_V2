@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,13 +30,14 @@ public class UserService {
 
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
         User user = userRepository.getByEmail(request.email());
 
-        if (!user.isSamePassword(request.password())) {
+        if (!user.isSamePassword(passwordEncoder, request.password())) {
             throw new IllegalArgumentException("비밀번호가 틀렸습니다. request: " + request);
         }
 
