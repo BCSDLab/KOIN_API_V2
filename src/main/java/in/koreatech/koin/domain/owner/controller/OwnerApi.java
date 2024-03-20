@@ -5,9 +5,11 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
+import in.koreatech.koin.domain.owner.dto.OwnerUpdateRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,5 +49,22 @@ public interface OwnerApi {
     @GetMapping("/owner")
     ResponseEntity<OwnerResponse> getOwner(
         @Auth(permit = {OWNER}) Long userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "422", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "사장님 인증용 첨부파일 등록")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/owner")
+    ResponseEntity<OwnerResponse> putOwner(
+        @Auth(permit = {OWNER}) Long userId,
+        @RequestBody @Valid OwnerUpdateRequest request
     );
 }

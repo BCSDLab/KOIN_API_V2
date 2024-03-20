@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
+import in.koreatech.koin.domain.owner.dto.OwnerUpdateRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
@@ -65,5 +66,29 @@ public class OwnerService {
         List<OwnerAttachment> attachments = ownerAttachmentRepository.findAllByOwnerId(ownerId);
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
         return OwnerResponse.of(foundOwner, attachments, shops);
+    }
+
+    @Transactional
+    public OwnerResponse putOwner(Long userId, OwnerUpdateRequest request) {
+        // 인증되지 않은 사장님이어야 할까?
+        // 인증 사진이 기존에 없는 사장님이어야 할까?
+        // size 예외처리 MethodArgumentNotValidException
+        Owner foundOwner = ownerRepository.getById(userId);
+        List<OwnerAttachment> attachments = request.attachmentUrls().stream()
+            .map(url -> OwnerAttachment.builder()
+                .owner(foundOwner)
+                .url(url.fileUrl())
+                .isDeleted(false)
+                .build()
+            )
+            .toList();
+
+        for (OwnerAttachment attachment : attachments) {
+            ownerAttachmentRepository.save(attachment);
+        }
+
+        List<OwnerAttachment> allAttachments = ownerAttachmentRepository.findAllByOwnerId(userId);
+        List<Shop> shops = shopRepository.findAllByOwnerId(userId);
+        return OwnerResponse.of(foundOwner, allAttachments, shops);
     }
 }
