@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
@@ -29,11 +30,15 @@ class AuthApiTest extends AcceptanceTest {
     @Autowired
     private UserTokenRepository tokenRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Test
     @DisplayName("사용자가 로그인을 수행한다")
     void userLoginSuccess() {
+        String password = passwordEncoder.encode("1234");
         User user = User.builder()
-            .password("1234")
+            .password(password)
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
@@ -78,8 +83,9 @@ class AuthApiTest extends AcceptanceTest {
     @Test
     @DisplayName("사용자가 로그인 이후 로그아웃을 수행한다")
     void userLogoutSuccess() {
+        String password = passwordEncoder.encode("1234");
         User user = User.builder()
-            .password("1234")
+            .password(password)
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
@@ -123,8 +129,9 @@ class AuthApiTest extends AcceptanceTest {
     @Test
     @DisplayName("사용자가 로그인 이후 refreshToken을 재발급한다")
     void userRefreshToken() {
+        String password = passwordEncoder.encode("1234");
         User user = User.builder()
-            .password("1234")
+            .password(password)
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
