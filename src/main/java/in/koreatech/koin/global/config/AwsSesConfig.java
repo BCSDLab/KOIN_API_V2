@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.domain.email.config;
+package in.koreatech.koin.global.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,14 +14,14 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceAsyncClient;
 public class AwsSesConfig {
 
     @Value("${aws.ses.access-key}")
-    private String AWS_ACCESS_KEY_ID;
+    private String accessKey;
 
     @Value("${aws.ses.secret-key}")
-    private String AWS_SECRET_KEY;
+    private String secretKey;
 
     @Bean
     public AmazonSimpleEmailServiceAsync amazonSimpleEmailServiceAsync() {
-        BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(AWS_ACCESS_KEY_ID, AWS_SECRET_KEY);
+        BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(accessKey, secretKey);
 
         return AmazonSimpleEmailServiceAsyncClient.asyncBuilder()
             .withCredentials(new AWSStaticCredentialsProvider(basicAWSCredentials))
