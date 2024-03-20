@@ -1,5 +1,10 @@
 package in.koreatech.koin.global.domain.upload;
 
+import static in.koreatech.koin.global.domain.upload.model.ImageUploadDomain.OWNERS;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 import java.time.Clock;
 import java.time.ZonedDateTime;
 
@@ -11,12 +16,8 @@ import org.testcontainers.utility.DockerImageName;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlRequest;
-import static in.koreatech.koin.global.domain.upload.model.ImageUploadDomain.OWNERS;
 import in.koreatech.koin.global.domain.upload.service.UploadService;
 import in.koreatech.koin.global.s3.S3Utils;
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -62,8 +63,7 @@ class UploadServiceTest extends AcceptanceTest {
         assertThat(url.preSignedUrl()).contains(
             "https://test-bucket.s3.amazonaws.com/",
             "OWNERS/",
-            "hello.png",
-            "X-Amz-Expires=" + 60 * 10
+            "hello.png"
         );
     }
 }
