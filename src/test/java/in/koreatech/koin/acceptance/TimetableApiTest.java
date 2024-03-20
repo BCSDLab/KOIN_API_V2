@@ -1,7 +1,5 @@
 package in.koreatech.koin.acceptance;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
@@ -18,6 +16,7 @@ import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TimetableApiTest extends AcceptanceTest {
 

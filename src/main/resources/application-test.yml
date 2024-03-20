@@ -33,3 +33,9 @@ aws:
   ses:
     access-key:
     secret-key:
+
+s3:
+  key: test-ck
+  secret: test-sk
+  bucket: test-bucket
+  custom_domain: https://test.koreatech.in/

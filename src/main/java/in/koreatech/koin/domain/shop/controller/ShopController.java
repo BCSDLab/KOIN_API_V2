@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.service.ShopService;
@@ -18,12 +19,17 @@ public class ShopController implements ShopApi {
     private final ShopService shopService;
 
     @GetMapping("/shops/{shopId}/menus/{menuId}")
-    public ResponseEntity<ShopMenuResponse> findMenu(
+    public ResponseEntity<MenuDetailResponse> findMenu(
         @PathVariable Long shopId,
         @PathVariable Long menuId
     ) {
-        ShopMenuResponse shopMenu = shopService.findMenu(menuId);
+        MenuDetailResponse shopMenu = shopService.findMenu(menuId);
         return ResponseEntity.ok(shopMenu);
+    }
+
+    public ResponseEntity<ShopMenuResponse> findMenu(Long id) {
+        ShopMenuResponse shopMenuResponse = shopService.getShopMenu(id);
+        return ResponseEntity.ok(shopMenuResponse);
     }
 
     @GetMapping("/shops/{shopId}/menus/categories")

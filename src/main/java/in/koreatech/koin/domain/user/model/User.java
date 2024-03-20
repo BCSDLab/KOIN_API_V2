@@ -1,11 +1,10 @@
 package in.koreatech.koin.domain.user.model;
 
-import static lombok.AccessLevel.PROTECTED;
-
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -19,6 +18,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import static lombok.AccessLevel.PROTECTED;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -99,8 +99,8 @@ public class User extends BaseEntity {
 
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
-        String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-        Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt) {
+                 String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+                 Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -118,8 +118,8 @@ public class User extends BaseEntity {
         this.resetExpiredAt = resetExpiredAt;
     }
 
-    public boolean isSamePassword(String password) {
-        return this.password.equals(password);
+    public boolean isSamePassword(PasswordEncoder passwordEncoder, String password) {
+        return passwordEncoder.matches(password, this.password);
     }
 
     public void updateLastLoggedTime(LocalDateTime lastLoggedTime) {

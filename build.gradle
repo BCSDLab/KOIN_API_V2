@@ -31,12 +31,15 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-    implementation 'com.mysql:mysql-connector-j'
+
     implementation 'org.jsoup:jsoup:1.15.3'
     implementation 'com.amazonaws:aws-java-sdk:1.12.672'
 
     // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+
+    // security
+    implementation 'org.springframework.security:spring-security-crypto:6.2.2'
 
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
@@ -51,6 +54,13 @@ dependencies {
     testImplementation 'org.testcontainers:mysql'
     testImplementation 'io.rest-assured:rest-assured:5.3.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // presigned url
+    implementation platform('software.amazon.awssdk:bom:2.20.56')
+    implementation 'software.amazon.awssdk:s3'
+
+    // localstack
+    testImplementation 'org.testcontainers:localstack'
 }
 
 tasks.named('bootBuildImage') {
