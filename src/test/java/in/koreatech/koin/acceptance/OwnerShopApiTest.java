@@ -1,32 +1,23 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
-
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.junit.experimental.categories.Categories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
-import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
-import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryMapRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopImageRepository;
@@ -34,11 +25,13 @@ import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import in.koreatech.koin.global.auth.JwtProvider;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class OwnerShopApiTest extends AcceptanceTest {
 
