@@ -12,13 +12,7 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record UpdateTimeTableRequest(
-    @Schema(description = "시간표 정보", example = """
-        [
-        "class_title" : "운영체제",
-        "class_time" : "[210, 211]",
-        "grades" : "3"
-        ]
-        """)
+    @Schema(description = "시간표 정보", example = "[...]")
     @Valid
     @NotNull(message = "시간표 정보를 입력해주세요.")
     List<InnerTimeTableRequest> timetable,
