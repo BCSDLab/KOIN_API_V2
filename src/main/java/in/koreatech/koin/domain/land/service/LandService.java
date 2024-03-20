@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.land.dto.LandResponse;
+import in.koreatech.koin.domain.land.dto.LandsGroupResponse;
 import in.koreatech.koin.domain.land.dto.LandsResponse;
 import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.domain.land.repository.LandRepository;
@@ -21,11 +22,13 @@ public class LandService {
 
     private final LandRepository landRepository;
 
-    public List<LandsResponse> getLands() {
-        return landRepository.findAll()
+    public LandsGroupResponse getLands() {
+        List<LandsResponse> lands = landRepository.findAll()
             .stream()
             .map(LandsResponse::from)
             .toList();
+
+        return new LandsGroupResponse(lands);
     }
 
     public LandResponse getLand(Long id) {

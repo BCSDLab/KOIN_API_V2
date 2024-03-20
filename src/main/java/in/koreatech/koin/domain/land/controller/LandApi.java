@@ -2,14 +2,12 @@ package in.koreatech.koin.domain.land.controller;
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import in.koreatech.koin.domain.land.dto.LandResponse;
-import in.koreatech.koin.domain.land.dto.LandsResponse;
+import in.koreatech.koin.domain.land.dto.LandsGroupResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,7 +27,7 @@ public interface LandApi {
     )
     @Operation(summary = "복덕방 목록 조회")
     @GetMapping("/lands")
-    ResponseEntity<List<LandsResponse>> getLands();
+    ResponseEntity<LandsGroupResponse> getLands();
 
     @ApiResponses(
         value = {
