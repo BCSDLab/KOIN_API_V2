@@ -74,7 +74,7 @@ public record TimeTableResponse(
 
     private static List<Integer> parseIntegerClassTimesFromString(String classTime) {
         String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX,
-            classTime.length() - INITIAL_BRACE_INDEX);
+            classTime.length() - 1);
 
         if (!classTimeWithoutBrackets.isEmpty()) {
             return Arrays.stream(classTimeWithoutBrackets.split(", "))

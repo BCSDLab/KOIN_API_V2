@@ -66,26 +66,24 @@ public record TimeTableRequest(
         @Schema(name = "memo", example = "null")
         String memo
     ) {
-
-    }
-
-    public static TimeTable toTimeTable(User user, Semester semester, InnerTimeTableRequest request) {
-        return TimeTable.builder()
-            .user(user)
-            .semester(semester)
-            .code(request.code())
-            .classTitle(request.classTitle())
-            .classTime(Arrays.toString(request.classTime().stream().toArray()))
-            .classPlace(request.classPlace())
-            .professor(request.professor())
-            .grades(request.grades())
-            .lectureClass(request.lectureClass())
-            .target(request.target())
-            .regularNumber(request.regularNumber())
-            .designScore(request.designScore())
-            .department(request.department())
-            .memo(request.memo())
-            .isDeleted(false)
-            .build();
+        public TimeTable toTimeTable(User user, Semester semester) {
+            return TimeTable.builder()
+                .user(user)
+                .semester(semester)
+                .code(this.code)
+                .classTitle(this.classTitle())
+                .classTime(Arrays.toString(this.classTime().stream().toArray()))
+                .classPlace(this.classPlace())
+                .professor(this.professor())
+                .grades(this.grades())
+                .lectureClass(this.lectureClass())
+                .target(this.target())
+                .regularNumber(this.regularNumber())
+                .designScore(this.designScore())
+                .department(this.department())
+                .memo(this.memo())
+                .isDeleted(false)
+                .build();
+        }
     }
 }
