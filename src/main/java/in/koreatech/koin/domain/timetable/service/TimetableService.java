@@ -43,7 +43,7 @@ public class TimetableService {
     public List<TimeTableResponse> getTimeTables(Long userId, String semester) {
         Semester semesterEntity = semesterRepository.getBySemester(semester);
 
-        return getTimeTableResponse(userId, semesterEntity);
+        return getTimeTableResponse(userId, semesterEntity.getId());
     }
 
     @Transactional
@@ -56,7 +56,7 @@ public class TimetableService {
             timeTableRepository.save(timeTable);
         }
 
-        return getTimeTableResponse(userId, semester);
+        return getTimeTableResponse(userId, semester.getId());
     }
 
     @Transactional
@@ -68,7 +68,7 @@ public class TimetableService {
             timeTable.update(timeTableRequest);
         }
 
-        return getTimeTableResponse(userId, semester);
+        return getTimeTableResponse(userId, semester.getId());
     }
 
     @Transactional
@@ -77,8 +77,8 @@ public class TimetableService {
         timeTable.updateIsDeleted(true);
     }
 
-    private List<TimeTableResponse> getTimeTableResponse(Long userId, Semester semesterEntity) {
-        List<TimeTable> timeTables = timeTableRepository.getByUserIdAndSemesterId(userId, semesterEntity.getId());
+    private List<TimeTableResponse> getTimeTableResponse(Long userId, Long semesterId) {
+        List<TimeTable> timeTables = timeTableRepository.findAllByUserIdAndSemesterId(userId, semesterId);
 
         return timeTables.stream()
             .map(TimeTableResponse::from)
