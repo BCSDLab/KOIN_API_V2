@@ -54,9 +54,7 @@ public class TimetableService {
         User user = userRepository.getById(userId);
         Semester semester = semesterRepository.getBySemester(request.semester());
 
-        List<TimeTableRequest.InnerTimeTableRequest> timeTableRequests = request.timetable();
-
-        for (TimeTableRequest.InnerTimeTableRequest timeTableRequest : timeTableRequests) {
+        for (TimeTableRequest.InnerTimeTableRequest timeTableRequest : request.timetable()) {
             TimeTable timeTable = TimeTableRequest.toTimeTable(user, semester, timeTableRequest);
             timeTableRepository.save(timeTable);
         }

@@ -77,7 +77,7 @@ public record TimeTableResponse(
             classTime.length() - INITIAL_BRACE_INDEX);
 
         if (!classTimeWithoutBrackets.isEmpty()) {
-            return Arrays.stream(classTime.split(", "))
+            return Arrays.stream(classTimeWithoutBrackets.split(", "))
                 .map(Integer::parseInt)
                 .toList();
         } else {

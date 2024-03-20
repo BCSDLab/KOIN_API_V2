@@ -416,10 +416,9 @@ class TimetableApiTest extends AcceptanceTest {
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
-            .param("semester", "20192")
+            .param("semester", "20231")
             .get("/timetables")
             .then()
-            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
 
