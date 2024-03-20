@@ -40,7 +40,9 @@ public record ShopMenuResponse(
         }
         return new ShopMenuResponse(
             count,
-            menuCategories.stream().map(InnerMenuCategoriesResponse::from).toList(),
+            menuCategories.stream()
+                .filter(menuCategory -> menuCategory.getMenuCategoryMaps().size() > 0)
+                .map(InnerMenuCategoriesResponse::from).toList(),
             lastUpdatedDate
         );
     }
@@ -54,7 +56,7 @@ public record ShopMenuResponse(
         String name,
 
         @Schema(description = "해당 상점의 모든 메뉴 리스트")
-        List<InnerMenuResponse> menuResponses
+        List<InnerMenuResponse> menu
     ) {
         public static InnerMenuCategoriesResponse from(MenuCategory menuCategory) {
             return new InnerMenuCategoriesResponse(
@@ -66,14 +68,11 @@ public record ShopMenuResponse(
 
         @JsonNaming(value = SnakeCaseStrategy.class)
         private record InnerMenuResponse(
-            @Schema(example = "저희 식당의 대표 메뉴 탕수육입니다.", description = "설명")
-            String description,
-
             @Schema(example = "1", description = "고유 id")
             Long id,
 
-            @Schema(description = "이미지 URL리스트")
-            List<String> imageUrls,
+            @Schema(example = "탕수육", description = "이름")
+            String name,
 
             @Schema(example = "false", description = "숨김 여부")
             Boolean isHidden,
@@ -81,27 +80,30 @@ public record ShopMenuResponse(
             @Schema(example = "false", description = "단일 메뉴 여부")
             Boolean isSingle,
 
-            @Schema(example = "탕수육", description = "이름")
-            String name,
+            @Schema(example = "10000", description = "단일 메뉴일때(is_single이 true일때)의 가격")
+            Integer singlePrice,
 
             @Schema(description = "옵션이 있는 메뉴일때(is_single이 false일때)의 옵션에 따른 가격 리스트")
             List<InnerOptionPrice> optionPrices,
 
-            @Schema(example = "10000", description = "단일 메뉴일때(is_single이 true일때)의 가격")
-            Integer singlePrice
+            @Schema(example = "저희 식당의 대표 메뉴 탕수육입니다.", description = "설명")
+            String description,
+
+            @Schema(description = "이미지 URL리스트")
+            List<String> imageUrls
         ) {
             public static InnerMenuResponse from(MenuCategoryMap menuCategoryMap) {
                 Menu menu = menuCategoryMap.getMenu();
                 boolean isSingle = !menu.hasMultipleOption();
                 return new InnerMenuResponse(
-                    menu.getDescription(),
                     menu.getId(),
-                    menu.getMenuImages().stream().map(MenuImage::getImageUrl).toList(),
+                    menu.getName(),
                     menu.getIsHidden(),
                     isSingle,
-                    menu.getName(),
+                    isSingle ? menu.getMenuOptions().get(0).getPrice() : null,
                     isSingle ? null : menu.getMenuOptions().stream().map(InnerOptionPrice::from).toList(),
-                    isSingle ? menu.getMenuOptions().get(0).getPrice() : null
+                    menu.getDescription(),
+                    menu.getMenuImages().stream().map(MenuImage::getImageUrl).toList()
                 );
             }
 
