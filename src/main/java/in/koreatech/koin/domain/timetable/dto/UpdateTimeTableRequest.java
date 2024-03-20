@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.timetable.dto;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,7 +10,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record UpdateTimeTableRequest(
     @Schema(description = "시간표 정보", example = """
         [
@@ -26,8 +26,8 @@ public record UpdateTimeTableRequest(
     @Schema(description = "학기 정보", example = "20192")
     @NotBlank(message = "학기 정보를 입력해주세요.")
     String semester
-){
-    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+) {
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimeTableRequest(
         @Schema(description = "시간표 식별 번호", example = "1")
         @NotNull(message = "시간표 식별 번호를 입력해주세요.")
@@ -71,7 +71,7 @@ public record UpdateTimeTableRequest(
 
         @Schema(name = "memo", example = "null")
         String memo
-    ){
+    ) {
 
     }
 }

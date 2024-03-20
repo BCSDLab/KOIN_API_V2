@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.timetable.dto;
 import java.util.Arrays;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetable.model.Semester;
@@ -14,15 +14,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record TimeTableRequest (
-    @Schema(description = "시간표 정보", example = """
-        [
-        "class_title" : "운영체제",
-        "class_time" : "[210, 211]",
-        "grades" : "3"
-        ]
-        """)
+@JsonNaming(value = SnakeCaseStrategy.class)
+public record TimeTableRequest(
+    @Schema(description = "시간표 정보", example = "[...]")
     @Valid
     @NotNull(message = "시간표 정보를 입력해주세요.")
     List<InnerTimeTableRequest> timetable,
@@ -30,8 +24,8 @@ public record TimeTableRequest (
     @Schema(description = "학기 정보", example = "20192")
     @NotBlank(message = "학기 정보를 입력해주세요.")
     String semester
-){
-    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+) {
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimeTableRequest(
         @Schema(description = "과목 코드", example = "CPC490")
         String code,
@@ -71,10 +65,11 @@ public record TimeTableRequest (
 
         @Schema(name = "memo", example = "null")
         String memo
-    ){
+    ) {
 
     }
-    public static TimeTable toEntity(User user, Semester semester, InnerTimeTableRequest request){
+
+    public static TimeTable toTimeTable(User user, Semester semester, InnerTimeTableRequest request) {
         return TimeTable.builder()
             .user(user)
             .semester(semester)

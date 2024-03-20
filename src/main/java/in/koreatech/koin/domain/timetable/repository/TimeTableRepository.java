@@ -18,18 +18,11 @@ public interface TimeTableRepository extends Repository<TimeTable, Long> {
 
     void deleteByUserIdAndSemesterId(Long userId, Long semesterId);
 
-    default List<TimeTable> getByUserIdAndSemesterId(Long userId, Long semesterId){
-
-        List<TimeTable> timeTables = findByUserIdAndSemesterId(userId, semesterId);
-
-        if(timeTables.isEmpty()){
-            throw new TimeTableNotFoundException("userId, semesterId: " + userId + ", " + semesterId);
-        }
-
-        return timeTables;
+    default List<TimeTable> getByUserIdAndSemesterId(Long userId, Long semesterId) {
+        return findByUserIdAndSemesterId(userId, semesterId);
     }
 
-    default TimeTable getById(Long id){
+    default TimeTable getById(Long id) {
         return findById(id)
             .orElseThrow(() -> TimeTableNotFoundException.withDetail("id: " + id));
     }

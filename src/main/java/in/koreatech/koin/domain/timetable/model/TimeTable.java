@@ -116,7 +116,7 @@ public class TimeTable extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
-    public void update(UpdateTimeTableRequest.InnerTimeTableRequest timeTableRequest){
+    public void update(UpdateTimeTableRequest.InnerTimeTableRequest timeTableRequest) {
         this.code = timeTableRequest.code();
         this.classTitle = timeTableRequest.classTitle();
         this.classTime = timeTableRequest.classTime().toString();
@@ -132,8 +132,7 @@ public class TimeTable extends BaseEntity {
         this.isDeleted = false;
     }
 
-
-    public void updateIsDeleted(Boolean isDeleted){
+    public void updateIsDeleted(Boolean isDeleted) {
         this.isDeleted = isDeleted;
     }
 }

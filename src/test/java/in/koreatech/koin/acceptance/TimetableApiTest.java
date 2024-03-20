@@ -26,7 +26,6 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import static org.assertj.core.api.Assertions.assertThat;
 
 class TimetableApiTest extends AcceptanceTest {
 
@@ -262,7 +261,7 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("시간표를 조회한다.")
-    void getTimeTables(){
+    void getTimeTables() {
         User userT = User.builder()
             .password("1234")
             .nickname("주노")
@@ -366,7 +365,7 @@ class TimetableApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getString("[0].class_title")).
                     isEqualTo(timeTable1.getClassTitle());
                 softly.assertThat(response.body().jsonPath().getList("[0].class_time", Integer.class))
-                        .containsExactlyInAnyOrderElementsOf(List.of(14, 15, 16, 17, 204, 205, 206, 207));
+                    .containsExactlyInAnyOrderElementsOf(List.of(14, 15, 16, 17, 204, 205, 206, 207));
                 softly.assertThat(response.body().jsonPath().getString("[0].class_place"))
                     .isEqualTo(timeTable1.getClassPlace());
                 softly.assertThat(response.body().jsonPath().getString("[0].professor"))
@@ -391,7 +390,7 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("조회된 시간표가 없으면 404에러를 반환한다.")
-    void getTimeTablesNotFound(){
+    void getTimeTablesNotFound() {
         User userT = User.builder()
             .password("1234")
             .nickname("주노")
@@ -428,7 +427,7 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("시간표를 생성한다.")
-    void createTimeTables(){
+    void createTimeTables() {
         User userT = User.builder()
             .password("1234")
             .nickname("주노")
@@ -538,7 +537,7 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("시간표 생성시 필수 필드를 안넣을때 에러코드400을 반환한다.")
-    void createTimeTablesBadRequest(){
+    void createTimeTablesBadRequest() {
         User userT = User.builder()
             .password("1234")
             .nickname("주노")
@@ -747,8 +746,8 @@ class TimetableApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("시간표 삭제한다.")
-    void deleteTimeTable(){
+    @DisplayName("시간표를 삭제한다.")
+    void deleteTimeTable() {
         User userT = User.builder()
             .password("1234")
             .nickname("주노")
@@ -798,11 +797,23 @@ class TimetableApiTest extends AcceptanceTest {
             .delete("/timetable")
             .then()
             .statusCode(HttpStatus.OK.value());
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .param("semester", "20192")
+            .get("/timetables")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertThat(response.body().jsonPath().getList("timetable")).hasSize(0);
     }
 
     @Test
     @DisplayName("시간표 삭제 실패시(=조회 실패시) 404 에러코드를 반환한다.")
-    void deleteTimeTableNotFound(){
+    void deleteTimeTableNotFound() {
         User userT = User.builder()
             .password("1234")
             .nickname("주노")

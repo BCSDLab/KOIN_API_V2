@@ -40,9 +40,9 @@ public class TimetableService {
             .toList();
     }
 
-    public List<TimeTableResponse> getTimeTables(Long userId, String semester){
-        List<TimeTable> timeTables = timeTableRepository.
-            getByUserIdAndSemesterId(userId, semesterRepository.getBySemester(semester).getId());
+    public List<TimeTableResponse> getTimeTables(Long userId, String semester) {
+        Semester semesterEntity = semesterRepository.getBySemester(semester);
+        List<TimeTable> timeTables = timeTableRepository.getByUserIdAndSemesterId(userId, semesterEntity.getId());
 
         return timeTables.stream()
             .map(TimeTableResponse::from)
@@ -50,14 +50,14 @@ public class TimetableService {
     }
 
     @Transactional
-    public List<TimeTableResponse> createTimeTables(Long userId, TimeTableRequest request){
+    public List<TimeTableResponse> createTimeTables(Long userId, TimeTableRequest request) {
         User user = userRepository.getById(userId);
         Semester semester = semesterRepository.getBySemester(request.semester());
 
         List<TimeTableRequest.InnerTimeTableRequest> timeTableRequests = request.timetable();
 
-        for(TimeTableRequest.InnerTimeTableRequest timeTableRequest : timeTableRequests){
-            TimeTable timeTable = TimeTableRequest.toEntity(user, semester, timeTableRequest);
+        for (TimeTableRequest.InnerTimeTableRequest timeTableRequest : timeTableRequests) {
+            TimeTable timeTable = TimeTableRequest.toTimeTable(user, semester, timeTableRequest);
             timeTableRepository.save(timeTable);
         }
 
@@ -65,12 +65,10 @@ public class TimetableService {
     }
 
     @Transactional
-    public List<TimeTableResponse> updateTimeTables(Long userId, UpdateTimeTableRequest request){
+    public List<TimeTableResponse> updateTimeTables(Long userId, UpdateTimeTableRequest request) {
         Semester semester = semesterRepository.getBySemester(request.semester());
 
-        List<UpdateTimeTableRequest.InnerTimeTableRequest> timeTableRequests = request.timetable();
-
-        for(UpdateTimeTableRequest.InnerTimeTableRequest timeTableRequest : timeTableRequests){
+        for (UpdateTimeTableRequest.InnerTimeTableRequest timeTableRequest : request.timetable()) {
             TimeTable timeTable = timeTableRepository.getById(timeTableRequest.id());
             timeTable.update(timeTableRequest);
         }
@@ -79,7 +77,7 @@ public class TimetableService {
     }
 
     @Transactional
-    public void deleteTimeTable(Long id){
+    public void deleteTimeTable(Long id) {
         TimeTable timeTable = timeTableRepository.getById(id);
         timeTable.updateIsDeleted(true);
     }

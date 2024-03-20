@@ -58,7 +58,7 @@ public class TimetableController implements TimetableApi {
     public ResponseEntity<List<TimeTableResponse>> createTimeTables(
         @Valid @RequestBody TimeTableRequest request,
         @Auth(permit = {STUDENT}) Long userId
-    ){
+    ) {
         List<TimeTableResponse> timeTableResponse = timetableService.createTimeTables(userId, request);
         return ResponseEntity.ok(timeTableResponse);
     }

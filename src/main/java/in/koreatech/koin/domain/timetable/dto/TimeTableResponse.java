@@ -1,16 +1,16 @@
 package in.koreatech.koin.domain.timetable.dto;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetable.model.TimeTable;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record TimeTableResponse(
     @Schema(name = "시간표 번호", example = "1")
     Long id,
@@ -51,12 +51,15 @@ public record TimeTableResponse(
     @Schema(name = "memo", example = "null")
     String memo
 ) {
-    public static TimeTableResponse from(TimeTable timeTable){
+
+    private static final int INITIAL_BRACE_INDEX = 1;
+
+    public static TimeTableResponse from(TimeTable timeTable) {
         return new TimeTableResponse(
             timeTable.getId(),
             timeTable.getCode(),
             timeTable.getClassTitle(),
-            toListClassTime(timeTable.getClassTime()),
+            parseIntegerClassTimesFromString(timeTable.getClassTime()),
             timeTable.getClassPlace(),
             timeTable.getProfessor(),
             timeTable.getGrades(),
@@ -69,17 +72,16 @@ public record TimeTableResponse(
         );
     }
 
-    private static List<Integer> toListClassTime(String classTime) {
-        classTime = classTime.substring(1, classTime.length() - 1);
+    private static List<Integer> parseIntegerClassTimesFromString(String classTime) {
+        String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX,
+            classTime.length() - INITIAL_BRACE_INDEX);
 
-        if (!classTime.isEmpty()) {
-            List<String> numbers = List.of(classTime.split(", "));
-
-            return numbers.stream()
+        if (!classTimeWithoutBrackets.isEmpty()) {
+            return Arrays.stream(classTime.split(", "))
                 .map(Integer::parseInt)
-                .collect(Collectors.toList());
+                .toList();
         } else {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 }
