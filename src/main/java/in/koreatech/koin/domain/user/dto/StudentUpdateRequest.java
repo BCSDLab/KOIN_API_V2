@@ -1,0 +1,42 @@
+package in.koreatech.koin.domain.user.dto;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
+
+@JsonNaming(value = SnakeCaseStrategy.class)
+public record StudentUpdateRequest
+    (
+        @Schema(description = "성별(남:0, 여:1)", example = "1")
+        String gender,
+
+        @Schema(description = "[NOT UPDATE]신원(학생, 사장님)", example = "학생")
+        String userIdentity,
+
+        @Schema(description = "[NOT UPDATE]졸업 여부(true, false)", example = "false")
+        Boolean isGraduated,
+
+        @Schema(description = "전공{기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인건축공학부, 에너지신소재화학공학부, 산업경영학부}", example = "컴퓨터공학부")
+        Integer major,
+
+        @Size(max = 50, message = "이름의 길이는 최대 50자 입니다.")
+        @Schema(description = "이름", example = "최준호")
+        String name,
+
+        @Size(max = 10, message = "닉네임은 10자 이내여야 합니다.")
+        @Schema(description = "닉네임", example = "juno")
+        String nickname,
+
+        @Schema(description = "비밀번호", example = "a0240120305812krlakdsflsa;1235")
+        String password,
+
+        @Schema(description = "휴대폰 번호", example = "010-0000-0000")
+        String phoneNumber,
+
+        @Size(max = 50, message = "학번은 50자 이내여야 합니다.")
+        @Schema(description = "학번", example = "2020136065")
+        String studentNumber
+    ) {
+}

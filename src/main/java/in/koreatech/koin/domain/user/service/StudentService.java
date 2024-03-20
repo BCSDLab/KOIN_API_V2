@@ -4,7 +4,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.user.dto.StudentResponse;
+import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
+import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -18,5 +21,12 @@ public class StudentService {
     public StudentResponse getStudent(Long userId) {
         Student student = studentRepository.getById(userId);
         return StudentResponse.from(student);
+    }
+
+    @Transactional
+    public StudentUpdateResponse updateStudent(Long userId, StudentUpdateRequest studentUpdateRequest) {
+        Student student = studentRepository.getById(userId);
+        User user = student.getUser();
+
     }
 }
