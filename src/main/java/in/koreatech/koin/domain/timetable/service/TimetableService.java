@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
-import in.koreatech.koin.domain.timetable.dto.UpdateTimeTableRequest;
+import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
@@ -63,10 +63,10 @@ public class TimetableService {
     }
 
     @Transactional
-    public List<TimeTableResponse> updateTimeTables(Long userId, UpdateTimeTableRequest request) {
+    public List<TimeTableResponse> updateTimeTables(Long userId, TimeTableUpdateRequest request) {
         Semester semester = semesterRepository.getBySemester(request.semester());
 
-        for (UpdateTimeTableRequest.InnerTimeTableRequest timeTableRequest : request.timetable()) {
+        for (TimeTableUpdateRequest.InnerTimeTableRequest timeTableRequest : request.timetable()) {
             TimeTable timeTable = timeTableRepository.getById(timeTableRequest.id());
             timeTable.update(timeTableRequest);
         }

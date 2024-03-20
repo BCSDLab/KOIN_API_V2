@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.timetable.model;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.domain.timetable.dto.UpdateTimeTableRequest;
+import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -116,7 +116,7 @@ public class TimeTable extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
-    public void update(UpdateTimeTableRequest.InnerTimeTableRequest timeTableRequest) {
+    public void update(TimeTableUpdateRequest.InnerTimeTableRequest timeTableRequest) {
         this.code = timeTableRequest.code();
         this.classTitle = timeTableRequest.classTitle();
         this.classTime = timeTableRequest.classTime().toString();

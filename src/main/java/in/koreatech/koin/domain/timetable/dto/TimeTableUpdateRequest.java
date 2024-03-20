@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record UpdateTimeTableRequest(
+public record TimeTableUpdateRequest(
     @Schema(description = "시간표 정보", example = "[...]")
     @Valid
     @NotNull(message = "시간표 정보를 입력해주세요.")

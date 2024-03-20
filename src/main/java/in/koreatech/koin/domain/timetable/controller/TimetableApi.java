@@ -15,7 +15,7 @@ import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
-import in.koreatech.koin.domain.timetable.dto.UpdateTimeTableRequest;
+import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -98,7 +98,7 @@ public interface TimetableApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/timetables")
     ResponseEntity<List<TimeTableResponse>> updateTimeTable(
-        @RequestBody UpdateTimeTableRequest request,
+        @RequestBody TimeTableUpdateRequest request,
         @Auth(permit = {STUDENT}) Long userId
     );
 
