@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -35,11 +36,9 @@ import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class ShopApiTest extends AcceptanceTest {
 
