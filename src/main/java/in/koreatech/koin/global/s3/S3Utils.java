@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.Protocol;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -39,8 +37,6 @@ public class S3Utils {
         @Value("${s3.bucket}") String bucketName,
         @Value("${s3.custom_domain}") String domainUrlPrefix
     ) {
-        ClientConfiguration clientConfig = new ClientConfiguration();
-        clientConfig.setProtocol(Protocol.HTTPS);
         this.presignerBuilder = presignerBuilder;
         this.s3Client = s3Client;
         this.clock = clock;
