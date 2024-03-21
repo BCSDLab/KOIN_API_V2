@@ -1,5 +1,7 @@
 package in.koreatech.koin.global.domain.upload.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.domain.upload.dto.UploadFileResponse;
+import in.koreatech.koin.global.domain.upload.dto.UploadFilesResponse;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlRequest;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlResponse;
 import in.koreatech.koin.global.domain.upload.model.ImageUploadDomain;
@@ -48,6 +51,20 @@ public class UploadController implements UploadApi {
         @Auth(permit = {OWNER, STUDENT}) Long memberId
     ) {
         var response = uploadService.uploadFile(domain, multipartFile);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping(
+        value = "/{domain}/upload/files",
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<UploadFilesResponse> uploadFiles(
+        @PathVariable ImageUploadDomain domain,
+        @RequestPart List<MultipartFile> files,
+        @Auth(permit = {OWNER, STUDENT}) Long memberId
+    ) {
+        var response = uploadService.uploadFiles(domain, files);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }
