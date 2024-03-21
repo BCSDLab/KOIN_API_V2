@@ -104,7 +104,6 @@ class OwnerApiTest extends AcceptanceTest {
             .when()
             .get("/owner")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -171,5 +170,110 @@ class OwnerApiTest extends AcceptanceTest {
         OwnerEmailRequestEvent event = new OwnerEmailRequestEvent("test@gmail.com");
 
         Mockito.verify(ownerEventListener).onOwnerEmailRequest(event);
+    }
+
+    @Test
+    @DisplayName("사장님 인증용 이미지를 업로드한다.")
+    void putOwner() {
+        // given
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(OWNER)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        Owner ownerRequest = Owner.builder()
+            .companyRegistrationNumber("123-45-67890")
+            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
+            .grantShop(true)
+            .grantEvent(true)
+            .user(user)
+            .build();
+
+        Owner owner = ownerRepository.save(ownerRequest);
+
+        Shop shopRequest = Shop.builder()
+            .owner(owner)
+            .name("테스트 상점")
+            .internalName("테스트")
+            .chosung("테스트")
+            .phone("010-1234-5678")
+            .address("대전광역시 유성구 대학로 291")
+            .description("테스트 상점입니다.")
+            .delivery(true)
+            .deliveryPrice(3000L)
+            .payCard(true)
+            .payBank(true)
+            .isDeleted(false)
+            .isEvent(false)
+            .remarks("비고")
+            .hit(0L)
+            .build();
+
+        Shop shop = shopRepository.save(shopRequest);
+
+        String token = jwtProvider.createToken(owner.getUser());
+
+        // when then
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .body("""
+                    {
+                      "attachment_urls": [
+                        {
+                          "file_url": "https://static.koreatech.in/example/example_image1.png"
+                        },
+                        {
+                          "file_url": "https://static.koreatech.in/example/example_image2.png"
+                        },
+                        {
+                          "file_url": "https://static.koreatech.in/example/example_image3.png"
+                        }
+                      ]
+                    }
+                """)
+            .contentType(ContentType.JSON)
+            .when()
+            .put("/owner")
+            .then().log().all()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getString("email")).isEqualTo(user.getEmail());
+                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(user.getName());
+                softly.assertThat(response.body().jsonPath().getString("company_number"))
+                    .isEqualTo(owner.getCompanyRegistrationNumber());
+
+                softly.assertThat(response.body().jsonPath().getList("attachments").size()).isEqualTo(3);
+                softly.assertThat(response.body().jsonPath().getLong("attachments[0].id")).isNotNull();
+                softly.assertThat(response.body().jsonPath().getString("attachments[0].file_url"))
+                    .isEqualTo("https://static.koreatech.in/example/example_image1.png");
+                softly.assertThat(response.body().jsonPath().getString("attachments[0].file_name"))
+                    .isEqualTo("example_image1.png");
+                softly.assertThat(response.body().jsonPath().getLong("attachments[1].id")).isNotNull();
+                softly.assertThat(response.body().jsonPath().getString("attachments[1].file_url"))
+                    .isEqualTo("https://static.koreatech.in/example/example_image2.png");
+                softly.assertThat(response.body().jsonPath().getString("attachments[1].file_name"))
+                    .isEqualTo("example_image2.png");
+                softly.assertThat(response.body().jsonPath().getLong("attachments[2].id")).isNotNull();
+                softly.assertThat(response.body().jsonPath().getString("attachments[2].file_url"))
+                    .isEqualTo("https://static.koreatech.in/example/example_image3.png");
+                softly.assertThat(response.body().jsonPath().getString("attachments[2].file_name"))
+                    .isEqualTo("example_image3.png");
+
+                softly.assertThat(response.body().jsonPath().getList("shops").size()).isEqualTo(1);
+                softly.assertThat(response.body().jsonPath().getLong("shops[0].id")).isEqualTo(shop.getId());
+                softly.assertThat(response.body().jsonPath().getString("shops[0].name")).isEqualTo(shop.getName());
+            }
+        );
     }
 }
