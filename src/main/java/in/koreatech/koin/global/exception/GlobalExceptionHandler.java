@@ -56,4 +56,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse.from("잘못된 날짜 형식입니다."));
     }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleArgumentCountException(ArgumentCountException e) {
+        log.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse.from("요청 파라미터가 잘못되었습니다."));
+    }
 }

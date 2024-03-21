@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerUpdateRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
+import in.koreatech.koin.domain.owner.exception.OwnerAttachmentsCountException;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
@@ -31,6 +32,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class OwnerService {
+
+    private static final int MIN_ATTACHMENT_COUNT = 3;
 
     private final UserRepository userRepository;
     private final OwnerInVerificationRepository ownerInVerificationRepository;
@@ -70,8 +73,6 @@ public class OwnerService {
 
     @Transactional
     public OwnerResponse putOwner(Long userId, OwnerUpdateRequest request) {
-        // TODO
-        // 기존에 있는건 중복안되게
         Owner foundOwner = ownerRepository.getById(userId);
         List<OwnerAttachment> attachments = request.attachmentUrls().stream()
             .map(url -> OwnerAttachment.builder()
@@ -83,11 +84,21 @@ public class OwnerService {
             .toList();
 
         for (OwnerAttachment attachment : attachments) {
+            if (ownerAttachmentRepository.findByOwnerIdAndUrl(userId, attachment.getUrl()).isPresent()) {
+                continue;
+            }
             ownerAttachmentRepository.save(attachment);
         }
 
         List<OwnerAttachment> allAttachments = ownerAttachmentRepository.findAllByOwnerId(userId);
+        validateAttachments(allAttachments);
         List<Shop> shops = shopRepository.findAllByOwnerId(userId);
         return OwnerResponse.of(foundOwner, allAttachments, shops);
+    }
+
+    private void validateAttachments(List<OwnerAttachment> allAttachments) {
+        if (allAttachments.size() < MIN_ATTACHMENT_COUNT) {
+            throw OwnerAttachmentsCountException.withDetail("attachments size: " + allAttachments.size());
+        }
     }
 }
