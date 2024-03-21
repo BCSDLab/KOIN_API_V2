@@ -16,7 +16,9 @@ public class SwaggerConfig {
 
     private final String serverUrl;
 
-    public SwaggerConfig(@Value("${swagger.server-url}") String serverUrl) {
+    public SwaggerConfig(
+        @Value("${swagger.server-url}") String serverUrl
+    ) {
         this.serverUrl = serverUrl;
     }
 
