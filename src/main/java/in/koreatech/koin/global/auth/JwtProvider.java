@@ -10,23 +10,26 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.global.auth.exception.AuthException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.auth.exception.AuthException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 
 @Component
-@RequiredArgsConstructor
 public class JwtProvider {
 
-    @Value("${jwt.secret-key}")
-    private String secretKey;
+    private final String secretKey;
+    private final Long expirationTime;
 
-    @Value("${jwt.access-token.expiration-time}")
-    private Long expirationTime;
+    public JwtProvider(
+        @Value("${jwt.secret-key}") String secretKey,
+        @Value("${jwt.access-token.expiration-time}") Long expirationTime
+    ) {
+        this.secretKey = secretKey;
+        this.expirationTime = expirationTime;
+    }
 
     public String createToken(User user) {
         if (user == null) {

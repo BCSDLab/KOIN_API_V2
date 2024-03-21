@@ -13,11 +13,16 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceAsyncClient;
 @Configuration
 public class AwsSesConfig {
 
-    @Value("${aws.ses.access-key}")
-    private String accessKey;
+    private final String accessKey;
+    private final String secretKey;
 
-    @Value("${aws.ses.secret-key}")
-    private String secretKey;
+    public AwsSesConfig(
+        @Value("${aws.ses.access-key}") String accessKey,
+        @Value("${aws.ses.secret-key}") String secretKey
+    ) {
+        this.accessKey = accessKey;
+        this.secretKey = secretKey;
+    }
 
     @Bean
     public AmazonSimpleEmailServiceAsync amazonSimpleEmailServiceAsync() {
