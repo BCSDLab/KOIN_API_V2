@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record UploadFileResponse(
-    @Schema(description = "", example = "")
+    @Schema(description = "첨부 파일 URL", example = "https://static.koreatech.in/1.png")
     String fileUrl
 ) {
 
