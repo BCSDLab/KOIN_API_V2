@@ -1,6 +1,8 @@
 package in.koreatech.koin.global.domain.upload.controller;
 
 
+import java.util.List;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,15 +11,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import in.koreatech.koin.domain.user.model.UserType;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.domain.upload.dto.UploadFileResponse;
+import in.koreatech.koin.global.domain.upload.dto.UploadFilesResponse;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlRequest;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlResponse;
 import in.koreatech.koin.global.domain.upload.model.ImageUploadDomain;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -52,7 +56,7 @@ public interface UploadApi {
     ResponseEntity<UploadUrlResponse> getPresignedUrl(
         @PathVariable ImageUploadDomain domain,
         @RequestBody @Valid UploadUrlRequest request,
-        @Auth(permit = {UserType.OWNER, STUDENT}) Long memberId
+        @Auth(permit = {OWNER, STUDENT}) Long memberId
     );
 
     @ApiResponses(
@@ -81,8 +85,39 @@ public interface UploadApi {
         produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<UploadFileResponse> uploadFile(
-        @PathVariable ImageUploadDomain domain,
+        @Parameter(in = PATH) @PathVariable ImageUploadDomain domain,
         @RequestPart MultipartFile multipartFile,
+        @Auth(permit = {OWNER, STUDENT}) Long memberId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "413", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "415", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "다중 파일 업로드", description = """
+        {domain} 지원 목록
+        - items
+        - lands
+        - circles
+        - market
+        - shops
+        - members
+        - owners
+        """)
+    @PostMapping(
+        value = "/{domain}/upload/files",
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    ResponseEntity<UploadFilesResponse> uploadFiles(
+        @Parameter(in = PATH) @PathVariable ImageUploadDomain domain,
+        @RequestPart List<MultipartFile> files,
         @Auth(permit = {OWNER, STUDENT}) Long memberId
     );
 }

@@ -3,6 +3,7 @@ package in.koreatech.koin.global.domain.upload.service;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import in.koreatech.koin.global.domain.upload.dto.UploadFileResponse;
+import in.koreatech.koin.global.domain.upload.dto.UploadFilesResponse;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlRequest;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlResponse;
 import in.koreatech.koin.global.domain.upload.model.ImageUploadDomain;
@@ -41,6 +43,14 @@ public class UploadService {
             log.warn("파일 업로드중 문제가 발생했습니다. file: {} \n message: {}", multipartFile, e.getMessage());
             throw new IllegalArgumentException("파일 업로드중 오류가 발생했습니다.");
         }
+    }
+
+    public UploadFilesResponse uploadFiles(ImageUploadDomain domain, List<MultipartFile> files) {
+        var response = files.stream()
+            .map(file -> uploadFile(domain, file))
+            .map(UploadFileResponse::fileUrl)
+            .toList();
+        return new UploadFilesResponse(response);
     }
 
     private String generateFilePath(String domainName, String fileNameExt) {
