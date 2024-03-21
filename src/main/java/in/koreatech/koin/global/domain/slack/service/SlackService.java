@@ -9,10 +9,15 @@ import in.koreatech.koin.global.domain.slack.model.SlackNotification;
 @Service
 public class SlackService {
 
-    @Value("${slack.notify_koin_event_url}")
-    private String slackUrl;
+    private final String slackUrl;
+    private final RestTemplate restTemplate;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    public SlackService(
+        @Value("${slack.notify_koin_event_url}") String slackUrl
+    ) {
+        this.slackUrl = slackUrl;
+        this.restTemplate = new RestTemplate();
+    }
 
     public void noticeEmailVerification(String email) {
         SlackNotification slackNotification = SlackNotification.noticeEmailVerification(email, slackUrl);
