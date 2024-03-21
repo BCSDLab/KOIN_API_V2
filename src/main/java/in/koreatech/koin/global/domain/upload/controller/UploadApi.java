@@ -100,7 +100,7 @@ public interface UploadApi {
             @ApiResponse(responseCode = "415", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "단건 파일 업로드", description = """
+    @Operation(summary = "다중 파일 업로드", description = """
         {domain} 지원 목록
         - items
         - lands
