@@ -1,5 +1,6 @@
 package in.koreatech.koin.global.s3;
 
+import java.io.ByteArrayInputStream;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -7,6 +8,14 @@ import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.Protocol;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+
+import in.koreatech.koin.global.domain.upload.dto.UploadFileResponse;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
@@ -17,18 +26,23 @@ public class S3Utils {
 
     private static final int URL_EXPIRATION_MINUTE = 10;
 
-    private final S3Presigner.Builder presignerBuilder;
     private final Clock clock;
     private final String bucketName;
     private final String domainUrlPrefix;
+    private final S3Presigner.Builder presignerBuilder;
+    private final AmazonS3 s3Client;
 
     public S3Utils(
         S3Presigner.Builder presignerBuilder,
+        AmazonS3 s3Client,
         Clock clock,
         @Value("${s3.bucket}") String bucketName,
         @Value("${s3.custom_domain}") String domainUrlPrefix
     ) {
+        ClientConfiguration clientConfig = new ClientConfiguration();
+        clientConfig.setProtocol(Protocol.HTTPS);
         this.presignerBuilder = presignerBuilder;
+        this.s3Client = s3Client;
         this.clock = clock;
         this.bucketName = bucketName;
         this.domainUrlPrefix = domainUrlPrefix;
@@ -51,5 +65,14 @@ public class S3Utils {
                 LocalDateTime.now(clock).plusMinutes(URL_EXPIRATION_MINUTE)
             );
         }
+    }
+
+    public UploadFileResponse uploadFile(String uploadFilePath, byte[] fileData) {
+        ObjectMetadata metaData = new ObjectMetadata();
+        metaData.setContentLength(fileData.length);
+        s3Client.putObject(
+            new PutObjectRequest(bucketName, uploadFilePath, new ByteArrayInputStream(fileData), metaData)
+                .withCannedAcl(CannedAccessControlList.PublicRead));
+        return new UploadFileResponse(domainUrlPrefix + uploadFilePath);
     }
 }

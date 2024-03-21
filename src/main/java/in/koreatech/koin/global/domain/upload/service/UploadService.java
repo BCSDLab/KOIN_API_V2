@@ -3,18 +3,23 @@ package in.koreatech.koin.global.domain.upload.service;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import in.koreatech.koin.global.domain.upload.dto.UploadFileResponse;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlRequest;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlResponse;
 import in.koreatech.koin.global.domain.upload.model.ImageUploadDomain;
 import in.koreatech.koin.global.s3.S3Utils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -26,6 +31,16 @@ public class UploadService {
     public UploadUrlResponse getPresignedUrl(ImageUploadDomain domain, UploadUrlRequest request) {
         var filePath = generateFilePath(domain.name(), request.fileName());
         return s3Util.getUploadUrl(filePath);
+    }
+
+    public UploadFileResponse uploadFile(ImageUploadDomain domain, MultipartFile multipartFile) {
+        try {
+            var filePath = generateFilePath(domain.name(), Objects.requireNonNull(multipartFile.getOriginalFilename()));
+            return s3Util.uploadFile(filePath, multipartFile.getBytes());
+        } catch (Exception e) {
+            log.warn("파일 업로드중 문제가 발생했습니다. file: {} \n message: {}", multipartFile, e.getMessage());
+            throw new IllegalArgumentException("파일 업로드중 오류가 발생했습니다.");
+        }
     }
 
     private String generateFilePath(String domainName, String fileNameExt) {
