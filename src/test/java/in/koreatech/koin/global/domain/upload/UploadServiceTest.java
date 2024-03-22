@@ -1,5 +1,10 @@
 package in.koreatech.koin.global.domain.upload;
 
+import static in.koreatech.koin.global.domain.upload.model.ImageUploadDomain.OWNERS;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 import java.time.Clock;
 import java.time.ZonedDateTime;
 
@@ -17,12 +22,8 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlRequest;
-import static in.koreatech.koin.global.domain.upload.model.ImageUploadDomain.OWNERS;
 import in.koreatech.koin.global.domain.upload.service.UploadService;
 import in.koreatech.koin.global.s3.S3Utils;
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
