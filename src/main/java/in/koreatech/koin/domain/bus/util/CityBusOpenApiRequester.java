@@ -27,6 +27,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
+import in.koreatech.koin.domain.bus.model.BusInfoCache;
 import in.koreatech.koin.domain.bus.model.BusStationNode;
 import in.koreatech.koin.domain.bus.model.CityBus;
 import in.koreatech.koin.domain.bus.model.CityBusArrivalInfo;
@@ -65,7 +66,7 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
     public List<CityBus> getBusRemainTime(String nodeId) {
         Version version = versionRepository.getByType(VersionType.CITY);
 
-        Duration duration = Duration.between(version.getUpdatedAt(), LocalTime.now(clock));
+        Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
 
         if (duration.toSeconds() < 60) {
             if (cityBusCacheRepository.findById(nodeId).isEmpty()) {
@@ -88,7 +89,7 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
 
     private List<CityBus> getCityBusArrivalInfoByCache(String nodeId) {
         CityBusCache cityBusCache = cityBusCacheRepository.getById(nodeId);
-        return cityBusCache.getBusArrivalInfos().stream().map(CityBus::from).toList();
+        return cityBusCache.getBusInfos().stream().map(CityBus::from).toList();
     }
 
     private List<CityBus> getCityBusArrivalInfoByOpenApi(String nodeId) {
@@ -106,12 +107,20 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
             if (arrivalInfos.isEmpty())
                 continue;
 
+            Version version = versionRepository.getByType(VersionType.CITY);
+            version.update(Clock.systemDefaultZone());
+
             cityBusCacheRepository.save(
-                CityBusCache.create(arrivalInfos.get(0).nodeid(), arrivalInfos)
+                CityBusCache.create(
+                    arrivalInfos.get(0).nodeid(),
+                    arrivalInfos.stream()
+                        .map(busArrivalInfo -> BusInfoCache.from(busArrivalInfo, version.getUpdatedAt()))
+                        .toList()
+                )
             );
         }
 
-        versionRepository.getByType(VersionType.CITY).update(Clock.systemDefaultZone());
+        // versionRepository.getByType(VersionType.CITY).update(Clock.systemDefaultZone());
     }
 
     private String getOpenApiResponse(String nodeId) {
