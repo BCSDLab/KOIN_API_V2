@@ -22,7 +22,7 @@ public record UploadUrlResponse(
             """)
     String preSignedUrl,
 
-    @Schema(description = "업로드한 파일을 가져올 때 사용하는 url", example = "https://static.koreatech.in/2023/09/01/uuid/example.png")
+    @Schema(description = "첨부 파일 URL", example = "https://static.koreatech.in/1.png")
     String fileUrl,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

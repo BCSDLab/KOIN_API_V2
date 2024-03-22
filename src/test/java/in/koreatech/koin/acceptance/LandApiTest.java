@@ -34,8 +34,18 @@ class LandApiTest extends AcceptanceTest {
             .monthlyFee("100")
             .charterFee("1000")
             .build();
+        Land request2 = Land.builder()
+            .internalName("복덕방2")
+            .name("복덕방2")
+            .roomType("원룸2")
+            .latitude(37.5552)
+            .longitude(126.5552)
+            .monthlyFee("102")
+            .charterFee("1002")
+            .build();
 
         Land land = landRepository.save(request);
+        Land land2 = landRepository.save(request2);
 
         ExtractableResponse<Response> response = RestAssured
             .given()
@@ -47,21 +57,36 @@ class LandApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(1);
-                softly.assertThat(response.body().jsonPath().getLong("[0].id")).isEqualTo(land.getId());
-                softly.assertThat(response.body().jsonPath().getString("[0].internal_name"))
+                softly.assertThat(response.body().jsonPath().getList("lands").size()).isEqualTo(2);
+                softly.assertThat(response.body().jsonPath().getLong("lands[0].id")).isEqualTo(land.getId());
+                softly.assertThat(response.body().jsonPath().getString("lands[0].internal_name"))
                     .isEqualTo(land.getInternalName());
-                softly.assertThat(response.body().jsonPath().getString("[0].name")).isEqualTo(land.getName());
-                softly.assertThat(response.body().jsonPath().getString("[0].room_type"))
+                softly.assertThat(response.body().jsonPath().getString("lands[0].name")).isEqualTo(land.getName());
+                softly.assertThat(response.body().jsonPath().getString("lands[0].room_type"))
                     .isEqualTo(land.getRoomType());
-                softly.assertThat(response.body().jsonPath().getDouble("[0].latitude"))
+                softly.assertThat(response.body().jsonPath().getDouble("lands[0].latitude"))
                     .isEqualTo(land.getLatitude());
-                softly.assertThat(response.body().jsonPath().getDouble("[0].longitude"))
+                softly.assertThat(response.body().jsonPath().getDouble("lands[0].longitude"))
                     .isEqualTo(land.getLongitude());
-                softly.assertThat(response.body().jsonPath().getString("[0].monthly_fee"))
+                softly.assertThat(response.body().jsonPath().getString("lands[0].monthly_fee"))
                     .isEqualTo(land.getMonthlyFee());
-                softly.assertThat(response.body().jsonPath().getString("[0].charter_fee"))
+                softly.assertThat(response.body().jsonPath().getString("lands[0].charter_fee"))
                     .isEqualTo(land.getCharterFee());
+
+                softly.assertThat(response.body().jsonPath().getLong("lands[1].id")).isEqualTo(land2.getId());
+                softly.assertThat(response.body().jsonPath().getString("lands[1].internal_name"))
+                    .isEqualTo(land2.getInternalName());
+                softly.assertThat(response.body().jsonPath().getString("lands[1].name")).isEqualTo(land2.getName());
+                softly.assertThat(response.body().jsonPath().getString("lands[1].room_type"))
+                    .isEqualTo(land2.getRoomType());
+                softly.assertThat(response.body().jsonPath().getDouble("lands[1].latitude"))
+                    .isEqualTo(land2.getLatitude());
+                softly.assertThat(response.body().jsonPath().getDouble("lands[1].longitude"))
+                    .isEqualTo(land2.getLongitude());
+                softly.assertThat(response.body().jsonPath().getString("lands[1].monthly_fee"))
+                    .isEqualTo(land2.getMonthlyFee());
+                softly.assertThat(response.body().jsonPath().getString("lands[1].charter_fee"))
+                    .isEqualTo(land2.getCharterFee());
             }
         );
     }

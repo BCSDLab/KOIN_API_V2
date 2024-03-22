@@ -32,7 +32,9 @@ public record ActivityResponse(
     @Schema(description = "활동 설명", example = "더 편리한 서비스 제공을 위해 시간표 기능을 추가했습니다.")
     String description,
 
-    @Schema(description = "이미지 URL 목록", example = "[\"https://test2.com.png\", \"https://test3.com.png]\"")
+    @Schema(description = "이미지 URL 목록", example = """
+        ["https://test2.com.png", "https://test3.com.png"]
+        """)
     List<String> imageUrls,
 
     @Schema(description = "고유 식별자", example = "1")
