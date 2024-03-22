@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class CityBusArrivalInfo/* implements Comparable<CityBusArrivalInfo> */{
+public class CityBusArrivalInfo/* implements Comparable<CityBusArrivalInfo> */ {
     /**
      * "arrprevstationcnt": 5,
      * "arrtime": 222,
@@ -16,13 +16,14 @@ public class CityBusArrivalInfo/* implements Comparable<CityBusArrivalInfo> */{
      * "vehicletp": "일반차량"
      */
     private Long arrprevstationcnt; // 남은 정거장 개수
-    private Long arrtime; // 도착까지 남은 시간
-    private String nodeid;
-    private String nodenm;
-    private String routeid;
+    private Long arrtime; // 도착까지 남은 시간 [초]
+    private String nodeid; // 정류소 id
+    private String nodenm; // 정류소명
+    private String routeid; // 노선 id
     private Long routeno; // 버스 번호
-    private String routetp;
-    private String vehicletp;
+    private String routetp; // 노선 유형
+    private String vehicletp; // 차량 유형 (저상버스)
+
     //TODO: record로 변환 가능한지 확인
     public static CityBusArrivalInfo getEmpty(String nodeid) {
         return builder()
