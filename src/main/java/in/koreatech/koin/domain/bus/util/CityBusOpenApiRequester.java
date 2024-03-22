@@ -9,9 +9,11 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -25,11 +27,13 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
-import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusStationNode;
+import in.koreatech.koin.domain.bus.model.CityBus;
 import in.koreatech.koin.domain.bus.model.CityBusArrivalInfo;
 import in.koreatech.koin.domain.bus.model.CityBusCache;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
+import in.koreatech.koin.domain.version.model.Version;
+import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -40,7 +44,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class BusOpenApiRequestor {
+public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
 
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
@@ -53,11 +57,20 @@ public class BusOpenApiRequestor {
     private final VersionRepository versionRepository;
     private final CityBusCacheRepository cityBusCacheRepository;
 
+    private final Clock clock;
+
     private static final Type arrivalInfoType = new TypeToken<List<CityBusArrivalInfo>>() {
     }.getType();
 
-    public List<BusRemainTime> getCityBusRemainTime(String nodeId) {
-        if (cityBusCacheRepository.findById(nodeId).isPresent()) {
+    public List<CityBus> getBusRemainTime(String nodeId) {
+        Version version = versionRepository.getByType(VersionType.CITY);
+
+        Duration duration = Duration.between(version.getUpdatedAt(), LocalTime.now(clock));
+
+        if (duration.toSeconds() < 60) {
+            if (cityBusCacheRepository.findById(nodeId).isEmpty()) {
+                return new ArrayList<>();
+            }
             return getCityBusArrivalInfoByCache(nodeId);
         }
         return getCityBusArrivalInfoByOpenApi(nodeId);
@@ -70,22 +83,17 @@ public class BusOpenApiRequestor {
      * 구상: mysql에 버전 최신화 시각 정보를 기준으로 판단한다. -> 정보가 없는건 저장하지 않아도 된다. -> 성능 향상
      *
      *
-     * BusRemainTIme 대신 ArrivalInfo를 하는게 확장성에 유리
+     * BusRemainTime 대신 ArrivalInfo를 하는게 확장성에 유리
      */
 
-    private List<BusRemainTime> getCityBusArrivalInfoByCache(String nodeId) {
+    private List<CityBus> getCityBusArrivalInfoByCache(String nodeId) {
         CityBusCache cityBusCache = cityBusCacheRepository.getById(nodeId);
-        return cityBusCache.getRemainTime().stream()
-            .map(BusRemainTime::from)
-            .collect(Collectors.toList());
+        return cityBusCache.getBusArrivalInfos().stream().map(CityBus::from).toList();
     }
 
-    private List<BusRemainTime> getCityBusArrivalInfoByOpenApi(String nodeId) {
+    private List<CityBus> getCityBusArrivalInfoByOpenApi(String nodeId) {
         getAllCityBusArrivalInfoByOpenApi();
-        CityBusCache cityBusCache = cityBusCacheRepository.getById(nodeId);
-        return cityBusCache.getRemainTime().stream()
-            .map(BusRemainTime::from)
-            .toList();
+        return getCityBusArrivalInfoByCache(nodeId);
     }
 
     private void getAllCityBusArrivalInfoByOpenApi() {
@@ -94,17 +102,16 @@ public class BusOpenApiRequestor {
             .map(this::extractBusArrivalInfo)
             .toList();
 
-        //TODO: 아래 내용 for문으로 수정(save는 forEach에서 하면 이슈 발생)
-        arrivalInfosList.forEach(arrivalInfos ->
+        for (List<CityBusArrivalInfo> arrivalInfos : arrivalInfosList) {
+            if (arrivalInfos.isEmpty())
+                continue;
+
             cityBusCacheRepository.save(
-                CityBusCache.create(
-                    arrivalInfos.get(0).getNodeid(), //TODO: 비어있는 정보는 저장 전에 걸러내야 할 거임 (안그러면 에러남)
-                    arrivalInfos.stream()
-                        .map(CityBusArrivalInfo::getArrtime)
-                        .toList()
-                )
-            )
-        );
+                CityBusCache.create(arrivalInfos.get(0).nodeid(), arrivalInfos)
+            );
+        }
+
+        versionRepository.getByType(VersionType.CITY).update(Clock.systemDefaultZone());
     }
 
     private String getOpenApiResponse(String nodeId) {
@@ -135,13 +142,14 @@ public class BusOpenApiRequestor {
     }
 
     private String getRequestURL(String cityCode, String nodeId) throws UnsupportedEncodingException {
-        String url = "http://apis.data.go.kr/1613000/BusSttnInfoInqireService/getCrdntPrxmtSttnList";
+        String url = "http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList";
         String contentCount = "30";
         StringBuilder urlBuilder = new StringBuilder(url);
         urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(OPEN_API_KEY, ENCODE_TYPE));
         urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode(contentCount, ENCODE_TYPE));
         urlBuilder.append("&" + encode("cityCode", ENCODE_TYPE) + "=" + encode(cityCode, ENCODE_TYPE));
         urlBuilder.append("&" + encode("nodeId", ENCODE_TYPE) + "=" + encode(nodeId, ENCODE_TYPE));
+        urlBuilder.append("&_type=json");
         return urlBuilder.toString();
     }
 
