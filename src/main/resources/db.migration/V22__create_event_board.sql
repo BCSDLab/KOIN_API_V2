@@ -1,1 +1,0 @@
-INSERT INTO `koin`.`boards` (`tag`, `name`, `is_anonymous`, `seq`) VALUES ('EA001', '홍보게시판', '0', '6');

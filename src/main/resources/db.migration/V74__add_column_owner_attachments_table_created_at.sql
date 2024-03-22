@@ -1,1 +1,0 @@
-ALTER TABLE `owner_attachments` ADD `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `is_deleted`
