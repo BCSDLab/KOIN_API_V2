@@ -1,6 +1,5 @@
 package in.koreatech.koin.acceptance;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +15,10 @@ import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class UserApiTest extends AcceptanceTest {
@@ -183,7 +184,7 @@ class UserApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
-        Assertions.assertThat(userRepository.findById(user.getId())).isNotPresent();
+        assertThat(userRepository.findById(user.getId())).isNotPresent();
     }
 
     @Test
@@ -200,7 +201,7 @@ class UserApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        Assertions.assertThat(userRepository.findByEmail(email)).isNotPresent();
+        assertThat(userRepository.findByEmail(email)).isNotPresent();
     }
 
     @Test
@@ -255,13 +256,13 @@ class UserApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.CONFLICT.value())
             .extract();
 
-        Assertions.assertThat(response.body().jsonPath().getString("message"))
+        assertThat(response.body().jsonPath().getString("message"))
             .isEqualTo("이미 존재하는 데이터입니다.");
     }
 
     @Test
     @DisplayName("닉네임 중복일때 상태코드 409를 반환한다.")
-    void checkDuplicationOfNicknameConflict(){
+    void checkDuplicationOfNicknameConflict() {
         User user = User.builder()
             .password("1234")
             .nickname("주노")
@@ -353,5 +354,136 @@ class UserApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("알림 구독여부 조회 - 구독중")
+    void getNotificationCheck() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .deviceToken("deviceToken")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+        String token = jwtProvider.createToken(user);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .get("/user/notification")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertThat(response.jsonPath().getBoolean("isPermit")).isTrue();
+    }
+
+    @Test
+    @DisplayName("알림 구독여부 조회 - 구독중이 아님")
+    void getNotificationCheckNotSubscribe() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+        String token = jwtProvider.createToken(user);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .get("/user/notification")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertThat(response.jsonPath().getBoolean("isPermit")).isFalse();
+    }
+
+    @Test
+    @DisplayName("알림 구독")
+    void subscribeNotification() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+        String token = jwtProvider.createToken(user);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .when()
+            .body("""
+                {
+                    "deviceToken": "deviceTokenForSubscribe"
+                }
+                """)
+            .post("/user/notification")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        var userResponse = userRepository.getById(user.getId());
+        assertThat(userResponse.getDeviceToken()).isEqualTo("deviceTokenForSubscribe");
+    }
+
+    @Test
+    @DisplayName("알림 구독 취소")
+    void unsubscribeNotification() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .deviceToken("deviceToken")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+        String token = jwtProvider.createToken(user);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .when()
+            .delete("/user/notification")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        var userResponse = userRepository.getById(user.getId());
+        assertThat(userResponse.getDeviceToken()).isNull();
     }
 }
