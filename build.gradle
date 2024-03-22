@@ -61,6 +61,10 @@ dependencies {
 
     // localstack
     testImplementation 'org.testcontainers:localstack'
+
+    // flyway
+    implementation 'org.flywaydb:flyway-mysql'
+
 }
 
 tasks.named('bootBuildImage') {

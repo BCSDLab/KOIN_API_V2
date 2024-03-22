@@ -1,0 +1,1 @@
+ALTER TABLE versions MODIFY COLUMN `type` VARCHAR(255);

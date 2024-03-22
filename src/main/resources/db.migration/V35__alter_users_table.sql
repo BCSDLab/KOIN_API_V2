@@ -1,0 +1,10 @@
+ALTER TABLE `koin`.`users`
+DROP COLUMN `reset_expired_at`,
+DROP COLUMN `reset_token`,
+DROP COLUMN `auth_expired_at`,
+DROP COLUMN `auth_token`,
+DROP COLUMN `is_graduated`,
+DROP COLUMN `major`,
+DROP COLUMN `student_number`,
+DROP COLUMN `anonymous_nickname`,
+DROP INDEX `users_anonymous_nickname_unique`;
