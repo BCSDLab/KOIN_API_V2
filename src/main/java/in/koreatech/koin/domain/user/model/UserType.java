@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum UserType {
     STUDENT("STUDENT", "학생"),
     OWNER("OWNER", "사장님"),
-    COOP("COOP", "영양사")
+    COOP("COOP", "영양사"),
     ;
 
     private final String value;
