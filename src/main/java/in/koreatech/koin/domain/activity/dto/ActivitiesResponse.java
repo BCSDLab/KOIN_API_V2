@@ -4,14 +4,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Getter;
-
-@Getter
-public class ActivitiesResponse {
-
+public record ActivitiesResponse(
     @JsonProperty("Activities")
-    private List<ActivityResponse> activities;
-
+    List<ActivityResponse> activities
+) {
     public ActivitiesResponse(List<ActivityResponse> activities) {
         this.activities = activities;
     }

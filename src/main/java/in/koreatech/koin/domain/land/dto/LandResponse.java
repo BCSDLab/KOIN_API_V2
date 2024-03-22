@@ -1,12 +1,13 @@
 package in.koreatech.koin.domain.land.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import in.koreatech.koin.domain.land.model.Land;
 import io.swagger.v3.oas.annotations.media.Schema;
 
