@@ -8,8 +8,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.track.model.Member;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
@@ -91,5 +93,22 @@ public class UserService {
         userRepository.findByNickname(request.nickname()).ifPresent(user -> {
             throw DuplicationEmailException.withDetail("nickname: " + request.nickname());
         });
+    }
+
+    public NotificationStatusResponse checkNotification(Long userId) {
+        User user = userRepository.getById(userId);
+        return new NotificationStatusResponse(user.getDeviceToken() != null);
+    }
+
+    @Transactional
+    public void permitNotification(Long userId, String deviceToken) {
+        User user = userRepository.getById(userId);
+        user.permitNotification(deviceToken);
+    }
+
+    @Transactional
+    public void rejectNotification(Long userId) {
+        User user = userRepository.getById(userId);
+        user.rejectNotification();
     }
 }
