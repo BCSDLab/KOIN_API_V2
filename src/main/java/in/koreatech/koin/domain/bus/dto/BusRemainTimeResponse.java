@@ -7,8 +7,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.bus.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.model.Bus;
 import in.koreatech.koin.domain.bus.model.BusType;
+import in.koreatech.koin.domain.bus.model.CityBus;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record BusRemainTimeResponse(
@@ -17,7 +18,7 @@ public record BusRemainTimeResponse(
     InnerBusResponse nextBus
 ) {
 
-    public static BusRemainTimeResponse of(BusType busType, List<BusRemainTime> remainTimes, Clock clock) {
+    public static BusRemainTimeResponse of(BusType busType, List<? extends Bus> remainTimes, Clock clock) {
         return new BusRemainTimeResponse(
             busType.name().toLowerCase(),
             InnerBusResponse.of(remainTimes, 0, clock),
@@ -31,12 +32,18 @@ public record BusRemainTimeResponse(
         Long remainTime
     ) {
 
-        public static InnerBusResponse of(List<BusRemainTime> remainTimes, int index, Clock clock) {
-            Long result = null;
+        public static InnerBusResponse of(List<? extends Bus> remainTimes, int index, Clock clock) {
+            Long busNumber = null;
+            Long remainTime = null;
             if (index < remainTimes.size()) {
-                result = remainTimes.get(index).getRemainSeconds(clock);
+                remainTime = remainTimes.get(index).getRemainTime().getRemainSeconds(clock);
+
+                if (remainTimes.get(index) instanceof CityBus cityBus) {
+                    busNumber = cityBus.getBusNumber();
+                }
             }
-            return new InnerBusResponse(null, result);
+
+            return new InnerBusResponse(busNumber, remainTime);
         }
     }
 }
