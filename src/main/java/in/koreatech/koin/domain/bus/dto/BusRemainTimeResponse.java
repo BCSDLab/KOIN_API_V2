@@ -33,17 +33,18 @@ public record BusRemainTimeResponse(
     ) {
 
         public static InnerBusResponse of(List<? extends Bus> remainTimes, int index, Clock clock) {
-            Long busNumber = null;
-            Long remainTime = null;
             if (index < remainTimes.size()) {
-                remainTime = remainTimes.get(index).getRemainTime().getRemainSeconds(clock);
+                Long busNumber = null;
+                Long remainTime = remainTimes.get(index).getRemainTime().getRemainSeconds(clock);
 
                 if (remainTimes.get(index) instanceof CityBus cityBus) {
                     busNumber = cityBus.getBusNumber();
                 }
+
+                return new InnerBusResponse(busNumber, remainTime);
             }
 
-            return new InnerBusResponse(busNumber, remainTime);
+            return null;
         }
     }
 }
