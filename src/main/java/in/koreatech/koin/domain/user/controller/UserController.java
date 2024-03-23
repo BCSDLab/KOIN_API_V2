@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
@@ -7,17 +9,19 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
+import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
+import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
@@ -37,6 +41,15 @@ public class UserController implements UserApi {
     ) {
         StudentResponse studentResponse = studentService.getStudent(userId);
         return ResponseEntity.ok().body(studentResponse);
+    }
+
+    @PutMapping("/user/student/me")
+    public ResponseEntity<StudentUpdateResponse> updateStudent(
+        @Auth(permit = STUDENT) Long userId,
+        @Valid @RequestBody StudentUpdateRequest request
+    ) {
+        StudentUpdateResponse studentUpdateResponse = studentService.updateStudent(userId, request);
+        return ResponseEntity.ok(studentUpdateResponse);
     }
 
     @PostMapping("/user/login")

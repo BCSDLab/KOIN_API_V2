@@ -10,16 +10,19 @@ import jakarta.validation.constraints.Size;
 public record StudentUpdateRequest
     (
         @Schema(description = "성별(남:0, 여:1)", example = "1")
-        String gender,
+        Integer gender,
 
         @Schema(description = "[NOT UPDATE]신원(학생, 사장님)", example = "학생")
-        String userIdentity,
+        Integer userIdentity,
 
         @Schema(description = "[NOT UPDATE]졸업 여부(true, false)", example = "false")
         Boolean isGraduated,
 
-        @Schema(description = "전공{기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인건축공학부, 에너지신소재화학공학부, 산업경영학부}", example = "컴퓨터공학부")
-        Integer major,
+        @Schema(description = "전공{기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인공학부, 건축공학부, 화학생명공학부, 에너지신소재공학부, 산업경영학부, 고용서비스정책학과}", example = "컴퓨터공학부")
+        String major,
+
+        @Schema(description = "비밀번호", example = "a0240120305812krlakdsflsa;1235")
+        String password,
 
         @Size(max = 50, message = "이름의 길이는 최대 50자 입니다.")
         @Schema(description = "이름", example = "최준호")
@@ -28,9 +31,6 @@ public record StudentUpdateRequest
         @Size(max = 10, message = "닉네임은 10자 이내여야 합니다.")
         @Schema(description = "닉네임", example = "juno")
         String nickname,
-
-        @Schema(description = "비밀번호", example = "a0240120305812krlakdsflsa;1235")
-        String password,
 
         @Schema(description = "휴대폰 번호", example = "010-0000-0000")
         String phoneNumber,

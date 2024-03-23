@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLDelete;
@@ -18,7 +20,6 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import static lombok.AccessLevel.PROTECTED;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -99,8 +100,8 @@ public class User extends BaseEntity {
 
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
-                 String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-                 Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt) {
+        String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+        Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -153,6 +154,9 @@ public class User extends BaseEntity {
         }
         if (user.profileImageUrl != null) {
             this.profileImageUrl = user.profileImageUrl;
+        }
+        if (user.isDeleted != null) {
+            this.isDeleted = user.isDeleted;
         }
         if (user.authToken != null) {
             this.authToken = user.authToken;

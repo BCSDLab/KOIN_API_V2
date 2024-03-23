@@ -33,9 +33,9 @@ public class Student {
     @Column(name = "student_number", length = 20)
     private String studentNumber;
 
-    @Size(max = 50)
     @Column(name = "major", length = 50)
-    private String department;
+    @Enumerated(EnumType.STRING)
+    private StudentDepartment department;
 
     @Column(name = "identity")
     @Enumerated(EnumType.STRING)
@@ -49,7 +49,8 @@ public class Student {
     private User user;
 
     @Builder
-    private Student(String anonymousNickname, String studentNumber, String department, UserIdentity userIdentity,
+    private Student(String anonymousNickname, String studentNumber, StudentDepartment department,
+        UserIdentity userIdentity,
         Boolean isGraduated, User user) {
         this.anonymousNickname = anonymousNickname;
         this.studentNumber = studentNumber;
@@ -76,7 +77,11 @@ public class Student {
             this.isGraduated = student.isGraduated;
         }
         if (student.user != null) {
-            this.user.update(student.user);
+            this.user = student.user;
         }
+    }
+
+    public static boolean isValidStudentNumber(String studentNumber) {
+        return studentNumber.length() == 10;
     }
 }

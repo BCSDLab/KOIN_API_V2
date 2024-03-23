@@ -16,16 +16,16 @@ public record StudentUpdateResponse(
     String email,
 
     @Schema(description = "성별(남:0, 여:1)", example = "1")
-    String gender,
+    Integer gender,
 
-    @Schema(description = "전공{기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인건축공학부, 에너지신소재화학공학부, 산업경영학부}", example = "컴퓨터공학부")
+    @Schema(description = "전공{기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인공학부, 건축공학부, 화학생명공학부, 에너지신소재공학부, 산업경영학부, 고용서비스정책학과}", example = "컴퓨터공학부")
     String major,
 
     @Schema(description = "이름 \n", example = "최준호")
     String name,
 
     @Schema(description = "닉네임", example = "juno")
-    String nickName,
+    String nickname,
 
     @Schema(description = "휴대폰 번호", example = "010-0000-0000")
     String phoneNumber,
@@ -39,8 +39,8 @@ public record StudentUpdateResponse(
         return new StudentUpdateResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
-            user.getGender().name(),
-            student.getDepartment(),
+            user.getGender().ordinal(),
+            student.getDepartment().getValue(),
             user.getName(),
             user.getNickname(),
             user.getPhoneNumber(),
