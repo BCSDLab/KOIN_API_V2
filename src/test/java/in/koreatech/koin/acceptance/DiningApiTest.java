@@ -53,6 +53,7 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
+            .soldOut(false)
             .build();
 
         Dining request2 = Dining.builder()
@@ -65,6 +66,7 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]""")
+            .soldOut(false)
             .build();
 
         Dining request3 = Dining.builder()
@@ -77,6 +79,7 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(300)
             .menu("""
                 ["참치김치볶음밥", "유부된장국", "땡초부추전", "누룽지탕"]""")
+            .soldOut(false)
             .build();
 
         Dining dining1 = diningRepository.save(request1);
@@ -146,6 +149,7 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
+            .soldOut(false)
             .build();
 
         Dining dining = diningRepository.save(request);
@@ -175,6 +179,7 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "총각김치"]""")
+            .soldOut(false)
             .build();
 
         Dining request2 = Dining.builder()
@@ -187,6 +192,7 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]""")
+            .soldOut(false)
             .build();
 
         Dining dining1 = diningRepository.save(request1);
