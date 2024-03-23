@@ -17,10 +17,14 @@ import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.domain.user.dto.NotificationPermitRequest;
+import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -85,6 +89,30 @@ public class UserController implements UserApi {
         @ModelAttribute("nickname")
         @Valid NicknameCheckExistsRequest request) {
         userService.checkUserNickname(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/user/notification")
+    public ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
+        @Auth(permit = {STUDENT, OWNER}) Long memberId
+    ) {
+        return ResponseEntity.ok(userService.checkNotification(memberId));
+    }
+
+    @PostMapping("/user/notification")
+    public ResponseEntity<Void> permitNotification(
+        @Auth(permit = {STUDENT, OWNER}) Long memberId,
+        @Valid @RequestBody NotificationPermitRequest request
+    ) {
+        userService.permitNotification(memberId, request.deviceToken());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/user/notification")
+    public ResponseEntity<Void> rejectNotification(
+        @Auth(permit = {STUDENT, OWNER}) Long memberId
+    ) {
+        userService.rejectNotification(memberId);
         return ResponseEntity.ok().build();
     }
 }

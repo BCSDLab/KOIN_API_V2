@@ -61,6 +61,13 @@ dependencies {
 
     // localstack
     testImplementation 'org.testcontainers:localstack'
+
+    // flyway
+    implementation 'org.flywaydb:flyway-mysql'
+
+    // fcm
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
+
 }
 
 tasks.named('bootBuildImage') {

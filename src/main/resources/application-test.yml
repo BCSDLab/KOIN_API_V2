@@ -4,6 +4,8 @@ jwt:
     expiration-time: 600000 # (ms) = 10 minutes
 
 spring:
+  flyway:
+    enabled: false
   jpa:
     properties:
       hibernate:
