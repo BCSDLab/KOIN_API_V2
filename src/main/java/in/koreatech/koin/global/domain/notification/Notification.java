@@ -36,6 +36,7 @@ public class Notification extends BaseEntity {
     @Column(nullable = false)
     private String message;
 
+    @Column(nullable = false)
     private String imageUrl;
 
     @Enumerated(STRING)
