@@ -98,10 +98,13 @@ public class User extends BaseEntity {
     @Column(name = "reset_expired_at")
     private String resetExpiredAt;
 
+    @Column(name = "device_token", nullable = true)
+    private String deviceToken;
+
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
-        String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-        Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt) {
+                 String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+                 Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt, String deviceToken) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -117,10 +120,19 @@ public class User extends BaseEntity {
         this.authExpiredAt = authExpiredAt;
         this.resetToken = resetToken;
         this.resetExpiredAt = resetExpiredAt;
+        this.deviceToken = deviceToken;
     }
 
     public boolean isSamePassword(PasswordEncoder passwordEncoder, String password) {
         return passwordEncoder.matches(password, this.password);
+    }
+
+    public void permitNotification(String deviceToken) {
+        this.deviceToken = deviceToken;
+    }
+
+    public void rejectNotification() {
+        this.deviceToken = null;
     }
 
     public void updateLastLoggedTime(LocalDateTime lastLoggedTime) {
