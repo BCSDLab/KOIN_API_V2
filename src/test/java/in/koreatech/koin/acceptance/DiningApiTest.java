@@ -1,5 +1,7 @@
 package in.koreatech.koin.acceptance;
 
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.restassured.RestAssured.given;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.mockito.Mockito.when;
@@ -16,8 +18,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.dining.dto.SoldOutRequest;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.JwtProvider;
+import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
@@ -25,6 +33,12 @@ class DiningApiTest extends AcceptanceTest {
 
     @Autowired
     private DiningRepository diningRepository;
+
+    @Autowired
+    private JwtProvider jwtProvider;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Test
     @DisplayName("특정 날짜의 모든 식단들을 조회한다.")
@@ -208,5 +222,112 @@ class DiningApiTest extends AcceptanceTest {
                     .containsExactlyInAnyOrderElementsOf(menus);
             }
         );
+    }
+
+    @Test
+    @DisplayName("품절 요청을 보낸다")
+    void requestSoldOut() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("준기")
+            .name("허준기")
+            .phoneNumber("010-1234-5678")
+            .userType(COOP)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+        userRepository.save(user);
+
+        String token = jwtProvider.createToken(user);
+
+        Dining dining1 = Dining.builder()
+            .date("2024-03-11")
+            .type("LUNCH")
+            .place("A코스")
+            .priceCard(6000)
+            .priceCash(6000)
+            .kcal(881)
+            .menu("""
+                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
+            .soldOut(false)
+            .build();
+
+        Dining dining2 = Dining.builder()
+            .date("2024-03-11")
+            .type("LUNCH")
+            .place("B코스")
+            .priceCard(6000)
+            .priceCash(6000)
+            .kcal(881)
+            .menu("""
+                ["병아리", "소고기", "땡초", "탕"]""")
+            .soldOut(false)
+            .build();
+
+        diningRepository.save(dining1);
+        diningRepository.save(dining2);
+
+        SoldOutRequest soldOutRequest = new SoldOutRequest(2L, true);
+
+        ExtractableResponse<Response> response = given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token)
+            .body(soldOutRequest)
+            .when()
+            .post("/coop/dining/soldout")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        SoftAssertions.assertSoftly(
+            softly -> softly.assertThat(diningRepository.findSoldOut()).isEqualTo(2)
+        );
+    }
+
+    @Test
+    @DisplayName("권한이 없는 사용자가 품절 요청을 보낸다")
+    void requestSoldOutNoAuth() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("준기")
+            .name("허준기")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+        userRepository.save(user);
+
+        String token = jwtProvider.createToken(user);
+
+        Dining dining1 = Dining.builder()
+            .date("2024-03-11")
+            .type("LUNCH")
+            .place("A코스")
+            .priceCard(6000)
+            .priceCash(6000)
+            .kcal(881)
+            .menu("""
+                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
+            .soldOut(false)
+            .build();
+
+        diningRepository.save(dining1);
+
+        SoldOutRequest soldOutRequest = new SoldOutRequest(1L, true);
+
+        ExtractableResponse<Response> response = given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token)
+            .body(soldOutRequest)
+            .when()
+            .post("/coop/dining/soldout")
+            .then()
+            .statusCode(HttpStatus.UNAUTHORIZED.value())
+            .extract();
     }
 }
