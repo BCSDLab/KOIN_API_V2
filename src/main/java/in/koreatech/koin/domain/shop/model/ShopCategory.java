@@ -1,5 +1,11 @@
 package in.koreatech.koin.domain.shop.model;
 
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.REMOVE;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -8,6 +14,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -39,6 +46,9 @@ public class ShopCategory extends BaseEntity {
     @NotNull
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "shopCategory", orphanRemoval = true, cascade = {PERSIST, REMOVE})
+    private List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();
 
     @Builder
     private ShopCategory(Long id, String name, String imageUrl, Boolean isDeleted) {

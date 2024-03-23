@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.Shop;
+import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
@@ -61,31 +62,7 @@ public record ShopResponse(
     LocalDateTime updatedAt
 ) {
 
-    public static ShopResponse of(Shop shop, List<ShopOpen> shopOpens, List<ShopImage> shopImages,
-        List<ShopCategoryMap> shopCategoryMaps, List<MenuCategory> menuCategories) {
-
-        List<InnerShopOpen> innerShopOpens = shopOpens.stream().map(shopOpen -> new InnerShopOpen(
-            shopOpen.getDayOfWeek(),
-            shopOpen.getClosed(),
-            shopOpen.getOpenTime(),
-            shopOpen.getCloseTime()
-        )).toList();
-
-        List<String> imageUrls = shopImages.stream().map(shopImage -> shopImage.getImageUrl()).toList();
-
-        List<InnerShopCategory> innerShopCategories = shopCategoryMaps.stream()
-            .map(shopCategoryMap -> new InnerShopCategory(
-                shopCategoryMap.getShopCategory().getId(),
-                shopCategoryMap.getShopCategory().getName()
-            ))
-            .toList();
-
-        List<InnerMenuCategory> innerMenuCategories = menuCategories.stream()
-            .map(menuCategory -> new InnerMenuCategory(
-                menuCategory.getId(),
-                menuCategory.getName()
-            ))
-            .toList();
+    public static ShopResponse from(Shop shop) {
 
         return new ShopResponse(
             shop.getAddress(),
@@ -93,14 +70,34 @@ public record ShopResponse(
             shop.getDeliveryPrice(),
             shop.getDescription(),
             shop.getId(),
-            imageUrls,
-            innerMenuCategories,
+            shop.getShopImages().stream()
+                .map(shopImage -> shopImage.getImageUrl())
+                .toList(),
+            shop.getMenuCategories().stream().map(menuCategory -> {
+                return new InnerMenuCategory(
+                    menuCategory.getId(),
+                    menuCategory.getName()
+                );
+            }).toList(),
             shop.getName(),
-            innerShopOpens,
+            shop.getShopOpens().stream().map(shopOpen -> {
+                return new InnerShopOpen(
+                    shopOpen.getDayOfWeek(),
+                    shopOpen.getClosed(),
+                    shopOpen.getOpenTime(),
+                    shopOpen.getCloseTime()
+                );
+            }).toList(),
             shop.getPayBank(),
             shop.getPayCard(),
             shop.getPhone(),
-            innerShopCategories,
+            shop.getShopCategories().stream().map(shopCategoryMap -> {
+                ShopCategory shopCategory = shopCategoryMap.getShopCategory();
+                return new InnerShopCategory(
+                    shopCategory.getId(),
+                    shopCategory.getName()
+                );
+            }).toList(),
             shop.getUpdatedAt()
         );
     }

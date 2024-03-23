@@ -41,18 +41,36 @@ public class OwnerShopService {
     @Transactional
     public void createOwnerShops(Long ownerId, OwnerShopsRequest ownerShopsRequest) {
         Owner owner = ownerRepository.getById(ownerId);
-        Shop newShop = ownerShopsRequest.toEntity(owner);
-        shopRepository.save(newShop);
+        Shop newShop = Shop.builder()
+            .owner(owner)
+            .address(ownerShopsRequest.address())
+            .deliveryPrice(ownerShopsRequest.deliveryPrice())
+            .delivery(ownerShopsRequest.delivery())
+            .description(ownerShopsRequest.description())
+            .payBank(ownerShopsRequest.payBank())
+            .payCard(ownerShopsRequest.payCard())
+            .phone(ownerShopsRequest.phone())
+            .name(ownerShopsRequest.name())
+            .internalName(ownerShopsRequest.name())
+            .chosung(ownerShopsRequest.name().substring(0, 1))
+            .isDeleted(false)
+            .isEvent(false)
+            .remarks("")
+            .hit(0L)
+            .build();
+
+        Shop savedShop = shopRepository.save(newShop);
+
         for (String imageUrl : ownerShopsRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
-                .shop(newShop)
+                .shop(savedShop)
                 .imageUrl(imageUrl)
                 .build();
             shopImageRepository.save(shopImage);
         }
         for (OwnerShopsRequest.InnerOpenRequest open : ownerShopsRequest.open()) {
             ShopOpen shopOpen = ShopOpen.builder()
-                .shop(newShop)
+                .shop(savedShop)
                 .openTime(open.openTime())
                 .closeTime(open.closeTime())
                 .dayOfWeek(open.dayOfWeek())
@@ -64,7 +82,7 @@ public class OwnerShopService {
         for (ShopCategory shopCategory : shopCategories) {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
                 .shopCategory(shopCategory)
-                .shop(newShop)
+                .shop(savedShop)
                 .build();
             shopCategoryMapRepository.save(shopCategoryMap);
         }
