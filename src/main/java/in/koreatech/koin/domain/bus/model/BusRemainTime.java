@@ -30,9 +30,9 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
             .build();
     }
 
-    public static BusRemainTime from(Long remainTime) {
+    public static BusRemainTime from(Long remainTime, Clock clock) {
         return builder()
-            .busArrivalTime(LocalTime.now().plusSeconds(remainTime))
+            .busArrivalTime(LocalTime.now(clock).plusSeconds(remainTime))
             .build();
     }
 
