@@ -69,27 +69,18 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
         Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
 
         if (duration.toSeconds() < 60) {
-            if (cityBusCacheRepository.findById(nodeId).isEmpty()) {
-                return new ArrayList<>();
-            }
             return getCityBusArrivalInfoByCache(nodeId);
         }
         return getCityBusArrivalInfoByOpenApi(nodeId);
     }
 
-    /**
-     * 당장 해야하는 것: 버전 정보 저장
-     *
-     * 현재: 레디스에 각 노드별 정보를 비어있어도 전부 저장한다.
-     * 구상: mysql에 버전 최신화 시각 정보를 기준으로 판단한다. -> 정보가 없는건 저장하지 않아도 된다. -> 성능 향상
-     *
-     *
-     * BusRemainTime 대신 ArrivalInfo를 하는게 확장성에 유리
-     */
-
     private List<CityBus> getCityBusArrivalInfoByCache(String nodeId) {
-        CityBusCache cityBusCache = cityBusCacheRepository.getById(nodeId);
-        return cityBusCache.getBusInfos().stream().map(CityBus::from).toList();
+        CityBusCache cityBusCache = cityBusCacheRepository.findById(nodeId).orElse(null);
+        if (cityBusCache != null) {
+            return cityBusCache.getBusInfos().stream().map(CityBus::from).toList();
+        }
+
+        return new ArrayList<>();
     }
 
     private List<CityBus> getCityBusArrivalInfoByOpenApi(String nodeId) {
@@ -103,12 +94,12 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
             .map(this::extractBusArrivalInfo)
             .toList();
 
+        Version version = versionRepository.getByType(VersionType.CITY);
+        version.update(Clock.systemDefaultZone());
+
         for (List<CityBusArrivalInfo> arrivalInfos : arrivalInfosList) {
             if (arrivalInfos.isEmpty())
                 continue;
-
-            Version version = versionRepository.getByType(VersionType.CITY);
-            version.update(Clock.systemDefaultZone());
 
             cityBusCacheRepository.save(
                 CityBusCache.create(
