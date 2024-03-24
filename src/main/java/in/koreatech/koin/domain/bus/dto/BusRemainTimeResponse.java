@@ -37,7 +37,7 @@ public record BusRemainTimeResponse(
                 Long busNumber = null;
                 Long remainTime = remainTimes.get(index).getRemainTime().getRemainSeconds(clock);
 
-                if (remainTimes.get(index) instanceof CityBus cityBus) {
+                if (remainTime != null && remainTimes.get(index) instanceof CityBus cityBus) {
                     busNumber = cityBus.getBusNumber();
                 }
 
