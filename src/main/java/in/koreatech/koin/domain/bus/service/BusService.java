@@ -2,8 +2,10 @@ package in.koreatech.koin.domain.bus.service;
 
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +42,7 @@ public class BusService {
         List<? extends Bus> remainTimes = new ArrayList<>();
         switch (busType) {
             case CITY, EXPRESS -> remainTimes = busOpenApiRequesters.get(ApiType.from(busType).getValue())
-                .getBusRemainTime(depart.getNodeId(direction)).stream()
-                .toList();
+                .getBusRemainTime(depart.getNodeId(direction));
             case SHUTTLE, COMMUTING -> {
                 List<BusCourse> busCourses = busRepository.findByBusType(busType.name().toLowerCase());
                 remainTimes = busCourses.stream()
@@ -59,7 +60,14 @@ public class BusService {
             }
         }
 
-        return BusRemainTimeResponse.of(busType, remainTimes, clock);
+        return BusRemainTimeResponse.of(
+            busType,
+            remainTimes.stream()
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(Bus::getRemainTime))
+                .toList(),
+            clock
+        );
     }
 
     private void validateBusCourse(BusStation depart, BusStation arrival) {
