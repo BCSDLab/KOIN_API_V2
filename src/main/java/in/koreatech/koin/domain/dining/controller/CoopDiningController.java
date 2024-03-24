@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.dining.controller;
 import static in.koreatech.koin.domain.user.model.UserType.COOP;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,11 +14,11 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class CoopDiningController {
+public class CoopDiningController implements CoopDiningApi{
 
     private final CoopDiningService soldOutService;
 
-    @PostMapping("/coop/dining/soldout")
+    @PatchMapping("/coop/dining/soldout")
     public ResponseEntity<Void> changeSoldOut(
         @Auth(permit = {COOP}) Long userId,
         @RequestBody SoldOutRequest soldOutRequest

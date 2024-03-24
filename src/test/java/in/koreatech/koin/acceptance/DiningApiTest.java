@@ -231,7 +231,7 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("품절 요청을 보낸다")
+    @DisplayName("영양사 권한으로 품절 요청을 보낸다")
     void requestSoldOut() {
         User user = User.builder()
             .password("1234")
@@ -282,7 +282,7 @@ class DiningApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token)
             .body(soldOutRequest)
             .when()
-            .post("/coop/dining/soldout")
+            .patch("/coop/dining/soldout")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -331,7 +331,7 @@ class DiningApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token)
             .body(soldOutRequest)
             .when()
-            .post("/coop/dining/soldout")
+            .patch("/coop/dining/soldout")
             .then()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .extract();
