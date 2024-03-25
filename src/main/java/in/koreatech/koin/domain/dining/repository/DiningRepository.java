@@ -18,7 +18,7 @@ public interface DiningRepository extends Repository<Dining, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE Dining d SET d.image = :image WHERE d.id = :id", nativeQuery = true)
+    @Query(value = "UPDATE dining_menus d SET d.image = :image WHERE d.id = :id", nativeQuery = true)
     void updateDiningImage(@Param("id") Long id, @Param("image") String imageUrl);
 
     List<Dining> findAllByDate(String date);
