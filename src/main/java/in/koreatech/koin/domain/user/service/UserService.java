@@ -8,7 +8,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.track.model.Member;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
@@ -21,7 +20,7 @@ import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.auth.exception.AuthException;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import lombok.RequiredArgsConstructor;
 
@@ -72,7 +71,7 @@ public class UserService {
     private String getUserId(String refreshToken) {
         String[] split = refreshToken.split("-");
         if (split.length == 0) {
-            throw new AuthException("올바르지 않은 인증 토큰입니다. refreshToken: " + refreshToken);
+            throw new AuthorizationException("올바르지 않은 인증 토큰입니다. refreshToken: " + refreshToken);
         }
         return split[split.length - 1];
     }

@@ -2,7 +2,8 @@ package in.koreatech.koin.global.exception;
 
 import java.time.format.DateTimeParseException;
 
-import in.koreatech.koin.global.auth.exception.AuthException;
+import in.koreatech.koin.global.auth.exception.AuthenticationException;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleAuthException(AuthException e) {
+    public ResponseEntity<ErrorResponse> handleAuthorException(AuthorizationException e) {
+        log.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(ErrorResponse.from("잘못된 권한입니다."));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleAuththenException(AuthenticationException e) {
         log.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body(ErrorResponse.from("잘못된 인증정보입니다."));

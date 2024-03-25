@@ -2,12 +2,15 @@ package in.koreatech.koin.domain.ownershop.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+
+import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -49,5 +52,21 @@ public interface OwnerShopApi {
     ResponseEntity<Void> createOwnerShops(
         @Auth(permit = {OWNER}) Long userId,
         @RequestBody OwnerShopsRequest ownerShopsRequest
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/owner/shops/{id}")
+    ResponseEntity<ShopResponse> getOwnerShopByShopId(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable Long id
     );
 }
