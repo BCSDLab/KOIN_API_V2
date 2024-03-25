@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -75,12 +76,10 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
     }
 
     private List<CityBus> getCityBusArrivalInfoByCache(String nodeId) {
-        CityBusCache cityBusCache = cityBusCacheRepository.findById(nodeId).orElse(null);
-        if (cityBusCache != null) {
-            return cityBusCache.getBusInfos().stream().map(CityBus::from).toList();
-        }
+        Optional<CityBusCache> cityBusCache = cityBusCacheRepository.findById(nodeId);
 
-        return new ArrayList<>();
+        return cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBus::from).toList())
+            .orElseGet(ArrayList::new);
     }
 
     private List<CityBus> getCityBusArrivalInfoByOpenApi(String nodeId) {

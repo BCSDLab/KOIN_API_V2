@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +62,7 @@ public class BusService {
         return BusRemainTimeResponse.of(
             busType,
             remainTimes.stream()
-                .filter(Objects::nonNull)
+                .filter(bus -> bus.getRemainTime().getRemainSeconds(clock) != null)
                 .sorted(Comparator.comparing(Bus::getRemainTime))
                 .toList(),
             clock
