@@ -8,15 +8,15 @@ public class SlackNotification {
 
     public static final String COLOR_GOOD = "good";
 
-    private final String channel;
+    private final String slackUrl;
     private final String content;
 
     @Builder
     private SlackNotification(
-        String channel,
+        String slackUrl,
         String text
     ) {
-        this.channel = channel;
+        this.slackUrl = slackUrl;
         this.content = text;
     }
 }

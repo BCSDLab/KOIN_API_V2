@@ -6,16 +6,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class SlackNotificationFactory {
 
-    private static final String CHANNEL_EVENT_NOTIFICATION = "#코인_이벤트알림";
-    private static final String CHANNEL_OWNER_EVENT_NOTIFICATION = "#코인_이벤트알림_사장님";
     private static final String MARKDOWN_ADMIN_PAGE_URL_FORMAT = "<%s|Admin page 바로가기>";
 
     private final String adminPageUrl;
+    private final String ownerEventNotificationUrl;
+    private final String eventNotificationUrl;
 
     public SlackNotificationFactory(
-        @Value("${slack.koin_admin_url}") String adminPageUrl
+        @Value("${koin.admin.url}") String adminPageUrl,
+        @Value("${slack.koin_event_notify_url}") String eventNotificationUrl,
+        @Value("${slack.koin_owner_event_notify_url}") String ownerEventNotificationUrl
     ) {
         this.adminPageUrl = adminPageUrl;
+        this.eventNotificationUrl = eventNotificationUrl;
+        this.ownerEventNotificationUrl = ownerEventNotificationUrl;
     }
 
     /**
@@ -25,22 +29,7 @@ public class SlackNotificationFactory {
         String content
     ) {
         return SlackNotification.builder()
-            .channel(CHANNEL_OWNER_EVENT_NOTIFICATION)
-            .text(String.format("""
-                `%s(사장님)님이 이메일 인증을 요청하셨습니다.`
-                """, content)
-            )
-            .build();
-    }
-
-    /**
-     * 사장님 이메일 인증 요청 알림
-     */
-    public SlackNotification generateflafjlasfNotificaiton(
-        String content
-    ) {
-        return SlackNotification.builder()
-            .channel(CHANNEL_OWNER_EVENT_NOTIFICATION)
+            .slackUrl(ownerEventNotificationUrl)
             .text(String.format("""
                 `%s(사장님)님이 이메일 인증을 요청하셨습니다.`
                 """, content)
@@ -55,7 +44,7 @@ public class SlackNotificationFactory {
         String content
     ) {
         return SlackNotification.builder()
-            .channel(CHANNEL_OWNER_EVENT_NOTIFICATION)
+            .slackUrl(ownerEventNotificationUrl)
             .text(String.format("""
                 `%s(사장님)님이 이메일 인증을 완료했습니다.`
                 """, content)
@@ -71,7 +60,7 @@ public class SlackNotificationFactory {
         String shopName
     ) {
         return SlackNotification.builder()
-            .channel(CHANNEL_OWNER_EVENT_NOTIFICATION)
+            .slackUrl(ownerEventNotificationUrl)
             .text(String.format("""
                         `%s`님이 가입 승인을 기다리고 있어요!
                         가게 정보: `%s`
