@@ -41,24 +41,7 @@ public class OwnerShopService {
     @Transactional
     public void createOwnerShops(Long ownerId, OwnerShopsRequest ownerShopsRequest) {
         Owner owner = ownerRepository.getById(ownerId);
-        Shop newShop = Shop.builder()
-            .owner(owner)
-            .address(ownerShopsRequest.address())
-            .deliveryPrice(ownerShopsRequest.deliveryPrice())
-            .delivery(ownerShopsRequest.delivery())
-            .description(ownerShopsRequest.description())
-            .payBank(ownerShopsRequest.payBank())
-            .payCard(ownerShopsRequest.payCard())
-            .phone(ownerShopsRequest.phone())
-            .name(ownerShopsRequest.name())
-            .internalName(ownerShopsRequest.name())
-            .chosung(ownerShopsRequest.name().substring(0, 1))
-            .isDeleted(false)
-            .isEvent(false)
-            .remarks("")
-            .hit(0L)
-            .build();
-
+        Shop newShop = ownerShopsRequest.toEntity(owner);
         Shop savedShop = shopRepository.save(newShop);
 
         for (String imageUrl : ownerShopsRequest.imageUrls()) {
