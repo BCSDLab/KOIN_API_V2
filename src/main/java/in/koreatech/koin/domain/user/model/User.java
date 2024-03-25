@@ -103,8 +103,9 @@ public class User extends BaseEntity {
 
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
-                 String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-                 Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt, String deviceToken) {
+        String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+        Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt,
+        String deviceToken) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -140,9 +141,6 @@ public class User extends BaseEntity {
     }
 
     public void update(User user) {
-        if (user.password != null) {
-            this.password = user.password;
-        }
         if (user.nickname != null) {
             this.nickname = user.nickname;
         }
@@ -152,35 +150,8 @@ public class User extends BaseEntity {
         if (user.phoneNumber != null) {
             this.phoneNumber = user.phoneNumber;
         }
-        if (user.email != null) {
-            this.email = user.email;
-        }
         if (user.gender != null) {
             this.gender = user.gender;
-        }
-        if (user.isAuthed != null) {
-            this.isAuthed = user.isAuthed;
-        }
-        if (user.lastLoggedAt != null) {
-            this.lastLoggedAt = user.lastLoggedAt;
-        }
-        if (user.profileImageUrl != null) {
-            this.profileImageUrl = user.profileImageUrl;
-        }
-        if (user.isDeleted != null) {
-            this.isDeleted = user.isDeleted;
-        }
-        if (user.authToken != null) {
-            this.authToken = user.authToken;
-        }
-        if (user.authExpiredAt != null) {
-            this.authExpiredAt = user.authExpiredAt;
-        }
-        if (user.resetToken != null) {
-            this.resetToken = user.resetToken;
-        }
-        if (user.resetExpiredAt != null) {
-            this.resetExpiredAt = user.resetExpiredAt;
         }
     }
 }

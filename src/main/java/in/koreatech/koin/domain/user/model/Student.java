@@ -61,20 +61,11 @@ public class Student {
     }
 
     public void update(Student student) {
-        if (student.anonymousNickname != null) {
-            this.anonymousNickname = student.anonymousNickname;
-        }
         if (student.studentNumber != null) {
             this.studentNumber = student.studentNumber;
         }
         if (student.department != null) {
             this.department = student.department;
-        }
-        if (student.userIdentity != null) {
-            this.userIdentity = student.userIdentity;
-        }
-        if (student.isGraduated != null) {
-            this.isGraduated = student.isGraduated;
         }
         if (student.user != null) {
             this.user = student.user;

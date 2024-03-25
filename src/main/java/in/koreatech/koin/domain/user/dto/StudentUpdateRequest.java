@@ -21,9 +21,6 @@ public record StudentUpdateRequest
         @Schema(description = "전공{기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인공학부, 건축공학부, 화학생명공학부, 에너지신소재공학부, 산업경영학부, 고용서비스정책학과}", example = "컴퓨터공학부")
         String major,
 
-        @Schema(description = "비밀번호", example = "a0240120305812krlakdsflsa;1235")
-        String password,
-
         @Size(max = 50, message = "이름의 길이는 최대 50자 입니다.")
         @Schema(description = "이름", example = "최준호")
         String name,
@@ -35,7 +32,7 @@ public record StudentUpdateRequest
         @Schema(description = "휴대폰 번호", example = "010-0000-0000")
         String phoneNumber,
 
-        @Size(max = 50, message = "학번은 50자 이내여야 합니다.")
+        @Size(max = 10, message = "학번은 10자여야 합니다.")
         @Schema(description = "학번", example = "2020136065")
         String studentNumber
     ) {
