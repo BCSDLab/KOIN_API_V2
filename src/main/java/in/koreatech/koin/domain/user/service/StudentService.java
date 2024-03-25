@@ -57,8 +57,8 @@ public class StudentService {
             .studentNumber(studentUpdateRequest.studentNumber())
             .build();
 
-        user.update(updateUser);
-        student.update(updateStudent);
+        user.userInfoUpdate(updateUser);
+        student.studentInfoUpdate(updateStudent);
 
         studentRepository.save(student);
 

@@ -140,7 +140,7 @@ public class User extends BaseEntity {
         lastLoggedAt = lastLoggedTime;
     }
 
-    public void update(User user) {
+    public void userInfoUpdate(User user) {
         if (user.nickname != null) {
             this.nickname = user.nickname;
         }
