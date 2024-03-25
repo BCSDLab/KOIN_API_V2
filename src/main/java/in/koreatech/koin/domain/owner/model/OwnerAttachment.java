@@ -1,25 +1,21 @@
 package in.koreatech.koin.domain.owner.model;
 
-import static lombok.AccessLevel.PROTECTED;
-
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.owner.exception.AttachmentNotFoundException;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
+import static lombok.AccessLevel.PROTECTED;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,11 +34,6 @@ public class OwnerAttachment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "owner_id", nullable = false, referencedColumnName = "user_id")
-    private Owner owner;
 
     @NotNull
     @Lob
@@ -68,8 +59,7 @@ public class OwnerAttachment extends BaseEntity {
     }
 
     @Builder
-    private OwnerAttachment(Owner owner, String url, Boolean isDeleted, String name) {
-        this.owner = owner;
+    private OwnerAttachment(String url, Boolean isDeleted, String name) {
         this.url = url;
         this.isDeleted = isDeleted;
         this.name = name;

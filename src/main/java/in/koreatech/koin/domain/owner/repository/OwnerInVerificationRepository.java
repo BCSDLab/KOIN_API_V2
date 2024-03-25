@@ -13,6 +13,8 @@ public interface OwnerInVerificationRepository extends Repository<OwnerInVerific
 
     Optional<OwnerInVerification> findById(String email);
 
+    void deleteById(String email);
+
     default OwnerInVerification getByEmail(String email) {
         return findById(email).orElseThrow(() -> EmailNotFoundException.withDetail("email: " + email));
     }

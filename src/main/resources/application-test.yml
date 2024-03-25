@@ -38,6 +38,7 @@ swagger:
 
 slack:
   notify_koin_event_url:
+  koin_admin_url: https://admin-url-path.com
 
 aws:
   ses:
