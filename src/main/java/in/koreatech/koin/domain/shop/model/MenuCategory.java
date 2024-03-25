@@ -8,9 +8,12 @@ import java.util.List;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -31,8 +34,9 @@ public final class MenuCategory extends BaseEntity {
     private Long id;
 
     @NotNull
-    @Column(name = "shop_id", nullable = false)
-    private Long shopId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shop_id", nullable = false)
+    private Shop shop;
 
     @Size(max = 255)
     @NotNull
@@ -47,8 +51,8 @@ public final class MenuCategory extends BaseEntity {
     private List<MenuCategoryMap> menuCategoryMaps = new ArrayList<>();
 
     @Builder
-    private MenuCategory(Long shopId, String name) {
-        this.shopId = shopId;
+    private MenuCategory(Shop shop, String name) {
+        this.shop = shop;
         this.name = name;
     }
 }

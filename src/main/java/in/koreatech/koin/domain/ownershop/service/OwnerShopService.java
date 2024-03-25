@@ -42,17 +42,18 @@ public class OwnerShopService {
     public void createOwnerShops(Long ownerId, OwnerShopsRequest ownerShopsRequest) {
         Owner owner = ownerRepository.getById(ownerId);
         Shop newShop = ownerShopsRequest.toEntity(owner);
-        shopRepository.save(newShop);
+        Shop savedShop = shopRepository.save(newShop);
+
         for (String imageUrl : ownerShopsRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
-                .shop(newShop)
+                .shop(savedShop)
                 .imageUrl(imageUrl)
                 .build();
             shopImageRepository.save(shopImage);
         }
         for (OwnerShopsRequest.InnerOpenRequest open : ownerShopsRequest.open()) {
             ShopOpen shopOpen = ShopOpen.builder()
-                .shop(newShop)
+                .shop(savedShop)
                 .openTime(open.openTime())
                 .closeTime(open.closeTime())
                 .dayOfWeek(open.dayOfWeek())
@@ -64,7 +65,7 @@ public class OwnerShopService {
         for (ShopCategory shopCategory : shopCategories) {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
                 .shopCategory(shopCategory)
-                .shop(newShop)
+                .shop(savedShop)
                 .build();
             shopCategoryMapRepository.save(shopCategoryMap);
         }

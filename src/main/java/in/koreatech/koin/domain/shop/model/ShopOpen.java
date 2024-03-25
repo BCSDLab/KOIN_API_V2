@@ -29,7 +29,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "shop_opens")
 @Where(clause = "is_deleted=0")
 public class ShopOpen extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -49,12 +48,12 @@ public class ShopOpen extends BaseEntity {
 
     @NotNull
     @Column(name = "open_time")
-    @Convert(converter =  LocalTimeAttributeConverter.class)
+    @Convert(converter = LocalTimeAttributeConverter.class)
     private LocalTime openTime;
 
     @NotNull
     @Column(name = "close_time")
-    @Convert(converter =  LocalTimeAttributeConverter.class)
+    @Convert(converter = LocalTimeAttributeConverter.class)
     private LocalTime closeTime;
 
     @NotNull
