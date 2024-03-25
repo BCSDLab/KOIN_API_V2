@@ -262,7 +262,7 @@ class DiningApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token)
             .when()
             .patch("/coop/dining/image")
-            .then().log().all()
+            .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
