@@ -9,11 +9,12 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class CoopDiningService {
 
     private final DiningRepository diningRepository;
 
+    @Transactional
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
         diningRepository.updateSoldOut(soldOutRequest.menuId(), soldOutRequest.soldOut());
     }

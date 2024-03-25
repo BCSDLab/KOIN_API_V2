@@ -22,7 +22,4 @@ public interface DiningRepository extends Repository<Dining, Long> {
     @Modifying
     @Query(value = "UPDATE dining_menus dm SET dm.sold_out = :soldOut WHERE dm.id = :menuId", nativeQuery = true)
     void updateSoldOut(@Param("menuId") Long menuId, @Param("soldOut") Boolean soldOut);
-
-    @Query(value = "SELECT id FROM dining_menus where sold_out = true", nativeQuery = true)
-    Long findSoldOut();
 }

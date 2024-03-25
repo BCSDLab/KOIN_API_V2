@@ -16,14 +16,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CoopDiningController implements CoopDiningApi{
 
-    private final CoopDiningService soldOutService;
+    private final CoopDiningService coopDiningService;
 
     @PatchMapping("/coop/dining/soldout")
     public ResponseEntity<Void> changeSoldOut(
         @Auth(permit = {COOP}) Long userId,
         @RequestBody SoldOutRequest soldOutRequest
     ) {
-        soldOutService.changeSoldOut(soldOutRequest);
+        coopDiningService.changeSoldOut(soldOutRequest);
         return ResponseEntity.ok().build();
     }
 }
