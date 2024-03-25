@@ -68,7 +68,7 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
 
         Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
 
-        if (duration.toSeconds() < 60) {
+        if (0 <= duration.toSeconds() && duration.toSeconds() < 60) {
             return getCityBusArrivalInfoByCache(nodeId);
         }
         return getCityBusArrivalInfoByOpenApi(nodeId);
