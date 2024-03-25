@@ -5,8 +5,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,22 +16,24 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "dining_menus")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "dining_menus")
 public class Dining extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @NotNull
     @Column(name = "date", nullable = false)
     private String date;
 
-    @Column(name = "type", nullable = false)
+    @NotNull
+    @Column(name = "type", nullable = false, length = 9)
     private String type;
 
-    @Column(name = "place", nullable = false)
+    @NotNull
+    @Column(name = "place", nullable = false, length = 9)
     private String place;
 
     @Column(name = "price_card")
@@ -41,12 +45,16 @@ public class Dining extends BaseEntity {
     @Column(name = "kcal")
     private Integer kcal;
 
+    @NotNull
     @Column(name = "menu", nullable = false)
     private String menu;
 
+    @Column(name = "image")
+    private String image;
+
     @Builder
     private Dining(Long id, String date, String type, String place, Integer priceCard, Integer priceCash,
-        Integer kcal, String menu) {
+        Integer kcal, String menu, String image) {
         this.id = id;
         this.date = date;
         this.type = type;
@@ -55,5 +63,6 @@ public class Dining extends BaseEntity {
         this.priceCash = priceCash;
         this.kcal = kcal;
         this.menu = menu;
+        this.image = image;
     }
 }
