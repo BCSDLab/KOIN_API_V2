@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,8 +94,8 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
             .map(this::extractBusArrivalInfo)
             .toList();
 
-        Version version = versionRepository.getByType(VersionType.CITY);
-        version.update(Clock.systemDefaultZone());
+        Clock updatedClock = Clock.systemDefaultZone();
+        LocalDateTime updatedAt = LocalDateTime.now(updatedClock);
 
         for (List<CityBusArrivalInfo> arrivalInfos : arrivalInfosList) {
             if (arrivalInfos.isEmpty())
@@ -104,13 +105,13 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
                 CityBusCache.create(
                     arrivalInfos.get(0).nodeid(),
                     arrivalInfos.stream()
-                        .map(busArrivalInfo -> BusInfoCache.from(busArrivalInfo, version.getUpdatedAt()))
+                        .map(busArrivalInfo -> BusInfoCache.from(busArrivalInfo, updatedAt))
                         .toList()
                 )
             );
         }
 
-        // versionRepository.getByType(VersionType.CITY).update(Clock.systemDefaultZone());
+        versionRepository.getByType(VersionType.CITY).update(updatedClock);
     }
 
     private String getOpenApiResponse(String nodeId) {
