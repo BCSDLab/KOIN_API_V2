@@ -68,10 +68,9 @@ public class OwnerAttachment extends BaseEntity {
     }
 
     @Builder
-    private OwnerAttachment(Owner owner, String url, Boolean isDeleted, String name) {
+    private OwnerAttachment(Owner owner, String url, Boolean isDeleted) {
         this.owner = owner;
         this.url = url;
         this.isDeleted = isDeleted;
-        this.name = name;
     }
 }

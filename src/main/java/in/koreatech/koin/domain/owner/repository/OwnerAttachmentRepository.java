@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.owner.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
@@ -13,4 +14,6 @@ public interface OwnerAttachmentRepository extends Repository<OwnerAttachment, L
     OwnerAttachment findById(Long id);
 
     List<OwnerAttachment> findAllByOwnerId(Long ownerId);
+
+    Optional<OwnerAttachment> findByOwnerIdAndUrl(Long userId, String url);
 }
