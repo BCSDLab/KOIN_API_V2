@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
@@ -189,19 +190,19 @@ class OwnerShopApiTest extends AcceptanceTest {
             "010-1234-5678"
         );
 
-        ShopCategory shopCategoryRequest1 = ShopCategory.builder()
+        ShopCategory shopCategory1 = ShopCategory.builder()
             .isDeleted(false)
             .name("테스트1")
             .imageUrl("https://test.com/test1.jpg")
             .build();
 
-        ShopCategory shopCategoryRequest2 = ShopCategory.builder()
+        ShopCategory shopCategory2 = ShopCategory.builder()
             .isDeleted(false)
             .name("테스트2")
             .imageUrl("https://test.com/test2.jpg")
             .build();
-        shopCategoryRepository.save(shopCategoryRequest1);
-        shopCategoryRepository.save(shopCategoryRequest2);
+        shopCategoryRepository.save(shopCategory1);
+        shopCategoryRepository.save(shopCategory2);
 
         ExtractableResponse<Response> response = RestAssured
             .given()
@@ -231,11 +232,11 @@ class OwnerShopApiTest extends AcceptanceTest {
                 softly.assertThat(createdShop.getPayBank()).isEqualTo(ownerShopsRequest.payBank());
                 softly.assertThat(createdShop.getPayCard()).isEqualTo(ownerShopsRequest.payCard());
                 softly.assertThat(createdShop.getPhone()).isEqualTo(ownerShopsRequest.phone());
+                softly.assertThat(shopOpens).hasSize(2);
                 softly.assertThat(categoryIds).containsAnyElementsOf(shopCategoryMaps.stream()
                     .map(shopCategory -> shopCategory.getShopCategory().getId()).toList());
                 softly.assertThat(imageUrls).containsAnyElementsOf(shopImages.stream()
                     .map(ShopImage::getImageUrl).toList());
-                softly.assertThat(shopOpens).hasSize(2);
             }
         );
     }
