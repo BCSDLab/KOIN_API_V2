@@ -1,5 +1,9 @@
 package in.koreatech.koin.acceptance;
 
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +15,6 @@ import in.koreatech.koin.domain.user.model.StudentDepartment;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserIdentity;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
@@ -19,8 +22,6 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class UserApiTest extends AcceptanceTest {
 
@@ -186,7 +187,7 @@ class UserApiTest extends AcceptanceTest {
         String token = jwtProvider.createToken(student.getUser());
 
         ExtractableResponse<Response> response = RestAssured
-            .given().log().all()
+            .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .body("""
