@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.domain.upload.dto.UploadFileResponse;
 import in.koreatech.koin.global.domain.upload.dto.UploadFilesResponse;
@@ -21,6 +19,8 @@ import in.koreatech.koin.global.domain.upload.dto.UploadUrlResponse;
 import in.koreatech.koin.global.domain.upload.model.ImageUploadDomain;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+
+import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -51,12 +51,13 @@ public interface UploadApi {
         - shops
         - members
         - owners
+        - coop
         """)
     @PostMapping("/{domain}/upload/url")
     ResponseEntity<UploadUrlResponse> getPresignedUrl(
         @PathVariable ImageUploadDomain domain,
         @RequestBody @Valid UploadUrlRequest request,
-        @Auth(permit = {OWNER, STUDENT}) Long memberId
+        @Auth(permit = {OWNER, STUDENT, COOP}) Long memberId
     );
 
     @ApiResponses(

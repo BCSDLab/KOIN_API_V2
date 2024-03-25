@@ -1,5 +1,7 @@
 package in.koreatech.koin.global.domain.upload.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.*;
+
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -12,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.domain.upload.dto.UploadFileResponse;
 import in.koreatech.koin.global.domain.upload.dto.UploadFilesResponse;
@@ -34,7 +34,7 @@ public class UploadController implements UploadApi {
     public ResponseEntity<UploadUrlResponse> getPresignedUrl(
         @PathVariable ImageUploadDomain domain,
         @RequestBody @Valid UploadUrlRequest request,
-        @Auth(permit = {OWNER, STUDENT}) Long memberId
+        @Auth(permit = {OWNER, STUDENT, COOP}) Long memberId
     ) {
         var response = uploadService.getPresignedUrl(domain, request);
         return ResponseEntity.ok(response);
