@@ -75,7 +75,7 @@ public class OwnerShopService {
 
     public ShopResponse getShopByShopId(Long ownerId, Long shopId) {
         Shop shop = shopRepository.getById(shopId);
-        if(shop.getOwner().getId() != ownerId) {
+        if (shop.getOwner().getId() != ownerId) {
             throw AuthorizationException.withDetail("ownerId: " + ownerId);
         }
         return ShopResponse.from(shop);
