@@ -17,7 +17,7 @@ public class CoopService {
 
     @Transactional
     public void saveDiningImage(DiningImageRequest imageRequest) {
-        Dining dining = diningRepository.findById(imageRequest.menuId());
+        Dining dining = diningRepository.getById(imageRequest.menuId());
         dining.setImageUrl(imageRequest.imageUrl());
     }
 }
