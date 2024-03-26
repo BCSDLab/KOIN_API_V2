@@ -10,7 +10,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import in.koreatech.koin.global.auth.exception.AuthException;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -46,7 +46,7 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
             return user.getId();
         }
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        throw AuthException.withDetail("header: " + request);
+        throw AuthorizationException.withDetail("header: " + request);
     }
 
     private static boolean isAnonymous(Long userId, Auth authAt) {
@@ -54,7 +54,7 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
             if (authAt.anonymous()) {
                 return true;
             }
-            throw AuthException.withDetail("userId is null");
+            throw AuthorizationException.withDetail("userId is null");
         }
         return false;
     }
