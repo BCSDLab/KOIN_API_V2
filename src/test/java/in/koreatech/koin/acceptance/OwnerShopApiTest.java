@@ -67,6 +67,8 @@ class OwnerShopApiTest extends AcceptanceTest {
     private String token;
     private ShopCategory shopCategory1;
     private ShopCategory shopCategory2;
+    private Owner otherOwner;
+    private String otherOwnerToken;
 
     @BeforeEach
     void setUp() {
@@ -124,6 +126,28 @@ class OwnerShopApiTest extends AcceptanceTest {
             .build();
         shopCategory1 = shopCategoryRepository.save(shopCategoryRequest1);
         shopCategory2 = shopCategoryRepository.save(shopCategoryRequest2);
+
+        Owner otherOwnerRequest = Owner.builder()
+            .companyRegistrationNumber("123-45-67890")
+            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
+            .grantShop(true)
+            .grantEvent(true)
+            .user(
+                User.builder()
+                    .password("1234")
+                    .nickname("주노")
+                    .name("최준호")
+                    .phoneNumber("010-1234-5678")
+                    .userType(OWNER)
+                    .gender(UserGender.MAN)
+                    .email("test@koreatech.ac.kr")
+                    .isAuthed(true)
+                    .isDeleted(false)
+                    .build()
+            )
+            .build();
+        otherOwner = ownerRepository.save(otherOwnerRequest);
+        otherOwnerToken = jwtProvider.createToken(otherOwner.getUser());
     }
 
     @Test
@@ -311,28 +335,6 @@ class OwnerShopApiTest extends AcceptanceTest {
         ShopImage newShopImage1 = shopImageRepository.save(shopImage1);
         ShopImage newShopImage2 = shopImageRepository.save(shopImage2);
 
-        Owner otherOwnerRequest = Owner.builder()
-            .companyRegistrationNumber("123-45-67890")
-            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
-            .grantShop(true)
-            .grantEvent(true)
-            .user(
-                User.builder()
-                    .password("1234")
-                    .nickname("주노")
-                    .name("최준호")
-                    .phoneNumber("010-1234-5678")
-                    .userType(OWNER)
-                    .gender(UserGender.MAN)
-                    .email("test@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
-        Owner otherOwner = ownerRepository.save(otherOwnerRequest);
-        String otherOwnerToken = jwtProvider.createToken(otherOwner.getUser());
-
         ExtractableResponse<Response> response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
@@ -340,15 +342,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .get("/owner/shops/1")
             .then()
             .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + otherOwnerToken)
-            .when()
-            .get("/owner/shops/1")
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
 
         List<ShopImage> savedShopImages = shopImageRepository.findAllByShopId(shop.getId());
@@ -377,5 +370,19 @@ class OwnerShopApiTest extends AcceptanceTest {
                     .hasSize(savedShopCategoryMaps.size());
             }
         );
+    }
+
+    @Test
+    @DisplayName("권한이 없는 상점 사장님이 특정 상점 조회")
+    void ownerCannotQueryOtherStoresWithoutPermission() {
+        // given
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + otherOwnerToken)
+            .when()
+            .get("/owner/shops/1")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .extract();
     }
 }
