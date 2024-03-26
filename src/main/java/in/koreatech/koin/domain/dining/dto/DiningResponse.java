@@ -42,10 +42,15 @@ public record DiningResponse(
     List<String> menu,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "생성 일자", example = "2024-03-15 14:02:48") LocalDateTime createdAt,
+    @Schema(description = "생성 일자", example = "2024-03-15 14:02:48")
+    LocalDateTime createdAt,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "최신화 일자", example = "2024-03-15 14:02:48") LocalDateTime updatedAt
+    @Schema(description = "최신화 일자", example = "2024-03-15 14:02:48")
+    LocalDateTime updatedAt,
+
+    @Schema(description = "품절 여부", example = "true")
+    Boolean soldOut
 ) {
     public static DiningResponse from(Dining dining) {
         return new DiningResponse(
@@ -58,7 +63,8 @@ public record DiningResponse(
             dining.getKcal(),
             toListMenus(dining.getMenu()),
             dining.getCreatedAt(),
-            dining.getUpdatedAt()
+            dining.getUpdatedAt(),
+            dining.getSoldOut()
         );
     }
 
