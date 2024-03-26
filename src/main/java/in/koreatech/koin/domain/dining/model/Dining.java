@@ -5,7 +5,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -29,11 +28,11 @@ public class Dining extends BaseEntity {
     private String date;
 
     @NotNull
-    @Column(name = "type", nullable = false, length = 9)
+    @Column(name = "type", nullable = false)
     private String type;
 
     @NotNull
-    @Column(name = "place", nullable = false, length = 9)
+    @Column(name = "place", nullable = false)
     private String place;
 
     @Column(name = "price_card")
@@ -49,12 +48,12 @@ public class Dining extends BaseEntity {
     @Column(name = "menu", nullable = false)
     private String menu;
 
-    @Column(name = "image")
-    private String image;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Builder
     private Dining(Long id, String date, String type, String place, Integer priceCard, Integer priceCash,
-        Integer kcal, String menu, String image) {
+        Integer kcal, String menu, String imageUrl) {
         this.id = id;
         this.date = date;
         this.type = type;
@@ -63,6 +62,6 @@ public class Dining extends BaseEntity {
         this.priceCash = priceCash;
         this.kcal = kcal;
         this.menu = menu;
-        this.image = image;
+        this.imageUrl = imageUrl;
     }
 }
