@@ -1,5 +1,9 @@
 package in.koreatech.koin.domain.owner.dto;
 
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 import java.util.List;
 
 import org.hibernate.validator.constraints.URL;
@@ -11,10 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.user.model.User;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import io.swagger.v3.oas.annotations.media.Schema;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

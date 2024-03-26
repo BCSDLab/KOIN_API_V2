@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.owner.model;
 
+import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
+
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -13,7 +15,6 @@ import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.global.domain.slack.SlackClient;
 import in.koreatech.koin.global.domain.slack.model.SlackNotificationFactory;
 import lombok.RequiredArgsConstructor;
-import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 @Component
 @RequiredArgsConstructor

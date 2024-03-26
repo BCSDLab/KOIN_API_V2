@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.owner.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.owner.exception.AttachmentNotFoundException;
@@ -15,7 +17,6 @@ import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
-import static lombok.AccessLevel.PROTECTED;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

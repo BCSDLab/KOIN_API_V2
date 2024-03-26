@@ -1,5 +1,7 @@
 package in.koreatech.koin.global.domain.slack;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.global.domain.slack.model.SlackNotification;
 import lombok.RequiredArgsConstructor;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Service
 @RequiredArgsConstructor

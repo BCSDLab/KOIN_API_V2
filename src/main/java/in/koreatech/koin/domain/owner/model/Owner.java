@@ -1,13 +1,15 @@
 package in.koreatech.koin.domain.owner.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import in.koreatech.koin.domain.user.model.User;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.CascadeType.REMOVE;
+import static lombok.AccessLevel.PROTECTED;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -18,7 +20,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import static lombok.AccessLevel.PROTECTED;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
