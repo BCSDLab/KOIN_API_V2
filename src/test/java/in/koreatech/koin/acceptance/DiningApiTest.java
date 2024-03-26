@@ -1,7 +1,6 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.restassured.RestAssured.given;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.mockito.Mockito.when;
@@ -276,7 +275,7 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("허용되지 않은 권한으로 식단 이미지를 업로드한다. - 권한 오류.")
     void ImageUploadWithNoAuth(){
-        User coop = User.builder()
+        User user = User.builder()
             .password("1234")
             .nickname("춘식")
             .name("황현식")
@@ -287,9 +286,10 @@ class DiningApiTest extends AcceptanceTest {
             .isAuthed(true)
             .isDeleted(false)
             .build();
-        userRepository.save(coop);
 
-        String token = jwtProvider.createToken(coop);
+        userRepository.save(user);
+
+        String token = jwtProvider.createToken(user);
 
         Dining request = Dining.builder()
             .id(1L)
@@ -313,8 +313,8 @@ class DiningApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token)
             .when()
             .patch("/coop/dining/image")
-            .then().log().all()
-            .statusCode(HttpStatus.UNAUTHORIZED.value())
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
 }
