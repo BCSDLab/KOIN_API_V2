@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,9 +45,13 @@ public class Dining extends BaseEntity {
     @Column(name = "menu", nullable = false)
     private String menu;
 
+    @NotNull
+    @Column(name = "sold_out", nullable = false)
+    private Boolean soldOut = false;
+
     @Builder
     private Dining(Long id, String date, String type, String place, Integer priceCard, Integer priceCash,
-        Integer kcal, String menu) {
+        Integer kcal, String menu, Boolean soldOut) {
         this.id = id;
         this.date = date;
         this.type = type;
@@ -55,5 +60,10 @@ public class Dining extends BaseEntity {
         this.priceCash = priceCash;
         this.kcal = kcal;
         this.menu = menu;
+        this.soldOut = soldOut;
+    }
+
+    public void setSoldOut(Boolean soldout) {
+        this.soldOut = soldout;
     }
 }
