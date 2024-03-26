@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.owner.model.OwnerInVerification;
 import in.koreatech.koin.global.domain.email.exception.EmailNotFoundException;
 
-public interface OwnerInVerificationRepository extends Repository<OwnerInVerification, String> {
+public interface OwnerInVerificationRedisRepository extends Repository<OwnerInVerification, String> {
 
     OwnerInVerification save(OwnerInVerification ownerInVerification);
 

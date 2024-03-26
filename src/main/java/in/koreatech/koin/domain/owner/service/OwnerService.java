@@ -15,9 +15,10 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerInVerification;
 import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
-import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
-import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRepository;
+import in.koreatech.koin.domain.owner.model.OwnerShop;
+import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRedisRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -38,9 +39,9 @@ public class OwnerService {
     private final ShopRepository shopRepository;
     private final OwnerRepository ownerRepository;
     private final PasswordEncoder passwordEncoder;
-    private final OwnerAttachmentRepository ownerAttachmentRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final OwnerInVerificationRepository ownerInVerificationRepository;
+    private final OwnerShopRedisRepository ownerShopRedisRepository;
+    private final OwnerInVerificationRedisRepository ownerInVerificationRedisRepository;
 
     @Transactional
     public void requestSignUpEmailVerification(VerifyEmailRequest request) {
@@ -51,7 +52,7 @@ public class OwnerService {
             email.email(),
             certificationCode.getValue()
         );
-        ownerInVerificationRepository.save(ownerInVerification);
+        ownerInVerificationRedisRepository.save(ownerInVerification);
         eventPublisher.publishEvent(new OwnerEmailRequestEvent(ownerInVerification.getEmail()));
     }
 
@@ -78,6 +79,14 @@ public class OwnerService {
         }
         Owner owner = request.toOwner(passwordEncoder);
         Owner saved = ownerRepository.save(owner);
+        var shop = shopRepository.findById(request.shopId())
+            .orElse(null);
+        ownerShopRedisRepository.save(OwnerShop.builder()
+            .ownerId(owner.getId())
+            .shopId(shop == null ? null : shop.getId())
+            .build());
+        ownerShopRedisRepository.save(OwnerShop.builder()
+            .build());
         eventPublisher.publishEvent(new OwnerRegisterEvent(saved));
     }
 }

@@ -1,9 +1,13 @@
 package in.koreatech.koin.domain.owner.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import in.koreatech.koin.domain.user.model.User;
-import jakarta.persistence.CascadeType;
+import static jakarta.persistence.CascadeType.ALL;
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.REMOVE;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -30,7 +34,7 @@ public class Owner {
     private Long id;
 
     @MapsId
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
@@ -45,9 +49,9 @@ public class Owner {
     @Column(name = "grant_event")
     private Boolean grantEvent;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true)
     @JoinColumn(name = "owner_id")
-    private List<OwnerAttachment> attachments;
+    private List<OwnerAttachment> attachments = new ArrayList<>();
 
     @Builder
     private Owner(

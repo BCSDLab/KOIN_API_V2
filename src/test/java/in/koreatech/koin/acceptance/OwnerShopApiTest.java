@@ -8,10 +8,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerAttachment;
+import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.shop.model.Shop;
@@ -57,15 +58,24 @@ class OwnerShopApiTest extends AcceptanceTest {
     @Autowired
     private JwtProvider jwtProvider;
 
+    @Autowired
+    private OwnerAttachmentRepository ownerAttachmentRepository;
+
     private Owner owner;
     private Shop shop;
     private String token;
 
     @BeforeEach
     void setUp() {
+
+        OwnerAttachment attachment = OwnerAttachment.builder()
+            .url("https://test.com/test.jpg")
+            .isDeleted(false)
+            .build();
+
         Owner ownerRequest = Owner.builder()
             .companyRegistrationNumber("123-45-67890")
-            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
+            .attachments(List.of(attachment))
             .grantShop(true)
             .grantEvent(true)
             .user(

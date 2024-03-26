@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.user.model.User;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import io.swagger.v3.oas.annotations.media.Schema;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -23,11 +24,11 @@ import jakarta.validation.constraints.Size;
 @JsonNaming(SnakeCaseStrategy.class)
 public record OwnerRegisterRequest(
 
-    @Pattern(regexp = "^[0-9]{3}-[0-9]{2}-[0-9]{5}", message = "사업자 등록 번호 형식이 올바르지 않습니다. {{validatedValue}}")
+    @Pattern(regexp = "^[0-9]{3}-[0-9]{2}-[0-9]{5}", message = "사업자 등록 번호 형식이 올바르지 않습니다. ${validatedValue}")
     @Schema(description = "사업자 등록 번호", example = "012-34-56789", requiredMode = NOT_REQUIRED)
     String companyNumber,
 
-    @Email(message = "이메일 형식이 올바르지 않습니다. {{validatedValue}}")
+    @Email(message = "이메일 형식이 올바르지 않습니다. ${validatedValue}")
     @NotBlank(message = "이메일은 필수입니다.")
     @Schema(description = "이메일", example = "junho5336@gmail.com", requiredMode = REQUIRED)
     String email,
@@ -46,7 +47,7 @@ public record OwnerRegisterRequest(
     String phoneNumber,
 
     @Schema(description = "상점 고유 ID", requiredMode = NOT_REQUIRED)
-    Integer shopId,
+    Long shopId,
 
     @Schema(description = "상점 이름", example = "고릴라밥", requiredMode = NOT_REQUIRED)
     String shopName,
@@ -63,6 +64,9 @@ public record OwnerRegisterRequest(
             .email(email)
             .name(name)
             .phoneNumber(phoneNumber)
+            .userType(OWNER)
+            .isAuthed(false)
+            .isDeleted(false)
             .build();
         var attachments = attachmentUrls.stream()
             .map(InnerAttachmentUrl::fileUrl)
