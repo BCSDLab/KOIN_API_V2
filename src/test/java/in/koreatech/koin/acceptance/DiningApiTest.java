@@ -1,7 +1,7 @@
 package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.restassured.RestAssured.given;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.mockito.Mockito.when;
@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.dining.dto.DiningImageRequest;
+import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -268,8 +268,53 @@ class DiningApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly ->
-                softly.assertThat(diningRepository.findById(request.getId()).getImage())
+                softly.assertThat(diningRepository.findById(request.getId()).getImageUrl())
                     .isEqualTo(imageUrl.imageUrl())
         );
+    }
+
+    @Test
+    @DisplayName("허용되지 않은 권한으로 식단 이미지를 업로드한다. - 권한 오류.")
+    void ImageUploadWithNoAuth(){
+        User coop = User.builder()
+            .password("1234")
+            .nickname("춘식")
+            .name("황현식")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+        userRepository.save(coop);
+
+        String token = jwtProvider.createToken(coop);
+
+        Dining request = Dining.builder()
+            .id(1L)
+            .date("2024-03-11")
+            .type("LUNCH")
+            .place("A코스")
+            .priceCard(6000)
+            .priceCash(6000)
+            .kcal(881)
+            .menu("""
+                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
+            .build();
+
+        Dining dining = diningRepository.save(request);
+
+        DiningImageRequest imageUrl = new DiningImageRequest(1L, "https://stage.koreatech.in/image.jpg");
+
+        given()
+            .body(imageUrl)
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .patch("/coop/dining/image")
+            .then().log().all()
+            .statusCode(HttpStatus.UNAUTHORIZED.value())
+            .extract();
     }
 }
