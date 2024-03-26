@@ -9,6 +9,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
+import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
@@ -19,6 +20,7 @@ import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopImageRepository;
 import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -69,5 +71,13 @@ public class OwnerShopService {
                 .build();
             shopCategoryMapRepository.save(shopCategoryMap);
         }
+    }
+
+    public ShopResponse getShopByShopId(Long ownerId, Long shopId) {
+        Shop shop = shopRepository.getById(shopId);
+        if (shop.getOwner().getId() != ownerId) {
+            throw AuthorizationException.withDetail("ownerId: " + ownerId);
+        }
+        return ShopResponse.from(shop);
     }
 }
