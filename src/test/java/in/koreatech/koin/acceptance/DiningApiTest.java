@@ -267,14 +267,14 @@ class DiningApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly ->
-                softly.assertThat(diningRepository.findById(request.getId()).getImageUrl())
+                softly.assertThat(diningRepository.getById(request.getId()).getImageUrl())
                     .isEqualTo(imageUrl.imageUrl())
         );
     }
 
     @Test
     @DisplayName("허용되지 않은 권한으로 식단 이미지를 업로드한다. - 권한 오류.")
-    void ImageUploadWithNoAuth(){
+    void ImageUploadWithNoAuth() {
         User user = User.builder()
             .password("1234")
             .nickname("춘식")
