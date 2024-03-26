@@ -138,9 +138,14 @@ class OwnerShopApiTest extends AcceptanceTest {
         shopCategory1 = shopCategoryRepository.save(shopCategoryRequest1);
         shopCategory2 = shopCategoryRepository.save(shopCategoryRequest2);
 
+        var otherAttachment = OwnerAttachment.builder()
+            .url("https://test.com/test.jpg")
+            .isDeleted(false)
+            .build();
+
         Owner otherOwnerRequest = Owner.builder()
             .companyRegistrationNumber("123-45-67890")
-            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
+            .attachments(List.of(otherAttachment))
             .grantShop(true)
             .grantEvent(true)
             .user(
