@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DynamicUpdate
 @Table(name = "dining_menus")
 public class Dining extends BaseEntity {
     @Id
