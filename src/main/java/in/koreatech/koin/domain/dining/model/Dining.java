@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.dining.model;
 
-import org.hibernate.annotations.DynamicUpdate;
-
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,6 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "dining_menus")
 public class Dining extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -53,9 +52,13 @@ public class Dining extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @NotNull
+    @Column(name = "sold_out", nullable = false)
+    private Boolean soldOut = false;
+
     @Builder
     private Dining(Long id, String date, String type, String place, Integer priceCard, Integer priceCash,
-        Integer kcal, String menu, String imageUrl) {
+        Integer kcal, String menu, String imageUrl, Boolean soldOut) {
         this.id = id;
         this.date = date;
         this.type = type;
@@ -65,9 +68,14 @@ public class Dining extends BaseEntity {
         this.kcal = kcal;
         this.menu = menu;
         this.imageUrl = imageUrl;
+        this.soldOut = soldOut;
     }
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void setSoldOut(Boolean soldout) {
+        this.soldOut = soldout;
     }
 }

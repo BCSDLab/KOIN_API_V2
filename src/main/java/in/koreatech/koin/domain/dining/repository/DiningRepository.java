@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
+import in.koreatech.koin.domain.coop.exception.MenuNotFoundException;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 
@@ -16,8 +17,8 @@ public interface DiningRepository extends Repository<Dining, Long> {
 
     List<Dining> findAllByDate(String date);
 
-    default Dining getById(Long id) {
+    default Dining getById(Long id){
         return findById(id)
-            .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + id));
+            .orElseThrow(() -> MenuNotFoundException.withDetail("menuId: " + id));
     }
 }
