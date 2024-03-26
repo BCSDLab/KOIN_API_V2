@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.dining.dto;
+package in.koreatech.koin.domain.coop.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
