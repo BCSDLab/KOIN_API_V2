@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
+import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +16,8 @@ public class CoopService {
     private final DiningRepository diningRepository;
 
     @Transactional
-    public void saveDiningImage(DiningImageRequest image) {
-        diningRepository.updateDiningImage(image.menuId(), image.imageUrl());
+    public void saveDiningImage(DiningImageRequest imageRequest) {
+        Dining dining = diningRepository.findById(imageRequest.menuId());
+        dining.setImageUrl(imageRequest.imageUrl());
     }
 }

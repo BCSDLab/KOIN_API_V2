@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.dining.model;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,6 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicUpdate
 @Table(name = "dining_menus")
 public class Dining extends BaseEntity {
     @Id
@@ -62,6 +65,10 @@ public class Dining extends BaseEntity {
         this.priceCash = priceCash;
         this.kcal = kcal;
         this.menu = menu;
+        this.imageUrl = imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
 }

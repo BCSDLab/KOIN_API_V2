@@ -15,9 +15,5 @@ public interface DiningRepository extends Repository<Dining, Long> {
 
     Dining findById(Long id);
 
-    @Modifying
-    @Query(value = "UPDATE dining_menus d SET d.image_url = :imageUrl WHERE d.id = :id", nativeQuery = true)
-    void updateDiningImage(@Param("id") Long id, @Param("imageUrl") String imageUrl);
-
     List<Dining> findAllByDate(String date);
 }
