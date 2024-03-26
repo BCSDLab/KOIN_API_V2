@@ -17,7 +17,7 @@ public class CoopService {
 
     @Transactional
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
-        Dining dining = diningRepository.findById(soldOutRequest.menuId());
+        Dining dining = diningRepository.getById(soldOutRequest.menuId());
         dining.setSoldOut(soldOutRequest.soldOut());
     }
 }

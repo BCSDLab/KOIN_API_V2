@@ -288,7 +288,7 @@ class DiningApiTest extends AcceptanceTest {
             .extract();
 
         SoftAssertions.assertSoftly(
-            softly -> softly.assertThat(diningRepository.findById(2L).getSoldOut()).isEqualTo(true)
+            softly -> softly.assertThat(diningRepository.getById(2L).getSoldOut()).isEqualTo(true)
         );
     }
 
