@@ -45,20 +45,10 @@ public class StudentService {
                 "학생의 학번 형식이 아닙니다. studentNumber : " + studentUpdateRequest.studentNumber());
         }
 
-        User updateUser = User.builder()
-            .gender(UserGender.from(studentUpdateRequest.gender()))
-            .name(studentUpdateRequest.name())
-            .nickname(studentUpdateRequest.nickname())
-            .phoneNumber(studentUpdateRequest.phoneNumber())
-            .build();
-
-        Student updateStudent = Student.builder()
-            .department(StudentDepartment.from(studentUpdateRequest.major()))
-            .studentNumber(studentUpdateRequest.studentNumber())
-            .build();
-
-        user.userInfoUpdate(updateUser);
-        student.studentInfoUpdate(updateStudent);
+        user.userInfoUpdate(studentUpdateRequest.nickname(), studentUpdateRequest.name(),
+            studentUpdateRequest.phoneNumber(), UserGender.from(studentUpdateRequest.gender()));
+        student.studentInfoUpdate(studentUpdateRequest.studentNumber(),
+            StudentDepartment.from(studentUpdateRequest.major()));
 
         studentRepository.save(student);
 

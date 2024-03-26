@@ -140,18 +140,18 @@ public class User extends BaseEntity {
         lastLoggedAt = lastLoggedTime;
     }
 
-    public void userInfoUpdate(User user) {
-        if (user.nickname != null) {
-            this.nickname = user.nickname;
+    public void userInfoUpdate(String nickname, String name, String phoneNumber, UserGender gender) {
+        if (nickname != null) {
+            this.nickname = nickname;
         }
-        if (user.name != null) {
-            this.name = user.name;
+        if (name != null) {
+            this.name = name;
         }
-        if (user.phoneNumber != null) {
-            this.phoneNumber = user.phoneNumber;
+        if (phoneNumber != null) {
+            this.phoneNumber = phoneNumber;
         }
-        if (user.gender != null) {
-            this.gender = user.gender;
+        if (gender != null) {
+            this.gender = gender;
         }
     }
 }

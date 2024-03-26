@@ -60,15 +60,12 @@ public class Student {
         this.user = user;
     }
 
-    public void studentInfoUpdate(Student student) {
-        if (student.studentNumber != null) {
-            this.studentNumber = student.studentNumber;
+    public void studentInfoUpdate(String studentNumber, StudentDepartment studentDepartment) {
+        if (studentNumber != null) {
+            this.studentNumber = studentNumber;
         }
-        if (student.department != null) {
-            this.department = student.department;
-        }
-        if (student.user != null) {
-            this.user = student.user;
+        if (studentDepartment != null) {
+            this.department = studentDepartment;
         }
     }
 
