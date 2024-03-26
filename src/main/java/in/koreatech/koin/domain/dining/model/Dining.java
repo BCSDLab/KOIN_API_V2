@@ -63,7 +63,7 @@ public class Dining extends BaseEntity {
         this.soldOut = soldOut;
     }
 
-    public void setSoldOut(Boolean isSoldout){
-        this.soldOut = isSoldout;
+    public void setSoldOut(Boolean soldout) {
+        this.soldOut = soldout;
     }
 }
