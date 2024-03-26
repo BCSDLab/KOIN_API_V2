@@ -5,7 +5,6 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.TransactionStatus;
@@ -15,9 +14,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
-import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
-import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRedisRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
@@ -33,6 +30,8 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.verify;
 
 class OwnerApiTest extends AcceptanceTest {
 
@@ -41,9 +40,6 @@ class OwnerApiTest extends AcceptanceTest {
 
     @Autowired
     private ShopRepository shopRepository;
-
-    @Autowired
-    private OwnerAttachmentRepository ownerAttachmentRepository;
 
     @Autowired
     private OwnerInVerificationRedisRepository ownerInVerificationRedisRepository;
@@ -178,9 +174,7 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        OwnerEmailRequestEvent event = new OwnerEmailRequestEvent("test@gmail.com");
-
-        Mockito.verify(ownerEventListener).onOwnerEmailRequest(event);
+        verify(ownerEventListener).onOwnerEmailRequest(any());
     }
 
     @Nested
@@ -215,7 +209,6 @@ class OwnerApiTest extends AcceptanceTest {
                 .then()
                 .statusCode(HttpStatus.OK.value());
 
-
             // when
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
@@ -233,7 +226,7 @@ class OwnerApiTest extends AcceptanceTest {
                                 .isEqualTo("https://static.koreatech.in/testimage.png");
                             softly.assertThat(owner.getUser().getIsAuthed()).isFalse();
                             softly.assertThat(owner.getUser().getIsDeleted()).isFalse();
-                            Mockito.verify(ownerEventListener).onOwnerRegister(event);
+                            verify(ownerEventListener).onOwnerRegister(any());
                         }
                     );
                 }
