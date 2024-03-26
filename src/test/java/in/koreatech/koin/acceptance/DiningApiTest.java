@@ -333,7 +333,7 @@ class DiningApiTest extends AcceptanceTest {
             .when()
             .patch("/coop/dining/soldout")
             .then()
-            .statusCode(HttpStatus.UNAUTHORIZED.value())
+            .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
 }
