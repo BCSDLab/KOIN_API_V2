@@ -32,9 +32,6 @@ public class ShopService {
     private final MenuRepository menuRepository;
     private final MenuCategoryRepository menuCategoryRepository;
     private final ShopRepository shopRepository;
-    private final ShopOpenRepository shopOpenRepository;
-    private final ShopCategoryMapRepository shopCategoryMapRepository;
-    private final ShopImageRepository shopImageRepository;
 
     public MenuDetailResponse findMenu(Long menuId) {
         Menu menu = menuRepository.getById(menuId);
@@ -62,11 +59,7 @@ public class ShopService {
 
     public ShopResponse getShop(Long shopId) {
         Shop shop = shopRepository.getById(shopId);
-        List<ShopOpen> shopOpens = shopOpenRepository.findAllByShopId(shopId);
-        List<ShopImage> shopImages = shopImageRepository.findAllByShopId(shopId);
-        List<ShopCategoryMap> shopCategoryMaps = shopCategoryMapRepository.findAllByShopId(shopId);
-        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shopId);
-        return ShopResponse.of(shop, shopOpens, shopImages, shopCategoryMaps, menuCategories);
+        return ShopResponse.from(shop);
     }
 
     public ShopMenuResponse getShopMenu(Long shopId) {

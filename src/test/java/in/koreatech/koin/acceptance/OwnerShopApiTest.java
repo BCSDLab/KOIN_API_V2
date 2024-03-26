@@ -1,5 +1,8 @@
 package in.koreatech.koin.acceptance;
 
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+
 import java.time.LocalTime;
 import java.util.List;
 
@@ -13,11 +16,13 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
+import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryMapRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopImageRepository;
@@ -25,13 +30,11 @@ import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import in.koreatech.koin.global.auth.JwtProvider;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class OwnerShopApiTest extends AcceptanceTest {
 
@@ -54,11 +57,18 @@ class OwnerShopApiTest extends AcceptanceTest {
     private ShopCategoryMapRepository shopCategoryMapRepository;
 
     @Autowired
+    private MenuCategoryRepository menuCategoryRepository;
+
+    @Autowired
     private JwtProvider jwtProvider;
 
     private Owner owner;
     private Shop shop;
     private String token;
+    private ShopCategory shopCategory1;
+    private ShopCategory shopCategory2;
+    private Owner otherOwner;
+    private String otherOwnerToken;
 
     @BeforeEach
     void setUp() {
@@ -102,6 +112,42 @@ class OwnerShopApiTest extends AcceptanceTest {
             .hit(0L)
             .build();
         shop = shopRepository.save(shopRequest);
+
+        ShopCategory shopCategoryRequest1 = ShopCategory.builder()
+            .isDeleted(false)
+            .name("테스트1")
+            .imageUrl("https://test.com/test1.jpg")
+            .build();
+
+        ShopCategory shopCategoryRequest2 = ShopCategory.builder()
+            .isDeleted(false)
+            .name("테스트2")
+            .imageUrl("https://test.com/test2.jpg")
+            .build();
+        shopCategory1 = shopCategoryRepository.save(shopCategoryRequest1);
+        shopCategory2 = shopCategoryRepository.save(shopCategoryRequest2);
+
+        Owner otherOwnerRequest = Owner.builder()
+            .companyRegistrationNumber("123-45-67890")
+            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
+            .grantShop(true)
+            .grantEvent(true)
+            .user(
+                User.builder()
+                    .password("1234")
+                    .nickname("주노")
+                    .name("최준호")
+                    .phoneNumber("010-1234-5678")
+                    .userType(OWNER)
+                    .gender(UserGender.MAN)
+                    .email("test@koreatech.ac.kr")
+                    .isAuthed(true)
+                    .isDeleted(false)
+                    .build()
+            )
+            .build();
+        otherOwner = ownerRepository.save(otherOwnerRequest);
+        otherOwnerToken = jwtProvider.createToken(otherOwner.getUser());
     }
 
     @Test
@@ -189,19 +235,19 @@ class OwnerShopApiTest extends AcceptanceTest {
             "010-1234-5678"
         );
 
-        ShopCategory shopCategoryRequest1 = ShopCategory.builder()
+        ShopCategory shopCategory1 = ShopCategory.builder()
             .isDeleted(false)
             .name("테스트1")
             .imageUrl("https://test.com/test1.jpg")
             .build();
 
-        ShopCategory shopCategoryRequest2 = ShopCategory.builder()
+        ShopCategory shopCategory2 = ShopCategory.builder()
             .isDeleted(false)
             .name("테스트2")
             .imageUrl("https://test.com/test2.jpg")
             .build();
-        shopCategoryRepository.save(shopCategoryRequest1);
-        shopCategoryRepository.save(shopCategoryRequest2);
+        shopCategoryRepository.save(shopCategory1);
+        shopCategoryRepository.save(shopCategory2);
 
         ExtractableResponse<Response> response = RestAssured
             .given()
@@ -231,12 +277,112 @@ class OwnerShopApiTest extends AcceptanceTest {
                 softly.assertThat(createdShop.getPayBank()).isEqualTo(ownerShopsRequest.payBank());
                 softly.assertThat(createdShop.getPayCard()).isEqualTo(ownerShopsRequest.payCard());
                 softly.assertThat(createdShop.getPhone()).isEqualTo(ownerShopsRequest.phone());
+                softly.assertThat(shopOpens).hasSize(2);
                 softly.assertThat(categoryIds).containsAnyElementsOf(shopCategoryMaps.stream()
                     .map(shopCategory -> shopCategory.getShopCategory().getId()).toList());
                 softly.assertThat(imageUrls).containsAnyElementsOf(shopImages.stream()
                     .map(ShopImage::getImageUrl).toList());
-                softly.assertThat(shopOpens).hasSize(2);
             }
         );
+    }
+
+    @Test
+    @DisplayName("상점 사장님이 특정 상점 조회")
+    void getShop() {
+        // given
+        ShopOpen open1 = ShopOpen.builder()
+            .openTime(LocalTime.of(0, 0))
+            .closeTime(LocalTime.of(21, 0))
+            .shop(shop)
+            .closed(false)
+            .dayOfWeek("MONDAY")
+            .build();
+
+        ShopOpen open2 = ShopOpen.builder()
+            .openTime(LocalTime.of(0, 0))
+            .closeTime(LocalTime.of(0, 0))
+            .shop(shop)
+            .closed(false)
+            .dayOfWeek("FRIDAY")
+            .build();
+
+        ShopOpen newShopOpen1 = shopOpenRepository.save(open1);
+        ShopOpen newShopOpen2 = shopOpenRepository.save(open2);
+
+        ShopCategoryMap shopCategoryMap1 = ShopCategoryMap.builder()
+            .shop(shop)
+            .shopCategory(shopCategory1)
+            .build();
+
+        ShopCategoryMap shopCategoryMap2 = ShopCategoryMap.builder()
+            .shop(shop)
+            .shopCategory(shopCategory2)
+            .build();
+
+        ShopCategoryMap newShopCategoryMap1 = shopCategoryMapRepository.save(shopCategoryMap1);
+        ShopCategoryMap newShopCategoryMap2 = shopCategoryMapRepository.save(shopCategoryMap2);
+
+        ShopImage shopImage1 = ShopImage.builder()
+            .imageUrl("https://test.com/test1.jpg")
+            .shop(shop)
+            .build();
+
+        ShopImage shopImage2 = ShopImage.builder()
+            .imageUrl("https://test.com/test2.jpg")
+            .shop(shop)
+            .build();
+
+        ShopImage newShopImage1 = shopImageRepository.save(shopImage1);
+        ShopImage newShopImage2 = shopImageRepository.save(shopImage2);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .get("/owner/shops/1")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        List<ShopImage> savedShopImages = shopImageRepository.findAllByShopId(shop.getId());
+        List<MenuCategory> savedMenuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
+        List<ShopOpen> savedShopOpens = shopOpenRepository.findAllByShopId(shop.getId());
+        List<ShopCategoryMap> savedShopCategoryMaps = shopCategoryMapRepository.findAllByShopId(shop.getId());
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getString("address")).isEqualTo(shop.getAddress());
+                softly.assertThat(response.body().jsonPath().getBoolean("delivery")).isEqualTo(shop.getDelivery());
+                softly.assertThat(response.body().jsonPath().getLong("delivery_price"))
+                    .isEqualTo(shop.getDeliveryPrice());
+                softly.assertThat(response.body().jsonPath().getString("description")).isEqualTo(shop.getDescription());
+                softly.assertThat(response.body().jsonPath().getLong("id")).isEqualTo(shop.getId());
+                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(shop.getName());
+                softly.assertThat(response.body().jsonPath().getBoolean("pay_bank")).isEqualTo(shop.getPayBank());
+                softly.assertThat(response.body().jsonPath().getBoolean("pay_card")).isEqualTo(shop.getPayCard());
+                softly.assertThat(response.body().jsonPath().getString("phone")).isEqualTo(shop.getPhone());
+
+                softly.assertThat(response.body().jsonPath().getList("image_urls")).hasSize(savedShopImages.size());
+                softly.assertThat(response.body().jsonPath().getList("menu_categories"))
+                    .hasSize(savedMenuCategories.size());
+                softly.assertThat(response.body().jsonPath().getList("open")).hasSize(savedShopOpens.size());
+                softly.assertThat(response.body().jsonPath().getList("shop_categories"))
+                    .hasSize(savedShopCategoryMaps.size());
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("권한이 없는 상점 사장님이 특정 상점 조회")
+    void ownerCannotQueryOtherStoresWithoutPermission() {
+        // given
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + otherOwnerToken)
+            .when()
+            .get("/owner/shops/1")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .extract();
     }
 }

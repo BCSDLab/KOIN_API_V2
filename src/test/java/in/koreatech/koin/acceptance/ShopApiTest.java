@@ -148,7 +148,7 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         MenuCategory menuCategory = MenuCategory.builder()
-            .shopId(1L)
+            .shop(shop)
             .name("중식")
             .build();
         menuCategoryRepository.save(menuCategory);
@@ -222,7 +222,7 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         MenuCategory menuCategory = MenuCategory.builder()
-            .shopId(1L)
+            .shop(shop)
             .name("중식")
             .build();
 
@@ -292,12 +292,12 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         MenuCategory menuCategory1 = MenuCategory.builder()
-            .shopId(SHOP_ID)
+            .shop(shop)
             .name("이벤트 메뉴")
             .build();
 
         MenuCategory menuCategory2 = MenuCategory.builder()
-            .shopId(SHOP_ID)
+            .shop(shop)
             .name("메인 메뉴")
             .build();
 
@@ -455,7 +455,7 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         MenuCategory menuCategory1 = MenuCategory.builder()
-            .shopId(1L)
+            .shop(shop)
             .name("중식")
             .build();
 
@@ -495,7 +495,7 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         MenuCategory menuCategory2 = MenuCategory.builder()
-            .shopId(1L)
+            .shop(shop)
             .name("한식")
             .build();
 
@@ -540,7 +540,7 @@ class ShopApiTest extends AcceptanceTest {
         menuRepository.save(menu3);
 
         MenuCategory menuCategory3 = MenuCategory.builder()
-            .shopId(1L)
+            .shop(shop)
             .name("이벤트")
             .build();
 

@@ -58,7 +58,7 @@ public record OwnerShopsRequest(
             .phone(phone)
             .name(name)
             .internalName(name)
-            .chosung(name().substring(0, 1))
+            .chosung(name.substring(0, 1))
             .isDeleted(false)
             .isEvent(false)
             .remarks("")

@@ -9,6 +9,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
+import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
@@ -19,6 +20,7 @@ import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopImageRepository;
 import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -42,17 +44,18 @@ public class OwnerShopService {
     public void createOwnerShops(Long ownerId, OwnerShopsRequest ownerShopsRequest) {
         Owner owner = ownerRepository.getById(ownerId);
         Shop newShop = ownerShopsRequest.toEntity(owner);
-        shopRepository.save(newShop);
+        Shop savedShop = shopRepository.save(newShop);
+
         for (String imageUrl : ownerShopsRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
-                .shop(newShop)
+                .shop(savedShop)
                 .imageUrl(imageUrl)
                 .build();
             shopImageRepository.save(shopImage);
         }
         for (OwnerShopsRequest.InnerOpenRequest open : ownerShopsRequest.open()) {
             ShopOpen shopOpen = ShopOpen.builder()
-                .shop(newShop)
+                .shop(savedShop)
                 .openTime(open.openTime())
                 .closeTime(open.closeTime())
                 .dayOfWeek(open.dayOfWeek())
@@ -64,9 +67,17 @@ public class OwnerShopService {
         for (ShopCategory shopCategory : shopCategories) {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
                 .shopCategory(shopCategory)
-                .shop(newShop)
+                .shop(savedShop)
                 .build();
             shopCategoryMapRepository.save(shopCategoryMap);
         }
+    }
+
+    public ShopResponse getShopByShopId(Long ownerId, Long shopId) {
+        Shop shop = shopRepository.getById(shopId);
+        if (shop.getOwner().getId() != ownerId) {
+            throw AuthorizationException.withDetail("ownerId: " + ownerId);
+        }
+        return ShopResponse.from(shop);
     }
 }
