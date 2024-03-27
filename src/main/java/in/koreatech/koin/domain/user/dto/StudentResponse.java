@@ -40,7 +40,7 @@ public record StudentResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
             user.getGender().name(),
-            student.getDepartment().toString(),
+            student.getDepartment().getValue(),
             user.getName(),
             user.getNickname(),
             user.getPhoneNumber(),

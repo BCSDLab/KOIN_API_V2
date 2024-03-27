@@ -45,9 +45,9 @@ public class StudentService {
                 "학생의 학번 형식이 아닙니다. studentNumber : " + studentUpdateRequest.studentNumber());
         }
 
-        user.userInfoUpdate(studentUpdateRequest.nickname(), studentUpdateRequest.name(),
+        user.update(studentUpdateRequest.nickname(), studentUpdateRequest.name(),
             studentUpdateRequest.phoneNumber(), UserGender.from(studentUpdateRequest.gender()));
-        student.studentInfoUpdate(studentUpdateRequest.studentNumber(),
+        student.update(studentUpdateRequest.studentNumber(),
             StudentDepartment.from(studentUpdateRequest.major()));
 
         studentRepository.save(student);

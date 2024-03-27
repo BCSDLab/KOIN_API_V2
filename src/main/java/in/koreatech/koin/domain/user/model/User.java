@@ -140,7 +140,7 @@ public class User extends BaseEntity {
         lastLoggedAt = lastLoggedTime;
     }
 
-    public void userInfoUpdate(String nickname, String name, String phoneNumber, UserGender gender) {
+    public void update(String nickname, String name, String phoneNumber, UserGender gender) {
         if (nickname != null) {
             this.nickname = nickname;
         }

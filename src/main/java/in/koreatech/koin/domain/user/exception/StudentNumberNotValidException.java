@@ -1,8 +1,6 @@
 package in.koreatech.koin.domain.user.exception;
 
-import in.koreatech.koin.global.exception.DataNotFoundException;
-
-public class StudentNumberNotValidException extends DataNotFoundException {
+public class StudentNumberNotValidException extends IllegalArgumentException {
     private static final String DEFAULT_MESSAGE = "학생의 학번 형식이 아닙니다.";
 
     public StudentNumberNotValidException(String message) {
@@ -13,5 +11,4 @@ public class StudentNumberNotValidException extends DataNotFoundException {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new StudentNumberNotValidException(message);
     }
-
 }

@@ -60,7 +60,7 @@ public class Student {
         this.user = user;
     }
 
-    public void studentInfoUpdate(String studentNumber, StudentDepartment studentDepartment) {
+    public void update(String studentNumber, StudentDepartment studentDepartment) {
         if (studentNumber != null) {
             this.studentNumber = studentNumber;
         }
