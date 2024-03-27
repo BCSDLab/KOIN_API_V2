@@ -39,24 +39,24 @@ public class BusService {
         validateBusCourse(depart, arrival);
 
         List<? extends Bus> remainTimes = new ArrayList<>();
-        switch (busType) {
-            case CITY, EXPRESS -> remainTimes = busOpenApiRequesters.get(ApiType.from(busType).getValue())
+        if (busType == BusType.CITY || busType == BusType.EXPRESS) {
+            remainTimes = busOpenApiRequesters.get(ApiType.from(busType).getValue())
                 .getBusRemainTime(depart.getNodeId(direction));
-            case SHUTTLE, COMMUTING -> {
-                List<BusCourse> busCourses = busRepository.findByBusType(busType.name().toLowerCase());
-                remainTimes = busCourses.stream()
-                    .map(BusCourse::getRoutes)
-                    .flatMap(routes ->
-                        routes.stream()
-                            .filter(route -> route.isRunning(clock))
-                            .filter(route -> route.isCorrectRoute(depart, arrival, clock))
-                            .map(route -> route.getRemainTime(depart))
-                            .map(Bus::from)
-                    )
-                    .distinct()
-                    .sorted()
-                    .toList();
-            }
+        }
+        else if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
+            List<BusCourse> busCourses = busRepository.findByBusType(busType.name().toLowerCase());
+            remainTimes = busCourses.stream()
+                .map(BusCourse::getRoutes)
+                .flatMap(routes ->
+                    routes.stream()
+                        .filter(route -> route.isRunning(clock))
+                        .filter(route -> route.isCorrectRoute(depart, arrival, clock))
+                        .map(route -> route.getRemainTime(depart))
+                        .map(Bus::from)
+                )
+                .distinct()
+                .sorted()
+                .toList();
         }
 
         return BusRemainTimeResponse.of(
