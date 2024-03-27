@@ -16,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.bus.model.BusCourse;
 import in.koreatech.koin.domain.bus.model.BusDirection;
-import in.koreatech.koin.domain.bus.model.BusInfoCache;
+import in.koreatech.koin.domain.bus.model.BusCache;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusStation;
 import in.koreatech.koin.domain.bus.model.BusType;
@@ -141,7 +141,7 @@ class BusApiTest extends AcceptanceTest {
         cityBusCacheRepository.save(
             CityBusCache.create(
                 depart.getNodeId(direction),
-                List.of(BusInfoCache.from(
+                List.of(BusCache.from(
                     CityBusArrivalInfo.builder()
                         .routeno(busNumber)
                         .arrtime(remainTime)

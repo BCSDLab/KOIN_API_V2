@@ -20,19 +20,19 @@ public class CityBusCache {
     @Id
     private String id;
 
-    private final List<BusInfoCache> busInfos = new ArrayList<>();
+    private final List<BusCache> busInfos = new ArrayList<>();
 
     @TimeToLive(unit = TimeUnit.MINUTES)
     private final Long expiration;
 
     @Builder
-    private CityBusCache(String id, List<BusInfoCache> busInfos, Long expiration) {
+    private CityBusCache(String id, List<BusCache> busInfos, Long expiration) {
         this.id = id;
         this.busInfos.addAll(busInfos);
         this.expiration = expiration;
     }
 
-    public static CityBusCache create(String nodeId, List<BusInfoCache> busInfos) {
+    public static CityBusCache create(String nodeId, List<BusCache> busInfos) {
         return CityBusCache.builder()
             .id(nodeId)
             .busInfos(busInfos)

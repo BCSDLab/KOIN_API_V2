@@ -29,7 +29,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
-import in.koreatech.koin.domain.bus.model.BusInfoCache;
+import in.koreatech.koin.domain.bus.model.BusCache;
 import in.koreatech.koin.domain.bus.model.BusStationNode;
 import in.koreatech.koin.domain.bus.model.CityBus;
 import in.koreatech.koin.domain.bus.model.CityBusArrivalInfo;
@@ -105,7 +105,7 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
                 CityBusCache.create(
                     arrivalInfos.get(0).nodeid(),
                     arrivalInfos.stream()
-                        .map(busArrivalInfo -> BusInfoCache.from(busArrivalInfo, updatedAt))
+                        .map(busArrivalInfo -> BusCache.from(busArrivalInfo, updatedAt))
                         .toList()
                 )
             );

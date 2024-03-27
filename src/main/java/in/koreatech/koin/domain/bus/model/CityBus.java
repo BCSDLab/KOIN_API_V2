@@ -13,7 +13,7 @@ public class CityBus extends Bus {
         this.busNumber = busNumber;
     }
 
-    public static CityBus from(BusInfoCache busInfo) {
+    public static CityBus from(BusCache busInfo) {
         return CityBus.builder()
             .busNumber(busInfo.busNumber())
             .busRemainTime(
