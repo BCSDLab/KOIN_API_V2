@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.domain.community.model.ArticleViewLog;
 import in.koreatech.koin.domain.community.model.Board;
+import in.koreatech.koin.domain.community.model.BoardTag;
 import in.koreatech.koin.domain.community.model.Criteria;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.ArticleViewLogRepository;
@@ -74,10 +75,12 @@ public class CommunityService {
         Criteria criteria = Criteria.of(page, limit);
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
-        if (board.getIsNotice() && board.getTag().equals("NA000")) {
+
+        if (board.getIsNotice() && board.getTag().equals(BoardTag.공지사항.getTag())) {
             Page<Article> articles = articleRepository.findByIsNotice(board.getIsNotice(), pageRequest);
             return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
         }
+
         Page<Article> articles = articleRepository.findByBoardId(boardId, pageRequest);
         return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
     }
