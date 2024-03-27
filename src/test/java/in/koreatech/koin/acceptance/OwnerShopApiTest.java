@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerAttachment;
+import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
@@ -62,6 +64,9 @@ class OwnerShopApiTest extends AcceptanceTest {
     @Autowired
     private JwtProvider jwtProvider;
 
+    @Autowired
+    private OwnerAttachmentRepository ownerAttachmentRepository;
+
     private Owner owner;
     private Shop shop;
     private String token;
@@ -72,9 +77,15 @@ class OwnerShopApiTest extends AcceptanceTest {
 
     @BeforeEach
     void setUp() {
+
+        OwnerAttachment attachment = OwnerAttachment.builder()
+            .url("https://test.com/test.jpg")
+            .isDeleted(false)
+            .build();
+
         Owner ownerRequest = Owner.builder()
             .companyRegistrationNumber("123-45-67890")
-            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
+            .attachments(List.of(attachment))
             .grantShop(true)
             .grantEvent(true)
             .user(
@@ -127,9 +138,14 @@ class OwnerShopApiTest extends AcceptanceTest {
         shopCategory1 = shopCategoryRepository.save(shopCategoryRequest1);
         shopCategory2 = shopCategoryRepository.save(shopCategoryRequest2);
 
+        var otherAttachment = OwnerAttachment.builder()
+            .url("https://test.com/test.jpg")
+            .isDeleted(false)
+            .build();
+
         Owner otherOwnerRequest = Owner.builder()
             .companyRegistrationNumber("123-45-67890")
-            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
+            .attachments(List.of(otherAttachment))
             .grantShop(true)
             .grantEvent(true)
             .user(
