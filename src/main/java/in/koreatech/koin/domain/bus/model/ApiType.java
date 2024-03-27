@@ -9,7 +9,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ApiType {
-    CITY("cityBusOpenApiRequester"), EXPRESS("intercityBusOpenApiRequester");
+    CITY("cityBusOpenApiRequester"),
+    EXPRESS("intercityBusOpenApiRequester")
+    ;
 
     private final String value;
 
