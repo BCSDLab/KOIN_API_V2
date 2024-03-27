@@ -10,8 +10,8 @@ public class ApiTypeNotFoundException extends DataNotFoundException {
         super(message);
     }
 
-    public static in.koreatech.koin.domain.version.exception.VersionTypeNotFoundException withDetail(String detail) {
+    public static ApiTypeNotFoundException withDetail(String detail) {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new in.koreatech.koin.domain.version.exception.VersionTypeNotFoundException(message);
+        return new ApiTypeNotFoundException(message);
     }
 }
