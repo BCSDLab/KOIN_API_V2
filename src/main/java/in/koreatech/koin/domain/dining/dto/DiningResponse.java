@@ -41,11 +41,19 @@ public record DiningResponse(
         ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "총각김치", "생야채샐러드&D", "누룽지탕"]""")
     List<String> menu,
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "생성 일자", example = "2024-03-15 14:02:48") LocalDateTime createdAt,
+    @Schema(description = "이미지 URL", example = "https://stage.koreatech.in/image.jpg")
+    String imageUrl,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "최신화 일자", example = "2024-03-15 14:02:48") LocalDateTime updatedAt
+    @Schema(description = "생성 일자", example = "2024-03-15 14:02:48")
+    LocalDateTime createdAt,
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "최신화 일자", example = "2024-03-15 14:02:48")
+    LocalDateTime updatedAt,
+
+    @Schema(description = "품절 여부", example = "true")
+    Boolean soldOut
 ) {
     public static DiningResponse from(Dining dining) {
         return new DiningResponse(
@@ -57,8 +65,10 @@ public record DiningResponse(
             dining.getPriceCash(),
             dining.getKcal(),
             toListMenus(dining.getMenu()),
+            dining.getImageUrl(),
             dining.getCreatedAt(),
-            dining.getUpdatedAt()
+            dining.getUpdatedAt(),
+            dining.getSoldOut()
         );
     }
 

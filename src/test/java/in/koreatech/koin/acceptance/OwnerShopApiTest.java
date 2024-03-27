@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerAttachment;
+import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.shop.model.Menu;
@@ -72,6 +74,9 @@ class OwnerShopApiTest extends AcceptanceTest {
     @Autowired
     private JwtProvider jwtProvider;
 
+    @Autowired
+    private OwnerAttachmentRepository ownerAttachmentRepository;
+
     private Owner owner;
     private Shop shop;
     private String token;
@@ -82,9 +87,15 @@ class OwnerShopApiTest extends AcceptanceTest {
 
     @BeforeEach
     void setUp() {
+
+        OwnerAttachment attachment = OwnerAttachment.builder()
+            .url("https://test.com/test.jpg")
+            .isDeleted(false)
+            .build();
+
         Owner ownerRequest = Owner.builder()
             .companyRegistrationNumber("123-45-67890")
-            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
+            .attachments(List.of(attachment))
             .grantShop(true)
             .grantEvent(true)
             .user(
@@ -137,9 +148,14 @@ class OwnerShopApiTest extends AcceptanceTest {
         shopCategory1 = shopCategoryRepository.save(shopCategoryRequest1);
         shopCategory2 = shopCategoryRepository.save(shopCategoryRequest2);
 
+        var otherAttachment = OwnerAttachment.builder()
+            .url("https://test.com/test.jpg")
+            .isDeleted(false)
+            .build();
+
         Owner otherOwnerRequest = Owner.builder()
             .companyRegistrationNumber("123-45-67890")
-            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
+            .attachments(List.of(otherAttachment))
             .grantShop(true)
             .grantEvent(true)
             .user(
@@ -354,15 +370,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + otherOwnerToken)
-            .when()
-            .get("/owner/shops/1")
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
-
         List<ShopImage> savedShopImages = shopImageRepository.findAllByShopId(shop.getId());
         List<MenuCategory> savedMenuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
         List<ShopOpen> savedShopOpens = shopOpenRepository.findAllByShopId(shop.getId());
@@ -445,16 +452,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .get("/owner/shops/menus")
             .then()
             .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + otherOwnerToken)
-            .param("shopId", SHOP_ID)
-            .when()
-            .get("/owner/shops/menus")
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
 
         SoftAssertions.assertSoftly(
@@ -541,16 +538,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        RestAssured
-            .given()
-            .param("shopId", SHOP_ID)
-            .header("Authorization", "Bearer " + otherOwnerToken)
-            .when()
-            .get("/owner/shops/menus/categories")
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
-
         SoftAssertions.assertSoftly(
             softly -> {
                 softly.assertThat(response.body().jsonPath().getLong("count")).isEqualTo(2);
@@ -625,15 +612,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + otherOwnerToken)
-            .when()
-            .get("/owner/shops/menus/{menuId}", menu.getId())
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
-
         SoftAssertions.assertSoftly(
             softly -> {
                 softly.assertThat(response.body().jsonPath().getLong("id")).isEqualTo(menu.getId());
@@ -665,4 +643,50 @@ class OwnerShopApiTest extends AcceptanceTest {
             }
         );
     }
+
+    @Test
+    @DisplayName("권한이 없는 상점 사장님이 특정 상점 조회")
+    void ownerCannotQueryOtherStoresWithoutPermission() {
+        // given
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + otherOwnerToken)
+            .when()
+            .get("/owner/shops/1")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("권한이 없는 상점 사장님이 특정 카테고리 조회")
+    void ownerCannotQueryOtherCategoriesWithoutPermission() {
+        // given
+        RestAssured
+            .given()
+            .param("shopId", 1)
+            .header("Authorization", "Bearer " + otherOwnerToken)
+            .when()
+            .get("/owner/shops/menus/categories")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("권한이 없는 상점 사장님이 특정 메뉴 조회")
+    void ownerCannotQueryOtherMenusWithoutPermission() {
+        // given
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + otherOwnerToken)
+            .param("shopId", 1)
+            .when()
+            .get("/owner/shops/menus")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .extract();
+    }
+
+
 }

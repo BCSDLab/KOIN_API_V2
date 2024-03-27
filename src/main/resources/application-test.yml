@@ -37,7 +37,8 @@ swagger:
   server-url: http://localhost:8080
 
 slack:
-  notify_koin_event_url:
+  koin_event_notify_url: https://slack-weehookurl.com
+  koin_owner_event_notify_url: https://slack-weehookurl.com
 
 aws:
   ses:
@@ -49,3 +50,7 @@ s3:
   secret: test-sk
   bucket: test-bucket
   custom_domain: https://test.koreatech.in/
+
+koin:
+  admin:
+    url: https://admin-url-path.com

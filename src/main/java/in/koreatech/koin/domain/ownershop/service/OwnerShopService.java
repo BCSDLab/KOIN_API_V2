@@ -87,6 +87,7 @@ public class OwnerShopService {
         Shop shop = getOwnerShopById(shopId, ownerId);
         return ShopResponse.from(shop);
     }
+
     private Shop getOwnerShopById(Long shopId, Long ownerId) {
         Shop shop = shopRepository.getById(shopId);
         if (shop.getOwner().getId() != ownerId) {
