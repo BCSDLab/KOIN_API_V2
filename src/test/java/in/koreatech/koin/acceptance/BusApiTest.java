@@ -161,7 +161,6 @@ class BusApiTest extends AcceptanceTest {
             .param("arrival", arrival.name())
             .get("/bus")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
