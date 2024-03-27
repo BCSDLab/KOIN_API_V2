@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.global.auth.exception.AuthException;
+import in.koreatech.koin.global.auth.exception.AuthenticationException;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -60,7 +61,7 @@ public class JwtProvider {
             return Long.parseLong(userId);
 
         } catch (JwtException e) {
-            throw AuthException.withDetail("token: " + token);
+            throw AuthenticationException.withDetail("token: " + token);
         }
     }
 

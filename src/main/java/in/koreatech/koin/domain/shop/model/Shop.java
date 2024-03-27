@@ -1,6 +1,10 @@
 package in.koreatech.koin.domain.shop.model;
 
+import static jakarta.persistence.CascadeType.*;
 import static lombok.AccessLevel.PROTECTED;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.Where;
 
@@ -15,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -96,10 +101,40 @@ public class Shop extends BaseEntity {
     @Column(name = "hit", nullable = false)
     private Long hit;
 
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REMOVE})
+    private List<ShopCategoryMap> shopCategories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REMOVE})
+    private List<ShopOpen> shopOpens = new ArrayList<>();
+
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REMOVE})
+    private List<ShopImage> shopImages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REMOVE})
+    private List<MenuCategory> menuCategories = new ArrayList<>();
+
     @Builder
-    private Shop(Owner owner, String name, String internalName, String chosung, String phone, String address,
-        String description, Boolean delivery, Long deliveryPrice, Boolean payCard, Boolean payBank,
-        Boolean isDeleted, Boolean isEvent, String remarks, Long hit) {
+    private Shop(
+        Owner owner,
+        String name,
+        String internalName,
+        String chosung,
+        String phone,
+        String address,
+        String description,
+        Boolean delivery,
+        Long deliveryPrice,
+        Boolean payCard,
+        Boolean payBank,
+        Boolean isDeleted,
+        Boolean isEvent,
+        String remarks,
+        Long hit,
+        List<ShopCategoryMap> shopCategories,
+        List<ShopOpen> shopOpens,
+        List<ShopImage> shopImages,
+        List<MenuCategory> menuCategories
+    ) {
         this.owner = owner;
         this.name = name;
         this.internalName = internalName;
@@ -115,5 +150,9 @@ public class Shop extends BaseEntity {
         this.isEvent = isEvent;
         this.remarks = remarks;
         this.hit = hit;
+        this.shopCategories = shopCategories;
+        this.shopOpens = shopOpens;
+        this.shopImages = shopImages;
+        this.menuCategories = menuCategories;
     }
 }
