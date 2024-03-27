@@ -84,19 +84,20 @@ public class OwnerShopService {
     }
 
     public ShopResponse getShopByShopId(Long ownerId, Long shopId) {
+        Shop shop = getOwnerShopById(shopId, ownerId);
+        return ShopResponse.from(shop);
+    }
+    private Shop getOwnerShopById(Long shopId, Long ownerId) {
         Shop shop = shopRepository.getById(shopId);
         if (shop.getOwner().getId() != ownerId) {
             throw AuthorizationException.withDetail("ownerId: " + ownerId);
         }
-        return ShopResponse.from(shop);
+        return shop;
     }
 
     public MenuDetailResponse getMenuByMenuId(Long ownerId, Long menuId) {
         Menu menu = menuRepository.getById(menuId);
-        Shop shop = shopRepository.getById(menu.getShopId());
-        if (shop.getOwner().getId() != ownerId) {
-            throw AuthorizationException.withDetail("ownerId: " + ownerId);
-        }
+        Shop shop = getOwnerShopById(menu.getShopId(), ownerId);
         List<MenuCategory> menuCategories = menu.getMenuCategoryMaps()
             .stream()
             .map(MenuCategoryMap::getMenuCategory)
@@ -105,19 +106,13 @@ public class OwnerShopService {
     }
 
     public ShopMenuResponse getMenus(Long shopId, Long ownerId) {
-        Shop shop = shopRepository.getById(shopId);
-        if (shop.getOwner().getId() != ownerId) {
-            throw AuthorizationException.withDetail("ownerId: " + ownerId);
-        }
+        Shop shop = getOwnerShopById(shopId, ownerId);
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
         return ShopMenuResponse.from(menuCategories);
     }
 
     public MenuCategoriesResponse getCategories(Long shopId, Long ownerId) {
-        Shop shop = shopRepository.getById(shopId);
-        if (shop.getOwner().getId() != ownerId) {
-            throw AuthorizationException.withDetail("ownerId: " + ownerId);
-        }
+        Shop shop = getOwnerShopById(shopId, ownerId);
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
         return MenuCategoriesResponse.from(menuCategories);
     }
