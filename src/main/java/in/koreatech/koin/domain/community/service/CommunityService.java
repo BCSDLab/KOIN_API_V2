@@ -74,7 +74,7 @@ public class CommunityService {
         Criteria criteria = Criteria.of(page, limit);
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
-        Page<Article> articles = articleRepository.getByBoardId(boardId, pageRequest);
+        Page<Article> articles = articleRepository.findByIsNotice(board.getIsNotice(), pageRequest);
         return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
     }
 

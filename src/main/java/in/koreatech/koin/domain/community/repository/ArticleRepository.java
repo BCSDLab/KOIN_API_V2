@@ -14,11 +14,7 @@ public interface ArticleRepository extends Repository<Article, Long> {
 
     Article save(Article article);
 
-    Page<Article> findByBoardId(Long boardId, Pageable pageable);
-
-    default Page<Article> getByBoardId(Long boardId, Pageable pageable) {
-        return findByBoardId(boardId, pageable);
-    }
+    Page<Article> findByIsNotice(Boolean isNotice, Pageable pageable);
 
     Optional<Article> findById(Long articleId);
 
