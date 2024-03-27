@@ -1,8 +1,5 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -16,6 +13,8 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerAttachment;
+import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
@@ -36,9 +35,11 @@ import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class ShopApiTest extends AcceptanceTest {
 
@@ -66,6 +67,9 @@ class ShopApiTest extends AcceptanceTest {
     @Autowired
     private ShopRepository shopRepository;
 
+    @Autowired
+    private OwnerAttachmentRepository ownerAttachmentRepository;
+
     private ShopCategory shopCategory1, shopCategory2;
     private Shop shop;
     private Owner owner;
@@ -73,9 +77,14 @@ class ShopApiTest extends AcceptanceTest {
     @BeforeEach
     void setUp() {
 
+        OwnerAttachment attachment = OwnerAttachment.builder()
+            .url("https://test.com/test.jpg")
+            .isDeleted(false)
+            .build();
+
         Owner ownerRequest = Owner.builder()
             .companyRegistrationNumber("123-45-67890")
-            .companyRegistrationCertificateImageUrl("https://test.com/test.jpg")
+            .attachments(List.of(attachment))
             .grantShop(true)
             .grantEvent(true)
             .user(
@@ -256,7 +265,7 @@ class ShopApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.getIsHidden());
 
                 softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
-                softly.assertThat((Integer)response.body().jsonPath().get("single_price")).isNull();
+                softly.assertThat((Integer) response.body().jsonPath().get("single_price")).isNull();
 
                 softly.assertThat(response.body().jsonPath().getList("option_prices")).hasSize(2);
                 softly.assertThat(response.body().jsonPath().getString("option_prices[0].option"))
@@ -585,7 +594,7 @@ class ShopApiTest extends AcceptanceTest {
                 softly.assertThat(
                         response.body().jsonPath().getInt("menu_categories[0].menus[0].option_prices[1].price"))
                     .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getPrice());
-                softly.assertThat((Object)response.body().jsonPath().get("menu_categories[0].menus[0].single_price"))
+                softly.assertThat((Object) response.body().jsonPath().get("menu_categories[0].menus[0].single_price"))
                     .isNull();
                 softly.assertThat(response.body().jsonPath().getString("updated_at"))
                     .isEqualTo(LocalDate.now().toString());
@@ -618,7 +627,7 @@ class ShopApiTest extends AcceptanceTest {
                 softly.assertThat(
                         response.body().jsonPath().getInt("menu_categories[1].menus[0].option_prices[1].price"))
                     .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getPrice());
-                softly.assertThat((Object)response.body().jsonPath().get("menu_categories[1].menus[0].single_price"))
+                softly.assertThat((Object) response.body().jsonPath().get("menu_categories[1].menus[0].single_price"))
                     .isNull();
                 softly.assertThat(response.body().jsonPath().getString("updated_at"))
                     .isEqualTo(LocalDate.now().toString());

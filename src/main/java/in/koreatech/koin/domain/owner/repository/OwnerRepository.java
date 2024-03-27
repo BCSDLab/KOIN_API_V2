@@ -16,4 +16,6 @@ public interface OwnerRepository extends Repository<Owner, Long> {
     }
 
     Owner save(Owner owner);
+
+    Optional<Owner> findByCompanyRegistrationNumber(String companyRegistrationNumber);
 }
