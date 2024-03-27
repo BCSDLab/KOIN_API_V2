@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
+import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -86,7 +87,7 @@ class DiningApiTest extends AcceptanceTest {
         Dining dining2 = diningRepository.save(request2);
         Dining dining3 = diningRepository.save(request3);
 
-        ExtractableResponse<Response> response = given()
+        var response = given()
             .when()
             .get("/dinings?date=240311")
             .then()
@@ -200,7 +201,7 @@ class DiningApiTest extends AcceptanceTest {
 
         List<String> menus = List.of("병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "총각김치");
 
-        ExtractableResponse<Response> response = given()
+        var response = given()
             .when()
             .get("/dinings")
             .then()
@@ -332,6 +333,105 @@ class DiningApiTest extends AcceptanceTest {
             .body(soldOutRequest)
             .when()
             .patch("/coop/dining/soldout")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("영양사님 권한으로 식단 이미지를 업로드한다. - 이미지 URL이 DB에 저장된다.")
+    void ImageUpload() {
+        User coop = User.builder()
+            .password("1234")
+            .nickname("춘식")
+            .name("황현식")
+            .phoneNumber("010-1234-5678")
+            .userType(COOP)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+        userRepository.save(coop);
+
+        String token = jwtProvider.createToken(coop);
+
+        Dining request = Dining.builder()
+            .id(1L)
+            .date("2024-03-11")
+            .type("LUNCH")
+            .place("A코스")
+            .priceCard(6000)
+            .priceCash(6000)
+            .kcal(881)
+            .menu("""
+                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
+            .soldOut(false)
+            .build();
+
+        Dining dining = diningRepository.save(request);
+
+        DiningImageRequest imageUrl = new DiningImageRequest(1L, "https://stage.koreatech.in/image.jpg");
+
+        given()
+            .body(imageUrl)
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .patch("/coop/dining/image")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        SoftAssertions.assertSoftly(
+            softly ->
+                softly.assertThat(diningRepository.getById(request.getId()).getImageUrl())
+                    .isEqualTo(imageUrl.imageUrl())
+        );
+    }
+
+    @Test
+    @DisplayName("허용되지 않은 권한으로 식단 이미지를 업로드한다. - 권한 오류.")
+    void ImageUploadWithNoAuth() {
+        User user = User.builder()
+            .password("1234")
+            .nickname("춘식")
+            .name("황현식")
+            .phoneNumber("010-1234-5678")
+            .userType(STUDENT)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+
+        String token = jwtProvider.createToken(user);
+
+        Dining request = Dining.builder()
+            .id(1L)
+            .date("2024-03-11")
+            .type("LUNCH")
+            .place("A코스")
+            .priceCard(6000)
+            .priceCash(6000)
+            .kcal(881)
+            .menu("""
+                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
+            .soldOut(false)
+            .build();
+
+        Dining dining = diningRepository.save(request);
+
+        DiningImageRequest imageUrl = new DiningImageRequest(1L, "https://stage.koreatech.in/image.jpg");
+
+        given()
+            .body(imageUrl)
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .patch("/coop/dining/image")
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
