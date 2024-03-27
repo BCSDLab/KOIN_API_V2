@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.Repository;
 
@@ -19,6 +20,8 @@ public interface ArticleRepository extends Repository<Article, Long> {
     Optional<Article> findById(Long articleId);
 
     List<Article> findAll(Pageable pageable);
+
+    Page<Article> findByBoardId(Long boardId, PageRequest pageRequest);
 
     default Article getById(Long articleId) {
         return findById(articleId).orElseThrow(

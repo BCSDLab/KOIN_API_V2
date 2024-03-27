@@ -74,7 +74,11 @@ public class CommunityService {
         Criteria criteria = Criteria.of(page, limit);
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
-        Page<Article> articles = articleRepository.findByIsNotice(board.getIsNotice(), pageRequest);
+        if (board.getIsNotice() && board.getTag().equals("NA000")) {
+            Page<Article> articles = articleRepository.findByIsNotice(board.getIsNotice(), pageRequest);
+            return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
+        }
+        Page<Article> articles = articleRepository.findByBoardId(boardId, pageRequest);
         return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
     }
 
