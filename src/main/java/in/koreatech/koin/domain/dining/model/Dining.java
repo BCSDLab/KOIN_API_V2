@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "dining_menus")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "dining_menus")
 public class Dining extends BaseEntity {
 
     @Id
@@ -24,12 +24,15 @@ public class Dining extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @NotNull
     @Column(name = "date", nullable = false)
     private String date;
 
+    @NotNull
     @Column(name = "type", nullable = false)
     private String type;
 
+    @NotNull
     @Column(name = "place", nullable = false)
     private String place;
 
@@ -42,8 +45,12 @@ public class Dining extends BaseEntity {
     @Column(name = "kcal")
     private Integer kcal;
 
+    @NotNull
     @Column(name = "menu", nullable = false)
     private String menu;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @NotNull
     @Column(name = "sold_out", nullable = false)
@@ -51,7 +58,7 @@ public class Dining extends BaseEntity {
 
     @Builder
     private Dining(Long id, String date, String type, String place, Integer priceCard, Integer priceCash,
-        Integer kcal, String menu, Boolean soldOut) {
+        Integer kcal, String menu, String imageUrl, Boolean soldOut) {
         this.id = id;
         this.date = date;
         this.type = type;
@@ -60,7 +67,12 @@ public class Dining extends BaseEntity {
         this.priceCash = priceCash;
         this.kcal = kcal;
         this.menu = menu;
+        this.imageUrl = imageUrl;
         this.soldOut = soldOut;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public void setSoldOut(Boolean soldout) {
