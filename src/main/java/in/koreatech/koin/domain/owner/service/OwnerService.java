@@ -98,9 +98,10 @@ public class OwnerService {
 
     public OwnerVerifyResponse verifyCode(OwnerVerificationRequest request) {
         var verify = ownerInVerificationRedisRepository.getByEmail(request.email());
-        if (Objects.equals(verify.getCertificationCode(), request.certificationCode())) {
+        if (!Objects.equals(verify.getCertificationCode(), request.certificationCode())) {
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
+        ownerInVerificationRedisRepository.deleteById(request.email());
         String token = jwtProvider.createTemporaryToken();
         return new OwnerVerifyResponse(token);
     }
