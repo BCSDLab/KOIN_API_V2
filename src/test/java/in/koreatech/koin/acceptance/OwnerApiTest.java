@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
+import in.koreatech.koin.domain.owner.model.OwnerInVerification;
 import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRedisRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
@@ -157,6 +159,40 @@ class OwnerApiTest extends AcceptanceTest {
         assertDoesNotThrow(() ->
             ownerInVerificationRedisRepository.getByEmail("test@gmail.com")
         );
+    }
+
+    @Test
+    @DisplayName("사장님이 회원가입 인증번호 전송 요청을 한다 - 전송한 코드로 인증요청이 성공한다")
+    void requestAndVerifySign() {
+        String ownerEmail = "junho5336@gmail.com";
+        RestAssured
+            .given()
+            .body(String.format("""
+                {
+                  "email": "%s"
+                }
+                """, ownerEmail))
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/verification/email")
+            .then()
+            .statusCode(HttpStatus.OK.value());
+        var verify = ownerInVerificationRedisRepository.getByEmail(ownerEmail);
+        RestAssured
+            .given()
+            .body(String.format("""
+                    {
+                      "address": "%s",
+                      "certification_code": "%s"
+                    }
+                """, ownerEmail, verify.getCertificationCode()))
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/verification/code")
+            .then()
+            .statusCode(HttpStatus.OK.value());
+        var result = ownerInVerificationRedisRepository.findById(ownerEmail);
+        Assertions.assertThat(result).isNotPresent();
     }
 
     @Test
@@ -413,5 +449,49 @@ class OwnerApiTest extends AcceptanceTest {
                 }
             );
         }
+    }
+
+    @Test
+    @DisplayName("사장님이 회원가입 인증번호를 확인한다")
+    void ownerCodeVerification() {
+        // given
+        OwnerInVerification verification = OwnerInVerification.of("junho5336@gmail.com", "123456");
+        ownerInVerificationRedisRepository.save(verification);
+        RestAssured
+            .given()
+            .body("""
+                    {
+                      "address": "junho5336@gmail.com",
+                      "certification_code": "123456"
+                    }
+                """)
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/verification/code")
+            .then()
+            .statusCode(HttpStatus.OK.value());
+        var result = ownerInVerificationRedisRepository.findById(verification.getEmail());
+        Assertions.assertThat(result).isNotPresent();
+    }
+
+    @Test
+    @DisplayName("사장님이 회원가입 인증번호를 확인한다 - 존재하지 않는 이메일로 요청을 보낸다")
+    void ownerCodeVerificationNotExistEmail() {
+        // given
+        OwnerInVerification verification = OwnerInVerification.of("junho5336@gmail.com", "123456");
+        ownerInVerificationRedisRepository.save(verification);
+        RestAssured
+            .given()
+            .body("""
+                    {
+                      "address": "someone@gmail.com",
+                      "certification_code": "123456"
+                    }
+                """)
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/verification/code")
+            .then()
+            .statusCode(HttpStatus.NOT_FOUND.value());
     }
 }

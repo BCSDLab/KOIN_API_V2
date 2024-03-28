@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.community.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -14,7 +12,7 @@ import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.service.CommunityService;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +24,7 @@ public class CommunityController implements CommunityApi {
 
     @GetMapping("/articles/{id}")
     public ResponseEntity<ArticleResponse> getArticle(
-        @Auth(permit = {STUDENT}, anonymous = true) Long userId,
+        @UserId Long userId,
         @PathVariable("id") Long articleId,
         @IpAddress String ipAddress
     ) {

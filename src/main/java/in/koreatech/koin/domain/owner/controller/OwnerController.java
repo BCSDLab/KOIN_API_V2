@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
+import in.koreatech.koin.domain.owner.dto.OwnerVerificationRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.service.OwnerService;
 import in.koreatech.koin.global.auth.Auth;
@@ -44,5 +46,13 @@ public class OwnerController implements OwnerApi {
     ) {
         ownerService.register(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/owners/verification/code")
+    public ResponseEntity<OwnerVerifyResponse> codeVerification(
+        @Valid @RequestBody OwnerVerificationRequest request
+    ) {
+        OwnerVerifyResponse response = ownerService.verifyCode(request);
+        return ResponseEntity.ok().body(response);
     }
 }
