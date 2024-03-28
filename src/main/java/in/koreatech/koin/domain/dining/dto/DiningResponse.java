@@ -53,7 +53,10 @@ public record DiningResponse(
     LocalDateTime updatedAt,
 
     @Schema(description = "품절 여부", example = "true")
-    Boolean soldOut
+    Boolean soldOut,
+
+    @Schema(description = "메뉴 변경 여부", example = "true")
+    Boolean changed
 ) {
     public static DiningResponse from(Dining dining) {
         return new DiningResponse(
@@ -68,7 +71,8 @@ public record DiningResponse(
             dining.getImageUrl(),
             dining.getCreatedAt(),
             dining.getUpdatedAt(),
-            dining.getSoldOut()
+            dining.getSoldOut(),
+            dining.getChanged()
         );
     }
 
