@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.ownershop.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,12 +10,20 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
+import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
+import in.koreatech.koin.domain.shop.model.Menu;
+import in.koreatech.koin.domain.shop.model.MenuCategory;
+import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
+import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryMapRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopImageRepository;
@@ -34,6 +43,8 @@ public class OwnerShopService {
     private final ShopCategoryMapRepository shopCategoryMapRepository;
     private final ShopCategoryRepository shopCategoryRepository;
     private final ShopImageRepository shopImageRepository;
+    private final MenuRepository menuRepository;
+    private final MenuCategoryRepository menuCategoryRepository;
 
     public OwnerShopsResponse getOwnerShops(Long ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
@@ -74,10 +85,37 @@ public class OwnerShopService {
     }
 
     public ShopResponse getShopByShopId(Long ownerId, Long shopId) {
+        Shop shop = getOwnerShopById(shopId, ownerId);
+        return ShopResponse.from(shop);
+    }
+
+    private Shop getOwnerShopById(Long shopId, Long ownerId) {
         Shop shop = shopRepository.getById(shopId);
-        if (shop.getOwner().getId() != ownerId) {
+        if (!Objects.equals(shop.getOwner().getId(), ownerId)) {
             throw AuthorizationException.withDetail("ownerId: " + ownerId);
         }
-        return ShopResponse.from(shop);
+        return shop;
+    }
+
+    public MenuDetailResponse getMenuByMenuId(Long ownerId, Long menuId) {
+        Menu menu = menuRepository.getById(menuId);
+        getOwnerShopById(menu.getShopId(), ownerId);
+        List<MenuCategory> menuCategories = menu.getMenuCategoryMaps()
+            .stream()
+            .map(MenuCategoryMap::getMenuCategory)
+            .toList();
+        return MenuDetailResponse.createMenuDetailResponse(menu, menuCategories);
+    }
+
+    public ShopMenuResponse getMenus(Long shopId, Long ownerId) {
+        Shop shop = getOwnerShopById(shopId, ownerId);
+        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
+        return ShopMenuResponse.from(menuCategories);
+    }
+
+    public MenuCategoriesResponse getCategories(Long shopId, Long ownerId) {
+        Shop shop = getOwnerShopById(shopId, ownerId);
+        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
+        return MenuCategoriesResponse.from(menuCategories);
     }
 }

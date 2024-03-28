@@ -62,7 +62,7 @@ public class OwnerController implements OwnerApi {
 
     @PostMapping("/owners/password/reset/verification")
     public ResponseEntity<Void> sendResetPasswordEmail(
-//        @Auth(permit = {OWNER}) Long userId,
+        @Auth(permit = {OWNER}) Long userId,
         @Valid @RequestBody OwnerSendEmailRequest request
     ) {
         ownerService.sendResetPasswordEmail(request);

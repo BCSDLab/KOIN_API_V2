@@ -13,6 +13,7 @@ import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -213,7 +214,7 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
         var result = ownerInVerificationRedisRepository.findById(ownerEmail);
-        assertThat(result).isNotPresent();
+        Assertions.assertThat(result).isNotPresent();
     }
 
     @Test

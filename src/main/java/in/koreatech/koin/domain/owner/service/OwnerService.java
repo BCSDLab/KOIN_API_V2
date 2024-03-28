@@ -44,8 +44,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class OwnerService {
 
-    private final Clock clock;
     private final JwtProvider jwtProvider;
+    private final Clock clock;
     private final MailService mailService;
     private final UserRepository userRepository;
     private final ShopRepository shopRepository;
