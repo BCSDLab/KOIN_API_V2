@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.bus.model.Bus;
+import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -16,10 +16,10 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class IntercityBusOpenApiClient extends BusOpenApiClient<Bus> {
+public class IntercityBusOpenApiClient extends BusOpenApiClient<BusRemainTime> {
 
     @Override
-    public List<Bus> getBusRemainTime(String nodeId) {
+    public List<BusRemainTime> getBusRemainTime(String nodeId) {
         return new ArrayList<>();
     }
 }

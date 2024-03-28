@@ -11,8 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
+import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusApiType;
-import in.koreatech.koin.domain.bus.model.Bus;
 import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
@@ -28,7 +28,7 @@ public class BusService {
 
     private final Clock clock;
     private final BusRepository busRepository;
-    private final Map<String, BusOpenApiClient<? extends Bus>> busOpenApiRequesters;
+    private final Map<String, BusOpenApiClient<? extends BusRemainTime>> busOpenApiRequesters;
 
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(String busTypeName, String departName, String arrivalName) {
@@ -38,7 +38,7 @@ public class BusService {
         BusDirection direction = BusStation.getDirection(depart, arrival);
         validateBusCourse(depart, arrival);
 
-        List<? extends Bus> remainTimes = new ArrayList<>();
+        List<? extends BusRemainTime> remainTimes = new ArrayList<>();
         if (busType == BusType.CITY || busType == BusType.EXPRESS) {
             remainTimes = busOpenApiRequesters.get(BusApiType.from(busType).getValue())
                 .getBusRemainTime(depart.getNodeId(direction));
@@ -52,7 +52,6 @@ public class BusService {
                         .filter(route -> route.isRunning(clock))
                         .filter(route -> route.isCorrectRoute(depart, arrival, clock))
                         .map(route -> route.getRemainTime(depart))
-                        .map(Bus::from)
                 )
                 .distinct()
                 .sorted()
@@ -62,8 +61,8 @@ public class BusService {
         return BusRemainTimeResponse.of(
             busType,
             remainTimes.stream()
-                .filter(bus -> bus.getRemainTime().getRemainSeconds(clock) != null)
-                .sorted(Comparator.comparing(Bus::getRemainTime))
+                .filter(bus -> bus.getRemainSeconds(clock) != null)
+                .sorted(Comparator.naturalOrder())
                 .toList(),
             clock
         );

@@ -28,8 +28,8 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
-import in.koreatech.koin.domain.bus.model.CityBus;
 import in.koreatech.koin.domain.bus.model.CityBusArrival;
+import in.koreatech.koin.domain.bus.model.CityBusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.model.redis.BusCache;
 import in.koreatech.koin.domain.bus.model.redis.CityBusCache;
@@ -44,7 +44,7 @@ import in.koreatech.koin.domain.version.repository.VersionRepository;
  */
 @Component
 @Transactional(readOnly = true)
-public class CityBusOpenApiClient extends BusOpenApiClient<CityBus> {
+public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
 
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
@@ -76,7 +76,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBus> {
         this.cityBusCacheRepository = cityBusCacheRepository;
     }
 
-    public List<CityBus> getBusRemainTime(String nodeId) {
+    public List<CityBusRemainTime> getBusRemainTime(String nodeId) {
         Version version = versionRepository.getByType(VersionType.CITY);
 
         if (isCacheExpired(version, clock)) {
@@ -86,10 +86,10 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBus> {
         return getCityBusArrivalInfoByCache(nodeId);
     }
 
-    private List<CityBus> getCityBusArrivalInfoByCache(String nodeId) {
+    private List<CityBusRemainTime> getCityBusArrivalInfoByCache(String nodeId) {
         Optional<CityBusCache> cityBusCache = cityBusCacheRepository.findById(nodeId);
 
-        return cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBus::from).toList())
+        return cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBusRemainTime::from).toList())
             .orElseGet(ArrayList::new);
     }
 
