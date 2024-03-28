@@ -13,6 +13,6 @@ public enum UserGender {
         return Arrays.stream(values())
             .filter(it -> it.ordinal() == index)
             .findAny()
-            .orElseThrow(() -> UserGenderNotValidException.withDetail("잘못된 성별 인덱스 입니다. index : " + index));
+            .orElseThrow(() -> UserGenderNotValidException.withDetail("index : " + index));
     }
 }
