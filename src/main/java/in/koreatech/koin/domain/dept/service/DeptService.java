@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.dept.service;
 
+import static in.koreatech.koin.domain.dept.model.Dept.NEW_ENERGY_MATERIALS_CHEMICAL_ENGINEERING;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +23,7 @@ public class DeptService {
     public List<DeptsResponse> getAll() {
         return Dept.findAll()
             .stream()
-            .filter(dept -> !dept.getName().equals("에너지신소재화학공학부"))
+            .filter(dept -> !NEW_ENERGY_MATERIALS_CHEMICAL_ENGINEERING.equals(dept))
             .map(DeptsResponse::from)
             .toList();
     }
