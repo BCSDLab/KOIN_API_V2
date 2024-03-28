@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -58,6 +59,7 @@ public class JwtProvider {
             .add("typ", "JWT")
             .add("alg", key.getAlgorithm())
             .and()
+            .claim("id", UserType.ANONYMOUS_ID)
             .expiration(Date.from(Instant.now().plusMillis(expirationTime)))
             .compact();
     }
@@ -72,7 +74,6 @@ public class JwtProvider {
                 .get("id")
                 .toString();
             return Long.parseLong(userId);
-
         } catch (JwtException e) {
             throw AuthenticationException.withDetail("token: " + token);
         }
