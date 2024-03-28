@@ -101,7 +101,7 @@ public class OwnerService {
         if (!Objects.equals(verify.getCertificationCode(), request.certificationCode())) {
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
-        ownerInVerificationRedisRepository.deleteById(request.email());
+        ownerInVerificationRedisRepository.deleteByEmail(request.email());
         String token = jwtProvider.createTemporaryToken();
         return new OwnerVerifyResponse(token);
     }
