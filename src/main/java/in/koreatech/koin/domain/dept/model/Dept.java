@@ -35,10 +35,10 @@ public enum Dept {
 
     // 신설 과는 학과 고유 번호로 Optional.empty()를 넣어줌
     CHEMIACL_ENGINEERING(
-        "화학생명공학부", List.of(Optional.empty()),
+        "화학생명공학부", List.of("N/A"),
         "https://www.koreatech.ac.kr/board.es?mid=b50301000000&bid=0135"),
     ENERGY_MATERIALS_ENGINEERING(
-        "에너지신소재공학부", List.of(Optional.empty()),
+        "에너지신소재공학부", List.of("N/A"),
         "https://www.koreatech.ac.kr/board.es?mid=b40301000000&bid=0128"),
 
     // 없어진 과(고 학번을 위해 유지)
@@ -47,10 +47,10 @@ public enum Dept {
         "https://cms3.koreatech.ac.kr/ace/992/subview.do");
 
     private final String name;
-    private final List<?> numbers;
+    private final List<String> numbers;
     private final String curriculumLink;
 
-    Dept(String name, List<?> numbers, String curriculumLink) {
+    Dept(String name, List<String> numbers, String curriculumLink) {
         this.name = name;
         this.numbers = numbers;
         this.curriculumLink = curriculumLink;

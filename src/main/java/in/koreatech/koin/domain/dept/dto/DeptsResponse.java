@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.dept.model.Dept;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record DeptsResponse(String name, String curriculumLink, List<?> deptNums) {
+public record DeptsResponse(String name, String curriculumLink, List<String> deptNums) {
 
     public static DeptsResponse from(Dept dept) {
         return new DeptsResponse(
