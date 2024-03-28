@@ -33,7 +33,7 @@ public enum Dept {
         "컴퓨터공학부", List.of("35", "36"),
         "https://www.koreatech.ac.kr/menu.es?mid=b10402000000"),
 
-    // 신설 과는 학과 고유 번호로 Optional.empty()를 넣어줌
+    // 신설 과는 학과 고유 번호로 N/A를 넣어줌
     CHEMIACL_ENGINEERING(
         "화학생명공학부", List.of("N/A"),
         "https://www.koreatech.ac.kr/board.es?mid=b50301000000&bid=0135"),
