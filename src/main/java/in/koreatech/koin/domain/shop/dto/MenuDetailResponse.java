@@ -66,6 +66,13 @@ public record MenuDetailResponse(
         );
     }
 
+    public static MenuDetailResponse createMenuDetailResponse(Menu menu, List<MenuCategory> menuCategories) {
+        if (menu.hasMultipleOption()) {
+            return MenuDetailResponse.createForMultipleOption(menu, menuCategories);
+        }
+        return MenuDetailResponse.createForSingleOption(menu, menuCategories);
+    }
+
     public static MenuDetailResponse createForMultipleOption(Menu menu, List<MenuCategory> shopMenuCategories) {
         if (!menu.hasMultipleOption()) {
             log.error("{}는 옵션이 하나인 메뉴입니다. createForSingleOption 메서드를 이용해야 합니다.", menu);
