@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
-import in.koreatech.koin.domain.owner.dto.OwnerVerificationRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.global.auth.Auth;
@@ -80,6 +80,6 @@ public interface OwnerApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/verification/code")
     ResponseEntity<OwnerVerifyResponse> codeVerification(
-        @Valid @RequestBody OwnerVerificationRequest request
+        @Valid @RequestBody OwnerVerifyRequest request
     );
 }
