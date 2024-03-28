@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.dept.dto.DeptListItemResponse;
 import in.koreatech.koin.domain.dept.dto.DeptResponse;
+import in.koreatech.koin.domain.dept.dto.DeptsResponse;
 import in.koreatech.koin.domain.dept.model.Dept;
 
 @Service
@@ -18,11 +18,11 @@ public class DeptService {
         return dept.map(value -> DeptResponse.from(id, value)).orElse(null);
     }
 
-    public List<DeptListItemResponse> getAll() {
+    public List<DeptsResponse> getAll() {
         return Dept.findAll()
             .stream()
             .filter(dept -> !dept.getName().equals("에너지신소재화학공학부"))
-            .map(DeptListItemResponse::from)
+            .map(DeptsResponse::from)
             .toList();
     }
 }
