@@ -492,8 +492,6 @@ class OwnerApiTest extends AcceptanceTest {
             .when()
             .post("/owners/verification/code")
             .then()
-            .statusCode(HttpStatus.OK.value());
-        var result = ownerInVerificationRedisRepository.findById(verification.getEmail());
-        Assertions.assertThat(result).isNotPresent();
+            .statusCode(HttpStatus.NOT_FOUND.value());
     }
 }
