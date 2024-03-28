@@ -1,5 +1,7 @@
 package in.koreatech.koin;
 
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
 import java.time.Clock;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +21,6 @@ import org.testcontainers.utility.DockerImageName;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Import(DBInitializer.class)
@@ -63,7 +64,7 @@ public abstract class AcceptanceTest {
     }
 
     static {
-        mySqlContainer = (MySQLContainer)new MySQLContainer("mysql:5.7.34")
+        mySqlContainer = (MySQLContainer)new MySQLContainer("mysql:8.0.29")
             .withDatabaseName("test")
             .withUsername(ROOT)
             .withPassword(ROOT_PASSWORD)
