@@ -13,14 +13,8 @@ import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
-import in.koreatech.koin.domain.shop.model.ShopImage;
-import in.koreatech.koin.domain.shop.model.ShopOpen;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
-import in.koreatech.koin.domain.shop.repository.ShopCategoryMapRepository;
-import in.koreatech.koin.domain.shop.repository.ShopImageRepository;
-import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -41,14 +35,7 @@ public class ShopService {
             .map(MenuCategoryMap::getMenuCategory)
             .toList();
 
-        return createMenuDetailResponse(menu, menuCategories);
-    }
-
-    private MenuDetailResponse createMenuDetailResponse(Menu menu, List<MenuCategory> menuCategories) {
-        if (menu.hasMultipleOption()) {
-            return MenuDetailResponse.createForMultipleOption(menu, menuCategories);
-        }
-        return MenuDetailResponse.createForSingleOption(menu, menuCategories);
+        return MenuDetailResponse.createMenuDetailResponse(menu, menuCategories);
     }
 
     public MenuCategoriesResponse getMenuCategories(Long shopId) {
