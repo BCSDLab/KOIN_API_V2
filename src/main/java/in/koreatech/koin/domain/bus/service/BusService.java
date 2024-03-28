@@ -11,14 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
-import in.koreatech.koin.domain.bus.model.enums.ApiType;
+import in.koreatech.koin.domain.bus.model.enums.BusApiType;
 import in.koreatech.koin.domain.bus.model.Bus;
 import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
-import in.koreatech.koin.domain.bus.util.BusOpenApiRequester;
+import in.koreatech.koin.domain.bus.util.BusOpenApiClient;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,7 +28,7 @@ public class BusService {
 
     private final Clock clock;
     private final BusRepository busRepository;
-    private final Map<String, BusOpenApiRequester<? extends Bus>> busOpenApiRequesters;
+    private final Map<String, BusOpenApiClient<? extends Bus>> busOpenApiRequesters;
 
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(String busTypeName, String departName, String arrivalName) {
@@ -40,7 +40,7 @@ public class BusService {
 
         List<? extends Bus> remainTimes = new ArrayList<>();
         if (busType == BusType.CITY || busType == BusType.EXPRESS) {
-            remainTimes = busOpenApiRequesters.get(ApiType.from(busType).getValue())
+            remainTimes = busOpenApiRequesters.get(BusApiType.from(busType).getValue())
                 .getBusRemainTime(depart.getNodeId(direction));
         }
         else if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {

@@ -29,8 +29,7 @@ import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.model.CityBus;
-import in.koreatech.koin.domain.bus.model.CityBusArrivalInfo;
-import in.koreatech.koin.domain.bus.model.Constant;
+import in.koreatech.koin.domain.bus.model.CityBusArrival;
 import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.model.redis.BusCache;
 import in.koreatech.koin.domain.bus.model.redis.CityBusCache;
@@ -45,7 +44,7 @@ import in.koreatech.koin.domain.version.repository.VersionRepository;
  */
 @Component
 @Transactional(readOnly = true)
-public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
+public class CityBusOpenApiClient extends BusOpenApiClient<CityBus> {
 
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
@@ -60,10 +59,10 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
     private final VersionRepository versionRepository;
     private final CityBusCacheRepository cityBusCacheRepository;
 
-    private static final Type arrivalInfoType = new TypeToken<List<CityBusArrivalInfo>>() {
+    private static final Type arrivalInfoType = new TypeToken<List<CityBusArrival>>() {
     }.getType();
 
-    public CityBusOpenApiRequester(
+    public CityBusOpenApiClient(
         @Value("${OPEN_API_KEY}") String openApiKey,
         Gson gson,
         Clock clock,
@@ -81,10 +80,10 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
         Version version = versionRepository.getByType(VersionType.CITY);
 
         if (isCacheExpired(version, clock)) {
-            return getCityBusArrivalInfoByCache(nodeId);
+            getAllCityBusArrivalInfoByOpenApi();
         }
 
-        return getCityBusArrivalInfoByOpenApi(nodeId);
+        return getCityBusArrivalInfoByCache(nodeId);
     }
 
     private List<CityBus> getCityBusArrivalInfoByCache(String nodeId) {
@@ -94,13 +93,8 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
             .orElseGet(ArrayList::new);
     }
 
-    private List<CityBus> getCityBusArrivalInfoByOpenApi(String nodeId) {
-        getAllCityBusArrivalInfoByOpenApi();
-        return getCityBusArrivalInfoByCache(nodeId);
-    }
-
     private void getAllCityBusArrivalInfoByOpenApi() {
-        List<List<CityBusArrivalInfo>> arrivalInfosList = BusStationNode.getNodeIds().stream()
+        List<List<CityBusArrival>> arrivalInfosList = BusStationNode.getNodeIds().stream()
             .map(this::getOpenApiResponse)
             .map(this::extractBusArrivalInfo)
             .toList();
@@ -108,7 +102,7 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
         Clock updatedClock = Clock.systemDefaultZone();
         LocalDateTime updatedAt = LocalDateTime.now(updatedClock);
 
-        for (List<CityBusArrivalInfo> arrivalInfos : arrivalInfosList) {
+        for (List<CityBusArrival> arrivalInfos : arrivalInfosList) {
             if (arrivalInfos.isEmpty()) {
                 continue;
             }
@@ -165,8 +159,8 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
         return urlBuilder.toString();
     }
 
-    private List<CityBusArrivalInfo> extractBusArrivalInfo(String jsonResponse) {
-        List<CityBusArrivalInfo> result = new ArrayList<>();
+    private List<CityBusArrival> extractBusArrivalInfo(String jsonResponse) {
+        List<CityBusArrival> result = new ArrayList<>();
 
         try {
             JsonObject response = JsonParser.parseString(jsonResponse)
@@ -185,7 +179,7 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
                 return gson.fromJson(item, arrivalInfoType);
             }
             if (item.isJsonObject()) {
-                result.add(gson.fromJson(item, CityBusArrivalInfo.class));
+                result.add(gson.fromJson(item, CityBusArrival.class));
             }
             return result;
         } catch (JsonSyntaxException e) {

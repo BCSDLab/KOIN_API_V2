@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class IntercityBusOpenApiRequester extends BusOpenApiRequester<Bus> {
+public class IntercityBusOpenApiClient extends BusOpenApiClient<Bus> {
 
     @Override
     public List<Bus> getBusRemainTime(String nodeId) {

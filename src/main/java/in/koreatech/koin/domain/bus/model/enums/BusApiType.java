@@ -6,20 +6,20 @@ import in.koreatech.koin.domain.bus.exception.ApiTypeNotFoundException;
 import lombok.Getter;
 
 @Getter
-public enum ApiType {
+public enum BusApiType {
     CITY("cityBusOpenApiRequester"),
     EXPRESS("intercityBusOpenApiRequester")
     ;
 
     private final String value;
 
-    ApiType(String bean) {
+    BusApiType(String bean) {
         this.value = bean;
     }
 
-    public static ApiType from(BusType value) {
+    public static BusApiType from(BusType value) {
         return Arrays.stream(values())
-            .filter(apiType -> apiType.toString().equalsIgnoreCase(value.toString()))
+            .filter(busApiType -> busApiType.toString().equalsIgnoreCase(value.toString()))
             .findAny()
             .orElseThrow(() -> ApiTypeNotFoundException.withDetail("apiType: " + value));
     }
