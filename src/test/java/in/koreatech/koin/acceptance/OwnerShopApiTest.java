@@ -489,7 +489,6 @@ class OwnerShopApiTest extends AcceptanceTest {
                     .isNull();
                 softly.assertThat(response.body().jsonPath().getString("updated_at"))
                     .isEqualTo(LocalDate.now().toString());
-
             }
         );
     }
@@ -687,6 +686,4 @@ class OwnerShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
-
-
 }
