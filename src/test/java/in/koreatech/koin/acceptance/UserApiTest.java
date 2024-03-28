@@ -289,7 +289,7 @@ class UserApiTest extends AcceptanceTest {
             .body("""
                   {
                     "gender" : 0,
-                    "major" : "테스트학과",
+                    "major" : "경영학과",
                     "name" : "최주노",
                     "nickname" : "juno",
                     "phone_number" : "010-2345-6789",

@@ -16,7 +16,8 @@ public enum StudentDepartment {
     CHEMICAL("화학생명공학부"),
     ENERGY("에너지신소재공학부"),
     INDUSTRIAL("산업경영학부"),
-    EMPLOYMENT("고용서비스정책학과");
+    EMPLOYMENT("고용서비스정책학과"),
+    ;
 
     private final String value;
 
@@ -28,6 +29,6 @@ public enum StudentDepartment {
         return Arrays.stream(values())
             .filter(it -> it.value.equals(value))
             .findAny()
-            .orElseThrow(() -> new StudentDepartmentNotValidException("학생의 전공 형식이 아닙니다. " + value));
+            .orElseThrow(() -> StudentDepartmentNotValidException.withDetail("학부(학과) : " + value));
     }
 }

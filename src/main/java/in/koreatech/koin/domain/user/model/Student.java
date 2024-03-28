@@ -61,15 +61,7 @@ public class Student {
     }
 
     public void update(String studentNumber, StudentDepartment studentDepartment) {
-        if (studentNumber != null) {
-            this.studentNumber = studentNumber;
-        }
-        if (studentDepartment != null) {
-            this.department = studentDepartment;
-        }
-    }
-
-    public static boolean isValidStudentNumber(String studentNumber) {
-        return studentNumber.length() == 10;
+        this.studentNumber = studentNumber;
+        this.department = studentDepartment;
     }
 }

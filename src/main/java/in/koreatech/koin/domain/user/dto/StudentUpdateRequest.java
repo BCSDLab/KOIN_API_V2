@@ -33,7 +33,7 @@ public record StudentUpdateRequest
         @Schema(description = "휴대폰 번호", example = "010-0000-0000")
         String phoneNumber,
 
-        @Size(max = 10, message = "학번은 10자여야 합니다.")
+        @Size(min = 10, max = 10, message = "학번은 10자여야 합니다.")
         @Schema(description = "학번", example = "2020136065")
         String studentNumber
     ) {

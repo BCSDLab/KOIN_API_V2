@@ -7,7 +7,6 @@ import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
-import in.koreatech.koin.domain.user.exception.StudentNumberNotValidException;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.StudentDepartment;
 import in.koreatech.koin.domain.user.model.User;
@@ -36,13 +35,7 @@ public class StudentService {
 
         if (studentUpdateRequest.nickname() != null &&
             userRepository.existsByNickname(studentUpdateRequest.nickname())) {
-            throw new DuplicationNicknameException("이미 존재하는 닉네임입니다. nickname : " + studentUpdateRequest.nickname());
-        }
-
-        if (studentUpdateRequest.studentNumber() != null &&
-            !Student.isValidStudentNumber(studentUpdateRequest.studentNumber())) {
-            throw new StudentNumberNotValidException(
-                "학생의 학번 형식이 아닙니다. studentNumber : " + studentUpdateRequest.studentNumber());
+            throw DuplicationNicknameException.withDetail("nickname : " + studentUpdateRequest.nickname());
         }
 
         user.update(studentUpdateRequest.nickname(), studentUpdateRequest.name(),
