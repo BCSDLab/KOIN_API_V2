@@ -26,22 +26,31 @@ public enum Dept {
     INDUSTRIAL_MANAGEMENT(
         "산업경영학부", List.of("80"),
         "https://cms3.koreatech.ac.kr/sim/1167/subview.do"),
-    NEW_ENERGY_MATERIALS_CHEMICAL_ENGINEERING(
-        "에너지신소재화학공학부", List.of("74"),
-        "https://cms3.koreatech.ac.kr/ace/992/subview.do"),
     ELECTRICAL_AND_ELECTRONIC_COMMUNICATION_ENGINEERING(
         "전기전자통신공학부", List.of("61"),
         "https://cms3.koreatech.ac.kr/ite/842/subview.do"),
     COMPUTER_SCIENCE(
         "컴퓨터공학부", List.of("35", "36"),
         "https://cse.koreatech.ac.kr/page_izgw21"),
-    ;
+
+    // 신설 과는 학과 고유 번호로 Optional.empty()를 넣어줌
+    CHEMIACL_ENGINEERING(
+        "화학생명공학부", List.of(Optional.empty()),
+        "https://www.koreatech.ac.kr/board.es?mid=b50301000000&bid=0135"),
+    ENERGY_MATERIALS_ENGINEERING(
+        "에너지신소재공학부", List.of(Optional.empty()),
+        "https://www.koreatech.ac.kr/board.es?mid=b40301000000&bid=0128"),
+
+    // 없어진 과(고 학번을 위해 유지)
+    NEW_ENERGY_MATERIALS_CHEMICAL_ENGINEERING(
+        "에너지신소재화학공학부", List.of("74"),
+        "https://cms3.koreatech.ac.kr/ace/992/subview.do");
 
     private final String name;
-    private final List<String> numbers;
+    private final List<?> numbers;
     private final String curriculumLink;
 
-    Dept(String name, List<String> numbers, String curriculumLink) {
+    Dept(String name, List<?> numbers, String curriculumLink) {
         this.name = name;
         this.numbers = numbers;
         this.curriculumLink = curriculumLink;

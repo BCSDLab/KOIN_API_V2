@@ -21,6 +21,7 @@ public class DeptService {
     public List<DeptListItemResponse> getAll() {
         return Dept.findAll()
             .stream()
+            .filter(dept -> !dept.getName().equals("에너지신소재화학공학부"))
             .map(DeptListItemResponse::from)
             .toList();
     }
