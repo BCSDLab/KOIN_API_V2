@@ -1,7 +1,10 @@
-package in.koreatech.koin.domain.bus.model;
+package in.koreatech.koin.domain.bus.model.redis;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+
+import in.koreatech.koin.domain.bus.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.model.CityBusArrivalInfo;
 
 public record BusCache(
     Long busNumber,

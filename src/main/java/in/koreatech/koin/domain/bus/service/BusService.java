@@ -11,12 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
-import in.koreatech.koin.domain.bus.model.ApiType;
+import in.koreatech.koin.domain.bus.model.enums.ApiType;
 import in.koreatech.koin.domain.bus.model.Bus;
-import in.koreatech.koin.domain.bus.model.BusCourse;
-import in.koreatech.koin.domain.bus.model.BusDirection;
-import in.koreatech.koin.domain.bus.model.BusStation;
-import in.koreatech.koin.domain.bus.model.BusType;
+import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
+import in.koreatech.koin.domain.bus.model.enums.BusDirection;
+import in.koreatech.koin.domain.bus.model.enums.BusStation;
+import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.util.BusOpenApiRequester;
 import lombok.RequiredArgsConstructor;

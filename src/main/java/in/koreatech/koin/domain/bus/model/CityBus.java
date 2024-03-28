@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.bus.model;
 
+import in.koreatech.koin.domain.bus.model.redis.BusCache;
 import lombok.Builder;
 import lombok.Getter;
 

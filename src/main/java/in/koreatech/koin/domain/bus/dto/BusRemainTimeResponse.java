@@ -8,7 +8,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.bus.model.Bus;
-import in.koreatech.koin.domain.bus.model.BusType;
+import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.CityBus;
 
 @JsonNaming(SnakeCaseStrategy.class)

@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.bus.exception.BusCacheNotFoundException;
-import in.koreatech.koin.domain.bus.model.CityBusCache;
+import in.koreatech.koin.domain.bus.model.redis.CityBusCache;
 
 public interface CityBusCacheRepository extends Repository<CityBusCache, String> {
 

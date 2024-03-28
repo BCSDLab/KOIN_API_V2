@@ -29,11 +29,11 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
-import in.koreatech.koin.domain.bus.model.BusCache;
-import in.koreatech.koin.domain.bus.model.BusStationNode;
+import in.koreatech.koin.domain.bus.model.redis.BusCache;
+import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.model.CityBus;
 import in.koreatech.koin.domain.bus.model.CityBusArrivalInfo;
-import in.koreatech.koin.domain.bus.model.CityBusCache;
+import in.koreatech.koin.domain.bus.model.redis.CityBusCache;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;

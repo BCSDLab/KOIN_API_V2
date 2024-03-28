@@ -1,7 +1,7 @@
-package in.koreatech.koin.domain.bus.model;
+package in.koreatech.koin.domain.bus.model.enums;
 
-import static in.koreatech.koin.domain.bus.model.BusDirection.NORTH;
-import static in.koreatech.koin.domain.bus.model.BusDirection.SOUTH;
+import static in.koreatech.koin.domain.bus.model.enums.BusDirection.NORTH;
+import static in.koreatech.koin.domain.bus.model.enums.BusDirection.SOUTH;
 
 import java.util.Arrays;
 import java.util.List;

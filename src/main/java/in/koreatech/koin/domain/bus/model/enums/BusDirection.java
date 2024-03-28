@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.model;
+package in.koreatech.koin.domain.bus.model.enums;
 
 import org.apache.commons.lang3.StringUtils;
 
