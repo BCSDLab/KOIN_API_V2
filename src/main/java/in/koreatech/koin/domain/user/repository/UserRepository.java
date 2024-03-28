@@ -32,5 +32,7 @@ public interface UserRepository extends Repository<User, Long> {
             .orElseThrow(() -> UserNotFoundException.withDetail("nickname: " + nickname));
     }
 
+    boolean existsByNickname(String nickname);
+
     void delete(User user);
 }
