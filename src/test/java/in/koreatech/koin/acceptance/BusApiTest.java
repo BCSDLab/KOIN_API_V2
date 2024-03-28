@@ -91,15 +91,12 @@ class BusApiTest extends AcceptanceTest {
         busRepository.save(busCourse);
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("bus_type", busType.name().toLowerCase())
             .param("depart", depart.name())
             .param("arrival", arrival.name())
             .get("/bus")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -153,9 +150,7 @@ class BusApiTest extends AcceptanceTest {
 
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("bus_type", busType.name().toLowerCase())
             .param("depart", depart.name())
             .param("arrival", arrival.name())
