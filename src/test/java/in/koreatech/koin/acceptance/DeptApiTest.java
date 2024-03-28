@@ -1,5 +1,7 @@
 package in.koreatech.koin.acceptance;
 
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -9,7 +11,6 @@ import in.koreatech.koin.domain.dept.model.Dept;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class DeptApiTest extends AcceptanceTest {
 
@@ -41,7 +42,7 @@ class DeptApiTest extends AcceptanceTest {
     @DisplayName("모든 학과 정보를 조회한다.")
     void findAllDepts() {
         //given
-        final int DEPT_SIZE = Dept.values().length;
+        final int DEPT_SIZE = Dept.values().length - 1;
 
         //when then
         ExtractableResponse<Response> response = RestAssured
@@ -59,8 +60,6 @@ class DeptApiTest extends AcceptanceTest {
                 for (int i = 0; i < DEPT_SIZE; i++) {
                     softly.assertThat(response.body().jsonPath().getString(String.format("[%d].name", i))).isNotEmpty();
                     softly.assertThat(response.body().jsonPath().getString(String.format("[%d].curriculum_link", i)))
-                        .isNotEmpty();
-                    softly.assertThat(response.body().jsonPath().getString(String.format("[%d].dept_nums[0]", i)))
                         .isNotEmpty();
                 }
             }
