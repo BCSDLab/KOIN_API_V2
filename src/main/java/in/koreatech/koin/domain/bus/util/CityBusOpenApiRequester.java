@@ -38,14 +38,12 @@ import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import lombok.RequiredArgsConstructor;
 
 /**
  * OpenApi 상세: 국토교통부_(TAGO)_버스도착정보
  * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098530
  */
 @Component
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
 
@@ -53,21 +51,34 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
     private static final String CHEONAN_CITY_CODE = "34010";
 
     @Value("${OPEN_API_KEY}")
-    private String OPEN_API_KEY;
+    private final String openApiKey;
 
     private final Gson gson;
+
+    private final Clock clock;
 
     private final VersionRepository versionRepository;
     private final CityBusCacheRepository cityBusCacheRepository;
 
-    private final Clock clock;
-
     private static final Type arrivalInfoType = new TypeToken<List<CityBusArrivalInfo>>() {
     }.getType();
 
+    public CityBusOpenApiRequester(
+        @Value("${OPEN_API_KEY}") String openApiKey,
+        Gson gson,
+        Clock clock,
+        VersionRepository versionRepository,
+        CityBusCacheRepository cityBusCacheRepository
+    ) {
+        this.openApiKey = openApiKey;
+        this.gson = gson;
+        this.clock = clock;
+        this.versionRepository = versionRepository;
+        this.cityBusCacheRepository = cityBusCacheRepository;
+    }
+
     public List<CityBus> getBusRemainTime(String nodeId) {
         Version version = versionRepository.getByType(VersionType.CITY);
-
         Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
 
         if (0 <= duration.toSeconds() && duration.toSeconds() < 60) {
@@ -98,8 +109,9 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
         LocalDateTime updatedAt = LocalDateTime.now(updatedClock);
 
         for (List<CityBusArrivalInfo> arrivalInfos : arrivalInfosList) {
-            if (arrivalInfos.isEmpty())
+            if (arrivalInfos.isEmpty()) {
                 continue;
+            }
 
             cityBusCacheRepository.save(
                 CityBusCache.create(
@@ -145,7 +157,7 @@ public class CityBusOpenApiRequester extends BusOpenApiRequester<CityBus> {
         String url = "http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList";
         String contentCount = "30";
         StringBuilder urlBuilder = new StringBuilder(url);
-        urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(OPEN_API_KEY, ENCODE_TYPE));
+        urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));
         urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode(contentCount, ENCODE_TYPE));
         urlBuilder.append("&" + encode("cityCode", ENCODE_TYPE) + "=" + encode(cityCode, ENCODE_TYPE));
         urlBuilder.append("&" + encode("nodeId", ENCODE_TYPE) + "=" + encode(nodeId, ENCODE_TYPE));

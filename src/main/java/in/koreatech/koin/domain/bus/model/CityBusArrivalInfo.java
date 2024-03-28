@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.bus.model;
 
 import lombok.Builder;
 
+@Builder
 public record CityBusArrivalInfo(
     Long arrprevstationcnt, // 남은 정거장 개수, 5
     Long arrtime, // 도착까지 남은 시간 [초], 222
@@ -18,13 +19,4 @@ public record CityBusArrivalInfo(
             .arrtime(-1L)
             .build();
     }
-
-    @Builder
-    public CityBusArrivalInfo {
-    }
-    /*
-    @Override
-    public int compareTo(CityBusArrivalInfo o) {
-        return this.arrtime - o.arrtime;
-    }*/
 }

@@ -13,6 +13,7 @@ public interface CityBusCacheRepository extends Repository<CityBusCache, String>
     CityBusCache save(CityBusCache cityBusCache);
 
     List<CityBusCache> findAll();
+
     Optional<CityBusCache> findById(String nodeId);
 
     default CityBusCache getById(String nodeId) {
