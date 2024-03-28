@@ -1,6 +1,9 @@
 package in.koreatech.koin.domain.owner.service;
 
+import static in.koreatech.koin.global.domain.email.model.MailForm.OWNER_REGISTRATION_MAIL_FORM;
+
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
+import in.koreatech.koin.domain.owner.dto.OwnerVerificationRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
 import in.koreatech.koin.domain.owner.model.Owner;
@@ -22,10 +27,10 @@ import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.domain.email.model.CertificationCode;
 import in.koreatech.koin.global.domain.email.model.EmailAddress;
-import static in.koreatech.koin.global.domain.email.model.MailForm.OWNER_REGISTRATION_MAIL_FORM;
 import in.koreatech.koin.global.domain.email.service.MailService;
 import lombok.RequiredArgsConstructor;
 
@@ -34,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class OwnerService {
 
+    private final JwtProvider jwtProvider;
     private final MailService mailService;
     private final UserRepository userRepository;
     private final ShopRepository shopRepository;
@@ -88,5 +94,14 @@ public class OwnerService {
         ownerShopRedisRepository.save(OwnerShop.builder()
             .build());
         eventPublisher.publishEvent(new OwnerRegisterEvent(saved));
+    }
+
+    public OwnerVerifyResponse verifyCode(OwnerVerificationRequest request) {
+        var verify = ownerInVerificationRedisRepository.getByEmail(request.email());
+        if (Objects.equals(verify.getCertificationCode(), request.certificationCode())) {
+            throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
+        }
+        String token = jwtProvider.createTemporaryToken();
+        return new OwnerVerifyResponse(token);
     }
 }

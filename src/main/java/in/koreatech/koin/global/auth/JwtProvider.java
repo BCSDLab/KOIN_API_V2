@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.exception.AuthenticationException;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -36,7 +35,6 @@ public class JwtProvider {
         if (user == null) {
             throw UserNotFoundException.withDetail("user: " + null);
         }
-
         Key key = getSecretKey();
         return Jwts.builder()
             .signWith(key)
@@ -45,7 +43,22 @@ public class JwtProvider {
             .add("alg", key.getAlgorithm())
             .and()
             .claim("id", user.getId())
-            .expiration(new Date(Instant.now().toEpochMilli() + expirationTime))
+            .expiration(Date.from(Instant.now().plusMillis(expirationTime)))
+            .compact();
+    }
+
+    /**
+     * 임시 회원가입 토큰 생성
+     */
+    public String createTemporaryToken() {
+        Key key = getSecretKey();
+        return Jwts.builder()
+            .signWith(getSecretKey())
+            .header()
+            .add("typ", "JWT")
+            .add("alg", key.getAlgorithm())
+            .and()
+            .expiration(Date.from(Instant.now().plusMillis(expirationTime)))
             .compact();
     }
 
@@ -69,5 +82,4 @@ public class JwtProvider {
         String encoded = Base64.getEncoder().encodeToString(secretKey.getBytes());
         return Keys.hmacShaKeyFor(encoded.getBytes());
     }
-
 }

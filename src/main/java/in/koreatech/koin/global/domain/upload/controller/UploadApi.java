@@ -1,6 +1,11 @@
 package in.koreatech.koin.global.domain.upload.controller;
 
 
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
+
 import java.util.List;
 
 import org.springframework.http.MediaType;
@@ -19,9 +24,6 @@ import in.koreatech.koin.global.domain.upload.dto.UploadUrlResponse;
 import in.koreatech.koin.global.domain.upload.model.ImageUploadDomain;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-
-import static in.koreatech.koin.domain.user.model.UserType.*;
-import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -88,7 +90,7 @@ public interface UploadApi {
     ResponseEntity<UploadFileResponse> uploadFile(
         @Parameter(in = PATH) @PathVariable ImageUploadDomain domain,
         @RequestPart MultipartFile multipartFile,
-        @Auth(permit = {OWNER, STUDENT}) Long memberId
+        @Auth(permit = {OWNER, STUDENT, COOP}) Long memberId
     );
 
     @ApiResponses(
@@ -119,6 +121,6 @@ public interface UploadApi {
     ResponseEntity<UploadFilesResponse> uploadFiles(
         @Parameter(in = PATH) @PathVariable ImageUploadDomain domain,
         @RequestPart List<MultipartFile> files,
-        @Auth(permit = {OWNER, STUDENT}) Long memberId
+        @Auth(permit = {OWNER, STUDENT, COOP}) Long memberId
     );
 }
