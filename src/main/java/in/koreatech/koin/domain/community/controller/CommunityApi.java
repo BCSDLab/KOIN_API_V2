@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.community.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
-import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,7 +34,7 @@ public interface CommunityApi {
     @Operation(summary = "게시글 단건 조회")
     @GetMapping("/articles/{id}")
     ResponseEntity<ArticleResponse> getArticle(
-        @Auth(permit = {STUDENT}, anonymous = true) Long userId,
+        @UserId Long userId,
         @Parameter(in = PATH) @PathVariable("id") Long articleId,
         @IpAddress String ipAddress
     );

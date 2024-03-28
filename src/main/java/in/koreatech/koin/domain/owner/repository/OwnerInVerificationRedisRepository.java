@@ -15,6 +15,10 @@ public interface OwnerInVerificationRedisRepository extends Repository<OwnerInVe
 
     void deleteById(String email);
 
+    default void deleteByEmail(String email) {
+        deleteById(email);
+    }
+
     default OwnerInVerification getByEmail(String email) {
         return findById(email).orElseThrow(() -> EmailNotFoundException.withDetail("email: " + email));
     }
