@@ -4,6 +4,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -12,17 +13,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
-import in.koreatech.koin.domain.bus.model.enums.BusDirection;
-import in.koreatech.koin.domain.bus.model.redis.BusCache;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.model.CityBusArrival;
+import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.model.CityBusArrival;
-import in.koreatech.koin.domain.bus.model.redis.CityBusCache;
+import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
+import in.koreatech.koin.domain.bus.model.redis.BusCache;
+import in.koreatech.koin.domain.bus.model.redis.CityBusCache;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
@@ -41,6 +44,9 @@ class BusApiTest extends AcceptanceTest {
 
     @Autowired
     private CityBusCacheRepository cityBusCacheRepository;
+
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     @Test
     @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
@@ -114,18 +120,18 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("다음 시내버스까지 남은 시간을 조회한다.")
+    @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - Redis")
     void getNextCityBusRemainTime() {
-        final ZonedDateTime now = ZonedDateTime.now();
         final long remainTime = 600L;
         final long busNumber = 400;
 
-        when(clock.instant()).thenReturn(now.toInstant());
+        when(clock.instant()).thenReturn(
+            ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
         when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
 
         BusType busType = BusType.from("city");
-        BusStation depart = BusStation.from("koreatech");
-        BusStation arrival = BusStation.from("terminal");
+        BusStation depart = BusStation.from("terminal");
+        BusStation arrival = BusStation.from("koreatech");
         BusDirection direction = BusStation.getDirection(depart, arrival);
 
         Version version = versionRepository.save(
@@ -134,6 +140,9 @@ class BusApiTest extends AcceptanceTest {
                 .type("city_bus_timetable")
                 .build()
         );
+
+        ReflectionTestUtils.setField(version, "updatedAt", LocalDateTime.of(2024, 2, 21, 18, 0, 0, 0));
+        versionRepository.save(version);
 
         cityBusCacheRepository.save(
             CityBusCache.create(
@@ -164,11 +173,18 @@ class BusApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
                 softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(busNumber);
-                softly.assertThat(response.body().jsonPath().getLong("now_bus.remain_time")).isEqualTo(
-                    BusRemainTime.from(remainTime, clock).getRemainSeconds(clock));
-                softly.assertThat((Long)response.body().jsonPath().get("next_bus.bus_number")).isNull();
-                softly.assertThat((Long)response.body().jsonPath().get("next_bus.remain_time")).isNull();
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.remain_time"))
+                    .isEqualTo(
+                        BusRemainTime.from(remainTime, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
+                softly.assertThat(response.body().jsonPath().getObject("next_bus.bus_number", Long.class)).isNull();
+                softly.assertThat(response.body().jsonPath().getObject("next_bus.remain_time", Long.class)).isNull();
             }
         );
     }
 }
+
+
+
+// 터미널 -> 코리아텍
+// 686
+// {"response":{"header":{"resultCode":"00","resultMsg":"NORMAL SERVICE."},"body":{"items":{"item":[{"arrprevstationcnt":5,"arrtime":560,"nodeid":"CAB285000686","nodenm":"종합터미널","routeid":"CAB285000222","routeno":700,"routetp":"일반버스","vehicletp":"일반차량"},{"arrprevstationcnt":3,"arrtime":263,"nodeid":"CAB285000686","nodenm":"종합터미널","routeid":"CAB285000007","routeno":11,"routetp":"일반버스","vehicletp":"일반차량"},{"arrprevstationcnt":17,"arrtime":1272,"nodeid":"CAB285000686","nodenm":"종합터미널","routeid":"CAB285000105","routeno":200,"routetp":"일반버스","vehicletp":"일반차량"},{"arrprevstationcnt":27,"arrtime":1696,"nodeid":"CAB285000686","nodenm":"종합터미널","routeid":"CAB285000107","routeno":201,"routetp":"일반버스","vehicletp":"일반차량"}]},"numOfRows":30,"pageNo":1,"totalCount":4}}}
