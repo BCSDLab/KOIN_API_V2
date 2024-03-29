@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,13 +16,7 @@ import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
-
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.domain.user.dto.NotificationPermitRequest;
-import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -135,51 +131,5 @@ public interface UserApi {
     ResponseEntity<Void> checkDuplicationOfNickname(
         @ModelAttribute("nickname")
         @Valid NicknameCheckExistsRequest request
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "푸쉬알림 동의 여부 조회")
-    @GetMapping("/user/notification")
-    ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
-        @Auth(permit = {STUDENT, OWNER}) Long memberId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400"),
-            @ApiResponse(responseCode = "401"),
-            @ApiResponse(responseCode = "403"),
-            @ApiResponse(responseCode = "404"),
-        }
-    )
-    @Operation(summary = "푸쉬알림 동의")
-    @PostMapping("/user/notification")
-    ResponseEntity<Void> permitNotification(
-        @Auth(permit = {STUDENT, OWNER}) Long memberId,
-        @Valid @RequestBody NotificationPermitRequest request
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400"),
-            @ApiResponse(responseCode = "401"),
-            @ApiResponse(responseCode = "403"),
-            @ApiResponse(responseCode = "404"),
-        }
-    )
-    @Operation(summary = "푸쉬알림 거절")
-    @DeleteMapping("/user/notification")
-    ResponseEntity<Void> rejectNotification(
-        @Auth(permit = {STUDENT, OWNER}) Long memberId
     );
 }
