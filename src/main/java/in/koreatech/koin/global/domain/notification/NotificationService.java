@@ -7,6 +7,7 @@ import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
+import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.fcm.FcmClient;
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +18,7 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
     private final FcmClient fcmClient;
+    private final NotificationSubscribeRepository notificationSubscribeRepository;
 
     public void push(Notification notification) {
         notificationRepository.save(notification);
@@ -46,5 +48,10 @@ public class NotificationService {
     public void rejectNotification(Long userId) {
         User user = userRepository.getById(userId);
         user.rejectNotification();
+    }
+
+    @Transactional
+    public void rejectNotificationByType(Long userId, NotificationSubscribeType subscribeType) {
+        notificationSubscribeRepository.deleteByUserIdAndNotificationSubscribeType(userId, subscribeType.name());
     }
 }

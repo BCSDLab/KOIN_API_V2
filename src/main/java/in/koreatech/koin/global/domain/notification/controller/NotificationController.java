@@ -44,10 +44,18 @@ public class NotificationController implements NotificationApi {
 
     @DeleteMapping("/notification")
     public ResponseEntity<Void> rejectNotification(
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+    ) {
+        notificationService.rejectNotification(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/notification/subscribe")
+    public ResponseEntity<Void> rejectNotificationSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
         @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
     ) {
-        notificationService.rejectNotification(userId);
-        return ResponseEntity.ok().build();
+        notificationService.rejectNotificationByType(userId, notificationSubscribeType);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import in.koreatech.koin.global.domain.notification.exception.SubscribeNotFoundException;
 
 public enum NotificationSubscribeType {
-    ALL,
     SHOP_EVENT,
     DINING_SOLDOUT,
     ;

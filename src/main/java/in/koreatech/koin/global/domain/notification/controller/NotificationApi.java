@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.user.dto.NotificationPermitRequest;
 import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.domain.notification.NotificationSubscribeType;
+import in.koreatech.koin.global.domain.notification.dto.NotificationSubscribePermitRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -68,9 +69,40 @@ public interface NotificationApi {
             @ApiResponse(responseCode = "404"),
         }
     )
+    @Operation(summary = "특정 푸쉬알림 구독")
+    @PostMapping("/notification/subscribe")
+    ResponseEntity<Void> permitNotificationSubscribe(
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Valid @RequestBody NotificationSubscribePermitRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400"),
+            @ApiResponse(responseCode = "401"),
+            @ApiResponse(responseCode = "403"),
+            @ApiResponse(responseCode = "404"),
+        }
+    )
     @Operation(summary = "푸쉬알림 거절")
     @DeleteMapping("/notification")
     ResponseEntity<Void> rejectNotification(
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400"),
+            @ApiResponse(responseCode = "401"),
+            @ApiResponse(responseCode = "403"),
+            @ApiResponse(responseCode = "404"),
+        }
+    )
+    @Operation(summary = "특정 푸쉬알림 구독 취소")
+    @DeleteMapping("/notification/subscribe")
+    ResponseEntity<Void> rejectNotificationSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
         @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
     );

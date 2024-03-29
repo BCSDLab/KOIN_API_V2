@@ -8,4 +8,6 @@ import in.koreatech.koin.global.domain.notification.NotificationSubscribe;
 public interface NotificationSubscribeRepository extends Repository<NotificationSubscribe, Long> {
 
     Notification save(Notification notification);
+
+    void deleteByUserIdAndNotificationSubscribeType(Long userId, String type);
 }
