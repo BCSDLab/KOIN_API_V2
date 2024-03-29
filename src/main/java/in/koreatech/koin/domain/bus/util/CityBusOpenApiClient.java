@@ -49,7 +49,6 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
 
-    @Value("${OPEN_API_KEY}")
     private final String openApiKey;
 
     private final Gson gson;
@@ -120,7 +119,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
         versionRepository.getByType(VersionType.CITY).update(updatedClock);
     }
 
-    private String getOpenApiResponse(String nodeId) {
+    public String getOpenApiResponse(String nodeId) {
         try {
             URL url = new URL(getRequestURL(CHEONAN_CITY_CODE, nodeId));
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
@@ -142,13 +141,13 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
             input.close();
             conn.disconnect();
             return response.toString();
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             return null;
         }
     }
 
     private String getRequestURL(String cityCode, String nodeId) throws UnsupportedEncodingException {
-        String url = "http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList";
+        String url = "https://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList";
         String contentCount = "30";
         StringBuilder urlBuilder = new StringBuilder(url);
         urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));

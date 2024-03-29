@@ -4,17 +4,16 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
@@ -44,9 +43,6 @@ class BusApiTest extends AcceptanceTest {
 
     @Autowired
     private CityBusCacheRepository cityBusCacheRepository;
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
 
     @Test
     @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
@@ -121,13 +117,17 @@ class BusApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - Redis")
-    void getNextCityBusRemainTime() {
+    void getNextCityBusRemainTimeRedis() {
         final long remainTime = 600L;
         final long busNumber = 400;
 
-        when(clock.instant()).thenReturn(
-            ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
         when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+
+        when(clock.instant())
+            .thenReturn(
+                ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
+                    .toInstant()
+            );
 
         BusType busType = BusType.from("city");
         BusStation depart = BusStation.from("terminal");
@@ -141,8 +141,11 @@ class BusApiTest extends AcceptanceTest {
                 .build()
         );
 
-        ReflectionTestUtils.setField(version, "updatedAt", LocalDateTime.of(2024, 2, 21, 18, 0, 0, 0));
-        versionRepository.save(version);
+        when(clock.instant())
+            .thenReturn(
+                ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
+                    .toInstant()
+            );
 
         cityBusCacheRepository.save(
             CityBusCache.create(
@@ -181,10 +184,103 @@ class BusApiTest extends AcceptanceTest {
             }
         );
     }
+
+    @Test
+    @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - OpenApi")
+    void getNextCityBusRemainTimeOpenApi() {
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+
+        when(clock.instant())
+            .thenReturn(
+                ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
+                    .toInstant()
+            );
+
+        BusType busType = BusType.from("city");
+        BusStation depart = BusStation.from("terminal");
+        BusStation arrival = BusStation.from("koreatech");
+        BusDirection direction = BusStation.getDirection(depart, arrival);
+
+        Version version = versionRepository.save(
+            Version.builder()
+                .version("20240_1711255839")
+                .type("city_bus_timetable")
+                .build()
+        );
+
+        when(clock.instant())
+            .thenReturn(
+                ZonedDateTime.parse("2024-02-21 21:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
+                    .toInstant()
+            );
+
+        String json = """
+            {
+              "response": {
+                "header": {
+                  "resultCode": "00",
+                  "resultMsg": "NORMAL SERVICE."
+                },
+                "body": {
+                  "items": {
+                    "item": [
+                      {
+                        "arrprevstationcnt": 3,
+                        "arrtime": 600,
+                        "nodeid": "CAB285000686",
+                        "nodenm": "종합터미널",
+                        "routeid": "CAB285000003",
+                        "routeno": 400,
+                        "routetp": "일반버스",
+                        "vehicletp": "저상버스"
+                      },
+                      {
+                        "arrprevstationcnt": 10,
+                        "arrtime": 800,
+                        "nodeid": "CAB285000686",
+                        "nodenm": "종합터미널",
+                        "routeid": "CAB285000024",
+                        "routeno": 405,
+                        "routetp": "일반버스",
+                        "vehicletp": "일반차량"
+                      }
+                    ]
+                  },
+                  "numOfRows": 30,
+                  "pageNo": 1,
+                  "totalCount": 2
+                }
+              }
+            }
+            """;
+
+        // TODO CityBusOpenApiClient.getOpenApiResponse() Mocking
+        // when(cityBusOpenApiClient.getOpenApiResponse(depart.getNodeId(direction))).thenReturn(json);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .param("bus_type", busType.name().toLowerCase())
+            .param("depart", depart.name())
+            .param("arrival", arrival.name())
+            .get("/bus")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getString("bus_type"))
+                    .isEqualTo(busType.name().toLowerCase());
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(400);
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.remain_time"))
+                    .isEqualTo(
+                        BusRemainTime.from(600L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
+                softly.assertThat((Long)response.body().jsonPath().getLong("next_bus.bus_number")).isEqualTo(405);
+                softly.assertThat((Long)response.body().jsonPath().getLong("next_bus.remain_time"))
+                    .isEqualTo(
+                        BusRemainTime.from(800L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
+            }
+        );
+    }
 }
-
-
-
-// 터미널 -> 코리아텍
-// 686
-// {"response":{"header":{"resultCode":"00","resultMsg":"NORMAL SERVICE."},"body":{"items":{"item":[{"arrprevstationcnt":5,"arrtime":560,"nodeid":"CAB285000686","nodenm":"종합터미널","routeid":"CAB285000222","routeno":700,"routetp":"일반버스","vehicletp":"일반차량"},{"arrprevstationcnt":3,"arrtime":263,"nodeid":"CAB285000686","nodenm":"종합터미널","routeid":"CAB285000007","routeno":11,"routetp":"일반버스","vehicletp":"일반차량"},{"arrprevstationcnt":17,"arrtime":1272,"nodeid":"CAB285000686","nodenm":"종합터미널","routeid":"CAB285000105","routeno":200,"routetp":"일반버스","vehicletp":"일반차량"},{"arrprevstationcnt":27,"arrtime":1696,"nodeid":"CAB285000686","nodenm":"종합터미널","routeid":"CAB285000107","routeno":201,"routetp":"일반버스","vehicletp":"일반차량"}]},"numOfRows":30,"pageNo":1,"totalCount":4}}}
