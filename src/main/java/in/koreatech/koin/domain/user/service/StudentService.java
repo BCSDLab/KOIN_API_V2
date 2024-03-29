@@ -35,8 +35,7 @@ public class StudentService {
         CheckNicknameDuplication(request.nickname());
         user.update(request.nickname(), request.name(),
             request.phoneNumber(), UserGender.from(request.gender()));
-        student.update(request.studentNumber(),
-            StudentDepartment.from(request.major()).getValue());
+        student.update(request.studentNumber(), StudentDepartment.from(request.major()));
         studentRepository.save(student);
 
         return StudentUpdateResponse.from(student);
