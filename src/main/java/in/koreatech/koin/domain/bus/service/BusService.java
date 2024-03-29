@@ -28,7 +28,7 @@ public class BusService {
 
     private final Clock clock;
     private final BusRepository busRepository;
-    private final Map<String, BusOpenApiClient<? extends BusRemainTime>> busOpenApiRequesters;
+    private final Map<String, BusOpenApiClient<? extends BusRemainTime>> busOpenApiClient;
 
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(String busTypeName, String departName, String arrivalName) {
@@ -40,7 +40,7 @@ public class BusService {
 
         List<? extends BusRemainTime> remainTimes = new ArrayList<>();
         if (busType == BusType.CITY || busType == BusType.EXPRESS) {
-            remainTimes = busOpenApiRequesters.get(BusApiType.from(busType).getValue())
+            remainTimes = busOpenApiClient.get(BusApiType.from(busType).getValue())
                 .getBusRemainTime(depart.getNodeId(direction));
         }
         else if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
