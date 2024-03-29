@@ -11,6 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import in.koreatech.koin.global.auth.AuthArgumentResolver;
 import in.koreatech.koin.global.auth.ExtractAuthenticationInterceptor;
+import in.koreatech.koin.global.auth.UserIdArgumentResolver;
 import in.koreatech.koin.global.domain.upload.controller.ImageUploadDomainEnumConverter;
 import in.koreatech.koin.global.ipaddress.IpAddressArgumentResolver;
 import in.koreatech.koin.global.ipaddress.IpAddressInterceptor;
@@ -22,6 +23,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final ExtractAuthenticationInterceptor extractAuthenticationInterceptor;
     private final IpAddressArgumentResolver ipAddressArgumentResolver;
+    private final UserIdArgumentResolver userIdArgumentResolver;
     private final AuthArgumentResolver authArgumentResolver;
     private final IpAddressInterceptor ipAddressInterceptor;
 
@@ -39,6 +41,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(authArgumentResolver);
         resolvers.add(ipAddressArgumentResolver);
+        resolvers.add(userIdArgumentResolver);
     }
 
     @Override

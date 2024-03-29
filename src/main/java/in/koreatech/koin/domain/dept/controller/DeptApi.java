@@ -6,8 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.dept.dto.DeptListItemResponse;
 import in.koreatech.koin.domain.dept.dto.DeptResponse;
+import in.koreatech.koin.domain.dept.dto.DeptsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -38,5 +38,5 @@ public interface DeptApi {
     )
     @Operation(summary = "학과 목록 조회")
     @GetMapping("/depts")
-    ResponseEntity<List<DeptListItemResponse>> getAllDept();
+    ResponseEntity<List<DeptsResponse>> getAllDept();
 }

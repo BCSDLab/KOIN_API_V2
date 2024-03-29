@@ -8,13 +8,10 @@ import in.koreatech.koin.domain.owner.exception.AttachmentNotFoundException;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
@@ -40,11 +37,6 @@ public class OwnerAttachment extends BaseEntity {
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "owner_id", nullable = false, referencedColumnName = "user_id")
-    private Owner owner;
-
-    @NotNull
     @Lob
     @Column(name = "url", nullable = false)
     private String url;
@@ -68,8 +60,7 @@ public class OwnerAttachment extends BaseEntity {
     }
 
     @Builder
-    private OwnerAttachment(Owner owner, String url, Boolean isDeleted, String name) {
-        this.owner = owner;
+    private OwnerAttachment(String url, Boolean isDeleted, String name) {
         this.url = url;
         this.isDeleted = isDeleted;
         this.name = name;
