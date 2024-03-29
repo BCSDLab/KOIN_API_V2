@@ -1,6 +1,8 @@
-package in.koreatech.koin.global.domain.notification;
+package in.koreatech.koin.global.domain.notification.repository;
 
 import org.springframework.data.repository.Repository;
+
+import in.koreatech.koin.global.domain.notification.Notification;
 
 public interface NotificationRepository extends Repository<Notification, Long> {
 

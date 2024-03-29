@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.global.fcm.FcmClient;
 import lombok.RequiredArgsConstructor;
 
