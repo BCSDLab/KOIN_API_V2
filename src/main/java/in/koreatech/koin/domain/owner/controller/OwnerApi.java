@@ -90,8 +90,6 @@ public interface OwnerApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
@@ -99,15 +97,12 @@ public interface OwnerApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/password/reset/verification")
     ResponseEntity<Void> sendResetPasswordEmail(
-        @Auth(permit = {OWNER}) Long userId,
         @Valid @RequestBody OwnerSendEmailRequest request
     ) ;
 
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
         }
@@ -116,15 +111,12 @@ public interface OwnerApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/password/reset/send")
     ResponseEntity<Void> sendVerifyCode(
-        @Auth(permit = {OWNER}) Long userId,
         @Valid @RequestBody OwnerPasswordResetVerifyRequest request
     ) ;
 
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
@@ -132,7 +124,6 @@ public interface OwnerApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/owners/password/reset")
     ResponseEntity<Void> updatePassword(
-        @Auth(permit = {OWNER}) Long userId,
         @Valid @RequestBody OwnerPasswordUpdateRequest request
     ) ;
 }

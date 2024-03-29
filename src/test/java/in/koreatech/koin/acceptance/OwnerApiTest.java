@@ -521,23 +521,9 @@ class OwnerApiTest extends AcceptanceTest {
     @DisplayName("사장님이 비밀번호 변경을 위한 인증번호 이메일을 전송을 요청한다")
     void sendResetPasswordEmail() {
         // given
-        User user = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(OWNER)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-        userRepository.save(user);
-        String token = jwtProvider.createToken(user);
         String email = "test@test.com";
         RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
             .body(String.format("""
                     {
                       "address": "%s"
@@ -557,26 +543,12 @@ class OwnerApiTest extends AcceptanceTest {
     @DisplayName("사장님이 인증번호를 확인한다.")
     void ownerVerify() {
         // given
-        User user = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(OWNER)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-        userRepository.save(user);
-        String token = jwtProvider.createToken(user);
         String email = "test@test.com";
         String code = "123123";
         OwnerInVerification verification = OwnerInVerification.of(email, code);
         ownerInVerificationRedisRepository.save(verification);
         RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
             .body(String.format("""
                     {
                       "address": "%s",
@@ -603,26 +575,12 @@ class OwnerApiTest extends AcceptanceTest {
     @DisplayName("사장님이 인증번호를 확인한다. - 중복 시 409를 반환한다.")
     void ownerVerifyDuplicated() {
         // given
-        User user = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(OWNER)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-        userRepository.save(user);
-        String token = jwtProvider.createToken(user);
         String email = "test@test.com";
         String code = "123123";
         OwnerInVerification verification = OwnerInVerification.of(email, code);
         ownerInVerificationRedisRepository.save(verification);
         RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
             .body(String.format("""
                     {
                       "address": "%s",
@@ -638,7 +596,6 @@ class OwnerApiTest extends AcceptanceTest {
 
         RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
             .body(String.format("""
                     {
                       "address": "%s",
@@ -677,7 +634,6 @@ class OwnerApiTest extends AcceptanceTest {
         String password = "asdf1234!";
         RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
             .body(String.format("""
                     {
                        "address": "%s",
@@ -704,32 +660,19 @@ class OwnerApiTest extends AcceptanceTest {
     @DisplayName("사장님이 비밀번호를 변경한다. - 인증되지 않으면 400을 반환한다.")
     void ownerChangePasswordNotAuthed() {
         // given
-        User user = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(OWNER)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-        userRepository.save(user);
-        String token = jwtProvider.createToken(user);
+        String email = "test@test.com";
         String code = "123123";
-        OwnerInVerification verification = OwnerInVerification.of(user.getEmail(), code);
+        OwnerInVerification verification = OwnerInVerification.of(email, code);
         ownerInVerificationRedisRepository.save(verification);
         String password = "asdf1234!";
         RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
             .body(String.format("""
                     {
                        "address": "%s",
                        "password": "%s"
                      }
-                """, user.getEmail(), password)
+                """, email, password)
             )
             .contentType(ContentType.JSON)
             .when()

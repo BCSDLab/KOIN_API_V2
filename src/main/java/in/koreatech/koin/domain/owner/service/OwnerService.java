@@ -129,12 +129,12 @@ public class OwnerService {
     }
 
     @Transactional
-    public void updatePassword(Long userId, OwnerPasswordUpdateRequest request) {
+    public void updatePassword(OwnerPasswordUpdateRequest request) {
         var verification = ownerInVerificationRedisRepository.getByEmail(request.email());
         if (!verification.isAuthed()) {
             throw new IllegalArgumentException("인증이 완료되지 않았습니다.");
         }
-        User user = userRepository.getById(userId);
+        User user = userRepository.getByEmail(request.email());
         user.updatePassword(passwordEncoder, request.password());
         userRepository.save(user);
         ownerInVerificationRedisRepository.deleteById(verification.getEmail());

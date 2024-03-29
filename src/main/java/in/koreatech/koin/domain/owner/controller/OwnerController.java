@@ -62,7 +62,6 @@ public class OwnerController implements OwnerApi {
 
     @PostMapping("/owners/password/reset/verification")
     public ResponseEntity<Void> sendResetPasswordEmail(
-        @Auth(permit = {OWNER}) Long userId,
         @Valid @RequestBody OwnerSendEmailRequest request
     ) {
         ownerService.sendResetPasswordEmail(request);
@@ -71,7 +70,6 @@ public class OwnerController implements OwnerApi {
 
     @PostMapping("/owners/password/reset/send")
     public ResponseEntity<Void> sendVerifyCode(
-        @Auth(permit = {OWNER}) Long userId,
         @Valid @RequestBody OwnerPasswordResetVerifyRequest request
     ) {
         ownerService.verifyResetPasswordCode(request);
@@ -80,10 +78,9 @@ public class OwnerController implements OwnerApi {
 
     @PutMapping("/owners/password/reset")
     public ResponseEntity<Void> updatePassword(
-        @Auth(permit = {OWNER}) Long userId,
         @Valid @RequestBody OwnerPasswordUpdateRequest request
     ) {
-        ownerService.updatePassword(userId, request);
+        ownerService.updatePassword(request);
         return ResponseEntity.ok().build();
     }
 }
