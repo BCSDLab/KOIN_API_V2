@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -82,6 +83,11 @@ public class UserController implements UserApi {
     ) {
         userService.checkExistsEmail(request);
         return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> studentRegister(StudentRegisterRequest studentRegisterRequest) {
+        return null;
     }
 
     @GetMapping("/user/check/nickname")

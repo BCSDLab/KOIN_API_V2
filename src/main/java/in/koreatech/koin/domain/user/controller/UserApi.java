@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
@@ -89,6 +90,20 @@ public interface UserApi {
     @PostMapping("/user/refresh")
     ResponseEntity<UserTokenRefreshResponse> refresh(
         @RequestBody @Valid UserTokenRefreshRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "회원가입")
+    @PostMapping("/user/student/register")
+    ResponseEntity<Void> studentRegister(
+        @RequestBody @Valid StudentRegisterRequest studentRegisterRequest
     );
 
     @ApiResponses(
