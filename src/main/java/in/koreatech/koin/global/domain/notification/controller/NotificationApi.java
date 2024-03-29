@@ -1,6 +1,8 @@
 package in.koreatech.koin.global.domain.notification.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -9,10 +11,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import in.koreatech.koin.domain.user.dto.NotificationPermitRequest;
-import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.domain.notification.NotificationSubscribeType;
+import in.koreatech.koin.global.domain.notification.dto.NotificationPermitRequest;
+import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.dto.NotificationSubscribePermitRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -43,7 +45,7 @@ public interface NotificationApi {
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "201"),
             @ApiResponse(responseCode = "400"),
             @ApiResponse(responseCode = "401"),
             @ApiResponse(responseCode = "403"),
@@ -59,7 +61,7 @@ public interface NotificationApi {
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "201"),
             @ApiResponse(responseCode = "400"),
             @ApiResponse(responseCode = "401"),
             @ApiResponse(responseCode = "403"),
@@ -75,7 +77,7 @@ public interface NotificationApi {
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "204"),
             @ApiResponse(responseCode = "400"),
             @ApiResponse(responseCode = "401"),
             @ApiResponse(responseCode = "403"),
@@ -90,7 +92,7 @@ public interface NotificationApi {
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "204"),
             @ApiResponse(responseCode = "400"),
             @ApiResponse(responseCode = "401"),
             @ApiResponse(responseCode = "403"),

@@ -6,6 +6,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.global.domain.notification.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.NotificationSubscribeType;
+import in.koreatech.koin.global.domain.notification.exception.NotificationSubscribeNotFoundException;
 
 public interface NotificationSubscribeRepository extends Repository<NotificationSubscribe, Long> {
 
@@ -15,7 +16,9 @@ public interface NotificationSubscribeRepository extends Repository<Notification
 
     default NotificationSubscribe getByUserIdAndSubscribeType(Long userId, NotificationSubscribeType type) {
         return findByUserIdAndSubscribeType(userId, type)
-            .orElseThrow(() -> NotificationSubscribeNotFoundException.withDetail("userId: " + userId + ", type: " + type);
+            .orElseThrow(
+                () -> NotificationSubscribeNotFoundException.withDetail("userId: " + userId + ", type: " + type)
+            );
     }
 
     void deleteByUserIdAndSubscribeType(Long userId, NotificationSubscribeType type);

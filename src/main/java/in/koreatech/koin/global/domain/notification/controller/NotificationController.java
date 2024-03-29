@@ -1,6 +1,8 @@
 package in.koreatech.koin.global.domain.notification.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,11 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.user.dto.NotificationPermitRequest;
-import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.domain.notification.NotificationService;
 import in.koreatech.koin.global.domain.notification.NotificationSubscribeType;
+import in.koreatech.koin.global.domain.notification.dto.NotificationPermitRequest;
+import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.dto.NotificationSubscribePermitRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +50,7 @@ public class NotificationController implements NotificationApi {
         @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
         @Valid @RequestBody NotificationSubscribePermitRequest subscribePermitRequest
     ) {
-        notificationService.permitNotification(userId, request.deviceToken());
+        notificationService.permitNotificationSubscribe(userId, subscribePermitRequest);
         return ResponseEntity.ok().build();
     }
 
