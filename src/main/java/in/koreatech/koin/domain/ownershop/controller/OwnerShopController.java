@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,12 @@ import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.global.auth.Auth;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -78,5 +85,23 @@ public class OwnerShopController implements OwnerShopApi {
     ) {
         MenuCategoriesResponse menuCategoriesResponse = ownerShopService.getCategories(shopId, ownerId);
         return ResponseEntity.ok(menuCategoriesResponse);
+    }
+
+    @DeleteMapping("/owner/shops/menus/{menuId}")
+    public ResponseEntity<Void> deleteMenuByMenuId(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("menuId") Long menuId
+    ) {
+        ownerShopService.deleteMenuByMenuId(ownerId, menuId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @DeleteMapping("/owner/shops/menus/categories/{categoryId}")
+    public ResponseEntity<Void> deleteCategory(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("categoryId") Long categoryId
+    ) {
+        ownerShopService.deleteCategory(ownerId, categoryId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

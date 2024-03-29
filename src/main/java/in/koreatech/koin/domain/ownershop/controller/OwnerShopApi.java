@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.ownershop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -120,5 +121,38 @@ public interface OwnerShopApi {
     ResponseEntity<MenuCategoriesResponse> getCategories(
         @Auth(permit = {OWNER}) Long ownerId,
         @RequestParam("shopId") Long shopId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점의 메뉴 삭제")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @DeleteMapping("/owner/shops/menus/{menuId}")
+    ResponseEntity<Void> deleteMenuByMenuId(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("menuId") Long menuId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점의 메뉴 카테고리 삭제")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @DeleteMapping("/owner/shops/menus/categories/{categoryId}")
+    ResponseEntity<Void> deleteCategory(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("categoryId") Long categoryId
     );
 }

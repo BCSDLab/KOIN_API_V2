@@ -13,6 +13,8 @@ public interface MenuRepository extends Repository<Menu, Long> {
 
     Menu save(Menu menu);
 
+    Void deleteById(Long id);
+
     default Menu getById(Long menuId) {
         return findById(menuId).orElseThrow(() -> MenuNotFoundException.withDetail("menuId: " + menuId));
     }
