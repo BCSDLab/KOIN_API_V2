@@ -5,6 +5,9 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -23,6 +26,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "shop_menus")
+@Where(clause = "is_deleted=0")
+@SQLDelete(sql = "UPDATE shop_menus SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = PROTECTED)
 public class Menu extends BaseEntity {
 

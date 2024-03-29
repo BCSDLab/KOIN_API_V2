@@ -119,15 +119,17 @@ public class OwnerShopService {
         return MenuCategoriesResponse.from(menuCategories);
     }
 
+    @Transactional
     public void deleteMenuByMenuId(Long ownerId, Long menuId) {
         Menu menu = menuRepository.getById(menuId);
-        Shop shop = getOwnerShopById(menu.getShopId(), ownerId);
+        getOwnerShopById(menu.getShopId(), ownerId);
         menuRepository.deleteById(menuId);
     }
 
+    @Transactional
     public void deleteCategory(Long ownerId, Long categoryId) {
         MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
-        Shop shop = getOwnerShopById(menuCategory.getShop().getId(), ownerId);
+        getOwnerShopById(menuCategory.getShop().getId(), ownerId);
         menuCategoryRepository.deleteById(categoryId);
     }
 }

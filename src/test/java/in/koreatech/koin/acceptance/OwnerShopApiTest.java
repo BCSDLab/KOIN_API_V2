@@ -20,6 +20,7 @@ import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
+import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -642,7 +643,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             }
         );
     }
-
     @Test
     @DisplayName("권한이 없는 상점 사장님이 특정 상점 조회")
     void ownerCannotQueryOtherStoresWithoutPermission() {
@@ -658,7 +658,54 @@ class OwnerShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("권한이 없는 상점 사장님이 특정 카테고리 조회")
+    @DisplayName("사장님이 메뉴 카테고리를 삭제한다.")
+    void deleteMenuCategory() {
+        // given
+        MenuCategory menuCategory = MenuCategory.builder()
+            .shop(shop)
+            .name("중식")
+            .build();
+        MenuCategory svaedMenuCategory = menuCategoryRepository.save(menuCategory);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .delete("/owner/shops/menus/categories/{categoryId}", svaedMenuCategory.getId())
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract();
+
+        boolean isPresent = menuCategoryRepository.findById(svaedMenuCategory.getId()).isPresent();
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(isPresent).isFalse());
+    }
+
+    @Test
+    @DisplayName("사장님이 메뉴를 삭제한다.")
+    void deleteMenu() {
+        // given
+        Menu menu = Menu.builder()
+            .shopId(1L)
+            .name("짜장면")
+            .description("맛있는 짜장면")
+            .build();
+        Menu savedMenu = menuRepository.save(menu);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .delete("/owner/shops/menus/{menuId}", savedMenu.getId())
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract();
+
+        boolean isPresent = menuRepository.findById(savedMenu.getId()).isPresent();
+        SoftAssertions.assertSoftly(softly -> softly.assertThat(isPresent).isFalse());
+    }
+
+    @Test
+    @DisplayName("권한이 없는 상점 사장님이 특정 카테고리 조회한다.")
     void ownerCannotQueryOtherCategoriesWithoutPermission() {
         // given
         RestAssured
@@ -673,7 +720,7 @@ class OwnerShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("권한이 없는 상점 사장님이 특정 메뉴 조회")
+    @DisplayName("권한이 없는 상점 사장님이 특정 메뉴 조회한다.")
     void ownerCannotQueryOtherMenusWithoutPermission() {
         // given
         RestAssured
@@ -682,6 +729,47 @@ class OwnerShopApiTest extends AcceptanceTest {
             .param("shopId", 1)
             .when()
             .get("/owner/shops/menus")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("권한이 없는 사장님이 메뉴 카테고리를 삭제한다.")
+    void ownerCannotDeleteOtherCategoriesWithoutPermission() {
+        // given
+        MenuCategory menuCategory = MenuCategory.builder()
+            .shop(shop)
+            .name("중식")
+            .build();
+        MenuCategory svaedMenuCategory = menuCategoryRepository.save(menuCategory);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + otherOwnerToken)
+            .when()
+            .delete("/owner/shops/menus/categories/{categoryId}", svaedMenuCategory.getId())
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("권한이 없는 사장님이 메뉴를 삭제한다.")
+    void ownerCannotDeleteOtherMenusWithoutPermission() {
+        // given
+        Menu menu = Menu.builder()
+            .shopId(1L)
+            .name("짜장면")
+            .description("맛있는 짜장면")
+            .build();
+        Menu savedMenu = menuRepository.save(menu);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + otherOwnerToken)
+            .when()
+            .delete("/owner/shops/menus/{menuId}", savedMenu.getId())
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
