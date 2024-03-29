@@ -29,14 +29,14 @@ public class StudentService {
     }
 
     @Transactional
-    public StudentUpdateResponse updateStudent(Long userId, StudentUpdateRequest studentUpdateRequest) {
+    public StudentUpdateResponse updateStudent(Long userId, StudentUpdateRequest request) {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
-        CheckNicknameDuplication(studentUpdateRequest.nickname());
-        user.update(studentUpdateRequest.nickname(), studentUpdateRequest.name(),
-            studentUpdateRequest.phoneNumber(), UserGender.from(studentUpdateRequest.gender()));
-        student.update(studentUpdateRequest.studentNumber(),
-            StudentDepartment.from(studentUpdateRequest.major()));
+        CheckNicknameDuplication(request.nickname());
+        user.update(request.nickname(), request.name(),
+            request.phoneNumber(), UserGender.from(request.gender()));
+        student.update(request.studentNumber(),
+            StudentDepartment.from(request.major()));
         studentRepository.save(student);
 
         return StudentUpdateResponse.from(student);

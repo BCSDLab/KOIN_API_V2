@@ -10,6 +10,9 @@ public enum UserGender {
     ;
 
     public static UserGender from(Integer index) {
+        if (index == null) {
+            return null;
+        }
         return Arrays.stream(values())
             .filter(it -> it.ordinal() == index)
             .findAny()
