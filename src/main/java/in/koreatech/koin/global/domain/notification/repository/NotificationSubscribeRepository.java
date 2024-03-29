@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.global.domain.notification.NotificationSubscribe;
-import in.koreatech.koin.global.domain.notification.NotificationSubscribeType;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.exception.NotificationSubscribeNotFoundException;
 
 public interface NotificationSubscribeRepository extends Repository<NotificationSubscribe, Long> {

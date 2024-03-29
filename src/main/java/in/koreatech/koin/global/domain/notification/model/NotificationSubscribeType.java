@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.domain.notification;
+package in.koreatech.koin.global.domain.notification.model;
 
 import java.util.Arrays;
 

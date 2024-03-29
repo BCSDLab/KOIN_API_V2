@@ -1,6 +1,6 @@
 package in.koreatech.koin.global.domain.notification.dto;
 
-import in.koreatech.koin.global.domain.notification.NotificationSubscribeType;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 

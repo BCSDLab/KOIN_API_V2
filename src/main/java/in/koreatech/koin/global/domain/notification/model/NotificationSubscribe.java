@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.domain.notification;
+package in.koreatech.koin.global.domain.notification.model;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
@@ -7,6 +7,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;

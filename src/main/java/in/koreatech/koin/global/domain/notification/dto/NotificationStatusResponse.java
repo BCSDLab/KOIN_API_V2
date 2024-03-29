@@ -3,8 +3,8 @@ package in.koreatech.koin.global.domain.notification.dto;
 import java.util.Arrays;
 import java.util.List;
 
-import in.koreatech.koin.global.domain.notification.NotificationSubscribe;
-import in.koreatech.koin.global.domain.notification.NotificationSubscribeType;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record NotificationStatusResponse(

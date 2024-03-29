@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.domain.notification;
+package in.koreatech.koin.global.domain.notification.service;
 
 import java.util.List;
 
@@ -7,8 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.dto.NotificationSubscribePermitRequest;
+import in.koreatech.koin.global.domain.notification.model.Notification;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.fcm.FcmClient;
