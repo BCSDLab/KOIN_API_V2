@@ -130,4 +130,103 @@ class NotificationApiTest extends AcceptanceTest {
             }
         );
     }
+
+    @Test
+    @DisplayName("전체 알림 구독을 취소한다. - 디바이스 토큰을 삭제한다.")
+    void deleteDeviceToken() {
+
+        String deviceToken = "testToken";
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + userToken)
+            .body(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                """, deviceToken))
+
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/notification")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        User changedDeviceTokenUser = userRepository.getById(user.getId());
+
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(changedDeviceTokenUser.getDeviceToken()).isEqualTo(deviceToken);
+            }
+        );
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + userToken)
+            .when()
+            .delete("/notification")
+            .then().log().all()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract();
+
+        User noneDeviceTokenUser = userRepository.getById(user.getId());
+
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(noneDeviceTokenUser.getDeviceToken()).isNull();
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("특정 알림 구독을 취소한다.")
+    void deleteNotificationSubscribe() {
+
+        NotificationSubscribe SubscribeShopEvent = NotificationSubscribe.builder()
+            .subscribeType(NotificationSubscribeType.SHOP_EVENT)
+            .user(user)
+            .build();
+
+        NotificationSubscribe SubscribeDiningSoldOut = NotificationSubscribe.builder()
+            .subscribeType(NotificationSubscribeType.DINING_SOLD_OUT)
+            .user(user)
+            .build();
+
+        notificationSubscribeRepository.save(SubscribeShopEvent);
+        notificationSubscribeRepository.save(SubscribeDiningSoldOut);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + userToken)
+            .param("type", NotificationSubscribeType.SHOP_EVENT)
+            .when()
+            .delete("/notification/subscribe")
+            .then().log().all()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract();
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + userToken)
+            .when()
+            .get("/notification")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getBoolean("is_permit")).isFalse();
+                softly.assertThat(response.body().jsonPath().getList("subscribes").size()).isEqualTo(2);
+                softly.assertThat(response.body().jsonPath().getString("subscribes[0].type"))
+                    .isEqualTo("SHOP_EVENT");
+                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[0].is_permit")).isFalse();
+                softly.assertThat(response.body().jsonPath().getString("subscribes[1].type")).isEqualTo(
+                    "DINING_SOLD_OUT");
+                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[1].is_permit")).isTrue();
+            }
+        );
+    }
 }
