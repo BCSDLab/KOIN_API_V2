@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.ownershop.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,7 +91,7 @@ public class OwnerShopService {
 
     private Shop getOwnerShopById(Long shopId, Long ownerId) {
         Shop shop = shopRepository.getById(shopId);
-        if (shop.getOwner().getId() != ownerId) {
+        if (!Objects.equals(shop.getOwner().getId(), ownerId)) {
             throw AuthorizationException.withDetail("ownerId: " + ownerId);
         }
         return shop;
@@ -98,7 +99,7 @@ public class OwnerShopService {
 
     public MenuDetailResponse getMenuByMenuId(Long ownerId, Long menuId) {
         Menu menu = menuRepository.getById(menuId);
-        Shop shop = getOwnerShopById(menu.getShopId(), ownerId);
+        getOwnerShopById(menu.getShopId(), ownerId);
         List<MenuCategory> menuCategories = menu.getMenuCategoryMaps()
             .stream()
             .map(MenuCategoryMap::getMenuCategory)
