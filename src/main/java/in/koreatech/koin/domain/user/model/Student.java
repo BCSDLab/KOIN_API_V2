@@ -60,8 +60,8 @@ public class Student {
         this.user = user;
     }
 
-    public void update(String studentNumber, StudentDepartment studentDepartment) {
+    public void update(String studentNumber, String studentDepartment) {
         this.studentNumber = studentNumber;
-        this.department = studentDepartment;
+        this.department = StudentDepartment.from(studentDepartment);
     }
 }
