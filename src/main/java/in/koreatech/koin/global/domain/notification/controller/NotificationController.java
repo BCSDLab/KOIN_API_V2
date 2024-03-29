@@ -50,7 +50,7 @@ public class NotificationController implements NotificationApi {
         @Valid @RequestBody NotificationSubscribePermitRequest subscribePermitRequest
     ) {
         notificationService.permitNotificationSubscribe(userId, subscribePermitRequest);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/notification")
