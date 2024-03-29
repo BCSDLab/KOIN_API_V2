@@ -1,7 +1,6 @@
 package in.koreatech.koin.global.domain.notification.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.*;
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -9,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.user.dto.NotificationPermitRequest;
 import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
@@ -56,8 +54,7 @@ public interface NotificationApi {
     @PostMapping("/notification")
     ResponseEntity<Void> permitNotification(
         @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
-        @Valid @RequestBody NotificationPermitRequest request,
-        @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
+        @Valid @RequestBody NotificationPermitRequest request
     );
 
     @ApiResponses(

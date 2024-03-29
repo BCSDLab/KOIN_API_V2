@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.domain.notification.dto.NotificationSubscribePermitRequest;
 import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.fcm.FcmClient;
@@ -45,6 +46,16 @@ public class NotificationService {
     }
 
     @Transactional
+    public void permitNotificationSubscribe(Long userId, NotificationSubscribePermitRequest request) {
+        User user = userRepository.getById(userId);
+        NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
+            .user(user)
+            .subscribeType(request.type())
+            .build();
+        notificationSubscribeRepository.save(notificationSubscribe);
+    }
+
+    @Transactional
     public void rejectNotification(Long userId) {
         User user = userRepository.getById(userId);
         user.rejectNotification();
@@ -52,6 +63,6 @@ public class NotificationService {
 
     @Transactional
     public void rejectNotificationByType(Long userId, NotificationSubscribeType subscribeType) {
-        notificationSubscribeRepository.deleteByUserIdAndNotificationSubscribeType(userId, subscribeType.name());
+        notificationSubscribeRepository.deleteByUserIdAndSubscribeType(userId, subscribeType);
     }
 }

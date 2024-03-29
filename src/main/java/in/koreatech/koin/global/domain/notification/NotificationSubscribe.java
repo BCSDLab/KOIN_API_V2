@@ -1,20 +1,20 @@
 package in.koreatech.koin.global.domain.notification;
 
+import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static lombok.AccessLevel.PROTECTED;
+
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import static jakarta.persistence.EnumType.STRING;
 import jakarta.persistence.Enumerated;
-import static jakarta.persistence.FetchType.LAZY;
 import jakarta.persistence.GeneratedValue;
-import static jakarta.persistence.GenerationType.IDENTITY;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import static lombok.AccessLevel.PROTECTED;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,16 +29,17 @@ public class NotificationSubscribe extends BaseEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @Column(name = "notification_subscribe_type", nullable = false)
-    private String notificationSubscribeType;
+    @Enumerated(STRING)
+    @Column(name = "subscribe_type", nullable = false)
+    private NotificationSubscribeType subscribeType;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Builder
-    private NotificationSubscribe(String notificationSubscribeType, User user) {
-        this.notificationSubscribeType = notificationSubscribeType;
+    private NotificationSubscribe(NotificationSubscribeType subscribeType, User user) {
+        this.subscribeType = subscribeType;
         this.user = user;
     }
 }

@@ -1,10 +1,10 @@
-CREATE TABLE if not exists notification_subscribe
+CREATE TABLE notification_subscribe
 (
-    id                          BIGINT AUTO_INCREMENT NOT NULL,
-    created_at                  datetime              NOT NULL,
-    updated_at                  datetime              NOT NULL,
-    notification_subscribe_type VARCHAR(255)          NOT NULL,
-    user_id                     BIGINT                NOT NULL,
+    id             BIGINT AUTO_INCREMENT NOT NULL,
+    created_at     datetime              NOT NULL,
+    updated_at     datetime              NOT NULL,
+    subscribe_type VARCHAR(255)          NOT NULL,
+    user_id        BIGINT                NOT NULL,
     CONSTRAINT pk_notification_subscribe PRIMARY KEY (id)
 );
 

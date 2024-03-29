@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.domain.notification.NotificationService;
 import in.koreatech.koin.global.domain.notification.NotificationSubscribeType;
+import in.koreatech.koin.global.domain.notification.dto.NotificationSubscribePermitRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -37,6 +38,15 @@ public class NotificationController implements NotificationApi {
         @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
         @Valid @RequestBody NotificationPermitRequest request,
         @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
+    ) {
+        notificationService.permitNotification(userId, request.deviceToken());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/notification/subscribe")
+    public ResponseEntity<Void> permitNotificationSubscribe(
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Valid @RequestBody NotificationSubscribePermitRequest subscribePermitRequest
     ) {
         notificationService.permitNotification(userId, request.deviceToken());
         return ResponseEntity.ok().build();
