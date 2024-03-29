@@ -5,15 +5,16 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.user.dto.NotificationPermitRequest;
 import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
-import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.domain.notification.NotificationService;
+import in.koreatech.koin.global.domain.notification.NotificationSubscribeType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -21,30 +22,32 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NotificationController implements NotificationApi {
 
-    private final UserService userService;
     private final NotificationService notificationService;
 
     @GetMapping("/notification")
     public ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long memberId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
     ) {
-        return ResponseEntity.ok(notificationService.checkNotification(memberId));
+        return ResponseEntity.ok(notificationService.checkNotification(userId));
     }
 
     @PostMapping("/notification")
     public ResponseEntity<Void> permitNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long memberId,
-        @Valid @RequestBody NotificationPermitRequest request
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Valid @RequestBody NotificationPermitRequest request,
+        @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
     ) {
-        userService.permitNotification(memberId, request.deviceToken());
+        notificationService.permitNotification(userId, request.deviceToken());
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/notification")
     public ResponseEntity<Void> rejectNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long memberId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
     ) {
-        userService.rejectNotification(memberId);
+        notificationService.rejectNotification(userId);
         return ResponseEntity.ok().build();
     }
 }

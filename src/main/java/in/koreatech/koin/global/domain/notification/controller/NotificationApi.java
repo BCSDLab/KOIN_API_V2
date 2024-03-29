@@ -6,12 +6,15 @@ import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.user.dto.NotificationPermitRequest;
 import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.domain.notification.NotificationSubscribeType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,7 +38,8 @@ public interface NotificationApi {
     @Operation(summary = "푸쉬알림 동의 여부 조회")
     @GetMapping("/notification")
     ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long memberId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
     );
 
     @ApiResponses(
@@ -50,8 +54,9 @@ public interface NotificationApi {
     @Operation(summary = "푸쉬알림 동의")
     @PostMapping("/notification")
     ResponseEntity<Void> permitNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long memberId,
-        @Valid @RequestBody NotificationPermitRequest request
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Valid @RequestBody NotificationPermitRequest request,
+        @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
     );
 
     @ApiResponses(
@@ -66,6 +71,7 @@ public interface NotificationApi {
     @Operation(summary = "푸쉬알림 거절")
     @DeleteMapping("/notification")
     ResponseEntity<Void> rejectNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long memberId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
     );
 }
