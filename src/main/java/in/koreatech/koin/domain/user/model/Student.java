@@ -34,7 +34,6 @@ public class Student {
     private String studentNumber;
 
     @Column(name = "major", length = 50)
-    @Enumerated(EnumType.STRING)
     private StudentDepartment department;
 
     @Column(name = "identity")
