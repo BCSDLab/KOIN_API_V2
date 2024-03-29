@@ -39,8 +39,7 @@ public interface NotificationApi {
     @Operation(summary = "푸쉬알림 동의 여부 조회")
     @GetMapping("/notification")
     ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
-        @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
     );
 
     @ApiResponses(

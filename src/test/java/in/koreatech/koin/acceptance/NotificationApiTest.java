@@ -74,6 +74,7 @@ class NotificationApiTest extends AcceptanceTest {
             .when()
             .get("/notification")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

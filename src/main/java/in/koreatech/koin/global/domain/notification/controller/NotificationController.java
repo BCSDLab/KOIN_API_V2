@@ -29,8 +29,7 @@ public class NotificationController implements NotificationApi {
 
     @GetMapping("/notification")
     public ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
-        @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
     ) {
         return ResponseEntity.ok(notificationService.checkNotification(userId));
     }
