@@ -32,20 +32,20 @@ public class StudentService {
     public StudentUpdateResponse updateStudent(Long userId, StudentUpdateRequest studentUpdateRequest) {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
-
-        if (studentUpdateRequest.nickname() != null &&
-            userRepository.existsByNickname(studentUpdateRequest.nickname())) {
-            throw DuplicationNicknameException.withDetail("nickname : " + studentUpdateRequest.nickname());
-        }
-
+        CheckNicknameDuplication(studentUpdateRequest.nickname());
         user.update(studentUpdateRequest.nickname(), studentUpdateRequest.name(),
             studentUpdateRequest.phoneNumber(), UserGender.from(studentUpdateRequest.gender()));
         student.update(studentUpdateRequest.studentNumber(),
             StudentDepartment.from(studentUpdateRequest.major()));
-
         studentRepository.save(student);
 
         return StudentUpdateResponse.from(student);
+    }
+
+    public void CheckNicknameDuplication(String nickname) {
+        if (nickname != null && userRepository.existsByNickname(nickname)) {
+            throw DuplicationNicknameException.withDetail("nickname : " + nickname);
+        }
     }
 }
 

@@ -12,7 +12,7 @@ public record StudentUpdateResponse(
     @Schema(description = "익명 닉네임", example = "익명_1676688416361")
     String anonymousNickname,
 
-    @Schema(description = "이메일 주소 \n", example = "koin123@koreatech.ac.kr")
+    @Schema(description = "이메일 주소", example = "koin123@koreatech.ac.kr")
     String email,
 
     @Schema(description = "성별(남:0, 여:1)", example = "1")
@@ -22,7 +22,7 @@ public record StudentUpdateResponse(
         + "건축공학부, 화학생명공학부, 에너지신소재공학부, 산업경영학부, 고용서비스정책학과}", example = "컴퓨터공학부")
     String major,
 
-    @Schema(description = "이름 \n", example = "최준호")
+    @Schema(description = "이름", example = "최준호")
     String name,
 
     @Schema(description = "닉네임", example = "juno")
