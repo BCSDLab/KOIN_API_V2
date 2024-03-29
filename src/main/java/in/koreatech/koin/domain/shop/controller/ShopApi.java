@@ -3,9 +3,11 @@ package in.koreatech.koin.domain.shop.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Shop: 상점", description = "상점 정보를 관리한다")
 public interface ShopApi {
@@ -73,5 +76,21 @@ public interface ShopApi {
     @GetMapping("/shops/{id}")
     ResponseEntity<ShopResponse> getShopById(
         @Parameter(in = PATH) @PathVariable Long id
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "422", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점의 메뉴 생성")
+    @GetMapping("/owner/shops/{id}/menus")
+    ResponseEntity<Void> createMenu(
+        @Parameter(in = PATH) @PathVariable Long id,
+        @RequestBody @Valid CreateMenuRequest createMenuRequest
     );
 }
