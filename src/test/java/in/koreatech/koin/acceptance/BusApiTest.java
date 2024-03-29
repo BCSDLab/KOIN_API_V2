@@ -4,15 +4,15 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -27,7 +27,9 @@ import in.koreatech.koin.domain.bus.model.redis.BusCache;
 import in.koreatech.koin.domain.bus.model.redis.CityBusCache;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
+import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
 import in.koreatech.koin.domain.version.model.Version;
+import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -43,6 +45,9 @@ class BusApiTest extends AcceptanceTest {
 
     @Autowired
     private CityBusCacheRepository cityBusCacheRepository;
+
+    @SpyBean
+    private CityBusOpenApiClient cityBusOpenApiClient;
 
     @Test
     @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
@@ -201,7 +206,7 @@ class BusApiTest extends AcceptanceTest {
         BusStation arrival = BusStation.from("koreatech");
         BusDirection direction = BusStation.getDirection(depart, arrival);
 
-        Version version = versionRepository.save(
+        versionRepository.save(
             Version.builder()
                 .version("20240_1711255839")
                 .type("city_bus_timetable")
@@ -254,8 +259,8 @@ class BusApiTest extends AcceptanceTest {
             }
             """;
 
-        // TODO CityBusOpenApiClient.getOpenApiResponse() Mocking
-        // when(cityBusOpenApiClient.getOpenApiResponse(depart.getNodeId(direction))).thenReturn(json);
+        String nodeId = depart.getNodeId(direction);
+        when(cityBusOpenApiClient.getOpenApiResponse(nodeId)).thenReturn(json);
 
         ExtractableResponse<Response> response = RestAssured
             .given()
@@ -267,6 +272,8 @@ class BusApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
+
+        Version version = versionRepository.getByType(VersionType.CITY);
 
         SoftAssertions.assertSoftly(
             softly -> {

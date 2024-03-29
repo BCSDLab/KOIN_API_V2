@@ -98,8 +98,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
             .map(this::extractBusArrivalInfo)
             .toList();
 
-        Clock updatedClock = Clock.systemDefaultZone();
-        LocalDateTime updatedAt = LocalDateTime.now(updatedClock);
+        LocalDateTime updatedAt = LocalDateTime.now(clock);
 
         for (List<CityBusArrival> arrivalInfos : arrivalInfosList) {
             if (arrivalInfos.isEmpty()) {
@@ -116,7 +115,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
             );
         }
 
-        versionRepository.getByType(VersionType.CITY).update(updatedClock);
+        versionRepository.getByType(VersionType.CITY).update(clock);
     }
 
     public String getOpenApiResponse(String nodeId) {
