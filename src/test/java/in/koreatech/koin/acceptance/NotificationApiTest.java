@@ -19,6 +19,7 @@ import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeT
 import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
@@ -74,20 +75,58 @@ class NotificationApiTest extends AcceptanceTest {
             .when()
             .get("/notification")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getBoolean("isPermit")).isFalse();
+                softly.assertThat(response.body().jsonPath().getBoolean("is_permit")).isFalse();
                 softly.assertThat(response.body().jsonPath().getList("subscribes").size()).isEqualTo(2);
                 softly.assertThat(response.body().jsonPath().getString("subscribes[0].type"))
                     .isEqualTo("SHOP_EVENT");
-                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[0].isPermit")).isTrue();
+                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[0].is_permit")).isTrue();
                 softly.assertThat(response.body().jsonPath().getString("subscribes[1].type")).isEqualTo(
                     "DINING_SOLD_OUT");
-                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[1].isPermit")).isFalse();
+                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[1].is_permit")).isFalse();
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("디바이스토큰을 추가한다.")
+    void createDivceToken() {
+        //given
+
+        NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
+            .subscribeType(NotificationSubscribeType.SHOP_EVENT)
+            .user(user)
+            .build();
+
+        String deviceToken = "testToken";
+
+        //when then
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + userToken)
+            .body(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                """, deviceToken))
+
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/notification")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        User changedDeviceTokenUser = userRepository.getById(user.getId());
+
+        SoftAssertions.assertSoftly(
+            softly -> {
+                softly.assertThat(changedDeviceTokenUser.getDeviceToken()).isEqualTo(deviceToken);
             }
         );
     }
