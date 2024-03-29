@@ -8,7 +8,6 @@ import in.koreatech.koin.domain.user.model.User;
 @Component
 public class NotificationFactory {
 
-    // example
     private final String koinAppUrl;
 
     public NotificationFactory(@Value("${fcm.koin.url}") String koinAppUrl) {

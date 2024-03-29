@@ -8,7 +8,7 @@ import in.koreatech.koin.global.domain.notification.exception.SubscribeNotFoundE
 
 public enum NotificationSubscribeType {
     SHOP_EVENT,
-    DINING_SOLDOUT,
+    DINING_SOLD_OUT,
     ;
 
     @JsonCreator

@@ -13,6 +13,7 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
@@ -24,6 +25,9 @@ import io.restassured.response.Response;
 class NotificationApiTest extends AcceptanceTest {
 
     @Autowired
+    private JwtProvider jwtProvider;
+
+    @Autowired
     private NotificationSubscribeRepository notificationSubscribeRepository;
 
     @Autowired
@@ -33,6 +37,8 @@ class NotificationApiTest extends AcceptanceTest {
     private UserRepository userRepository;
 
     private static User user;
+
+    private static String userToken;
 
     @BeforeEach
     void setUp() {
@@ -48,22 +54,23 @@ class NotificationApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
         user = userRepository.save(newUser);
-
+        userToken = jwtProvider.createToken(user);
     }
 
     @Test
     @DisplayName("알림 구독 내역 조회한다.")
-    void getNotifictionSubscribe() {
-
+    void getNotificationSubscribe() {
+        //given
         NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
             .subscribeType(NotificationSubscribeType.SHOP_EVENT)
             .user(user)
             .build();
 
         notificationSubscribeRepository.save(notificationSubscribe);
-
+        //when then
         ExtractableResponse<Response> response = RestAssured
             .given()
+            .header("Authorization", "Bearer " + userToken)
             .when()
             .get("/notification")
             .then()
@@ -72,8 +79,14 @@ class NotificationApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getString("lands[1].charter_fee"))
-                    .isEqualTo(land2.getCharterFee());
+                softly.assertThat(response.body().jsonPath().getBoolean("isPermit")).isFalse();
+                softly.assertThat(response.body().jsonPath().getList("subscribes").size()).isEqualTo(2);
+                softly.assertThat(response.body().jsonPath().getString("subscribes[0].type"))
+                    .isEqualTo("SHOP_EVENT");
+                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[0].isPermit")).isTrue();
+                softly.assertThat(response.body().jsonPath().getString("subscribes[1].type")).isEqualTo(
+                    "DINING_SOLD_OUT");
+                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[1].isPermit")).isFalse();
             }
         );
     }
