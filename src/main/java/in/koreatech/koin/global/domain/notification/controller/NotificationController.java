@@ -38,8 +38,7 @@ public class NotificationController implements NotificationApi {
     @PostMapping("/notification")
     public ResponseEntity<Void> permitNotification(
         @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
-        @Valid @RequestBody NotificationPermitRequest request,
-        @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
+        @Valid @RequestBody NotificationPermitRequest request
     ) {
         notificationService.permitNotification(userId, request.deviceToken());
         return ResponseEntity.ok().build();

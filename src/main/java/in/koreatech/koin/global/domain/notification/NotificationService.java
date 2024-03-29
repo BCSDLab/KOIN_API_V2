@@ -1,5 +1,7 @@
 package in.koreatech.koin.global.domain.notification;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +38,9 @@ public class NotificationService {
 
     public NotificationStatusResponse checkNotification(Long userId) {
         User user = userRepository.getById(userId);
-        return new NotificationStatusResponse(user.getDeviceToken() != null);
+        boolean isPermit = user.getDeviceToken() != null;
+        List<NotificationSubscribe> notificationSubscribes = notificationSubscribeRepository.findAllByUserId(userId);
+        return NotificationStatusResponse.of(isPermit, notificationSubscribes);
     }
 
     @Transactional

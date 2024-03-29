@@ -1,5 +1,6 @@
 package in.koreatech.koin.global.domain.notification.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
@@ -22,4 +23,6 @@ public interface NotificationSubscribeRepository extends Repository<Notification
     }
 
     void deleteByUserIdAndSubscribeType(Long userId, NotificationSubscribeType type);
+
+    List<NotificationSubscribe> findAllByUserId(Long userId);
 }

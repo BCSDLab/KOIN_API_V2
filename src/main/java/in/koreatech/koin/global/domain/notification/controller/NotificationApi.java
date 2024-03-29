@@ -4,6 +4,8 @@ import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
