@@ -39,7 +39,7 @@ public record StudentUpdateResponse(
         User user = student.getUser();
         String department;
         if (student.getDepartment() == null) {
-            department = "학부 없음";
+            department = null;
         } else {
             department = student.getDepartment().getValue();
         }
