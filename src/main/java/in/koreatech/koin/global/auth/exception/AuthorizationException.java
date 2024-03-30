@@ -4,9 +4,6 @@ public class AuthorizationException extends RuntimeException {
 
     private static final String DEFAULT_MESSAGE = "권한이 없습니다.";
 
-    public AuthorizationException() {
-    }
-
     public AuthorizationException(String message) {
         super(message);
     }

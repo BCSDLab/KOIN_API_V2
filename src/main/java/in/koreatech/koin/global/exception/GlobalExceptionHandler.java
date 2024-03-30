@@ -2,6 +2,8 @@ package in.koreatech.koin.global.exception;
 
 import java.time.format.DateTimeParseException;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

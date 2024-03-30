@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLDelete;
@@ -18,7 +20,6 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import static lombok.AccessLevel.PROTECTED;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -103,7 +104,8 @@ public class User extends BaseEntity {
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
                  String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-                 Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt, String deviceToken) {
+                 Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt,
+                 String deviceToken) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -136,5 +138,16 @@ public class User extends BaseEntity {
 
     public void updateLastLoggedTime(LocalDateTime lastLoggedTime) {
         lastLoggedAt = lastLoggedTime;
+    }
+
+    public void updatePassword(PasswordEncoder passwordEncoder, String password) {
+        this.password = passwordEncoder.encode(password);
+    }
+
+    public void update(String nickname, String name, String phoneNumber, UserGender gender) {
+        this.nickname = nickname;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.gender = gender;
     }
 }

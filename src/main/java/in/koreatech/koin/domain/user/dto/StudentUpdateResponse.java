@@ -8,7 +8,7 @@ import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record StudentResponse(
+public record StudentUpdateResponse(
     @Schema(description = "익명 닉네임", example = "익명_1676688416361")
     String anonymousNickname,
 
@@ -16,9 +16,9 @@ public record StudentResponse(
     String email,
 
     @Schema(description = "성별(남:0, 여:1)", example = "1")
-    String gender,
+    Integer gender,
 
-    @Schema(description = "전공{기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인공학부, "
+    @Schema(description = "전공{기계공학부, 컴퓨터공학부, 메카트로닉스공학부, 전기전자통신공학부, 디자인공학부,"
         + "건축공학부, 화학생명공학부, 에너지신소재공학부, 산업경영학부, 고용서비스정책학과}", example = "컴퓨터공학부")
     String major,
 
@@ -35,12 +35,12 @@ public record StudentResponse(
     String studentNumber
 ) {
 
-    public static StudentResponse from(Student student) {
+    public static StudentUpdateResponse from(Student student) {
         User user = student.getUser();
-        return new StudentResponse(
+        return new StudentUpdateResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
-            user.getGender().name(),
+            user.getGender().ordinal(),
             student.getDepartment(),
             user.getName(),
             user.getNickname(),
