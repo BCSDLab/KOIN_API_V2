@@ -1,6 +1,8 @@
 package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +65,7 @@ class NotificationApiTest extends AcceptanceTest {
     void getNotificationSubscribe() {
         //given
         NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
-            .subscribeType(NotificationSubscribeType.SHOP_EVENT)
+            .subscribeType(SHOP_EVENT)
             .user(user)
             .build();
 
@@ -93,15 +95,9 @@ class NotificationApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("디바이스토큰을 추가한다.")
+    @DisplayName("전체 알림을 구독한다. - 디바이스 토큰을 추가한다.")
     void createDivceToken() {
         //given
-
-        NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
-            .subscribeType(NotificationSubscribeType.SHOP_EVENT)
-            .user(user)
-            .build();
-
         String deviceToken = "testToken";
 
         //when then
@@ -113,20 +109,55 @@ class NotificationApiTest extends AcceptanceTest {
                       "device_token": "%s"
                     }
                 """, deviceToken))
-
             .contentType(ContentType.JSON)
             .when()
             .post("/notification")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
         User changedDeviceTokenUser = userRepository.getById(user.getId());
+        assertThat(changedDeviceTokenUser.getDeviceToken()).isEqualTo(deviceToken);
+    }
+
+    @Test
+    @DisplayName("특정 알림을 구독한다.")
+    void subscribeNotificationType() {
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + userToken)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                "type": "SHOP_EVENT"
+                }
+                """)
+            .when()
+            .post("/notification/subscribe")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + userToken)
+            .when()
+            .get("/notification")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(changedDeviceTokenUser.getDeviceToken()).isEqualTo(deviceToken);
+                softly.assertThat(response.body().jsonPath().getBoolean("is_permit")).isFalse();
+                softly.assertThat(response.body().jsonPath().getList("subscribes").size()).isEqualTo(2);
+                softly.assertThat(response.body().jsonPath().getString("subscribes[0].type"))
+                    .isEqualTo("SHOP_EVENT");
+                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[0].is_permit")).isTrue();
+                softly.assertThat(response.body().jsonPath().getString("subscribes[1].type")).isEqualTo(
+                    "DINING_SOLD_OUT");
+                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[1].is_permit")).isFalse();
             }
         );
     }
@@ -137,59 +168,35 @@ class NotificationApiTest extends AcceptanceTest {
 
         String deviceToken = "testToken";
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .body(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
-                """, deviceToken))
-
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/notification")
-            .then()
-            .log().all()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
-
+        user.permitNotification(deviceToken);
+        userRepository.save(user);
         User changedDeviceTokenUser = userRepository.getById(user.getId());
 
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(changedDeviceTokenUser.getDeviceToken()).isEqualTo(deviceToken);
-            }
-        );
+        assertThat(changedDeviceTokenUser.getDeviceToken()).isEqualTo(deviceToken);
 
         RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
             .when()
             .delete("/notification")
-            .then().log().all()
+            .then()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
         User noneDeviceTokenUser = userRepository.getById(user.getId());
-
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(noneDeviceTokenUser.getDeviceToken()).isNull();
-            }
-        );
+        assertThat(noneDeviceTokenUser.getDeviceToken()).isNull();
     }
 
     @Test
     @DisplayName("특정 알림 구독을 취소한다.")
-    void deleteNotificationSubscribe() {
+    void unsubscribeNotificationType() {
 
-        NotificationSubscribe SubscribeShopEvent = NotificationSubscribe.builder()
-            .subscribeType(NotificationSubscribeType.SHOP_EVENT)
+        var SubscribeShopEvent = NotificationSubscribe.builder()
+            .subscribeType(SHOP_EVENT)
             .user(user)
             .build();
 
-        NotificationSubscribe SubscribeDiningSoldOut = NotificationSubscribe.builder()
+        var SubscribeDiningSoldOut = NotificationSubscribe.builder()
             .subscribeType(NotificationSubscribeType.DINING_SOLD_OUT)
             .user(user)
             .build();
@@ -200,10 +207,10 @@ class NotificationApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .param("type", NotificationSubscribeType.SHOP_EVENT)
+            .param("type", SHOP_EVENT)
             .when()
             .delete("/notification/subscribe")
-            .then().log().all()
+            .then()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
