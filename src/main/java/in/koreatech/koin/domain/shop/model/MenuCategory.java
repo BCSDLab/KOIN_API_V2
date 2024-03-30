@@ -60,4 +60,8 @@ public final class MenuCategory extends BaseEntity {
         this.shop = shop;
         this.name = name;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record CreateMenuRequest(
+public record ModifyMenuRequest(
     @Schema(example = "0", description = "선택된 카테고리 고유 id 리스트")
     @NotNull List<Long> categoryIds,
 

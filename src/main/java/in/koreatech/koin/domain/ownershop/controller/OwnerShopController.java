@@ -9,23 +9,24 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.service.OwnerShopService;
+import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
+import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
+import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
+import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.global.auth.Auth;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -103,5 +104,56 @@ public class OwnerShopController implements OwnerShopApi {
     ) {
         ownerShopService.deleteCategory(ownerId, categoryId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PostMapping("/owner/shops/{id}/menus")
+    public ResponseEntity<Void> createMenu(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("id") Long shopId,
+        @RequestBody @Valid CreateMenuRequest createMenuRequest
+    ) {
+        ownerShopService.createMenu(shopId, ownerId, createMenuRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/owner/shops/{id}/menus/categories")
+    public ResponseEntity<Void> createMenuCategory(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("id") Long shopId,
+        @RequestBody @Valid CreateCategoryRequest createCategoryRequest
+    ) {
+        System.out.println("111");
+        ownerShopService.createMenuCategory(shopId, ownerId, createCategoryRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/owner/shops/menus/{menuId}")
+   public ResponseEntity<Void> modifyMenu(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("menuId") Long menuId,
+        @RequestBody @Valid ModifyMenuRequest modifyMenuRequest
+    ) {
+        ownerShopService.modifyMenu(ownerId, menuId, modifyMenuRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/owner/shops/menus/categories/{categoryId}")
+    public ResponseEntity<Void> modifyMenuCategory(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("categoryId") Long categoryId,
+        @RequestBody @Valid ModifyCategoryRequest modifyCategoryRequest
+    ) {
+        ownerShopService.modifyCategory(ownerId, categoryId, modifyCategoryRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/owner/shops/{id}")
+    public ResponseEntity<Void> modifyOwnerShop(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("id") Long shopId,
+        @RequestBody @Valid ModifyShopRequest modifyShopRequest
+    ) {
+        ownerShopService.modifyShop(ownerId, shopId, modifyShopRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

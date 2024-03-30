@@ -155,4 +155,84 @@ public class Shop extends BaseEntity {
         this.shopImages = shopImages;
         this.menuCategories = menuCategories;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setOwner(Owner owner) {
+        this.owner = owner;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setInternalName(String internalName) {
+        this.internalName = internalName;
+    }
+
+    public void setChosung(String chosung) {
+        this.chosung = chosung;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setDelivery(Boolean delivery) {
+        this.delivery = delivery;
+    }
+
+    public void setDeliveryPrice(Long deliveryPrice) {
+        this.deliveryPrice = deliveryPrice;
+    }
+
+    public void setPayCard(Boolean payCard) {
+        this.payCard = payCard;
+    }
+
+    public void setPayBank(Boolean payBank) {
+        this.payBank = payBank;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    public void setEvent(Boolean event) {
+        isEvent = event;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public void setHit(Long hit) {
+        this.hit = hit;
+    }
+
+    public void setShopCategories(List<ShopCategoryMap> shopCategories) {
+        this.shopCategories = shopCategories;
+    }
+
+    public void setShopOpens(List<ShopOpen> shopOpens) {
+        this.shopOpens = shopOpens;
+    }
+
+    public void setShopImages(List<ShopImage> shopImages) {
+        this.shopImages = shopImages;
+    }
+
+    public void setMenuCategories(List<MenuCategory> menuCategories) {
+        this.menuCategories = menuCategories;
+    }
 }

@@ -10,6 +10,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
@@ -35,13 +38,19 @@ import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class ShopApiTest extends AcceptanceTest {
+
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     @Autowired
     private MenuRepository menuRepository;
@@ -265,7 +274,7 @@ class ShopApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.getIsHidden());
 
                 softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
-                softly.assertThat((Integer) response.body().jsonPath().get("single_price")).isNull();
+                softly.assertThat((Integer)response.body().jsonPath().get("single_price")).isNull();
 
                 softly.assertThat(response.body().jsonPath().getList("option_prices")).hasSize(2);
                 softly.assertThat(response.body().jsonPath().getString("option_prices[0].option"))
@@ -594,7 +603,7 @@ class ShopApiTest extends AcceptanceTest {
                 softly.assertThat(
                         response.body().jsonPath().getInt("menu_categories[0].menus[0].option_prices[1].price"))
                     .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getPrice());
-                softly.assertThat((Object) response.body().jsonPath().get("menu_categories[0].menus[0].single_price"))
+                softly.assertThat((Object)response.body().jsonPath().get("menu_categories[0].menus[0].single_price"))
                     .isNull();
                 softly.assertThat(response.body().jsonPath().getString("updated_at"))
                     .isEqualTo(LocalDate.now().toString());
@@ -627,7 +636,7 @@ class ShopApiTest extends AcceptanceTest {
                 softly.assertThat(
                         response.body().jsonPath().getInt("menu_categories[1].menus[0].option_prices[1].price"))
                     .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getPrice());
-                softly.assertThat((Object) response.body().jsonPath().get("menu_categories[1].menus[0].single_price"))
+                softly.assertThat((Object)response.body().jsonPath().get("menu_categories[1].menus[0].single_price"))
                     .isNull();
                 softly.assertThat(response.body().jsonPath().getString("updated_at"))
                     .isEqualTo(LocalDate.now().toString());
@@ -652,5 +661,124 @@ class ShopApiTest extends AcceptanceTest {
                     .isEqualTo(LocalDate.now().toString());
             }
         );
+    }
+
+    @Test
+    @DisplayName("모든 상점 조회")
+    void getAllShop() {
+        // given
+        Shop shopRequest = Shop.builder()
+            .owner(owner)
+            .name("테스트 상점2")
+            .internalName("테스트2")
+            .chosung("테스트")
+            .phone("010-1234-5678")
+            .address("대전광역시 유성구 대학로 291")
+            .description("테스트 상점입니다.")
+            .delivery(true)
+            .deliveryPrice(3000L)
+            .payCard(true)
+            .payBank(true)
+            .isDeleted(false)
+            .isEvent(false)
+            .remarks("비고")
+            .hit(0L)
+            .build();
+        Shop newShop = shopRepository.save(shopRequest);
+
+        ShopOpen open1 = ShopOpen.builder()
+            .openTime(LocalTime.of(0, 0))
+            .closeTime(LocalTime.of(21, 0))
+            .shop(shop)
+            .closed(false)
+            .dayOfWeek("MONDAY")
+            .build();
+
+        ShopOpen open2 = ShopOpen.builder()
+            .openTime(LocalTime.of(0, 0))
+            .closeTime(LocalTime.of(0, 0))
+            .shop(newShop)
+            .closed(false)
+            .dayOfWeek("FRIDAY")
+            .build();
+
+        shopOpenRepository.save(open1);
+        shopOpenRepository.save(open2);
+
+        ShopCategoryMap shopCategoryMap1 = ShopCategoryMap.builder()
+            .shop(shop)
+            .shopCategory(shopCategory1)
+            .build();
+
+        ShopCategoryMap shopCategoryMap2 = ShopCategoryMap.builder()
+            .shop(newShop)
+            .shopCategory(shopCategory2)
+            .build();
+
+        shopCategoryMapRepository.save(shopCategoryMap1);
+        shopCategoryMapRepository.save(shopCategoryMap2);
+
+        ShopImage shopImage1 = ShopImage.builder()
+            .imageUrl("https://test.com/test1.jpg")
+            .shop(shop)
+            .build();
+
+        ShopImage shopImage2 = ShopImage.builder()
+            .imageUrl("https://test.com/test2.jpg")
+            .shop(newShop)
+            .build();
+
+        shopImageRepository.save(shopImage1);
+        shopImageRepository.save(shopImage2);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .get("/shops")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                List<Shop> shops = shopRepository.findAll();
+                Shop shop1 = shops.get(0);
+                Shop shop2 = shops.get(1);
+                assertSoftly(
+                    softly -> {
+                        softly.assertThat(response.body().jsonPath().getString("count")).isEqualTo("2");
+                        softly.assertThat(response.body().jsonPath().getBoolean("shops[0].delivery"))
+                            .isEqualTo(shop1.getDelivery());
+                        softly.assertThat(response.body().jsonPath().getLong("shops[0].id")).isEqualTo(shop1.getId());
+                        softly.assertThat(response.body().jsonPath().getString("shops[0].name"))
+                            .isEqualTo(shop1.getName());
+                        softly.assertThat(response.body().jsonPath().getBoolean("shops[0].pay_bank"))
+                            .isEqualTo(shop1.getPayBank());
+                        softly.assertThat(response.body().jsonPath().getBoolean("shops[0].pay_card"))
+                            .isEqualTo(shop1.getPayCard());
+                        softly.assertThat(response.body().jsonPath().getString("shops[0].phone"))
+                            .isEqualTo(shop1.getPhone());
+                        softly.assertThat(response.body().jsonPath().getList("shops[0].category_ids")).hasSize(1);
+                        softly.assertThat(response.body().jsonPath().getList("shops[0].open")).hasSize(1);
+
+                        softly.assertThat(response.body().jsonPath().getBoolean("shops[1].delivery"))
+                            .isEqualTo(shop2.getDelivery());
+                        softly.assertThat(response.body().jsonPath().getLong("shops[1].id")).isEqualTo(shop2.getId());
+                        softly.assertThat(response.body().jsonPath().getString("shops[1].name"))
+                            .isEqualTo(shop2.getName());
+                        softly.assertThat(response.body().jsonPath().getBoolean("shops[1].pay_bank"))
+                            .isEqualTo(shop2.getPayBank());
+                        softly.assertThat(response.body().jsonPath().getBoolean("shops[1].pay_card"))
+                            .isEqualTo(shop2.getPayCard());
+                        softly.assertThat(response.body().jsonPath().getString("shops[1].phone"))
+                            .isEqualTo(shop2.getPhone());
+                        softly.assertThat(response.body().jsonPath().getList("shops[1].category_ids")).hasSize(1);
+                        softly.assertThat(response.body().jsonPath().getList("shops[1].open")).hasSize(1);
+                    }
+                );
+            }
+        });
     }
 }

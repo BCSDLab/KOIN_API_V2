@@ -13,6 +13,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
@@ -20,7 +23,6 @@ import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
-import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -47,6 +49,9 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
 class OwnerShopApiTest extends AcceptanceTest {
+
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     @Autowired
     private OwnerRepository ownerRepository;
@@ -643,6 +648,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             }
         );
     }
+
     @Test
     @DisplayName("권한이 없는 상점 사장님이 특정 상점 조회")
     void ownerCannotQueryOtherStoresWithoutPermission() {
@@ -702,6 +708,419 @@ class OwnerShopApiTest extends AcceptanceTest {
 
         boolean isPresent = menuRepository.findById(savedMenu.getId()).isPresent();
         SoftAssertions.assertSoftly(softly -> softly.assertThat(isPresent).isFalse());
+    }
+
+    @Test
+    @DisplayName("사장님이 옵션이 여러개인 메뉴를 추가한다.")
+    void createManyOptionMenu() {
+        // given
+        MenuCategory menuCategory = MenuCategory.builder()
+            .name("테스트")
+            .shop(shop)
+            .build();
+        MenuCategory savedMenuCategory = menuCategoryRepository.save(menuCategory);
+        String categoryId = savedMenuCategory.getId().toString();
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body(String.format("""
+                {
+                  "category_ids": [
+                    %s
+                  ],
+                  "description": "테스트메뉴입니다.",
+                  "image_urls": [
+                    "string"
+                  ],
+                  "is_single": false,
+                  "name": "짜장면",
+                  "option_prices": [
+                    {
+                      "option": "중",
+                      "price": 10000
+                    },
+                    {
+                      "option": "소",
+                      "price": 5000
+                    }
+                  ]
+                }
+                """, categoryId))
+            .when()
+            .post("/owner/shops/{id}/menus", shop.getId())
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                Menu menu = menuRepository.getById(1L);
+                assertSoftly(
+                    softly -> {
+                        List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
+                        List<MenuOption> menuOptions = menu.getMenuOptions();
+                        List<MenuImage> menuImages = menu.getMenuImages();
+                        softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
+                        softly.assertThat(menu.getName()).isEqualTo("짜장면");
+
+                        softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("string");
+                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1L);
+
+                        softly.assertThat(menuOptions.get(0).getOption()).isEqualTo("중");
+                        softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
+
+                        softly.assertThat(menuOptions.get(1).getOption()).isEqualTo("소");
+                        softly.assertThat(menuOptions.get(1).getPrice()).isEqualTo(5000);
+
+                    }
+                );
+            }
+        });
+    }
+
+    @Test
+    @DisplayName("사장님이 옵션이 한개인 메뉴를 추가한다.")
+    void createOneOptionMenu() {
+        // given
+        MenuCategory menuCategory = MenuCategory.builder()
+            .name("테스트")
+            .shop(shop)
+            .build();
+        MenuCategory savedMenuCategory = menuCategoryRepository.save(menuCategory);
+        String categoryId = savedMenuCategory.getId().toString();
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body(String.format("""
+                {
+                  "category_ids": [
+                    %s
+                  ],
+                  "description": "테스트메뉴입니다.",
+                  "image_urls": [
+                    "string"
+                  ],
+                  "is_single": true,
+                  "name": "짜장면",
+                  "option_prices": null,
+                  "single_price": 10000
+                }
+                """, categoryId))
+            .when()
+            .post("/owner/shops/{id}/menus", shop.getId())
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                Menu menu = menuRepository.getById(1L);
+                assertSoftly(
+                    softly -> {
+                        List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
+                        List<MenuOption> menuOptions = menu.getMenuOptions();
+                        List<MenuImage> menuImages = menu.getMenuImages();
+                        softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
+                        softly.assertThat(menu.getName()).isEqualTo("짜장면");
+
+                        softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("string");
+                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1L);
+
+                        softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
+                    }
+                );
+            }
+        });
+    }
+
+    @Test
+    @DisplayName("사장님이 메뉴 카테고리를 추가한다.")
+    void createMenuCategory() {
+        // given
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body(String.format("""
+                {
+                   "name": "사이드 메뉴"
+                }
+                """))
+            .when()
+            .post("/owner/shops/{id}/menus/categories", shop.getId())
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        MenuCategory menuCategory = menuCategoryRepository.getById(1L);
+
+        assertSoftly(
+            softly -> softly.assertThat(menuCategory.getName()).isEqualTo("사이드 메뉴")
+        );
+    }
+
+    @Test
+    @DisplayName("사장님이 단일 메뉴로 수정한다.")
+    void modifyOneMenu() {
+        // given
+        Menu createdMenu = createMenu();
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body(String.format("""
+                {
+                  "category_ids": [
+                    2
+                  ],
+                  "description": "테스트메뉴수정",
+                  "image_urls": [
+                    "string2"
+                  ],
+                  "is_single": true,
+                  "name": "짜장면2",
+                  "single_price": 10000
+                }
+                """))
+            .when()
+            .put("/owner/shops/menus/{menuId}", createdMenu.getId())
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                Menu menu = menuRepository.getById(1L);
+                assertSoftly(
+                    softly -> {
+                        List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
+                        List<MenuOption> menuOptions = menu.getMenuOptions();
+                        List<MenuImage> menuImages = menu.getMenuImages();
+                        softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴수정");
+                        softly.assertThat(menu.getName()).isEqualTo("짜장면2");
+
+                        softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("string2");
+                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(2L);
+
+                        softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
+
+                    }
+                );
+            }
+        });
+    }
+
+    @Test
+    @DisplayName("사장님이 여러옵션을 가진 메뉴로 수정한다.")
+    void modifyManyOptionMenu() {
+        // given
+        Menu createdMenu = createMenu();
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body(String.format("""
+                {
+                  "category_ids": [
+                    1, 2
+                  ],
+                  "description": "테스트메뉴입니다.",
+                  "image_urls": [
+                    "string"
+                  ],
+                  "is_single": false,
+                  "name": "짜장면",
+                  "option_prices": [
+                    {
+                      "option": "중",
+                      "price": 10000
+                    },
+                    {
+                      "option": "소",
+                      "price": 5000
+                    }
+                  ]
+                }
+                """))
+            .when()
+            .put("/owner/shops/menus/{menuId}", createdMenu.getId())
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                Menu menu = menuRepository.getById(1L);
+                assertSoftly(
+                    softly -> {
+                        List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
+                        List<MenuOption> menuOptions = menu.getMenuOptions();
+                        List<MenuImage> menuImages = menu.getMenuImages();
+                        softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
+                        softly.assertThat(menu.getName()).isEqualTo("짜장면");
+
+                        softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("string");
+                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1L);
+                        softly.assertThat(menuCategoryMaps.get(1).getMenuCategory().getId()).isEqualTo(2L);
+
+                        softly.assertThat(menuOptions.get(0).getOption()).isEqualTo("중");
+                        softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
+
+                        softly.assertThat(menuOptions.get(1).getOption()).isEqualTo("소");
+                        softly.assertThat(menuOptions.get(1).getPrice()).isEqualTo(5000);
+
+                    }
+                );
+            }
+        });
+    }
+
+    @Test
+    @DisplayName("사장님이 상점을 수정한다.")
+    void modifyShop() {
+        // given
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "address": "충청남도 천안시 동남구 병천면 충절로 1600",
+                  "category_ids": [
+                   1, 2
+                  ],
+                  "delivery": false,
+                  "delivery_price": 1000,
+                  "description": "이번주 전 메뉴 10% 할인 이벤트합니다.",
+                  "image_urls": [
+                    "string2"
+                  ],
+                  "name": "써니 숯불 도시락",
+                  "open": [
+                    {
+                      "close_time": "22:30",
+                      "closed": false,
+                      "day_of_week": "MONDAY",
+                      "open_time": "10:00"
+                    },
+                    {
+                      "close_time": "23:30",
+                      "closed": true,
+                      "day_of_week": "SUNDAY",
+                      "open_time": "11:00"
+                    }
+                  ],
+                  "pay_bank": true,
+                  "pay_card": true,
+                  "phone": "041-123-4567"
+                }
+                """)
+            .when()
+            .put("/owner/shops/{id}", shop.getId())
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                Shop modifiedShop = shopRepository.getById(1L);
+                List<ShopImage> shopImages = modifiedShop.getShopImages();
+                List<ShopOpen> shopOpens = modifiedShop.getShopOpens();
+                List<ShopCategoryMap> shopCategoryMaps = modifiedShop.getShopCategories();
+                assertSoftly(
+                    softly -> {
+                        softly.assertThat(modifiedShop.getAddress()).isEqualTo("충청남도 천안시 동남구 병천면 충절로 1600");
+                        softly.assertThat(modifiedShop.getIsDeleted()).isFalse();
+                        softly.assertThat(modifiedShop.getDeliveryPrice()).isEqualTo(1000);
+                        softly.assertThat(modifiedShop.getDescription()).isEqualTo("이번주 전 메뉴 10% 할인 이벤트합니다.");
+                        softly.assertThat(modifiedShop.getName()).isEqualTo("써니 숯불 도시락");
+                        softly.assertThat(modifiedShop.getPayBank()).isTrue();
+                        softly.assertThat(modifiedShop.getPayCard()).isTrue();
+                        softly.assertThat(modifiedShop.getPhone()).isEqualTo("041-123-4567");
+
+                        softly.assertThat(shopCategoryMaps.get(0).getShopCategory().getId()).isEqualTo(1L);
+                        softly.assertThat(shopCategoryMaps.get(1).getShopCategory().getId()).isEqualTo(2L);
+
+                        softly.assertThat(shopImages.get(0).getImageUrl()).isEqualTo("string2");
+
+                        softly.assertThat(shopOpens.get(0).getCloseTime()).isEqualTo("22:30");
+                        softly.assertThat(shopOpens.get(0).getOpenTime()).isEqualTo("10:00");
+
+                        softly.assertThat(shopOpens.get(0).getDayOfWeek()).isEqualTo("MONDAY");
+                        softly.assertThat(shopOpens.get(0).getClosed()).isFalse();
+
+                        softly.assertThat(shopOpens.get(1).getCloseTime()).isEqualTo("23:30");
+                        softly.assertThat(shopOpens.get(1).getOpenTime()).isEqualTo("11:00");
+
+                        softly.assertThat(shopOpens.get(1).getDayOfWeek()).isEqualTo("SUNDAY");
+                        softly.assertThat(shopOpens.get(1).getClosed()).isTrue();
+                    }
+                );
+            }
+        });
+    }
+
+    private Menu createMenu() {
+        MenuCategory menuCategory1 = MenuCategory.builder()
+            .name("테스트")
+            .shop(shop)
+            .build();
+        MenuCategory menuCategory2 = MenuCategory.builder()
+            .name("테스트")
+            .shop(shop)
+            .build();
+        MenuCategory savedMenuCategory = menuCategoryRepository.save(menuCategory1);
+        menuCategoryRepository.save(menuCategory2);
+        String categoryId = savedMenuCategory.getId().toString();
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body(String.format("""
+                {
+                  "category_ids": [
+                    %s
+                  ],
+                  "description": "테스트메뉴입니다.",
+                  "image_urls": [
+                    "string"
+                  ],
+                  "is_single": false,
+                  "name": "짜장면",
+                  "option_prices": [
+                    {
+                      "option": "중",
+                      "price": 10000
+                    },
+                    {
+                      "option": "소",
+                      "price": 5000
+                    }
+                  ]
+                }
+                """, categoryId))
+            .when()
+            .post("/owner/shops/{id}/menus", shop.getId())
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+        return menuRepository.getById(1L);
     }
 
     @Test

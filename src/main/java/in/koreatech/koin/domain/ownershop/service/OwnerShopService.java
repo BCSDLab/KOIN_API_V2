@@ -10,19 +10,29 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
+import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
+import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
+import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
+import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
+import in.koreatech.koin.domain.shop.model.MenuImage;
+import in.koreatech.koin.domain.shop.model.MenuOption;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.MenuCategoryMapRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
+import in.koreatech.koin.domain.shop.repository.MenuDetailRepository;
+import in.koreatech.koin.domain.shop.repository.MenuImageRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryMapRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
@@ -45,6 +55,9 @@ public class OwnerShopService {
     private final ShopImageRepository shopImageRepository;
     private final MenuRepository menuRepository;
     private final MenuCategoryRepository menuCategoryRepository;
+    private final MenuCategoryMapRepository menuCategoryMapRepository;
+    private final MenuImageRepository menuImageRepository;
+    private final MenuDetailRepository menuDetailRepository;
 
     public OwnerShopsResponse getOwnerShops(Long ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
@@ -131,5 +144,142 @@ public class OwnerShopService {
         MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
         getOwnerShopById(menuCategory.getShop().getId(), ownerId);
         menuCategoryRepository.deleteById(categoryId);
+    }
+
+    @Transactional
+    public void createMenu(Long shopId, Long ownerId, CreateMenuRequest createMenuRequest) {
+        getOwnerShopById(shopId, ownerId);
+        Menu menu = Menu.builder()
+            .name(createMenuRequest.name())
+            .shopId(shopId)
+            .description(createMenuRequest.description())
+            .build();
+        Menu savedMenu = menuRepository.save(menu);
+        for (Long categoryId : createMenuRequest.categoryIds()) {
+            MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
+            MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
+                .menuCategory(menuCategory)
+                .menu(savedMenu)
+                .build();
+            menuCategoryMapRepository.save(menuCategoryMap);
+        }
+        for (String imageUrl : createMenuRequest.imageUrls()) {
+            MenuImage menuImage = MenuImage.builder()
+                .imageUrl(imageUrl)
+                .menu(savedMenu)
+                .build();
+            menuImageRepository.save(menuImage);
+        }
+        if (createMenuRequest.optionPrices() == null) {
+            MenuOption menuOption = MenuOption.builder()
+                .option(savedMenu.getName())
+                .price(createMenuRequest.singlePrice())
+                .menu(menu)
+                .build();
+            menuDetailRepository.save(menuOption);
+        } else {
+            for (var option : createMenuRequest.optionPrices()) {
+                MenuOption menuOption = MenuOption.builder()
+                    .option(option.option())
+                    .price(option.price())
+                    .menu(menu)
+                    .build();
+                menuDetailRepository.save(menuOption);
+            }
+        }
+    }
+
+    @Transactional
+    public void createMenuCategory(Long shopId, Long ownerId, CreateCategoryRequest createCategoryRequest) {
+        Shop shop = getOwnerShopById(shopId, ownerId);
+        MenuCategory menuCategory = MenuCategory.builder()
+            .shop(shop)
+            .name(createCategoryRequest.name())
+            .build();
+        menuCategoryRepository.save(menuCategory);
+    }
+
+    @Transactional
+    public void modifyMenu(Long ownerId, Long menuId, ModifyMenuRequest modifyMenuRequest) {
+        Menu menu = menuRepository.getById(menuId);
+        getOwnerShopById(menu.getShopId(), ownerId);
+        menu.setName(modifyMenuRequest.name());
+        menu.setDescription(modifyMenuRequest.description());
+        menu.getMenuImages().clear();
+        for (String imageUrl : modifyMenuRequest.imageUrls()) {
+            MenuImage newMenuImage = MenuImage.builder()
+                .imageUrl(imageUrl)
+                .menu(menu)
+                .build();
+            menu.getMenuImages().add(newMenuImage);
+        }
+        menu.getMenuCategoryMaps().clear();
+        for (Long categoryId : modifyMenuRequest.categoryIds()) {
+            MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
+            MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
+                .menu(menu)
+                .menuCategory(menuCategory)
+                .build();
+            menu.getMenuCategoryMaps().add(menuCategoryMap);
+        }
+        menu.getMenuOptions().clear();
+        if (modifyMenuRequest.isSingle()) {
+            MenuOption menuOption = MenuOption.builder()
+                .price(modifyMenuRequest.singlePrice())
+                .menu(menu)
+                .build();
+            menu.getMenuOptions().add(menuOption);
+        } else {
+            for (var option : modifyMenuRequest.optionPrices()) {
+                MenuOption menuOption = MenuOption.builder()
+                    .option(option.option())
+                    .price(option.price())
+                    .menu(menu)
+                    .build();
+                menu.getMenuOptions().add(menuOption);
+            }
+        }
+    }
+
+    @Transactional
+    public void modifyCategory(Long ownerId, Long categoryId, ModifyCategoryRequest modifyCategoryRequest) {
+        MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
+        getOwnerShopById(menuCategory.getShop().getId(), ownerId);
+        menuCategory.setName(modifyCategoryRequest.name());
+    }
+
+    @Transactional
+    public void modifyShop(Long ownerId, Long shopId, ModifyShopRequest modifyShopRequest) {
+        Shop shop = getOwnerShopById(shopId, ownerId);
+        shop.setAddress(modifyShopRequest.address());
+        shop.setDelivery(modifyShopRequest.delivery());
+        shop.setDeliveryPrice(modifyShopRequest.deliveryPrice());
+        shop.setDescription(modifyShopRequest.description());
+        shop.setName(modifyShopRequest.name());
+        shop.setPayBank(modifyShopRequest.payBank());
+        shop.setPayCard(modifyShopRequest.payCard());
+        shop.setPhone(modifyShopRequest.phone());
+        shop.getShopImages().clear();
+        for (String imageUrl : modifyShopRequest.imageUrls()) {
+            ShopImage shopImage = ShopImage.builder()
+                .shop(shop)
+                .imageUrl(imageUrl)
+                .build();
+            shop.getShopImages().add(shopImage);
+        }
+        shop.getShopOpens().clear();
+        for (var open: modifyShopRequest.open()) {
+            ShopOpen shopOpen = open.toEntity(shop);
+            shop.getShopOpens().add(shopOpen);
+        }
+        shop.getShopCategories().clear();
+        for(Long categoryId: modifyShopRequest.categoryIds()) {
+            ShopCategory shopCategory = shopCategoryRepository.getById(categoryId);
+            ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
+                .shop(shop)
+                .shopCategory(shopCategory)
+                .build();
+            shop.getShopCategories().add(shopCategoryMap);
+        }
     }
 }
