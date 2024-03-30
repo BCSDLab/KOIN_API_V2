@@ -10,13 +10,13 @@ import in.koreatech.koin.domain.timetable.model.Semester;
 
 public interface SemesterRepository extends Repository<Semester, Long> {
 
-    List<Semester> findAll();
+    List<Semester> findAllByOrderBySemesterDesc();
 
     Semester save(Semester semester);
 
     Optional<Semester> findBySemester(String semester);
 
-    default Semester getBySemester(String semester){
+    default Semester getBySemester(String semester) {
         return findBySemester(semester)
             .orElseThrow(() -> SemesterNotFoundException.withDetail("semester: " + semester));
     }

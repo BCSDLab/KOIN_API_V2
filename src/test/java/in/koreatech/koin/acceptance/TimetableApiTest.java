@@ -244,8 +244,12 @@ class TimetableApiTest extends AcceptanceTest {
     void findAllSemesters() {
         Semester request1 = Semester.builder().semester("20221").build();
         Semester request2 = Semester.builder().semester("20222").build();
+        Semester request3 = Semester.builder().semester("20231").build();
+        Semester request4 = Semester.builder().semester("20232").build();
         semesterRepository.save(request1);
         semesterRepository.save(request2);
+        semesterRepository.save(request3);
+        semesterRepository.save(request4);
 
         ExtractableResponse<Response> response = RestAssured
             .given()
@@ -256,7 +260,7 @@ class TimetableApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.body().jsonPath().getList(".")).hasSize(2);
+        assertThat(response.body().jsonPath().getList(".")).hasSize(4);
     }
 
     @Test
