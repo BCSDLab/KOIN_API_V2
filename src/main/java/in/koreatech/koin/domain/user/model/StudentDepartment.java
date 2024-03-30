@@ -13,7 +13,8 @@ public enum StudentDepartment {
     CHEMICAL("화학생명공학부"),
     ENERGY("에너지신소재공학부"),
     INDUSTRIAL("산업경영학부"),
-    EMPLOYMENT("고용서비스정책학과");
+    EMPLOYMENT("고용서비스정책학과"),
+    ;
 
     private final String value;
 
