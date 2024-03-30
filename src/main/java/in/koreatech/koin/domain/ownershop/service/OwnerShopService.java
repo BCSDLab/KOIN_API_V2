@@ -268,12 +268,12 @@ public class OwnerShopService {
             shop.getShopImages().add(shopImage);
         }
         shop.getShopOpens().clear();
-        for (var open: modifyShopRequest.open()) {
+        for (var open : modifyShopRequest.open()) {
             ShopOpen shopOpen = open.toEntity(shop);
             shop.getShopOpens().add(shopOpen);
         }
         shop.getShopCategories().clear();
-        for(Long categoryId: modifyShopRequest.categoryIds()) {
+        for (Long categoryId : modifyShopRequest.categoryIds()) {
             ShopCategory shopCategory = shopCategoryRepository.getById(categoryId);
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
                 .shop(shop)

@@ -128,7 +128,7 @@ public class OwnerShopController implements OwnerShopApi {
     }
 
     @PutMapping("/owner/shops/menus/{menuId}")
-   public ResponseEntity<Void> modifyMenu(
+    public ResponseEntity<Void> modifyMenu(
         @Auth(permit = {OWNER}) Long ownerId,
         @PathVariable("menuId") Long menuId,
         @RequestBody @Valid ModifyMenuRequest modifyMenuRequest
