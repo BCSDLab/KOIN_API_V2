@@ -4,15 +4,17 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -27,7 +29,6 @@ import in.koreatech.koin.domain.bus.model.redis.BusCache;
 import in.koreatech.koin.domain.bus.model.redis.CityBusCache;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
-import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
@@ -46,17 +47,29 @@ class BusApiTest extends AcceptanceTest {
     @Autowired
     private CityBusCacheRepository cityBusCacheRepository;
 
-    @SpyBean
-    private CityBusOpenApiClient cityBusOpenApiClient;
+    private final Instant UPDATED_AT = ZonedDateTime.parse(
+            "2024-02-21 18:00:00 KST",
+            ofPattern("yyyy-MM-dd " + "HH:mm:ss z")
+        )
+        .toInstant();
+
+    @BeforeEach
+    void start() {
+        when(clock.instant()).thenReturn(UPDATED_AT);
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+
+        handler.setDateTimeProvider(dateTimeProvider);
+    }
+
+    @AfterEach
+    void end() {
+        handler.setDateTimeProvider(null);
+    }
 
     @Test
     @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
     void getNextShuttleBusRemainTime() {
         final String arrivalTime = "18:10";
-
-        when(clock.instant()).thenReturn(
-            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
 
         BusType busType = BusType.from("shuttle");
         BusStation depart = BusStation.from("koreatech");
@@ -126,13 +139,7 @@ class BusApiTest extends AcceptanceTest {
         final long remainTime = 600L;
         final long busNumber = 400;
 
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-
-        when(clock.instant())
-            .thenReturn(
-                ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
-                    .toInstant()
-            );
+        when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
 
         BusType busType = BusType.from("city");
         BusStation depart = BusStation.from("terminal");
@@ -145,12 +152,14 @@ class BusApiTest extends AcceptanceTest {
                 .type("city_bus_timetable")
                 .build()
         );
+        System.out.println("==========");
+        System.out.println(version.getUpdatedAt());
 
-        when(clock.instant())
-            .thenReturn(
-                ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
-                    .toInstant()
-            );
+        Instant requestedAt = ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
+            .toInstant();
+
+        when(clock.instant()).thenReturn(requestedAt);
+        when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
 
         cityBusCacheRepository.save(
             CityBusCache.create(
@@ -193,13 +202,7 @@ class BusApiTest extends AcceptanceTest {
     @Test
     @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - OpenApi")
     void getNextCityBusRemainTimeOpenApi() {
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-
-        when(clock.instant())
-            .thenReturn(
-                ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
-                    .toInstant()
-            );
+        when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
 
         BusType busType = BusType.from("city");
         BusStation depart = BusStation.from("terminal");
@@ -213,11 +216,11 @@ class BusApiTest extends AcceptanceTest {
                 .build()
         );
 
-        when(clock.instant())
-            .thenReturn(
-                ZonedDateTime.parse("2024-02-21 21:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
-                    .toInstant()
-            );
+        Instant requestedAt = ZonedDateTime.parse("2024-02-21 21:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
+            .toInstant();
+
+        when(clock.instant()).thenReturn(requestedAt);
+        when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
 
         String json = """
             {
