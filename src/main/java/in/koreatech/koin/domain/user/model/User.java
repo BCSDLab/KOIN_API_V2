@@ -143,4 +143,11 @@ public class User extends BaseEntity {
     public void updatePassword(PasswordEncoder passwordEncoder, String password) {
         this.password = passwordEncoder.encode(password);
     }
+
+    public void update(String nickname, String name, String phoneNumber, UserGender gender) {
+        this.nickname = nickname;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.gender = gender;
+    }
 }
