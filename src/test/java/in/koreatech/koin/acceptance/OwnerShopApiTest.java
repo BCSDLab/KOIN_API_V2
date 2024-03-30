@@ -750,7 +750,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .post("/owner/shops/{id}/menus", shop.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -813,7 +812,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .post("/owner/shops/{id}/menus", shop.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -855,7 +853,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .post("/owner/shops/{id}/menus/categories", shop.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -893,7 +890,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .put("/owner/shops/menus/{menuId}", createdMenu.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -956,7 +952,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .put("/owner/shops/menus/{menuId}", createdMenu.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -1031,7 +1026,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .put("/owner/shops/{id}", shop.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -1117,7 +1111,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .post("/owner/shops/{id}/menus", shop.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
         return menuRepository.getById(1L);

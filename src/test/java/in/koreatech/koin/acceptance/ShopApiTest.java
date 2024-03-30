@@ -736,7 +736,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
