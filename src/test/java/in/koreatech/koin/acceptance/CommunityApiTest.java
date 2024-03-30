@@ -20,7 +20,6 @@ import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.BoardRepository;
 import in.koreatech.koin.domain.community.repository.CommentRepository;
 import in.koreatech.koin.domain.user.model.Student;
-import in.koreatech.koin.domain.user.model.StudentDepartment;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserIdentity;
@@ -60,7 +59,7 @@ class CommunityApiTest extends AcceptanceTest {
         Student studentRequest = Student.builder()
             .studentNumber("202020136070")
             .anonymousNickname("익명")
-            .department(StudentDepartment.COMPUTER)
+            .department("컴퓨터공학부")
             .userIdentity(UserIdentity.UNDERGRADUATE)
             .isGraduated(false)
             .user(

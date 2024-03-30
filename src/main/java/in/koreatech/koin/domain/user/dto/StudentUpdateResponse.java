@@ -37,17 +37,11 @@ public record StudentUpdateResponse(
 
     public static StudentUpdateResponse from(Student student) {
         User user = student.getUser();
-        String department;
-        if (student.getDepartment() == null) {
-            department = null;
-        } else {
-            department = student.getDepartment().getValue();
-        }
         return new StudentUpdateResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
             user.getGender().ordinal(),
-            department,
+            student.getDepartment(),
             user.getName(),
             user.getNickname(),
             user.getPhoneNumber(),
