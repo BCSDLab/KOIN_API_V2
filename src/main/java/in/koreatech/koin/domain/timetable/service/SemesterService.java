@@ -17,7 +17,7 @@ public class SemesterService {
     private final SemesterRepository semesterRepository;
 
     public List<SemesterResponse> getSemesters() {
-        return semesterRepository.findAll().stream()
+        return semesterRepository.findAllByOrderBySemesterDesc().stream()
             .map(SemesterResponse::from)
             .toList();
     }
