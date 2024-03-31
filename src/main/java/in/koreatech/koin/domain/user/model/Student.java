@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.user.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.domain.dept.model.Dept;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -37,7 +38,7 @@ public class Student {
     private String department;
 
     @Column(name = "identity")
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private UserIdentity userIdentity;
 
     @Column(name = "is_graduated")
@@ -61,5 +62,21 @@ public class Student {
     public void update(String studentNumber, String department) {
         this.studentNumber = studentNumber;
         this.department = department;
+    }
+
+    public boolean isStudentNumberValidated() {
+        if (userIdentity != null && studentNumber != null) {
+            return Dept.isValidatedStudentNumber(userIdentity.ordinal(), studentNumber);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isDeptValidated() {
+        if (department != null) {
+            return Dept.isValidatedDepartment(department);
+        } else {
+            return false;
+        }
     }
 }
