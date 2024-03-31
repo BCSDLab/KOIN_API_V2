@@ -1,21 +1,16 @@
 package in.koreatech.koin.domain.bus.model;
 
-public enum Constant {
-    CODE_SERVICE_DISPOSE("12"),
-    CODE_SERVICE_ACCESS_DENIED("20"),
-    CODE_SERVICE_REQUEST_OVER("22"),
-    CODE_KEY_UNREGISTERED("30"),
-    CODE_SERVICE_KEY_EXPIRED("31"),
-    CODE_SERVICE_SUCCESS("00"),
-    ;
-
-    private final String code;
-
-    private Constant(String code){
-        this.code = code;
+public final class Constant {
+    private Constant() {
+        throw new IllegalStateException("Utility class");
     }
 
-    public String getCode(){
-        return code;
-    }
+    public static final long CACHE_EXPIRE_MINUTE = 1L;
+
+    public static final String CODE_SERVICE_DISPOSE = "12";
+    public static final String CODE_SERVICE_ACCESS_DENIED = "20";
+    public static final String CODE_SERVICE_REQUEST_OVER = "22";
+    public static final String CODE_KEY_UNREGISTERED = "30";
+    public static final String CODE_SERVICE_KEY_EXPIRED = "31";
+    public static final String CODE_SERVICE_SUCCESS = "00";
 }
