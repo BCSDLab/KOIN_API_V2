@@ -1,26 +1,36 @@
 package in.koreatech.koin.domain.user.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.domain.user.model.UserIdentity;
+import in.koreatech.koin.domain.user.model.UserType;
+import in.koreatech.koin.global.auth.SHA256Util;
+import in.koreatech.koin.global.date.DateUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record StudentRegisterRequest(
     @Schema(description = "이메일", example = "koin123@koreatech.ac.kr")
     @Email(message = "이메일 형식을 지켜주세요.")
     @NotBlank(message = "이메일을 입력해주세요.")
     String email,
 
-    @Schema(description = "이름")
+    @Schema(description = "이름", example = "최준호")
     @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
     String name,
 
@@ -45,7 +55,7 @@ public record StudentRegisterRequest(
     @JsonProperty("major")
     String department,
 
-    @Schema(description = "학번", example = "2029136012")
+    @Schema(description = "학번", example = "2021136012")
     @Size(max = 50, message = "학번은 50자 이내여야 합니다.")
     String studentNumber,
 
@@ -53,21 +63,37 @@ public record StudentRegisterRequest(
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}", message = "전화번호 형식이 올바르지 않습니다.")
     String phoneNumber
 ) {
-    public static Student toStudent(StudentRegisterRequest request){
+    public Student toStudent(PasswordEncoder passwordEncoder){
+
+        String authExpiredAt = fillExpiredAt();
+
         User user = User.builder()
-            .password(request.password)
-            .email(request.email)
-            .name(request.name)
-            .nickname(request.nickname)
-            .gender(request.gender)
-            .phoneNumber(request.phoneNumber)
+            .password(passwordEncoder.encode(password))
+            .email(email)
+            .name(name)
+            .nickname(nickname)
+            .gender(gender)
+            .phoneNumber(phoneNumber)
+            .isAuthed(false)
+            .isDeleted(false)
+            .userType(UserType.STUDENT)
+            .authToken(SHA256Util.getEncrypt(email, authExpiredAt))
+            .authExpiredAt(authExpiredAt)
             .build();
 
         return Student.builder()
             .user(user)
-            .isGraduated(request.isGraduated)
-            .department(request.department)
-            .studentNumber(request.studentNumber)
+            .anonymousNickname("익명_" + (System.currentTimeMillis()))
+            .isGraduated(isGraduated)
+            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .department(department)
+            .studentNumber(studentNumber)
             .build();
+    }
+
+    private String fillExpiredAt() {
+        Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return dateFormat.format(authExpiredAt);
     }
 }
