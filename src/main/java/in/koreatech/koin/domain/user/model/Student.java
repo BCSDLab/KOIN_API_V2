@@ -33,7 +33,6 @@ public class Student {
     @Column(name = "student_number", length = 20)
     private String studentNumber;
 
-    @Size(max = 50)
     @Column(name = "major", length = 50)
     private String department;
 
@@ -49,13 +48,18 @@ public class Student {
     private User user;
 
     @Builder
-    private Student(String anonymousNickname, String studentNumber, String department, UserIdentity userIdentity,
-        Boolean isGraduated, User user) {
+    private Student(String anonymousNickname, String studentNumber, String department,
+        UserIdentity userIdentity, Boolean isGraduated, User user) {
         this.anonymousNickname = anonymousNickname;
         this.studentNumber = studentNumber;
         this.department = department;
         this.userIdentity = userIdentity;
         this.isGraduated = isGraduated;
         this.user = user;
+    }
+
+    public void update(String studentNumber, String department) {
+        this.studentNumber = studentNumber;
+        this.department = department;
     }
 }

@@ -1,5 +1,9 @@
 package in.koreatech.koin.acceptance;
 
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +14,6 @@ import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserIdentity;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
@@ -18,8 +21,6 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class UserApiTest extends AcceptanceTest {
 
@@ -154,6 +155,308 @@ class UserApiTest extends AcceptanceTest {
             .get("/user/student/me")
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("학생이 정보를 수정한다")
+    void studentUpdateMe() {
+        Student student = Student.builder()
+            .studentNumber("2019136135")
+            .anonymousNickname("익명")
+            .department("컴퓨터공학부")
+            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .isGraduated(false)
+            .user(
+                User.builder()
+                    .password("1234")
+                    .nickname("주노")
+                    .name("최준호")
+                    .phoneNumber("010-1234-5678")
+                    .userType(STUDENT)
+                    .gender(UserGender.MAN)
+                    .email("test@koreatech.ac.kr")
+                    .isAuthed(true)
+                    .isDeleted(false)
+                    .build()
+            )
+            .build();
+
+        studentRepository.save(student);
+        String token = jwtProvider.createToken(student.getUser());
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                  {
+                    "gender" : 1,
+                    "major" : "기계공학부",
+                    "name" : "서정빈",
+                    "nickname" : "duehee",
+                    "phone_number" : "010-2345-6789",
+                    "student_number" : "2019136136"
+                  }
+                """)
+            .when()
+            .put("/user/student/me")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("학생이 정보를 수정한다 - 학번의 형식이 맞지 않으면 400")
+    void studentUpdateMeNotValidStudentNumber() {
+        Student student = Student.builder()
+            .studentNumber("2019136135")
+            .anonymousNickname("익명")
+            .department("컴퓨터공학부")
+            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .isGraduated(false)
+            .user(
+                User.builder()
+                    .password("1234")
+                    .nickname("주노")
+                    .name("최준호")
+                    .phoneNumber("010-1234-5678")
+                    .userType(STUDENT)
+                    .gender(UserGender.MAN)
+                    .email("test@koreatech.ac.kr")
+                    .isAuthed(true)
+                    .isDeleted(false)
+                    .build()
+            )
+            .build();
+
+        studentRepository.save(student);
+        String token = jwtProvider.createToken(student.getUser());
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                  {
+                    "gender" : 0,
+                    "major" : "메카트로닉스공학부",
+                    "name" : "최주노",
+                    "nickname" : "juno",
+                    "phone_number" : "010-2345-6789",
+                    "student_number" : "201913613"
+                  }
+                """)
+            .when()
+            .put("/user/student/me")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("학생이 정보를 수정한다 - 학부의 형식이 맞지 않으면 400")
+    void studentUpdateMeNotValidDepartment() {
+        Student student = Student.builder()
+            .studentNumber("2019136135")
+            .anonymousNickname("익명")
+            .department("컴퓨터공학부")
+            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .isGraduated(false)
+            .user(
+                User.builder()
+                    .password("1234")
+                    .nickname("주노")
+                    .name("최준호")
+                    .phoneNumber("010-1234-5678")
+                    .userType(STUDENT)
+                    .gender(UserGender.MAN)
+                    .email("test@koreatech.ac.kr")
+                    .isAuthed(true)
+                    .isDeleted(false)
+                    .build()
+            )
+            .build();
+
+        studentRepository.save(student);
+        String token = jwtProvider.createToken(student.getUser());
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                  {
+                    "gender" : 0,
+                    "major" : "경영학과",
+                    "name" : "최주노",
+                    "nickname" : "juno",
+                    "phone_number" : "010-2345-6789",
+                    "student_number" : "2019136136"
+                  }
+                """)
+            .when()
+            .put("/user/student/me")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("학생이 정보를 수정한다 - 토큰이 올바르지 않다면 401")
+    void studentUpdateMeUnAuthorized() {
+        Student student = Student.builder()
+            .studentNumber("2019136135")
+            .anonymousNickname("익명")
+            .department("컴퓨터공학부")
+            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .isGraduated(false)
+            .user(
+                User.builder()
+                    .password("1234")
+                    .nickname("주노")
+                    .name("최준호")
+                    .phoneNumber("010-1234-5678")
+                    .userType(STUDENT)
+                    .gender(UserGender.MAN)
+                    .email("test@koreatech.ac.kr")
+                    .isAuthed(true)
+                    .isDeleted(false)
+                    .build()
+            )
+            .build();
+
+        studentRepository.save(student);
+        String token = "invalidToken";
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                  {
+                    "gender" : 0,
+                    "major" : "메카트로닉스공학부",
+                    "name" : "최주노",
+                    "nickname" : "juno",
+                    "phone_number" : "010-2345-6789",
+                    "student_number" : "2019136136"
+                  }
+                """)
+            .when()
+            .put("/user/student/me")
+            .then()
+            .statusCode(HttpStatus.UNAUTHORIZED.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("학생이 정보를 수정한다 - 회원을 찾을 수 없다면 404")
+    void studentUpdateMeNotFound() {
+        User user =
+            User.builder()
+                .password("1234")
+                .nickname("주노")
+                .name("최준호")
+                .phoneNumber("010-1234-5678")
+                .userType(STUDENT)
+                .gender(UserGender.MAN)
+                .email("test@koreatech.ac.kr")
+                .isAuthed(true)
+                .isDeleted(false)
+                .build();
+
+        userRepository.save(user);
+        String token = jwtProvider.createToken(user);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                  {
+                    "gender" : 0,
+                    "major" : "메카트로닉스공학부",
+                    "name" : "최주노",
+                    "nickname" : "juno",
+                    "phone_number" : "010-2345-6789",
+                    "student_number" : "2019136136"
+                  }
+                """)
+            .when()
+            .put("/user/student/me")
+            .then()
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("학생이 정보를 수정한다 - 이미 있는 닉네임이라면 409")
+    void studentUpdateMeDuplicationNickname() {
+        Student student1 = Student.builder()
+            .studentNumber("2019136135")
+            .anonymousNickname("익명")
+            .department("컴퓨터공학부")
+            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .isGraduated(false)
+            .user(
+                User.builder()
+                    .password("1234")
+                    .nickname("주노")
+                    .name("최준호")
+                    .phoneNumber("010-1234-5678")
+                    .userType(STUDENT)
+                    .gender(UserGender.MAN)
+                    .email("test1@koreatech.ac.kr")
+                    .isAuthed(true)
+                    .isDeleted(false)
+                    .build()
+            )
+            .build();
+
+        Student student2 = Student.builder()
+            .studentNumber("2020136065")
+            .anonymousNickname("익명")
+            .department("컴퓨터공학부")
+            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .isGraduated(false)
+            .user(
+                User.builder()
+                    .password("1234")
+                    .nickname("duehee")
+                    .name("서정빈")
+                    .phoneNumber("010-1234-5678")
+                    .userType(STUDENT)
+                    .gender(UserGender.MAN)
+                    .email("test2@koreatech.ac.kr")
+                    .isAuthed(true)
+                    .isDeleted(false)
+                    .build()
+            )
+            .build();
+
+        studentRepository.save(student1);
+        studentRepository.save(student2);
+        String token = jwtProvider.createToken(student1.getUser());
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                 {
+                    "gender" : 0,
+                    "major" : "테스트학과",
+                    "name" : "최주노",
+                    "nickname" : "duehee",
+                    "phone_number" : "010-2345-6789",
+                    "student_number" : "2019136136"
+                 }
+                """)
+            .when()
+            .put("/user/student/me")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
             .extract();
     }
 
