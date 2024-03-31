@@ -150,4 +150,8 @@ public class User extends BaseEntity {
         this.phoneNumber = phoneNumber;
         this.gender = gender;
     }
+
+    public void enrichForAuthed() {
+        this.isAuthed = true;
+    }
 }
