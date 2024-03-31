@@ -822,7 +822,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value());
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -911,7 +910,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
-            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
