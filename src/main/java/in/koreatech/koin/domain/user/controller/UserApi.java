@@ -31,6 +31,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) User: 회원", description = "회원 관련 API")
@@ -122,7 +123,7 @@ public interface UserApi {
     @Operation(summary = "회원가입")
     @PostMapping("/user/student/register")
     ResponseEntity<Void> studentRegister(
-        @RequestBody @Valid StudentRegisterRequest studentRegisterRequest
+        @RequestBody @Valid StudentRegisterRequest studentRegisterRequest, HttpServletRequest httpServletRequest
     );
 
     @ApiResponses(
