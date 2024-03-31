@@ -251,12 +251,22 @@ class BusApiTest extends AcceptanceTest {
                         "routeno": 405,
                         "routetp": "일반버스",
                         "vehicletp": "일반차량"
+                      },
+                      {
+                        "arrprevstationcnt": 10,
+                        "arrtime": 700,
+                        "nodeid": "CAB285000686",
+                        "nodenm": "종합터미널",
+                        "routeid": "CAB285000024",
+                        "routeno": 200,
+                        "routetp": "일반버스",
+                        "vehicletp": "일반차량"
                       }
                     ]
                   },
                   "numOfRows": 30,
                   "pageNo": 1,
-                  "totalCount": 2
+                  "totalCount": 3
                 }
               }
             }

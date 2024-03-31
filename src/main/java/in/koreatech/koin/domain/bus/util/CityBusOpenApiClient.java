@@ -14,6 +14,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +49,8 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
 
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
+
+    private static final List<Long> AVAILABLE_CITY_BUS = List.of(400L, 402L, 405L);
 
     private final String openApiKey;
 
@@ -96,6 +99,10 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
         List<List<CityBusArrival>> arrivalInfosList = BusStationNode.getNodeIds().stream()
             .map(this::getOpenApiResponse)
             .map(this::extractBusArrivalInfo)
+            .map(cityBusArrivals -> cityBusArrivals
+                .stream()
+                .filter(cityBusArrival -> AVAILABLE_CITY_BUS.stream().anyMatch(busNumber -> Objects.equals(busNumber,
+                    cityBusArrival.routeno()))).toList())
             .toList();
 
         LocalDateTime updatedAt = LocalDateTime.now(clock);
