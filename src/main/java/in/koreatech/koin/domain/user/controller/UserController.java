@@ -130,7 +130,8 @@ public class UserController implements UserApi {
     @GetMapping("/user/check/nickname")
     public ResponseEntity<Void> checkDuplicationOfNickname(
         @ModelAttribute("nickname")
-        @Valid NicknameCheckExistsRequest request) {
+        @Valid NicknameCheckExistsRequest request
+    ) {
         userService.checkUserNickname(request);
         return ResponseEntity.ok().build();
     }

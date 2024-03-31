@@ -63,7 +63,7 @@ public record StudentRegisterRequest(
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}", message = "전화번호 형식이 올바르지 않습니다.")
     String phoneNumber
 ) {
-    public Student toStudent(PasswordEncoder passwordEncoder){
+    public Student toStudent(PasswordEncoder passwordEncoder) {
 
         String authExpiredAt = fillExpiredAt();
 

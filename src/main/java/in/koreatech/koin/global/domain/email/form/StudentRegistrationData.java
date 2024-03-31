@@ -2,7 +2,7 @@ package in.koreatech.koin.global.domain.email.form;
 
 import java.util.Map;
 
-public class StudentRegistrationData implements MailFormData{
+public class StudentRegistrationData implements MailFormData {
 
     private static final String SUBJECT = "학교 이메일 주소 인증";
     private static final String PATH = "student_register_certificate_number";
