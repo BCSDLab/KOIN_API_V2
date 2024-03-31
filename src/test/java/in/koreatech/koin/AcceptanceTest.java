@@ -27,7 +27,7 @@ import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@Import({DBInitializer.class})
+@Import(DBInitializer.class)
 @ActiveProfiles("test")
 public abstract class AcceptanceTest {
 
