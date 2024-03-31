@@ -99,11 +99,12 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
         List<List<CityBusArrival>> arrivalInfosList = BusStationNode.getNodeIds().stream()
             .map(this::getOpenApiResponse)
             .map(this::extractBusArrivalInfo)
-            .map(cityBusArrivals -> cityBusArrivals
-                .stream()
-                .filter(cityBusArrival -> AVAILABLE_CITY_BUS.stream().anyMatch(busNumber -> Objects.equals(busNumber,
-                    cityBusArrival.routeno()))).toList())
-            .toList();
+            .map(cityBusArrivals -> cityBusArrivals.stream()
+                .filter(cityBusArrival ->
+                    AVAILABLE_CITY_BUS.stream().anyMatch(busNumber ->
+                        Objects.equals(busNumber, cityBusArrival.routeno()))
+                ).toList()
+            ).toList();
 
         LocalDateTime updatedAt = LocalDateTime.now(clock);
 
