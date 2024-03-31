@@ -118,7 +118,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/user/authenticate", method = RequestMethod.GET)
+    @GetMapping(value = "/user/authenticate")
     public ModelAndView authenticate(
         @ModelAttribute("auth_token")
         @Valid AuthTokenRequest request
