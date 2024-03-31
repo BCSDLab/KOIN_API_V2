@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.bus.model.redis;
 
-import static in.koreatech.koin.domain.bus.model.Constant.CACHE_EXPIRE_MINUTE;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +14,10 @@ import lombok.Getter;
 @Getter
 @RedisHash("CityBus")
 public class CityBusCache {
+
+    private static final long CACHE_EXPIRE_MINUTE = 1L;
+
+    private static final long CACHE_EXPIRE_SECONDS = 60L;
 
     @Id
     private String id;
@@ -38,5 +40,13 @@ public class CityBusCache {
             .busInfos(busInfos)
             .expiration(CACHE_EXPIRE_MINUTE)
             .build();
+    }
+
+    public static long getCacheExpireMinute() {
+        return CACHE_EXPIRE_MINUTE;
+    }
+
+    public static long getCacheExpireSeconds() {
+        return CACHE_EXPIRE_SECONDS;
     }
 }
