@@ -189,22 +189,22 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
         String resultCode = response.get("header").getAsJsonObject().get("resultCode").getAsString();
 
         String errorMessage = "";
-        if (CODE_SERVICE_DISPOSE.equals(resultCode)) {
+        if (CODE_SERVICE_DISPOSE.getCode().equals(resultCode)) {
             errorMessage = "버스도착정보 공공 API 서비스가 폐기되었습니다.";
         }
-        if (CODE_SERVICE_ACCESS_DENIED.equals(resultCode)) {
+        if (CODE_SERVICE_ACCESS_DENIED.getCode().equals(resultCode)) {
             errorMessage = "버스도착정보 공공 API 서비스가 접근 거부 상태입니다.";
         }
-        if (CODE_SERVICE_REQUEST_OVER.equals(resultCode)) {
+        if (CODE_SERVICE_REQUEST_OVER.getCode().equals(resultCode)) {
             errorMessage = "버스도착정보 공공 API 서비스의 요청 제한 횟수가 초과되었습니다.";
         }
-        if (CODE_KEY_UNREGISTERED.equals(resultCode)) {
+        if (CODE_KEY_UNREGISTERED.getCode().equals(resultCode)) {
             errorMessage = "등록되지 않은 버스도착정보 공공 API 서비스 키입니다.";
         }
-        if (CODE_SERVICE_KEY_EXPIRED.equals(resultCode)) {
+        if (CODE_SERVICE_KEY_EXPIRED.getCode().equals(resultCode)) {
             errorMessage = "버스도착정보 공공 API 서비스 키의 활용 기간이 만료되었습니다.";
         }
-        if (!CODE_SERVICE_SUCCESS.equals(resultCode)) {
+        if (!CODE_SERVICE_SUCCESS.getCode().equals(resultCode)) {
             String resultMessage = response.get("header").getAsJsonObject().get("resultMsg").getAsString();
             throw BusOpenApiException.withDetail(errorMessage + " resultMsg: " + resultMessage);
         }
