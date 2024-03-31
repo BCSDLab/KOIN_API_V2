@@ -1,9 +1,11 @@
 package in.koreatech.koin.domain.dept.model;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import in.koreatech.koin.domain.user.model.UserIdentity;
 import lombok.Getter;
 
 @Getter
@@ -67,5 +69,36 @@ public enum Dept {
 
     public static List<Dept> findAll() {
         return Arrays.stream(values()).toList();
+    }
+
+    public static boolean isValidatedStudentNumber(Integer identity, String studentNumber) {
+        if (identity == UserIdentity.UNDERGRADUATE.ordinal()) {
+            if (studentNumber.length() != 10) {
+                return false;
+            }
+
+            String admissionYear = studentNumber.substring(0, 5);
+
+            // 학번이 1992 ~ 신입 학번이 아니면 예외처리
+            return admissionYear.compareTo("1992") >= 0
+                && admissionYear.compareTo((new Date()).toString().substring(0, 4)) <= 0;
+        } else if (identity.equals(UserIdentity.GRADUATE.ordinal())) {
+            return false;
+        } else if (identity.equals(UserIdentity.PROFESSOR.ordinal())) {
+            return false;
+        } else if (identity.equals(UserIdentity.STAFF.ordinal())) {
+            return false;
+        } else if (identity.equals(UserIdentity.ALUMNI.ordinal())) {
+            return false;
+        } else if (identity.equals(UserIdentity.OWNER.ordinal())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean isValidatedDepartment(String dept){
+        return Arrays.stream(Dept.values())
+            .anyMatch(depts -> depts.name.contains(dept));
     }
 }
