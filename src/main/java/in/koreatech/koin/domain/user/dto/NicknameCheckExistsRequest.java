@@ -10,4 +10,5 @@ public record NicknameCheckExistsRequest(
     @NotBlank(message = "이메일을 입력해주세요.")
     String nickname
 ) {
+
 }

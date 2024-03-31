@@ -560,24 +560,36 @@ class CommunityApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.jsonPath().getList("").size()).isEqualTo(HOT_ARTICLE_LIMIT);
 
-                softly.assertThat(response.jsonPath().getLong("[0].id")).isEqualTo(articles.get(ARTICLE_COUNT - 1).getId());
+                softly.assertThat(response.jsonPath().getLong("[0].id"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 1).getId());
                 softly.assertThat(response.jsonPath().getLong("[0].board_id")).isEqualTo(board.getId());
-                softly.assertThat(response.jsonPath().getString("[0].title")).isEqualTo(articles.get(ARTICLE_COUNT - 1).getTitle());
+                softly.assertThat(response.jsonPath().getString("[0].title"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 1).getTitle());
                 softly.assertThat(response.jsonPath().getString("[0].contentSummary"))
                     .isEqualTo(articles.get(ARTICLE_COUNT - 1).getContentSummary());
                 softly.assertThat(response.jsonPath().getByte("[0].comment_count"))
                     .isEqualTo((byte)articles.get(ARTICLE_COUNT - 1).getCommentCount());
-                softly.assertThat(response.jsonPath().getLong("[0].hit")).isEqualTo(articles.get(ARTICLE_COUNT - 1).getHit());
+                softly.assertThat(response.jsonPath().getLong("[0].hit"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 1).getHit());
 
-                softly.assertThat(response.jsonPath().getLong("[1].id")).isEqualTo(articles.get(ARTICLE_COUNT - 2).getId());
-                softly.assertThat(response.jsonPath().getLong("[2].id")).isEqualTo(articles.get(ARTICLE_COUNT - 3).getId());
-                softly.assertThat(response.jsonPath().getLong("[3].id")).isEqualTo(articles.get(ARTICLE_COUNT - 4).getId());
-                softly.assertThat(response.jsonPath().getLong("[4].id")).isEqualTo(articles.get(ARTICLE_COUNT - 5).getId());
-                softly.assertThat(response.jsonPath().getLong("[5].id")).isEqualTo(articles.get(ARTICLE_COUNT - 6).getId());
-                softly.assertThat(response.jsonPath().getLong("[6].id")).isEqualTo(articles.get(ARTICLE_COUNT - 7).getId());
-                softly.assertThat(response.jsonPath().getLong("[7].id")).isEqualTo(articles.get(ARTICLE_COUNT - 8).getId());
-                softly.assertThat(response.jsonPath().getLong("[8].id")).isEqualTo(articles.get(ARTICLE_COUNT - 9).getId());
-                softly.assertThat(response.jsonPath().getLong("[9].id")).isEqualTo(articles.get(ARTICLE_COUNT - 10).getId());
+                softly.assertThat(response.jsonPath().getLong("[1].id"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 2).getId());
+                softly.assertThat(response.jsonPath().getLong("[2].id"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 3).getId());
+                softly.assertThat(response.jsonPath().getLong("[3].id"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 4).getId());
+                softly.assertThat(response.jsonPath().getLong("[4].id"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 5).getId());
+                softly.assertThat(response.jsonPath().getLong("[5].id"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 6).getId());
+                softly.assertThat(response.jsonPath().getLong("[6].id"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 7).getId());
+                softly.assertThat(response.jsonPath().getLong("[7].id"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 8).getId());
+                softly.assertThat(response.jsonPath().getLong("[8].id"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 9).getId());
+                softly.assertThat(response.jsonPath().getLong("[9].id"))
+                    .isEqualTo(articles.get(ARTICLE_COUNT - 10).getId());
             }
         );
     }

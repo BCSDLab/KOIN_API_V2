@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -97,12 +98,14 @@ public class User extends BaseEntity {
     @Column(name = "reset_expired_at")
     private String resetExpiredAt;
 
+    @Column(name = "device_token", nullable = true)
+    private String deviceToken;
+
     @Builder
-    public User(String password, String nickname, String name, String phoneNumber, UserType userType,
-                String email,
-                UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-                Boolean isDeleted,
-                String authToken, String authExpiredAt, String resetToken, String resetExpiredAt) {
+    private User(String password, String nickname, String name, String phoneNumber, UserType userType,
+                 String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+                 Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt,
+                 String deviceToken) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -118,13 +121,33 @@ public class User extends BaseEntity {
         this.authExpiredAt = authExpiredAt;
         this.resetToken = resetToken;
         this.resetExpiredAt = resetExpiredAt;
+        this.deviceToken = deviceToken;
     }
 
-    public boolean isSamePassword(String password) {
-        return this.password.equals(password);
+    public boolean isSamePassword(PasswordEncoder passwordEncoder, String password) {
+        return passwordEncoder.matches(password, this.password);
+    }
+
+    public void permitNotification(String deviceToken) {
+        this.deviceToken = deviceToken;
+    }
+
+    public void rejectNotification() {
+        this.deviceToken = null;
     }
 
     public void updateLastLoggedTime(LocalDateTime lastLoggedTime) {
         lastLoggedAt = lastLoggedTime;
+    }
+
+    public void updatePassword(PasswordEncoder passwordEncoder, String password) {
+        this.password = passwordEncoder.encode(password);
+    }
+
+    public void update(String nickname, String name, String phoneNumber, UserGender gender) {
+        this.nickname = nickname;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.gender = gender;
     }
 }

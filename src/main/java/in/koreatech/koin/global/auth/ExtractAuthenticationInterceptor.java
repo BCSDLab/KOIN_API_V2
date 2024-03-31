@@ -1,5 +1,7 @@
 package in.koreatech.koin.global.auth;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -9,7 +11,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component
 @RequiredArgsConstructor
@@ -20,12 +21,16 @@ public class ExtractAuthenticationInterceptor implements HandlerInterceptor {
 
     private final JwtProvider jwtProvider;
     private final AuthContext authContext;
+    private final UserIdContext userIdContext;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         Optional.ofNullable(extractAccessToken(request))
             .map(jwtProvider::getUserId)
-            .ifPresent(authContext::setUserId);
+            .ifPresent(userId -> {
+                authContext.setUserId(userId);
+                userIdContext.setUserId(userId);
+            });
         return true;
     }
 

@@ -1,14 +1,21 @@
 package in.koreatech.koin.domain.owner.model;
 
+import static jakarta.persistence.CascadeType.ALL;
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.REMOVE;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import in.koreatech.koin.domain.user.model.User;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -28,7 +35,7 @@ public class Owner {
     private Long id;
 
     @MapsId
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
@@ -37,22 +44,27 @@ public class Owner {
     @Column(name = "company_registration_number", nullable = false, length = 12)
     private String companyRegistrationNumber;
 
-    @Size(max = 255)
-    @Column(name = "company_registration_certificate_image_url")
-    private String companyRegistrationCertificateImageUrl;
-
     @Column(name = "grant_shop")
     private Boolean grantShop;
 
     @Column(name = "grant_event")
     private Boolean grantEvent;
 
+    @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true)
+    @JoinColumn(name = "owner_id")
+    private List<OwnerAttachment> attachments = new ArrayList<>();
+
     @Builder
-    private Owner(User user, String companyRegistrationNumber,
-        String companyRegistrationCertificateImageUrl, Boolean grantShop, Boolean grantEvent) {
+    private Owner(
+        User user,
+        String companyRegistrationNumber,
+        List<OwnerAttachment> attachments,
+        Boolean grantShop,
+        Boolean grantEvent
+    ) {
         this.user = user;
         this.companyRegistrationNumber = companyRegistrationNumber;
-        this.companyRegistrationCertificateImageUrl = companyRegistrationCertificateImageUrl;
+        this.attachments = attachments;
         this.grantShop = grantShop;
         this.grantEvent = grantEvent;
     }
