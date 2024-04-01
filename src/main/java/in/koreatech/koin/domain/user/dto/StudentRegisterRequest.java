@@ -77,7 +77,7 @@ public record StudentRegisterRequest(
             .isAuthed(false)
             .isDeleted(false)
             .userType(UserType.STUDENT)
-            .authToken(SHA256Util.getEncrypt(email, authExpiredAt))
+            .authToken(passwordEncoder.encode(authExpiredAt))
             .authExpiredAt(authExpiredAt)
             .build();
 
