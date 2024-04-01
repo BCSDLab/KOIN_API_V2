@@ -18,7 +18,7 @@ public record EmailAddress(
         return new EmailAddress(email);
     }
 
-    public void validatePortalEmail() {
+    public void validateKoreatechEmail() {
         if (!domainForm().equals(PORTAL_DOMAIN)) {
             throw EmailDomainInvalidException.withDetail("email: " + email);
         }

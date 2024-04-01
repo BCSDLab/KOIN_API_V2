@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.user.service;
 
 import java.util.Optional;
 
+import org.joda.time.LocalDate;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -81,16 +82,12 @@ public class StudentService {
 
     @Transactional
     public AuthResponse authenticate(AuthTokenRequest request) {
-
         Optional<User> user = userRepository.findByAuthToken(request.authToken());
-
         AuthResult authResult = AuthResult.from(user);
-
         if (authResult.isSuccess()) {
-            user.get().enrichForAuthed();
+            user.get().auth();
             eventPublisher.publishEvent(new StudentRegisterEvent(user.get().getEmail()));
         }
-
         return authResult.toAuthResponse();
     }
 
@@ -128,7 +125,7 @@ public class StudentService {
 
     private void validateStudentRegister(Student student) {
         EmailAddress emailAddress = EmailAddress.from(student.getUser().getEmail());
-        emailAddress.validatePortalEmail();
+        emailAddress.validateKoreatechEmail();
 
         validateDataExist(student);
         validateStudentNumber(student);

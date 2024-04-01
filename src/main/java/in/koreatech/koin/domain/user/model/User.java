@@ -151,7 +151,7 @@ public class User extends BaseEntity {
         this.gender = gender;
     }
 
-    public void enrichForAuthed() {
+    public void auth() {
         this.isAuthed = true;
     }
 }
