@@ -913,7 +913,7 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("한기대 이메일이 아닐시 422에러코드를 반환한다.")
+    @DisplayName("한기대 이메일이 아닐시 400에러코드를 반환한다.")
     void studentRegisterInvalid() {
         RestAssured
             .given()
@@ -934,6 +934,52 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
-            .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value());
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("유효한 학번의 형식이 아닐시 400에러코드를 반환한다.")
+    void studentRegisterStudentNumberInvalid() {
+        RestAssured
+            .given()
+            .body("""
+                {
+                  "major": "컴퓨터공학부",
+                  "email": "koko123@gmail.com",
+                  "name": "김철수",
+                  "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
+                  "nickname": "koko",
+                  "gender": "0",
+                  "is_graduated": false,
+                  "student_number": "20211360123324231",
+                  "phone_number": "010-0000-0000"
+                }
+                """)
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/user/student/register")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+
+        RestAssured
+            .given()
+            .body("""
+                {
+                  "major": "컴퓨터공학부",
+                  "email": "koko123@gmail.com",
+                  "name": "김철수",
+                  "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
+                  "nickname": "koko",
+                  "gender": "0",
+                  "is_graduated": false,
+                  "student_number": "19911360123",
+                  "phone_number": "010-0000-0000"
+                }
+                """)
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/user/student/register")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 }
