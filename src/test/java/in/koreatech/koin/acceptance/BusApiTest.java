@@ -78,26 +78,24 @@ class BusApiTest extends AcceptanceTest {
         busRepository.save(busCourse);
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
-            .log().all()
             .param("bus_type", busType.name().toLowerCase())
             .param("depart", depart.name())
             .param("arrival", arrival.name())
             .get("/bus")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getString("bus_type")).isEqualTo(busType.name().toLowerCase());
-                softly.assertThat((Long)response.body().jsonPath().get("now_bus.bus_number")).isNull();
+                softly.assertThat(response.body().jsonPath().getString("bus_type"))
+                    .isEqualTo(busType.name().toLowerCase());
+                softly.assertThat((Long) response.body().jsonPath().get("now_bus.bus_number")).isNull();
                 softly.assertThat(response.body().jsonPath().getLong("now_bus.remain_time")).isEqualTo(
                     BusRemainTime.from(arrivalTime).getRemainSeconds(clock));
-                softly.assertThat((Long)response.body().jsonPath().get("next_bus.bus_number")).isNull();
-                softly.assertThat((Long)response.body().jsonPath().get("next_bus.remain_time")).isNull();
+                softly.assertThat((Long) response.body().jsonPath().get("next_bus.bus_number")).isNull();
+                softly.assertThat((Long) response.body().jsonPath().get("next_bus.remain_time")).isNull();
             }
         );
     }

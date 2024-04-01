@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.user.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
@@ -156,52 +155,6 @@ public interface UserApi {
     ResponseEntity<Void> checkUserEmailExist(
         @ModelAttribute("address")
         @Valid EmailCheckExistsRequest request
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "푸쉬알림 동의 여부 조회")
-    @GetMapping("/user/notification")
-    ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
-        @Auth(permit = {STUDENT, OWNER}) Long memberId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400"),
-            @ApiResponse(responseCode = "401"),
-            @ApiResponse(responseCode = "403"),
-            @ApiResponse(responseCode = "404"),
-        }
-    )
-    @Operation(summary = "푸쉬알림 동의")
-    @PostMapping("/user/notification")
-    ResponseEntity<Void> permitNotification(
-        @Auth(permit = {STUDENT, OWNER}) Long memberId,
-        @Valid @RequestBody NotificationPermitRequest request
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400"),
-            @ApiResponse(responseCode = "401"),
-            @ApiResponse(responseCode = "403"),
-            @ApiResponse(responseCode = "404"),
-        }
-    )
-    @Operation(summary = "푸쉬알림 거절")
-    @DeleteMapping("/user/notification")
-    ResponseEntity<Void> rejectNotification(
-        @Auth(permit = {STUDENT, OWNER}) Long memberId
     );
 
     @ApiResponses(

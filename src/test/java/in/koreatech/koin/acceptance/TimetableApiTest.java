@@ -88,7 +88,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("semester_date", lecture1.getSemester())
             .get("/lectures")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -181,7 +180,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("semester_date", lecture1.getSemester())
             .get("/lectures")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -234,7 +232,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("semester_date", 20193)
             .get("/lectures")
             .then()
-            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
     }
@@ -244,19 +241,22 @@ class TimetableApiTest extends AcceptanceTest {
     void findAllSemesters() {
         Semester request1 = Semester.builder().semester("20221").build();
         Semester request2 = Semester.builder().semester("20222").build();
+        Semester request3 = Semester.builder().semester("20231").build();
+        Semester request4 = Semester.builder().semester("20232").build();
         semesterRepository.save(request1);
         semesterRepository.save(request2);
+        semesterRepository.save(request3);
+        semesterRepository.save(request4);
 
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
             .get("/semesters")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.body().jsonPath().getList(".")).hasSize(2);
+        assertThat(response.body().jsonPath().getList(".")).hasSize(4);
     }
 
     @Test
@@ -807,7 +807,7 @@ class TimetableApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.body().jsonPath().getList("timetable")).hasSize(0);
+        assertThat(response.body().jsonPath().getList("timetable")).isEmpty();
     }
 
     @Test

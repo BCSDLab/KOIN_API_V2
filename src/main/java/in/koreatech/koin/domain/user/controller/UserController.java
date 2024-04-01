@@ -135,28 +135,4 @@ public class UserController implements UserApi {
         userService.checkUserNickname(request);
         return ResponseEntity.ok().build();
     }
-
-    @GetMapping("/user/notification")
-    public ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
-        @Auth(permit = {STUDENT, OWNER}) Long memberId
-    ) {
-        return ResponseEntity.ok(userService.checkNotification(memberId));
-    }
-
-    @PostMapping("/user/notification")
-    public ResponseEntity<Void> permitNotification(
-        @Auth(permit = {STUDENT, OWNER}) Long memberId,
-        @Valid @RequestBody NotificationPermitRequest request
-    ) {
-        userService.permitNotification(memberId, request.deviceToken());
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/user/notification")
-    public ResponseEntity<Void> rejectNotification(
-        @Auth(permit = {STUDENT, OWNER}) Long memberId
-    ) {
-        userService.rejectNotification(memberId);
-        return ResponseEntity.ok().build();
-    }
 }
