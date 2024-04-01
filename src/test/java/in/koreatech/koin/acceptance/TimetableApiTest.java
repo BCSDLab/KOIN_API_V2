@@ -88,7 +88,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("semester_date", lecture1.getSemester())
             .get("/lectures")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -181,7 +180,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("semester_date", lecture1.getSemester())
             .get("/lectures")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -234,7 +232,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("semester_date", 20193)
             .get("/lectures")
             .then()
-            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
     }
@@ -256,7 +253,6 @@ class TimetableApiTest extends AcceptanceTest {
             .when()
             .get("/semesters")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -811,7 +807,7 @@ class TimetableApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.body().jsonPath().getList("timetable")).hasSize(0);
+        assertThat(response.body().jsonPath().getList("timetable")).isEmpty();
     }
 
     @Test

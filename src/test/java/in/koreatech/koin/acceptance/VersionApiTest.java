@@ -36,11 +36,9 @@ class VersionApiTest extends AcceptanceTest {
         // when then
         ExtractableResponse<Response> response = RestAssured
             .given()
-            .log().all()
             .when()
             .get("/versions/" + versionType.getValue())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -58,22 +56,18 @@ class VersionApiTest extends AcceptanceTest {
         VersionType failureType = VersionType.TIMETABLE;
         ExtractableResponse<Response> notFoundFailureResponse = RestAssured
             .given()
-            .log().all()
             .when()
             .get("/versions/" + failureType.getValue())
             .then()
-            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
 
         String undefinedType = "undefined";
         ExtractableResponse<Response> enumTypeFailureResponse = RestAssured
             .given()
-            .log().all()
             .when()
             .get("/versions/" + undefinedType)
             .then()
-            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
     }

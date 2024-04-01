@@ -212,7 +212,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .get("/owner/shops")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -491,7 +490,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                 softly.assertThat(
                         response.body().jsonPath().getInt("menu_categories[0].menus[0].option_prices[1].price"))
                     .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getPrice());
-                softly.assertThat((Object)response.body().jsonPath().get("menu_categories[0].menus[0].single_price"))
+                softly.assertThat((Object) response.body().jsonPath().get("menu_categories[0].menus[0].single_price"))
                     .isNull();
                 softly.assertThat(response.body().jsonPath().getString("updated_at"))
                     .isEqualTo(LocalDate.now().toString());
@@ -626,7 +625,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.getIsHidden());
 
                 softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
-                softly.assertThat((Integer)response.body().jsonPath().get("single_price")).isNull();
+                softly.assertThat((Integer) response.body().jsonPath().get("single_price")).isNull();
 
                 softly.assertThat(response.body().jsonPath().getList("option_prices")).hasSize(2);
                 softly.assertThat(response.body().jsonPath().getString("option_prices[0].option"))
