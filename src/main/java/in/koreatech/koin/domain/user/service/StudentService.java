@@ -153,7 +153,9 @@ public class StudentService {
         if (student.getStudentNumber() == null) {
             return;
         }
-        if (!student.isStudentNumberValidated()) {
+        String admissionYear = student.getStudentNumber().substring(0, 4);
+        if(admissionYear.compareTo("1992") < 0
+            || admissionYear.compareTo((new LocalDate()).toString().substring(0, 4)) > 0){
             throw StudentNumberNotValidException.withDetail("studentNumber: " + student.getStudentNumber());
         }
     }

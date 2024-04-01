@@ -64,14 +64,6 @@ public class Student {
         this.department = department;
     }
 
-    public boolean isStudentNumberValidated() {
-        if (userIdentity != null && studentNumber != null) {
-            return Dept.isValidatedStudentNumber(userIdentity.ordinal(), studentNumber);
-        } else {
-            return false;
-        }
-    }
-
     public boolean isDeptValidated() {
         if (department != null) {
             return Dept.isValidatedDepartment(department);

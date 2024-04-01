@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.NotificationPermitRequest;
-import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
