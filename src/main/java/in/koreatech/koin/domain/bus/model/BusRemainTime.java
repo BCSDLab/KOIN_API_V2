@@ -7,8 +7,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import in.koreatech.koin.domain.bus.exception.BusIllegalArrivalTime;
-import lombok.Builder;
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
+@Getter
+@SuperBuilder
 public class BusRemainTime implements Comparable<BusRemainTime> {
 
     private final LocalTime busArrivalTime;
@@ -30,6 +33,12 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
             .build();
     }
 
+    public static BusRemainTime from(Long remainTime, LocalTime updatedAt) {
+        return builder()
+            .busArrivalTime(updatedAt.plusSeconds(remainTime))
+            .build();
+    }
+
     private static LocalTime toLocalTime(String arrivalTime) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -39,8 +48,7 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
         }
     }
 
-    @Builder
-    private BusRemainTime(LocalTime busArrivalTime) {
+    public BusRemainTime(LocalTime busArrivalTime) {
         this.busArrivalTime = busArrivalTime;
     }
 

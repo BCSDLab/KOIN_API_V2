@@ -58,3 +58,5 @@ koin:
 fcm:
   koin:
     url: koinAppUrl://
+
+OPEN_API_KEY:

@@ -5,6 +5,11 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
+import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
+import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest.InnerOptionPrice;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -23,6 +28,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "shop_menus")
+@Where(clause = "is_deleted=0")
+@SQLDelete(sql = "UPDATE shop_menus SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = PROTECTED)
 public class Menu extends BaseEntity {
 
@@ -81,5 +88,54 @@ public class Menu extends BaseEntity {
             ", shopId=" + shopId +
             ", name='" + name + '\'' +
             '}';
+    }
+
+    public void modifyMenu(
+        String name,
+        String description
+    ) {
+        this.name = name;
+        this.description = description;
+    }
+
+    public void modifyMenuImages(List<String> imageUrls) {
+        this.menuImages.clear();
+        for (String imageUrl : imageUrls) {
+            MenuImage newMenuImage = MenuImage.builder()
+                .imageUrl(imageUrl)
+                .menu(this)
+                .build();
+            this.menuImages.add(newMenuImage);
+        }
+    }
+
+    public void modifyMenuCategories(List<MenuCategory> menuCategories) {
+        this.menuCategoryMaps.clear();
+        for (MenuCategory menuCategory : menuCategories) {
+            MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
+                .menu(this)
+                .menuCategory(menuCategory)
+                .build();
+            this.menuCategoryMaps.add(menuCategoryMap);
+        }
+    }
+
+    public void modifyMenuSingleOptions(ModifyMenuRequest modifyMenuRequest) {
+        MenuOption menuOption = MenuOption.builder()
+            .price(modifyMenuRequest.singlePrice())
+            .menu(this)
+            .build();
+        this.menuOptions.add(menuOption);
+    }
+
+    public void modifyMenuMultieOptions(List<InnerOptionPrice> innerOptionPrice) {
+        for (var option : innerOptionPrice) {
+            MenuOption menuOption = MenuOption.builder()
+                .option(option.option())
+                .price(option.price())
+                .menu(this)
+                .build();
+            this.menuOptions.add(menuOption);
+        }
     }
 }

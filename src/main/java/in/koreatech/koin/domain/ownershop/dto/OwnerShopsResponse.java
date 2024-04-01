@@ -2,8 +2,12 @@ package in.koreatech.koin.domain.ownershop.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import in.koreatech.koin.domain.shop.model.Shop;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record OwnerShopsResponse(
     Long count,
     List<InnerShopResponse> shops
@@ -18,6 +22,7 @@ public record OwnerShopsResponse(
         );
     }
 
+    @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerShopResponse(
         Long id,
         String name
