@@ -9,6 +9,7 @@ import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.ShopsResponse;
 import in.koreatech.koin.domain.shop.service.ShopService;
 import lombok.RequiredArgsConstructor;
 
@@ -46,5 +47,12 @@ public class ShopController implements ShopApi {
     ) {
         ShopResponse shopResponse = shopService.getShop(id);
         return ResponseEntity.ok(shopResponse);
+    }
+
+    @GetMapping("/shops")
+    public ResponseEntity<ShopsResponse> getShops(
+    ) {
+        ShopsResponse shopsResponse = shopService.getShops();
+        return ResponseEntity.ok(shopsResponse);
     }
 }

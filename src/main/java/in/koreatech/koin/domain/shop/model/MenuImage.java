@@ -38,7 +38,8 @@ public class MenuImage {
     private String imageUrl;
 
     @Builder
-    private MenuImage(String imageUrl) {
+    private MenuImage(Menu menu, String imageUrl) {
+        this.menu = menu;
         this.imageUrl = imageUrl;
     }
 

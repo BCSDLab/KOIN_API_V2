@@ -9,6 +9,7 @@ import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.ShopsResponse;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -52,5 +53,10 @@ public class ShopService {
     public ShopMenuResponse getShopMenu(Long shopId) {
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shopId);
         return ShopMenuResponse.from(menuCategories);
+    }
+
+    public ShopsResponse getShops() {
+        List<Shop> shops = shopRepository.findAll();
+        return ShopsResponse.from(shops);
     }
 }
