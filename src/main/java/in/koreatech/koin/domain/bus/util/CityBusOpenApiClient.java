@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.bus.util;
 
-import static in.koreatech.koin.domain.bus.model.enums.OpenApiResultCode.*;
 import static java.net.URLEncoder.encode;
 
 import java.io.BufferedReader;
@@ -28,9 +27,9 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.model.CityBusArrival;
 import in.koreatech.koin.domain.bus.model.CityBusRemainTime;
+import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.model.redis.BusCache;
 import in.koreatech.koin.domain.bus.model.redis.CityBusCache;
@@ -49,20 +48,15 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
 
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
-
     private static final List<Long> AVAILABLE_CITY_BUS = List.of(400L, 402L, 405L);
-
-    private final String openApiKey;
-
-    private final Gson gson;
-
-    private final Clock clock;
-
-    private final VersionRepository versionRepository;
-    private final CityBusCacheRepository cityBusCacheRepository;
-
     private static final Type arrivalInfoType = new TypeToken<List<CityBusArrival>>() {
     }.getType();
+
+    private final String openApiKey;
+    private final Gson gson;
+    private final Clock clock;
+    private final VersionRepository versionRepository;
+    private final CityBusCacheRepository cityBusCacheRepository;
 
     public CityBusOpenApiClient(
         @Value("${OPEN_API_KEY}") String openApiKey,
@@ -173,7 +167,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
                 .getAsJsonObject()
                 .get("response")
                 .getAsJsonObject();
-            validateResponse(response);
+            BusOpenApiResultCode.validateResponse(response);
             JsonObject body = response.get("body").getAsJsonObject();
 
             if (body.get("totalCount").getAsLong() == 0) {
@@ -190,31 +184,6 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
             return result;
         } catch (JsonSyntaxException e) {
             return result;
-        }
-    }
-
-    private void validateResponse(JsonObject response) {
-        String resultCode = response.get("header").getAsJsonObject().get("resultCode").getAsString();
-
-        String errorMessage = "";
-        if (SERVICE_DISPOSE.getCode().equals(resultCode)) {
-            errorMessage = "버스도착정보 공공 API 서비스가 폐기되었습니다.";
-        }
-        if (SERVICE_ACCESS_DENIED.getCode().equals(resultCode)) {
-            errorMessage = "버스도착정보 공공 API 서비스가 접근 거부 상태입니다.";
-        }
-        if (SERVICE_REQUEST_OVER.getCode().equals(resultCode)) {
-            errorMessage = "버스도착정보 공공 API 서비스의 요청 제한 횟수가 초과되었습니다.";
-        }
-        if (KEY_UNREGISTERED.getCode().equals(resultCode)) {
-            errorMessage = "등록되지 않은 버스도착정보 공공 API 서비스 키입니다.";
-        }
-        if (SERVICE_KEY_EXPIRED.getCode().equals(resultCode)) {
-            errorMessage = "버스도착정보 공공 API 서비스 키의 활용 기간이 만료되었습니다.";
-        }
-        if (!SERVICE_SUCCESS.getCode().equals(resultCode)) {
-            String resultMessage = response.get("header").getAsJsonObject().get("resultMsg").getAsString();
-            throw BusOpenApiException.withDetail(errorMessage + " resultMsg: " + resultMessage);
         }
     }
 }

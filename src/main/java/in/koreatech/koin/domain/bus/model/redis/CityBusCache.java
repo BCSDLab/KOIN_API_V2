@@ -16,7 +16,6 @@ import lombok.Getter;
 public class CityBusCache {
 
     private static final long CACHE_EXPIRE_MINUTE = 1L;
-
     private static final long CACHE_EXPIRE_SECONDS = 60L;
 
     @Id

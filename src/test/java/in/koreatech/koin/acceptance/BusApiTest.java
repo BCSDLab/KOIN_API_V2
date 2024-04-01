@@ -222,7 +222,7 @@ class BusApiTest extends AcceptanceTest {
         when(clock.instant()).thenReturn(requestedAt);
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
 
-        String json = """
+        String busApiReturnValue = """
             {
               "response": {
                 "header": {
@@ -273,7 +273,7 @@ class BusApiTest extends AcceptanceTest {
             """;
 
         String nodeId = depart.getNodeId(direction);
-        when(cityBusOpenApiClient.getOpenApiResponse(nodeId)).thenReturn(json);
+        when(cityBusOpenApiClient.getOpenApiResponse(nodeId)).thenReturn(busApiReturnValue);
 
         ExtractableResponse<Response> response = RestAssured
             .given()

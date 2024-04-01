@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleExternalServiceException(ExternalServiceException e) {
         log.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.from("외부 서비스에 접속할 수 없습니다."));
+                .body(ErrorResponse.from("외부 API 호출 과정에서 문제가 발생했습니다."));
     }
 
     @ExceptionHandler

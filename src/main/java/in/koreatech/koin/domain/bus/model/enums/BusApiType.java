@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public enum BusApiType {
     CITY("cityBusOpenApiClient"),
-    EXPRESS("intercityBusOpenApiClient")
+    EXPRESS("intercityBusOpenApiClient"),
     ;
 
     private final String value;
