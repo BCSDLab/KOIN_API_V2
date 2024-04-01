@@ -55,4 +55,8 @@ koin:
   admin:
     url: https://admin-url-path.com
 
+fcm:
+  koin:
+    url: koinAppUrl://
+
 OPEN_API_KEY:
