@@ -15,7 +15,6 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserIdentity;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.global.auth.SHA256Util;
 import in.koreatech.koin.global.date.DateUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -56,7 +55,7 @@ public record StudentRegisterRequest(
     String department,
 
     @Schema(description = "학번", example = "2021136012")
-    @Size(max = 50, message = "학번은 50자 이내여야 합니다.")
+    @Size(min = 10, max = 10, message = "학번은 10자여야합니다.")
     String studentNumber,
 
     @Schema(description = "휴대폰 번호", example = "010-0000-0000")
