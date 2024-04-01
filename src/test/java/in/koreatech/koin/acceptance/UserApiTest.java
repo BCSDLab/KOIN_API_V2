@@ -842,7 +842,6 @@ class UserApiTest extends AcceptanceTest {
                         softly.assertThat(student.getStudentNumber()).isEqualTo("2021136012");
                         softly.assertThat(student.getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
                         softly.assertThat(student.getAnonymousNickname()).isNotNull();
-
                         verify(studentEventListener).onStudentEmailRequest(any());
                     }
                 );
