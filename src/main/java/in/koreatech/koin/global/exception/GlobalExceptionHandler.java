@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleDataInvalidException(DataInvalidException e){
         log.warn(e.getMessage());
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse.from("유효하지 않는 데이터입니다."));
     }
 }
