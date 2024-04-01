@@ -4,7 +4,6 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -56,7 +55,7 @@ public record DiningResponse(
     Boolean soldOut,
 
     @Schema(description = "메뉴 변경 여부", example = "true")
-    Boolean changed
+    Boolean isChanged
 ) {
     public static DiningResponse from(Dining dining) {
         return new DiningResponse(
@@ -72,14 +71,14 @@ public record DiningResponse(
             dining.getCreatedAt(),
             dining.getUpdatedAt(),
             dining.getSoldOut(),
-            dining.getChanged()
+            dining.getIsChanged()
         );
     }
 
     public static List<String> toListMenus(String menu) {
         menu = menu.substring(1, menu.length() - 1);
         return Stream.of(menu.split(","))
-            .map(str -> str.trim().replaceAll("\"", ""))
-            .collect(Collectors.toList());
+            .map(str -> str.trim().replace("\"", ""))
+            .toList();
     }
 }

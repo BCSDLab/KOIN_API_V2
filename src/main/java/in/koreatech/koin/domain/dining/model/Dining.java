@@ -57,12 +57,12 @@ public class Dining extends BaseEntity {
     private Boolean soldOut = false;
 
     @NotNull
-    @Column(name = "changed", nullable = false)
-    private Boolean changed = false;
+    @Column(name = "is_changed", nullable = false)
+    private Boolean isChanged = false;
 
     @Builder
     private Dining(Long id, String date, String type, String place, Integer priceCard, Integer priceCash,
-        Integer kcal, String menu, String imageUrl, Boolean soldOut, Boolean changed) {
+        Integer kcal, String menu, String imageUrl, Boolean soldOut, Boolean isChanged) {
         this.id = id;
         this.date = date;
         this.type = type;
@@ -73,7 +73,7 @@ public class Dining extends BaseEntity {
         this.menu = menu;
         this.imageUrl = imageUrl;
         this.soldOut = soldOut;
-        this.changed = changed;
+        this.isChanged = isChanged;
     }
 
     public void setImageUrl(String imageUrl) {
