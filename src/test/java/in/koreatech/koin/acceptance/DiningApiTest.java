@@ -55,7 +55,6 @@ class DiningApiTest extends AcceptanceTest {
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
             .soldOut(false)
-            .changed(false)
             .build();
 
         Dining request2 = Dining.builder()
@@ -69,7 +68,6 @@ class DiningApiTest extends AcceptanceTest {
             .menu("""
                 ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]""")
             .soldOut(false)
-            .changed(false)
             .build();
 
         Dining request3 = Dining.builder()
@@ -83,7 +81,6 @@ class DiningApiTest extends AcceptanceTest {
             .menu("""
                 ["참치김치볶음밥", "유부된장국", "땡초부추전", "누룽지탕"]""")
             .soldOut(false)
-            .changed(true)
             .build();
 
         Dining dining1 = diningRepository.save(request1);
@@ -119,8 +116,6 @@ class DiningApiTest extends AcceptanceTest {
                     .isEqualTo(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 softly.assertThat(response.body().jsonPath().getList("[0].menu", String.class))
                     .containsExactlyInAnyOrderElementsOf(menus1);
-                softly.assertThat(response.body().jsonPath().getBoolean("[0].changed"))
-                    .isEqualTo(dining1.getChanged());
 
                 softly.assertThat(response.body().jsonPath().getLong("[1].id")).isEqualTo(dining3.getId());
                 softly.assertThat(response.body().jsonPath().getString("[1].date")).isEqualTo(dining3.getDate());
@@ -137,8 +132,6 @@ class DiningApiTest extends AcceptanceTest {
                     .isEqualTo(dining3.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 softly.assertThat(response.body().jsonPath().getList("[1].menu", String.class))
                     .containsExactlyInAnyOrderElementsOf(menus2);
-                softly.assertThat(response.body().jsonPath().getBoolean("[1].changed"))
-                    .isEqualTo(dining3.getChanged());
 
             }
         );
@@ -158,7 +151,6 @@ class DiningApiTest extends AcceptanceTest {
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
             .soldOut(false)
-            .changed(false)
             .build();
 
         Dining dining = diningRepository.save(request);
@@ -189,7 +181,6 @@ class DiningApiTest extends AcceptanceTest {
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "총각김치"]""")
             .soldOut(false)
-            .changed(false)
             .build();
 
         Dining request2 = Dining.builder()
@@ -203,7 +194,6 @@ class DiningApiTest extends AcceptanceTest {
             .menu("""
                 ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]""")
             .soldOut(false)
-            .changed(false)
             .build();
 
         Dining dining1 = diningRepository.save(request1);
@@ -269,7 +259,6 @@ class DiningApiTest extends AcceptanceTest {
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
             .soldOut(false)
-            .changed(false)
             .build();
 
         Dining dining2 = Dining.builder()
@@ -282,7 +271,6 @@ class DiningApiTest extends AcceptanceTest {
             .menu("""
                 ["병아리", "소고기", "땡초", "탕"]""")
             .soldOut(false)
-            .changed(false)
             .build();
 
         diningRepository.save(dining1);
@@ -333,7 +321,6 @@ class DiningApiTest extends AcceptanceTest {
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
             .soldOut(false)
-            .changed(false)
             .build();
 
         diningRepository.save(dining1);
@@ -380,7 +367,6 @@ class DiningApiTest extends AcceptanceTest {
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
             .soldOut(false)
-            .changed(false)
             .build();
 
         Dining dining = diningRepository.save(request);
@@ -434,7 +420,6 @@ class DiningApiTest extends AcceptanceTest {
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
             .soldOut(false)
-            .changed(false)
             .build();
 
         Dining dining = diningRepository.save(request);
