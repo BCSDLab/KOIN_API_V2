@@ -10,7 +10,9 @@ public class NotificationFactory {
 
     private final String koinAppUrl;
 
-    public NotificationFactory(@Value("${fcm.koin.url}") String koinAppUrl) {
+    public NotificationFactory(
+        @Value("${fcm.koin.url}") String koinAppUrl
+    ) {
         this.koinAppUrl = koinAppUrl;
     }
 
