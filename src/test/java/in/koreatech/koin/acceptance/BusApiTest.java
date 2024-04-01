@@ -152,8 +152,6 @@ class BusApiTest extends AcceptanceTest {
                 .type("city_bus_timetable")
                 .build()
         );
-        System.out.println("==========");
-        System.out.println(version.getUpdatedAt());
 
         Instant requestedAt = ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
             .toInstant();
