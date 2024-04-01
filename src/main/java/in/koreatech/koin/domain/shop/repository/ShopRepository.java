@@ -27,4 +27,6 @@ public interface ShopRepository extends Repository<Shop, Long> {
         return findByOwnerId(ownerId)
             .orElseThrow(() -> ShopNotFoundException.withDetail("ownerId: " + ownerId));
     }
+
+    List<Shop> findAll();
 }

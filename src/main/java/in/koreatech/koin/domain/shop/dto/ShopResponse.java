@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -7,11 +9,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
-import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -71,23 +70,23 @@ public record ShopResponse(
             shop.getDescription(),
             shop.getId(),
             shop.getShopImages().stream()
-                .map(shopImage -> shopImage.getImageUrl())
+                .map(ShopImage::getImageUrl)
                 .toList(),
-            shop.getMenuCategories().stream().map(menuCategory -> {
-                return new InnerMenuCategory(
+            shop.getMenuCategories().stream().map(menuCategory ->
+                new InnerMenuCategory(
                     menuCategory.getId(),
                     menuCategory.getName()
-                );
-            }).toList(),
+                )
+            ).toList(),
             shop.getName(),
-            shop.getShopOpens().stream().map(shopOpen -> {
-                return new InnerShopOpen(
+            shop.getShopOpens().stream().map(shopOpen ->
+                new InnerShopOpen(
                     shopOpen.getDayOfWeek(),
                     shopOpen.getClosed(),
                     shopOpen.getOpenTime(),
                     shopOpen.getCloseTime()
-                );
-            }).toList(),
+                )
+            ).toList(),
             shop.getPayBank(),
             shop.getPayCard(),
             shop.getPhone(),
@@ -103,7 +102,7 @@ public record ShopResponse(
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    private record InnerShopOpen(
+    public record InnerShopOpen(
         @Schema(example = "MONDAY", description = """
             요일 = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
             """)
@@ -120,6 +119,14 @@ public record ShopResponse(
         @JsonFormat(pattern = "HH:mm")
         LocalTime closeTime
     ) {
+        public static InnerShopOpen from(ShopOpen shopOpen) {
+            return new InnerShopOpen(
+                shopOpen.getDayOfWeek(),
+                shopOpen.getClosed(),
+                shopOpen.getOpenTime(),
+                shopOpen.getCloseTime()
+            );
+        }
     }
 
     private record InnerShopCategory(

@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,6 +33,13 @@ public class MenuCategoryMap {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_menu_category_id")
     private MenuCategory menuCategory;
+
+    @Builder
+    private MenuCategoryMap(Long id, Menu menu, MenuCategory menuCategory) {
+        this.id = id;
+        this.menu = menu;
+        this.menuCategory = menuCategory;
+    }
 
     public static MenuCategoryMap create() {
         return new MenuCategoryMap();

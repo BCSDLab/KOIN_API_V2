@@ -5,6 +5,10 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
+import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,6 +29,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "shop_menu_categories")
+@Where(clause = "is_deleted=0")
+@SQLDelete(sql = "UPDATE shop_menu_categories SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = PROTECTED)
 public final class MenuCategory extends BaseEntity {
 
@@ -54,5 +60,9 @@ public final class MenuCategory extends BaseEntity {
     private MenuCategory(Shop shop, String name) {
         this.shop = shop;
         this.name = name;
+    }
+
+    public void modifyCategory(ModifyCategoryRequest modifyCategoryRequest) {
+        this.name = modifyCategoryRequest.name();
     }
 }
