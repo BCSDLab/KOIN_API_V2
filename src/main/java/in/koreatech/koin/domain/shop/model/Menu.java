@@ -90,9 +90,12 @@ public class Menu extends BaseEntity {
             '}';
     }
 
-    public void modifyMenu(ModifyMenuRequest modifyMenuRequest) {
-        this.name = modifyMenuRequest.name();
-        this.description = modifyMenuRequest.description();
+    public void modifyMenu(
+        String name,
+        String description
+    ) {
+        this.name = name;
+        this.description = description;
     }
 
     public void modifyMenuImages(List<String> imageUrls) {

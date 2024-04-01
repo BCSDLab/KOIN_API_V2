@@ -199,7 +199,10 @@ public class OwnerShopService {
     public void modifyMenu(Long ownerId, Long menuId, ModifyMenuRequest modifyMenuRequest) {
         Menu menu = menuRepository.getById(menuId);
         getOwnerShopById(menu.getShopId(), ownerId);
-        menu.modifyMenu(modifyMenuRequest);
+        menu.modifyMenu(
+            modifyMenuRequest.name(),
+            modifyMenuRequest.description()
+        );
         menu.modifyMenuImages(modifyMenuRequest.imageUrls());
         menu.modifyMenuCategories(menuCategoryRepository.findAllByIdIn(modifyMenuRequest.categoryIds()));
         if (modifyMenuRequest.isSingle()) {
@@ -219,7 +222,16 @@ public class OwnerShopService {
     @Transactional
     public void modifyShop(Long ownerId, Long shopId, ModifyShopRequest modifyShopRequest) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        shop.modifyShop(modifyShopRequest);
+        shop.modifyShop(
+            modifyShopRequest.name(),
+            modifyShopRequest.phone(),
+            modifyShopRequest.address(),
+            modifyShopRequest.description(),
+            modifyShopRequest.delivery(),
+            modifyShopRequest.deliveryPrice(),
+            modifyShopRequest.payCard(),
+            modifyShopRequest.payBank()
+        );
         shop.modifyShopImages(modifyShopRequest.imageUrls());
         shop.modifyShopOpens(modifyShopRequest.open());
         shop.modifyShopCategories(shopCategoryRepository.findAllByIdIn(modifyShopRequest.categoryIds()));

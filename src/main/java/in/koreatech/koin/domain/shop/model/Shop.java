@@ -10,7 +10,6 @@ import java.util.List;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyShopRequest.InnerShopOpen;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -159,15 +158,24 @@ public class Shop extends BaseEntity {
         this.menuCategories = menuCategories;
     }
 
-    public void modifyShop(ModifyShopRequest modifyShopRequest) {
-        this.address = modifyShopRequest.address();
-        this.delivery = modifyShopRequest.delivery();
-        this.deliveryPrice = modifyShopRequest.deliveryPrice();
-        this.description = modifyShopRequest.description();
-        this.name = modifyShopRequest.name();
-        this.payBank = modifyShopRequest.payBank();
-        this.payCard = modifyShopRequest.payCard();
-        this.phone = modifyShopRequest.phone();
+    public void modifyShop(
+        String name,
+        String phone,
+        String address,
+        String description,
+        Boolean delivery,
+        Long deliveryPrice,
+        Boolean payCard,
+        Boolean payBank
+    ) {
+        this.address = address;
+        this.delivery = delivery;
+        this.deliveryPrice = deliveryPrice;
+        this.description = description;
+        this.name = name;
+        this.payBank = payBank;
+        this.payCard = payCard;
+        this.phone = phone;
     }
 
     public void modifyShopImages(List<String> imageUrls) {

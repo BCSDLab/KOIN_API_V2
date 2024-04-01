@@ -85,6 +85,5 @@ public interface ShopApi {
     )
     @Operation(summary = "모든 상점 조회")
     @GetMapping("/shops")
-    ResponseEntity<ShopsResponse> getShops(
-    );
+    ResponseEntity<ShopsResponse> getShops();
 }
