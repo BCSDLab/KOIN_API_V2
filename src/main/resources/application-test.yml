@@ -54,3 +54,5 @@ s3:
 koin:
   admin:
     url: https://admin-url-path.com
+
+OPEN_API_KEY:
