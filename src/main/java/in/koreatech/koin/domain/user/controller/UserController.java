@@ -11,9 +11,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -30,14 +27,9 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-
 import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.domain.user.dto.NotificationPermitRequest;
-import in.koreatech.koin.domain.user.dto.NotificationStatusResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,9 +40,6 @@ public class UserController implements UserApi {
 
     private final UserService userService;
     private final StudentService studentService;
-    public static final String MAIL_ERROR_CONFIG = "error_config";
-    public static final String MODEL_KEY_ERROR_MESSAGE = "errorMessage";
-    public static final String MAIL_SUCCESS_REGISTER_CONFIG = "success_register_config";
 
     @GetMapping("/user/student/me")
     public ResponseEntity<StudentResponse> getStudent(
