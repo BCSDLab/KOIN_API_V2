@@ -1,15 +1,17 @@
 package in.koreatech.koin.domain.shop.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+
 import java.util.List;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.shop.model.Menu;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record CreateMenuRequest(
     @Schema(example = "0", description = "선택된 카테고리 고유 id 리스트")
     @NotNull List<Long> categoryIds,
@@ -32,7 +34,15 @@ public record CreateMenuRequest(
     @Schema(description = "단일 메뉴일때의 가격")
     Integer singlePrice
 ) {
-    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public Menu toEntity(Long shopId) {
+        return Menu.builder()
+            .name(name)
+            .shopId(shopId)
+            .description(description)
+            .build();
+    }
+
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerOptionPrice(
         @Schema(example = "대", description = "옵션명")
         @NotNull @Size(min = 1, max = 50) String option,

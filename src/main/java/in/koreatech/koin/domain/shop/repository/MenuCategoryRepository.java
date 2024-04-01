@@ -16,8 +16,10 @@ public interface MenuCategoryRepository extends Repository<MenuCategory, Long> {
 
     Optional<MenuCategory> findById(Long id);
 
+    List<MenuCategory> findAllByIdIn(List<Long> ids);
+
     default MenuCategory getById(Long id) {
-        return findById(id).orElseThrow(() -> new MenuCategoryNotFoundException("categoryId: " + id));
+        return findById(id).orElseThrow(() -> MenuCategoryNotFoundException.withDetail("categoryId: " + id));
     }
 
     Void deleteById(Long id);

@@ -3,11 +3,15 @@ package in.koreatech.koin.domain.ownershop.dto;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record OwnerShopsRequest(
     @Schema(description = "주소", example = "충청남도 천안시 동남구 병천면 충절로 1600")
     @NotBlank(message = "주소를 입력해주세요.")
@@ -66,6 +70,7 @@ public record OwnerShopsRequest(
             .build();
     }
 
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerOpenRequest(
         @Schema(description = "닫는 시간", example = "22:30")
         LocalTime closeTime,

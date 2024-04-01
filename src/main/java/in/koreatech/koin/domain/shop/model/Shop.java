@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shop.model;
 
-import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.REMOVE;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
@@ -9,6 +10,8 @@ import java.util.List;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
+import in.koreatech.koin.domain.shop.dto.ModifyShopRequest.InnerShopOpen;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -156,83 +159,44 @@ public class Shop extends BaseEntity {
         this.menuCategories = menuCategories;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void modifyShop(ModifyShopRequest modifyShopRequest) {
+        this.address = modifyShopRequest.address();
+        this.delivery = modifyShopRequest.delivery();
+        this.deliveryPrice = modifyShopRequest.deliveryPrice();
+        this.description = modifyShopRequest.description();
+        this.name = modifyShopRequest.name();
+        this.payBank = modifyShopRequest.payBank();
+        this.payCard = modifyShopRequest.payCard();
+        this.phone = modifyShopRequest.phone();
     }
 
-    public void setOwner(Owner owner) {
-        this.owner = owner;
+    public void modifyShopImages(List<String> imageUrls) {
+        this.shopImages.clear();
+        for (String imageUrl : imageUrls) {
+            ShopImage shopImage = ShopImage.builder()
+                .shop(this)
+                .imageUrl(imageUrl)
+                .build();
+            this.shopImages.add(shopImage);
+        }
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void modifyShopOpens(List<InnerShopOpen> innerShopOpens) {
+        this.shopOpens.clear();
+        for (var open : innerShopOpens) {
+            ShopOpen shopOpen = open.toEntity(this);
+            this.shopOpens.add(shopOpen);
+        }
     }
 
-    public void setInternalName(String internalName) {
-        this.internalName = internalName;
-    }
-
-    public void setChosung(String chosung) {
-        this.chosung = chosung;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setDelivery(Boolean delivery) {
-        this.delivery = delivery;
-    }
-
-    public void setDeliveryPrice(Long deliveryPrice) {
-        this.deliveryPrice = deliveryPrice;
-    }
-
-    public void setPayCard(Boolean payCard) {
-        this.payCard = payCard;
-    }
-
-    public void setPayBank(Boolean payBank) {
-        this.payBank = payBank;
-    }
-
-    public void setDeleted(Boolean deleted) {
-        isDeleted = deleted;
-    }
-
-    public void setEvent(Boolean event) {
-        isEvent = event;
-    }
-
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
-    }
-
-    public void setHit(Long hit) {
-        this.hit = hit;
-    }
-
-    public void setShopCategories(List<ShopCategoryMap> shopCategories) {
-        this.shopCategories = shopCategories;
-    }
-
-    public void setShopOpens(List<ShopOpen> shopOpens) {
-        this.shopOpens = shopOpens;
-    }
-
-    public void setShopImages(List<ShopImage> shopImages) {
-        this.shopImages = shopImages;
-    }
-
-    public void setMenuCategories(List<MenuCategory> menuCategories) {
-        this.menuCategories = menuCategories;
+    public void modifyShopCategories(List<ShopCategory> shopCategories) {
+        this.shopCategories.clear();
+        for (ShopCategory shopCategory: shopCategories) {
+            ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
+                .shop(this)
+                .shopCategory(shopCategory)
+                .build();
+            this.shopCategories.add(shopCategoryMap);
+        }
     }
 }

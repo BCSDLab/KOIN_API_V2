@@ -149,11 +149,7 @@ public class OwnerShopService {
     @Transactional
     public void createMenu(Long shopId, Long ownerId, CreateMenuRequest createMenuRequest) {
         getOwnerShopById(shopId, ownerId);
-        Menu menu = Menu.builder()
-            .name(createMenuRequest.name())
-            .shopId(shopId)
-            .description(createMenuRequest.description())
-            .build();
+        Menu menu = createMenuRequest.toEntity(shopId);
         Menu savedMenu = menuRepository.save(menu);
         for (Long categoryId : createMenuRequest.categoryIds()) {
             MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
@@ -203,41 +199,13 @@ public class OwnerShopService {
     public void modifyMenu(Long ownerId, Long menuId, ModifyMenuRequest modifyMenuRequest) {
         Menu menu = menuRepository.getById(menuId);
         getOwnerShopById(menu.getShopId(), ownerId);
-        menu.setName(modifyMenuRequest.name());
-        menu.setDescription(modifyMenuRequest.description());
-        menu.getMenuImages().clear();
-        for (String imageUrl : modifyMenuRequest.imageUrls()) {
-            MenuImage newMenuImage = MenuImage.builder()
-                .imageUrl(imageUrl)
-                .menu(menu)
-                .build();
-            menu.getMenuImages().add(newMenuImage);
-        }
-        menu.getMenuCategoryMaps().clear();
-        for (Long categoryId : modifyMenuRequest.categoryIds()) {
-            MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
-            MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
-                .menu(menu)
-                .menuCategory(menuCategory)
-                .build();
-            menu.getMenuCategoryMaps().add(menuCategoryMap);
-        }
-        menu.getMenuOptions().clear();
+        menu.modifyMenu(modifyMenuRequest);
+        menu.modifyMenuImages(modifyMenuRequest.imageUrls());
+        menu.modifyMenuCategories(menuCategoryRepository.findAllByIdIn(modifyMenuRequest.categoryIds()));
         if (modifyMenuRequest.isSingle()) {
-            MenuOption menuOption = MenuOption.builder()
-                .price(modifyMenuRequest.singlePrice())
-                .menu(menu)
-                .build();
-            menu.getMenuOptions().add(menuOption);
+            menu.modifyMenuSingleOptions(modifyMenuRequest);
         } else {
-            for (var option : modifyMenuRequest.optionPrices()) {
-                MenuOption menuOption = MenuOption.builder()
-                    .option(option.option())
-                    .price(option.price())
-                    .menu(menu)
-                    .build();
-                menu.getMenuOptions().add(menuOption);
-            }
+            menu.modifyMenuMultieOptions(modifyMenuRequest.optionPrices());
         }
     }
 
@@ -245,41 +213,15 @@ public class OwnerShopService {
     public void modifyCategory(Long ownerId, Long categoryId, ModifyCategoryRequest modifyCategoryRequest) {
         MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
         getOwnerShopById(menuCategory.getShop().getId(), ownerId);
-        menuCategory.setName(modifyCategoryRequest.name());
+        menuCategory.modifyCategory(modifyCategoryRequest);
     }
 
     @Transactional
     public void modifyShop(Long ownerId, Long shopId, ModifyShopRequest modifyShopRequest) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        shop.setAddress(modifyShopRequest.address());
-        shop.setDelivery(modifyShopRequest.delivery());
-        shop.setDeliveryPrice(modifyShopRequest.deliveryPrice());
-        shop.setDescription(modifyShopRequest.description());
-        shop.setName(modifyShopRequest.name());
-        shop.setPayBank(modifyShopRequest.payBank());
-        shop.setPayCard(modifyShopRequest.payCard());
-        shop.setPhone(modifyShopRequest.phone());
-        shop.getShopImages().clear();
-        for (String imageUrl : modifyShopRequest.imageUrls()) {
-            ShopImage shopImage = ShopImage.builder()
-                .shop(shop)
-                .imageUrl(imageUrl)
-                .build();
-            shop.getShopImages().add(shopImage);
-        }
-        shop.getShopOpens().clear();
-        for (var open : modifyShopRequest.open()) {
-            ShopOpen shopOpen = open.toEntity(shop);
-            shop.getShopOpens().add(shopOpen);
-        }
-        shop.getShopCategories().clear();
-        for (Long categoryId : modifyShopRequest.categoryIds()) {
-            ShopCategory shopCategory = shopCategoryRepository.getById(categoryId);
-            ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
-                .shop(shop)
-                .shopCategory(shopCategory)
-                .build();
-            shop.getShopCategories().add(shopCategoryMap);
-        }
+        shop.modifyShop(modifyShopRequest);
+        shop.modifyShopImages(modifyShopRequest.imageUrls());
+        shop.modifyShopOpens(modifyShopRequest.open());
+        shop.modifyShopCategories(shopCategoryRepository.findAllByIdIn(modifyShopRequest.categoryIds()));
     }
 }

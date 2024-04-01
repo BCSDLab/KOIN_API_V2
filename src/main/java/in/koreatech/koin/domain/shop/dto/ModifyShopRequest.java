@@ -73,7 +73,6 @@ public record ModifyShopRequest(
                 .closeTime(closeTime)
                 .dayOfWeek(dayOfWeek)
                 .build();
-
         }
     }
 }

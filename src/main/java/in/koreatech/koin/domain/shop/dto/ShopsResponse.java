@@ -1,15 +1,16 @@
 package in.koreatech.koin.domain.shop.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+
 import java.util.List;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.dto.ShopResponse.InnerShopOpen;
 import in.koreatech.koin.domain.shop.model.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record ShopsResponse(
     @Schema(example = "100", description = "상점 개수")
     Integer count,
@@ -24,7 +25,7 @@ public record ShopsResponse(
         );
     }
 
-    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerShopResponse(
         @Schema(example = "0", description = " 속해있는 상점 카테고리들의 고유 id 리스트")
         List<Long> categoryIds,
