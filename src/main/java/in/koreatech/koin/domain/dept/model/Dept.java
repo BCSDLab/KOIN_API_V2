@@ -71,7 +71,7 @@ public enum Dept {
         return Arrays.stream(values()).toList();
     }
 
-    public static boolean isValidatedDepartment(String dept){
+    public static boolean isValidatedDepartment(String dept) {
         return Arrays.stream(Dept.values())
             .anyMatch(depts -> depts.name.contains(dept));
     }
