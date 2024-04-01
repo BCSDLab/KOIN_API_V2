@@ -122,7 +122,6 @@ public class OwnerShopController implements OwnerShopApi {
         @PathVariable("id") Long shopId,
         @RequestBody @Valid CreateCategoryRequest createCategoryRequest
     ) {
-        System.out.println("111");
         ownerShopService.createMenuCategory(shopId, ownerId, createCategoryRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
