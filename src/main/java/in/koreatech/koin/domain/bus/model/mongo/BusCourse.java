@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.model;
+package in.koreatech.koin.domain.bus.model.mongo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import in.koreatech.koin.domain.bus.model.mongo.Route;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Builder;
