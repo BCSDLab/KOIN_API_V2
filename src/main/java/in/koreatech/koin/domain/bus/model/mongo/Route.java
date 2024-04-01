@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.model;
+package in.koreatech.koin.domain.bus.model.mongo;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -10,6 +10,8 @@ import java.util.Locale;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import in.koreatech.koin.domain.bus.exception.BusArrivalNodeNotFoundException;
+import in.koreatech.koin.domain.bus.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
