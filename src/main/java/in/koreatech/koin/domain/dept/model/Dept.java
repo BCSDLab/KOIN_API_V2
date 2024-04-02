@@ -1,11 +1,10 @@
 package in.koreatech.koin.domain.dept.model;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import in.koreatech.koin.domain.user.model.UserIdentity;
+import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
 import lombok.Getter;
 
 @Getter
@@ -71,8 +70,10 @@ public enum Dept {
         return Arrays.stream(values()).toList();
     }
 
-    public static boolean isValidatedDepartment(String dept) {
-        return Arrays.stream(Dept.values())
-            .anyMatch(depts -> depts.name.contains(dept));
+    public static Dept from(String dept) {
+        return Arrays.stream(values())
+            .filter(it -> it.name.equals(dept))
+            .findAny()
+            .orElseThrow(() -> StudentDepartmentNotValidException.withDetail("department: " + dept));
     }
 }

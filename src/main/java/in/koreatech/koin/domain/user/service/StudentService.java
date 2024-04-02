@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
-import in.koreatech.koin.domain.user.dto.AuthResponse;
+import in.koreatech.koin.domain.dept.model.Dept;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
@@ -92,8 +92,7 @@ public class StudentService {
     }
 
     @Transactional
-    public void StudentRegister(StudentRegisterRequest request, HttpServletRequest httpServletRequest) {
-        String host = getHost(httpServletRequest);
+    public void StudentRegister(StudentRegisterRequest request, String host) {
         Student student = request.toStudent(passwordEncoder);
 
         validateStudentRegister(student);
@@ -105,31 +104,13 @@ public class StudentService {
         eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
     }
 
-    public ModelAndView makeModelAndViewForStudent(AuthResponse authResponse) {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName(makeViewNameFor(authResponse));
-
-        if (!authResponse.isSuccess()) {
-            modelAndView.addObject(MODEL_KEY_ERROR_MESSAGE, authResponse.errorMessage());
-        }
-
-        return modelAndView;
-    }
-
-    private static String makeViewNameFor(AuthResponse authResponse) {
-        if (!authResponse.isSuccess()) {
-            return MAIL_ERROR_CONFIG;
-        }
-        return MAIL_SUCCESS_REGISTER_CONFIG;
-    }
-
     private void validateStudentRegister(Student student) {
         EmailAddress emailAddress = EmailAddress.from(student.getUser().getEmail());
         emailAddress.validateKoreatechEmail();
 
         validateDataExist(student);
-        validateStudentNumber(student);
-        validateDepartment(student);
+        validateStudentNumber(student.getStudentNumber());
+        validateDepartment(student.getDepartment());
     }
 
     private void validateDataExist(Student student) {
@@ -146,37 +127,20 @@ public class StudentService {
         }
     }
 
-    private void validateStudentNumber(Student student) {
-        if (student.getStudentNumber() == null) {
+    private void validateStudentNumber(String studentNumber) {
+        if (studentNumber == null) {
             return;
         }
-        String admissionYear = student.getStudentNumber().substring(0, 4);
+        String admissionYear = studentNumber.substring(0, 4);
         if (admissionYear.compareTo("1992") < 0
             || admissionYear.compareTo((new LocalDate()).toString().substring(0, 4)) > 0) {
-            throw StudentNumberNotValidException.withDetail("studentNumber: " + student.getStudentNumber());
+            throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);
         }
     }
 
-    private void validateDepartment(Student student) {
-        if (student.getDepartment() == null) {
-            return;
-        }
-        if (!student.isDeptValidated()) {
-            throw StudentNumberNotValidException.withDetail("department: " + student.getDepartment());
-        }
-    }
-
-    private String getHost(HttpServletRequest request) {
-        String schema = request.getScheme();
-        String serverName = request.getServerName();
-        int serverPort = request.getServerPort();
-
-        StringBuilder url = new StringBuilder();
-        url.append(schema).append("://");
-        url.append(serverName);
-
-        if (serverPort != 80 && serverPort != 443) {
-            url.append(":").append(serverPort);
+    private void validateDepartment(String department) {
+        if (department != null) {
+            Dept.from(department);
         }
     }
 }

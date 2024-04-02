@@ -63,12 +63,4 @@ public class Student {
         this.studentNumber = studentNumber;
         this.department = department;
     }
-
-    public boolean isDeptValidated() {
-        if (department != null) {
-            return Dept.isValidatedDepartment(department);
-        } else {
-            return false;
-        }
-    }
 }
