@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.net.URI;
@@ -63,7 +65,8 @@ public class UserController implements UserApi {
 
     @PostMapping("/user/logout")
     public ResponseEntity<Void> logout(
-        @Auth(permit = {STUDENT}) Long userId) {
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+    ) {
         userService.logout(userId);
         return ResponseEntity.ok().build();
     }
@@ -78,7 +81,7 @@ public class UserController implements UserApi {
 
     @DeleteMapping("/user")
     public ResponseEntity<Void> withdraw(
-        @Auth(permit = {STUDENT}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
     ) {
         userService.withdraw(userId);
         return ResponseEntity.noContent().build();
@@ -96,7 +99,8 @@ public class UserController implements UserApi {
     @GetMapping("/user/check/nickname")
     public ResponseEntity<Void> checkDuplicationOfNickname(
         @ModelAttribute("nickname")
-        @Valid NicknameCheckExistsRequest request) {
+        @Valid NicknameCheckExistsRequest request
+    ) {
         userService.checkUserNickname(request);
         return ResponseEntity.ok().build();
     }
