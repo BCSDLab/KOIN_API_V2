@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
@@ -50,9 +51,14 @@ public class ShopController implements ShopApi {
     }
 
     @GetMapping("/shops")
-    public ResponseEntity<ShopsResponse> getShops(
-    ) {
+    public ResponseEntity<ShopsResponse> getShops() {
         ShopsResponse shopsResponse = shopService.getShops();
         return ResponseEntity.ok(shopsResponse);
+    }
+
+    @GetMapping("/shops/categories")
+    public ResponseEntity<ShopCategoriesResponse> getShopsCategories() {
+        ShopCategoriesResponse shopCategoriesResponse = shopService.getShopsCategories();
+        return ResponseEntity.ok(shopCategoriesResponse);
     }
 }
