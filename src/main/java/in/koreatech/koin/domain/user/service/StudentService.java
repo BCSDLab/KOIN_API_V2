@@ -22,7 +22,6 @@ import in.koreatech.koin.domain.user.model.AuthResult;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.StudentDepartment;
 import in.koreatech.koin.domain.user.model.StudentEmailRequestEvent;
-import in.koreatech.koin.domain.user.model.StudentRegisterEvent;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
@@ -31,7 +30,6 @@ import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
 import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.domain.email.service.MailService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -44,10 +42,6 @@ public class StudentService {
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final ApplicationEventPublisher eventPublisher;
-
-    public static final String MAIL_ERROR_CONFIG = "error_config";
-    public static final String MODEL_KEY_ERROR_MESSAGE = "errorMessage";
-    public static final String MAIL_SUCCESS_REGISTER_CONFIG = "success_register_config";
 
     public StudentResponse getStudent(Long userId) {
         Student student = studentRepository.getById(userId);
@@ -81,14 +75,9 @@ public class StudentService {
     }
 
     @Transactional
-    public AuthResponse authenticate(AuthTokenRequest request) {
+    public ModelAndView authenticate(AuthTokenRequest request) {
         Optional<User> user = userRepository.findByAuthToken(request.authToken());
-        AuthResult authResult = AuthResult.from(user);
-        if (authResult.isSuccess()) {
-            user.get().auth();
-            eventPublisher.publishEvent(new StudentRegisterEvent(user.get().getEmail()));
-        }
-        return authResult.toAuthResponse();
+        return new AuthResult(user, eventPublisher).toModelAndViewForStudent();
     }
 
     @Transactional
