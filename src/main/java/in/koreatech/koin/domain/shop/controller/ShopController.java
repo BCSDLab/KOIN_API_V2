@@ -51,7 +51,6 @@ public class ShopController implements ShopApi {
     }
 
     @GetMapping("/shops")
-<<<<<<< HEAD
     public ResponseEntity<ShopsResponse> getShops() {
         ShopsResponse shopsResponse = shopService.getShops();
         return ResponseEntity.ok(shopsResponse);
@@ -62,11 +61,4 @@ public class ShopController implements ShopApi {
         ShopCategoriesResponse shopCategoriesResponse = shopService.getShopsCategories();
         return ResponseEntity.ok(shopCategoriesResponse);
     }
-=======
-    public ResponseEntity<ShopsResponse> getShops(
-    ) {
-        ShopsResponse shopsResponse = shopService.getShops();
-        return ResponseEntity.ok(shopsResponse);
-    }
->>>>>>> ede80d6b65fd6681c16d236be37d0a312eb69bf7
 }
