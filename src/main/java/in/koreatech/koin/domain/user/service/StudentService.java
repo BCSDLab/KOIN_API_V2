@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
-import in.koreatech.koin.domain.dept.model.Dept;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
@@ -99,7 +98,7 @@ public class StudentService {
 
         validateDataExist(student);
         validateStudentNumber(student.getStudentNumber());
-        validateDepartment(student.getDepartment());
+        checkDepartmentValid(student.getDepartment());
     }
 
     private void validateDataExist(Student student) {
@@ -124,12 +123,6 @@ public class StudentService {
         if (admissionYear.compareTo("1992") < 0
             || admissionYear.compareTo((new LocalDate()).toString().substring(0, 4)) > 0) {
             throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);
-        }
-    }
-
-    private void validateDepartment(String department) {
-        if (department != null) {
-            Dept.from(department);
         }
     }
 }
