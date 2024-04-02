@@ -777,4 +777,28 @@ class ShopApiTest extends AcceptanceTest {
             }
         });
     }
+
+    @Test
+    @DisplayName("상점들의 모든 카테고리를 조회한다.")
+    void getAllShopCategories() {
+        // given
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .get("/shops/categories")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getInt("total_count")).isEqualTo(2);
+                softly.assertThat(response.body().jsonPath().getLong("shop_categories[0].id")).isEqualTo(1L);
+                softly.assertThat(response.body().jsonPath().getString("shop_categories[0].name")).isEqualTo("테스트1");
+                softly.assertThat(response.body().jsonPath().getString("shop_categories[0].image_url")).isEqualTo("https://test.com/test1.jpg");
+                softly.assertThat(response.body().jsonPath().getLong("shop_categories[1].id")).isEqualTo(2L);
+                softly.assertThat(response.body().jsonPath().getString("shop_categories[1].name")).isEqualTo("테스트2");
+                softly.assertThat(response.body().jsonPath().getString("shop_categories[1].image_url")).isEqualTo("https://test.com/test2.jpg");
+            }
+        );
+    }
 }
