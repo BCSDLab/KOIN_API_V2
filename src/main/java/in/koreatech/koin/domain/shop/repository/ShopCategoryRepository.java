@@ -20,4 +20,6 @@ public interface ShopCategoryRepository extends Repository<ShopCategory, Long> {
         return findById(shopCategoryId)
             .orElseThrow(() -> ShopCategoryNotFoundException.withDetail("shopCategoryId: " + shopCategoryId));
     }
+
+    List<ShopCategory> findAll();
 }
