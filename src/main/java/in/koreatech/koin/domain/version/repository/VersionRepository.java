@@ -15,6 +15,7 @@ public interface VersionRepository extends Repository<Version, Long> {
     Optional<Version> findByType(String type);
 
     default Version getByType(VersionType type) {
-        return this.findByType(type.getValue()).orElseThrow(() -> VersionTypeNotFoundException.withDetail("versionType: " + type));
+        return this.findByType(type.getValue())
+            .orElseThrow(() -> VersionTypeNotFoundException.withDetail("versionType: " + type));
     }
 }

@@ -1,8 +1,8 @@
 package in.koreatech.koin.domain.community.model;
 
-import java.util.ArrayList;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.Where;

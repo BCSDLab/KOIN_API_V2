@@ -87,6 +87,7 @@ public interface ShopApi {
     @Operation(summary = "모든 상점 조회")
     @GetMapping("/shops")
     ResponseEntity<ShopsResponse> getShops();
+<<<<<<< HEAD
 
     @ApiResponses(
         value = {
@@ -99,4 +100,6 @@ public interface ShopApi {
     @Operation(summary = "모든 상점 카테고리 조회")
     @GetMapping("/shops/categories")
     ResponseEntity<ShopCategoriesResponse> getShopsCategories();
+=======
+>>>>>>> ede80d6b65fd6681c16d236be37d0a312eb69bf7
 }

@@ -2,8 +2,6 @@ package in.koreatech.koin.global.exception;
 
 import java.time.format.DateTimeParseException;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -57,6 +55,13 @@ public class GlobalExceptionHandler {
         log.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(ErrorResponse.from("이미 존재하는 데이터입니다."));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleExternalServiceException(ExternalServiceException e) {
+        log.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse.from("외부 API 호출 과정에서 문제가 발생했습니다."));
     }
 
     @ExceptionHandler
