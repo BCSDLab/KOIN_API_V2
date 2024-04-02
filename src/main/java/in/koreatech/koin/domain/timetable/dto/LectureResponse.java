@@ -69,8 +69,7 @@ public record LectureResponse(
         List<String> numbers = List.of(classTime.split(","));
 
         return numbers.stream()
-            .map(String::trim)
-            .map(s -> s.replace(" ", ""))
+            .map(String::strip)
             .map(Long::parseLong)
             .toList();
     }
