@@ -178,8 +178,5 @@ public class StudentService {
         if (serverPort != 80 && serverPort != 443) {
             url.append(":").append(serverPort);
         }
-
-        return url.toString();
     }
 }
-
