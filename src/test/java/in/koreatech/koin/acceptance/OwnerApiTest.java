@@ -168,7 +168,7 @@ class OwnerApiTest extends AcceptanceTest {
             .given()
             .body("""
                 {
-                  "email": "test@gmail.com"
+                  "address": "test@gmail.com"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -190,7 +190,7 @@ class OwnerApiTest extends AcceptanceTest {
             .given()
             .body(String.format("""
                 {
-                  "email": "%s"
+                  "address": "%s"
                 }
                 """, ownerEmail))
             .contentType(ContentType.JSON)
@@ -223,7 +223,7 @@ class OwnerApiTest extends AcceptanceTest {
             .given()
             .body("""
                 {
-                  "email": "test@gmail.com"
+                  "address": "test@gmail.com"
                 }
                 """)
             .contentType(ContentType.JSON)
