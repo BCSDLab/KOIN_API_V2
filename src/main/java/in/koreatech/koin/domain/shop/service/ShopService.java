@@ -63,12 +63,9 @@ public class ShopService {
         List<Shop> shops = shopRepository.findAll();
         return ShopsResponse.from(shops);
     }
-<<<<<<< HEAD
 
     public ShopCategoriesResponse getShopsCategories() {
         List<ShopCategory> shopCategories = shopCategoryRepository.findAll();
         return  ShopCategoriesResponse.from(shopCategories);
     }
-=======
->>>>>>> ede80d6b65fd6681c16d236be37d0a312eb69bf7
 }
