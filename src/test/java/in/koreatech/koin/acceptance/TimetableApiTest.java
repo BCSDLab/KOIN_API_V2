@@ -348,7 +348,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("semester", "20192")
             .get("/timetables")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -748,7 +747,6 @@ class TimetableApiTest extends AcceptanceTest {
             .when()
             .put("/timetables")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
