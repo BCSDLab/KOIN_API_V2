@@ -112,8 +112,7 @@ public class UserController implements UserApi {
         @ModelAttribute("auth_token")
         @Valid AuthTokenRequest request
     ) {
-        AuthResponse authResponse = studentService.authenticate(request);
-        return studentService.makeModelAndViewForStudent(authResponse);
+        return studentService.authenticate(request);
     }
 
     @GetMapping("/user/check/nickname")

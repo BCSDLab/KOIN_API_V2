@@ -1,37 +1,42 @@
 package in.koreatech.koin.domain.user.model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
-import in.koreatech.koin.domain.user.dto.AuthResponse;
-import lombok.Getter;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.web.servlet.ModelAndView;
 
-@Getter
 public class AuthResult {
 
-    private boolean isSuccess;
-    private String errorMessage;
+    private final Optional<User> user;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public AuthResult(boolean isSuccess, String errorMessage) {
-        this.isSuccess = isSuccess;
-        this.errorMessage = errorMessage;
+    public AuthResult(Optional<User> user, ApplicationEventPublisher eventPublisher) {
+        this.user = user;
+        this.eventPublisher = eventPublisher;
     }
 
-    public static AuthResult from(Optional<User> user) {
-        if (user == null) {
-            return new AuthResult(false, "토큰에 해당하는 사용자를 찾을 수 없습니다.");
-        }
-        if (user.get().getIsAuthed() != null && user.get().getIsAuthed().equals(true)) {
-            return new AuthResult(false, "이미 인증된 사용자입니다.");
-        }
-        if (user.get().getResetExpiredAt() != null && (user.get().getAuthExpiredAt().compareTo((new Date().toString()))
-            < 0)) {
-            return new AuthResult(false, "이미 만료된 토큰입니다.");
-        }
-        return new AuthResult(true, null);
+    public ModelAndView toModelAndViewForStudent() {
+        return user.map(user -> {
+            if (user.parseAuthExpiredAtToLocalDateTime().isBefore(LocalDateTime.now())) {
+                return createErrorModelAndView("이미 만료된 토큰입니다.");
+            }
+            if (!user.getIsAuthed()) {
+                user.auth();
+                eventPublisher.publishEvent(new StudentRegisterEvent(user.getEmail()));
+                return createSuccessModelAndView();
+            }
+            return createErrorModelAndView("이미 인증된 사용자입니다.");
+        }).orElse(createErrorModelAndView("토큰에 해당하는 사용자를 찾을 수 없습니다."));
     }
 
-    public AuthResponse toAuthResponse() {
-        return new AuthResponse(isSuccess, errorMessage);
+    private ModelAndView createErrorModelAndView(String errorMessage) {
+        ModelAndView modelAndView = new ModelAndView("error_config");
+        modelAndView.addObject("errorMessage", errorMessage);
+        return modelAndView;
+    }
+
+    private ModelAndView createSuccessModelAndView() {
+        return new ModelAndView("success_register_config");
     }
 }

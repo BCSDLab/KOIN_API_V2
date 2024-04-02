@@ -17,7 +17,10 @@ public class StudentRegistrationData implements MailFormData {
 
     @Override
     public Map<String, String> getContent() {
-        return Map.of("contextPath", contextPath, "authToken", authToken);
+        return Map.of(
+            "contextPath", contextPath,
+            "authToken", authToken
+        );
     }
 
     @Override
