@@ -136,7 +136,7 @@ class TimetableApiTest extends AcceptanceTest {
             .isEnglish("N")
             .designScore("0")
             .isElearning("N")
-            .classTime("[200,201,202,203,204,205,206,207]")
+            .classTime("[200, 201, 202, 203, 204, 205, 206, 207]")
             .build();
 
         Lecture lecture2 = Lecture.builder()
@@ -176,11 +176,11 @@ class TimetableApiTest extends AcceptanceTest {
         lectureRepository.save(lecture3);
 
         ExtractableResponse<Response> response = RestAssured
-            .given()
-            .when()
+            .given().log().all()
+            .when().log().all()
             .param("semester_date", lecture1.getSemester())
             .get("/lectures")
-            .then()
+            .then().log().all()
             .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -206,7 +206,7 @@ class TimetableApiTest extends AcceptanceTest {
             .isEnglish("N")
             .designScore("0")
             .isElearning("N")
-            .classTime("[200,201,202,203,204,205,206,207]")
+            .classTime("[200, 201, 202, 203, 204, 205, 206, 207]")
             .build();
 
         Lecture lecture2 = Lecture.builder()
