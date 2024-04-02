@@ -70,11 +70,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse.from("잘못된 날짜 형식입니다."));
     }
-
-    @ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleDataInvalidException(DataInvalidException e) {
-        log.warn(e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse.from("유효하지 않는 데이터입니다."));
-    }
 }

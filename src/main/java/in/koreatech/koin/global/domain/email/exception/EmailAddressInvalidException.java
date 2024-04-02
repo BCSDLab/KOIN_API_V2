@@ -1,8 +1,6 @@
 package in.koreatech.koin.global.domain.email.exception;
 
-import in.koreatech.koin.global.exception.DataInvalidException;
-
-public class EmailAddressInvalidException extends DataInvalidException {
+public class EmailAddressInvalidException extends IllegalArgumentException {
 
     private static final String DEFAULT_MESSAGE = "유효하지 않는 이메일 주소입니다.";
 

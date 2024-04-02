@@ -1,8 +1,6 @@
 package in.koreatech.koin.domain.user.exception;
 
-import in.koreatech.koin.global.exception.DataInvalidException;
-
-public class StudentNumberNotValidException extends DataInvalidException {
+public class StudentNumberNotValidException extends IllegalArgumentException {
 
     private static final String DEFAULT_MESSAGE = "학생의 학번 형식이 아닙니다.";
 
