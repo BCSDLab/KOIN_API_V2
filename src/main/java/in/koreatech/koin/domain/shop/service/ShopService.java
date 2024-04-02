@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
@@ -14,8 +15,10 @@ import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.Shop;
+import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
+import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +30,7 @@ public class ShopService {
     private final MenuRepository menuRepository;
     private final MenuCategoryRepository menuCategoryRepository;
     private final ShopRepository shopRepository;
+    private final ShopCategoryRepository shopCategoryRepository;
 
     public MenuDetailResponse findMenu(Long menuId) {
         Menu menu = menuRepository.getById(menuId);
@@ -58,5 +62,10 @@ public class ShopService {
     public ShopsResponse getShops() {
         List<Shop> shops = shopRepository.findAll();
         return ShopsResponse.from(shops);
+    }
+
+    public ShopCategoriesResponse getShopsCategories() {
+        List<ShopCategory> shopCategories = shopCategoryRepository.findAll();
+        return  ShopCategoriesResponse.from(shopCategories);
     }
 }

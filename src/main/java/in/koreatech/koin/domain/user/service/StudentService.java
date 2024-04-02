@@ -52,8 +52,8 @@ public class StudentService {
     public StudentUpdateResponse updateStudent(Long userId, StudentUpdateRequest request) {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
-        CheckNicknameDuplication(request.nickname());
-        CheckDepartmentValid(request.major());
+        checkNicknameDuplication(request.nickname());
+        checkDepartmentValid(request.major());
         user.update(request.nickname(), request.name(),
             request.phoneNumber(), UserGender.from(request.gender()));
         student.update(request.studentNumber(), request.major());
@@ -62,14 +62,14 @@ public class StudentService {
         return StudentUpdateResponse.from(student);
     }
 
-    public void CheckNicknameDuplication(String nickname) {
+    public void checkNicknameDuplication(String nickname) {
         if (nickname != null && userRepository.existsByNickname(nickname)) {
             throw DuplicationNicknameException.withDetail("nickname : " + nickname);
         }
     }
 
-    public void CheckDepartmentValid(String department) {
-        if (department != null & !StudentDepartment.isValid(department)) {
+    public void checkDepartmentValid(String department) {
+        if (department != null && !StudentDepartment.isValid(department)) {
             throw StudentDepartmentNotValidException.withDetail("학부(학과) : " + department);
         }
     }

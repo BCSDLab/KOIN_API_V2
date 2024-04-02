@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.user.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
@@ -92,7 +94,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/logout")
     ResponseEntity<Void> logout(
-        @Auth(permit = {STUDENT}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
     );
 
     @ApiResponses(
@@ -136,7 +138,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/user")
     ResponseEntity<Void> withdraw(
-        @Auth(permit = {STUDENT}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
     );
 
     @ApiResponses(

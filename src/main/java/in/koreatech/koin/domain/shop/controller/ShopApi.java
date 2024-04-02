@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
@@ -86,4 +87,16 @@ public interface ShopApi {
     @Operation(summary = "모든 상점 조회")
     @GetMapping("/shops")
     ResponseEntity<ShopsResponse> getShops();
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "모든 상점 카테고리 조회")
+    @GetMapping("/shops/categories")
+    ResponseEntity<ShopCategoriesResponse> getShopsCategories();
 }
