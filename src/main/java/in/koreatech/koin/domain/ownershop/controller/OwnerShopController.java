@@ -46,7 +46,7 @@ public class OwnerShopController implements OwnerShopApi {
     @PostMapping("/owner/shops")
     public ResponseEntity<Void> createOwnerShops(
         @Auth(permit = {OWNER}) Long ownerId,
-        @RequestBody OwnerShopsRequest ownerShopsRequest
+        @RequestBody @Valid OwnerShopsRequest ownerShopsRequest
     ) {
         ownerShopService.createOwnerShops(ownerId, ownerShopsRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
