@@ -6,6 +6,9 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -25,6 +28,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "event_articles")
+@Where(clause = "is_deleted=0")
+@SQLDelete(sql = "UPDATE event_articles SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = PROTECTED)
 public class EventArticle extends BaseEntity {
 
@@ -39,6 +44,7 @@ public class EventArticle extends BaseEntity {
     @Size(max = 255)
     @NotNull
     @Column(name = "title", nullable = false)
+
     private String title;
 
     @Size(max = 50)
