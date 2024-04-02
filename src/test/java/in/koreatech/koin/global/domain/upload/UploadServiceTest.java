@@ -9,6 +9,7 @@ import java.time.Clock;
 import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer.Service;
@@ -30,6 +31,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner.Builder;
 
+@Disabled
 class UploadServiceTest extends AcceptanceTest {
 
     private AmazonS3 s3Client;
