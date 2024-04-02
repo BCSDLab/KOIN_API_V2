@@ -63,7 +63,7 @@ public interface OwnerShopApi {
     @PostMapping("/owner/shops")
     ResponseEntity<Void> createOwnerShops(
         @Auth(permit = {OWNER}) Long userId,
-        @RequestBody OwnerShopsRequest ownerShopsRequest
+        @RequestBody @Valid OwnerShopsRequest ownerShopsRequest
     );
 
     @ApiResponses(
