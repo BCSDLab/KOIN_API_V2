@@ -2,8 +2,8 @@ package in.koreatech.koin.domain.user.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -15,7 +15,6 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserIdentity;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.global.date.DateUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -91,8 +90,9 @@ public record StudentRegisterRequest(
     }
 
     private String fillExpiredAt() {
-        Date authExpiredAt = DateUtil.addHoursToJavaUtilDate(new Date(), 1);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return dateFormat.format(authExpiredAt);
+        LocalDateTime authExpiredAt = LocalDateTime.now().plusHours(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        return authExpiredAt.format(formatter);
     }
 }
