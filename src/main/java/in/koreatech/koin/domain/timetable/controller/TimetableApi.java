@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
+import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
@@ -65,7 +65,7 @@ public interface TimetableApi {
     @Operation(summary = "시간표 정보 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/timetables")
-    ResponseEntity<List<TimeTableResponse>> getTimeTables(
+    ResponseEntity<TimeTableResponse> getTimeTables(
         @RequestParam(value = "semester") String semester,
         @Auth(permit = {STUDENT}) Long userId
     );
@@ -81,7 +81,7 @@ public interface TimetableApi {
     @Operation(summary = "시간표 정보 생성")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/timetables")
-    ResponseEntity<List<TimeTableResponse>> createTimeTables(
+    ResponseEntity<TimeTableResponse> createTimeTables(
         @RequestBody TimeTableRequest timeTableRequest,
         @Auth(permit = {STUDENT}) Long userId
     );
@@ -97,7 +97,7 @@ public interface TimetableApi {
     @Operation(summary = "시간표 정보 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/timetables")
-    ResponseEntity<List<TimeTableResponse>> updateTimeTable(
+    ResponseEntity<TimeTableResponse> updateTimeTable(
         @RequestBody TimeTableUpdateRequest request,
         @Auth(permit = {STUDENT}) Long userId
     );
@@ -113,7 +113,7 @@ public interface TimetableApi {
     @Operation(summary = "시간표 삭제")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/timetables")
-    ResponseEntity deleteTimeTableById(
+    ResponseEntity<Void> deleteTimeTableById(
         @RequestParam(value = "id") Long id,
         @Auth(permit = {STUDENT}) Long userId
     );

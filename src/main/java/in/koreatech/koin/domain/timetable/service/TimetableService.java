@@ -40,35 +40,30 @@ public class TimetableService {
             .toList();
     }
 
-    public List<TimeTableResponse> getTimeTables(Long userId, String semester) {
-        Semester semesterEntity = semesterRepository.getBySemester(semester);
-
-        return getTimeTableResponse(userId, semesterEntity.getId());
+    public TimeTableResponse getTimeTables(Long userId, String semesterRequest) {
+        Semester semester = semesterRepository.getBySemester(semesterRequest);
+        return getTimeTableResponse(userId, semester);
     }
 
     @Transactional
-    public List<TimeTableResponse> createTimeTables(Long userId, TimeTableRequest request) {
+    public TimeTableResponse createTimeTables(Long userId, TimeTableRequest request) {
         User user = userRepository.getById(userId);
         Semester semester = semesterRepository.getBySemester(request.semester());
-
         for (TimeTableRequest.InnerTimeTableRequest timeTableRequest : request.timetable()) {
             TimeTable timeTable = timeTableRequest.toTimeTable(user, semester);
             timeTableRepository.save(timeTable);
         }
-
-        return getTimeTableResponse(userId, semester.getId());
+        return getTimeTableResponse(userId, semester);
     }
 
     @Transactional
-    public List<TimeTableResponse> updateTimeTables(Long userId, TimeTableUpdateRequest request) {
+    public TimeTableResponse updateTimeTables(Long userId, TimeTableUpdateRequest request) {
         Semester semester = semesterRepository.getBySemester(request.semester());
-
         for (TimeTableUpdateRequest.InnerTimeTableRequest timeTableRequest : request.timetable()) {
             TimeTable timeTable = timeTableRepository.getById(timeTableRequest.id());
             timeTable.update(timeTableRequest);
         }
-
-        return getTimeTableResponse(userId, semester.getId());
+        return getTimeTableResponse(userId, semester);
     }
 
     @Transactional
@@ -77,11 +72,8 @@ public class TimetableService {
         timeTable.updateIsDeleted(true);
     }
 
-    private List<TimeTableResponse> getTimeTableResponse(Long userId, Long semesterId) {
-        List<TimeTable> timeTables = timeTableRepository.findAllByUserIdAndSemesterId(userId, semesterId);
-
-        return timeTables.stream()
-            .map(TimeTableResponse::from)
-            .toList();
+    private TimeTableResponse getTimeTableResponse(Long userId, Semester semester) {
+        List<TimeTable> timeTables = timeTableRepository.findAllByUserIdAndSemesterId(userId, semester.getId());
+        return TimeTableResponse.of(semester.getSemester(), timeTables);
     }
 }
