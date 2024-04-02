@@ -77,8 +77,8 @@ class UserApiTest extends AcceptanceTest {
                     .isEqualTo(student.getAnonymousNickname());
                 softly.assertThat(response.body().jsonPath().getString("email"))
                     .isEqualTo(user.getEmail());
-                softly.assertThat(response.body().jsonPath().getString("gender"))
-                    .isEqualTo(user.getGender().name());
+                softly.assertThat(response.body().jsonPath().getInt("gender"))
+                    .isEqualTo(user.getGender().ordinal());
                 softly.assertThat(response.body().jsonPath().getString("major"))
                     .isEqualTo(student.getDepartment());
                 softly.assertThat(response.body().jsonPath().getString("name"))
