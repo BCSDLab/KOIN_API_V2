@@ -37,7 +37,7 @@ public class Student {
     private String department;
 
     @Column(name = "identity")
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private UserIdentity userIdentity;
 
     @Column(name = "is_graduated")
