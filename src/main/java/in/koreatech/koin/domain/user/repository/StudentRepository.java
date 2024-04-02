@@ -11,10 +11,10 @@ public interface StudentRepository extends Repository<Student, Long> {
 
     Student save(Student student);
 
-    Optional<Student> findByUserId(Long userId);
+    Optional<Student> findById(Long userId);
 
-    default Student getByUserId(Long userId) {
-        return findByUserId(userId)
+    default Student getById(Long userId) {
+        return findById(userId)
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
     }
 }

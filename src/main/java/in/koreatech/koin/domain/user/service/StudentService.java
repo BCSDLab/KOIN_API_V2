@@ -25,13 +25,13 @@ public class StudentService {
     private final UserRepository userRepository;
 
     public StudentResponse getStudent(Long userId) {
-        Student student = studentRepository.getByUserId(userId);
+        Student student = studentRepository.getById(userId);
         return StudentResponse.from(student);
     }
 
     @Transactional
     public StudentUpdateResponse updateStudent(Long userId, StudentUpdateRequest request) {
-        Student student = studentRepository.getByUserId(userId);
+        Student student = studentRepository.getById(userId);
         User user = student.getUser();
         checkNicknameDuplication(request.nickname());
         checkDepartmentValid(request.major());
