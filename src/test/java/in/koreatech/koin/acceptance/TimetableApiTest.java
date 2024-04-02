@@ -405,56 +405,6 @@ class TimetableApiTest extends AcceptanceTest {
             }
         );
     }
-/*
-{
-"semester": "20192",
-"timetable": [
-{
-
-
-
-
-
-
-
-
-
-
-
-
-
-},
-{
-
-
-
-
-
-
-
-
-
-
-
-
-
-},
-{
-"": 3,
-"": "40",
-"": "CS102",
-"": "0",
-"": ,
-"": null,
-"": null,
-"": "3",
-"": "운영체제",
-"": "01",
-"": "컴부전체",
-"": "홍길동",
-"": "컴퓨터공학부",
-}
-     */
 
     @Test
     @DisplayName("조회된 시간표가 없으면 404에러를 반환한다.")
@@ -808,7 +758,8 @@ class TimetableApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getLong("timetable[0].id")).isEqualTo(1);
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].code")).isEqualTo("CPC490");
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].class_title")).isEqualTo("운영체제");
-                softly.assertThat(response.body().jsonPath().getList("timetable[0].class_time")).containsAll(List.of(210, 211));
+                softly.assertThat(response.body().jsonPath().getList("timetable[0].class_time"))
+                    .containsAll(List.of(210, 211));
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].class_place")).isEqualTo(null);
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].professor")).isEqualTo("이돈우");
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].grades")).isEqualTo("3");
@@ -816,7 +767,8 @@ class TimetableApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].target")).isEqualTo("디자 1 건축");
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].regular_number")).isEqualTo("25");
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].design_score")).isEqualTo("0");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].department")).isEqualTo("디자인ㆍ건축공학부");
+                softly.assertThat(response.body().jsonPath().getString("timetable[0].department"))
+                    .isEqualTo("디자인ㆍ건축공학부");
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].memo")).isEqualTo(null);
 
                 softly.assertThat(response.body().jsonPath().getLong("timetable[1].id")).isEqualTo(2);
