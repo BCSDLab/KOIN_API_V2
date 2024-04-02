@@ -21,6 +21,7 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.host.Host;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,7 +29,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) User: 회원", description = "회원 관련 API")
@@ -120,7 +120,8 @@ public interface UserApi {
     @Operation(summary = "회원가입")
     @PostMapping("/user/student/register")
     ResponseEntity<Void> studentRegister(
-        @RequestBody @Valid StudentRegisterRequest studentRegisterRequest, HttpServletRequest httpServletRequest
+        @RequestBody @Valid StudentRegisterRequest studentRegisterRequest,
+        @Host String host
     );
 
     @ApiResponses(

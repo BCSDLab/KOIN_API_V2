@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.user.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -103,9 +104,9 @@ public class User extends BaseEntity {
 
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
-                 String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-                 Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt,
-                 String deviceToken) {
+        String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+        Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt,
+        String deviceToken) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -153,5 +154,10 @@ public class User extends BaseEntity {
 
     public void auth() {
         this.isAuthed = true;
+    }
+
+    public LocalDateTime parseAuthExpiredAtToLocalDateTime() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return LocalDateTime.parse(this.authExpiredAt, formatter);
     }
 }

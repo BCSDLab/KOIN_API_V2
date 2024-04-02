@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
@@ -30,7 +29,7 @@ import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
-import jakarta.servlet.http.HttpServletRequest;
+import in.koreatech.koin.global.host.Host;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -102,8 +101,8 @@ public class UserController implements UserApi {
     @PostMapping("/user/student/register")
     public ResponseEntity<Void> studentRegister(
         @Valid @RequestBody StudentRegisterRequest request,
-        HttpServletRequest httpServletRequest) {
-        studentService.StudentRegister(request, httpServletRequest);
+        @Host(server = true) String host) {
+        studentService.StudentRegister(request, host);
         return ResponseEntity.ok().build();
     }
 
