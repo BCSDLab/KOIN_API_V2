@@ -31,7 +31,7 @@ public class JsonAssertions {
                 });
                 Assertions.assertThat(responseMap).isEqualTo(expectedMap);
             } catch (Exception ignored) {
-                
+
             }
         }
 

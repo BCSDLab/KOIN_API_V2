@@ -1,10 +1,14 @@
 package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
@@ -43,6 +47,7 @@ import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
@@ -93,6 +98,9 @@ class OwnerShopApiTest extends AcceptanceTest {
 
     @BeforeEach
     void setUp() {
+        when(clock.instant()).thenReturn(
+            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
 
         OwnerAttachment attachment = OwnerAttachment.builder()
             .url("https://test.com/test.jpg")
@@ -337,8 +345,8 @@ class OwnerShopApiTest extends AcceptanceTest {
             .dayOfWeek("FRIDAY")
             .build();
 
-        ShopOpen newShopOpen1 = shopOpenRepository.save(open1);
-        ShopOpen newShopOpen2 = shopOpenRepository.save(open2);
+        shopOpenRepository.save(open1);
+        shopOpenRepository.save(open2);
 
         ShopCategoryMap shopCategoryMap1 = ShopCategoryMap.builder()
             .shop(shop)
@@ -350,8 +358,8 @@ class OwnerShopApiTest extends AcceptanceTest {
             .shopCategory(shopCategory2)
             .build();
 
-        ShopCategoryMap newShopCategoryMap1 = shopCategoryMapRepository.save(shopCategoryMap1);
-        ShopCategoryMap newShopCategoryMap2 = shopCategoryMapRepository.save(shopCategoryMap2);
+        shopCategoryMapRepository.save(shopCategoryMap1);
+        shopCategoryMapRepository.save(shopCategoryMap2);
 
         ShopImage shopImage1 = ShopImage.builder()
             .imageUrl("https://test.com/test1.jpg")
@@ -363,14 +371,14 @@ class OwnerShopApiTest extends AcceptanceTest {
             .shop(shop)
             .build();
 
-        ShopImage newShopImage1 = shopImageRepository.save(shopImage1);
-        ShopImage newShopImage2 = shopImageRepository.save(shopImage2);
+        shopImageRepository.save(shopImage1);
+        shopImageRepository.save(shopImage2);
 
         ExtractableResponse<Response> response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
-            .get("/owner/shops/1")
+            .get("/owner/shops/{shopId}", shop.getId())
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -380,27 +388,53 @@ class OwnerShopApiTest extends AcceptanceTest {
         List<ShopOpen> savedShopOpens = shopOpenRepository.findAllByShopId(shop.getId());
         List<ShopCategoryMap> savedShopCategoryMaps = shopCategoryMapRepository.findAllByShopId(shop.getId());
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("address")).isEqualTo(shop.getAddress());
-                softly.assertThat(response.body().jsonPath().getBoolean("delivery")).isEqualTo(shop.getDelivery());
-                softly.assertThat(response.body().jsonPath().getLong("delivery_price"))
-                    .isEqualTo(shop.getDeliveryPrice());
-                softly.assertThat(response.body().jsonPath().getString("description")).isEqualTo(shop.getDescription());
-                softly.assertThat(response.body().jsonPath().getLong("id")).isEqualTo(shop.getId());
-                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(shop.getName());
-                softly.assertThat(response.body().jsonPath().getBoolean("pay_bank")).isEqualTo(shop.getPayBank());
-                softly.assertThat(response.body().jsonPath().getBoolean("pay_card")).isEqualTo(shop.getPayCard());
-                softly.assertThat(response.body().jsonPath().getString("phone")).isEqualTo(shop.getPhone());
-
-                softly.assertThat(response.body().jsonPath().getList("image_urls")).hasSize(savedShopImages.size());
-                softly.assertThat(response.body().jsonPath().getList("menu_categories"))
-                    .hasSize(savedMenuCategories.size());
-                softly.assertThat(response.body().jsonPath().getList("open")).hasSize(savedShopOpens.size());
-                softly.assertThat(response.body().jsonPath().getList("shop_categories"))
-                    .hasSize(savedShopCategoryMaps.size());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+                .isEqualTo("""
+                    {
+                        "address": "대전광역시 유성구 대학로 291",
+                        "delivery": true,
+                        "delivery_price": 3000,
+                        "description": "테스트 상점입니다.",
+                        "id": 1,
+                        "image_urls": [
+                            "https://test.com/test1.jpg",
+                            "https://test.com/test2.jpg"
+                        ],
+                        "menu_categories": [
+                         
+                        ],
+                        "name": "테스트 상점",
+                        "open": [
+                            {
+                                "day_of_week": "MONDAY",
+                                "closed": false,
+                                "open_time": "00:00",
+                                "close_time": "21:00"
+                            },
+                            {
+                                "day_of_week": "FRIDAY",
+                                "closed": false,
+                                "open_time": "00:00",
+                                "close_time": "00:00"
+                            }
+                        ],
+                        "pay_bank": true,
+                        "pay_card": true,
+                        "phone": "010-1234-5678",
+                        "shop_categories": [
+                            {
+                                "id": 1,
+                                "name": "테스트1"
+                            },
+                            {
+                                "id": 2,
+                                "name": "테스트2"
+                            }
+                        ],
+                        "updated_at": "2024-04-04",
+                        "is_event": false
+                    }
+                    """);
     }
 
     @Test
@@ -656,7 +690,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .given()
             .header("Authorization", "Bearer " + otherOwnerToken)
             .when()
-            .get("/owner/shops/1")
+            .get("/owner/shops/{shopId}", shop.getId())
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();

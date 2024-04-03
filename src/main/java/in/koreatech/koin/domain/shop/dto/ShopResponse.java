@@ -58,11 +58,13 @@ public record ShopResponse(
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Schema(example = "2024-03-01", description = "업데이트 날짜")
-    LocalDateTime updatedAt
+    LocalDateTime updatedAt,
+
+    @Schema(example = "true", description = "상점 이벤트 진행 여부")
+    Boolean isEvent
 ) {
 
-    public static ShopResponse from(Shop shop) {
-
+    public static ShopResponse from(Shop shop, Boolean isEvent) {
         return new ShopResponse(
             shop.getAddress(),
             shop.getDelivery(),
@@ -97,7 +99,8 @@ public record ShopResponse(
                     shopCategory.getName()
                 );
             }).toList(),
-            shop.getUpdatedAt()
+            shop.getUpdatedAt(),
+            isEvent
         );
     }
 
@@ -119,6 +122,7 @@ public record ShopResponse(
         @JsonFormat(pattern = "HH:mm")
         LocalTime closeTime
     ) {
+
         public static InnerShopOpen from(ShopOpen shopOpen) {
             return new InnerShopOpen(
                 shopOpen.getDayOfWeek(),
@@ -136,6 +140,7 @@ public record ShopResponse(
         @Schema(example = "중국집", description = "이름")
         String name
     ) {
+
     }
 
     private record InnerMenuCategory(
@@ -145,5 +150,6 @@ public record ShopResponse(
         @Schema(example = "대표 메뉴", description = "이름")
         String name
     ) {
+
     }
 }

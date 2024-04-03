@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.service;
 
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ShopService {
 
+    private final Clock clock;
     private final MenuRepository menuRepository;
     private final MenuCategoryRepository menuCategoryRepository;
     private final ShopRepository shopRepository;
@@ -55,7 +58,8 @@ public class ShopService {
 
     public ShopResponse getShop(Long shopId) {
         Shop shop = shopRepository.getById(shopId);
-        return ShopResponse.from(shop);
+        Boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
+        return ShopResponse.from(shop, eventDuration);
     }
 
     public ShopMenuResponse getShopMenu(Long shopId) {
