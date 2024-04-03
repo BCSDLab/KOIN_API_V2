@@ -47,6 +47,10 @@ public class EventArticle extends BaseEntity {
 
     private String title;
 
+    /**
+     * 미사용 컬럼
+     * TODO: 마이그레이션 종료 후 flyway로 제거
+     */
     @Size(max = 50)
     @NotNull
     @Column(name = "event_title", nullable = false)
