@@ -670,7 +670,7 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("학생 회원가입을 후 학교 이메일요청 이벤트가 발생한다.")
+    @DisplayName("학생 회원가입 후 학교 이메일요청 이벤트가 발생한다.")
     void studentRegister() {
         RestAssured
             .given()
