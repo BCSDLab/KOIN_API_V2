@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.user.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -58,8 +59,8 @@ public record StudentRegisterRequest(
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}", message = "전화번호 형식이 올바르지 않습니다.")
     String phoneNumber
 ) {
-    public Student toStudent(PasswordEncoder passwordEncoder) {
-        String authExpiredAt = fillExpiredAt();
+    public Student toStudent(PasswordEncoder passwordEncoder, Clock clock) {
+        String authExpiredAt = fillExpiredAt(clock);
         User user = User.builder()
             .password(passwordEncoder.encode(password))
             .email(email)
@@ -84,8 +85,8 @@ public record StudentRegisterRequest(
             .build();
     }
 
-    private String fillExpiredAt() {
-        LocalDateTime authExpiredAt = LocalDateTime.now().plusHours(1);
+    private String fillExpiredAt(Clock clock) {
+        LocalDateTime authExpiredAt = LocalDateTime.now(clock).plusHours(1);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         return authExpiredAt.format(formatter);

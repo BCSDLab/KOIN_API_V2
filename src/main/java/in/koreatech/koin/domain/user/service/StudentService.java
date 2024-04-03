@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.user.service;
 
+import java.time.Clock;
 import java.util.Optional;
 
 import org.joda.time.LocalDate;
@@ -41,6 +42,7 @@ public class StudentService {
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final ApplicationEventPublisher eventPublisher;
+    private final Clock clock;
 
     public StudentResponse getStudent(Long userId) {
         Student student = studentRepository.getById(userId);
@@ -81,7 +83,7 @@ public class StudentService {
 
     @Transactional
     public void studentRegister(StudentRegisterRequest request, String host) {
-        Student student = request.toStudent(passwordEncoder);
+        Student student = request.toStudent(passwordEncoder, clock);
 
         validateStudentRegister(student);
 
