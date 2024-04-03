@@ -594,7 +594,7 @@ class ShopApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
-            .get("/shops/1/menus")
+            .get("/shops/{shopId}/menus", shop.getId())
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
