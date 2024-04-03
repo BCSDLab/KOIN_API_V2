@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
@@ -99,4 +100,18 @@ public interface ShopApi {
     @Operation(summary = "모든 상점 카테고리 조회")
     @GetMapping("/shops/categories")
     ResponseEntity<ShopCategoriesResponse> getShopsCategories();
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 상점의 모든 이벤트 조회")
+    @GetMapping("/shops/{shopId}/events")
+    ResponseEntity<ShopEventsResponse> getShopEvents(
+        @PathVariable Long shopId
+    );
 }
