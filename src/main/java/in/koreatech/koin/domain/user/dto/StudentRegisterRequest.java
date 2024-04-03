@@ -59,9 +59,7 @@ public record StudentRegisterRequest(
     String phoneNumber
 ) {
     public Student toStudent(PasswordEncoder passwordEncoder) {
-
         String authExpiredAt = fillExpiredAt();
-
         User user = User.builder()
             .password(passwordEncoder.encode(password))
             .email(email)
