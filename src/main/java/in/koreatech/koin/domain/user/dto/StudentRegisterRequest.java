@@ -5,6 +5,7 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -71,7 +72,7 @@ public record StudentRegisterRequest(
             .isAuthed(false)
             .isDeleted(false)
             .userType(UserType.STUDENT)
-            .authToken(passwordEncoder.encode(authExpiredAt))
+            .authToken(UUID.randomUUID().toString())
             .authExpiredAt(authExpiredAt)
             .build();
 
