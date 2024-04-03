@@ -106,6 +106,31 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             .body(ErrorResponse.from("잘못된 날짜 형식입니다."));
     }
 
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleException(
+        HttpServletRequest request,
+        Exception e
+    ) {
+        String errorMessage = e.getMessage();
+        String errorFile = e.getStackTrace()[0].getFileName();
+        int errorLine = e.getStackTrace()[0].getLineNumber();
+        String errorName = e.getClass().getSimpleName();
+
+        String detail = String.format("""
+                Exception: *%s*
+                Location: *%s Line %d*
+                ```%s```
+                """,
+            errorName, errorFile, errorLine, errorMessage);
+        log.error("""
+            서버에서 에러가 발생했습니다. uri: {} {}
+            {}
+            """, request.getMethod(), request.getRequestURI(), detail);
+        requestLogging(request);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ErrorResponse.from("서버에서 오류가 발생했습니다."));
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
         MethodArgumentNotValidException ex,
@@ -120,21 +145,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             .map(DefaultMessageSourceResolvable::getDefaultMessage)
             .collect(Collectors.joining(", "));
         return ResponseEntity.badRequest().body(ErrorResponse.from(errorMessages));
-    }
-
-    @Override
-    protected ResponseEntity<Object> handleExceptionInternal(
-        Exception ex,
-        Object body,
-        HttpHeaders headers,
-        HttpStatusCode statusCode,
-        WebRequest webRequest
-    ) {
-        HttpServletRequest request = ((ServletWebRequest) webRequest).getRequest();
-        log.error("예외가 발생했습니다. uri: {} {}, ", request.getMethod(), request.getRequestURI(), ex);
-        requestLogging(request);
-        return ResponseEntity.status(statusCode)
-            .body(ErrorResponse.from(ex.getMessage()));
     }
 
     private void requestLogging(HttpServletRequest request) {

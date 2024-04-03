@@ -22,4 +22,9 @@ public class ActivityController implements ActivityApi {
         ActivitiesResponse response = activityService.getActivities(year);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/error")
+    public ResponseEntity<Void> error() {
+        throw new IllegalStateException("error!!!!");
+    }
 }
