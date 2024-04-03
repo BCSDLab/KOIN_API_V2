@@ -18,10 +18,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -44,7 +44,6 @@ public class EventArticle extends BaseEntity {
     @Size(max = 255)
     @NotNull
     @Column(name = "title", nullable = false)
-
     private String title;
 
     /**
@@ -54,14 +53,14 @@ public class EventArticle extends BaseEntity {
     @Size(max = 50)
     @NotNull
     @Column(name = "event_title", nullable = false)
-    private String eventTitle;
+    private String eventTitle = "";
 
     @NotNull
     @Lob
     @Column(name = "content", nullable = false)
     private String content;
 
-    @OneToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -72,7 +71,7 @@ public class EventArticle extends BaseEntity {
     @Size(max = 50)
     @NotNull
     @Column(name = "nickname", nullable = false)
-    private String nickname;
+    private String nickname = "";
 
     @Size(max = 255)
     @Column(name = "thumbnail")
@@ -106,4 +105,27 @@ public class EventArticle extends BaseEntity {
     @NotNull
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
+
+    @Builder
+    private EventArticle(
+        Shop shop,
+        String title,
+        String content,
+        User user,
+        String thumbnail,
+        Integer hit,
+        String ip,
+        LocalDate startDate,
+        LocalDate endDate
+    ) {
+        this.shop = shop;
+        this.title = title;
+        this.content = content;
+        this.user = user;
+        this.thumbnail = thumbnail;
+        this.hit = hit;
+        this.ip = ip;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 }

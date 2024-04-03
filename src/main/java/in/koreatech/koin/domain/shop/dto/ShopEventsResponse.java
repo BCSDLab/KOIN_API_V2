@@ -15,6 +15,7 @@ public record ShopEventsResponse(
     List<InnerShopEventResponse> events
 ) {
 
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerShopEventResponse(
         @Schema(description = "이벤트 제목", example = "콩순이 사장님이 미쳤어요!!")
         String title,
