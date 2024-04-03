@@ -39,3 +39,5 @@ out/
 
 application.yml
 *adminsdk.json
+
+logs
