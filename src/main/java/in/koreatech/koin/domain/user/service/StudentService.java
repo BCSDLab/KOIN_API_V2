@@ -80,7 +80,7 @@ public class StudentService {
     }
 
     @Transactional
-    public void StudentRegister(StudentRegisterRequest request, String host) {
+    public void studentRegister(StudentRegisterRequest request, String host) {
         Student student = request.toStudent(passwordEncoder);
 
         validateStudentRegister(student);

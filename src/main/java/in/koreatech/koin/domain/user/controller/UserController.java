@@ -105,7 +105,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Void> studentRegister(
         @Valid @RequestBody StudentRegisterRequest request,
         @Host(server = true) String host) {
-        studentService.StudentRegister(request, host);
+        studentService.studentRegister(request, host);
         return ResponseEntity.ok().build();
     }
 
