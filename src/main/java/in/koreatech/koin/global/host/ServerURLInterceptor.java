@@ -21,18 +21,12 @@ public class ServerURLInterceptor implements HandlerInterceptor {
     }
 
     public String getServerURL(HttpServletRequest request) {
-        String schema = request.getScheme();
+        String scheme = request.getScheme();
         String serverName = request.getServerName();
         int serverPort = request.getServerPort();
 
-        StringBuilder url = new StringBuilder();
-        url.append(schema).append("://");
-        url.append(serverName);
-
-        if (serverPort != 80 && serverPort != 443) {
-            url.append(":").append(serverPort);
-        }
-
-        return url.toString();
+        return (serverPort != 80 && serverPort != 443) ?
+            String.format("%s://%s:%d", scheme, serverName, serverPort) :
+            String.format("%s://%s", scheme, serverName);
     }
 }
