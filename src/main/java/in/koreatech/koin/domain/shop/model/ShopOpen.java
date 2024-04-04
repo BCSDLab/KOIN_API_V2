@@ -4,7 +4,7 @@ import java.time.LocalTime;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.global.config.LocalTimeToStringConverter;
+import in.koreatech.koin.global.config.LocalTimeAttributeConverter;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -48,12 +48,12 @@ public class ShopOpen extends BaseEntity {
 
     @NotNull
     @Column(name = "open_time")
-    @Convert(converter = LocalTimeToStringConverter.class)
+    @Convert(converter = LocalTimeAttributeConverter.class)
     private LocalTime openTime;
 
     @NotNull
     @Column(name = "close_time")
-    @Convert(converter = LocalTimeToStringConverter.class)
+    @Convert(converter = LocalTimeAttributeConverter.class)
     private LocalTime closeTime;
 
     @NotNull

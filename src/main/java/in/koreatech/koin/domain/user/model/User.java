@@ -8,7 +8,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import in.koreatech.koin.global.config.LocalDateTimeToStringConverter;
+import in.koreatech.koin.global.config.LocalDateTimeAttributeConverter;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -89,7 +89,7 @@ public class User extends BaseEntity {
     private String authToken;
 
     @Column(name = "auth_expired_at")
-    @Convert(converter = LocalDateTimeToStringConverter.class)
+    @Convert(converter = LocalDateTimeAttributeConverter.class)
     private LocalDateTime authExpiredAt;
 
     @Size(max = 255)
@@ -97,7 +97,7 @@ public class User extends BaseEntity {
     private String resetToken;
 
     @Column(name = "reset_expired_at")
-    @Convert(converter = LocalDateTimeToStringConverter.class)
+    @Convert(converter = LocalDateTimeAttributeConverter.class)
     private LocalDateTime resetExpiredAt;
 
     @Column(name = "device_token", nullable = true)
