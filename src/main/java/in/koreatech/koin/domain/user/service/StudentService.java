@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.user.service;
 import java.time.Clock;
 import java.util.Optional;
 
-import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -121,9 +121,9 @@ public class StudentService {
         if (studentNumber == null) {
             return;
         }
-        String admissionYear = studentNumber.substring(0, 4);
-        if (admissionYear.compareTo("1992") < 0
-            || admissionYear.compareTo((new LocalDate()).toString().substring(0, 4)) > 0) {
+        Integer studentNumberYear = Student.parseStudentNumberYear(studentNumber);
+        if (studentNumberYear < 1992
+            || new LocalDateTime().now().getYear()<studentNumberYear) {
             throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);
         }
     }
