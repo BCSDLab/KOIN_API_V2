@@ -3,14 +3,15 @@ package in.koreatech.koin.domain.user.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import in.koreatech.koin.global.config.LocalTimeToYMDHMSStringConverter;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -89,7 +90,8 @@ public class User extends BaseEntity {
 
     @Size(max = 255)
     @Column(name = "auth_expired_at")
-    private String authExpiredAt;
+    @Convert(converter = LocalTimeToYMDHMSStringConverter.class)
+    private LocalDateTime authExpiredAt;
 
     @Size(max = 255)
     @Column(name = "reset_token")
@@ -97,7 +99,8 @@ public class User extends BaseEntity {
 
     @Size(max = 255)
     @Column(name = "reset_expired_at")
-    private String resetExpiredAt;
+    @Convert(converter = LocalTimeToYMDHMSStringConverter.class)
+    private LocalDateTime resetExpiredAt;
 
     @Column(name = "device_token", nullable = true)
     private String deviceToken;
@@ -105,7 +108,8 @@ public class User extends BaseEntity {
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
         String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-        Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt,
+        Boolean isDeleted, String authToken, LocalDateTime authExpiredAt, String resetToken,
+        LocalDateTime resetExpiredAt,
         String deviceToken) {
         this.password = password;
         this.nickname = nickname;
@@ -154,10 +158,5 @@ public class User extends BaseEntity {
 
     public void auth() {
         this.isAuthed = true;
-    }
-
-    public LocalDateTime parseAuthExpiredAtToLocalDateTime() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return LocalDateTime.parse(this.authExpiredAt, formatter);
     }
 }
