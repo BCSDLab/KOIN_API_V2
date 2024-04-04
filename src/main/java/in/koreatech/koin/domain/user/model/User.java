@@ -103,9 +103,9 @@ public class User extends BaseEntity {
 
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
-                 String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-                 Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt,
-                 String deviceToken) {
+        String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+        Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt,
+        String deviceToken) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -151,3 +151,5 @@ public class User extends BaseEntity {
         this.gender = gender;
     }
 }
+
+

@@ -58,8 +58,9 @@ public class ShopService {
         return ShopResponse.from(shop);
     }
 
-    public ShopMenuResponse getShopMenu(Long shopId) {
-        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shopId);
+    public ShopMenuResponse getShopMenus(Long shopId) {
+        Shop shop = shopRepository.getById(shopId);
+        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
         return ShopMenuResponse.from(menuCategories);
     }
 
