@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.track.controller;
+package in.koreatech.koin.domain.member.controller;
 
 import java.util.List;
 
@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.track.dto.TrackResponse;
-import in.koreatech.koin.domain.track.dto.TrackSingleResponse;
-import in.koreatech.koin.domain.track.service.TrackService;
+import in.koreatech.koin.domain.member.dto.TrackResponse;
+import in.koreatech.koin.domain.member.dto.TrackSingleResponse;
+import in.koreatech.koin.domain.member.service.TrackService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
