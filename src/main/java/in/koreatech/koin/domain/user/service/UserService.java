@@ -92,8 +92,4 @@ public class UserService {
             throw DuplicationEmailException.withDetail("nickname: " + request.nickname());
         });
     }
-
-    public void sendResetTokenByEmailForFindPassword(String resetToken, String contextPath, String email) {
-
-    }
 }

@@ -60,7 +60,7 @@ public class StudentService {
         }
     }
 
-    public void sendFindPasswordMail(FindPasswordRequest request, String serverURL) {
+    public void findPassword(FindPasswordRequest request, String serverURL) {
         User user = userRepository.getByEmail(request.email());
         if (user == null) {
             throw UserNotFoundException.withDetail("존재하지 않는 이메일입니다." + request.email());
