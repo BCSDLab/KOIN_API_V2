@@ -8,8 +8,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.model.city.CityBusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.model.CityBusRemainTime;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record BusRemainTimeResponse(
@@ -17,6 +17,13 @@ public record BusRemainTimeResponse(
     InnerBusResponse nowBus,
     InnerBusResponse nextBus
 ) {
+
+    public BusRemainTimeResponse(BusType busType, ExpressBusRemainTime remainTimes) {
+        this(
+            busType.name().toLowerCase(),
+            InnerBusResponse.of(List.of(remainTimes), 0, null),
+            null);
+    }
 
     public static BusRemainTimeResponse of(BusType busType, List<? extends BusRemainTime> remainTimes, Clock clock) {
         return new BusRemainTimeResponse(

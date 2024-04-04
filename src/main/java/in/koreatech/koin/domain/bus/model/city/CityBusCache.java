@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.model.redis;
+package in.koreatech.koin.domain.bus.model.city;
 
 import java.util.ArrayList;
 import java.util.List;

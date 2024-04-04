@@ -1,9 +1,9 @@
-package in.koreatech.koin.domain.bus.model;
+package in.koreatech.koin.domain.bus.model.city;
 
 import java.time.LocalTime;
 import java.util.Objects;
 
-import in.koreatech.koin.domain.bus.model.redis.CityBusCacheInfo;
+import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 

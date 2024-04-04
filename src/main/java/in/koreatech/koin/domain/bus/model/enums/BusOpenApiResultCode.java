@@ -28,18 +28,14 @@ public enum BusOpenApiResultCode {
 
     public static void validateResponse(JsonObject response) {
         String resultCode = response.get("header").getAsJsonObject().get("resultCode").getAsString();
-
         String errorMessage = "";
-
         if (!resultCode.equals(SERVICE_SUCCESS.code)) {
             Optional<BusOpenApiResultCode> code = Arrays.stream(BusOpenApiResultCode.values())
                 .filter(busOpenApiResultCode -> busOpenApiResultCode.code.equals(resultCode))
                 .findFirst();
-
             if (code.isPresent()) {
                 errorMessage = code.get().message;
             }
-
             String resultMessage = response.get("header").getAsJsonObject().get("resultMsg").getAsString();
             throw BusOpenApiException.withDetail(errorMessage + " resultMsg: " + resultMessage);
         }

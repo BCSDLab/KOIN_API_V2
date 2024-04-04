@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,12 +30,12 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-import in.koreatech.koin.domain.bus.model.CityBusArrival;
-import in.koreatech.koin.domain.bus.model.CityBusRemainTime;
+import in.koreatech.koin.domain.bus.model.city.CityBusArrival;
+import in.koreatech.koin.domain.bus.model.city.CityBusCache;
+import in.koreatech.koin.domain.bus.model.city.CityBusCacheInfo;
+import in.koreatech.koin.domain.bus.model.city.CityBusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
-import in.koreatech.koin.domain.bus.model.redis.CityBusCache;
-import in.koreatech.koin.domain.bus.model.redis.CityBusCacheInfo;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
@@ -78,7 +79,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
         Version version = versionRepository.getByType(VersionType.CITY);
 
         if (isCacheExpired(version, clock)) {
-            getAllCityBusArrivalInfoByOpenApi();
+            storeAllCityBusArrivalInfoByOpenApi();
         }
 
         return getCityBusArrivalInfoByCache(nodeId);
@@ -86,12 +87,13 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
 
     private List<CityBusRemainTime> getCityBusArrivalInfoByCache(String nodeId) {
         Optional<CityBusCache> cityBusCache = cityBusCacheRepository.findById(nodeId);
-
-        return cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBusRemainTime::from).toList())
-            .orElseGet(ArrayList::new);
+        return cityBusCache.map(busCache -> busCache.getBusInfos().stream()
+                .map(CityBusRemainTime::from)
+                .toList())
+            .orElseGet(Collections::emptyList);
     }
 
-    private void getAllCityBusArrivalInfoByOpenApi() {
+    private void storeAllCityBusArrivalInfoByOpenApi() {
         List<List<CityBusArrival>> arrivalInfosList = BusStationNode.getNodeIds().stream()
             .map(this::getOpenApiResponse)
             .map(this::extractBusArrivalInfo)
@@ -125,7 +127,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
     public String getOpenApiResponse(String nodeId) {
         try {
             URL url = new URL(getRequestURL(CHEONAN_CITY_CODE, nodeId));
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "application/json");
 
