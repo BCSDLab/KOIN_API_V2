@@ -3,11 +3,13 @@ package in.koreatech.koin.domain.user.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
+import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.StudentDepartment;
 import in.koreatech.koin.domain.user.model.User;
@@ -53,5 +55,17 @@ public class StudentService {
         if (department != null && !StudentDepartment.isValid(department)) {
             throw StudentDepartmentNotValidException.withDetail("학부(학과) : " + department);
         }
+    }
+
+    @Transactional
+    public void sendResetPasswordEmail(FindPasswordRequest request) {
+    }
+
+    public void changePasswordConfig(FindPasswordRequest request, String host) {
+        User user = userRepository.getByEmail(request.email());
+        if (user == null) {
+            throw UserNotFoundException.withDetail("email : " + request.email());
+        }
+
     }
 }
