@@ -71,7 +71,7 @@ public record LectureResponse(
         }
 
         classTime = classTime.substring(1, classTime.length() - 1);
-        List<String> numbers = List.of(classTime.split(", "));
+        List<String> numbers = List.of(classTime.split(","));
 
         return numbers.stream()
             .map(String::strip)
