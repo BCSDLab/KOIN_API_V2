@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -316,9 +317,12 @@ class BusApiTest extends AcceptanceTest {
     @Test
     @DisplayName("다음 시외버스까지 남은 시간을 조회한다. - Redis")
     void getNextExpressBusRemainTimeRedis() {
-        final long remainTime = 600L;
 
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
+        Instant requestedAt = ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
+            .toInstant();
+        when(clock.getZone()).thenReturn(ZoneId.of("Asia/Seoul"));
+        when(clock.instant()).thenReturn(requestedAt);
+        when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
 
         BusType busType = BusType.from("express");
         BusStation depart = BusStation.from("terminal");
@@ -330,12 +334,6 @@ class BusApiTest extends AcceptanceTest {
                 .type("express_bus_timetable")
                 .build()
         );
-
-        Instant requestedAt = ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
-            .toInstant();
-
-        when(clock.instant()).thenReturn(requestedAt);
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
 
         expressBusCacheRepository.save(
             ExpressBusCache.create(
