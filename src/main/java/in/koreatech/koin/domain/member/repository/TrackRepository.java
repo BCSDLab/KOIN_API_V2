@@ -17,6 +17,7 @@ public interface TrackRepository extends Repository<Track, Long> {
     Optional<Track> findById(Long trackId);
 
     default Track getById(Long trackId) {
-        return findById(trackId).orElseThrow(() -> TrackNotFoundException.withDetail("trackId: " + trackId));
+        return findById(trackId)
+            .orElseThrow(() -> TrackNotFoundException.withDetail("trackId: " + trackId));
     }
 }

@@ -1,7 +1,8 @@
 package in.koreatech.koin.domain.land.service;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -45,6 +46,6 @@ public class LandService {
                 .toList();
         }
 
-        return LandResponse.of(land, imageUrls, URLEncoder.encode(land.getInternalName(), StandardCharsets.UTF_8));
+        return LandResponse.of(land, imageUrls, URLEncoder.encode(land.getInternalName(), UTF_8));
     }
 }

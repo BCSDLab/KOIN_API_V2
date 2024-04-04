@@ -72,7 +72,7 @@ class TrackApiTest extends AcceptanceTest {
             .imageUrl("https://imagetest.com/asdf.jpg")
             .name("박한수")
             .position("Regular")
-            .trackId(track.getId())
+            .track(track)
             .email("hsp@gmail.com")
             .build();
         memberRepository.save(member);
