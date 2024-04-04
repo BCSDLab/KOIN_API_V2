@@ -2,8 +2,6 @@ package in.koreatech.koin.domain.bus.util;
 
 import static in.koreatech.koin.domain.bus.model.enums.BusType.EXPRESS;
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.time.temporal.ChronoUnit.MILLIS;
-import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.lang.reflect.Type;
 import java.time.Clock;
@@ -12,11 +10,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +28,6 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
-import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime.InnerRemainTime;
 import in.koreatech.koin.domain.bus.dto.ExpressBusTimeTable;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
@@ -81,7 +76,7 @@ public class ExpressBusOpenApiClient extends BusOpenApiClient<BusRemainTime> {
         this.restTemplate = restTemplate;
     }
 
-    public ExpressBusRemainTime getBusRemainTime(String departName, String arrivalName) {
+    public List<ExpressBusRemainTime> getBusRemainTime(String departName, String arrivalName) {
         Version version = versionRepository.getByType(VersionType.EXPRESS);
         if (isCacheExpired(version, clock)) {
             storeRemainTimeByOpenApi(departName, arrivalName);
@@ -89,7 +84,7 @@ public class ExpressBusOpenApiClient extends BusOpenApiClient<BusRemainTime> {
         return getStoredRemainTime(departName, arrivalName);
     }
 
-    private ExpressBusRemainTime storeRemainTimeByOpenApi(String departName, String arrivalName) {
+    private List<ExpressBusRemainTime> storeRemainTimeByOpenApi(String departName, String arrivalName) {
         JsonObject busApiResponse = getBusApiResponse(departName, arrivalName);
         List<ExpressBusArrival> busArrivals = extractBusArrivalInfo(busApiResponse);
         expressBusCacheRepository.save(
@@ -110,12 +105,11 @@ public class ExpressBusOpenApiClient extends BusOpenApiClient<BusRemainTime> {
                     .toList()
             ));
         versionRepository.getByType(VersionType.EXPRESS).update(clock);
-        var now = LocalDateTime.now(clock);
         return getExpressBusRemainTime(
             busArrivals
                 .stream()
-                .map(ExpressBusTimeTable::from),
-            now
+                .map(ExpressBusTimeTable::from)
+                .toList()
         );
     }
 
@@ -157,65 +151,26 @@ public class ExpressBusOpenApiClient extends BusOpenApiClient<BusRemainTime> {
         }
     }
 
-    private ExpressBusRemainTime getStoredRemainTime(String departName, String arrivalName) {
+    private List<ExpressBusRemainTime> getStoredRemainTime(String departName, String arrivalName) {
         String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute(departName, arrivalName));
         ExpressBusCache expressBusCache = expressBusCacheRepository.getById(busCacheId);
         if (Objects.isNull(expressBusCache)) {
-            return ExpressBusRemainTime.builder()
-                .busType(EXPRESS.name())
-                .build();
+            return Collections.emptyList();
         }
         List<ExpressBusCacheInfo> busArrivals = expressBusCache.getBusInfos();
-        LocalDateTime now = LocalDateTime.now(clock);
-
         return getExpressBusRemainTime(
             busArrivals
                 .stream()
                 .map(ExpressBusTimeTable::from)
-            , now);
+                .toList());
     }
 
-    private ExpressBusRemainTime getExpressBusRemainTime(
-        Stream<ExpressBusTimeTable> busArrivals,
-        LocalDateTime now
+    private List<ExpressBusRemainTime> getExpressBusRemainTime(
+        List<ExpressBusTimeTable> busArrivals
     ) {
-        List<ExpressBusTimeTable> busTimes = busArrivals.toList();
-        List<LocalTime> closestFutureTimes = findClosestFutureTimes(LocalDateTime.now(clock), busTimes);
-        if (closestFutureTimes.isEmpty()) {
-            return
-                ExpressBusRemainTime.builder()
-                    .busType(EXPRESS.name())
-                    .build();
-        } else if (closestFutureTimes.size() == 1) {
-            return
-                ExpressBusRemainTime.builder()
-                    .busType(EXPRESS.name())
-                    .nowBus(new InnerRemainTime(null, SECONDS.between(now, closestFutureTimes.get(0))))
-                    .nextBus(null)
-                    .build();
-        }
-
-        LocalTime nowDepartureTime = closestFutureTimes.get(0);
-        LocalTime nextDepartureTime = closestFutureTimes.get(1);
-
-        return ExpressBusRemainTime.builder()
-            .busType(EXPRESS.name())
-            .nowBus(new InnerRemainTime(null, SECONDS.between(now, nowDepartureTime)))
-            .nextBus(new InnerRemainTime(null, SECONDS.between(now, nextDepartureTime)))
-            .build();
-    }
-
-    private List<LocalTime> findClosestFutureTimes(LocalDateTime now, List<ExpressBusTimeTable> arrivals) {
-        // 현재 시간 이후의 시간만 필터링
-        List<LocalTime> futureTimes = arrivals.stream()
-            .map(ExpressBusTimeTable::departure)
-            .filter(it -> it.isAfter(LocalTime.from(now)))
-            // 필터링된 시간을 현재 시간과의 차이(절대값)에 따라 정렬
-            .sorted(Comparator.comparingLong(time -> MILLIS.between(now, time)))
+        return busArrivals.stream()
+            .map(it -> new ExpressBusRemainTime(it.arrival(), EXPRESS.name().toLowerCase()))
             .toList();
-
-        // 결과 리스트의 크기가 2보다 작을 수 있으므로, 실제 크기와 2 중 더 작은 값을 상한으로 사용
-        return futureTimes.subList(0, 2);
     }
 
     @Override

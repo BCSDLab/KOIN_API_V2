@@ -18,13 +18,6 @@ public record BusRemainTimeResponse(
     InnerBusResponse nextBus
 ) {
 
-    public BusRemainTimeResponse(BusType busType, ExpressBusRemainTime remainTimes) {
-        this(
-            busType.name().toLowerCase(),
-            InnerBusResponse.of(List.of(remainTimes), 0, null),
-            null);
-    }
-
     public static BusRemainTimeResponse of(BusType busType, List<? extends BusRemainTime> remainTimes, Clock clock) {
         return new BusRemainTimeResponse(
             busType.name().toLowerCase(),
@@ -43,14 +36,11 @@ public record BusRemainTimeResponse(
             if (index < remainTimes.size()) {
                 Long busNumber = null;
                 Long remainTime = remainTimes.get(index).getRemainSeconds(clock);
-
                 if (remainTime != null && remainTimes.get(index) instanceof CityBusRemainTime cityBusRemainTime) {
                     busNumber = cityBusRemainTime.getBusNumber();
                 }
-
                 return new InnerBusResponse(busNumber, remainTime);
             }
-
             return null;
         }
     }

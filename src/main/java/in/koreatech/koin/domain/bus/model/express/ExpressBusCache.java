@@ -1,17 +1,15 @@
 package in.koreatech.koin.domain.bus.model.express;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisHash;
-import org.springframework.data.redis.core.TimeToLive;
 
 import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@RedisHash("expressBus")
+@RedisHash(value = "expressBus", timeToLive = 3600L)
 public class ExpressBusCache {
 
     private static final long CACHE_EXPIRE_HOUR = 1L;
@@ -19,16 +17,12 @@ public class ExpressBusCache {
     @Id
     private String id;
 
-    private List<ExpressBusCacheInfo> busInfos;
-
-    @TimeToLive(unit = TimeUnit.HOURS)
-    private final Long expiration;
+    private final List<ExpressBusCacheInfo> busInfos;
 
     @Builder
     private ExpressBusCache(String id, List<ExpressBusCacheInfo> busInfos) {
         this.id = id;
         this.busInfos = busInfos;
-        this.expiration = CACHE_EXPIRE_HOUR;
     }
 
     public static ExpressBusCache create(ExpressBusRoute route, List<ExpressBusCacheInfo> busInfos) {
