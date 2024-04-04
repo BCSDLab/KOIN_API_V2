@@ -20,11 +20,4 @@ public class ErrorResponse {
     public static ErrorResponse from(String message) {
         return new ErrorResponse(0, message);
     }
-
-    public record ErrorResponseWrapper(ErrorResponse error) {
-
-        public static ErrorResponseWrapper from(ErrorResponse error) {
-            return new ErrorResponseWrapper(error);
-        }
-    }
 }
