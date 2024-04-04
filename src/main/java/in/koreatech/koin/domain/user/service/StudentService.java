@@ -65,6 +65,7 @@ public class StudentService {
         if (user == null) {
             throw UserNotFoundException.withDetail("존재하지 않는 이메일입니다." + request.email());
         }
+        user.generateResetTokenForFindPassword();
         mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, user.getResetToken()));
     }
 }

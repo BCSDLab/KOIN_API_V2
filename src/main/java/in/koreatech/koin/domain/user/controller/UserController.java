@@ -108,8 +108,7 @@ public class UserController implements UserApi {
 
     @PostMapping("/user/find/password")
     public ResponseEntity<Void> findPassword(
-        @ModelAttribute("email")
-        @Valid FindPasswordRequest request,
+        @RequestBody @Valid FindPasswordRequest request,
         @ServerURL String serverURL
     ) {
         studentService.findPassword(request, serverURL);

@@ -9,6 +9,7 @@ import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin.global.domain.util.Sha256;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -94,7 +95,6 @@ public class User extends BaseEntity {
     @Column(name = "reset_token")
     private String resetToken;
 
-    @Size(max = 255)
     @Column(name = "reset_expired_at")
     private String resetExpiredAt;
 
@@ -103,9 +103,9 @@ public class User extends BaseEntity {
 
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
-                 String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-                 Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt,
-                 String deviceToken) {
+        String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+        Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt,
+        String deviceToken) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -142,6 +142,11 @@ public class User extends BaseEntity {
 
     public void updatePassword(PasswordEncoder passwordEncoder, String password) {
         this.password = passwordEncoder.encode(password);
+    }
+
+    public void generateResetTokenForFindPassword() {
+        this.resetExpiredAt = LocalDateTime.now().plusHours(1).toString();
+        this.resetToken = Sha256.encode(this.email + this.resetExpiredAt);
     }
 
     public void update(String nickname, String name, String phoneNumber, UserGender gender) {
