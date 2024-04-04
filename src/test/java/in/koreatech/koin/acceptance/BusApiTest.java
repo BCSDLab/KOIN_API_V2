@@ -1,5 +1,7 @@
 package in.koreatech.koin.acceptance;
 
+import static in.koreatech.koin.domain.version.model.VersionType.CITY;
+import static in.koreatech.koin.domain.version.model.VersionType.EXPRESS;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
@@ -8,7 +10,6 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +39,6 @@ import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
-import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -296,7 +296,7 @@ class BusApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        Version version = versionRepository.getByType(VersionType.CITY);
+        Version version = versionRepository.getByType(CITY);
 
         assertSoftly(
             softly -> {
@@ -317,21 +317,16 @@ class BusApiTest extends AcceptanceTest {
     @Test
     @DisplayName("다음 시외버스까지 남은 시간을 조회한다. - Redis")
     void getNextExpressBusRemainTimeRedis() {
-
         Instant requestedAt = ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
             .toInstant();
-        when(clock.getZone()).thenReturn(ZoneId.of("Asia/Seoul"));
-        when(clock.instant()).thenReturn(requestedAt);
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
-
         BusType busType = BusType.from("express");
         BusStation depart = BusStation.from("terminal");
         BusStation arrival = BusStation.from("koreatech");
-
         Version version = versionRepository.save(
             Version.builder()
                 .version("20240_1711255839")
-                .type("express_bus_timetable")
+                .type(EXPRESS.getValue())
                 .build()
         );
 
@@ -351,8 +346,8 @@ class BusApiTest extends AcceptanceTest {
             .given()
             .when()
             .param("bus_type", busType.name().toLowerCase())
-            .param("depart", depart.name())
-            .param("arrival", arrival.name())
+            .param("depart", depart.name().toLowerCase())
+            .param("arrival", arrival.name().toLowerCase())
             .get("/bus")
             .then()
             .statusCode(HttpStatus.OK.value())
