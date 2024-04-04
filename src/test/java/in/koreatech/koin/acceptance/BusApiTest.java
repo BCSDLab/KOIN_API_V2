@@ -317,18 +317,25 @@ class BusApiTest extends AcceptanceTest {
     @Test
     @DisplayName("다음 시외버스까지 남은 시간을 조회한다. - Redis")
     void getNextExpressBusRemainTimeRedis() {
-        Instant requestedAt = ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
-            .toInstant();
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
+        when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
+
         BusType busType = BusType.from("express");
         BusStation depart = BusStation.from("terminal");
         BusStation arrival = BusStation.from("koreatech");
+
         Version version = versionRepository.save(
             Version.builder()
                 .version("20240_1711255839")
                 .type(EXPRESS.getValue())
                 .build()
         );
+        versionRepository.save(version);
+
+        Instant requestedAt = ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
+            .toInstant();
+
+        when(clock.instant()).thenReturn(requestedAt);
+        when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
 
         expressBusCacheRepository.save(
             ExpressBusCache.create(
@@ -346,8 +353,8 @@ class BusApiTest extends AcceptanceTest {
             .given()
             .when()
             .param("bus_type", busType.name().toLowerCase())
-            .param("depart", depart.name().toLowerCase())
-            .param("arrival", arrival.name().toLowerCase())
+            .param("depart", depart.name())
+            .param("arrival", arrival.name())
             .get("/bus")
             .then()
             .statusCode(HttpStatus.OK.value())

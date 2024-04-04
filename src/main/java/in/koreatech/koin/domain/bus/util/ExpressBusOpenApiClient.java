@@ -176,6 +176,6 @@ public class ExpressBusOpenApiClient extends BusOpenApiClient<BusRemainTime> {
     @Override
     public boolean isCacheExpired(Version version, Clock clock) {
         Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
-        return duration.toSeconds() < 0 || ExpressBusCache.getCacheExpireHour() <= duration.toHours();
+        return duration.toSeconds() < 0 || Duration.ofHours(ExpressBusCache.getCacheExpireHour()).toSeconds() <= duration.toSeconds();
     }
 }
