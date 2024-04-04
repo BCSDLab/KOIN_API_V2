@@ -16,6 +16,8 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
+import in.koreatech.koin.global.domain.email.service.MailService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,6 +27,7 @@ public class StudentService {
 
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
+    private final MailService mailService;
 
     public StudentResponse getStudent(Long userId) {
         Student student = studentRepository.getById(userId);
@@ -57,15 +60,11 @@ public class StudentService {
         }
     }
 
-    @Transactional
-    public void sendResetPasswordEmail(FindPasswordRequest request) {
-    }
-
-    public void changePasswordConfig(FindPasswordRequest request, String host) {
+    public void sendFindPasswordMail(FindPasswordRequest request, String serverURL) {
         User user = userRepository.getByEmail(request.email());
         if (user == null) {
-            throw UserNotFoundException.withDetail("email : " + request.email());
+            throw UserNotFoundException.withDetail("존재하지 않는 이메일입니다." + request.email());
         }
-
+        mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, user.getResetToken()));
     }
 }
