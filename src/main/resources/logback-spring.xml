@@ -4,7 +4,7 @@
     value="[%d{yyyy-MM-dd'T'HH:mm:ss.SSS}] %-5level --- [%15.15thread] %-40.40logger{36} : %msg%n"/>
   <property name="consoleLogPattern"
     value="[%d{yyyy-MM-dd'T'HH:mm:ss.SSS}] %clr(%-5level) %clr(${PID:-}){magenta} %clr(---){faint} %clr([%15.15thread]){faint} %clr(%-40.40logger{36}){cyan} %clr(:){faint} : %msg%n"/>
-  <property name="slackLogPattern" value="%msg%n"/>
+  <property name="slackLogPattern" value="[Stage: ${stage}]%msg%n"/>
 
   <springProfile name="default, dev, test">
     <conversionRule conversionWord="clr"

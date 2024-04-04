@@ -119,6 +119,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String detail = String.format("""
                 Exception: *%s*
                 Location: *%s Line %d*
+                
                 ```%s```
                 """,
             errorName, errorFile, errorLine, errorMessage);
