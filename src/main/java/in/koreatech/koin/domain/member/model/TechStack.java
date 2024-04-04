@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.track.model;
+package in.koreatech.koin.domain.member.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
