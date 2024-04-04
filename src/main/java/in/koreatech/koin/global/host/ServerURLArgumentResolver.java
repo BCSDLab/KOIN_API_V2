@@ -11,22 +11,19 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class HostArgumentResolver implements HandlerMethodArgumentResolver {
+public class ServerURLArgumentResolver implements HandlerMethodArgumentResolver {
 
-    private final HostContext hostContext;
+    private final ServerURLContext serverURLContext;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(Host.class);
+        return parameter.hasParameterAnnotation(ServerURL.class);
     }
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
         NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
-        Host host = parameter.getParameterAnnotation(Host.class);
-        if (host.server()) {
-            return hostContext.getHost();
-        }
-        return null;
+
+        return serverURLContext.getServerURL();
     }
 }

@@ -31,7 +31,7 @@ import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.host.Host;
+import in.koreatech.koin.global.host.ServerURL;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -104,8 +104,8 @@ public class UserController implements UserApi {
     @PostMapping("/user/student/register")
     public ResponseEntity<Void> studentRegister(
         @Valid @RequestBody StudentRegisterRequest request,
-        @Host(server = true) String host) {
-        studentService.studentRegister(request, host);
+        @ServerURL String serverURL) {
+        studentService.studentRegister(request, serverURL);
         return ResponseEntity.ok().build();
     }
 

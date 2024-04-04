@@ -23,7 +23,7 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.host.Host;
+import in.koreatech.koin.global.host.ServerURL;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -123,7 +123,7 @@ public interface UserApi {
     @PostMapping("/user/student/register")
     ResponseEntity<Void> studentRegister(
         @RequestBody @Valid StudentRegisterRequest studentRegisterRequest,
-        @Host String host
+        @ServerURL String serverURL
     );
 
     @ApiResponses(

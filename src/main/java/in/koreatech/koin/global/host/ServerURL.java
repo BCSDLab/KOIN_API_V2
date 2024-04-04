@@ -11,6 +11,6 @@ import io.swagger.v3.oas.annotations.Hidden;
 @Hidden // Swagger 문서에 표시하지 않음
 @Target(PARAMETER)
 @Retention(RUNTIME)
-public @interface Host {
-    boolean server() default true;
+public @interface ServerURL {
+
 }

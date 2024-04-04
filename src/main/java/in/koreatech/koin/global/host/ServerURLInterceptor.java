@@ -9,18 +9,18 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class HostInterceptor implements HandlerInterceptor {
+public class ServerURLInterceptor implements HandlerInterceptor {
 
-    private final HostContext hostContext;
+    private final ServerURLContext serverURLContext;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String host = getHost(request);
-        hostContext.setHost(host);
+        String serverURL = getServerURL(request);
+        serverURLContext.setServerURL(serverURL);
         return true;
     }
 
-    public String getHost(HttpServletRequest request) {
+    public String getServerURL(HttpServletRequest request) {
         String schema = request.getScheme();
         String serverName = request.getServerName();
         int serverPort = request.getServerPort();

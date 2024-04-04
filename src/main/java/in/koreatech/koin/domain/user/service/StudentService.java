@@ -82,7 +82,7 @@ public class StudentService {
     }
 
     @Transactional
-    public void studentRegister(StudentRegisterRequest request, String host) {
+    public void studentRegister(StudentRegisterRequest request, String serverURL) {
         Student student = request.toStudent(passwordEncoder, clock);
 
         validateStudentRegister(student);
@@ -90,7 +90,7 @@ public class StudentService {
         studentRepository.save(student);
         userRepository.save(student.getUser());
 
-        mailService.sendMail(request.email(), new StudentRegistrationData(host, student.getUser().getAuthToken()));
+        mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, student.getUser().getAuthToken()));
         eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
     }
 
