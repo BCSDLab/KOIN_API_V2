@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.user.model;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -10,15 +11,17 @@ public class AuthResult {
 
     private final Optional<User> user;
     private final ApplicationEventPublisher eventPublisher;
+    private final Clock clock;
 
-    public AuthResult(Optional<User> user, ApplicationEventPublisher eventPublisher) {
+    public AuthResult(Optional<User> user, ApplicationEventPublisher eventPublisher, Clock clock) {
         this.user = user;
         this.eventPublisher = eventPublisher;
+        this.clock = clock;
     }
 
     public ModelAndView toModelAndViewForStudent() {
         return user.map(user -> {
-            if (user.parseAuthExpiredAtToLocalDateTime().isBefore(LocalDateTime.now())) {
+            if (user.getAuthExpiredAt().isBefore(LocalDateTime.now(clock))) {
                 return createErrorModelAndView("이미 만료된 토큰입니다.");
             }
             if (!user.getIsAuthed()) {

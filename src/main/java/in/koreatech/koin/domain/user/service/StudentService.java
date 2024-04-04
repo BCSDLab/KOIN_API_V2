@@ -78,7 +78,7 @@ public class StudentService {
     @Transactional
     public ModelAndView authenticate(AuthTokenRequest request) {
         Optional<User> user = userRepository.findByAuthToken(request.authToken());
-        return new AuthResult(user, eventPublisher).toModelAndViewForStudent();
+        return new AuthResult(user, eventPublisher, clock).toModelAndViewForStudent();
     }
 
     @Transactional
@@ -123,7 +123,7 @@ public class StudentService {
         }
         Integer studentNumberYear = Student.parseStudentNumberYear(studentNumber);
         if (studentNumberYear < 1992
-            || new LocalDateTime().now().getYear()<studentNumberYear) {
+            || new LocalDateTime().now().getYear() < studentNumberYear) {
             throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);
         }
     }

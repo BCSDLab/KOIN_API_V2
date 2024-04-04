@@ -8,7 +8,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import in.koreatech.koin.global.config.LocalTimeToYMDHMSStringConverter;
+import in.koreatech.koin.global.config.LocalDateTimeToStringConverter;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -88,18 +88,16 @@ public class User extends BaseEntity {
     @Column(name = "auth_token")
     private String authToken;
 
-    @Size(max = 255)
     @Column(name = "auth_expired_at")
-    @Convert(converter = LocalTimeToYMDHMSStringConverter.class)
+    @Convert(converter = LocalDateTimeToStringConverter.class)
     private LocalDateTime authExpiredAt;
 
     @Size(max = 255)
     @Column(name = "reset_token")
     private String resetToken;
 
-    @Size(max = 255)
     @Column(name = "reset_expired_at")
-    @Convert(converter = LocalTimeToYMDHMSStringConverter.class)
+    @Convert(converter = LocalDateTimeToStringConverter.class)
     private LocalDateTime resetExpiredAt;
 
     @Column(name = "device_token", nullable = true)
