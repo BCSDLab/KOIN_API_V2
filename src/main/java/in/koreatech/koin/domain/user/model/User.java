@@ -31,7 +31,6 @@ import lombok.NoArgsConstructor;
 @SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = PROTECTED)
 public class User extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
