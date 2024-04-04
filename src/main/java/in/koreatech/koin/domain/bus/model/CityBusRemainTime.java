@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.bus.model;
 import java.time.LocalTime;
 import java.util.Objects;
 
-import in.koreatech.koin.domain.bus.model.redis.BusCache;
+import in.koreatech.koin.domain.bus.model.redis.CityBusCacheInfo;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -17,7 +17,7 @@ public class CityBusRemainTime extends BusRemainTime {
         this.busNumber = busNumber;
     }
 
-    public static CityBusRemainTime from(BusCache busInfo) {
+    public static CityBusRemainTime from(CityBusCacheInfo busInfo) {
         return builder()
             .busNumber(busInfo.busNumber())
             .busArrivalTime(busInfo.remainTime())

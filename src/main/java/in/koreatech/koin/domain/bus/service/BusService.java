@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,13 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
-import in.koreatech.koin.domain.bus.model.enums.BusApiType;
-import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
+import in.koreatech.koin.domain.bus.model.enums.IntercityBusStationNode;
+import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
-import in.koreatech.koin.domain.bus.util.BusOpenApiClient;
+import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
+import in.koreatech.koin.domain.bus.util.IntercityBusOpenApiClient;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,7 +28,8 @@ public class BusService {
 
     private final Clock clock;
     private final BusRepository busRepository;
-    private final Map<String, BusOpenApiClient<? extends BusRemainTime>> busOpenApiClient;
+    private final CityBusOpenApiClient cityBusOpenApiClient;
+    private final IntercityBusOpenApiClient intercityBusOpenApiClient;
 
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(String busTypeName, String departName, String arrivalName) {
@@ -39,11 +40,12 @@ public class BusService {
         validateBusCourse(depart, arrival);
 
         List<? extends BusRemainTime> remainTimes = new ArrayList<>();
-        if (busType == BusType.CITY || busType == BusType.EXPRESS) {
-            remainTimes = busOpenApiClient.get(BusApiType.from(busType).getValue())
-                .getBusRemainTime(depart.getNodeId(direction));
-        }
-        else if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
+        if (busType == BusType.CITY) {
+            remainTimes = cityBusOpenApiClient.getBusRemainTime(depart.getNodeId(direction));
+        } else if (busType == BusType.EXPRESS) {
+            remainTimes = intercityBusOpenApiClient.getBusRemainTime(IntercityBusStationNode.getId(departName),
+                IntercityBusStationNode.getId(arrivalName));
+        } else if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
             List<BusCourse> busCourses = busRepository.findByBusType(busType.name().toLowerCase());
             remainTimes = busCourses.stream()
                 .map(BusCourse::getRoutes)

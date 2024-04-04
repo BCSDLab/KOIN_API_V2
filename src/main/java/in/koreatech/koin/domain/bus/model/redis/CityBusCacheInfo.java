@@ -6,7 +6,7 @@ import java.time.LocalTime;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.CityBusArrival;
 
-public record BusCache(
+public record CityBusCacheInfo(
     Long busNumber,
     LocalTime remainTime
 ) {
@@ -18,11 +18,10 @@ public record BusCache(
      * 학교 버스는 도착 시간을 저장하고, 시내버스는 남은 시간만을 저장하므로
      * Redis에 저장할때 (캐시 저장 시각 + 남은시간)으로 저장하여 통일시켜줌</pre>
      * */
-    public static BusCache from(CityBusArrival busArrivalInfo, LocalDateTime updatedAt) {
-        return new BusCache(
+    public static CityBusCacheInfo from(CityBusArrival busArrivalInfo, LocalDateTime updatedAt) {
+        return new CityBusCacheInfo(
             busArrivalInfo.routeno(),
             updatedAt.plusSeconds(busArrivalInfo.arrtime()).toLocalTime()
         );
     }
-
 }

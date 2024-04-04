@@ -25,8 +25,8 @@ import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
-import in.koreatech.koin.domain.bus.model.redis.BusCache;
 import in.koreatech.koin.domain.bus.model.redis.CityBusCache;
+import in.koreatech.koin.domain.bus.model.redis.CityBusCacheInfo;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
@@ -164,7 +164,7 @@ class BusApiTest extends AcceptanceTest {
         cityBusCacheRepository.save(
             CityBusCache.create(
                 depart.getNodeId(direction),
-                List.of(BusCache.from(
+                List.of(CityBusCacheInfo.from(
                     CityBusArrival.builder()
                         .routeno(busNumber)
                         .arrtime(remainTime)
