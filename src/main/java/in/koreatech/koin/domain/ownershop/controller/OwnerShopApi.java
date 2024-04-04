@@ -3,16 +3,23 @@ package in.koreatech.koin.domain.ownershop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
+import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
+import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
+import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
+import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.global.auth.Auth;
@@ -23,6 +30,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Owner Shop: 상점 (점주 전용)", description = "사장님이 상점 정보를 관리한다.")
 public interface OwnerShopApi {
@@ -55,7 +63,7 @@ public interface OwnerShopApi {
     @PostMapping("/owner/shops")
     ResponseEntity<Void> createOwnerShops(
         @Auth(permit = {OWNER}) Long userId,
-        @RequestBody OwnerShopsRequest ownerShopsRequest
+        @RequestBody @Valid OwnerShopsRequest ownerShopsRequest
     );
 
     @ApiResponses(
@@ -120,5 +128,124 @@ public interface OwnerShopApi {
     ResponseEntity<MenuCategoriesResponse> getCategories(
         @Auth(permit = {OWNER}) Long ownerId,
         @RequestParam("shopId") Long shopId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점의 메뉴 삭제")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @DeleteMapping("/owner/shops/menus/{menuId}")
+    ResponseEntity<Void> deleteMenuByMenuId(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("menuId") Long menuId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점의 메뉴 카테고리 삭제")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @DeleteMapping("/owner/shops/menus/categories/{categoryId}")
+    ResponseEntity<Void> deleteCategory(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("categoryId") Long categoryId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "422", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점의 메뉴 생성")
+    @PostMapping("/owner/shops/{id}/menus")
+    ResponseEntity<Void> createMenu(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("id") Long shopId,
+        @RequestBody @Valid CreateMenuRequest createMenuRequest
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "422", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점의 메뉴 카테고리 생성")
+    @PostMapping("/owner/shops/{id}/menus/categories")
+    ResponseEntity<Void> createMenuCategory(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("id") Long shopId,
+        @RequestBody @Valid CreateCategoryRequest createCategoryRequest
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "422", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점의 메뉴 수정")
+    @PutMapping("/owner/shops/menus/{menuId}")
+    ResponseEntity<Void> modifyMenu(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("menuId") Long menuId,
+        @RequestBody @Valid ModifyMenuRequest modifyMenuRequest
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "422", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점의 메뉴 카테고리 수정")
+    @PutMapping("/owner/shops/menus/categories/{categoryId}")
+    ResponseEntity<Void> modifyMenuCategory(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("categoryId") Long categoryId,
+        @RequestBody @Valid ModifyCategoryRequest modifyCategoryRequest
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "422", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 수정")
+    @PutMapping("/owner/shops/{id}")
+    ResponseEntity<Void> modifyOwnerShop(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("id") Long shopId,
+        @RequestBody @Valid ModifyShopRequest modifyShopRequest
     );
 }

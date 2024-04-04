@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.track.dto;
+package in.koreatech.koin.domain.member.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,9 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.track.model.Member;
-import in.koreatech.koin.domain.track.model.TechStack;
-import in.koreatech.koin.domain.track.model.Track;
+import in.koreatech.koin.domain.member.model.Member;
+import in.koreatech.koin.domain.member.model.TechStack;
+import in.koreatech.koin.domain.member.model.Track;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record TrackSingleResponse(

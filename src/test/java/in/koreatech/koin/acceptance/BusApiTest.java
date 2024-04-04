@@ -12,6 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -53,9 +54,6 @@ class BusApiTest extends AcceptanceTest {
     @Autowired
     private CityBusCacheRepository cityBusCacheRepository;
 
-    @Autowired
-    private ExpressBusCacheRepository expressBusCacheRepository;
-
     private final Instant UPDATED_AT = ZonedDateTime.parse(
             "2024-02-21 18:00:00 KST",
             ofPattern("yyyy-MM-dd " + "HH:mm:ss z")
@@ -74,6 +72,9 @@ class BusApiTest extends AcceptanceTest {
     void end() {
         handler.setDateTimeProvider(null);
     }
+
+    @Autowired
+    private ExpressBusCacheRepository expressBusCacheRepository;
 
     @Test
     @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
@@ -129,7 +130,7 @@ class BusApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
+        SoftAssertions.assertSoftly(
             softly -> {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
@@ -141,6 +142,7 @@ class BusApiTest extends AcceptanceTest {
             }
         );
     }
+
 
     @Test
     @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - Redis")

@@ -33,7 +33,6 @@ public class BusService {
     public BusRemainTimeResponse getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
         // 출발지 == 도착지면 예외
         validateBusCourse(depart, arrival);
-
         if (busType == BusType.CITY) {
             // 시내버스에서 상행, 하행 구분할때 사용하는 로직
             BusDirection direction = BusStation.getDirection(depart, arrival);
@@ -42,7 +41,8 @@ public class BusService {
         }
 
         if (busType == BusType.EXPRESS) {
-            var remainTimes = expressBusOpenApiClient.getBusRemainTime(depart.name().toLowerCase(), arrival.name().toLowerCase());
+            var remainTimes = expressBusOpenApiClient.getBusRemainTime(depart.name().toLowerCase(),
+                arrival.name().toLowerCase());
             return BusRemainTimeResponse.of(busType, remainTimes, clock);
         }
 
@@ -78,8 +78,7 @@ public class BusService {
 
     private void validateBusCourse(BusStation depart, BusStation arrival) {
         if (depart.equals(arrival)) {
-            throw BusIllegalStationException.withDetail(
-                "depart: " + depart.name() + ", arrivalTime: " + arrival.name());
+            throw BusIllegalStationException.withDetail("depart: " + depart.name() + ", arrival: " + arrival.name());
         }
     }
 }

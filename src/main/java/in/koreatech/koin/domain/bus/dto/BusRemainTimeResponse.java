@@ -36,11 +36,14 @@ public record BusRemainTimeResponse(
             if (index < remainTimes.size()) {
                 Long busNumber = null;
                 Long remainTime = remainTimes.get(index).getRemainSeconds(clock);
+
                 if (remainTime != null && remainTimes.get(index) instanceof CityBusRemainTime cityBusRemainTime) {
                     busNumber = cityBusRemainTime.getBusNumber();
                 }
+
                 return new InnerBusResponse(busNumber, remainTime);
             }
+
             return null;
         }
     }

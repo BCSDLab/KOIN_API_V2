@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetable.dto;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
@@ -65,10 +66,15 @@ public record LectureResponse(
     }
 
     public static List<Long> toListClassTime(String classTime) {
+        if ("[]".equals(classTime)) {
+            return Collections.emptyList();
+        }
+
         classTime = classTime.substring(1, classTime.length() - 1);
         List<String> numbers = List.of(classTime.split(","));
 
         return numbers.stream()
+            .map(String::strip)
             .map(Long::parseLong)
             .toList();
     }

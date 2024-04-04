@@ -37,7 +37,7 @@ public class Student {
     private String department;
 
     @Column(name = "identity")
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private UserIdentity userIdentity;
 
     @Column(name = "is_graduated")
@@ -49,7 +49,7 @@ public class Student {
 
     @Builder
     private Student(String anonymousNickname, String studentNumber, String department,
-        UserIdentity userIdentity, Boolean isGraduated, User user) {
+                    UserIdentity userIdentity, Boolean isGraduated, User user) {
         this.anonymousNickname = anonymousNickname;
         this.studentNumber = studentNumber;
         this.department = department;

@@ -14,7 +14,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -79,7 +78,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
         Version version = versionRepository.getByType(VersionType.CITY);
 
         if (isCacheExpired(version, clock)) {
-            storeAllCityBusArrivalInfoByOpenApi();
+            getAllCityBusArrivalInfoByOpenApi();
         }
 
         return getCityBusArrivalInfoByCache(nodeId);
@@ -87,13 +86,12 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
 
     private List<CityBusRemainTime> getCityBusArrivalInfoByCache(String nodeId) {
         Optional<CityBusCache> cityBusCache = cityBusCacheRepository.findById(nodeId);
-        return cityBusCache.map(busCache -> busCache.getBusInfos().stream()
-                .map(CityBusRemainTime::from)
-                .toList())
-            .orElseGet(Collections::emptyList);
+
+        return cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBusRemainTime::from).toList())
+            .orElseGet(ArrayList::new);
     }
 
-    private void storeAllCityBusArrivalInfoByOpenApi() {
+    private void getAllCityBusArrivalInfoByOpenApi() {
         List<List<CityBusArrival>> arrivalInfosList = BusStationNode.getNodeIds().stream()
             .map(this::getOpenApiResponse)
             .map(this::extractBusArrivalInfo)

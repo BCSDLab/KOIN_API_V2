@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.track.exception;
+package in.koreatech.koin.domain.member.exception;
 
 import in.koreatech.koin.global.exception.DataNotFoundException;
 

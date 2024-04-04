@@ -42,9 +42,10 @@ public class MenuOption extends BaseEntity {
     private Integer price;
 
     @Builder
-    private MenuOption(String option, Integer price) {
+    private MenuOption(String option, Integer price, Menu menu) {
         this.option = option;
         this.price = price;
+        this.menu = menu;
     }
 
     public void setMenu(Menu menu) {

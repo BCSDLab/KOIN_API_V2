@@ -1,18 +1,20 @@
 package in.koreatech.koin.domain.shop.controller;
 
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.ShopsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-
-import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
-
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -45,7 +47,7 @@ public interface ShopApi {
     )
     @Operation(summary = "특정 상점의 모든 메뉴 조회")
     @GetMapping("/shops/{id}/menus")
-    ResponseEntity<ShopMenuResponse> findMenu(
+    ResponseEntity<ShopMenuResponse> findMenus(
         @Parameter(in = PATH) @PathVariable Long id
     );
 
@@ -73,5 +75,43 @@ public interface ShopApi {
     @GetMapping("/shops/{id}")
     ResponseEntity<ShopResponse> getShopById(
         @Parameter(in = PATH) @PathVariable Long id
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "모든 상점 조회")
+    @GetMapping("/shops")
+    ResponseEntity<ShopsResponse> getShops();
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "모든 상점 카테고리 조회")
+    @GetMapping("/shops/categories")
+    ResponseEntity<ShopCategoriesResponse> getShopsCategories();
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 상점의 모든 이벤트 조회")
+    @GetMapping("/shops/{shopId}/events")
+    ResponseEntity<ShopEventsResponse> getShopEvents(
+        @PathVariable Long shopId
     );
 }
