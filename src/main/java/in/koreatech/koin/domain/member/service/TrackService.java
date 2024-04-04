@@ -1,17 +1,17 @@
-package in.koreatech.koin.domain.track.service;
+package in.koreatech.koin.domain.member.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.track.dto.TrackResponse;
-import in.koreatech.koin.domain.track.dto.TrackSingleResponse;
-import in.koreatech.koin.domain.track.model.Member;
-import in.koreatech.koin.domain.track.model.TechStack;
-import in.koreatech.koin.domain.track.model.Track;
-import in.koreatech.koin.domain.track.repository.MemberRepository;
-import in.koreatech.koin.domain.track.repository.TechStackRepository;
-import in.koreatech.koin.domain.track.repository.TrackRepository;
+import in.koreatech.koin.domain.member.dto.TrackResponse;
+import in.koreatech.koin.domain.member.dto.TrackSingleResponse;
+import in.koreatech.koin.domain.member.model.Member;
+import in.koreatech.koin.domain.member.model.TechStack;
+import in.koreatech.koin.domain.member.model.Track;
+import in.koreatech.koin.domain.member.repository.MemberRepository;
+import in.koreatech.koin.domain.member.repository.TechStackRepository;
+import in.koreatech.koin.domain.member.repository.TrackRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service

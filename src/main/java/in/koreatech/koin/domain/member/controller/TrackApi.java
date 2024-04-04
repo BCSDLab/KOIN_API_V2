@@ -1,4 +1,6 @@
-package in.koreatech.koin.domain.track.controller;
+package in.koreatech.koin.domain.member.controller;
+
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import java.util.List;
 
@@ -6,11 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import in.koreatech.koin.domain.track.dto.TrackResponse;
-import in.koreatech.koin.domain.track.dto.TrackSingleResponse;
+import in.koreatech.koin.domain.member.dto.TrackResponse;
+import in.koreatech.koin.domain.member.dto.TrackSingleResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

@@ -1,14 +1,17 @@
-package in.koreatech.koin.domain.track.model;
+package in.koreatech.koin.domain.member.model;
 
+import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -16,6 +19,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * BCSDLab 회원에 대한 정보를 다루는 엔티티
+ */
 @Getter
 @Entity
 @Table(name = "members")
@@ -23,7 +29,7 @@ import lombok.NoArgsConstructor;
 public class Member extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     @Size(max = 50)
@@ -36,8 +42,9 @@ public class Member extends BaseEntity {
     private String studentNumber;
 
     @NotNull
-    @Column(name = "track_id")
-    private Long trackId;
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "track_id")
+    private Track track;
 
     @Size(max = 20)
     @NotNull
@@ -57,11 +64,18 @@ public class Member extends BaseEntity {
     private Boolean isDeleted = false;
 
     @Builder
-    private Member(String name, String studentNumber, Long trackId, String position, String email, String imageUrl,
-        Boolean isDeleted) {
+    private Member(
+        String name,
+        String studentNumber,
+        Track track,
+        String position,
+        String email,
+        String imageUrl,
+        Boolean isDeleted
+    ) {
         this.name = name;
         this.studentNumber = studentNumber;
-        this.trackId = trackId;
+        this.track = track;
         this.position = position;
         this.email = email;
         this.imageUrl = imageUrl;
