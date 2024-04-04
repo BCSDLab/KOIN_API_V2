@@ -37,10 +37,14 @@ public record StudentResponse(
 
     public static StudentResponse from(Student student) {
         User user = student.getUser();
+        Integer userGender = null;
+        if (user.getGender() != null) {
+            userGender = user.getGender().ordinal();
+        }
         return new StudentResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
-            user.getGender().ordinal(),
+            userGender,
             student.getDepartment(),
             user.getName(),
             user.getNickname(),
