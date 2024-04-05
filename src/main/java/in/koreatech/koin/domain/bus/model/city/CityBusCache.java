@@ -41,10 +41,6 @@ public class CityBusCache {
             .build();
     }
 
-    public static long getCacheExpireMinute() {
-        return CACHE_EXPIRE_MINUTE;
-    }
-
     public static long getCacheExpireSeconds() {
         return CACHE_EXPIRE_SECONDS;
     }
