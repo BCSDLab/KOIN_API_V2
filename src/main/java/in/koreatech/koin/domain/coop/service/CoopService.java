@@ -24,8 +24,12 @@ public class CoopService {
     @Transactional
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
         Dining dining = diningRepository.getById(soldOutRequest.menuId());
-        if (soldOutRequest.soldOut() != null && soldOutRequest.soldOut()) {
+
+        if (Boolean.TRUE.equals(soldOutRequest.soldOut())) {
             dining.setSoldOut(LocalDateTime.now(clock));
+        }
+        else {
+            dining.setSoldOut(null);
         }
     }
 
