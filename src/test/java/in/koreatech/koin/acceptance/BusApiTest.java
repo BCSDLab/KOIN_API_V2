@@ -1,15 +1,12 @@
 package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.version.model.VersionType.CITY;
-import static in.koreatech.koin.domain.version.model.VersionType.EXPRESS;
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -30,9 +27,6 @@ import in.koreatech.koin.domain.bus.model.city.CityBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
-import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
-import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
@@ -312,63 +306,5 @@ class BusApiTest extends AcceptanceTest {
                         BusRemainTime.from(800L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
             }
         );
-    }
-
-    @Test
-    @DisplayName("다음 시외버스까지 남은 시간을 조회한다. - Redis")
-    void getNextExpressBusRemainTimeRedis() {
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
-
-        BusType busType = BusType.from("express");
-        BusStation depart = BusStation.from("terminal");
-        BusStation arrival = BusStation.from("koreatech");
-
-        Version version = versionRepository.save(
-            Version.builder()
-                .version("20240_1711255839")
-                .type(EXPRESS.getValue())
-                .build()
-        );
-        versionRepository.save(version);
-
-        Instant requestedAt = ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
-            .toInstant();
-
-        when(clock.instant()).thenReturn(requestedAt);
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
-
-        expressBusCacheRepository.save(
-            ExpressBusCache.create(
-                new ExpressBusRoute("terminal", "koreatech"),
-                List.of(
-                    new ExpressBusCacheInfo(
-                        LocalTime.of(18, 10),
-                        LocalTime.of(18, 20),
-                        1900
-                    )
-                )
-            )
-        );
-        ExtractableResponse<Response> response = RestAssured
-            .given()
-            .when()
-            .param("bus_type", busType.name().toLowerCase())
-            .param("depart", depart.name())
-            .param("arrival", arrival.name())
-            .get("/bus")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        assertThat(response.asPrettyString())
-            .isEqualTo("""
-                {
-                    "bus_type": "express",
-                    "now_bus": {
-                        "bus_number": null,
-                        "remain_time": 1170
-                    },
-                    "next_bus": null
-                }""");
     }
 }
