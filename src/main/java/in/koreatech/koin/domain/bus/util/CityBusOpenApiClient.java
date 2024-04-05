@@ -161,7 +161,6 @@ public class CityBusOpenApiClient {
 
     private List<CityBusArrival> extractBusArrivalInfo(String jsonResponse) {
         List<CityBusArrival> result = new ArrayList<>();
-
         try {
             JsonObject response = JsonParser.parseString(jsonResponse)
                 .getAsJsonObject()

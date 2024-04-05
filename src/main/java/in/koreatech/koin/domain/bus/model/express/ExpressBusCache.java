@@ -20,16 +20,16 @@ public class ExpressBusCache {
     @Id
     private String id;
 
-    private final List<ExpressBusCacheInfo> busInfos = new ArrayList<>();
+    private List<ExpressBusCacheInfo> busInfos;
 
-    @TimeToLive(unit = TimeUnit.MINUTES)
+    @TimeToLive(unit = TimeUnit.HOURS)
     private final Long expiration;
 
     @Builder
-    private ExpressBusCache(String id, List<ExpressBusCacheInfo> busInfos) {
+    private ExpressBusCache(String id, List<ExpressBusCacheInfo> busInfos, Long expiration) {
         this.id = id;
-        this.busInfos.addAll(busInfos);
-        this.expiration = CACHE_EXPIRE_HOUR;
+        this.busInfos = (busInfos == null) ? new ArrayList<>() : busInfos;
+        this.expiration = expiration == null ? CACHE_EXPIRE_HOUR : expiration;
     }
 
     public static ExpressBusCache of(ExpressBusRoute route, List<ExpressBusCacheInfo> busInfos) {
