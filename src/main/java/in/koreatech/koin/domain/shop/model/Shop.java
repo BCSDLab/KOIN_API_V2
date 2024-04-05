@@ -181,9 +181,9 @@ public class Shop extends BaseEntity {
         this.phone = phone;
     }
 
-    public void modifyShopImages(List<String> imageUrls, EntityManager em) {
+    public void modifyShopImages(List<String> imageUrls, EntityManager entityManager) {
         this.shopImages.clear();
-        em.flush();
+        entityManager.flush();
         for (String imageUrl : imageUrls) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(this)
@@ -193,18 +193,18 @@ public class Shop extends BaseEntity {
         }
     }
 
-    public void modifyShopOpens(List<InnerShopOpen> innerShopOpens, EntityManager em) {
+    public void modifyShopOpens(List<InnerShopOpen> innerShopOpens, EntityManager entityManager) {
         this.shopOpens.clear();
-        em.flush();
+        entityManager.flush();
         for (var open : innerShopOpens) {
             ShopOpen shopOpen = open.toEntity(this);
             this.shopOpens.add(shopOpen);
         }
     }
 
-    public void modifyShopCategories(List<ShopCategory> shopCategories, EntityManager em) {
+    public void modifyShopCategories(List<ShopCategory> shopCategories, EntityManager entityManager) {
         this.shopCategories.clear();
-        em.flush();
+        entityManager.flush();
         for (ShopCategory shopCategory : shopCategories) {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
                 .shop(this)
