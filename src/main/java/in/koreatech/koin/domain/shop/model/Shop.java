@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.shop.model;
 
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.REFRESH;
+import static jakarta.persistence.CascadeType.REMOVE;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import in.koreatech.koin.domain.shop.dto.ModifyShopRequest.InnerShopOpen;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -103,16 +106,16 @@ public class Shop extends BaseEntity {
     @Column(name = "hit", nullable = false)
     private Long hit;
 
-    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, MERGE})
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<ShopCategoryMap> shopCategories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, MERGE})
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<ShopOpen> shopOpens = new ArrayList<>();
 
-    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, MERGE})
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<ShopImage> shopImages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, MERGE})
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<MenuCategory> menuCategories = new ArrayList<>();
 
     @Builder
@@ -178,8 +181,9 @@ public class Shop extends BaseEntity {
         this.phone = phone;
     }
 
-    public void modifyShopImages(List<String> imageUrls) {
+    public void modifyShopImages(List<String> imageUrls, EntityManager em) {
         this.shopImages.clear();
+        em.flush();
         for (String imageUrl : imageUrls) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(this)
@@ -189,16 +193,18 @@ public class Shop extends BaseEntity {
         }
     }
 
-    public void modifyShopOpens(List<InnerShopOpen> innerShopOpens) {
+    public void modifyShopOpens(List<InnerShopOpen> innerShopOpens, EntityManager em) {
         this.shopOpens.clear();
+        em.flush();
         for (var open : innerShopOpens) {
             ShopOpen shopOpen = open.toEntity(this);
             this.shopOpens.add(shopOpen);
         }
     }
 
-    public void modifyShopCategories(List<ShopCategory> shopCategories) {
+    public void modifyShopCategories(List<ShopCategory> shopCategories, EntityManager em) {
         this.shopCategories.clear();
+        em.flush();
         for (ShopCategory shopCategory : shopCategories) {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
                 .shop(this)
