@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ExtractAuthenticationInterceptor implements HandlerInterceptor {
 
-    private static final String BEARER_TYPE = "Bearer";
+    private static final String BEARER_TYPE = "Bearer ";
     private static final int BEARER_TYPE_LEN = 7;
 
     private final JwtProvider jwtProvider;
