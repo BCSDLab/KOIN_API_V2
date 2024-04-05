@@ -31,6 +31,7 @@ import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.dto.ExpressBusTimeTable;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
+import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusArrival;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
@@ -76,12 +77,12 @@ public class ExpressBusOpenApiClient extends BusOpenApiClient<BusRemainTime> {
         this.restTemplate = restTemplate;
     }
 
-    public List<ExpressBusRemainTime> getBusRemainTime(String departName, String arrivalName) {
+    public List<ExpressBusRemainTime> getBusRemainTime(BusStation depart, BusStation arrival) {
         Version version = versionRepository.getByType(VersionType.EXPRESS);
         if (isCacheExpired(version, clock)) {
-            storeRemainTimeByOpenApi(departName, arrivalName);
+            storeRemainTimeByOpenApi(depart.name().toLowerCase(), arrival.name().toLowerCase());
         }
-        return getStoredRemainTime(departName, arrivalName);
+        return getStoredRemainTime(depart.name().toLowerCase(), arrival.name().toLowerCase());
     }
 
     private List<ExpressBusRemainTime> storeRemainTimeByOpenApi(String departName, String arrivalName) {

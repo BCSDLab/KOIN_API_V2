@@ -76,11 +76,9 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
 
     public List<CityBusRemainTime> getBusRemainTime(String nodeId) {
         Version version = versionRepository.getByType(VersionType.CITY);
-
         if (isCacheExpired(version, clock)) {
-            getAllCityBusArrivalInfoByOpenApi();
+            storeRemainTimeByOpenApi();
         }
-
         return getCityBusArrivalInfoByCache(nodeId);
     }
 
@@ -91,7 +89,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
             .orElseGet(ArrayList::new);
     }
 
-    private void getAllCityBusArrivalInfoByOpenApi() {
+    private void storeRemainTimeByOpenApi() {
         List<List<CityBusArrival>> arrivalInfosList = BusStationNode.getNodeIds().stream()
             .map(this::getOpenApiResponse)
             .map(this::extractBusArrivalInfo)
