@@ -53,11 +53,11 @@ public record DiningResponse(
     LocalDateTime updatedAt,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "품절 여부", example = "2024-04-04 23:01:52")
+    @Schema(description = "품절 시각", example = "2024-04-04 23:01:52")
     LocalDateTime soldOut,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "메뉴 변경 여부", example = "2024-04-04 23:01:52")
+    @Schema(description = "메뉴 변경 시각", example = "2024-04-04 23:01:52")
     LocalDateTime isChanged
 ) {
 
