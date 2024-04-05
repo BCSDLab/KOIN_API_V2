@@ -25,7 +25,7 @@ public class ExpressBusCache {
         this.busInfos = busInfos;
     }
 
-    public static ExpressBusCache create(ExpressBusRoute route, List<ExpressBusCacheInfo> busInfos) {
+    public static ExpressBusCache of(ExpressBusRoute route, List<ExpressBusCacheInfo> busInfos) {
         return ExpressBusCache.builder()
             .id(generateId(route))
             .busInfos(busInfos)

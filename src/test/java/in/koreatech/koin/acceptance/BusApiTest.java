@@ -166,7 +166,7 @@ class BusApiTest extends AcceptanceTest {
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
 
         cityBusCacheRepository.save(
-            CityBusCache.create(
+            CityBusCache.of(
                 depart.getNodeId(direction),
                 List.of(CityBusCacheInfo.of(
                     CityBusArrival.builder()

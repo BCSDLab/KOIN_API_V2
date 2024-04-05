@@ -33,7 +33,7 @@ public class CityBusCache {
         this.expiration = expiration;
     }
 
-    public static CityBusCache create(String nodeId, List<CityBusCacheInfo> busInfos) {
+    public static CityBusCache of(String nodeId, List<CityBusCacheInfo> busInfos) {
         return CityBusCache.builder()
             .id(nodeId)
             .busInfos(busInfos)

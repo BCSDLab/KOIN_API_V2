@@ -108,7 +108,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
             }
 
             cityBusCacheRepository.save(
-                CityBusCache.create(
+                CityBusCache.of(
                     arrivalInfos.get(0).nodeid(),
                     arrivalInfos.stream()
                         .map(busArrivalInfo -> CityBusCacheInfo.of(busArrivalInfo, updatedAt))

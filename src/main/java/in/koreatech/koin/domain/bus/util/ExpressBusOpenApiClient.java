@@ -85,12 +85,13 @@ public class ExpressBusOpenApiClient extends BusOpenApiClient<BusRemainTime> {
         return getStoredRemainTime(depart.name().toLowerCase(), arrival.name().toLowerCase());
     }
 
-    private List<ExpressBusRemainTime> storeRemainTimeByOpenApi(String departName, String arrivalName) {
+    private void storeRemainTimeByOpenApi(String departName, String arrivalName) {
         JsonObject busApiResponse = getBusApiResponse(departName, arrivalName);
         List<ExpressBusArrival> busArrivals = extractBusArrivalInfo(busApiResponse);
         expressBusCacheRepository.save(
-            ExpressBusCache.create(
+            ExpressBusCache.of(
                 new ExpressBusRoute(departName, arrivalName),
+                // API로 받은 yyyyMMddHHmm 형태의 시간을 HH:mm 형태로 변환하여 Redis에 저장한다.
                 busArrivals.stream()
                     .map(it -> new ExpressBusCacheInfo(
                         LocalTime.parse(
@@ -106,12 +107,6 @@ public class ExpressBusOpenApiClient extends BusOpenApiClient<BusRemainTime> {
                     .toList()
             ));
         versionRepository.getByType(VersionType.EXPRESS).update(clock);
-        return getExpressBusRemainTime(
-            busArrivals
-                .stream()
-                .map(ExpressBusTimeTable::from)
-                .toList()
-        );
     }
 
     private JsonObject getBusApiResponse(String departName, String arrivalName) {
@@ -177,6 +172,7 @@ public class ExpressBusOpenApiClient extends BusOpenApiClient<BusRemainTime> {
     @Override
     public boolean isCacheExpired(Version version, Clock clock) {
         Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
-        return duration.toSeconds() < 0 || Duration.ofHours(ExpressBusCache.getCacheExpireHour()).toSeconds() <= duration.toSeconds();
+        return duration.toSeconds() < 0
+            || Duration.ofHours(ExpressBusCache.getCacheExpireHour()).toSeconds() <= duration.toSeconds();
     }
 }
