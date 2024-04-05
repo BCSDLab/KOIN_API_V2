@@ -113,7 +113,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
                 CityBusCache.create(
                     arrivalInfos.get(0).nodeid(),
                     arrivalInfos.stream()
-                        .map(busArrivalInfo -> CityBusCacheInfo.from(busArrivalInfo, updatedAt))
+                        .map(busArrivalInfo -> CityBusCacheInfo.of(busArrivalInfo, updatedAt))
                         .toList()
                 )
             );
@@ -189,6 +189,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
         }
     }
 
+    @Override
     public boolean isCacheExpired(Version version, Clock clock) {
         Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
         return duration.toSeconds() < 0 || CityBusCache.getCacheExpireSeconds() <= duration.toSeconds();
