@@ -27,13 +27,13 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
         return null;
     }
 
-    public static BusRemainTime from(String arrivalTime) {
+    public static BusRemainTime of(String arrivalTime) {
         return builder()
             .busArrivalTime(toLocalTime(arrivalTime))
             .build();
     }
 
-    public static BusRemainTime from(Long remainTime, LocalTime updatedAt) {
+    public static BusRemainTime of(Long remainTime, LocalTime updatedAt) {
         return builder()
             .busArrivalTime(updatedAt.plusSeconds(remainTime))
             .build();
@@ -59,11 +59,13 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        BusRemainTime that = (BusRemainTime)o;
+        }
+        BusRemainTime that = (BusRemainTime) o;
         return Objects.equals(busArrivalTime, that.busArrivalTime);
     }
 

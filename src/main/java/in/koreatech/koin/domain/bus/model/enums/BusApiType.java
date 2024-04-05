@@ -7,15 +7,9 @@ import lombok.Getter;
 
 @Getter
 public enum BusApiType {
-    CITY("cityBusOpenApiClient"),
-    EXPRESS("intercityBusOpenApiClient"),
+    CITY,
+    EXPRESS,
     ;
-
-    private final String value;
-
-    BusApiType(String bean) {
-        this.value = bean;
-    }
 
     public static BusApiType from(BusType value) {
         return Arrays.stream(values())

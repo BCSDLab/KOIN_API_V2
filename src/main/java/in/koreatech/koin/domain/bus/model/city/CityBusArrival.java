@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.model;
+package in.koreatech.koin.domain.bus.model.city;
 
 import lombok.Builder;
 
@@ -13,10 +13,5 @@ public record CityBusArrival(
     String routetp, // 노선 유형, "일반 버스"
     String vehicletp // 차량 유형 (저상버스), "일반차량"
 ) {
-    public static CityBusArrival getEmpty(String nodeid) {
-        return builder()
-            .nodeid(nodeid)
-            .arrtime(-1L)
-            .build();
-    }
+
 }
