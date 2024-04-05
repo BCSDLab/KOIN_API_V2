@@ -14,12 +14,4 @@ public class ExpressBusRemainTime extends BusRemainTime {
         super(busArrivalTime);
         this.busType = busType;
     }
-
-    public record InnerRemainTime(
-        Long busNumber,
-        Long remainTime
-    ) {
-
-    }
-
 }

@@ -46,7 +46,7 @@ import in.koreatech.koin.domain.version.repository.VersionRepository;
  */
 @Component
 @Transactional(readOnly = true)
-public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
+public class CityBusOpenApiClient {
 
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
@@ -187,7 +187,6 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
         }
     }
 
-    @Override
     public boolean isCacheExpired(Version version, Clock clock) {
         Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
         return duration.toSeconds() < 0 || CityBusCache.getCacheExpireSeconds() <= duration.toSeconds();

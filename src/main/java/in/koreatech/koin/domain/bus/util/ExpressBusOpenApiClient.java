@@ -29,7 +29,6 @@ import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.dto.ExpressBusTimeTable;
-import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusArrival;
@@ -48,7 +47,7 @@ import in.koreatech.koin.domain.version.repository.VersionRepository;
  */
 @Component
 @Transactional(readOnly = true)
-public class ExpressBusOpenApiClient extends BusOpenApiClient<BusRemainTime> {
+public class ExpressBusOpenApiClient {
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo";
     private static final Type ARRIVAL_INFO_TYPE = new TypeToken<List<ExpressBusArrival>>() {
@@ -169,7 +168,6 @@ public class ExpressBusOpenApiClient extends BusOpenApiClient<BusRemainTime> {
             .toList();
     }
 
-    @Override
     public boolean isCacheExpired(Version version, Clock clock) {
         Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
         return duration.toSeconds() < 0
