@@ -4,8 +4,8 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 
 import java.time.LocalTime;
 
-import in.koreatech.koin.domain.bus.model.express.ExpressBusArrival;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
+import in.koreatech.koin.domain.bus.model.express.OpenApiExpressBusArrival;
 
 public record ExpressBusTimeTable(
     LocalTime departure,
@@ -13,10 +13,10 @@ public record ExpressBusTimeTable(
     int charge
 ) {
 
-    public static ExpressBusTimeTable from(ExpressBusArrival expressBusArrival) {
-        LocalTime departure = LocalTime.parse(expressBusArrival.depPlandTime(), ofPattern("yyyyMMddHHmm"));
-        LocalTime arrival = LocalTime.parse(expressBusArrival.arrPlandTime(), ofPattern("yyyyMMddHHmm"));
-        int charge = expressBusArrival.charge();
+    public static ExpressBusTimeTable from(OpenApiExpressBusArrival openApiExpressBusArrival) {
+        LocalTime departure = LocalTime.parse(openApiExpressBusArrival.depPlandTime(), ofPattern("yyyyMMddHHmm"));
+        LocalTime arrival = LocalTime.parse(openApiExpressBusArrival.arrPlandTime(), ofPattern("yyyyMMddHHmm"));
+        int charge = openApiExpressBusArrival.charge();
         return new ExpressBusTimeTable(departure, arrival, charge);
     }
 

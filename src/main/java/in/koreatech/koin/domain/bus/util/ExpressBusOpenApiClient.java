@@ -22,7 +22,6 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -36,11 +35,11 @@ import in.koreatech.koin.domain.bus.dto.ExpressBusTimeTable;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
-import in.koreatech.koin.domain.bus.model.express.ExpressBusArrival;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusStationNode;
+import in.koreatech.koin.domain.bus.model.express.OpenApiExpressBusArrival;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
@@ -55,7 +54,7 @@ import in.koreatech.koin.domain.version.repository.VersionRepository;
 public class ExpressBusOpenApiClient {
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo";
-    private static final Type ARRIVAL_INFO_TYPE = new TypeToken<List<ExpressBusArrival>>() {
+    private static final Type ARRIVAL_INFO_TYPE = new TypeToken<List<OpenApiExpressBusArrival>>() {
     }.getType();
 
     private final VersionRepository versionRepository;
@@ -69,15 +68,13 @@ public class ExpressBusOpenApiClient {
         VersionRepository versionRepository,
         Gson gson,
         Clock clock,
-        ExpressBusCacheRepository expressBusCacheRepository,
-        RestTemplate restTemplate
+        ExpressBusCacheRepository expressBusCacheRepository
     ) {
         this.openApiKey = openApiKey;
         this.versionRepository = versionRepository;
         this.gson = gson;
         this.clock = clock;
         this.expressBusCacheRepository = expressBusCacheRepository;
-        this.restTemplate = restTemplate;
     }
 
     public List<ExpressBusRemainTime> getBusRemainTime(BusStation depart, BusStation arrival) {
@@ -90,7 +87,7 @@ public class ExpressBusOpenApiClient {
 
     private void storeRemainTimeByOpenApi(String departName, String arrivalName) {
         JsonObject busApiResponse = getBusApiResponse(departName, arrivalName);
-        List<ExpressBusArrival> busArrivals = extractBusArrivalInfo(busApiResponse);
+        List<OpenApiExpressBusArrival> busArrivals = extractBusArrivalInfo(busApiResponse);
         expressBusCacheRepository.save(
             ExpressBusCache.of(
                 new ExpressBusRoute(departName, arrivalName),
@@ -156,7 +153,7 @@ public class ExpressBusOpenApiClient {
         }
     }
 
-    private List<ExpressBusArrival> extractBusArrivalInfo(JsonObject jsonObject) {
+    private List<OpenApiExpressBusArrival> extractBusArrivalInfo(JsonObject jsonObject) {
         try {
             var response = jsonObject.get("response").getAsJsonObject();
             BusOpenApiResultCode.validateResponse(response);
@@ -165,12 +162,12 @@ public class ExpressBusOpenApiClient {
                 return Collections.emptyList();
             }
             JsonElement item = body.get("items").getAsJsonObject().get("item");
-            List<ExpressBusArrival> result = new ArrayList<>();
+            List<OpenApiExpressBusArrival> result = new ArrayList<>();
             if (item.isJsonArray()) {
                 return gson.fromJson(item, ARRIVAL_INFO_TYPE);
             }
             if (item.isJsonObject()) {
-                result.add(gson.fromJson(item, ExpressBusArrival.class));
+                result.add(gson.fromJson(item, OpenApiExpressBusArrival.class));
             }
             return result;
         } catch (JsonSyntaxException e) {
