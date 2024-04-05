@@ -59,11 +59,13 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        BusRemainTime that = (BusRemainTime)o;
+        }
+        BusRemainTime that = (BusRemainTime) o;
         return Objects.equals(busArrivalTime, that.busArrivalTime);
     }
 
