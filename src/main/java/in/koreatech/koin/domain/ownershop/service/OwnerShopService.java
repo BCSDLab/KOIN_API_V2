@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.ownershop.service;
 
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,6 +31,7 @@ import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryMapRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuDetailRepository;
@@ -47,6 +50,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class OwnerShopService {
 
+    private final Clock clock;
     private final ShopRepository shopRepository;
     private final OwnerRepository ownerRepository;
     private final ShopOpenRepository shopOpenRepository;
@@ -58,6 +62,7 @@ public class OwnerShopService {
     private final MenuCategoryMapRepository menuCategoryMapRepository;
     private final MenuImageRepository menuImageRepository;
     private final MenuDetailRepository menuDetailRepository;
+    private final EventArticleRepository eventArticleRepository;
 
     public OwnerShopsResponse getOwnerShops(Long ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
@@ -99,7 +104,8 @@ public class OwnerShopService {
 
     public ShopResponse getShopByShopId(Long ownerId, Long shopId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        return ShopResponse.from(shop);
+        Boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
+        return ShopResponse.from(shop, eventDuration);
     }
 
     private Shop getOwnerShopById(Long shopId, Long ownerId) {
