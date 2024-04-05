@@ -1,15 +1,16 @@
-package in.koreatech.koin.domain.bus.model;
+package in.koreatech.koin.domain.bus.model.city;
 
 import java.time.LocalTime;
 import java.util.Objects;
 
-import in.koreatech.koin.domain.bus.model.redis.BusCache;
+import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
 public class CityBusRemainTime extends BusRemainTime {
+
     private final Long busNumber;
 
     public CityBusRemainTime(Long busNumber, LocalTime busArrivalTime) {
@@ -17,7 +18,7 @@ public class CityBusRemainTime extends BusRemainTime {
         this.busNumber = busNumber;
     }
 
-    public static CityBusRemainTime from(BusCache busInfo) {
+    public static CityBusRemainTime from(CityBusCacheInfo busInfo) {
         return builder()
             .busNumber(busInfo.busNumber())
             .busArrivalTime(busInfo.remainTime())
@@ -31,11 +32,13 @@ public class CityBusRemainTime extends BusRemainTime {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        CityBusRemainTime that = (CityBusRemainTime)o;
+        }
+        CityBusRemainTime that = (CityBusRemainTime) o;
         return Objects.equals(getBusArrivalTime(), that.getBusArrivalTime())
             && Objects.equals(busNumber, that.busNumber);
     }

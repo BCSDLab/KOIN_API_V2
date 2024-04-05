@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.bus.model.enums;
 import java.util.Arrays;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import in.koreatech.koin.domain.bus.exception.BusStationNotFoundException;
 import lombok.Getter;
 
@@ -21,6 +23,7 @@ public enum BusStation {
         this.node = node;
     }
 
+    @JsonCreator
     public static BusStation from(String busStationName) {
         return Arrays.stream(values())
             .filter(busStation -> busStation.name().equalsIgnoreCase(busStationName))

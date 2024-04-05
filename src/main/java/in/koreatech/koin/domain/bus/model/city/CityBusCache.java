@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.model.redis;
+package in.koreatech.koin.domain.bus.model.city;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,28 +21,24 @@ public class CityBusCache {
     @Id
     private String id;
 
-    private final List<BusCache> busInfos = new ArrayList<>();
+    private final List<CityBusCacheInfo> busInfos = new ArrayList<>();
 
     @TimeToLive(unit = TimeUnit.MINUTES)
     private final Long expiration;
 
     @Builder
-    private CityBusCache(String id, List<BusCache> busInfos, Long expiration) {
+    private CityBusCache(String id, List<CityBusCacheInfo> busInfos, Long expiration) {
         this.id = id;
         this.busInfos.addAll(busInfos);
         this.expiration = expiration;
     }
 
-    public static CityBusCache create(String nodeId, List<BusCache> busInfos) {
+    public static CityBusCache of(String nodeId, List<CityBusCacheInfo> busInfos) {
         return CityBusCache.builder()
             .id(nodeId)
             .busInfos(busInfos)
             .expiration(CACHE_EXPIRE_MINUTE)
             .build();
-    }
-
-    public static long getCacheExpireMinute() {
-        return CACHE_EXPIRE_MINUTE;
     }
 
     public static long getCacheExpireSeconds() {
