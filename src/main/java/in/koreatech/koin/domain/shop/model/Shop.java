@@ -1,7 +1,7 @@
 package in.koreatech.koin.domain.shop.model;
 
+import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
-import static jakarta.persistence.CascadeType.REMOVE;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
@@ -103,16 +103,16 @@ public class Shop extends BaseEntity {
     @Column(name = "hit", nullable = false)
     private Long hit;
 
-    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REMOVE})
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, MERGE})
     private List<ShopCategoryMap> shopCategories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REMOVE})
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, MERGE})
     private List<ShopOpen> shopOpens = new ArrayList<>();
 
-    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REMOVE})
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, MERGE})
     private List<ShopImage> shopImages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REMOVE})
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, MERGE})
     private List<MenuCategory> menuCategories = new ArrayList<>();
 
     @Builder
@@ -199,7 +199,7 @@ public class Shop extends BaseEntity {
 
     public void modifyShopCategories(List<ShopCategory> shopCategories) {
         this.shopCategories.clear();
-        for (ShopCategory shopCategory: shopCategories) {
+        for (ShopCategory shopCategory : shopCategories) {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
                 .shop(this)
                 .shopCategory(shopCategory)
