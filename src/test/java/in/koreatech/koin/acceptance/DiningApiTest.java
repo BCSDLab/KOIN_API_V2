@@ -231,7 +231,7 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("영양사 권한으로 품절 요청을 보낸다")
+    @DisplayName("영양사 권한으로 품절 요청을 보내고 메뉴를 변경한다.")
     void requestSoldOut() {
         User user = User.builder()
             .password("1234")
