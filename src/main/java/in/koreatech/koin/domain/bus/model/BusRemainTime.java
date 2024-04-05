@@ -27,13 +27,13 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
         return null;
     }
 
-    public static BusRemainTime from(String arrivalTime) {
+    public static BusRemainTime of(String arrivalTime) {
         return builder()
             .busArrivalTime(toLocalTime(arrivalTime))
             .build();
     }
 
-    public static BusRemainTime from(Long remainTime, LocalTime updatedAt) {
+    public static BusRemainTime of(Long remainTime, LocalTime updatedAt) {
         return builder()
             .busArrivalTime(updatedAt.plusSeconds(remainTime))
             .build();

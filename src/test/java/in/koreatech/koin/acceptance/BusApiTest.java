@@ -131,7 +131,7 @@ class BusApiTest extends AcceptanceTest {
                     .isEqualTo(busType.name().toLowerCase());
                 softly.assertThat((Long) response.body().jsonPath().get("now_bus.bus_number")).isNull();
                 softly.assertThat(response.body().jsonPath().getLong("now_bus.remain_time")).isEqualTo(
-                    BusRemainTime.from(arrivalTime).getRemainSeconds(clock));
+                    BusRemainTime.of(arrivalTime).getRemainSeconds(clock));
                 softly.assertThat((Long) response.body().jsonPath().get("next_bus.bus_number")).isNull();
                 softly.assertThat((Long) response.body().jsonPath().get("next_bus.remain_time")).isNull();
             }
@@ -196,7 +196,7 @@ class BusApiTest extends AcceptanceTest {
                 softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(busNumber);
                 softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.remain_time"))
                     .isEqualTo(
-                        BusRemainTime.from(remainTime, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
+                        BusRemainTime.of(remainTime, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
                 softly.assertThat(response.body().jsonPath().getObject("next_bus.bus_number", Long.class)).isNull();
                 softly.assertThat(response.body().jsonPath().getObject("next_bus.remain_time", Long.class)).isNull();
             }
@@ -299,11 +299,11 @@ class BusApiTest extends AcceptanceTest {
                 softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(400);
                 softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.remain_time"))
                     .isEqualTo(
-                        BusRemainTime.from(600L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
+                        BusRemainTime.of(600L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
                 softly.assertThat((Long) response.body().jsonPath().getLong("next_bus.bus_number")).isEqualTo(405);
                 softly.assertThat((Long) response.body().jsonPath().getLong("next_bus.remain_time"))
                     .isEqualTo(
-                        BusRemainTime.from(800L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
+                        BusRemainTime.of(800L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
             }
         );
     }
