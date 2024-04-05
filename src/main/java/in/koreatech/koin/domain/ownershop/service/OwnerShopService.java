@@ -43,6 +43,7 @@ import in.koreatech.koin.domain.shop.repository.ShopImageRepository;
 import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -50,6 +51,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class OwnerShopService {
 
+    private final EntityManager entityManager;
     private final Clock clock;
     private final ShopRepository shopRepository;
     private final OwnerRepository ownerRepository;
@@ -238,8 +240,9 @@ public class OwnerShopService {
             modifyShopRequest.payCard(),
             modifyShopRequest.payBank()
         );
-        shop.modifyShopImages(modifyShopRequest.imageUrls());
-        shop.modifyShopOpens(modifyShopRequest.open());
-        shop.modifyShopCategories(shopCategoryRepository.findAllByIdIn(modifyShopRequest.categoryIds()));
+        shop.modifyShopImages(modifyShopRequest.imageUrls(), entityManager);
+        shop.modifyShopOpens(modifyShopRequest.open(), entityManager);
+        shop.modifyShopCategories(shopCategoryRepository.findAllByIdIn(modifyShopRequest.categoryIds()), entityManager);
+        shopRepository.save(shop);
     }
 }
