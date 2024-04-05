@@ -1,13 +1,13 @@
 package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.support.JsonAssertions.assertThat;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -425,51 +425,53 @@ class ShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.asPrettyString()).isEqualTo("""
-            {
-                "address": "대전광역시 유성구 대학로 291",
-                "delivery": true,
-                "delivery_price": 3000,
-                "description": "테스트 상점입니다.",
-                "id": 1,
-                "image_urls": [
-                    "https://test.com/test1.jpg",
-                    "https://test.com/test2.jpg"
-                ],
-                "menu_categories": [
-                            
-                ],
-                "name": "테스트 상점",
-                "open": [
-                    {
-                        "day_of_week": "MONDAY",
-                        "closed": false,
-                        "open_time": "00:00",
-                        "close_time": "21:00"
-                    },
-                    {
-                        "day_of_week": "FRIDAY",
-                        "closed": false,
-                        "open_time": "00:00",
-                        "close_time": "00:00"
-                    }
-                ],
-                "pay_bank": true,
-                "pay_card": true,
-                "phone": "010-1234-5678",
-                "shop_categories": [
-                    {
-                        "id": 1,
-                        "name": "테스트1"
-                    },
-                    {
-                        "id": 2,
-                        "name": "테스트2"
-                    }
-                ],
-                "updated_at": "2024-04-04",
-                "is_event": false
-            }""");
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "address": "대전광역시 유성구 대학로 291",
+                    "delivery": true,
+                    "delivery_price": 3000,
+                    "description": "테스트 상점입니다.",
+                    "id": 1,
+                    "image_urls": [
+                        "https://test.com/test1.jpg",
+                        "https://test.com/test2.jpg"
+                    ],
+                    "menu_categories": [
+                                
+                    ],
+                    "name": "테스트 상점",
+                    "open": [
+                        {
+                            "day_of_week": "MONDAY",
+                            "closed": false,
+                            "open_time": "00:00",
+                            "close_time": "21:00"
+                        },
+                        {
+                            "day_of_week": "FRIDAY",
+                            "closed": false,
+                            "open_time": "00:00",
+                            "close_time": "00:00"
+                        }
+                    ],
+                    "pay_bank": true,
+                    "pay_card": true,
+                    "phone": "010-1234-5678",
+                    "shop_categories": [
+                        {
+                            "id": 1,
+                            "name": "테스트1"
+                        },
+                        {
+                            "id": 2,
+                            "name": "테스트2"
+                        }
+                    ],
+                    "updated_at": "%s",
+                    "is_event": false
+                }""", LocalDateTime.now().format(ofPattern("yyyy-MM-dd")))
+            );
     }
 
     @Test
@@ -600,83 +602,85 @@ class ShopApiTest extends AcceptanceTest {
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                {
-                    "count": 3,
-                    "menu_categories": [
-                        {
-                            "id": 1,
-                            "name": "중식",
-                            "menus": [
-                                {
-                                    "id": 1,
-                                    "name": "짜장면",
-                                    "is_hidden": false,
-                                    "is_single": false,
-                                    "single_price": null,
-                                    "option_prices": [
-                                        {
-                                            "option": "일반",
-                                            "price": 7000
-                                        },
-                                        {
-                                            "option": "곱빼기",
-                                            "price": 7500
-                                        }
-                                    ],
-                                    "description": "맛있는 짜장면",
-                                    "image_urls": [
-                                        "https://test.com/test.jpg",
-                                        "https://test.com/hello.jpg"
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "id": 2,
-                            "name": "한식",
-                            "menus": [
-                                {
-                                    "id": 2,
-                                    "name": "짜장면2",
-                                    "is_hidden": false,
-                                    "is_single": false,
-                                    "single_price": null,
-                                    "option_prices": [
-                                        {
-                                            "option": "일반",
-                                            "price": 7000
-                                        },
-                                        {
-                                            "option": "곱빼기",
-                                            "price": 7500
-                                        }
-                                    ],
-                                    "description": "맛있는 짜장면",
-                                    "image_urls": [
-                                        "https://test.com/test.jpg",
-                                        "https://test.com/hello.jpg"
-                                    ]
-                                },
-                                {
-                                    "id": 3,
-                                    "name": "짜장면3",
-                                    "is_hidden": false,
-                                    "is_single": true,
-                                    "single_price": 7000,
-                                    "option_prices": null,
-                                    "description": "맛있는 짜장면",
-                                    "image_urls": [
-                                        "https://test.com/test.jpg",
-                                        "https://test.com/hello.jpg"
-                                    ]
-                                }
-                            ]
-                        }
-                    ],
-                    "updated_at": "2024-04-04"
-                }
-                """);
+            .isEqualTo(String.format("""
+                    {
+                        "count": 3,
+                        "menu_categories": [
+                            {
+                                "id": 1,
+                                "name": "중식",
+                                "menus": [
+                                    {
+                                        "id": 1,
+                                        "name": "짜장면",
+                                        "is_hidden": false,
+                                        "is_single": false,
+                                        "single_price": null,
+                                        "option_prices": [
+                                            {
+                                                "option": "일반",
+                                                "price": 7000
+                                            },
+                                            {
+                                                "option": "곱빼기",
+                                                "price": 7500
+                                            }
+                                        ],
+                                        "description": "맛있는 짜장면",
+                                        "image_urls": [
+                                            "https://test.com/test.jpg",
+                                            "https://test.com/hello.jpg"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": 2,
+                                "name": "한식",
+                                "menus": [
+                                    {
+                                        "id": 2,
+                                        "name": "짜장면2",
+                                        "is_hidden": false,
+                                        "is_single": false,
+                                        "single_price": null,
+                                        "option_prices": [
+                                            {
+                                                "option": "일반",
+                                                "price": 7000
+                                            },
+                                            {
+                                                "option": "곱빼기",
+                                                "price": 7500
+                                            }
+                                        ],
+                                        "description": "맛있는 짜장면",
+                                        "image_urls": [
+                                            "https://test.com/test.jpg",
+                                            "https://test.com/hello.jpg"
+                                        ]
+                                    },
+                                    {
+                                        "id": 3,
+                                        "name": "짜장면3",
+                                        "is_hidden": false,
+                                        "is_single": true,
+                                        "single_price": 7000,
+                                        "option_prices": null,
+                                        "description": "맛있는 짜장면",
+                                        "image_urls": [
+                                            "https://test.com/test.jpg",
+                                            "https://test.com/hello.jpg"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "updated_at": "%s"
+                    }
+                    """,
+                LocalDate.now().format(ofPattern("yyyy-MM-dd")))
+            );
     }
 
     @Test

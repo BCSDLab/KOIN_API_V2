@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -389,52 +390,52 @@ class OwnerShopApiTest extends AcceptanceTest {
         List<ShopCategoryMap> savedShopCategoryMaps = shopCategoryMapRepository.findAllByShopId(shop.getId());
 
         JsonAssertions.assertThat(response.asPrettyString())
-                .isEqualTo("""
-                    {
-                        "address": "대전광역시 유성구 대학로 291",
-                        "delivery": true,
-                        "delivery_price": 3000,
-                        "description": "테스트 상점입니다.",
-                        "id": 1,
-                        "image_urls": [
-                            "https://test.com/test1.jpg",
-                            "https://test.com/test2.jpg"
-                        ],
-                        "menu_categories": [
-                         
-                        ],
-                        "name": "테스트 상점",
-                        "open": [
-                            {
-                                "day_of_week": "MONDAY",
-                                "closed": false,
-                                "open_time": "00:00",
-                                "close_time": "21:00"
-                            },
-                            {
-                                "day_of_week": "FRIDAY",
-                                "closed": false,
-                                "open_time": "00:00",
-                                "close_time": "00:00"
-                            }
-                        ],
-                        "pay_bank": true,
-                        "pay_card": true,
-                        "phone": "010-1234-5678",
-                        "shop_categories": [
-                            {
-                                "id": 1,
-                                "name": "테스트1"
-                            },
-                            {
-                                "id": 2,
-                                "name": "테스트2"
-                            }
-                        ],
-                        "updated_at": "2024-04-04",
-                        "is_event": false
-                    }
-                    """);
+            .isEqualTo(String.format("""
+                {
+                    "address": "대전광역시 유성구 대학로 291",
+                    "delivery": true,
+                    "delivery_price": 3000,
+                    "description": "테스트 상점입니다.",
+                    "id": 1,
+                    "image_urls": [
+                        "https://test.com/test1.jpg",
+                        "https://test.com/test2.jpg"
+                    ],
+                    "menu_categories": [
+                     
+                    ],
+                    "name": "테스트 상점",
+                    "open": [
+                        {
+                            "day_of_week": "MONDAY",
+                            "closed": false,
+                            "open_time": "00:00",
+                            "close_time": "21:00"
+                        },
+                        {
+                            "day_of_week": "FRIDAY",
+                            "closed": false,
+                            "open_time": "00:00",
+                            "close_time": "00:00"
+                        }
+                    ],
+                    "pay_bank": true,
+                    "pay_card": true,
+                    "phone": "010-1234-5678",
+                    "shop_categories": [
+                        {
+                            "id": 1,
+                            "name": "테스트1"
+                        },
+                        {
+                            "id": 2,
+                            "name": "테스트2"
+                        }
+                    ],
+                    "updated_at": "%s",
+                    "is_event": false
+                }
+                """, LocalDateTime.now().format(ofPattern("yyyy-MM-dd"))));
     }
 
     @Test
