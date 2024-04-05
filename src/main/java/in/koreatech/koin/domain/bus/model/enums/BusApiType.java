@@ -10,7 +10,7 @@ public enum BusApiType {
     CITY,
     EXPRESS,
     ;
-    
+
     public static BusApiType from(BusType value) {
         return Arrays.stream(values())
             .filter(busApiType -> busApiType.toString().equalsIgnoreCase(value.toString()))
