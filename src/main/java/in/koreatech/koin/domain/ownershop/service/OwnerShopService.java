@@ -211,12 +211,12 @@ public class OwnerShopService {
             modifyMenuRequest.name(),
             modifyMenuRequest.description()
         );
-        menu.modifyMenuImages(modifyMenuRequest.imageUrls());
-        menu.modifyMenuCategories(menuCategoryRepository.findAllByIdIn(modifyMenuRequest.categoryIds()));
+        menu.modifyMenuImages(modifyMenuRequest.imageUrls(), entityManager);
+        menu.modifyMenuCategories(menuCategoryRepository.findAllByIdIn(modifyMenuRequest.categoryIds()), entityManager);
         if (modifyMenuRequest.isSingle()) {
-            menu.modifyMenuSingleOptions(modifyMenuRequest);
+            menu.modifyMenuSingleOptions(modifyMenuRequest, entityManager);
         } else {
-            menu.modifyMenuMultieOptions(modifyMenuRequest.optionPrices());
+            menu.modifyMenuMultipleOptions(modifyMenuRequest.optionPrices(), entityManager);
         }
     }
 
