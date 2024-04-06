@@ -7,6 +7,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -54,8 +55,6 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .soldOut(false)
-            .isChanged(false)
             .build();
 
         Dining request2 = Dining.builder()
@@ -68,8 +67,6 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]""")
-            .soldOut(false)
-            .isChanged(false)
             .build();
 
         Dining request3 = Dining.builder()
@@ -82,8 +79,6 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(300)
             .menu("""
                 ["참치김치볶음밥", "유부된장국", "땡초부추전", "누룽지탕"]""")
-            .soldOut(false)
-            .isChanged(true)
             .build();
 
         Dining dining1 = diningRepository.save(request1);
@@ -119,7 +114,7 @@ class DiningApiTest extends AcceptanceTest {
                     .isEqualTo(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 softly.assertThat(response.body().jsonPath().getList("[0].menu", String.class))
                     .containsExactlyInAnyOrderElementsOf(menus1);
-                softly.assertThat(response.body().jsonPath().getBoolean("[0].is_changed"))
+                softly.assertThat((LocalDateTime)response.body().jsonPath().get("[0].is_changed"))
                     .isEqualTo(dining1.getIsChanged());
 
                 softly.assertThat(response.body().jsonPath().getLong("[1].id")).isEqualTo(dining3.getId());
@@ -137,7 +132,7 @@ class DiningApiTest extends AcceptanceTest {
                     .isEqualTo(dining3.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 softly.assertThat(response.body().jsonPath().getList("[1].menu", String.class))
                     .containsExactlyInAnyOrderElementsOf(menus2);
-                softly.assertThat(response.body().jsonPath().getBoolean("[1].is_changed"))
+                softly.assertThat((LocalDateTime)response.body().jsonPath().get("[1].is_changed"))
                     .isEqualTo(dining3.getIsChanged());
 
             }
@@ -157,8 +152,6 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .soldOut(false)
-            .isChanged(false)
             .build();
 
         Dining dining = diningRepository.save(request);
@@ -188,8 +181,6 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "총각김치"]""")
-            .soldOut(false)
-            .isChanged(false)
             .build();
 
         Dining request2 = Dining.builder()
@@ -202,8 +193,6 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]""")
-            .soldOut(false)
-            .isChanged(false)
             .build();
 
         Dining dining1 = diningRepository.save(request1);
@@ -242,7 +231,7 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("영양사 권한으로 품절 요청을 보낸다")
+    @DisplayName("영양사 권한으로 품절 요청을 보내고 메뉴를 변경한다.")
     void requestSoldOut() {
         User user = User.builder()
             .password("1234")
@@ -259,6 +248,13 @@ class DiningApiTest extends AcceptanceTest {
 
         String token = jwtProvider.createToken(user);
 
+        when(clock.instant()).thenReturn(ZonedDateTime.parse(
+                "2024-04-04 18:00:00 KST",
+                ofPattern("yyyy-MM-dd " + "HH:mm:ss z")
+            )
+            .toInstant());
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+
         Dining dining1 = Dining.builder()
             .date("2024-03-11")
             .type("LUNCH")
@@ -268,8 +264,7 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .soldOut(false)
-            .isChanged(false)
+            .isChanged(LocalDateTime.now(clock))
             .build();
 
         Dining dining2 = Dining.builder()
@@ -281,8 +276,6 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리", "소고기", "땡초", "탕"]""")
-            .soldOut(false)
-            .isChanged(false)
             .build();
 
         diningRepository.save(dining1);
@@ -301,7 +294,12 @@ class DiningApiTest extends AcceptanceTest {
             .extract();
 
         SoftAssertions.assertSoftly(
-            softly -> softly.assertThat(diningRepository.getById(2L).getSoldOut()).isEqualTo(true)
+            softly -> {
+                softly.assertThat(diningRepository.getById(1L).getIsChanged()).isEqualTo(LocalDateTime.now(clock));
+
+                softly.assertThat(diningRepository.getById(2L).getSoldOut()).isEqualTo(LocalDateTime.now(clock));
+                softly.assertThat(diningRepository.getById(2L).getIsChanged()).isNull();
+            }
         );
     }
 
@@ -332,8 +330,6 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .soldOut(false)
-            .isChanged(false)
             .build();
 
         diningRepository.save(dining1);
@@ -379,8 +375,6 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .soldOut(false)
-            .isChanged(false)
             .build();
 
         Dining dining = diningRepository.save(request);
@@ -433,8 +427,6 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .soldOut(false)
-            .isChanged(false)
             .build();
 
         Dining dining = diningRepository.save(request);
