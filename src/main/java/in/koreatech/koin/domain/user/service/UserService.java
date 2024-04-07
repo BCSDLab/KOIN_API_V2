@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
@@ -91,5 +92,10 @@ public class UserService {
         userRepository.findByNickname(request.nickname()).ifPresent(user -> {
             throw DuplicationEmailException.withDetail("nickname: " + request.nickname());
         });
+    }
+
+    public AuthResponse getAuth(Long userId) {
+        User user = userRepository.getById(userId);
+        return AuthResponse.from(user);
     }
 }

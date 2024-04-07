@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
@@ -103,5 +104,13 @@ public class UserController implements UserApi {
     ) {
         userService.checkUserNickname(request);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/user/auth")
+    public ResponseEntity<AuthResponse> getAuth(
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+    ) {
+        AuthResponse authResponse = userService.getAuth(userId);
+        return ResponseEntity.ok().body(authResponse);
     }
 }
