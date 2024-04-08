@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.ownershop.service;
 
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,6 +12,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
+import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse.InnerShopResponse;
 import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
@@ -29,6 +32,7 @@ import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryMapRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuDetailRepository;
@@ -40,6 +44,7 @@ import in.koreatech.koin.domain.shop.repository.ShopImageRepository;
 import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -47,6 +52,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class OwnerShopService {
 
+    private final EntityManager entityManager;
+    private final Clock clock;
     private final ShopRepository shopRepository;
     private final OwnerRepository ownerRepository;
     private final ShopOpenRepository shopOpenRepository;
@@ -58,10 +65,16 @@ public class OwnerShopService {
     private final MenuCategoryMapRepository menuCategoryMapRepository;
     private final MenuImageRepository menuImageRepository;
     private final MenuDetailRepository menuDetailRepository;
+    private final EventArticleRepository eventArticleRepository;
 
     public OwnerShopsResponse getOwnerShops(Long ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
-        return OwnerShopsResponse.from(shops);
+        var innerShopResponses = shops.stream().map(shop -> {
+                Boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
+                return InnerShopResponse.from(shop, eventDuration);
+            })
+            .toList();
+        return OwnerShopsResponse.from(innerShopResponses);
     }
 
     @Transactional
@@ -69,7 +82,14 @@ public class OwnerShopService {
         Owner owner = ownerRepository.getById(ownerId);
         Shop newShop = ownerShopsRequest.toEntity(owner);
         Shop savedShop = shopRepository.save(newShop);
-
+        List<String> categoryNames = List.of("추천 메뉴", "메인 메뉴", "세트 메뉴", "사이드 메뉴");
+        for (String categoryName : categoryNames) {
+            MenuCategory menuCategory = MenuCategory.builder()
+                .shop(savedShop)
+                .name(categoryName)
+                .build();
+            menuCategoryRepository.save(menuCategory);
+        }
         for (String imageUrl : ownerShopsRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(savedShop)
@@ -99,7 +119,8 @@ public class OwnerShopService {
 
     public ShopResponse getShopByShopId(Long ownerId, Long shopId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        return ShopResponse.from(shop);
+        Boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
+        return ShopResponse.from(shop, eventDuration);
     }
 
     private Shop getOwnerShopById(Long shopId, Long ownerId) {
@@ -203,12 +224,12 @@ public class OwnerShopService {
             modifyMenuRequest.name(),
             modifyMenuRequest.description()
         );
-        menu.modifyMenuImages(modifyMenuRequest.imageUrls());
-        menu.modifyMenuCategories(menuCategoryRepository.findAllByIdIn(modifyMenuRequest.categoryIds()));
+        menu.modifyMenuImages(modifyMenuRequest.imageUrls(), entityManager);
+        menu.modifyMenuCategories(menuCategoryRepository.findAllByIdIn(modifyMenuRequest.categoryIds()), entityManager);
         if (modifyMenuRequest.isSingle()) {
-            menu.modifyMenuSingleOptions(modifyMenuRequest);
+            menu.modifyMenuSingleOptions(modifyMenuRequest, entityManager);
         } else {
-            menu.modifyMenuMultieOptions(modifyMenuRequest.optionPrices());
+            menu.modifyMenuMultipleOptions(modifyMenuRequest.optionPrices(), entityManager);
         }
     }
 
@@ -232,8 +253,9 @@ public class OwnerShopService {
             modifyShopRequest.payCard(),
             modifyShopRequest.payBank()
         );
-        shop.modifyShopImages(modifyShopRequest.imageUrls());
-        shop.modifyShopOpens(modifyShopRequest.open());
-        shop.modifyShopCategories(shopCategoryRepository.findAllByIdIn(modifyShopRequest.categoryIds()));
+        shop.modifyShopImages(modifyShopRequest.imageUrls(), entityManager);
+        shop.modifyShopOpens(modifyShopRequest.open(), entityManager);
+        shop.modifyShopCategories(shopCategoryRepository.findAllByIdIn(modifyShopRequest.categoryIds()), entityManager);
+        shopRepository.save(shop);
     }
 }

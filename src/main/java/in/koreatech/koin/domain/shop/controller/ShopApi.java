@@ -47,7 +47,7 @@ public interface ShopApi {
     )
     @Operation(summary = "특정 상점의 모든 메뉴 조회")
     @GetMapping("/shops/{id}/menus")
-    ResponseEntity<ShopMenuResponse> findMenu(
+    ResponseEntity<ShopMenuResponse> findMenus(
         @Parameter(in = PATH) @PathVariable Long id
     );
 

@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.validator.constraints.URL;
@@ -69,21 +70,24 @@ public record OwnerRegisterRequest(
             .isAuthed(false)
             .isDeleted(false)
             .build();
+        Owner owner = Owner.builder()
+            .user(user)
+            .companyRegistrationNumber(companyNumber)
+            .attachments(new ArrayList<>())
+            .grantShop(false)
+            .grantEvent(false)
+            .build();
         var attachments = attachmentUrls.stream()
             .map(InnerAttachmentUrl::fileUrl)
             .map(fileUrl -> OwnerAttachment.builder()
                 .url(fileUrl)
+                .owner(owner)
                 .isDeleted(false)
                 .name(name)
                 .build())
             .toList();
-        return Owner.builder()
-            .user(user)
-            .companyRegistrationNumber(companyNumber)
-            .attachments(attachments)
-            .grantShop(false)
-            .grantEvent(false)
-            .build();
+        owner.getAttachments().addAll(attachments);
+        return owner;
     }
 
     @JsonNaming(SnakeCaseStrategy.class)

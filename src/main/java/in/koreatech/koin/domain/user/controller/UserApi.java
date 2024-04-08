@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
@@ -22,6 +24,7 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.host.ServerURL;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -111,6 +114,21 @@ public interface UserApi {
 
     @ApiResponses(
         value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "회원가입")
+    @PostMapping("/user/student/register")
+    ResponseEntity<Void> studentRegister(
+        @RequestBody @Valid StudentRegisterRequest studentRegisterRequest,
+        @ServerURL String serverURL
+    );
+
+    @ApiResponses(
+        value = {
             @ApiResponse(responseCode = "204"),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
@@ -153,5 +171,20 @@ public interface UserApi {
     ResponseEntity<Void> checkDuplicationOfNickname(
         @ModelAttribute("nickname")
         @Valid NicknameCheckExistsRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "사용자 권한 조회")
+    @GetMapping("/user/auth")
+    ResponseEntity<AuthResponse> getAuth(
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
     );
 }

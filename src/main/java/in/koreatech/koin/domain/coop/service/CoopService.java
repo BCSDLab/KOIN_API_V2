@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.coop.service;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +19,18 @@ public class CoopService {
 
     private final DiningRepository diningRepository;
 
+    private final Clock clock;
+
     @Transactional
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
         Dining dining = diningRepository.getById(soldOutRequest.menuId());
-        dining.setSoldOut(soldOutRequest.soldOut());
+
+        if (Boolean.TRUE.equals(soldOutRequest.soldOut())) {
+            dining.setSoldOut(LocalDateTime.now(clock));
+        }
+        else {
+            dining.setSoldOut(null);
+        }
     }
 
     @Transactional

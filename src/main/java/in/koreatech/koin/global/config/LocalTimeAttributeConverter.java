@@ -13,13 +13,15 @@ public class LocalTimeAttributeConverter implements AttributeConverter<LocalTime
 
     @Override
     public String convertToDatabaseColumn(LocalTime localTime) {
-        if(localTime == null) return null;
+        if (localTime == null)
+            return null;
         return localTime.format(formatter);
     }
 
     @Override
     public LocalTime convertToEntityAttribute(String dbData) {
-        if(dbData == null) return null;
+        if (dbData == null)
+            return null;
         return LocalTime.parse(dbData, formatter);
     }
 }

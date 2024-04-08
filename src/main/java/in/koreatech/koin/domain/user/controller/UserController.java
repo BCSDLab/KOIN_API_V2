@@ -1,25 +1,26 @@
 package in.koreatech.koin.domain.user.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
+import in.koreatech.koin.domain.user.dto.AuthResponse;
+import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
@@ -34,7 +35,7 @@ import in.koreatech.koin.global.host.ServerURL;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class UserController implements UserApi {
 
@@ -100,6 +101,22 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/user/student/register")
+    public ResponseEntity<Void> studentRegister(
+        @Valid @RequestBody StudentRegisterRequest request,
+        @ServerURL String serverURL) {
+        studentService.studentRegister(request, serverURL);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/user/authenticate")
+    public ModelAndView authenticate(
+        @ModelAttribute("auth_token")
+        @Valid AuthTokenRequest request
+    ) {
+        return studentService.authenticate(request);
+    }
+
     @GetMapping("/user/check/nickname")
     public ResponseEntity<Void> checkDuplicationOfNickname(
         @ModelAttribute("nickname")
@@ -109,32 +126,11 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/find/password")
-    public ResponseEntity<Void> findPassword(
-        @RequestBody @Valid FindPasswordRequest request,
-        @ServerURL String serverURL
+    @GetMapping("/user/auth")
+    public ResponseEntity<AuthResponse> getAuth(
+        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
     ) {
-        studentService.findPassword(request, serverURL);
-        return new ResponseEntity<>(HttpStatusCode.valueOf(201));
-    }
-
-    @GetMapping("/user/change/password/config")
-    public String checkResetToken(
-        @RequestParam("reset_token") String resetToken
-    ) {
-        return studentService.checkResetToken(resetToken);
-    }
-
-    @PostMapping("/user/change/password/submit")
-    public Map<String, Object> changePassword(
-        @RequestBody Map<String, Object> params,
-        @RequestParam("reset_token") String resetToken
-    ) {
-        String password = params.get("password").toString();
-        boolean success = studentService.changePassword(password, resetToken);
-
-        return new HashMap<String, Object>() {{
-            put("success", success);
-        }};
+        AuthResponse authResponse = userService.getAuth(userId);
+        return ResponseEntity.ok().body(authResponse);
     }
 }

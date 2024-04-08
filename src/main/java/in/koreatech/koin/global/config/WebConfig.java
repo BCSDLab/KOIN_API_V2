@@ -8,6 +8,8 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import in.koreatech.koin.domain.bus.controller.BusStationEnumConverter;
+import in.koreatech.koin.domain.bus.controller.BusTypeEnumConverter;
 import in.koreatech.koin.global.auth.AuthArgumentResolver;
 import in.koreatech.koin.global.auth.ExtractAuthenticationInterceptor;
 import in.koreatech.koin.global.auth.UserIdArgumentResolver;
@@ -53,6 +55,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(new BusTypeEnumConverter());
+        registry.addConverter(new BusStationEnumConverter());
         registry.addConverter(new ImageUploadDomainEnumConverter());
     }
 }

@@ -14,6 +14,7 @@ import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -98,8 +99,9 @@ public class Menu extends BaseEntity {
         this.description = description;
     }
 
-    public void modifyMenuImages(List<String> imageUrls) {
+    public void modifyMenuImages(List<String> imageUrls, EntityManager entityManager) {
         this.menuImages.clear();
+        entityManager.flush();
         for (String imageUrl : imageUrls) {
             MenuImage newMenuImage = MenuImage.builder()
                 .imageUrl(imageUrl)
@@ -109,8 +111,9 @@ public class Menu extends BaseEntity {
         }
     }
 
-    public void modifyMenuCategories(List<MenuCategory> menuCategories) {
+    public void modifyMenuCategories(List<MenuCategory> menuCategories, EntityManager entityManager) {
         this.menuCategoryMaps.clear();
+        entityManager.flush();
         for (MenuCategory menuCategory : menuCategories) {
             MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
                 .menu(this)
@@ -120,7 +123,9 @@ public class Menu extends BaseEntity {
         }
     }
 
-    public void modifyMenuSingleOptions(ModifyMenuRequest modifyMenuRequest) {
+    public void modifyMenuSingleOptions(ModifyMenuRequest modifyMenuRequest, EntityManager entityManager) {
+        this.menuOptions.clear();
+        entityManager.flush();
         MenuOption menuOption = MenuOption.builder()
             .price(modifyMenuRequest.singlePrice())
             .menu(this)
@@ -128,7 +133,9 @@ public class Menu extends BaseEntity {
         this.menuOptions.add(menuOption);
     }
 
-    public void modifyMenuMultieOptions(List<InnerOptionPrice> innerOptionPrice) {
+    public void modifyMenuMultipleOptions(List<InnerOptionPrice> innerOptionPrice, EntityManager entityManager) {
+        this.menuOptions.clear();
+        entityManager.flush();
         for (var option : innerOptionPrice) {
             MenuOption menuOption = MenuOption.builder()
                 .option(option.option())
