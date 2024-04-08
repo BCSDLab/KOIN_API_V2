@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.api.Http;
 
+import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.dto.ShopEventRequest;
@@ -166,6 +167,17 @@ public class OwnerShopController implements OwnerShopApi {
         @RequestBody @Valid ShopEventRequest shopEventRequest
     ) {
         ownerShopService.createEvent(ownerId, shopId, shopEventRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/owner/shops/{shopId}/event/{eventId}")
+    public ResponseEntity<Void> modifyShopEvent(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("shopId") Long shopId,
+        @PathVariable("eventId") Long eventId,
+        @RequestBody @Valid ModifyEventRequest modifyEventRequest
+    ) {
+        ownerShopService.modifyEvent(ownerId, shopId, eventId, modifyEventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

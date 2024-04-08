@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.shop.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -21,4 +22,8 @@ public interface EventArticleRepository extends Repository<EventArticle, Long> {
         AND e.shop.id = :shopId
         """)
     Boolean isEvent(@Param("shopId") Long shopId, @Param("now") LocalDate now);
+
+    Optional<EventArticle> findById(Long id);
+
+    EventArticle getById(Long eventId);
 }

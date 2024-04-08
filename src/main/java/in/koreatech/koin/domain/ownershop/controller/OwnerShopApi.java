@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.dto.ShopEventRequest;
@@ -260,10 +261,29 @@ public interface OwnerShopApi {
         }
     )
     @Operation(summary = "상점 이벤트 추가")
-    @PostMapping("/owner/shops/{id}/event")
+    @PostMapping("/owner/shops/{shopId}/event")
     ResponseEntity<Void> createShopEvent(
         @Auth(permit = {OWNER}) Long ownerId,
-        @PathVariable("id") Long shopId,
+        @PathVariable("shopId") Long shopId,
         @RequestBody @Valid ShopEventRequest shopEventRequest
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "422", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 이벤트 수정")
+    @PutMapping("/owner/shops/{shopId}/event/{eventId}")
+    ResponseEntity<Void> modifyShopEvent(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("shopId") Long shopId,
+        @PathVariable("eventId") Long eventId,
+        @RequestBody @Valid ModifyEventRequest modifyEventRequest
     );
 }

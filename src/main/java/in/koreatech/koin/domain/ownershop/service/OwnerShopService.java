@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.dto.ShopEventRequest;
@@ -266,5 +267,11 @@ public class OwnerShopService {
                 .thumbnail(shopEventRequest.thumbnailImage())
                 .build();
         eventArticleRepository.save(eventArticle);
+    }
+
+    public void modifyEvent(Long ownerId, Long shopId, Long eventId, ModifyEventRequest modifyEventRequest) {
+        Shop shop = getOwnerShopById(shopId, ownerId);
+        EventArticle eventArticle = eventArticleRepository.getById(eventId);
+
     }
 }
