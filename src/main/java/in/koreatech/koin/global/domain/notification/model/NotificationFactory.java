@@ -30,4 +30,15 @@ public class NotificationFactory {
             target
         );
     }
+
+    public Notification generateSoldOutNotification() {
+        return new Notification(
+            koinAppUrl,
+            "학식 품절 알림!",
+            "학식이 품절되었습니다.",
+            null,
+            NotificationType.MESSAGE,
+            null
+        );
+    }
 }
