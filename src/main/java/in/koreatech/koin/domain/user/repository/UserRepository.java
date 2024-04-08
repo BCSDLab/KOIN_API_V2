@@ -17,9 +17,9 @@ public interface UserRepository extends Repository<User, Long> {
 
     Optional<User> findByNickname(String nickname);
 
-    Optional<User> findAllByResetToken(String resetToken);
-
     Optional<User> findByAuthToken(String authToken);
+
+    Optional<User> findAllByResetToken(String resetToken);
 
     default User getByEmail(String email) {
         return findByEmail(email)

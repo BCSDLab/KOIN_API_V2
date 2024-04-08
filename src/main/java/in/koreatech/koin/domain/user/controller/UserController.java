@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
+import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
@@ -32,7 +31,6 @@ import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
-
 import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
@@ -40,7 +38,7 @@ import in.koreatech.koin.global.host.ServerURL;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class UserController implements UserApi {
 
@@ -163,7 +161,7 @@ public class UserController implements UserApi {
         String password = params.get("password").toString();
         boolean success = studentService.changePassword(password, resetToken);
 
-        return new HashMap<String, Object>() {{
+        return new HashMap<>() {{
             put("success", success);
         }};
     }

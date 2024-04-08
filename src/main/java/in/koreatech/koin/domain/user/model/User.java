@@ -33,6 +33,7 @@ import lombok.NoArgsConstructor;
 @SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = PROTECTED)
 public class User extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -70,7 +71,7 @@ public class User extends BaseEntity {
 
     @NotNull
     @Column(name = "is_authed", nullable = false)
-    private Boolean isAuthed = false;
+    private boolean isAuthed = false;
 
     @Column(name = "last_logged_at")
     private LocalDateTime lastLoggedAt;
@@ -104,7 +105,7 @@ public class User extends BaseEntity {
 
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
-        String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+        String email, UserGender gender, boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
         Boolean isDeleted, String authToken, LocalDateTime authExpiredAt, String resetToken,
         LocalDateTime resetExpiredAt,
         String deviceToken) {

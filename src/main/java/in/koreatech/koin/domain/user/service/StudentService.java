@@ -125,9 +125,9 @@ public class StudentService {
         if (studentNumber == null) {
             return;
         }
-        Integer studentNumberYear = Student.parseStudentNumberYear(studentNumber);
+        int studentNumberYear = Student.parseStudentNumberYear(studentNumber);
         if (studentNumberYear < 1992
-            || new LocalDateTime().now().getYear() < studentNumberYear) {
+            || LocalDateTime.now().getYear() < studentNumberYear) {
             throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);
         }
     }
