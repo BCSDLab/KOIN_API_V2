@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.dining.model;
 
+import java.time.LocalDateTime;
+
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -52,17 +54,15 @@ public class Dining extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @NotNull
-    @Column(name = "sold_out", nullable = false)
-    private Boolean soldOut = false;
+    @Column(name = "sold_out")
+    private LocalDateTime soldOut;
 
-    @NotNull
-    @Column(name = "is_changed", nullable = false)
-    private Boolean isChanged = false;
+    @Column(name = "is_changed")
+    private LocalDateTime isChanged;
 
     @Builder
     private Dining(Long id, String date, String type, String place, Integer priceCard, Integer priceCash,
-        Integer kcal, String menu, String imageUrl, Boolean soldOut, Boolean isChanged) {
+        Integer kcal, String menu, String imageUrl, LocalDateTime soldOut, LocalDateTime isChanged) {
         this.id = id;
         this.date = date;
         this.type = type;
@@ -80,7 +80,7 @@ public class Dining extends BaseEntity {
         this.imageUrl = imageUrl;
     }
 
-    public void setSoldOut(Boolean soldout) {
+    public void setSoldOut(LocalDateTime soldout) {
         this.soldOut = soldout;
     }
 }

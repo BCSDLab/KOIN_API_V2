@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.bus.model.enums;
 
 import java.util.Arrays;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import in.koreatech.koin.domain.bus.exception.BusTypeNotFoundException;
 import lombok.Getter;
 
@@ -13,6 +15,7 @@ public enum BusType {
     COMMUTING,
     ;
 
+    @JsonCreator
     public static BusType from(String busTypeName) {
         return Arrays.stream(values())
             .filter(busType -> busType.name().equalsIgnoreCase(busTypeName))

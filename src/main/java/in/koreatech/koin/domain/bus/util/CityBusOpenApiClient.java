@@ -10,7 +10,9 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,12 +29,12 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-import in.koreatech.koin.domain.bus.model.CityBusArrival;
-import in.koreatech.koin.domain.bus.model.CityBusRemainTime;
+import in.koreatech.koin.domain.bus.model.city.CityBusArrival;
+import in.koreatech.koin.domain.bus.model.city.CityBusCache;
+import in.koreatech.koin.domain.bus.model.city.CityBusCacheInfo;
+import in.koreatech.koin.domain.bus.model.city.CityBusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
-import in.koreatech.koin.domain.bus.model.redis.BusCache;
-import in.koreatech.koin.domain.bus.model.redis.CityBusCache;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
@@ -44,7 +46,7 @@ import in.koreatech.koin.domain.version.repository.VersionRepository;
  */
 @Component
 @Transactional(readOnly = true)
-public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
+public class CityBusOpenApiClient {
 
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
@@ -74,11 +76,9 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
 
     public List<CityBusRemainTime> getBusRemainTime(String nodeId) {
         Version version = versionRepository.getByType(VersionType.CITY);
-
         if (isCacheExpired(version, clock)) {
-            getAllCityBusArrivalInfoByOpenApi();
+            storeRemainTimeByOpenApi();
         }
-
         return getCityBusArrivalInfoByCache(nodeId);
     }
 
@@ -89,7 +89,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
             .orElseGet(ArrayList::new);
     }
 
-    private void getAllCityBusArrivalInfoByOpenApi() {
+    private void storeRemainTimeByOpenApi() {
         List<List<CityBusArrival>> arrivalInfosList = BusStationNode.getNodeIds().stream()
             .map(this::getOpenApiResponse)
             .map(this::extractBusArrivalInfo)
@@ -108,10 +108,10 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
             }
 
             cityBusCacheRepository.save(
-                CityBusCache.create(
+                CityBusCache.of(
                     arrivalInfos.get(0).nodeid(),
                     arrivalInfos.stream()
-                        .map(busArrivalInfo -> BusCache.from(busArrivalInfo, updatedAt))
+                        .map(busArrivalInfo -> CityBusCacheInfo.of(busArrivalInfo, updatedAt))
                         .toList()
                 )
             );
@@ -123,7 +123,7 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
     public String getOpenApiResponse(String nodeId) {
         try {
             URL url = new URL(getRequestURL(CHEONAN_CITY_CODE, nodeId));
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "application/json");
 
@@ -161,7 +161,6 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
 
     private List<CityBusArrival> extractBusArrivalInfo(String jsonResponse) {
         List<CityBusArrival> result = new ArrayList<>();
-
         try {
             JsonObject response = JsonParser.parseString(jsonResponse)
                 .getAsJsonObject()
@@ -185,5 +184,10 @@ public class CityBusOpenApiClient extends BusOpenApiClient<CityBusRemainTime> {
         } catch (JsonSyntaxException e) {
             return result;
         }
+    }
+
+    public boolean isCacheExpired(Version version, Clock clock) {
+        Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
+        return duration.toSeconds() < 0 || CityBusCache.getCacheExpireSeconds() <= duration.toSeconds();
     }
 }

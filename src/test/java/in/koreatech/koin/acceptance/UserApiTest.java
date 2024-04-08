@@ -682,6 +682,51 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("로그인된 사용자의 권한을 조회한다.")
+    void getAuth() {
+        Student student = Student.builder()
+            .studentNumber("2019136135")
+            .anonymousNickname("익명")
+            .department("컴퓨터공학부")
+            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .isGraduated(false)
+            .user(
+                User.builder()
+                    .password("1234")
+                    .nickname("주노")
+                    .name("최준호")
+                    .phoneNumber("010-1234-5678")
+                    .userType(STUDENT)
+                    .gender(UserGender.MAN)
+                    .email("test@koreatech.ac.kr")
+                    .isAuthed(true)
+                    .isDeleted(false)
+                    .build()
+            )
+            .build();
+
+        studentRepository.save(student);
+        String token = jwtProvider.createToken(student.getUser());
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .get("/user/auth")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        User user = student.getUser();
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getString("user_type")).isEqualTo(user.getUserType().getValue());
+            }
+        );
+    }
+
+    @Test
     @DisplayName("학생 회원가입 후 학교 이메일요청 이벤트가 발생한다.")
     void studentRegister() {
         RestAssured

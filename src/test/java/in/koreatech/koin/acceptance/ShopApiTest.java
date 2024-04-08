@@ -1,12 +1,18 @@
 package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,8 +26,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
-import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.shop.model.EventArticle;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -32,6 +38,7 @@ import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryMapRepository;
@@ -41,6 +48,7 @@ import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -75,7 +83,7 @@ class ShopApiTest extends AcceptanceTest {
     private ShopRepository shopRepository;
 
     @Autowired
-    private OwnerAttachmentRepository ownerAttachmentRepository;
+    private EventArticleRepository eventArticleRepository;
 
     private ShopCategory shopCategory1, shopCategory2;
     private Shop shop;
@@ -83,6 +91,9 @@ class ShopApiTest extends AcceptanceTest {
 
     @BeforeEach
     void setUp() {
+        when(clock.instant()).thenReturn(
+            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
 
         OwnerAttachment attachment = OwnerAttachment.builder()
             .url("https://test.com/test.jpg")
@@ -272,7 +283,7 @@ class ShopApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.getIsHidden());
 
                 softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
-                softly.assertThat((Integer)response.body().jsonPath().get("single_price")).isNull();
+                softly.assertThat((Integer) response.body().jsonPath().get("single_price")).isNull();
 
                 softly.assertThat(response.body().jsonPath().getList("option_prices")).hasSize(2);
                 softly.assertThat(response.body().jsonPath().getString("option_prices[0].option"))
@@ -359,7 +370,7 @@ class ShopApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("특정 상점 조회")
-    void getShop() {
+    void getShop() throws Exception {
         // given
         ShopOpen open1 = ShopOpen.builder()
             .openTime(LocalTime.of(0, 0))
@@ -409,37 +420,58 @@ class ShopApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
-            .get("/shops/1")
+            .get("/shops/{shopId}", shop.getId())
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        List<ShopImage> savedShopImages = shopImageRepository.findAllByShopId(shop.getId());
-        List<MenuCategory> savedMenuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
-        List<ShopOpen> savedShopOpens = shopOpenRepository.findAllByShopId(shop.getId());
-        List<ShopCategoryMap> savedShopCategoryMaps = shopCategoryMapRepository.findAllByShopId(shop.getId());
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("address")).isEqualTo(shop.getAddress());
-                softly.assertThat(response.body().jsonPath().getBoolean("delivery")).isEqualTo(shop.getDelivery());
-                softly.assertThat(response.body().jsonPath().getLong("delivery_price"))
-                    .isEqualTo(shop.getDeliveryPrice());
-                softly.assertThat(response.body().jsonPath().getString("description")).isEqualTo(shop.getDescription());
-                softly.assertThat(response.body().jsonPath().getLong("id")).isEqualTo(shop.getId());
-                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(shop.getName());
-                softly.assertThat(response.body().jsonPath().getBoolean("pay_bank")).isEqualTo(shop.getPayBank());
-                softly.assertThat(response.body().jsonPath().getBoolean("pay_card")).isEqualTo(shop.getPayCard());
-                softly.assertThat(response.body().jsonPath().getString("phone")).isEqualTo(shop.getPhone());
-
-                softly.assertThat(response.body().jsonPath().getList("image_urls")).hasSize(savedShopImages.size());
-                softly.assertThat(response.body().jsonPath().getList("menu_categories"))
-                    .hasSize(savedMenuCategories.size());
-                softly.assertThat(response.body().jsonPath().getList("open")).hasSize(savedShopOpens.size());
-                softly.assertThat(response.body().jsonPath().getList("shop_categories"))
-                    .hasSize(savedShopCategoryMaps.size());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "address": "대전광역시 유성구 대학로 291",
+                    "delivery": true,
+                    "delivery_price": 3000,
+                    "description": "테스트 상점입니다.",
+                    "id": 1,
+                    "image_urls": [
+                        "https://test.com/test1.jpg",
+                        "https://test.com/test2.jpg"
+                    ],
+                    "menu_categories": [
+                                
+                    ],
+                    "name": "테스트 상점",
+                    "open": [
+                        {
+                            "day_of_week": "MONDAY",
+                            "closed": false,
+                            "open_time": "00:00",
+                            "close_time": "21:00"
+                        },
+                        {
+                            "day_of_week": "FRIDAY",
+                            "closed": false,
+                            "open_time": "00:00",
+                            "close_time": "00:00"
+                        }
+                    ],
+                    "pay_bank": true,
+                    "pay_card": true,
+                    "phone": "010-1234-5678",
+                    "shop_categories": [
+                        {
+                            "id": 1,
+                            "name": "테스트1"
+                        },
+                        {
+                            "id": 2,
+                            "name": "테스트2"
+                        }
+                    ],
+                    "updated_at": "%s",
+                    "is_event": false
+                }""", LocalDateTime.now().format(ofPattern("yyyy-MM-dd")))
+            );
     }
 
     @Test
@@ -564,100 +596,91 @@ class ShopApiTest extends AcceptanceTest {
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
-            .get("/shops/1/menus")
+            .get("/shops/{shopId}/menus", shop.getId())
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getLong("count")).isEqualTo(3);
-                softly.assertThat(response.body().jsonPath().getLong("menu_categories[0].id"))
-                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenuCategory().getId());
-                softly.assertThat(response.body().jsonPath().getString("menu_categories[0].name"))
-                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenuCategory().getName());
-                softly.assertThat(response.body().jsonPath().getString("menu_categories[0].menus[0].description"))
-                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getDescription());
-                softly.assertThat(response.body().jsonPath().getLong("menu_categories[0].menus[0].id"))
-                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getId());
-                softly.assertThat(response.body().jsonPath().getList("menu_categories[0].menus[0].image_urls"))
-                    .hasSize(2);
-                softly.assertThat(response.body().jsonPath().getBoolean("menu_categories[0].menus[0].is_hidden"))
-                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getIsHidden());
-                softly.assertThat(response.body().jsonPath().getBoolean("menu_categories[0].menus[0].is_single"))
-                    .isEqualTo(false);
-                softly.assertThat(response.body().jsonPath().getString("menu_categories[0].menus[0].name"))
-                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getName());
-                softly.assertThat(
-                        response.body().jsonPath().getString("menu_categories[0].menus[0].option_prices[0].option"))
-                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(0).getOption());
-                softly.assertThat(
-                        response.body().jsonPath().getInt("menu_categories[0].menus[0].option_prices[0].price"))
-                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(0).getPrice());
-                softly.assertThat(
-                        response.body().jsonPath().getString("menu_categories[0].menus[0].option_prices[1].option"))
-                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getOption());
-                softly.assertThat(
-                        response.body().jsonPath().getInt("menu_categories[0].menus[0].option_prices[1].price"))
-                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getPrice());
-                softly.assertThat((Object)response.body().jsonPath().get("menu_categories[0].menus[0].single_price"))
-                    .isNull();
-                softly.assertThat(response.body().jsonPath().getString("updated_at"))
-                    .isEqualTo(LocalDate.now().toString());
-
-                softly.assertThat(response.body().jsonPath().getLong("menu_categories[1].id"))
-                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenuCategory().getId());
-                softly.assertThat(response.body().jsonPath().getString("menu_categories[1].name"))
-                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenuCategory().getName());
-                softly.assertThat(response.body().jsonPath().getString("menu_categories[1].menus[0].description"))
-                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getDescription());
-                softly.assertThat(response.body().jsonPath().getLong("menu_categories[1].menus[0].id"))
-                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getId());
-                softly.assertThat(response.body().jsonPath().getList("menu_categories[1].menus[0].image_urls"))
-                    .hasSize(2);
-                softly.assertThat(response.body().jsonPath().getBoolean("menu_categories[1].menus[0].is_hidden"))
-                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getIsHidden());
-                softly.assertThat(response.body().jsonPath().getBoolean("menu_categories[1].menus[0].is_single"))
-                    .isEqualTo(false);
-                softly.assertThat(response.body().jsonPath().getString("menu_categories[1].menus[0].name"))
-                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getName());
-                softly.assertThat(
-                        response.body().jsonPath().getString("menu_categories[1].menus[0].option_prices[0].option"))
-                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(0).getOption());
-                softly.assertThat(
-                        response.body().jsonPath().getInt("menu_categories[1].menus[0].option_prices[0].price"))
-                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(0).getPrice());
-                softly.assertThat(
-                        response.body().jsonPath().getString("menu_categories[1].menus[0].option_prices[1].option"))
-                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getOption());
-                softly.assertThat(
-                        response.body().jsonPath().getInt("menu_categories[1].menus[0].option_prices[1].price"))
-                    .isEqualTo(menu2.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(1).getPrice());
-                softly.assertThat((Object)response.body().jsonPath().get("menu_categories[1].menus[0].single_price"))
-                    .isNull();
-                softly.assertThat(response.body().jsonPath().getString("updated_at"))
-                    .isEqualTo(LocalDate.now().toString());
-
-                softly.assertThat(response.body().jsonPath().getString("menu_categories[1].menus[1].description"))
-                    .isEqualTo(menu3.getMenuCategoryMaps().get(0).getMenu().getDescription());
-                softly.assertThat(response.body().jsonPath().getLong("menu_categories[1].menus[1].id"))
-                    .isEqualTo(menu3.getMenuCategoryMaps().get(0).getMenu().getId());
-                softly.assertThat(response.body().jsonPath().getList("menu_categories[1].menus[1].image_urls"))
-                    .hasSize(2);
-                softly.assertThat(response.body().jsonPath().getBoolean("menu_categories[1].menus[1].is_hidden"))
-                    .isEqualTo(menu3.getMenuCategoryMaps().get(0).getMenu().getIsHidden());
-                softly.assertThat(response.body().jsonPath().getBoolean("menu_categories[1].menus[1].is_single"))
-                    .isEqualTo(true);
-                softly.assertThat(response.body().jsonPath().getString("menu_categories[1].menus[1].name"))
-                    .isEqualTo(menu3.getMenuCategoryMaps().get(0).getMenu().getName());
-                softly.assertThat(response.body().jsonPath().getString("menu_categories[1].menus[1].option_prices"))
-                    .isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getInt("menu_categories[1].menus[1].single_price"))
-                    .isEqualTo(menu3.getMenuCategoryMaps().get(0).getMenu().getMenuOptions().get(0).getPrice());
-                softly.assertThat(response.body().jsonPath().getString("updated_at"))
-                    .isEqualTo(LocalDate.now().toString());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                    {
+                        "count": 3,
+                        "menu_categories": [
+                            {
+                                "id": 1,
+                                "name": "중식",
+                                "menus": [
+                                    {
+                                        "id": 1,
+                                        "name": "짜장면",
+                                        "is_hidden": false,
+                                        "is_single": false,
+                                        "single_price": null,
+                                        "option_prices": [
+                                            {
+                                                "option": "일반",
+                                                "price": 7000
+                                            },
+                                            {
+                                                "option": "곱빼기",
+                                                "price": 7500
+                                            }
+                                        ],
+                                        "description": "맛있는 짜장면",
+                                        "image_urls": [
+                                            "https://test.com/test.jpg",
+                                            "https://test.com/hello.jpg"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": 2,
+                                "name": "한식",
+                                "menus": [
+                                    {
+                                        "id": 2,
+                                        "name": "짜장면2",
+                                        "is_hidden": false,
+                                        "is_single": false,
+                                        "single_price": null,
+                                        "option_prices": [
+                                            {
+                                                "option": "일반",
+                                                "price": 7000
+                                            },
+                                            {
+                                                "option": "곱빼기",
+                                                "price": 7500
+                                            }
+                                        ],
+                                        "description": "맛있는 짜장면",
+                                        "image_urls": [
+                                            "https://test.com/test.jpg",
+                                            "https://test.com/hello.jpg"
+                                        ]
+                                    },
+                                    {
+                                        "id": 3,
+                                        "name": "짜장면3",
+                                        "is_hidden": false,
+                                        "is_single": true,
+                                        "single_price": 7000,
+                                        "option_prices": null,
+                                        "description": "맛있는 짜장면",
+                                        "image_urls": [
+                                            "https://test.com/test.jpg",
+                                            "https://test.com/hello.jpg"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "updated_at": "%s"
+                    }
+                    """,
+                LocalDate.now().format(ofPattern("yyyy-MM-dd")))
+            );
     }
 
     @Test
@@ -794,11 +817,348 @@ class ShopApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getInt("total_count")).isEqualTo(2);
                 softly.assertThat(response.body().jsonPath().getLong("shop_categories[0].id")).isEqualTo(1L);
                 softly.assertThat(response.body().jsonPath().getString("shop_categories[0].name")).isEqualTo("테스트1");
-                softly.assertThat(response.body().jsonPath().getString("shop_categories[0].image_url")).isEqualTo("https://test.com/test1.jpg");
+                softly.assertThat(response.body().jsonPath().getString("shop_categories[0].image_url"))
+                    .isEqualTo("https://test.com/test1.jpg");
                 softly.assertThat(response.body().jsonPath().getLong("shop_categories[1].id")).isEqualTo(2L);
                 softly.assertThat(response.body().jsonPath().getString("shop_categories[1].name")).isEqualTo("테스트2");
-                softly.assertThat(response.body().jsonPath().getString("shop_categories[1].image_url")).isEqualTo("https://test.com/test2.jpg");
+                softly.assertThat(response.body().jsonPath().getString("shop_categories[1].image_url"))
+                    .isEqualTo("https://test.com/test2.jpg");
             }
         );
     }
+
+    @Test
+    @DisplayName("특정 상점의 이벤트들을 조회한다.")
+    void getShopEvents() {
+        when(clock.instant()).thenReturn(
+            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd HH:mm:ss z")).toInstant());
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+
+        var now = LocalDate.of(2024, 2, 21);
+        var user = owner.getUser();
+        Shop shopRequest = Shop.builder()
+            .owner(owner)
+            .name("테스트 상점2")
+            .internalName("테스트2")
+            .chosung("테스트")
+            .phone("010-1234-5678")
+            .address("대전광역시 유성구 대학로 291")
+            .description("테스트 상점입니다.")
+            .delivery(true)
+            .deliveryPrice(3000L)
+            .payCard(true)
+            .payBank(true)
+            .isDeleted(false)
+            .isEvent(false)
+            .remarks("비고")
+            .hit(0L)
+            .build();
+        Shop newShop = shopRepository.save(shopRequest);
+
+        ShopOpen open1 = ShopOpen.builder()
+            .openTime(LocalTime.of(0, 0))
+            .closeTime(LocalTime.of(21, 0))
+            .shop(shop)
+            .closed(false)
+            .dayOfWeek("MONDAY")
+            .build();
+
+        ShopOpen open2 = ShopOpen.builder()
+            .openTime(LocalTime.of(0, 0))
+            .closeTime(LocalTime.of(0, 0))
+            .shop(newShop)
+            .closed(false)
+            .dayOfWeek("FRIDAY")
+            .build();
+
+        shopOpenRepository.save(open1);
+        shopOpenRepository.save(open2);
+
+        ShopCategoryMap shopCategoryMap1 = ShopCategoryMap.builder()
+            .shop(shop)
+            .shopCategory(shopCategory1)
+            .build();
+
+        ShopCategoryMap shopCategoryMap2 = ShopCategoryMap.builder()
+            .shop(newShop)
+            .shopCategory(shopCategory2)
+            .build();
+
+        shopCategoryMapRepository.save(shopCategoryMap1);
+        shopCategoryMapRepository.save(shopCategoryMap2);
+
+        ShopImage shopImage1 = ShopImage.builder()
+            .imageUrl("https://test.com/test1.jpg")
+            .shop(shop)
+            .build();
+
+        ShopImage shopImage2 = ShopImage.builder()
+            .imageUrl("https://test.com/test2.jpg")
+            .shop(newShop)
+            .build();
+
+        shopImageRepository.save(shopImage1);
+        shopImageRepository.save(shopImage2);
+
+        EventArticle eventArticle1 = EventArticle.builder()
+            .shop(newShop)
+            .title("테스트 이벤트 1")
+            .content("<P>테스트 이벤트 내용1</P>")
+            .user(user)
+            .thumbnail("https://test.com/test-thumbnail-1.jpg")
+            .hit(0)
+            .ip("123.123.123.11")
+            .startDate(now)
+            .endDate(now.plusDays(3))
+            .build();
+        eventArticleRepository.save(eventArticle1);
+
+        EventArticle eventArticle2 = EventArticle.builder()
+            .shop(newShop)
+            .title("테스트 이벤트 2")
+            .content("<P>테스트 이벤트 내용2</P>")
+            .user(user)
+            .thumbnail("https://test.com/test-thumbnail-2.jpg")
+            .hit(0)
+            .ip("123.123.123.12")
+            .startDate(now)
+            .endDate(now.plusDays(3))
+            .build();
+        eventArticleRepository.save(eventArticle2);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .get("/shops/{shopId}/events", newShop.getId())
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Assertions.assertThat(response.asPrettyString())
+            .isEqualTo(
+                """
+                    {
+                        "events": [
+                            {
+                                "title": "테스트 이벤트 1",
+                                "content": "<P>테스트 이벤트 내용1</P>",
+                                "thumbnail_image": "https://test.com/test-thumbnail-1.jpg"
+                            },
+                            {
+                                "title": "테스트 이벤트 2",
+                                "content": "<P>테스트 이벤트 내용2</P>",
+                                "thumbnail_image": "https://test.com/test-thumbnail-2.jpg"
+                            }
+                        ]
+                    }"""
+            );
+    }
+
+    @Test
+    @DisplayName("이벤트 진행중인 상점의 정보를 조회한다.")
+    void getShopWithEvents() {
+        when(clock.instant()).thenReturn(
+            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd HH:mm:ss z")).toInstant());
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+
+        var now = LocalDate.of(2024, 2, 21);
+        var user = owner.getUser();
+        Shop shopRequest = Shop.builder()
+            .owner(owner)
+            .name("테스트 상점2")
+            .internalName("테스트2")
+            .chosung("테스트")
+            .phone("010-1234-5678")
+            .address("대전광역시 유성구 대학로 291")
+            .description("테스트 상점입니다.")
+            .delivery(true)
+            .deliveryPrice(3000L)
+            .payCard(true)
+            .payBank(true)
+            .isDeleted(false)
+            .isEvent(false)
+            .remarks("비고")
+            .hit(0L)
+            .build();
+        Shop newShop = shopRepository.save(shopRequest);
+
+        ShopOpen open1 = ShopOpen.builder()
+            .openTime(LocalTime.of(0, 0))
+            .closeTime(LocalTime.of(21, 0))
+            .shop(shop)
+            .closed(false)
+            .dayOfWeek("MONDAY")
+            .build();
+
+        ShopOpen open2 = ShopOpen.builder()
+            .openTime(LocalTime.of(0, 0))
+            .closeTime(LocalTime.of(0, 0))
+            .shop(newShop)
+            .closed(false)
+            .dayOfWeek("FRIDAY")
+            .build();
+
+        shopOpenRepository.save(open1);
+        shopOpenRepository.save(open2);
+
+        ShopCategoryMap shopCategoryMap1 = ShopCategoryMap.builder()
+            .shop(shop)
+            .shopCategory(shopCategory1)
+            .build();
+
+        ShopCategoryMap shopCategoryMap2 = ShopCategoryMap.builder()
+            .shop(newShop)
+            .shopCategory(shopCategory2)
+            .build();
+
+        shopCategoryMapRepository.save(shopCategoryMap1);
+        shopCategoryMapRepository.save(shopCategoryMap2);
+
+        ShopImage shopImage1 = ShopImage.builder()
+            .imageUrl("https://test.com/test1.jpg")
+            .shop(shop)
+            .build();
+
+        ShopImage shopImage2 = ShopImage.builder()
+            .imageUrl("https://test.com/test2.jpg")
+            .shop(newShop)
+            .build();
+
+        shopImageRepository.save(shopImage1);
+        shopImageRepository.save(shopImage2);
+
+        EventArticle eventArticle1 = EventArticle.builder()
+            .shop(newShop)
+            .title("테스트 이벤트 1")
+            .content("<P>테스트 이벤트 내용1</P>")
+            .user(user)
+            .thumbnail("https://test.com/test-thumbnail-1.jpg")
+            .hit(0)
+            .ip("123.123.123.11")
+            .startDate(now)
+            .endDate(now.plusDays(3))
+            .build();
+        eventArticleRepository.save(eventArticle1);
+
+        EventArticle eventArticle2 = EventArticle.builder()
+            .shop(newShop)
+            .title("테스트 이벤트 2")
+            .content("<P>테스트 이벤트 내용2</P>")
+            .user(user)
+            .thumbnail("https://test.com/test-thumbnail-2.jpg")
+            .hit(0)
+            .ip("123.123.123.12")
+            .startDate(now)
+            .endDate(now.plusDays(3))
+            .build();
+        eventArticleRepository.save(eventArticle2);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .get("/shops/{shopId}", newShop.getId())
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Assertions.assertThat(response.jsonPath().getBoolean("is_event")).isTrue();
+    }
+
+    @Test
+    @DisplayName("이벤트 진행중이지 않은 상점의 정보를 조회한다.")
+    void getShopWithoutEvents() {
+        when(clock.instant()).thenReturn(
+            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd HH:mm:ss z")).toInstant());
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+
+        var now = LocalDate.of(2024, 2, 21);
+        var user = owner.getUser();
+        Shop shopRequest = Shop.builder()
+            .owner(owner)
+            .name("테스트 상점2")
+            .internalName("테스트2")
+            .chosung("테스트")
+            .phone("010-1234-5678")
+            .address("대전광역시 유성구 대학로 291")
+            .description("테스트 상점입니다.")
+            .delivery(true)
+            .deliveryPrice(3000L)
+            .payCard(true)
+            .payBank(true)
+            .isDeleted(false)
+            .isEvent(false)
+            .remarks("비고")
+            .hit(0L)
+            .build();
+        Shop newShop = shopRepository.save(shopRequest);
+
+        ShopOpen open1 = ShopOpen.builder()
+            .openTime(LocalTime.of(0, 0))
+            .closeTime(LocalTime.of(21, 0))
+            .shop(shop)
+            .closed(false)
+            .dayOfWeek("MONDAY")
+            .build();
+
+        ShopOpen open2 = ShopOpen.builder()
+            .openTime(LocalTime.of(0, 0))
+            .closeTime(LocalTime.of(0, 0))
+            .shop(newShop)
+            .closed(false)
+            .dayOfWeek("FRIDAY")
+            .build();
+
+        shopOpenRepository.save(open1);
+        shopOpenRepository.save(open2);
+
+        ShopCategoryMap shopCategoryMap1 = ShopCategoryMap.builder()
+            .shop(shop)
+            .shopCategory(shopCategory1)
+            .build();
+
+        ShopCategoryMap shopCategoryMap2 = ShopCategoryMap.builder()
+            .shop(newShop)
+            .shopCategory(shopCategory2)
+            .build();
+
+        shopCategoryMapRepository.save(shopCategoryMap1);
+        shopCategoryMapRepository.save(shopCategoryMap2);
+
+        ShopImage shopImage1 = ShopImage.builder()
+            .imageUrl("https://test.com/test1.jpg")
+            .shop(shop)
+            .build();
+
+        ShopImage shopImage2 = ShopImage.builder()
+            .imageUrl("https://test.com/test2.jpg")
+            .shop(newShop)
+            .build();
+
+        shopImageRepository.save(shopImage1);
+        shopImageRepository.save(shopImage2);
+
+        EventArticle eventArticle1 = EventArticle.builder()
+            .shop(newShop)
+            .title("테스트 이벤트 1")
+            .content("<P>테스트 이벤트 내용1</P>")
+            .user(user)
+            .thumbnail("https://test.com/test-thumbnail-1.jpg")
+            .hit(0)
+            .ip("123.123.123.11")
+            .startDate(now.minusDays(5))
+            .endDate(now.minusDays(1))
+            .build();
+        eventArticleRepository.save(eventArticle1);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .get("/shops/{shopId}", newShop.getId())
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Assertions.assertThat(response.jsonPath().getBoolean("is_event")).isFalse();
+    }
+
 }
