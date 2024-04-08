@@ -52,11 +52,13 @@ public record DiningResponse(
     @Schema(description = "최신화 일자", example = "2024-03-15 14:02:48")
     LocalDateTime updatedAt,
 
-    @Schema(description = "품절 여부", example = "true")
-    Boolean soldOut,
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "품절 시각", example = "2024-04-04 23:01:52")
+    LocalDateTime soldoutAt,
 
-    @Schema(description = "메뉴 변경 여부", example = "true")
-    Boolean isChanged
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "메뉴 변경 시각", example = "2024-04-04 23:01:52")
+    LocalDateTime changedAt
 ) {
 
     public static DiningResponse from(Dining dining) {

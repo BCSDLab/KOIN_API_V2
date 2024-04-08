@@ -8,8 +8,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.model.city.CityBusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.model.CityBusRemainTime;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record BusRemainTimeResponse(

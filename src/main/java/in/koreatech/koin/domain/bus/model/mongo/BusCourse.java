@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import in.koreatech.koin.domain.bus.model.mongo.Route;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Builder;

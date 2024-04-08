@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.service;
 
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
+import in.koreatech.koin.domain.shop.dto.ShopsResponse.InnerShopResponse;
 import in.koreatech.koin.domain.shop.model.EventArticle;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
@@ -30,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ShopService {
 
+    private final Clock clock;
     private final MenuRepository menuRepository;
     private final MenuCategoryRepository menuCategoryRepository;
     private final ShopRepository shopRepository;
@@ -55,17 +59,24 @@ public class ShopService {
 
     public ShopResponse getShop(Long shopId) {
         Shop shop = shopRepository.getById(shopId);
-        return ShopResponse.from(shop);
+        Boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
+        return ShopResponse.from(shop, eventDuration);
     }
 
-    public ShopMenuResponse getShopMenu(Long shopId) {
-        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shopId);
+    public ShopMenuResponse getShopMenus(Long shopId) {
+        Shop shop = shopRepository.getById(shopId);
+        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
         return ShopMenuResponse.from(menuCategories);
     }
 
     public ShopsResponse getShops() {
         List<Shop> shops = shopRepository.findAll();
-        return ShopsResponse.from(shops);
+        var innerShopResponses = shops.stream().map(shop -> {
+                Boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
+                return InnerShopResponse.from(shop, eventDuration);
+            })
+            .toList();
+        return ShopsResponse.from(innerShopResponses);
     }
 
     public ShopCategoriesResponse getShopsCategories() {

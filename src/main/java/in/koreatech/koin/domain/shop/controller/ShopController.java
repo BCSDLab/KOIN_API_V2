@@ -30,8 +30,11 @@ public class ShopController implements ShopApi {
         return ResponseEntity.ok(shopMenu);
     }
 
-    public ResponseEntity<ShopMenuResponse> findMenu(Long id) {
-        ShopMenuResponse shopMenuResponse = shopService.getShopMenu(id);
+    @GetMapping("/shops/{id}/menus")
+    public ResponseEntity<ShopMenuResponse> findMenus(
+        @PathVariable Long id
+    ) {
+        ShopMenuResponse shopMenuResponse = shopService.getShopMenus(id);
         return ResponseEntity.ok(shopMenuResponse);
     }
 

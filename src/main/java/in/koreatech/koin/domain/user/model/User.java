@@ -8,8 +8,10 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import in.koreatech.koin.global.config.LocalDateTimeAttributeConverter;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -31,7 +33,6 @@ import lombok.NoArgsConstructor;
 @SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = PROTECTED)
 public class User extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -94,6 +95,7 @@ public class User extends BaseEntity {
     @Column(name = "reset_token")
     private String resetToken;
 
+    @Size(max = 255)
     @Column(name = "reset_expired_at")
     private String resetExpiredAt;
 
@@ -153,5 +155,9 @@ public class User extends BaseEntity {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
+    }
+
+    public void auth() {
+        this.isAuthed = true;
     }
 }

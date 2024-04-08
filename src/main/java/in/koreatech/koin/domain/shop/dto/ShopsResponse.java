@@ -18,15 +18,13 @@ public record ShopsResponse(
     @Schema(description = "상점 정보")
     List<InnerShopResponse> shops
 ) {
-    public static ShopsResponse from(List<Shop> shops) {
-        return new ShopsResponse(
-            shops.size(),
-            shops.stream().map(InnerShopResponse::from).toList()
-        );
+
+    public static ShopsResponse from(List<InnerShopResponse> shops) {
+        return new ShopsResponse(shops.size(), shops);
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    private record InnerShopResponse(
+    public record InnerShopResponse(
         @Schema(example = "0", description = " 속해있는 상점 카테고리들의 고유 id 리스트")
         List<Long> categoryIds,
 
@@ -49,9 +47,13 @@ public record ShopsResponse(
         boolean payCard,
 
         @Schema(example = "041-000-0000", description = "전화번호")
-        String phone
+        String phone,
+
+        @Schema(example = "true", description = "삭제 여부")
+        boolean isEvent
     ) {
-        public static InnerShopResponse from(Shop shop) {
+
+        public static InnerShopResponse from(Shop shop, boolean isEvent) {
             return new InnerShopResponse(
                 shop.getShopCategories().stream().map(shopCategoryMap ->
                     shopCategoryMap.getShopCategory().getId()
@@ -62,7 +64,8 @@ public record ShopsResponse(
                 shop.getShopOpens().stream().map(InnerShopOpen::from).toList(),
                 shop.getPayBank(),
                 shop.getPayCard(),
-                shop.getPhone()
+                shop.getPhone(),
+                isEvent
             );
         }
     }
