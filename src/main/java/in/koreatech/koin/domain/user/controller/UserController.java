@@ -1,10 +1,10 @@
 package in.koreatech.koin.domain.user.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +29,7 @@ import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.service.StudentService;
@@ -107,7 +108,8 @@ public class UserController implements UserApi {
     @PostMapping("/user/student/register")
     public ResponseEntity<Void> studentRegister(
         @Valid @RequestBody StudentRegisterRequest request,
-        @ServerURL String serverURL) {
+        @ServerURL String serverURL
+    ) {
         studentService.studentRegister(request, serverURL);
         return ResponseEntity.ok().build();
     }
@@ -147,22 +149,19 @@ public class UserController implements UserApi {
     }
 
     @GetMapping("/user/change/password/config")
-    public String checkResetToken(
+    public ModelAndView checkResetToken(
+        @ServerURL String serverUrl,
         @RequestParam("reset_token") String resetToken
     ) {
-        return studentService.checkResetToken(resetToken);
+        return studentService.checkResetToken(resetToken, serverUrl);
     }
 
     @PostMapping("/user/change/password/submit")
-    public Map<String, Object> changePassword(
-        @RequestBody Map<String, Object> params,
+    public ResponseEntity<Void> changePassword(
+        @RequestBody UserPasswordChangeRequest request,
         @RequestParam("reset_token") String resetToken
     ) {
-        String password = params.get("password").toString();
-        boolean success = studentService.changePassword(password, resetToken);
-
-        return new HashMap<>() {{
-            put("success", success);
-        }};
+        studentService.changePassword(request, resetToken);
+        return ResponseEntity.ok().build();
     }
 }

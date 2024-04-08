@@ -6,17 +6,17 @@ import java.util.Optional;
 import org.joda.time.LocalDateTime;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
-import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
+import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
+import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.user.exception.StudentNumberNotValidException;
@@ -29,10 +29,9 @@ import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
+import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
 import in.koreatech.koin.global.domain.email.model.EmailAddress;
-import in.koreatech.koin.global.domain.email.service.MailService;
-import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.service.MailService;
 import lombok.RequiredArgsConstructor;
 
@@ -135,21 +134,23 @@ public class StudentService {
     @Transactional
     public void findPassword(FindPasswordRequest request, String serverURL) {
         User user = userRepository.getByEmail(request.email());
-        user.generateResetTokenForFindPassword();
+        user.generateResetTokenForFindPassword(clock);
         User authedUser = userRepository.save(user);
         mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, authedUser.getResetToken()));
     }
 
-    public String checkResetToken(String resetToken) {
-        User user = userRepository.getByResetToken(resetToken);
-        return "change_password_config.html";
+    public ModelAndView checkResetToken(String resetToken, String serverUrl) {
+        ModelAndView modelAndView = new ModelAndView("change_password_config");
+        modelAndView.addObject("contextPath", serverUrl);
+        modelAndView.addObject("resetToken", resetToken);
+        return modelAndView;
     }
 
     @Transactional
-    public boolean changePassword(String password, String resetToken) {
+    public void changePassword(UserPasswordChangeRequest request, String resetToken) {
         User authedUser = userRepository.getByResetToken(resetToken);
-        authedUser.updatePassword(passwordEncoder, password);
+        authedUser.validateResetToken();
+        authedUser.updatePassword(passwordEncoder, request.password());
         userRepository.save(authedUser);
-        return true;
     }
 }

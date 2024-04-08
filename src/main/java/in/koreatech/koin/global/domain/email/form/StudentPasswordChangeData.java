@@ -3,7 +3,7 @@ package in.koreatech.koin.global.domain.email.form;
 import java.util.Map;
 
 public class StudentPasswordChangeData implements MailFormData {
-    private static final String SUBJECT = "학생 비밀번호 변경";
+    private static final String SUBJECT = "코인 패스워드 초기화 인증";
     private static final String PATH = "student_change_password_certificate_button";
 
     private final String contextPath;

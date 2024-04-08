@@ -2,12 +2,14 @@ package in.koreatech.koin.domain.user.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import in.koreatech.koin.domain.user.exception.UserResetTokenExpiredException;
 import in.koreatech.koin.global.config.LocalDateTimeAttributeConverter;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -105,10 +107,10 @@ public class User extends BaseEntity {
 
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
-        String email, UserGender gender, boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-        Boolean isDeleted, String authToken, LocalDateTime authExpiredAt, String resetToken,
-        LocalDateTime resetExpiredAt,
-        String deviceToken) {
+                 String email, UserGender gender, boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+                 Boolean isDeleted, String authToken, LocalDateTime authExpiredAt, String resetToken,
+                 LocalDateTime resetExpiredAt,
+                 String deviceToken) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -147,8 +149,8 @@ public class User extends BaseEntity {
         this.password = passwordEncoder.encode(password);
     }
 
-    public void generateResetTokenForFindPassword() {
-        this.resetExpiredAt = LocalDateTime.now().plusHours(1);
+    public void generateResetTokenForFindPassword(Clock clock) {
+        this.resetExpiredAt = LocalDateTime.now(clock).plusHours(1);
         this.resetToken = this.email + this.resetExpiredAt;
     }
 
@@ -161,5 +163,11 @@ public class User extends BaseEntity {
 
     public void auth() {
         this.isAuthed = true;
+    }
+
+    public void validateResetToken() {
+        if (resetExpiredAt.isBefore(LocalDateTime.now())) {
+            throw UserResetTokenExpiredException.withDetail("resetToken: " + resetToken);
+        }
     }
 }
