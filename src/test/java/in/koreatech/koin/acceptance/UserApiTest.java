@@ -5,7 +5,8 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -764,7 +765,7 @@ class UserApiTest extends AcceptanceTest {
                         softly.assertThat(student.getUser().getPhoneNumber()).isEqualTo("010-0000-0000");
                         softly.assertThat(student.getUser().getUserType()).isEqualTo(STUDENT);
                         softly.assertThat(student.getUser().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
-                        softly.assertThat(student.getUser().getIsAuthed()).isEqualTo(false);
+                        softly.assertThat(student.getUser().isAuthed()).isEqualTo(false);
                         softly.assertThat(student.getStudentNumber()).isEqualTo("2021136012");
                         softly.assertThat(student.getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
                         softly.assertThat(student.getAnonymousNickname()).isNotNull();
@@ -809,7 +810,7 @@ class UserApiTest extends AcceptanceTest {
 
         User user1 = userRepository.getByEmail("koko123@koreatech.ac.kr");
 
-        Assertions.assertThat(user1.getIsAuthed()).isEqualTo(true);
+        Assertions.assertThat(user1.isAuthed()).isTrue();
         verify(studentEventListener).onStudentRegister(any());
     }
 
