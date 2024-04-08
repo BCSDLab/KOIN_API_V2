@@ -15,6 +15,8 @@ import in.koreatech.koin.global.auth.AuthArgumentResolver;
 import in.koreatech.koin.global.auth.ExtractAuthenticationInterceptor;
 import in.koreatech.koin.global.auth.UserIdArgumentResolver;
 import in.koreatech.koin.global.domain.upload.controller.ImageUploadDomainEnumConverter;
+import in.koreatech.koin.global.host.ServerURLArgumentResolver;
+import in.koreatech.koin.global.host.ServerURLInterceptor;
 import in.koreatech.koin.global.ipaddress.IpAddressArgumentResolver;
 import in.koreatech.koin.global.ipaddress.IpAddressInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,8 @@ public class WebConfig implements WebMvcConfigurer {
     private final UserIdArgumentResolver userIdArgumentResolver;
     private final AuthArgumentResolver authArgumentResolver;
     private final IpAddressInterceptor ipAddressInterceptor;
+    private final ServerURLArgumentResolver serverURLArgumentResolver;
+    private final ServerURLInterceptor serverURLInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -37,6 +41,9 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(ipAddressInterceptor)
             .addPathPatterns("/**")
             .order(1);
+        registry.addInterceptor(serverURLInterceptor)
+            .addPathPatterns("/**")
+            .order(2);
     }
 
     @Override
@@ -44,6 +51,7 @@ public class WebConfig implements WebMvcConfigurer {
         resolvers.add(authArgumentResolver);
         resolvers.add(ipAddressArgumentResolver);
         resolvers.add(userIdArgumentResolver);
+        resolvers.add(serverURLArgumentResolver);
     }
 
     @Override

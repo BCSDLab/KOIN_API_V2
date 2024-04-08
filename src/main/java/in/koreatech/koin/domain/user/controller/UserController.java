@@ -14,10 +14,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
+import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
@@ -25,9 +28,11 @@ import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+
 import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.host.ServerURL;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -95,6 +100,22 @@ public class UserController implements UserApi {
     ) {
         userService.checkExistsEmail(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/user/student/register")
+    public ResponseEntity<Void> studentRegister(
+        @Valid @RequestBody StudentRegisterRequest request,
+        @ServerURL String serverURL) {
+        studentService.studentRegister(request, serverURL);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/user/authenticate")
+    public ModelAndView authenticate(
+        @ModelAttribute("auth_token")
+        @Valid AuthTokenRequest request
+    ) {
+        return studentService.authenticate(request);
     }
 
     @GetMapping("/user/check/nickname")
