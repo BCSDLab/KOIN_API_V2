@@ -286,4 +286,20 @@ public interface OwnerShopApi {
         @PathVariable("eventId") Long eventId,
         @RequestBody @Valid ModifyEventRequest modifyEventRequest
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 이벤트 삭제")
+    @DeleteMapping("/owner/shops/{shopId}/event/{eventId}")
+    ResponseEntity<Void> deleteShopEvent(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("shopId") Long shopId,
+        @PathVariable("eventId") Long eventId
+    );
 }

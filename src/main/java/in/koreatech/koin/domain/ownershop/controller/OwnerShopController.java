@@ -180,4 +180,14 @@ public class OwnerShopController implements OwnerShopApi {
         ownerShopService.modifyEvent(ownerId, shopId, eventId, modifyEventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @DeleteMapping("/owner/shops/{shopId}/event/{eventId}")
+    public ResponseEntity<Void> deleteShopEvent(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("shopId") Long shopId,
+        @PathVariable("eventId") Long eventId
+    ) {
+        ownerShopService.deleteEvent(ownerId, shopId, eventId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

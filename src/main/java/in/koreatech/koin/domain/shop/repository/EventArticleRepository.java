@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
+import in.koreatech.koin.domain.ownershop.exception.EventArticleNotFoundException;
 import in.koreatech.koin.domain.shop.model.EventArticle;
 
 public interface EventArticleRepository extends Repository<EventArticle, Long> {
@@ -25,5 +26,9 @@ public interface EventArticleRepository extends Repository<EventArticle, Long> {
 
     Optional<EventArticle> findById(Long id);
 
-    EventArticle getById(Long eventId);
+    default EventArticle getById(Long eventId) {
+        return findById(eventId).orElseThrow(() -> EventArticleNotFoundException.withDetail("eventId: " + eventId));
+    }
+
+    void deleteById(Long eventId);
 }

@@ -256,6 +256,7 @@ public class OwnerShopService {
         shopRepository.save(shop);
     }
 
+    @Transactional
     public void createEvent(Long ownerId, Long shopId, ShopEventRequest shopEventRequest) {
         Shop shop = getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = EventArticle.builder()
@@ -269,9 +270,22 @@ public class OwnerShopService {
         eventArticleRepository.save(eventArticle);
     }
 
+    @Transactional
     public void modifyEvent(Long ownerId, Long shopId, Long eventId, ModifyEventRequest modifyEventRequest) {
-        Shop shop = getOwnerShopById(shopId, ownerId);
+        getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = eventArticleRepository.getById(eventId);
+        eventArticle.modifyArticle(
+            modifyEventRequest.title(),
+            modifyEventRequest.content(),
+            modifyEventRequest.thumbnailImage(),
+            modifyEventRequest.startDate(),
+            modifyEventRequest.endDate()
+        );
+    }
 
+    @Transactional
+    public void deleteEvent(Long ownerId, Long shopId, Long eventId) {
+        getOwnerShopById(shopId, ownerId);
+        eventArticleRepository.deleteById(eventId);
     }
 }
