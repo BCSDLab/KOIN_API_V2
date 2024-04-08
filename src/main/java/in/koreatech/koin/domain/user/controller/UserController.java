@@ -36,6 +36,7 @@ import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.host.ServerURL;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -156,6 +157,7 @@ public class UserController implements UserApi {
         return studentService.checkResetToken(resetToken, serverUrl);
     }
 
+    @Hidden
     @PostMapping("/user/change/password/submit")
     public ResponseEntity<Void> changePassword(
         @RequestBody UserPasswordChangeRequest request,
