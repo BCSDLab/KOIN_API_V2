@@ -9,7 +9,7 @@ public record BusCourseResponse(
 
 ) {
 
-    public static BusCourseResponse from(BusCourse busCourse){
+    public static BusCourseResponse from(BusCourse busCourse) {
         return new BusCourseResponse(
             busCourse.getBusType(),
             busCourse.getDirection(),

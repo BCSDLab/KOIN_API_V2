@@ -129,15 +129,14 @@ class BusApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
-                softly.assertThat((Long) response.body().jsonPath().get("now_bus.bus_number")).isNull();
+                softly.assertThat((Long)response.body().jsonPath().get("now_bus.bus_number")).isNull();
                 softly.assertThat(response.body().jsonPath().getLong("now_bus.remain_time")).isEqualTo(
                     BusRemainTime.of(arrivalTime).getRemainSeconds(clock));
-                softly.assertThat((Long) response.body().jsonPath().get("next_bus.bus_number")).isNull();
-                softly.assertThat((Long) response.body().jsonPath().get("next_bus.remain_time")).isNull();
+                softly.assertThat((Long)response.body().jsonPath().get("next_bus.bus_number")).isNull();
+                softly.assertThat((Long)response.body().jsonPath().get("next_bus.remain_time")).isNull();
             }
         );
     }
-
 
     @Test
     @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - Redis")
@@ -193,8 +192,8 @@ class BusApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(busNumber);
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.remain_time"))
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(busNumber);
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.remain_time"))
                     .isEqualTo(
                         BusRemainTime.of(remainTime, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
                 softly.assertThat(response.body().jsonPath().getObject("next_bus.bus_number", Long.class)).isNull();
@@ -296,12 +295,12 @@ class BusApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(400);
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.remain_time"))
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(400);
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.remain_time"))
                     .isEqualTo(
                         BusRemainTime.of(600L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
-                softly.assertThat((Long) response.body().jsonPath().getLong("next_bus.bus_number")).isEqualTo(405);
-                softly.assertThat((Long) response.body().jsonPath().getLong("next_bus.remain_time"))
+                softly.assertThat((Long)response.body().jsonPath().getLong("next_bus.bus_number")).isEqualTo(405);
+                softly.assertThat((Long)response.body().jsonPath().getLong("next_bus.remain_time"))
                     .isEqualTo(
                         BusRemainTime.of(800L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
             }
@@ -310,7 +309,7 @@ class BusApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("셔틀버스의 코스 정보들을 조회한다.")
-    void getBusCourses(){
+    void getBusCourses() {
         var busCourse = BusCourse.builder()
             .busType("shuttle")
             .direction("to")

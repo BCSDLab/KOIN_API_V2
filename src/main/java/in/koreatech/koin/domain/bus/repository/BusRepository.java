@@ -12,6 +12,5 @@ public interface BusRepository extends Repository<BusCourse, String> {
 
     List<BusCourse> findAll();
 
-
     List<BusCourse> findByBusType(String busType);
 }
