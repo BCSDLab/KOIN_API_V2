@@ -1,9 +1,12 @@
 package in.koreatech.koin.domain.bus.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
@@ -31,4 +34,14 @@ public interface BusApi {
         @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation depart,
         @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation arrival
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "버스 노선 조회")
+    @GetMapping("/bus/courses")
+    ResponseEntity<List<BusCourseResponse>> getBusCourses();
 }
