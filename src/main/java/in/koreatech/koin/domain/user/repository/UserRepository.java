@@ -19,6 +19,8 @@ public interface UserRepository extends Repository<User, Long> {
 
     Optional<User> findByAuthToken(String authToken);
 
+    Optional<User> findAllByResetToken(String resetToken);
+
     default User getByEmail(String email) {
         return findByEmail(email)
             .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
@@ -32,6 +34,11 @@ public interface UserRepository extends Repository<User, Long> {
     default User getByNickname(String nickname) {
         return findByNickname(nickname)
             .orElseThrow(() -> UserNotFoundException.withDetail("nickname: " + nickname));
+    }
+
+    default User getByResetToken(String resetToken) {
+        return findAllByResetToken(resetToken)
+            .orElseThrow(() -> UserNotFoundException.withDetail("resetToken: " + resetToken));
     }
 
     boolean existsByNickname(String nickname);

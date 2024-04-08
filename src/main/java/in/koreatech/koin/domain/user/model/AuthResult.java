@@ -24,7 +24,7 @@ public class AuthResult {
             if (user.getAuthExpiredAt().isBefore(LocalDateTime.now(clock))) {
                 return createErrorModelAndView("이미 만료된 토큰입니다.");
             }
-            if (!user.getIsAuthed()) {
+            if (!user.isAuthed()) {
                 user.auth();
                 eventPublisher.publishEvent(new StudentRegisterEvent(user.getEmail()));
                 return createSuccessModelAndView();
