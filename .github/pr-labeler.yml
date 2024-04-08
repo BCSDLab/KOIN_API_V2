@@ -1,0 +1,6 @@
+기능: feature/*
+버그: fix/*
+리팩터링: refactor/*
+문서: docs/*
+테스트: test/*
+인프라: infra/*
