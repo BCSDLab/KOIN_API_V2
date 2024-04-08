@@ -87,17 +87,17 @@ public class User extends BaseEntity {
     @Column(name = "auth_token")
     private String authToken;
 
-    @Size(max = 255)
+    @Convert(converter = LocalDateTimeAttributeConverter.class)
     @Column(name = "auth_expired_at")
-    private String authExpiredAt;
+    private LocalDateTime authExpiredAt;
 
     @Size(max = 255)
     @Column(name = "reset_token")
     private String resetToken;
 
-    @Size(max = 255)
+    @Convert(converter = LocalDateTimeAttributeConverter.class)
     @Column(name = "reset_expired_at")
-    private String resetExpiredAt;
+    private LocalDateTime resetExpiredAt;
 
     @Column(name = "device_token", nullable = true)
     private String deviceToken;
@@ -105,7 +105,8 @@ public class User extends BaseEntity {
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
         String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-        Boolean isDeleted, String authToken, String authExpiredAt, String resetToken, String resetExpiredAt,
+        Boolean isDeleted, String authToken, LocalDateTime authExpiredAt, String resetToken,
+        LocalDateTime resetExpiredAt,
         String deviceToken) {
         this.password = password;
         this.nickname = nickname;
@@ -146,7 +147,7 @@ public class User extends BaseEntity {
     }
 
     public void generateResetTokenForFindPassword() {
-        this.resetExpiredAt = LocalDateTime.now().plusHours(1).toString();
+        this.resetExpiredAt = LocalDateTime.now().plusHours(1);
         this.resetToken = this.email + this.resetExpiredAt;
     }
 

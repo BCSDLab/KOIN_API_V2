@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
@@ -184,6 +185,22 @@ public interface UserApi {
     @GetMapping("/user/auth")
     ResponseEntity<AuthResponse> getAuth(
         @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "비밀번호 초기(변경) 메일 발송")
+    @PostMapping("/user/find/password")
+    ResponseEntity<Void> findPassword(
+        @RequestBody @Valid FindPasswordRequest findPasswordRequest,
+        @ServerURL String serverURL
     );
 
 }
