@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
@@ -113,5 +114,12 @@ public class UserController implements UserApi {
     ) {
         studentService.findPassword(request, serverURL);
         return new ResponseEntity<>(HttpStatusCode.valueOf(201));
+    }
+
+    @GetMapping("/user/change/password/config")
+    public String checkResetToken(
+        @RequestParam("reset_token") String resetToken
+    ) {
+        return studentService.checkResetToken(resetToken);
     }
 }

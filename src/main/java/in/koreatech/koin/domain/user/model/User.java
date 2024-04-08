@@ -9,7 +9,6 @@ import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import in.koreatech.koin.global.domain.BaseEntity;
-import in.koreatech.koin.global.domain.util.Sha256;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -146,7 +145,7 @@ public class User extends BaseEntity {
 
     public void generateResetTokenForFindPassword() {
         this.resetExpiredAt = LocalDateTime.now().plusHours(1).toString();
-        this.resetToken = Sha256.encode(this.email + this.resetExpiredAt);
+        this.resetToken = this.email + this.resetExpiredAt;
     }
 
     public void update(String nickname, String name, String phoneNumber, UserGender gender) {

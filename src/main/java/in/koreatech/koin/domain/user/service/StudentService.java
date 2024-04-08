@@ -9,7 +9,6 @@ import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.StudentDepartment;
 import in.koreatech.koin.domain.user.model.User;
@@ -62,10 +61,13 @@ public class StudentService {
 
     public void findPassword(FindPasswordRequest request, String serverURL) {
         User user = userRepository.getByEmail(request.email());
-        if (user == null) {
-            throw UserNotFoundException.withDetail("존재하지 않는 이메일입니다." + request.email());
-        }
         user.generateResetTokenForFindPassword();
-        mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, user.getResetToken()));
+        User authedUser = userRepository.save(user);
+        mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, authedUser.getResetToken()));
+    }
+
+    public String checkResetToken(String resetToken) {
+        User user = userRepository.getByResetToken(resetToken);
+        return "change_password_config";
     }
 }
