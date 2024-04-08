@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.user.dto;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
 import java.time.Clock;
 import java.time.LocalDateTime;

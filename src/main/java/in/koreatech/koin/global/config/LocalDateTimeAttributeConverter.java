@@ -9,20 +9,27 @@ import jakarta.persistence.Converter;
 @Converter(autoApply = true)
 public class LocalDateTimeAttributeConverter implements AttributeConverter<LocalDateTime, String> {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
+    private final DateTimeFormatter formatterWithThreeMillis = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
+    private final DateTimeFormatter formatterWithTwoMillis = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SS");
 
     @Override
     public String convertToDatabaseColumn(LocalDateTime localDateTime) {
-        if (localDateTime == null)
+        if (localDateTime == null) {
             return null;
-        return localDateTime.format(formatter);
+        }
+        return localDateTime.format(formatterWithThreeMillis);
     }
 
     @Override
     public LocalDateTime convertToEntityAttribute(String dbData) {
-        if (dbData == null)
+        if (dbData == null) {
             return null;
-        return LocalDateTime.parse(dbData, formatter);
+        }
+
+        if (dbData.matches(".*\\.\\d{3}$")) {
+            return LocalDateTime.parse(dbData, formatterWithThreeMillis);
+        } else {
+            return LocalDateTime.parse(dbData, formatterWithTwoMillis);
+        }
     }
 }
-
