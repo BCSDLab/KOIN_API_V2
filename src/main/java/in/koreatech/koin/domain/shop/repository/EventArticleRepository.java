@@ -31,4 +31,7 @@ public interface EventArticleRepository extends Repository<EventArticle, Long> {
     }
 
     void deleteById(Long eventId);
+
+    @Query("SELECT e FROM EventArticle e WHERE e.startDate <= CURRENT_DATE AND e.endDate >= CURRENT_DATE AND e.isDeleted = false ORDER BY e.endDate ASC")
+    List<EventArticle> findAllEvents();
 }

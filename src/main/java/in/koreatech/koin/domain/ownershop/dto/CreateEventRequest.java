@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record ShopEventRequest(
+public record CreateEventRequest(
     @Schema(example = "감성떡볶이 이벤트합니다!!!", description = "제목")
     @NotBlank String title,
 

@@ -13,12 +13,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.google.api.Http;
-
 import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
-import in.koreatech.koin.domain.ownershop.dto.ShopEventRequest;
+import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.ownershop.service.OwnerShopService;
 import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
@@ -164,7 +162,7 @@ public class OwnerShopController implements OwnerShopApi {
     public ResponseEntity<Void> createShopEvent(
         @Auth(permit = {OWNER}) Long ownerId,
         @PathVariable("id") Long shopId,
-        @RequestBody @Valid ShopEventRequest shopEventRequest
+        @RequestBody @Valid CreateEventRequest shopEventRequest
     ) {
         ownerShopService.createEvent(ownerId, shopId, shopEventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();

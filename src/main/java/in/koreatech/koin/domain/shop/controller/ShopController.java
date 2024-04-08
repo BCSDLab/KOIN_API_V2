@@ -70,7 +70,13 @@ public class ShopController implements ShopApi {
     public ResponseEntity<ShopEventsResponse> getShopEvents(
         @PathVariable Long shopId
     ) {
-        var response = shopService.getEvents(shopId);
+        var response = shopService.getShopEvents(shopId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/shops/events")
+    public ResponseEntity<ShopEventsResponse> getShopAllEvent() {
+        var response = shopService.getAllEvents();
         return ResponseEntity.ok(response);
     }
 }

@@ -28,6 +28,7 @@ import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
+import in.koreatech.koin.domain.shop.model.EventArticle;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -38,6 +39,7 @@ import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryMapRepository;
@@ -82,6 +84,9 @@ class OwnerShopApiTest extends AcceptanceTest {
 
     @Autowired
     private MenuRepository menuRepository;
+
+    @Autowired
+    private EventArticleRepository eventArticleRepository;
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -1219,5 +1224,42 @@ class OwnerShopApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("사장님이 이벤트를 추가한다.")
+    void ownerShopCreateEvent() {
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "title": "감성떡볶이 이벤트합니다!",
+                  "content": "테스트 이벤트입니다.",
+                  "thumbnail_image": "https://test.com/test1.jpg",
+                  "start_date": "2024-10-24",
+                  "end_date": "2024-10-26"
+                }
+                """)
+            .when()
+            .post("/owner/shops/{shopId}/event", shop.getId())
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        EventArticle eventArticle = eventArticleRepository.getById(1L);
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(eventArticle.getShop().getId()).isEqualTo(1L);
+                softly.assertThat(eventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
+                softly.assertThat(eventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
+                softly.assertThat(eventArticle.getThumbnail()).isEqualTo("https://test.com/test1.jpg");
+                softly.assertThat(eventArticle.getStartDate().toString()).isEqualTo("2024-10-24");
+                softly.assertThat(eventArticle.getEndDate().toString()).isEqualTo("2024-10-26");
+            }
+        );
     }
 }

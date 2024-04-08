@@ -12,7 +12,7 @@ spring:
         show_sql: true
         format_sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
   thymeleaf:
     prefix: "classpath:/mail/"
     suffix: ".html"

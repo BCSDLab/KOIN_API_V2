@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
-import in.koreatech.koin.domain.ownershop.dto.ShopEventRequest;
+import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
@@ -257,7 +257,7 @@ public class OwnerShopService {
     }
 
     @Transactional
-    public void createEvent(Long ownerId, Long shopId, ShopEventRequest shopEventRequest) {
+    public void createEvent(Long ownerId, Long shopId, CreateEventRequest shopEventRequest) {
         Shop shop = getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = EventArticle.builder()
                 .shop(shop)
@@ -266,6 +266,8 @@ public class OwnerShopService {
                 .title(shopEventRequest.title())
                 .content(shopEventRequest.content())
                 .thumbnail(shopEventRequest.thumbnailImage())
+                .hit(0)
+                .ip("")
                 .build();
         eventArticleRepository.save(eventArticle);
     }
