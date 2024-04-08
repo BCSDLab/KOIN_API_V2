@@ -9,7 +9,7 @@ import jakarta.persistence.Converter;
 @Converter(autoApply = true)
 public class LocalDateTimeAttributeConverter implements AttributeConverter<LocalDateTime, String> {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
 
     @Override
     public String convertToDatabaseColumn(LocalDateTime localDateTime) {
