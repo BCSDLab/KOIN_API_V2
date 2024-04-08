@@ -23,6 +23,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
+import in.koreatech.koin.domain.user.model.StudentEventListener;
 import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
 
@@ -51,6 +52,9 @@ public abstract class AcceptanceTest {
 
     @MockBean
     protected OwnerEventListener ownerEventListener;
+
+    @MockBean
+    protected StudentEventListener studentEventListener;
 
     @Autowired
     private DBInitializer dataInitializer;
