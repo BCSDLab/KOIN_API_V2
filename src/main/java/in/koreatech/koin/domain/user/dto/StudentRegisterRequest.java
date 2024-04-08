@@ -71,7 +71,7 @@ public record StudentRegisterRequest(
             .isDeleted(false)
             .userType(UserType.STUDENT)
             .authToken(UUID.randomUUID().toString())
-            .authExpiredAt(LocalDateTime.now(clock).plusHours(1))
+            .authExpiredAt(LocalDateTime.now(clock).plusHours(10))
             .build();
 
         return Student.builder()
