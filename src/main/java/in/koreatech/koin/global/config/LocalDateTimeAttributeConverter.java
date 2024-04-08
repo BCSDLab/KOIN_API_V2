@@ -9,7 +9,7 @@ import jakarta.persistence.Converter;
 @Converter(autoApply = true)
 public class LocalDateTimeAttributeConverter implements AttributeConverter<LocalDateTime, String> {
 
-    private final DateTimeFormatter formatterWithMillis = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
+    private final DateTimeFormatter formatterWithThreeMillis = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
     private final DateTimeFormatter formatterWithTwoMillis = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SS");
 
     @Override
@@ -17,7 +17,7 @@ public class LocalDateTimeAttributeConverter implements AttributeConverter<Local
         if (localDateTime == null) {
             return null;
         }
-        return localDateTime.format(formatterWithMillis);
+        return localDateTime.format(formatterWithThreeMillis);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class LocalDateTimeAttributeConverter implements AttributeConverter<Local
         }
 
         if (dbData.matches(".*\\.\\d{3}$")) {
-            return LocalDateTime.parse(dbData, formatterWithMillis);
+            return LocalDateTime.parse(dbData, formatterWithThreeMillis);
         } else {
             return LocalDateTime.parse(dbData, formatterWithTwoMillis);
         }
