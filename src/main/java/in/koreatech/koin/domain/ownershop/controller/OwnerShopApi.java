@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
+import in.koreatech.koin.domain.ownershop.dto.ShopEventRequest;
 import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
@@ -247,5 +248,22 @@ public interface OwnerShopApi {
         @Auth(permit = {OWNER}) Long ownerId,
         @PathVariable("id") Long shopId,
         @RequestBody @Valid ModifyShopRequest modifyShopRequest
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "422", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 이벤트 추가")
+    @PostMapping("/owner/shops/{id}/event")
+    ResponseEntity<Void> createShopEvent(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("id") Long shopId,
+        @RequestBody @Valid ShopEventRequest shopEventRequest
     );
 }
