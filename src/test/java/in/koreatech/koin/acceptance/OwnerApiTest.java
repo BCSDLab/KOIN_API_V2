@@ -257,7 +257,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "name": "최준호",
                        "password": "a0240120305812krlakdsflsa;1235",
                        "phone_number": "010-0000-0000",
-                       "shop_id": 0,
+                       "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }
                     """)
@@ -309,7 +309,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "name": "최준호",
                        "password": "a0240120305812krlakdsflsa;1235",
                        "phone_number": "010-0000-0000",
-                       "shop_id": 0,
+                       "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }
                     """)
@@ -338,7 +338,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "name": "최준호",
                        "password": "a0240120305812krlakdsflsa;1235",
                        "phone_number": "010-0000-0000",
-                       "shop_id": 0,
+                       "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }
                     """)
@@ -367,7 +367,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "name": "",
                        "password": "a0240120305812krlakdsflsa;1235",
                        "phone_number": "010-0000-0000",
-                       "shop_id": 0,
+                       "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }
                     """)
@@ -403,7 +403,7 @@ class OwnerApiTest extends AcceptanceTest {
 
             RestAssured
                 .given()
-                .body("""
+                .body(String.format("""
                     {
                        "attachment_urls": [
                          {
@@ -415,10 +415,10 @@ class OwnerApiTest extends AcceptanceTest {
                        "name": "주노",
                        "password": "a0240120305812krlakdsflsa;1235",
                        "phone_number": "010-0000-0000",
-                       "shop_id": 1,
+                       "shop_id": %d,
                        "shop_name": "기분좋은 뷔짱"
                      }
-                    """)
+                    """, shopRequest.getId()))
                 .contentType(ContentType.JSON)
                 .when()
                 .post("/owners/register")
@@ -452,7 +452,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "name": "주노",
                        "password": "a0240120305812krlakdsflsa;1235",
                        "phone_number": "010-0000-0000",
-                       "shop_id": 0,
+                       "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }
                     """)

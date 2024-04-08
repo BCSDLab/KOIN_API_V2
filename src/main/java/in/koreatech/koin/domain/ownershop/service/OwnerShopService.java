@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
+import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse.InnerShopResponse;
 import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
@@ -68,7 +69,12 @@ public class OwnerShopService {
 
     public OwnerShopsResponse getOwnerShops(Long ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
-        return OwnerShopsResponse.from(shops);
+        var innerShopResponses = shops.stream().map(shop -> {
+                Boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
+                return InnerShopResponse.from(shop, eventDuration);
+            })
+            .toList();
+        return OwnerShopsResponse.from(innerShopResponses);
     }
 
     @Transactional
@@ -76,7 +82,14 @@ public class OwnerShopService {
         Owner owner = ownerRepository.getById(ownerId);
         Shop newShop = ownerShopsRequest.toEntity(owner);
         Shop savedShop = shopRepository.save(newShop);
-
+        List<String> categoryNames = List.of("추천 메뉴", "메인 메뉴", "세트 메뉴", "사이드 메뉴");
+        for (String categoryName : categoryNames) {
+            MenuCategory menuCategory = MenuCategory.builder()
+                .shop(savedShop)
+                .name(categoryName)
+                .build();
+            menuCategoryRepository.save(menuCategory);
+        }
         for (String imageUrl : ownerShopsRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(savedShop)
