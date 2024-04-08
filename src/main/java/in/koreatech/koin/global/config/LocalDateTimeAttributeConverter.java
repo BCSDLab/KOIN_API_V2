@@ -10,7 +10,7 @@ import jakarta.persistence.Converter;
 public class LocalDateTimeAttributeConverter implements AttributeConverter<LocalDateTime, String> {
 
     private final DateTimeFormatter formatterWithThreeMillis = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
-    private final DateTimeFormatter formatterWithTwoMillis = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SS");
+    private final DateTimeFormatter formatterWithTwoMillis = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SS]");
 
     @Override
     public String convertToDatabaseColumn(LocalDateTime localDateTime) {
