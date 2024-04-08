@@ -76,7 +76,14 @@ public class OwnerShopService {
         Owner owner = ownerRepository.getById(ownerId);
         Shop newShop = ownerShopsRequest.toEntity(owner);
         Shop savedShop = shopRepository.save(newShop);
-
+        List<String> categoryNames = List.of("추천 메뉴", "메인 메뉴", "세트 메뉴", "사이드 메뉴");
+        for (String categoryName : categoryNames) {
+            MenuCategory menuCategory = MenuCategory.builder()
+                .shop(savedShop)
+                .name(categoryName)
+                .build();
+            menuCategoryRepository.save(menuCategory);
+        }
         for (String imageUrl : ownerShopsRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(savedShop)
