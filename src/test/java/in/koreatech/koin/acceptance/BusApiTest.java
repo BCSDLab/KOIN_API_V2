@@ -307,4 +307,52 @@ class BusApiTest extends AcceptanceTest {
             }
         );
     }
+
+    @Test
+    @DisplayName("셔틀버스의 코스 정보들을 조회한다.")
+    void getBusCourses(){
+        var busCourse = BusCourse.builder()
+            .busType("shuttle")
+            .direction("to")
+            .region("청주")
+            .routes(
+                List.of(
+                    Route.builder()
+                        .routeName("주중")
+                        .runningDays(List.of("MON", "TUE", "WED", "THU", "FRI"))
+                        .arrivalInfos(
+                            List.of(
+                                Route.ArrivalNode.builder()
+                                    .nodeName("한기대")
+                                    .arrivalTime("07:00")
+                                    .build(),
+                                Route.ArrivalNode.builder()
+                                    .nodeName("청주역")
+                                    .arrivalTime("07:30")
+                                    .build()
+                            )
+                        )
+                        .build()
+                )
+            ).build();
+
+        busRepository.save(busCourse);
+
+        var response = RestAssured
+            .given()
+            .when()
+            .get("/bus/courses")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(1);
+                softly.assertThat(response.body().jsonPath().getString("[0].busType")).isEqualTo("shuttle");
+                softly.assertThat(response.body().jsonPath().getString("[0].direction")).isEqualTo("to");
+                softly.assertThat(response.body().jsonPath().getString("[0].region")).isEqualTo("청주");
+            }
+        );
+    }
 }
