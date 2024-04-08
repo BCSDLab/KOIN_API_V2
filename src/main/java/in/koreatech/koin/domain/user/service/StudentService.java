@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.user.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class StudentService {
 
+    private final PasswordEncoder passwordEncoder;
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
     private final MailService mailService;
@@ -59,6 +61,7 @@ public class StudentService {
         }
     }
 
+    @Transactional
     public void findPassword(FindPasswordRequest request, String serverURL) {
         User user = userRepository.getByEmail(request.email());
         user.generateResetTokenForFindPassword();
@@ -68,6 +71,14 @@ public class StudentService {
 
     public String checkResetToken(String resetToken) {
         User user = userRepository.getByResetToken(resetToken);
-        return "change_password_config";
+        return "change_password_config.html";
+    }
+
+    @Transactional
+    public boolean changePassword(String password, String resetToken) {
+        User authedUser = userRepository.getByResetToken(resetToken);
+        authedUser.updatePassword(passwordEncoder, password);
+        userRepository.save(authedUser);
+        return true;
     }
 }

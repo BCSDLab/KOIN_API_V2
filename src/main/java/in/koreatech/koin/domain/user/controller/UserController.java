@@ -3,9 +3,12 @@ package in.koreatech.koin.domain.user.controller;
 import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -13,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
@@ -32,7 +34,7 @@ import in.koreatech.koin.global.host.ServerURL;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 public class UserController implements UserApi {
 
@@ -121,5 +123,18 @@ public class UserController implements UserApi {
         @RequestParam("reset_token") String resetToken
     ) {
         return studentService.checkResetToken(resetToken);
+    }
+
+    @PostMapping("/user/change/password/submit")
+    public Map<String, Object> changePassword(
+        @RequestBody Map<String, Object> params,
+        @RequestParam("reset_token") String resetToken
+    ) {
+        String password = params.get("password").toString();
+        boolean success = studentService.changePassword(password, resetToken);
+
+        return new HashMap<String, Object>() {{
+            put("success", success);
+        }};
     }
 }
