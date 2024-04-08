@@ -11,7 +11,7 @@ public class ExpressBusRemainTime extends BusRemainTime {
     private final String busType;
 
     public ExpressBusRemainTime(LocalTime busArrivalTime, String busType) {
-        super(busArrivalTime);
+        super(busArrivalTime, null);
         this.busType = busType;
     }
 }
