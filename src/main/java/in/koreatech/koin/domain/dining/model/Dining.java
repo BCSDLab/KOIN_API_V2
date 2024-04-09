@@ -54,15 +54,15 @@ public class Dining extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name = "sold_out")
+    @Column(name = "sold_out", columnDefinition = "TIMESTAMP")
     private LocalDateTime soldOut;
 
-    @Column(name = "is_changed")
+    @Column(name = "is_changed", columnDefinition = "TIMESTAMP")
     private LocalDateTime isChanged;
 
     @Builder
     private Dining(Long id, String date, String type, String place, Integer priceCard, Integer priceCash,
-        Integer kcal, String menu, String imageUrl, LocalDateTime soldOut, LocalDateTime isChanged) {
+                   Integer kcal, String menu, String imageUrl, LocalDateTime soldOut, LocalDateTime isChanged) {
         this.id = id;
         this.date = date;
         this.type = type;

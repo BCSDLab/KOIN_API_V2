@@ -41,7 +41,7 @@ public class ArticleViewLog {
     private User user;
 
     @NotNull
-    @Column(name = "expired_at", nullable = false)
+    @Column(name = "expired_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime expiredAt = LocalDateTime.now().plusHours(EXPIRED_HOUR);
 
     @Size(max = 45)

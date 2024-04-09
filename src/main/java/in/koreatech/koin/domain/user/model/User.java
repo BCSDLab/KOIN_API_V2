@@ -75,7 +75,7 @@ public class User extends BaseEntity {
     @Column(name = "is_authed", nullable = false)
     private boolean isAuthed = false;
 
-    @Column(name = "last_logged_at")
+    @Column(name = "last_logged_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastLoggedAt;
 
     @Size(max = 255)
@@ -91,7 +91,7 @@ public class User extends BaseEntity {
     private String authToken;
 
     @Convert(converter = LocalDateTimeAttributeConverter.class)
-    @Column(name = "auth_expired_at")
+    @Column(name = "auth_expired_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime authExpiredAt;
 
     @Size(max = 255)
@@ -99,7 +99,7 @@ public class User extends BaseEntity {
     private String resetToken;
 
     @Convert(converter = LocalDateTimeAttributeConverter.class)
-    @Column(name = "reset_expired_at")
+    @Column(name = "reset_expired_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime resetExpiredAt;
 
     @Column(name = "device_token", nullable = true)
