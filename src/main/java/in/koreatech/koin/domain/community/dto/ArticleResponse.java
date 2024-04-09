@@ -138,7 +138,7 @@ public record ArticleResponse(
     @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerCommentResponse(
         @Schema(description = "댓글 고유 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(description = "게시글 고유 ID", example = "1")
         Integer articleId,
