@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
+
+import javax.swing.text.html.Option;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +31,7 @@ import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
+import in.koreatech.koin.domain.ownershop.exception.EventArticleNotFoundException;
 import in.koreatech.koin.domain.shop.model.EventArticle;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
@@ -1261,5 +1265,85 @@ class OwnerShopApiTest extends AcceptanceTest {
                 softly.assertThat(eventArticle.getEndDate().toString()).isEqualTo("2024-10-26");
             }
         );
+    }
+
+    @Test
+    @DisplayName("사장님이 이벤트를 수정한다.")
+    void ownerShopModifyEvent() {
+        EventArticle eventArticle = EventArticle.builder()
+            .shop(shop)
+            .title("테스트 제목1")
+            .content("테스트 내용1")
+            .ip("")
+            .startDate(LocalDate.of(2024,10,24))
+            .endDate(LocalDate.of(2024,10,26))
+            .thumbnail("https://test.com/test1.jpg")
+            .hit(0)
+            .build();
+        EventArticle savedEvent = eventArticleRepository.save(eventArticle);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "title": "감성떡볶이 이벤트합니다!",
+                  "content": "테스트 이벤트입니다.",
+                  "thumbnail_image": "https://test.com/test1.jpg",
+                  "start_date": "2024-10-24",
+                  "end_date": "2024-10-26"
+                }
+                """)
+            .when()
+            .put("/owner/shops/{shopId}/event/{eventId}", shop.getId(), savedEvent.getId())
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        EventArticle modifiedEventArticle = eventArticleRepository.getById(savedEvent.getId());
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(modifiedEventArticle.getShop().getId()).isEqualTo(1L);
+                softly.assertThat(modifiedEventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
+                softly.assertThat(modifiedEventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
+                softly.assertThat(modifiedEventArticle.getThumbnail()).isEqualTo("https://test.com/test1.jpg");
+                softly.assertThat(modifiedEventArticle.getStartDate().toString()).isEqualTo("2024-10-24");
+                softly.assertThat(modifiedEventArticle.getEndDate().toString()).isEqualTo("2024-10-26");
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("사장님이 이벤트를 삭제한다.")
+    void ownerShopDeleteEvent() {
+        EventArticle eventArticle = EventArticle.builder()
+            .shop(shop)
+            .title("테스트 제목1")
+            .content("테스트 내용1")
+            .ip("")
+            .startDate(LocalDate.of(2024,10,24))
+            .endDate(LocalDate.of(2024,10,26))
+            .thumbnail("https://test.com/test1.jpg")
+            .hit(0)
+            .build();
+        EventArticle savedEvent = eventArticleRepository.save(eventArticle);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .when()
+            .delete("/owner/shops/{shopId}/event/{eventId}", shop.getId(), savedEvent.getId())
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract();
+
+        Optional<EventArticle> modifiedEventArticle = eventArticleRepository.findById(savedEvent.getId());
+
+        assertSoftly(softly -> softly.assertThat(modifiedEventArticle.isPresent()).isFalse());
     }
 }
