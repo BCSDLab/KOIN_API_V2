@@ -88,8 +88,6 @@ public class UserService {
     @Transactional
     public void withdraw(Long userId) {
         User user = userRepository.getById(userId);
-        userRepository.delete(user);
-
         switch (user.getUserType()) {
             case STUDENT:
                 studentRepository.deleteByUserId(userId);
@@ -97,7 +95,7 @@ public class UserService {
                 ownerRepository.deleteByUserId(userId);
                 ownerAttachmentRepository.deleteByOwnerId(userId);
         }
-
+        userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail()));
     }
 
