@@ -52,7 +52,7 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
                     throw new AuthorizationException("관리자 인증 대기중입니다. 지속적으로 해당 문제가 발생한다면 관리자에게 문의주시기바랍니다.");
                 }
                 if (user.getUserType() == STUDENT) {
-                    throw new AuthorizationException("미인증 상태입니다. 가입한 아우누리 메일에서 인증메일을 확인해주세요");
+                    throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
                 }
                 throw AuthorizationException.withDetail("userId: " + user.getId());
             }
