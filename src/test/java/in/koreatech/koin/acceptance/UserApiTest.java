@@ -501,16 +501,22 @@ class UserApiTest extends AcceptanceTest {
         userRepository.save(user);
         String token = jwtProvider.createToken(user);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .delete("/user")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
 
-        assertThat(userRepository.findById(user.getId())).isNotPresent();
+                RestAssured
+                    .given()
+                    .header("Authorization", "Bearer " + token)
+                    .when()
+                    .delete("/user")
+                    .then()
+                    .statusCode(HttpStatus.NO_CONTENT.value())
+                    .extract();
+
+                assertThat(userRepository.findById(user.getId())).isNotPresent();
+            }
+        });
     }
 
     @Test
