@@ -62,13 +62,13 @@ public class Menu extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = {DETACH, MERGE, PERSIST})
+    @OneToMany(mappedBy = "menu", cascade = {DETACH, MERGE, PERSIST})
     private List<MenuCategoryMap> menuCategoryMaps = new ArrayList<>();
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = {DETACH, MERGE, PERSIST})
+    @OneToMany(mappedBy = "menu", cascade = {DETACH, MERGE, PERSIST})
     private List<MenuOption> menuOptions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = {DETACH, MERGE, PERSIST})
+    @OneToMany(mappedBy = "menu", cascade = {DETACH, MERGE, PERSIST})
     private List<MenuImage> menuImages = new ArrayList<>();
 
     @Builder
