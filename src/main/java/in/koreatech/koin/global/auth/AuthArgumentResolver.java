@@ -43,6 +43,9 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
         }
         Long userId = authContext.getUserId();
         User user = userRepository.getById(userId);
+        if (!user.isAuthed()) {
+            throw AuthorizationException.withDetail("userId: " + userId);
+        }
         if (permitStatus.contains(user.getUserType())) {
             return user.getId();
         }
