@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
@@ -80,4 +81,11 @@ public class BusService {
             throw BusIllegalStationException.withDetail("depart: " + depart.name() + ", arrival: " + arrival.name());
         }
     }
+
+    public List<BusCourseResponse> getBusCourses() {
+        return busRepository.findAll().stream()
+            .map(BusCourseResponse::from)
+            .toList();
+    }
+
 }
