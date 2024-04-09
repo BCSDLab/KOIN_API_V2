@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -90,7 +91,7 @@ public class UserService {
 
     public void checkUserNickname(NicknameCheckExistsRequest request) {
         userRepository.findByNickname(request.nickname()).ifPresent(user -> {
-            throw DuplicationEmailException.withDetail("nickname: " + request.nickname());
+            throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
         });
     }
 
