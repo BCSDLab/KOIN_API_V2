@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.shop.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,6 +20,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "shop_menu_category_map")
+@Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
 public class MenuCategoryMap {
 
