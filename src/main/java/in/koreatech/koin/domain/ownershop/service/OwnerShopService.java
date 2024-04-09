@@ -14,6 +14,7 @@ import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
+import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse.InnerShopResponse;
 import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
@@ -71,7 +72,12 @@ public class OwnerShopService {
 
     public OwnerShopsResponse getOwnerShops(Long ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
-        return OwnerShopsResponse.from(shops);
+        var innerShopResponses = shops.stream().map(shop -> {
+                Boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
+                return InnerShopResponse.from(shop, eventDuration);
+            })
+            .toList();
+        return OwnerShopsResponse.from(innerShopResponses);
     }
 
     @Transactional
