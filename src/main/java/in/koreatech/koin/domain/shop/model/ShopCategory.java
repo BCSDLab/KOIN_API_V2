@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.shop.model;
 
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.CascadeType.REMOVE;
+import static jakarta.persistence.GenerationType.IDENTITY;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,6 @@ import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -31,9 +31,8 @@ import lombok.NoArgsConstructor;
 public class ShopCategory extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @GeneratedValue(strategy = IDENTITY)
+    private Integer id;
 
     @Size(max = 255)
     @Column(name = "name", nullable = false)
@@ -51,8 +50,7 @@ public class ShopCategory extends BaseEntity {
     private List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();
 
     @Builder
-    private ShopCategory(Long id, String name, String imageUrl, Boolean isDeleted) {
-        this.id = id;
+    private ShopCategory(String name, String imageUrl, Boolean isDeleted) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.isDeleted = isDeleted;

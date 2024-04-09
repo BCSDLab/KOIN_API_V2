@@ -26,7 +26,7 @@ public record ShopsResponse(
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerShopResponse(
         @Schema(example = "0", description = " 속해있는 상점 카테고리들의 고유 id 리스트")
-        List<Long> categoryIds,
+        List<Integer> categoryIds,
 
         @Schema(example = "true", description = "배달 가능 여부")
         boolean delivery,
