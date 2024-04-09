@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(SnakeCaseStrategy.class)
 public record ArticleResponse(
     @Schema(description = "게시글 고유 ID", example = "1")
-    Long id,
+    Integer id,
 
     @Schema(description = "게시판 고유 ID", example = "1")
     Long boardId,
@@ -141,7 +141,7 @@ public record ArticleResponse(
         Long id,
 
         @Schema(description = "게시글 고유 ID", example = "1")
-        Long articleId,
+        Integer articleId,
 
         @Schema(description = "내용", example = "내용")
         String content,

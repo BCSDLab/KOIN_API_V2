@@ -37,7 +37,7 @@ public record ArticlesResponse(
     private record InnerArticleResponse(
 
         @Schema(description = "게시글 고유 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(description = "게시판 고유 ID", example = "1")
         Long boardId,

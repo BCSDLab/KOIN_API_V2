@@ -43,7 +43,7 @@ public class Article extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
@@ -130,8 +130,8 @@ public class Article extends BaseEntity {
 
     @Builder
     private Article(Board board, String title, String content, User user, String nickname, Long hit,
-        String ip, Boolean isSolved, Boolean isDeleted, Byte commentCount, String meta, Boolean isNotice,
-        Long noticeArticleId) {
+                    String ip, Boolean isSolved, Boolean isDeleted, Byte commentCount, String meta, Boolean isNotice,
+                    Long noticeArticleId) {
         this.board = board;
         this.title = title;
         this.content = content;
