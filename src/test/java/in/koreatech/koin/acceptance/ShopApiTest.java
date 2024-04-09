@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
@@ -285,7 +284,7 @@ class ShopApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.getIsHidden());
 
                 softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
-                softly.assertThat((Integer) response.body().jsonPath().get("single_price")).isNull();
+                softly.assertThat((Integer)response.body().jsonPath().get("single_price")).isNull();
 
                 softly.assertThat(response.body().jsonPath().getList("option_prices")).hasSize(2);
                 softly.assertThat(response.body().jsonPath().getString("option_prices[0].option"))
@@ -1214,24 +1213,24 @@ class ShopApiTest extends AcceptanceTest {
             .extract();
 
         JsonAssertions.assertThat(String.format("""
-            {
-                "events": [
-                    {
-                        "title": "테스트 제목1",
-                        "content": "테스트 내용1",
-                        "thumbnail_image": "https://test.com/test1.jpg",
-                        "start_date": "%s",
-                        "end_date": "%s"
-                    },
-                    {
-                        "title": "테스트 제목3",
-                        "content": "테스트 내용3",
-                        "thumbnail_image": "https://test.com/test1.jpg",
-                        "start_date": "%s",
-                        "end_date": "%s"
-                    }
-                ]
-            }""",
+                {
+                    "events": [
+                        {
+                            "title": "테스트 제목1",
+                            "content": "테스트 내용1",
+                            "thumbnail_image": "https://test.com/test1.jpg",
+                            "start_date": "%s",
+                            "end_date": "%s"
+                        },
+                        {
+                            "title": "테스트 제목3",
+                            "content": "테스트 내용3",
+                            "thumbnail_image": "https://test.com/test1.jpg",
+                            "start_date": "%s",
+                            "end_date": "%s"
+                        }
+                    ]
+                }""",
             now.toString(),
             now.plusDays(10).toString(),
             now.minusDays(10).toString(),
