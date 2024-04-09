@@ -497,11 +497,13 @@ class UserApiTest extends AcceptanceTest {
             .isAuthed(true)
             .isDeleted(false)
             .build();
+
+        userRepository.save(user);
+        String token = jwtProvider.createToken(user);
+
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                userRepository.save(user);
-                String token = jwtProvider.createToken(user);
 
                 RestAssured
                     .given()
