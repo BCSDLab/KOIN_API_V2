@@ -335,7 +335,33 @@ class BusApiTest extends AcceptanceTest {
                 )
             ).build();
 
+        var busCourse2 = BusCourse.builder()
+            .busType("shuttle")
+            .direction("to")
+            .region("천안")
+            .routes(
+                List.of(
+                    Route.builder()
+                        .routeName("주중")
+                        .runningDays(List.of("MON", "TUE", "WED", "THU", "FRI"))
+                        .arrivalInfos(
+                            List.of(
+                                Route.ArrivalNode.builder()
+                                    .nodeName("한기대")
+                                    .arrivalTime("07:00")
+                                    .build(),
+                                Route.ArrivalNode.builder()
+                                    .nodeName("청주역")
+                                    .arrivalTime("07:30")
+                                    .build()
+                            )
+                        )
+                        .build()
+                )
+            ).build();
+
         busRepository.save(busCourse);
+        busRepository.save(busCourse2);
 
         var response = RestAssured
             .given()
@@ -347,10 +373,14 @@ class BusApiTest extends AcceptanceTest {
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(1);
+                softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(2);
                 softly.assertThat(response.body().jsonPath().getString("[0].busType")).isEqualTo("shuttle");
                 softly.assertThat(response.body().jsonPath().getString("[0].direction")).isEqualTo("to");
                 softly.assertThat(response.body().jsonPath().getString("[0].region")).isEqualTo("청주");
+
+                softly.assertThat(response.body().jsonPath().getString("[1].busType")).isEqualTo("shuttle");
+                softly.assertThat(response.body().jsonPath().getString("[1].direction")).isEqualTo("to");
+                softly.assertThat(response.body().jsonPath().getString("[1].region")).isEqualTo("천안");
             }
         );
     }
