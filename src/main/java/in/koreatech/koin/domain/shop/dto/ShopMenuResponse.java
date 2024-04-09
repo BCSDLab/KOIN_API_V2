@@ -62,7 +62,7 @@ public record ShopMenuResponse(
         List<InnerMenuCategoriesResponse> innerMenuCategoriesResponses,
         MenuCategory menuCategory
     ) {
-        for(int i = 0; i < innerMenuCategoriesResponses.size(); ++i) {
+        for (int i = 0; i < innerMenuCategoriesResponses.size(); ++i) {
             if (innerMenuCategoriesResponses.get(i).id.equals(menuCategory.getId())) {
                 return i;
             }
