@@ -22,7 +22,7 @@ public class Activity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -40,7 +40,7 @@ public class Activity extends BaseEntity {
     private Boolean isDeleted;
 
     @Builder
-    private Activity(Long id, String title, String description, String imageUrls, LocalDate date, Boolean isDeleted) {
+    private Activity(Integer id, String title, String description, String imageUrls, LocalDate date, Boolean isDeleted) {
         this.id = id;
         this.title = title;
         this.description = description;
