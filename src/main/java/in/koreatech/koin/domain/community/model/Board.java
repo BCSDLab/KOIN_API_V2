@@ -48,7 +48,7 @@ public class Board extends BaseEntity {
 
     @NotNull
     @Column(name = "article_count", nullable = false)
-    private Long articleCount;
+    private Integer articleCount;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
@@ -70,7 +70,7 @@ public class Board extends BaseEntity {
     }
 
     @Builder
-    private Board(String tag, String name, boolean isAnonymous, Long articleCount, boolean isDeleted,
+    private Board(String tag, String name, boolean isAnonymous, Integer articleCount, boolean isDeleted,
                   boolean isNotice, Long parentId, Long seq) {
         this.tag = tag;
         this.name = name;

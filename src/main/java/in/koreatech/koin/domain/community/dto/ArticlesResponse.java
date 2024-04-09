@@ -127,10 +127,10 @@ public record ArticlesResponse(
         String name,
 
         @Schema(description = "익명 여부", example = "false")
-        Boolean isAnonymous,
+        boolean isAnonymous,
 
         @Schema(description = "게시글 수", example = "1")
-        Long articleCount,
+        Integer articleCount,
 
         @Schema(description = "삭제 여부", example = "false")
         Boolean isDeleted,
