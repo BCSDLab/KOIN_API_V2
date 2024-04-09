@@ -23,16 +23,18 @@ public record HotArticleItemResponse(
     String title,
 
     @Schema(description = "내용 요약", example = "내용 요약")
-    @JsonProperty("contentSummary") String contentSummary,
+    @JsonProperty("contentSummary")
+    String contentSummary,
 
     @Schema(description = "댓글 수", example = "1")
     Byte commentCount,
 
     @Schema(description = "조회수", example = "1")
-    Long hit,
+    Integer hit,
 
     @Schema(description = "생성 일자", example = "2023-01-04 12:00:01")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime createdAt
 ) {
 
     public static HotArticleItemResponse from(Article article) {

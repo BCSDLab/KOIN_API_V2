@@ -40,7 +40,7 @@ public record ArticleResponse(
     @JsonProperty("contentSummary") String contentSummary,
 
     @Schema(description = "조회수", example = "1")
-    Long hit,
+    Integer hit,
 
     @Schema(description = "댓글 수", example = "1")
     Byte commentCount,
@@ -65,8 +65,8 @@ public record ArticleResponse(
             article.getTitle(),
             article.getContent(),
             article.getNickname(),
-            article.getIsSolved(),
-            article.getIsNotice(),
+            article.isSolved(),
+            article.isNotice(),
             article.getContentSummary(),
             article.getHit(),
             article.getCommentCount(),

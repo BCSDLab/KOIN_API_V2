@@ -55,7 +55,10 @@ public record ArticlesResponse(
         String nickname,
 
         @Schema(description = "조회수", example = "1")
-        Long hit, String ip,
+        Integer hit,
+
+        @Schema(description = "IP 주소", example = "123.12.1.3")
+        String ip,
 
         @Schema(description = "해결 여부", example = "false")
         Boolean isSolved,
@@ -98,11 +101,11 @@ public record ArticlesResponse(
                 article.getNickname(),
                 article.getHit(),
                 article.getIp(),
-                article.getIsSolved(),
-                article.getIsDeleted(),
+                article.isSolved(),
+                article.isDeleted(),
                 article.getCommentCount(),
                 article.getMeta(),
-                article.getIsNotice(),
+                article.isNotice(),
                 article.getNoticeArticleId(),
                 article.getSummary(),
                 article.getCreatedAt(),

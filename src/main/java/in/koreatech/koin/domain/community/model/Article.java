@@ -55,7 +55,6 @@ public class Article extends BaseEntity {
     private String title;
 
     @NotNull
-    @Lob
     @Column(name = "content", nullable = false)
     private String content;
 
@@ -70,7 +69,7 @@ public class Article extends BaseEntity {
 
     @NotNull
     @Column(name = "hit", nullable = false)
-    private Long hit;
+    private Integer hit;
 
     @Size(max = 45)
     @NotNull
@@ -79,11 +78,11 @@ public class Article extends BaseEntity {
 
     @NotNull
     @Column(name = "is_solved", nullable = false)
-    private Boolean isSolved = false;
+    private boolean isSolved = false;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @OneToMany(mappedBy = "article", fetch = FetchType.LAZY)
     private List<Comment> comment = new ArrayList<>();
@@ -98,7 +97,7 @@ public class Article extends BaseEntity {
 
     @NotNull
     @Column(name = "is_notice", nullable = false)
-    private Boolean isNotice = false;
+    private boolean isNotice = false;
 
     @Column(name = "notice_article_id")
     private Long noticeArticleId;
@@ -129,9 +128,21 @@ public class Article extends BaseEntity {
     }
 
     @Builder
-    private Article(Board board, String title, String content, User user, String nickname, Long hit,
-                    String ip, Boolean isSolved, Boolean isDeleted, Byte commentCount, String meta, Boolean isNotice,
-                    Long noticeArticleId) {
+    private Article(
+        Board board,
+        String title,
+        String content,
+        User user,
+        String nickname,
+        Integer hit,
+        String ip,
+        boolean isSolved,
+        boolean isDeleted,
+        Byte commentCount,
+        String meta,
+        boolean isNotice,
+        Long noticeArticleId
+    ) {
         this.board = board;
         this.title = title;
         this.content = content;
