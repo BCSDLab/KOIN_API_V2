@@ -38,6 +38,6 @@ public interface LandApi {
     @Operation(summary = "복덕방 단건 조회")
     @GetMapping("/lands/{id}")
     ResponseEntity<LandResponse> getLand(
-        @Parameter(in = PATH) @PathVariable Long id
+        @Parameter(in = PATH) @PathVariable Integer id
     );
 }

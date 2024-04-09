@@ -6,9 +6,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.model.Comment;
 
-public interface CommentRepository extends Repository<Comment, Long> {
+public interface CommentRepository extends Repository<Comment, Integer> {
 
-    List<Comment> findAllByArticleId(Long articleId);
+    List<Comment> findAllByArticleId(Integer articleId);
 
     Comment save(Comment comment);
 }

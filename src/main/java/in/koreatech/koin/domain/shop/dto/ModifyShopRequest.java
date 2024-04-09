@@ -18,7 +18,7 @@ public record ModifyShopRequest(
     String address,
 
     @Schema(example = "[1, 2]", description = "상점 카테고리 고유 id 리스트")
-    List<Long> categoryIds,
+    List<Integer> categoryIds,
 
     @Schema(example = "true", description = "배달 가능 여부")
     Boolean delivery,

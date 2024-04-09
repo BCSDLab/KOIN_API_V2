@@ -7,7 +7,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.Student;
 
-public interface StudentRepository extends Repository<Student, Long> {
+public interface StudentRepository extends Repository<Student, Integer> {
 
     Student save(Student student);
 

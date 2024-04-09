@@ -4,7 +4,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 
-public interface OwnerShopRedisRepository extends Repository<OwnerShop, Long> {
+public interface OwnerShopRedisRepository extends Repository<OwnerShop, Integer> {
 
     OwnerShop save(OwnerShop ownerShop);
 

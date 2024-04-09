@@ -4,7 +4,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.shop.model.MenuImage;
 
-public interface MenuImageRepository extends Repository<MenuImage, Long> {
+public interface MenuImageRepository extends Repository<MenuImage, Integer> {
 
     MenuImage save(MenuImage menuImage);
 }

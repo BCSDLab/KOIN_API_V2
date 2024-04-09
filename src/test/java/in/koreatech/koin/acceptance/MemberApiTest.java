@@ -1,7 +1,5 @@
 package in.koreatech.koin.acceptance;
 
-import static java.time.format.DateTimeFormatter.ofPattern;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,7 +37,7 @@ class MemberApiTest extends AcceptanceTest {
             .email("juno@gmail.com")
             .build();
 
-        memberRepository.save(member);
+        var saved = memberRepository.save(member);
 
         var response = RestAssured
             .given()
@@ -63,9 +61,9 @@ class MemberApiTest extends AcceptanceTest {
                         "created_at": "%s",
                         "updated_at": "%s"
                     }""",
-                member.getId(),
-                member.getCreatedAt().format(ofPattern("yyyy-MM-dd HH:mm:ss")),
-                member.getUpdatedAt().format(ofPattern("yyyy-MM-dd HH:mm:ss"))
+                saved.getId(),
+                response.jsonPath().getString("created_at"),
+                response.jsonPath().getString("updated_at")
             ));
     }
 
@@ -95,8 +93,8 @@ class MemberApiTest extends AcceptanceTest {
             .email("juno@gmail.com")
             .build();
 
-        memberRepository.save(member);
-        memberRepository.save(member2);
+        var saved = memberRepository.save(member);
+        var saved2 = memberRepository.save(member2);
 
         var response = RestAssured
             .given()
@@ -134,10 +132,10 @@ class MemberApiTest extends AcceptanceTest {
                             "updated_at": "%s"
                         }
                     ]""",
-                member.getCreatedAt().format(ofPattern("yyyy-MM-dd HH:mm:ss")),
-                member.getUpdatedAt().format(ofPattern("yyyy-MM-dd HH:mm:ss")),
-                member2.getUpdatedAt().format(ofPattern("yyyy-MM-dd HH:mm:ss")),
-                member2.getUpdatedAt().format(ofPattern("yyyy-MM-dd HH:mm:ss"))
+                response.jsonPath().getString("[0].created_at"),
+                response.jsonPath().getString("[0].updated_at"),
+                response.jsonPath().getString("[1].created_at"),
+                response.jsonPath().getString("[1].updated_at")
             );
     }
 }

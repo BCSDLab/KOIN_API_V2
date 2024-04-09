@@ -35,6 +35,6 @@ public interface MemberApi {
     @Operation(summary = "특정 회원 조회")
     @GetMapping("/members/{id}")
     ResponseEntity<MemberResponse> getMember(
-        @PathVariable Long id
+        @PathVariable Integer id
     );
 }

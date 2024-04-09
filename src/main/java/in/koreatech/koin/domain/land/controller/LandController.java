@@ -24,7 +24,7 @@ public class LandController implements LandApi {
 
     @GetMapping("/lands/{id}")
     public ResponseEntity<LandResponse> getLand(
-        @PathVariable Long id
+        @PathVariable Integer id
     ) {
         LandResponse response = landService.getLand(id);
         return ResponseEntity.ok(response);

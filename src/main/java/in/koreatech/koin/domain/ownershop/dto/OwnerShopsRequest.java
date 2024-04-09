@@ -23,7 +23,7 @@ public record OwnerShopsRequest(
 
     @Schema(description = "상점 카테고리 고유 id 리스트", example = "[1]")
     @Size(min = 1, message = "최소 한 개의 카테고리가 필요합니다.")
-    List<Long> categoryIds,
+    List<Integer> categoryIds,
 
     @Schema(description = "배달 가능 여부", example = "false")
     @NotNull(message = "배달 가능 여부를 입력해주세요.")

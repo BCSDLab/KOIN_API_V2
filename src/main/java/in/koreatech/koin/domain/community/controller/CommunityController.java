@@ -25,7 +25,7 @@ public class CommunityController implements CommunityApi {
     @GetMapping("/articles/{id}")
     public ResponseEntity<ArticleResponse> getArticle(
         @UserId Integer userId,
-        @PathVariable("id") Long articleId,
+        @PathVariable("id") Integer articleId,
         @IpAddress String ipAddress
     ) {
         ArticleResponse foundArticle = communityService.getArticle(userId, articleId, ipAddress);
@@ -34,7 +34,7 @@ public class CommunityController implements CommunityApi {
 
     @GetMapping("/articles")
     public ResponseEntity<ArticlesResponse> getArticles(
-        @RequestParam Long boardId,
+        @RequestParam Integer boardId,
         @RequestParam(required = false) Long page,
         @RequestParam(required = false) Long limit
     ) {

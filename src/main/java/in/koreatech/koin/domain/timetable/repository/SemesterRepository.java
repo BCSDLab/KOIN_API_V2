@@ -8,7 +8,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Semester;
 
-public interface SemesterRepository extends Repository<Semester, Long> {
+public interface SemesterRepository extends Repository<Semester, Integer> {
 
     List<Semester> findAllByOrderBySemesterDesc();
 

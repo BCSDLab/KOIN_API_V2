@@ -35,7 +35,7 @@ public interface CommunityApi {
     @GetMapping("/articles/{id}")
     ResponseEntity<ArticleResponse> getArticle(
         @UserId Integer userId,
-        @Parameter(in = PATH) @PathVariable("id") Long articleId,
+        @Parameter(in = PATH) @PathVariable("id") Integer articleId,
         @IpAddress String ipAddress
     );
 
@@ -48,7 +48,7 @@ public interface CommunityApi {
     @Operation(summary = "게시글 목록 조회")
     @GetMapping("/articles")
     ResponseEntity<ArticlesResponse> getArticles(
-        @RequestParam Long boardId,
+        @RequestParam Integer boardId,
         @RequestParam(required = false) Long page,
         @RequestParam(required = false) Long limit
     );
