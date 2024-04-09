@@ -15,9 +15,11 @@ import java.util.Optional;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
@@ -44,6 +46,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BusApiTest extends AcceptanceTest {
 
     @Autowired
@@ -55,36 +58,18 @@ class BusApiTest extends AcceptanceTest {
     @Autowired
     private CityBusCacheRepository cityBusCacheRepository;
 
+    @Autowired
+    private ExpressBusCacheRepository expressBusCacheRepository;
+
     private final Instant UPDATED_AT = ZonedDateTime.parse(
             "2024-02-21 18:00:00 KST",
             ofPattern("yyyy-MM-dd " + "HH:mm:ss z")
         )
         .toInstant();
 
-    @BeforeEach
-    void start() {
-        when(clock.instant()).thenReturn(UPDATED_AT);
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-
-        handler.setDateTimeProvider(dateTimeProvider);
-    }
-
-    @AfterEach
-    void end() {
-        handler.setDateTimeProvider(null);
-    }
-
-    @Autowired
-    private ExpressBusCacheRepository expressBusCacheRepository;
-
-    @Test
-    @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
-    void getNextShuttleBusRemainTime() {
+    @BeforeAll
+    void initBusCourse() {
         final String arrivalTime = "18:10";
-
-        BusType busType = BusType.from("shuttle");
-        BusStation depart = BusStation.from("koreatech");
-        BusStation arrival = BusStation.from("terminal");
 
         BusCourse busCourse = BusCourse.builder()
             .busType("shuttle")
@@ -120,6 +105,30 @@ class BusApiTest extends AcceptanceTest {
             )
             .build();
         busRepository.save(busCourse);
+    }
+
+    @BeforeEach
+    void start() {
+        when(clock.instant()).thenReturn(UPDATED_AT);
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+
+        handler.setDateTimeProvider(dateTimeProvider);
+    }
+
+    @AfterEach
+    void end() {
+        handler.setDateTimeProvider(null);
+    }
+
+    @Test
+    @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
+    void getNextShuttleBusRemainTime() {
+        final String arrivalTime = "18:10";
+
+        BusType busType = BusType.from("shuttle");
+        BusStation depart = BusStation.from("koreatech");
+        BusStation arrival = BusStation.from("terminal");
+
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
@@ -355,41 +364,6 @@ class BusApiTest extends AcceptanceTest {
 
         BusStation depart = BusStation.from("koreatech");
         BusStation arrival = BusStation.from("terminal");
-
-        BusCourse busCourse = BusCourse.builder()
-            .busType("shuttle")
-            .region("천안")
-            .direction("from")
-            .routes(
-                List.of(
-                    Route.builder()
-                        .routeName("주중")
-                        .runningDays(List.of("MON", "TUE", "WED", "THU", "FRI"))
-                        .arrivalInfos(
-                            List.of(
-                                Route.ArrivalNode.builder()
-                                    .nodeName("한기대")
-                                    .arrivalTime(arrivalTime)
-                                    .build(),
-                                Route.ArrivalNode.builder()
-                                    .nodeName("신계초,운전리,연춘리")
-                                    .arrivalTime("정차")
-                                    .build(),
-                                Route.ArrivalNode.builder()
-                                    .nodeName("천안역(학화호두과자)")
-                                    .arrivalTime("18:50")
-                                    .build(),
-                                Route.ArrivalNode.builder()
-                                    .nodeName("터미널(신세계 앞 횡단보도)")
-                                    .arrivalTime("18:55")
-                                    .build()
-                            )
-                        )
-                        .build()
-                )
-            )
-            .build();
-        busRepository.save(busCourse);
 
         ExpressBusCache expressBusCache = ExpressBusCache.of(
             new ExpressBusRoute(depart.name().toLowerCase(), arrival.name().toLowerCase()),
