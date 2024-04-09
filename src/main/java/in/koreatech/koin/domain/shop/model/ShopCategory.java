@@ -44,7 +44,7 @@ public class ShopCategory extends BaseEntity {
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @OneToMany(mappedBy = "shopCategory", orphanRemoval = true, cascade = {PERSIST, REMOVE})
     private List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();

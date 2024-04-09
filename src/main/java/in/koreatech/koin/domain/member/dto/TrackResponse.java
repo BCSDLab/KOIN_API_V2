@@ -35,7 +35,7 @@ public record TrackResponse(
             track.getId(),
             track.getName(),
             track.getHeadcount(),
-            track.getIsDeleted(),
+            track.isDeleted(),
             track.getCreatedAt(),
             track.getUpdatedAt()
         );

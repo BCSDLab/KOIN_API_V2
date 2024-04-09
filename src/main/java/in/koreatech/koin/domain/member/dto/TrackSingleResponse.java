@@ -65,7 +65,7 @@ public record TrackSingleResponse(
                 techStack.getDescription(),
                 techStack.getImageUrl(),
                 techStack.getTrackId(),
-                techStack.getIsDeleted(),
+                techStack.isDeleted(),
                 techStack.getCreatedAt(),
                 techStack.getUpdatedAt()
             );

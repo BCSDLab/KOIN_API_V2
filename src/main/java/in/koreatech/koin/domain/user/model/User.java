@@ -84,7 +84,7 @@ public class User extends BaseEntity {
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @Size(max = 255)
     @Column(name = "auth_token")

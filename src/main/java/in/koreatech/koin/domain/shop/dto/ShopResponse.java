@@ -67,7 +67,7 @@ public record ShopResponse(
     public static ShopResponse from(Shop shop, Boolean isEvent) {
         return new ShopResponse(
             shop.getAddress(),
-            shop.getDelivery(),
+            shop.isDelivery(),
             shop.getDeliveryPrice(),
             shop.getDescription(),
             shop.getId(),
@@ -89,8 +89,8 @@ public record ShopResponse(
                     shopOpen.getCloseTime()
                 )
             ).toList(),
-            shop.getPayBank(),
-            shop.getPayCard(),
+            shop.isPayBank(),
+            shop.isPayCard(),
             shop.getPhone(),
             shop.getShopCategories().stream().map(shopCategoryMap -> {
                 ShopCategory shopCategory = shopCategoryMap.getShopCategory();

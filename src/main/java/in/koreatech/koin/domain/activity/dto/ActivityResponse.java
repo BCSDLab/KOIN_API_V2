@@ -47,7 +47,7 @@ public record ActivityResponse(
     public static ActivityResponse of(Activity activity, List<String> imageUrls) {
         return new ActivityResponse(
             activity.getDate(),
-            activity.getIsDeleted(),
+            activity.isDeleted(),
             activity.getUpdatedAt(),
             activity.getCreatedAt(),
             activity.getDescription(),

@@ -98,7 +98,7 @@ public record ShopMenuResponse(
                 return new InnerMenuResponse(
                     menu.getId(),
                     menu.getName(),
-                    menu.getIsHidden(),
+                    menu.isHidden(),
                     isSingle,
                     isSingle ? menu.getMenuOptions().get(0).getPrice() : null,
                     isSingle ? null : menu.getMenuOptions().stream().map(InnerOptionPrice::from).toList(),

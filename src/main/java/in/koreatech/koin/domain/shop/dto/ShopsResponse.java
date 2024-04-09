@@ -58,12 +58,12 @@ public record ShopsResponse(
                 shop.getShopCategories().stream().map(shopCategoryMap ->
                     shopCategoryMap.getShopCategory().getId()
                 ).toList(),
-                shop.getDelivery(),
+                shop.isDelivery(),
                 shop.getId(),
                 shop.getName(),
                 shop.getShopOpens().stream().map(InnerShopOpen::from).toList(),
-                shop.getPayBank(),
-                shop.getPayCard(),
+                shop.isPayBank(),
+                shop.isPayCard(),
                 shop.getPhone(),
                 isEvent
             );

@@ -98,11 +98,11 @@ public class EventArticle extends BaseEntity {
      */
     @NotNull
     @Column(name = "comment_count", nullable = false)
-    private Boolean commentCount = false;
+    private boolean commentCount = false;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @Builder
     private EventArticle(

@@ -44,10 +44,10 @@ public class TechStack extends BaseEntity {
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @Builder
-    private TechStack(String imageUrl, String name, String description, Long trackId, Boolean isDeleted) {
+    private TechStack(String imageUrl, String name, String description, Long trackId, boolean isDeleted) {
         this.imageUrl = imageUrl;
         this.name = name;
         this.description = description;

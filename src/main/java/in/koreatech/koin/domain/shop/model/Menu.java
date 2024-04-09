@@ -55,11 +55,11 @@ public class Menu extends BaseEntity {
 
     @NotNull
     @Column(name = "is_hidden", nullable = false)
-    private Boolean isHidden = false;
+    private boolean isHidden = false;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<MenuCategoryMap> menuCategoryMaps = new ArrayList<>();

@@ -59,10 +59,10 @@ public class ShopOpen extends BaseEntity {
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @Builder
-    private ShopOpen(Shop shop, String dayOfWeek, Boolean closed, LocalTime openTime, LocalTime closeTime) {
+    private ShopOpen(Shop shop, String dayOfWeek, boolean closed, LocalTime openTime, LocalTime closeTime) {
         this.shop = shop;
         this.dayOfWeek = dayOfWeek;
         this.closed = closed;

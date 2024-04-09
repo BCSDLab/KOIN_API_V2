@@ -76,7 +76,7 @@ public class Shop extends BaseEntity {
 
     @NotNull
     @Column(name = "delivery", nullable = false)
-    private Boolean delivery = false;
+    private boolean delivery = false;
 
     @NotNull
     @Column(name = "delivery_price", nullable = false)
@@ -84,19 +84,19 @@ public class Shop extends BaseEntity {
 
     @NotNull
     @Column(name = "pay_card", nullable = false)
-    private Boolean payCard = false;
+    private boolean payCard = false;
 
     @NotNull
     @Column(name = "pay_bank", nullable = false)
-    private Boolean payBank = false;
+    private boolean payBank = false;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @NotNull
     @Column(name = "is_event", nullable = false)
-    private Boolean isEvent = false;
+    private boolean isEvent = false;
 
     @Lob
     @Column(name = "remarks")
@@ -129,10 +129,10 @@ public class Shop extends BaseEntity {
         String description,
         Boolean delivery,
         Long deliveryPrice,
-        Boolean payCard,
-        Boolean payBank,
-        Boolean isDeleted,
-        Boolean isEvent,
+        boolean payCard,
+        boolean payBank,
+        boolean isDeleted,
+        boolean isEvent,
         String remarks,
         Long hit,
         List<ShopCategoryMap> shopCategories,

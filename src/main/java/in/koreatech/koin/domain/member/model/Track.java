@@ -36,7 +36,7 @@ public class Track extends BaseEntity {
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @Builder
     private Track(String name) {

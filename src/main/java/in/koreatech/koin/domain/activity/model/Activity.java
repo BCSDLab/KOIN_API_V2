@@ -39,11 +39,11 @@ public class Activity extends BaseEntity {
     private LocalDate date;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private boolean isDeleted = false;
 
     @Builder
     private Activity(Integer id, String title, String description, String imageUrls, LocalDate date,
-                     Boolean isDeleted) {
+                     boolean isDeleted) {
         this.id = id;
         this.title = title;
         this.description = description;

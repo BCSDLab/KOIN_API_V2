@@ -49,7 +49,7 @@ public class OwnerAttachment extends BaseEntity {
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @Transient
     private String name;
