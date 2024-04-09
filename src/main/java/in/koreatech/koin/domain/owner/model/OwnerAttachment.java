@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.owner.model;
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.CascadeType.REMOVE;
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import org.hibernate.annotations.Where;
@@ -12,10 +13,8 @@ import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostPersist;
@@ -37,16 +36,14 @@ public class OwnerAttachment extends BaseEntity {
     private static final int NOT_FOUND_IDX = -1;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @GeneratedValue(strategy = IDENTITY)
+    private Integer id;
 
     @ManyToOne(cascade = {PERSIST, MERGE, REMOVE})
     @JoinColumn(name = "owner_id")
     private Owner owner;
 
     @NotNull
-    @Lob
     @Column(name = "url", nullable = false)
     private String url;
 
