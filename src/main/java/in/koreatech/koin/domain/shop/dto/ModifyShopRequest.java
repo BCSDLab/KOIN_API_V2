@@ -24,7 +24,7 @@ public record ModifyShopRequest(
     Boolean delivery,
 
     @Schema(example = "1000", description = "배달비")
-    Long deliveryPrice,
+    Integer deliveryPrice,
 
     @Schema(example = "string", description = "설명")
     String description,

@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.ownershop.dto;
 import java.time.LocalTime;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.owner.model.Owner;
@@ -15,7 +15,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-@JsonNaming(value = SnakeCaseStrategy.class)
+@JsonNaming(SnakeCaseStrategy.class)
 public record OwnerShopsRequest(
     @Schema(description = "주소", example = "충청남도 천안시 동남구 병천면 충절로 1600")
     @NotBlank(message = "주소를 입력해주세요.")
@@ -32,7 +32,7 @@ public record OwnerShopsRequest(
     @Schema(description = "배달 금액", example = "1000")
     @NotNull(message = "배달 금액을 입력해주세요.")
     @Min(value = 0, message = "배달 금액은 0원 이상이어야 합니다.")
-    Long deliveryPrice,
+    Integer deliveryPrice,
 
     @Schema(description = "기타정보", example = "이번주 전 메뉴 10% 할인 이벤트합니다.")
     String description,
@@ -77,7 +77,7 @@ public record OwnerShopsRequest(
             .isDeleted(false)
             .isEvent(false)
             .remarks("")
-            .hit(0L)
+            .hit(0)
             .build();
     }
 
