@@ -1,0 +1,1 @@
+ALTER TABLE koin.`activities` MODIFY COLUMN `id` BIGINT NOT NULL;
