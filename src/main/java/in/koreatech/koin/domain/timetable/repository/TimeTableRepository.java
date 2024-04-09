@@ -8,17 +8,17 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.timetable.exception.TimeTableNotFoundException;
 import in.koreatech.koin.domain.timetable.model.TimeTable;
 
-public interface TimeTableRepository extends Repository<TimeTable, Long> {
+public interface TimeTableRepository extends Repository<TimeTable, Integer> {
 
     TimeTable save(TimeTable timeTable);
 
-    List<TimeTable> findAllByUserIdAndSemesterId(Integer userId, Long semesterId);
+    List<TimeTable> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
 
-    Optional<TimeTable> findById(Long id);
+    Optional<TimeTable> findById(Integer id);
 
-    void deleteByUserIdAndSemesterId(Integer userId, Long semesterId);
+    void deleteByUserIdAndSemesterId(Integer userId, Integer semesterId);
 
-    default TimeTable getById(Long id) {
+    default TimeTable getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> TimeTableNotFoundException.withDetail("id: " + id));
     }

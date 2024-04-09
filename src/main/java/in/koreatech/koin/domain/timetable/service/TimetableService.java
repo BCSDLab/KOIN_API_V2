@@ -67,7 +67,7 @@ public class TimetableService {
     }
 
     @Transactional
-    public void deleteTimeTable(Long id) {
+    public void deleteTimeTable(Integer id) {
         TimeTable timeTable = timeTableRepository.getById(id);
         timeTable.updateIsDeleted(true);
     }

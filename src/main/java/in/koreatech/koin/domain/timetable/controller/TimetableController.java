@@ -74,7 +74,7 @@ public class TimetableController implements TimetableApi {
 
     @DeleteMapping("/timetable")
     public ResponseEntity<Void> deleteTimeTableById(
-        @RequestParam(name = "id") Long id,
+        @RequestParam(name = "id") Integer id,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
         timetableService.deleteTimeTable(id);
