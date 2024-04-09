@@ -44,10 +44,10 @@ public class Owner {
     @Column(name = "company_registration_number", nullable = false, length = 12)
     private String companyRegistrationNumber;
 
-    @Column(name = "grant_shop", columnDefinition = "TINYINT(1)")
+    @Column(name = "grant_shop", columnDefinition = "TINYINT")
     private boolean grantShop;
 
-    @Column(name = "grant_event", columnDefinition = "TINYINT(1)")
+    @Column(name = "grant_event", columnDefinition = "TINYINT")
     private boolean grantEvent;
 
     @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true)

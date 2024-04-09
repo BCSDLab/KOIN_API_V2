@@ -23,7 +23,7 @@ public class Student {
 
     @Id
     @Column(name = "user_id")
-    private Long id;
+    private Integer id;
 
     @Size(max = 255)
     @Column(name = "anonymous_nickname")
@@ -36,12 +36,12 @@ public class Student {
     @Column(name = "major", length = 50)
     private String department;
 
-    @Column(name = "identity")
+    @Column(name = "identity", columnDefinition = "SMALLINT")
     @Enumerated(EnumType.ORDINAL)
     private UserIdentity userIdentity;
 
     @Column(name = "is_graduated")
-    private Boolean isGraduated;
+    private boolean isGraduated;
 
     @OneToOne
     @MapsId
@@ -49,7 +49,7 @@ public class Student {
 
     @Builder
     private Student(String anonymousNickname, String studentNumber, String department,
-                    UserIdentity userIdentity, Boolean isGraduated, User user) {
+                    UserIdentity userIdentity, boolean isGraduated, User user) {
         this.anonymousNickname = anonymousNickname;
         this.studentNumber = studentNumber;
         this.department = department;
