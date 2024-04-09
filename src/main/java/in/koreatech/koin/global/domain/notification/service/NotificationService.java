@@ -1,6 +1,7 @@
 package in.koreatech.koin.global.domain.notification.service;
 
 import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
+import static in.koreatech.koin.global.fcm.MobileAppPath.HOME;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,18 +9,19 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
-import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.dto.NotificationSubscribePermitRequest;
 import in.koreatech.koin.global.domain.notification.model.Notification;
+import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.fcm.FcmClient;
+import in.koreatech.koin.global.fcm.MobileAppPath;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -45,25 +47,28 @@ public class NotificationService {
         );
     }
 
-    public void pushSoldOutNotification() {
-        Notification notification = notificationFactory.generateSoldOutNotification();
+    public void pushSoldOutNotification(DiningSoldOutEvent event) {
+        Notification notification = notificationFactory.generateSoldOutNotification(HOME, event.place());
         notificationRepository.save(notification);
         List<String> deviceTokenList = generateDeviceTokenListBySubscribeSoldOut();
-        fcmClient.sendMessageAll(
-            deviceTokenList,
-            notification.getTitle(),
-            notification.getMessage(),
-            notification.getImageUrl(),
-            notification.getUrl(),
-            notification.getType()
-        );
+        for (String device : deviceTokenList) {
+            fcmClient.sendMessage(
+                device,
+                notification.getTitle(),
+                notification.getMessage(),
+                notification.getImageUrl(),
+                notification.getMobileAppPath(),
+                notification.getType()
+            );
+        }
     }
 
     public List<String> generateDeviceTokenListBySubscribeSoldOut() {
-        List<NotificationSubscribe> noti = notificationSubscribeRepository.findAllBySubscribeType(DINING_SOLD_OUT);
+        List<NotificationSubscribe> notification = notificationSubscribeRepository
+            .findAllBySubscribeType(DINING_SOLD_OUT);
         List<String> deviceTokenList = new ArrayList<>();
-        for (NotificationSubscribe n : noti) {
-            User user = userRepository.getById(n.getUser().getId());
+        for (NotificationSubscribe type : notification) {
+            User user = userRepository.getById(type.getUser().getId());
             if (!user.getDeviceToken().isEmpty()) {
                 deviceTokenList.add(user.getDeviceToken());
             }

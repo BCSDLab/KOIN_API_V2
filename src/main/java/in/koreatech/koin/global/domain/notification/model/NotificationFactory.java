@@ -24,11 +24,15 @@ public class NotificationFactory {
         );
     }
 
-    public Notification generateSoldOutNotification() {
+    public Notification generateSoldOutNotification(
+        MobileAppPath path,
+        String place
+    ) {
         return new Notification(
-            koinAppUrl,
+            path,
             "학식 품절 알림!",
-            "학식이 품절되었습니다.",
+            "%s 품절되었습니다."
+                .formatted(place),
             null,
             NotificationType.MESSAGE,
             null
