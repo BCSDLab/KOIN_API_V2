@@ -9,27 +9,23 @@ import in.koreatech.koin.domain.shop.model.Shop;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record OwnerShopsResponse(
-    Long count,
+    Integer count,
     List<InnerShopResponse> shops
 ) {
 
-    public static OwnerShopsResponse from(List<Shop> shops) {
-        return new OwnerShopsResponse(
-            (long) shops.size(),
-            shops.stream()
-                .map(InnerShopResponse::from)
-                .toList()
-        );
+    public static OwnerShopsResponse from(List<InnerShopResponse> shops) {
+        return new OwnerShopsResponse(shops.size(), shops);
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    private record InnerShopResponse(
+    public record InnerShopResponse(
         Long id,
-        String name
+        String name,
+        boolean isEvent
     ) {
 
-        public static InnerShopResponse from(Shop shop) {
-            return new InnerShopResponse(shop.getId(), shop.getName());
+        public static InnerShopResponse from(Shop shop, boolean isEvent) {
+            return new InnerShopResponse(shop.getId(), shop.getName(), isEvent);
         }
     }
 }

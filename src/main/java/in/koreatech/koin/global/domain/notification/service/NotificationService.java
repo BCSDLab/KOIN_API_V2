@@ -15,6 +15,7 @@ import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.dto.NotificationSubscribePermitRequest;
 import in.koreatech.koin.global.domain.notification.model.Notification;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
@@ -39,7 +40,7 @@ public class NotificationService {
             notification.getTitle(),
             notification.getMessage(),
             notification.getImageUrl(),
-            notification.getUrl(),
+            notification.getMobileAppPath(),
             notification.getType()
         );
     }
