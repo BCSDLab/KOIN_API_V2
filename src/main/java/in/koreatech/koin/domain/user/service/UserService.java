@@ -36,9 +36,6 @@ public class UserService {
 
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
-    private final StudentRepository studentRepository;
-    private final OwnerRepository ownerRepository;
-    private final OwnerAttachmentRepository ownerAttachmentRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -88,16 +85,6 @@ public class UserService {
     @Transactional
     public void withdraw(Long userId) {
         User user = userRepository.getById(userId);
-        userRepository.delete(user);
-
-        switch (user.getUserType()) {
-            case STUDENT:
-                studentRepository.deleteByUserId(userId);
-            case OWNER:
-                ownerRepository.deleteByUserId(userId);
-                ownerAttachmentRepository.deleteByOwnerId(userId);
-        }
-
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail()));
     }
 
