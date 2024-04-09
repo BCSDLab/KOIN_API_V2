@@ -80,14 +80,6 @@ public class ExpressBusOpenApiClient {
         this.expressBusCacheRepository = expressBusCacheRepository;
     }
 
-    public List<ExpressBusRemainTime> getBusRemainTime(BusStation depart, BusStation arrival) {
-        Version version = versionRepository.getByType(VersionType.EXPRESS);
-        if (isCacheExpired(version, clock)) {
-            storeRemainTimeByOpenApi(depart.name().toLowerCase(), arrival.name().toLowerCase());
-        }
-        return getStoredRemainTime(depart.name().toLowerCase(), arrival.name().toLowerCase());
-    }
-
     public SingleBusTimeResponse searchBusTime(String busType, BusStation depart, BusStation arrival,
         LocalDateTime at) {
         List<ExpressBusRemainTime> remainTimes = getBusRemainTime(depart, arrival);
@@ -102,6 +94,14 @@ public class ExpressBusOpenApiClient {
             .orElse(null);
 
         return new SingleBusTimeResponse(busType, arrivalTime);
+    }
+
+    public List<ExpressBusRemainTime> getBusRemainTime(BusStation depart, BusStation arrival) {
+        Version version = versionRepository.getByType(VersionType.EXPRESS);
+        if (isCacheExpired(version, clock)) {
+            storeRemainTimeByOpenApi(depart.name().toLowerCase(), arrival.name().toLowerCase());
+        }
+        return getStoredRemainTime(depart.name().toLowerCase(), arrival.name().toLowerCase());
     }
 
     private void storeRemainTimeByOpenApi(String departName, String arrivalName) {
