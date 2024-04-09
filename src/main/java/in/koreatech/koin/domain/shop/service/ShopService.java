@@ -84,8 +84,13 @@ public class ShopService {
         return ShopCategoriesResponse.from(shopCategories);
     }
 
-    public ShopEventsResponse getEvents(Long shopId) {
+    public ShopEventsResponse getShopEvents(Long shopId) {
         List<EventArticle> eventArticles = eventArticleRepository.findAllByShopId(shopId);
+        return ShopEventsResponse.from(eventArticles);
+    }
+
+    public ShopEventsResponse getAllEvents() {
+        List<EventArticle> eventArticles = eventArticleRepository.findAllDurationEvents();
         return ShopEventsResponse.from(eventArticles);
     }
 }

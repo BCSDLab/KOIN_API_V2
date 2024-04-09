@@ -10,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
+import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse.InnerShopResponse;
 import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
@@ -22,6 +24,7 @@ import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
+import in.koreatech.koin.domain.shop.model.EventArticle;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -257,5 +260,40 @@ public class OwnerShopService {
         shop.modifyShopOpens(modifyShopRequest.open(), entityManager);
         shop.modifyShopCategories(shopCategoryRepository.findAllByIdIn(modifyShopRequest.categoryIds()), entityManager);
         shopRepository.save(shop);
+    }
+
+    @Transactional
+    public void createEvent(Long ownerId, Long shopId, CreateEventRequest shopEventRequest) {
+        Shop shop = getOwnerShopById(shopId, ownerId);
+        EventArticle eventArticle = EventArticle.builder()
+                .shop(shop)
+                .startDate(shopEventRequest.startDate())
+                .endDate(shopEventRequest.endDate())
+                .title(shopEventRequest.title())
+                .content(shopEventRequest.content())
+                .thumbnail(shopEventRequest.thumbnailImage())
+                .hit(0)
+                .ip("")
+                .build();
+        eventArticleRepository.save(eventArticle);
+    }
+
+    @Transactional
+    public void modifyEvent(Long ownerId, Long shopId, Long eventId, ModifyEventRequest modifyEventRequest) {
+        getOwnerShopById(shopId, ownerId);
+        EventArticle eventArticle = eventArticleRepository.getById(eventId);
+        eventArticle.modifyArticle(
+            modifyEventRequest.title(),
+            modifyEventRequest.content(),
+            modifyEventRequest.thumbnailImage(),
+            modifyEventRequest.startDate(),
+            modifyEventRequest.endDate()
+        );
+    }
+
+    @Transactional
+    public void deleteEvent(Long ownerId, Long shopId, Long eventId) {
+        getOwnerShopById(shopId, ownerId);
+        eventArticleRepository.deleteById(eventId);
     }
 }

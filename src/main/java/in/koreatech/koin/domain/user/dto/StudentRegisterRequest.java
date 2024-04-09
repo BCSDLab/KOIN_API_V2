@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.user.dto;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -71,7 +71,7 @@ public record StudentRegisterRequest(
             .isDeleted(false)
             .userType(UserType.STUDENT)
             .authToken(UUID.randomUUID().toString())
-            .authExpiredAt(LocalDateTime.now(clock).plusHours(1))
+            .authExpiredAt(LocalDateTime.now(clock).plusHours(10))
             .build();
 
         return Student.builder()
