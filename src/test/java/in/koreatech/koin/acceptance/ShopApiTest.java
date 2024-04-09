@@ -600,7 +600,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/{shopId}/menus", shop.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

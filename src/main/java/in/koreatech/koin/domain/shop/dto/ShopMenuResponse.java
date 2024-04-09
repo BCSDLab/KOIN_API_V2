@@ -28,19 +28,19 @@ public record ShopMenuResponse(
     LocalDateTime updatedAt
 ) {
     public static ShopMenuResponse from(List<Menu> menus) {
-        LocalDateTime lastUpdatedAt = LocalDateTime.of(1900,1, 1, 1, 1);
+        LocalDateTime lastUpdatedAt = LocalDateTime.MIN;
         List<InnerMenuCategoriesResponse> innerMenuCategoriesResponses = new ArrayList<>();
         for (Menu menu: menus) {
-            if(lastUpdatedAt.isBefore(menu.getUpdatedAt())) {
+            if (lastUpdatedAt.isBefore(menu.getUpdatedAt())) {
                 lastUpdatedAt = menu.getUpdatedAt();
             }
             for (MenuCategoryMap menuCategoryMap: menu.getMenuCategoryMaps()) {
                 MenuCategory menuCategory = menuCategoryMap.getMenuCategory();
                 Integer index = getInnerMenuCategoriesResponseIndex(innerMenuCategoriesResponses, menuCategory);
                 InnerMenuCategoriesResponse.InnerMenuResponse innerMenuResponse = InnerMenuCategoriesResponse.InnerMenuResponse.from(menuCategoryMap);
-                if(index != null) {
+                if (index != null) {
                     innerMenuCategoriesResponses.get(index).menus.add(innerMenuResponse);
-                }else {
+                } else {
                     List<InnerMenuCategoriesResponse.InnerMenuResponse> menuResponses = new ArrayList<>();
                     menuResponses.add(innerMenuResponse);
                     innerMenuCategoriesResponses.add(new InnerMenuCategoriesResponse(
