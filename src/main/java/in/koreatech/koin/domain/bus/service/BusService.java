@@ -80,7 +80,7 @@ public class BusService {
         validateBusCourse(depart, arrival);
         List<SingleBusTimeResponse> result = new ArrayList<>();
 
-        LocalDateTime at = LocalDateTime.of(date, time);
+        LocalDateTime targetTime = LocalDateTime.of(date, time);
         for (BusType busType : BusType.values()) {
             SingleBusTimeResponse busTimeResponse = null;
 
@@ -89,15 +89,15 @@ public class BusService {
                     busType.name().toLowerCase(),
                     depart,
                     arrival,
-                    at
+                    targetTime
                 );
             }
 
             if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-                ZonedDateTime zonedAt = at.atZone(clock.getZone());
+                ZonedDateTime zonedAt = targetTime.atZone(clock.getZone());
                 Clock clockAt = Clock.fixed(zonedAt.toInstant(), zonedAt.getZone());
 
-                String todayName = at.getDayOfWeek()
+                String todayName = targetTime.getDayOfWeek()
                     .getDisplayName(TextStyle.SHORT, Locale.US)
                     .toUpperCase();
 

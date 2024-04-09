@@ -83,7 +83,7 @@ public class ExpressBusOpenApiClient {
     public SingleBusTimeResponse searchBusTime(
         String busType,
         BusStation depart, BusStation arrival,
-        LocalDateTime at
+        LocalDateTime targetTime
     ) {
         List<ExpressBusRemainTime> remainTimes = getBusRemainTime(depart, arrival);
         if (remainTimes.isEmpty()) {
@@ -91,7 +91,7 @@ public class ExpressBusOpenApiClient {
         }
 
         LocalTime arrivalTime = remainTimes.stream()
-            .filter(expressBusRemainTime -> at.toLocalTime().isBefore(expressBusRemainTime.getBusArrivalTime()))
+            .filter(expressBusRemainTime -> targetTime.toLocalTime().isBefore(expressBusRemainTime.getBusArrivalTime()))
             .min(Comparator.naturalOrder())
             .map(BusRemainTime::getBusArrivalTime)
             .orElse(null);
