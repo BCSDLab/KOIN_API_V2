@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
@@ -50,6 +51,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
@@ -934,24 +936,25 @@ class ShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        Assertions.assertThat(response.asPrettyString())
-            .isEqualTo(
-                """
-                    {
-                        "events": [
-                            {
-                                "title": "테스트 이벤트 1",
-                                "content": "<P>테스트 이벤트 내용1</P>",
-                                "thumbnail_image": "https://test.com/test-thumbnail-1.jpg"
-                            },
-                            {
-                                "title": "테스트 이벤트 2",
-                                "content": "<P>테스트 이벤트 내용2</P>",
-                                "thumbnail_image": "https://test.com/test-thumbnail-2.jpg"
-                            }
-                        ]
-                    }"""
-            );
+        JsonAssertions.assertThat(String.format("""
+            {
+               "events": [
+                   {
+                       "title": "테스트 이벤트 1",
+                       "content": "<P>테스트 이벤트 내용1</P>",
+                       "thumbnail_image": "https://test.com/test-thumbnail-1.jpg",
+                       "start_date": "2024-02-21",
+                       "end_date": "2024-02-24"
+                   },
+                   {
+                       "title": "테스트 이벤트 2",
+                       "content": "<P>테스트 이벤트 내용2</P>",
+                       "thumbnail_image": "https://test.com/test-thumbnail-2.jpg",
+                       "start_date": "2024-02-21",
+                       "end_date": "2024-02-24"
+                   }
+               ]
+               }""")).isEqualTo(response.asPrettyString());
     }
 
     @Test
@@ -1161,4 +1164,77 @@ class ShopApiTest extends AcceptanceTest {
         Assertions.assertThat(response.jsonPath().getBoolean("is_event")).isFalse();
     }
 
+    @Test
+    @DisplayName("이벤트 베너 조회")
+    void ownerShopDeleteEvent() {
+        LocalDate now = LocalDate.now();
+        EventArticle eventArticle1 = EventArticle.builder()
+            .shop(shop)
+            .title("테스트 제목1")
+            .content("테스트 내용1")
+            .ip("")
+            .startDate(now)
+            .endDate(now.plusDays(10))
+            .thumbnail("https://test.com/test1.jpg")
+            .hit(0)
+            .build();
+        EventArticle savedEvent1 = eventArticleRepository.save(eventArticle1);
+
+        EventArticle eventArticle2 = EventArticle.builder()
+            .shop(shop)
+            .title("테스트 제목1")
+            .content("테스트 내용1")
+            .ip("")
+            .startDate(now.minusDays(10))
+            .endDate(now.minusDays(1))
+            .thumbnail("https://test.com/test1.jpg")
+            .hit(0)
+            .build();
+        EventArticle savedEvent2 = eventArticleRepository.save(eventArticle2);
+
+        EventArticle eventArticle3 = EventArticle.builder()
+            .shop(shop)
+            .title("테스트 제목3")
+            .content("테스트 내용3")
+            .ip("")
+            .startDate(now.minusDays(10))
+            .endDate(now.plusDays(10))
+            .thumbnail("https://test.com/test1.jpg")
+            .hit(0)
+            .build();
+        EventArticle savedEvent3 = eventArticleRepository.save(eventArticle3);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .when()
+            .get("/shops/events")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(String.format("""
+            {
+                "events": [
+                    {
+                        "title": "테스트 제목1",
+                        "content": "테스트 내용1",
+                        "thumbnail_image": "https://test.com/test1.jpg",
+                        "start_date": "%s",
+                        "end_date": "%s"
+                    },
+                    {
+                        "title": "테스트 제목3",
+                        "content": "테스트 내용3",
+                        "thumbnail_image": "https://test.com/test1.jpg",
+                        "start_date": "%s",
+                        "end_date": "%s"
+                    }
+                ]
+            }""",
+            now.toString(),
+            now.plusDays(10).toString(),
+            now.minusDays(10).toString(),
+            now.plusDays(10).toString())).isEqualTo(response.asPrettyString());
+    }
 }

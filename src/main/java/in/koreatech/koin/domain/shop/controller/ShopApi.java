@@ -114,4 +114,16 @@ public interface ShopApi {
     ResponseEntity<ShopEventsResponse> getShopEvents(
         @PathVariable Long shopId
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "모든 상점의 모든 이벤트 조회")
+    @GetMapping("/shops/events")
+    ResponseEntity<ShopEventsResponse> getShopAllEvent();
 }
