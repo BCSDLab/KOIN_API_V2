@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.shop.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
