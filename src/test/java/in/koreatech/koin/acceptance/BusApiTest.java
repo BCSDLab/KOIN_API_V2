@@ -33,6 +33,7 @@ import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -304,7 +305,7 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("버스 시간표를 조회한다 - CITY - 지원하지 않음")
+    @DisplayName("시내버스 시간표를 조회한다 - 지원하지 않음")
     void getCityBusTimetable() {
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
 
@@ -386,5 +387,73 @@ class BusApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("셔틀버스 시간표를 조회한다.")
+    void getShuttleBusTimetable() {
+        final String arrivalTime = "18:10";
+
+        BusType busType = BusType.from("shuttle");
+        String direction = "from";
+        String region = "천안";
+
+        BusCourse busCourse = BusCourse.builder()
+            .busType("shuttle")
+            .region("천안")
+            .direction("from")
+            .routes(
+                List.of(
+                    Route.builder()
+                        .routeName("주중")
+                        .runningDays(List.of("MON", "TUE", "WED", "THU", "FRI"))
+                        .arrivalInfos(
+                            List.of(
+                                Route.ArrivalNode.builder()
+                                    .nodeName("한기대")
+                                    .arrivalTime(arrivalTime)
+                                    .build(),
+                                Route.ArrivalNode.builder()
+                                    .nodeName("신계초,운전리,연춘리")
+                                    .arrivalTime("정차")
+                                    .build()
+                            )
+                        )
+                        .build()
+                )
+            )
+            .build();
+
+        busRepository.save(busCourse);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .param("bus_type", busType.name().toLowerCase())
+            .param("direction", direction)
+            .param("region", region)
+            .get("/bus/timetable")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                [
+                    {
+                        "routeName": "주중",
+                        "arrivalInfo": [
+                            {
+                                "nodeName": "한기대",
+                                "arrivalTime": "18:10"
+                            },
+                            {
+                                "nodeName": "신계초,운전리,연춘리",
+                                "arrivalTime": "정차"
+                            }
+                        ]
+                    }
+                ]
+                """);
     }
 }
