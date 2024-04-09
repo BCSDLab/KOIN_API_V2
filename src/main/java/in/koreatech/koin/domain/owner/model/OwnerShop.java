@@ -12,10 +12,10 @@ public class OwnerShop {
 
     @Id
     private Integer ownerId;
-    private Long shopId;
+    private Integer shopId;
 
     @Builder
-    private OwnerShop(Integer ownerId, Long shopId) {
+    private OwnerShop(Integer ownerId, Integer shopId) {
         this.ownerId = ownerId;
         this.shopId = shopId;
     }

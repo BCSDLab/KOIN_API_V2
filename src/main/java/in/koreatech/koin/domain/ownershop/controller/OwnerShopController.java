@@ -57,7 +57,7 @@ public class OwnerShopController implements OwnerShopApi {
     @GetMapping("/owner/shops/{id}")
     public ResponseEntity<ShopResponse> getOwnerShopByShopId(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable Long id
+        @PathVariable Integer id
     ) {
         ShopResponse shopResponse = ownerShopService.getShopByShopId(ownerId, id);
         return ResponseEntity.ok(shopResponse);
@@ -66,7 +66,7 @@ public class OwnerShopController implements OwnerShopApi {
     @GetMapping("/owner/shops/menus/{menuId}")
     public ResponseEntity<MenuDetailResponse> getMenuByMenuId(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable Long menuId
+        @PathVariable Integer menuId
     ) {
         MenuDetailResponse menuDetailResponse = ownerShopService.getMenuByMenuId(ownerId, menuId);
         return ResponseEntity.ok(menuDetailResponse);
@@ -75,7 +75,7 @@ public class OwnerShopController implements OwnerShopApi {
     @GetMapping("/owner/shops/menus")
     public ResponseEntity<ShopMenuResponse> getMenus(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @RequestParam("shopId") Long shopId
+        @RequestParam("shopId") Integer shopId
     ) {
         ShopMenuResponse shopMenuResponse = ownerShopService.getMenus(shopId, ownerId);
         return ResponseEntity.ok(shopMenuResponse);
@@ -84,7 +84,7 @@ public class OwnerShopController implements OwnerShopApi {
     @GetMapping("/owner/shops/menus/categories")
     public ResponseEntity<MenuCategoriesResponse> getCategories(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @RequestParam("shopId") Long shopId
+        @RequestParam("shopId") Integer shopId
     ) {
         MenuCategoriesResponse menuCategoriesResponse = ownerShopService.getCategories(shopId, ownerId);
         return ResponseEntity.ok(menuCategoriesResponse);
@@ -93,7 +93,7 @@ public class OwnerShopController implements OwnerShopApi {
     @DeleteMapping("/owner/shops/menus/{menuId}")
     public ResponseEntity<Void> deleteMenuByMenuId(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable("menuId") Long menuId
+        @PathVariable("menuId") Integer menuId
     ) {
         ownerShopService.deleteMenuByMenuId(ownerId, menuId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -102,7 +102,7 @@ public class OwnerShopController implements OwnerShopApi {
     @DeleteMapping("/owner/shops/menus/categories/{categoryId}")
     public ResponseEntity<Void> deleteCategory(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable("categoryId") Long categoryId
+        @PathVariable("categoryId") Integer categoryId
     ) {
         ownerShopService.deleteCategory(ownerId, categoryId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -111,7 +111,7 @@ public class OwnerShopController implements OwnerShopApi {
     @PostMapping("/owner/shops/{id}/menus")
     public ResponseEntity<Void> createMenu(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable("id") Long shopId,
+        @PathVariable("id") Integer shopId,
         @RequestBody @Valid CreateMenuRequest createMenuRequest
     ) {
         ownerShopService.createMenu(shopId, ownerId, createMenuRequest);
@@ -121,7 +121,7 @@ public class OwnerShopController implements OwnerShopApi {
     @PostMapping("/owner/shops/{id}/menus/categories")
     public ResponseEntity<Void> createMenuCategory(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable("id") Long shopId,
+        @PathVariable("id") Integer shopId,
         @RequestBody @Valid CreateCategoryRequest createCategoryRequest
     ) {
         ownerShopService.createMenuCategory(shopId, ownerId, createCategoryRequest);
@@ -131,7 +131,7 @@ public class OwnerShopController implements OwnerShopApi {
     @PutMapping("/owner/shops/menus/{menuId}")
     public ResponseEntity<Void> modifyMenu(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable("menuId") Long menuId,
+        @PathVariable("menuId") Integer menuId,
         @RequestBody @Valid ModifyMenuRequest modifyMenuRequest
     ) {
         ownerShopService.modifyMenu(ownerId, menuId, modifyMenuRequest);
@@ -141,7 +141,7 @@ public class OwnerShopController implements OwnerShopApi {
     @PutMapping("/owner/shops/menus/categories/{categoryId}")
     public ResponseEntity<Void> modifyMenuCategory(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable("categoryId") Long categoryId,
+        @PathVariable("categoryId") Integer categoryId,
         @RequestBody @Valid ModifyCategoryRequest modifyCategoryRequest
     ) {
         ownerShopService.modifyCategory(ownerId, categoryId, modifyCategoryRequest);
@@ -151,7 +151,7 @@ public class OwnerShopController implements OwnerShopApi {
     @PutMapping("/owner/shops/{id}")
     public ResponseEntity<Void> modifyOwnerShop(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable("id") Long shopId,
+        @PathVariable("id") Integer shopId,
         @RequestBody @Valid ModifyShopRequest modifyShopRequest
     ) {
         ownerShopService.modifyShop(ownerId, shopId, modifyShopRequest);
@@ -161,7 +161,7 @@ public class OwnerShopController implements OwnerShopApi {
     @PostMapping("/owner/shops/{id}/event")
     public ResponseEntity<Void> createShopEvent(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable("id") Long shopId,
+        @PathVariable("id") Integer shopId,
         @RequestBody @Valid CreateEventRequest shopEventRequest
     ) {
         ownerShopService.createEvent(ownerId, shopId, shopEventRequest);
@@ -171,8 +171,8 @@ public class OwnerShopController implements OwnerShopApi {
     @PutMapping("/owner/shops/{shopId}/event/{eventId}")
     public ResponseEntity<Void> modifyShopEvent(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable("shopId") Long shopId,
-        @PathVariable("eventId") Long eventId,
+        @PathVariable("shopId") Integer shopId,
+        @PathVariable("eventId") Integer eventId,
         @RequestBody @Valid ModifyEventRequest modifyEventRequest
     ) {
         ownerShopService.modifyEvent(ownerId, shopId, eventId, modifyEventRequest);
@@ -182,8 +182,8 @@ public class OwnerShopController implements OwnerShopApi {
     @DeleteMapping("/owner/shops/{shopId}/event/{eventId}")
     public ResponseEntity<Void> deleteShopEvent(
         @Auth(permit = {OWNER}) Integer ownerId,
-        @PathVariable("shopId") Long shopId,
-        @PathVariable("eventId") Long eventId
+        @PathVariable("shopId") Integer shopId,
+        @PathVariable("eventId") Integer eventId
     ) {
         ownerShopService.deleteEvent(ownerId, shopId, eventId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

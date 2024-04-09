@@ -10,5 +10,5 @@ public interface ShopImageRepository extends Repository<ShopImage, Long> {
 
     ShopImage save(ShopImage shopImage);
 
-    List<ShopImage> findAllByShopId(Long shopId);
+    List<ShopImage> findAllByShopId(Integer shopId);
 }

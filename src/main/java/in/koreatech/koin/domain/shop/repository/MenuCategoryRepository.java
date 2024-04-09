@@ -8,19 +8,19 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.shop.exception.MenuCategoryNotFoundException;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 
-public interface MenuCategoryRepository extends Repository<MenuCategory, Long> {
+public interface MenuCategoryRepository extends Repository<MenuCategory, Integer> {
 
-    List<MenuCategory> findAllByShopId(Long shopId);
+    List<MenuCategory> findAllByShopId(Integer shopId);
 
     MenuCategory save(MenuCategory menuCategory);
 
-    Optional<MenuCategory> findById(Long id);
+    Optional<MenuCategory> findById(Integer id);
 
-    List<MenuCategory> findAllByIdIn(List<Long> ids);
+    List<MenuCategory> findAllByIdIn(List<Integer> ids);
 
-    default MenuCategory getById(Long id) {
+    default MenuCategory getById(Integer id) {
         return findById(id).orElseThrow(() -> MenuCategoryNotFoundException.withDetail("categoryId: " + id));
     }
 
-    Void deleteById(Long id);
+    Void deleteById(Integer id);
 }

@@ -32,7 +32,7 @@ public record ShopsResponse(
         boolean delivery,
 
         @Schema(example = "1", description = "고유 id")
-        Long id,
+        Integer id,
 
         @Schema(example = "수신반점", description = "이름")
         String name,

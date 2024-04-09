@@ -30,7 +30,7 @@ public record ShopResponse(
     String description,
 
     @Schema(example = "1", description = "고유 id")
-    Long id,
+    Integer id,
 
     @Schema(example = "string", description = "이미지 URL 리스트")
     List<String> imageUrls,
@@ -145,7 +145,7 @@ public record ShopResponse(
 
     private record InnerMenuCategory(
         @Schema(example = "1", description = "고유 id")
-        Long id,
+        Integer id,
 
         @Schema(example = "대표 메뉴", description = "이름")
         String name

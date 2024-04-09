@@ -10,5 +10,5 @@ public interface ShopCategoryMapRepository extends Repository<ShopCategoryMap, L
 
     ShopCategoryMap save(ShopCategoryMap shopCategoryMap);
 
-    List<ShopCategoryMap> findAllByShopId(Long shopId);
+    List<ShopCategoryMap> findAllByShopId(Integer shopId);
 }

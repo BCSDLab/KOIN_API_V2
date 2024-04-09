@@ -41,7 +41,7 @@ public record ShopMenuResponse(
         return new ShopMenuResponse(
             count,
             menuCategories.stream()
-                .filter(menuCategory -> menuCategory.getMenuCategoryMaps().size() > 0)
+                .filter(menuCategory -> !menuCategory.getMenuCategoryMaps().isEmpty())
                 .map(InnerMenuCategoriesResponse::from).toList(),
             lastUpdatedDate
         );
@@ -50,7 +50,7 @@ public record ShopMenuResponse(
     @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerMenuCategoriesResponse(
         @Schema(example = "1", description = "카테고리 id")
-        Long id,
+        Integer id,
 
         @Schema(example = "중식", description = "카테고리 이름")
         String name,
@@ -69,7 +69,7 @@ public record ShopMenuResponse(
         @JsonNaming(value = SnakeCaseStrategy.class)
         private record InnerMenuResponse(
             @Schema(example = "1", description = "고유 id")
-            Long id,
+            Integer id,
 
             @Schema(example = "탕수육", description = "이름")
             String name,

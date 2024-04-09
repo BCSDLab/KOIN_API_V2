@@ -16,10 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record MenuDetailResponse(
     @Schema(example = "1", description = "고유id")
-    Long id,
+    Integer id,
 
     @Schema(example = "1", description = "메뉴가 소속된 상점의 고유 id ")
-    Long shopId,
+    Integer shopId,
 
     @Schema(example = "탕수육", description = "이름")
     String name,
@@ -40,7 +40,7 @@ public record MenuDetailResponse(
     String description,
 
     @Schema(description = "소속되어 있는 메뉴 카테고리 고유 id 리스트")
-    List<Long> categoryIds,
+    List<Integer> categoryIds,
 
     @Schema(description = "이미지 URL 리스트")
     List<String> imageUrls

@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop.model;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
@@ -16,7 +17,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -37,13 +37,12 @@ public class Menu extends BaseEntity {
     private static final int SINGLE_OPTION_COUNT = 1;
 
     @Id
-    @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = IDENTITY)
+    private Integer id;
 
     @NotNull
     @Column(name = "shop_id", nullable = false)
-    private Long shopId;
+    private Integer shopId;
 
     @Size(max = 255)
     @NotNull
@@ -72,7 +71,7 @@ public class Menu extends BaseEntity {
     private List<MenuImage> menuImages = new ArrayList<>();
 
     @Builder
-    private Menu(Long shopId, String name, String description) {
+    private Menu(Integer shopId, String name, String description) {
         this.shopId = shopId;
         this.name = name;
         this.description = description;

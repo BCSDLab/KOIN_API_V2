@@ -10,5 +10,5 @@ public interface ShopOpenRepository extends Repository<ShopOpen, Long> {
 
     ShopOpen save(ShopOpen shopOpen);
 
-    List<ShopOpen> findAllByShopId(Long shopId);
+    List<ShopOpen> findAllByShopId(Integer shopId);
 }

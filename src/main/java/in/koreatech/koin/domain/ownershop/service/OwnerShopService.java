@@ -120,13 +120,13 @@ public class OwnerShopService {
         }
     }
 
-    public ShopResponse getShopByShopId(Integer ownerId, Long shopId) {
+    public ShopResponse getShopByShopId(Integer ownerId, Integer shopId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
         Boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
         return ShopResponse.from(shop, eventDuration);
     }
 
-    private Shop getOwnerShopById(Long shopId, Integer ownerId) {
+    private Shop getOwnerShopById(Integer shopId, Integer ownerId) {
         Shop shop = shopRepository.getById(shopId);
         if (!Objects.equals(shop.getOwner().getId(), ownerId)) {
             throw AuthorizationException.withDetail("ownerId: " + ownerId);
@@ -134,7 +134,7 @@ public class OwnerShopService {
         return shop;
     }
 
-    public MenuDetailResponse getMenuByMenuId(Integer ownerId, Long menuId) {
+    public MenuDetailResponse getMenuByMenuId(Integer ownerId, Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
         getOwnerShopById(menu.getShopId(), ownerId);
         List<MenuCategory> menuCategories = menu.getMenuCategoryMaps()
@@ -144,38 +144,38 @@ public class OwnerShopService {
         return MenuDetailResponse.createMenuDetailResponse(menu, menuCategories);
     }
 
-    public ShopMenuResponse getMenus(Long shopId, Integer ownerId) {
+    public ShopMenuResponse getMenus(Integer shopId, Integer ownerId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
         return ShopMenuResponse.from(menuCategories);
     }
 
-    public MenuCategoriesResponse getCategories(Long shopId, Integer ownerId) {
+    public MenuCategoriesResponse getCategories(Integer shopId, Integer ownerId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
         return MenuCategoriesResponse.from(menuCategories);
     }
 
     @Transactional
-    public void deleteMenuByMenuId(Integer ownerId, Long menuId) {
+    public void deleteMenuByMenuId(Integer ownerId, Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
         getOwnerShopById(menu.getShopId(), ownerId);
         menuRepository.deleteById(menuId);
     }
 
     @Transactional
-    public void deleteCategory(Integer ownerId, Long categoryId) {
+    public void deleteCategory(Integer ownerId, Integer categoryId) {
         MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
         getOwnerShopById(menuCategory.getShop().getId(), ownerId);
         menuCategoryRepository.deleteById(categoryId);
     }
 
     @Transactional
-    public void createMenu(Long shopId, Integer ownerId, CreateMenuRequest createMenuRequest) {
+    public void createMenu(Integer shopId, Integer ownerId, CreateMenuRequest createMenuRequest) {
         getOwnerShopById(shopId, ownerId);
         Menu menu = createMenuRequest.toEntity(shopId);
         Menu savedMenu = menuRepository.save(menu);
-        for (Long categoryId : createMenuRequest.categoryIds()) {
+        for (Integer categoryId : createMenuRequest.categoryIds()) {
             MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
             MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
                 .menuCategory(menuCategory)
@@ -210,7 +210,7 @@ public class OwnerShopService {
     }
 
     @Transactional
-    public void createMenuCategory(Long shopId, Integer ownerId, CreateCategoryRequest createCategoryRequest) {
+    public void createMenuCategory(Integer shopId, Integer ownerId, CreateCategoryRequest createCategoryRequest) {
         Shop shop = getOwnerShopById(shopId, ownerId);
         MenuCategory menuCategory = MenuCategory.builder()
             .shop(shop)
@@ -220,7 +220,7 @@ public class OwnerShopService {
     }
 
     @Transactional
-    public void modifyMenu(Integer ownerId, Long menuId, ModifyMenuRequest modifyMenuRequest) {
+    public void modifyMenu(Integer ownerId, Integer menuId, ModifyMenuRequest modifyMenuRequest) {
         Menu menu = menuRepository.getById(menuId);
         getOwnerShopById(menu.getShopId(), ownerId);
         menu.modifyMenu(
@@ -237,14 +237,14 @@ public class OwnerShopService {
     }
 
     @Transactional
-    public void modifyCategory(Integer ownerId, Long categoryId, ModifyCategoryRequest modifyCategoryRequest) {
+    public void modifyCategory(Integer ownerId, Integer categoryId, ModifyCategoryRequest modifyCategoryRequest) {
         MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
         getOwnerShopById(menuCategory.getShop().getId(), ownerId);
         menuCategory.modifyCategory(modifyCategoryRequest);
     }
 
     @Transactional
-    public void modifyShop(Integer ownerId, Long shopId, ModifyShopRequest modifyShopRequest) {
+    public void modifyShop(Integer ownerId, Integer shopId, ModifyShopRequest modifyShopRequest) {
         Shop shop = getOwnerShopById(shopId, ownerId);
         shop.modifyShop(
             modifyShopRequest.name(),
@@ -263,7 +263,7 @@ public class OwnerShopService {
     }
 
     @Transactional
-    public void createEvent(Integer ownerId, Long shopId, CreateEventRequest shopEventRequest) {
+    public void createEvent(Integer ownerId, Integer shopId, CreateEventRequest shopEventRequest) {
         Shop shop = getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = EventArticle.builder()
                 .shop(shop)
@@ -279,7 +279,7 @@ public class OwnerShopService {
     }
 
     @Transactional
-    public void modifyEvent(Integer ownerId, Long shopId, Long eventId, ModifyEventRequest modifyEventRequest) {
+    public void modifyEvent(Integer ownerId, Integer shopId, Integer eventId, ModifyEventRequest modifyEventRequest) {
         getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = eventArticleRepository.getById(eventId);
         eventArticle.modifyArticle(
@@ -292,7 +292,7 @@ public class OwnerShopService {
     }
 
     @Transactional
-    public void deleteEvent(Integer ownerId, Long shopId, Long eventId) {
+    public void deleteEvent(Integer ownerId, Integer shopId, Integer eventId) {
         getOwnerShopById(shopId, ownerId);
         eventArticleRepository.deleteById(eventId);
     }

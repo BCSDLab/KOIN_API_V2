@@ -65,7 +65,7 @@ public record OwnerResponse(
     @JsonNaming(SnakeCaseStrategy.class)
     private record InnerShopResponse(
         @Schema(description = "가게 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(description = "가게 이름", example = "가게1")
         String name

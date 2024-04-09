@@ -8,17 +8,17 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.model.Shop;
 
-public interface ShopRepository extends Repository<Shop, Long> {
+public interface ShopRepository extends Repository<Shop, Integer> {
 
     Shop save(Shop shop);
 
     List<Shop> findAllByOwnerId(Integer ownerId);
 
-    Optional<Shop> findById(Long shopId);
+    Optional<Shop> findById(Integer shopId);
 
     Optional<Shop> findByOwnerId(Integer ownerId);
 
-    default Shop getById(Long shopId) {
+    default Shop getById(Integer shopId) {
         return findById(shopId)
             .orElseThrow(() -> ShopNotFoundException.withDetail("shopId: " + shopId));
     }
