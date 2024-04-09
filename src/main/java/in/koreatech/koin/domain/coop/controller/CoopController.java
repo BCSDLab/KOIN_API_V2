@@ -5,15 +5,13 @@ import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.service.CoopService;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 public class CoopController implements CoopApi {
 
     private final CoopService coopService;
-    private final NotificationService notificationService;
 
     @PatchMapping("/dining/soldout")
     public ResponseEntity<Void> changeSoldOut(
@@ -31,7 +28,6 @@ public class CoopController implements CoopApi {
         @Valid @RequestBody SoldOutRequest soldOutRequest
     ) {
         coopService.changeSoldOut(soldOutRequest);
-        notificationService.pushSoldOutNotification();
         return ResponseEntity.ok().build();
     }
 
