@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "shop_menu_category_map")
-@Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
 public class MenuCategoryMap {
 
