@@ -3,6 +3,8 @@ package in.koreatech.koin.global.domain.slack.model;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.domain.user.model.UserType;
+
 @Component
 public class SlackNotificationFactory {
 
@@ -111,13 +113,14 @@ public class SlackNotificationFactory {
      * 유저 탈퇴 알림
      */
     public SlackNotification generateUserDeleteNotification(
-        String email
+        String email,
+        UserType userType
     ) {
         return SlackNotification.builder()
             .slackUrl(eventNotificationUrl)
             .text(String.format("""
-                `%s님이 탈퇴하셨습니다.`
-                """, email)
+                `%s(%s)님이 탈퇴하셨습니다.`
+                """, email, userType.getDescription())
             )
             .build();
     }

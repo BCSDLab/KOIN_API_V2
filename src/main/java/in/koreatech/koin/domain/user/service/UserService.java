@@ -97,7 +97,7 @@ public class UserService {
                 ownerAttachmentRepository.deleteByOwnerId(userId);
         }
         userRepository.delete(user);
-        eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail()));
+        eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
     }
 
     public void checkExistsEmail(EmailCheckExistsRequest request) {
