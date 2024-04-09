@@ -2,8 +2,11 @@ package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
 import static io.restassured.RestAssured.given;
 import static java.time.format.DateTimeFormatter.ofPattern;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -16,17 +19,23 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
+import in.koreatech.koin.domain.coop.model.CoopEventListener;
+import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
+import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -41,6 +50,15 @@ class DiningApiTest extends AcceptanceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private NotificationSubscribeRepository notificationSubscribeRepository;
+
+    @MockBean
+    private CoopEventListener coopEventListener;
 
     @Test
     @DisplayName("특정 날짜의 모든 식단들을 조회한다.")
@@ -442,5 +460,64 @@ class DiningApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("품절 이벤트가 발생한다.")
+    void checkSoldOutEventListener() {
+        when(clock.instant()).thenReturn(ZonedDateTime.parse(
+                "2024-04-04 18:00:00 KST",
+                ofPattern("yyyy-MM-dd " + "HH:mm:ss z")
+            )
+            .toInstant());
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+
+        User user = User.builder()
+            .password("1234")
+            .nickname("준기")
+            .name("허준기")
+            .phoneNumber("010-1234-5678")
+            .userType(COOP)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+
+        String token = jwtProvider.createToken(user);
+
+        notificationSubscribeRepository.save(NotificationSubscribe.builder()
+            .user(user)
+            .subscribeType(DINING_SOLD_OUT)
+            .build());
+
+        Dining dining = Dining.builder()
+            .date("2024-04-04")
+            .type("LUNCH")
+            .place("A코스")
+            .priceCard(6000)
+            .priceCash(6000)
+            .kcal(881)
+            .menu("""
+                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
+            .isChanged(LocalDateTime.now(clock))
+            .build();
+
+        diningRepository.save(dining);
+
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token)
+            .body(new SoldOutRequest(1L, true))
+            .when()
+            .patch("/coop/dining/soldout")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        // 이벤트 리스너가 품절 이벤트 감지
+        verify(coopEventListener).onDiningSoldOutRequest(any());
     }
 }
