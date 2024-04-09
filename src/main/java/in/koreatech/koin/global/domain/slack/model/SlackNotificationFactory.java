@@ -111,13 +111,13 @@ public class SlackNotificationFactory {
      * 유저 탈퇴 알림
      */
     public SlackNotification generateUserDeleteNotification(
-        String content
+        String email
     ) {
         return SlackNotification.builder()
             .slackUrl(eventNotificationUrl)
             .text(String.format("""
                 `%s님이 탈퇴하셨습니다.`
-                """, content)
+                """, email)
             )
             .build();
     }
