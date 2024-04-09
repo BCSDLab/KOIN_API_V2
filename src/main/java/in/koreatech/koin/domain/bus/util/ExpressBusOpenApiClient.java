@@ -215,7 +215,7 @@ public class ExpressBusOpenApiClient {
         List<ExpressBusTimeTable> busArrivals
     ) {
         return busArrivals.stream()
-            .map(it -> new ExpressBusRemainTime(it.departure(), EXPRESS.name().toLowerCase()))
+            .map(it -> new ExpressBusRemainTime(it.depart(), EXPRESS.name().toLowerCase()))
             .toList();
     }
 
