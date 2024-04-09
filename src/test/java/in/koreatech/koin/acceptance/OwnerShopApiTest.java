@@ -1249,7 +1249,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .post("/owner/shops/{shopId}/event", shop.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -1298,7 +1297,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .put("/owner/shops/{shopId}/event/{eventId}", shop.getId(), savedEvent.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -1338,7 +1336,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .delete("/owner/shops/{shopId}/event/{eventId}", shop.getId(), savedEvent.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
