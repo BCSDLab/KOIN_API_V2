@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shop.dto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -26,25 +27,49 @@ public record ShopMenuResponse(
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDateTime updatedAt
 ) {
-    public static ShopMenuResponse from(List<MenuCategory> menuCategories) {
-        LocalDateTime lastUpdatedDate = LocalDateTime.of(1900, 1, 1, 0, 0);
-        int count = 0;
-        for (MenuCategory menuCategory : menuCategories) {
-            for (MenuCategoryMap menuCategoryMap : menuCategory.getMenuCategoryMaps()) {
-                LocalDateTime updatedAt = menuCategoryMap.getMenu().getUpdatedAt();
-                if (updatedAt.isAfter(lastUpdatedDate)) {
-                    lastUpdatedDate = updatedAt;
+
+    public static ShopMenuResponse from(List<Menu> menus) {
+        LocalDateTime lastUpdatedAt = LocalDateTime.MIN;
+        List<InnerMenuCategoriesResponse> innerMenuCategoriesResponses = new ArrayList<>();
+        for (Menu menu : menus) {
+            if (lastUpdatedAt.isBefore(menu.getUpdatedAt())) {
+                lastUpdatedAt = menu.getUpdatedAt();
+            }
+            for (MenuCategoryMap menuCategoryMap : menu.getMenuCategoryMaps()) {
+                MenuCategory menuCategory = menuCategoryMap.getMenuCategory();
+                Integer index = getInnerMenuCategoriesResponseIndex(innerMenuCategoriesResponses, menuCategory);
+                InnerMenuCategoriesResponse.InnerMenuResponse innerMenuResponse = InnerMenuCategoriesResponse.InnerMenuResponse.from(
+                    menuCategoryMap);
+                if (index != null) {
+                    innerMenuCategoriesResponses.get(index).menus.add(innerMenuResponse);
+                } else {
+                    List<InnerMenuCategoriesResponse.InnerMenuResponse> menuResponses = new ArrayList<>();
+                    menuResponses.add(innerMenuResponse);
+                    innerMenuCategoriesResponses.add(new InnerMenuCategoriesResponse(
+                        menuCategory.getId(),
+                        menuCategory.getName(),
+                        menuResponses
+                    ));
                 }
-                ++count;
             }
         }
         return new ShopMenuResponse(
-            count,
-            menuCategories.stream()
-                .filter(menuCategory -> !menuCategory.getMenuCategoryMaps().isEmpty())
-                .map(InnerMenuCategoriesResponse::from).toList(),
-            lastUpdatedDate
+            menus.size(),
+            innerMenuCategoriesResponses,
+            lastUpdatedAt
         );
+    }
+
+    private static Integer getInnerMenuCategoriesResponseIndex(
+        List<InnerMenuCategoriesResponse> innerMenuCategoriesResponses,
+        MenuCategory menuCategory
+    ) {
+        for (int i = 0; i < innerMenuCategoriesResponses.size(); ++i) {
+            if (innerMenuCategoriesResponses.get(i).id.equals(menuCategory.getId())) {
+                return i;
+            }
+        }
+        return null;
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
@@ -58,6 +83,7 @@ public record ShopMenuResponse(
         @Schema(description = "해당 상점의 모든 메뉴 리스트")
         List<InnerMenuResponse> menus
     ) {
+
         public static InnerMenuCategoriesResponse from(MenuCategory menuCategory) {
             return new InnerMenuCategoriesResponse(
                 menuCategory.getId(),
@@ -92,6 +118,7 @@ public record ShopMenuResponse(
             @Schema(description = "이미지 URL리스트")
             List<String> imageUrls
         ) {
+
             public static InnerMenuResponse from(MenuCategoryMap menuCategoryMap) {
                 Menu menu = menuCategoryMap.getMenu();
                 boolean isSingle = !menu.hasMultipleOption();
@@ -115,6 +142,7 @@ public record ShopMenuResponse(
                 @Schema(example = "26000", description = "가격")
                 Integer price
             ) {
+
                 public static InnerOptionPrice from(MenuOption menuOption) {
                     return new InnerOptionPrice(
                         menuOption.getOption(),

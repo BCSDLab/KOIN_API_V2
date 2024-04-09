@@ -146,8 +146,8 @@ public class OwnerShopService {
 
     public ShopMenuResponse getMenus(Integer shopId, Integer ownerId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
-        return ShopMenuResponse.from(menuCategories);
+        List<Menu> menus = menuRepository.findAllByShopId(shop.getId());
+        return ShopMenuResponse.from(menus);
     }
 
     public MenuCategoriesResponse getCategories(Integer shopId, Integer ownerId) {

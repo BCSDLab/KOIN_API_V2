@@ -501,16 +501,22 @@ class UserApiTest extends AcceptanceTest {
         userRepository.save(user);
         String token = jwtProvider.createToken(user);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .delete("/user")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
 
-        assertThat(userRepository.findById(user.getId())).isNotPresent();
+                RestAssured
+                    .given()
+                    .header("Authorization", "Bearer " + token)
+                    .when()
+                    .delete("/user")
+                    .then()
+                    .statusCode(HttpStatus.NO_CONTENT.value())
+                    .extract();
+
+                assertThat(userRepository.findById(user.getId())).isNotPresent();
+            }
+        });
     }
 
     @Test
@@ -583,7 +589,7 @@ class UserApiTest extends AcceptanceTest {
             .extract();
 
         assertThat(response.body().jsonPath().getString("message"))
-            .isEqualTo("이미 존재하는 데이터입니다.");
+            .contains("존재하는 이메일입니다.");
     }
 
     @Test
@@ -614,7 +620,8 @@ class UserApiTest extends AcceptanceTest {
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getString("message")).isEqualTo("이미 존재하는 데이터입니다.");
+                softly.assertThat(response.body().jsonPath().getString("message"))
+                    .contains("이미 존재하는 닉네임입니다.");
             }
         );
     }

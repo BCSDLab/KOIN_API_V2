@@ -5,7 +5,6 @@ import static lombok.AccessLevel.PROTECTED;
 import java.time.Clock;
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -31,7 +30,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "users")
 @Where(clause = "is_deleted=0")
-@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = PROTECTED)
 public class User extends BaseEntity {
 

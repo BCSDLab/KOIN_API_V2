@@ -18,4 +18,6 @@ public interface OwnerRepository extends Repository<Owner, Integer> {
     Owner save(Owner owner);
 
     Optional<Owner> findByCompanyRegistrationNumber(String companyRegistrationNumber);
+
+    void deleteByUserId(Integer userId);
 }

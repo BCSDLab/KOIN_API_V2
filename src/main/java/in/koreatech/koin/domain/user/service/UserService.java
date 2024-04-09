@@ -4,10 +4,13 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
+import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
@@ -15,8 +18,12 @@ import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserDeleteEvent;
 import in.koreatech.koin.domain.user.model.UserToken;
+import in.koreatech.koin.domain.user.model.UserType;
+import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
@@ -31,8 +38,12 @@ public class UserService {
 
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
+    private final OwnerRepository ownerRepository;
+    private final OwnerAttachmentRepository ownerAttachmentRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
@@ -79,7 +90,16 @@ public class UserService {
     @Transactional
     public void withdraw(Integer userId) {
         User user = userRepository.getById(userId);
+        if (user.getUserType() == UserType.STUDENT) {
+            studentRepository.deleteByUserId(userId);
+            ownerRepository.deleteByUserId(userId);
+            ownerAttachmentRepository.deleteByOwnerId(userId);
+        } else if (user.getUserType() == UserType.OWNER) {
+            ownerRepository.deleteByUserId(userId);
+            ownerAttachmentRepository.deleteByOwnerId(userId);
+        }
         userRepository.delete(user);
+        eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
     }
 
     public void checkExistsEmail(EmailCheckExistsRequest request) {
@@ -90,7 +110,7 @@ public class UserService {
 
     public void checkUserNickname(NicknameCheckExistsRequest request) {
         userRepository.findByNickname(request.nickname()).ifPresent(user -> {
-            throw DuplicationEmailException.withDetail("nickname: " + request.nickname());
+            throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
         });
     }
 
