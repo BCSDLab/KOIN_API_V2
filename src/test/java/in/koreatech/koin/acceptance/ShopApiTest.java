@@ -936,24 +936,25 @@ class ShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        Assertions.assertThat(response.asPrettyString())
-            .isEqualTo(
-                """
-                    {
-                        "events": [
-                            {
-                                "title": "테스트 이벤트 1",
-                                "content": "<P>테스트 이벤트 내용1</P>",
-                                "thumbnail_image": "https://test.com/test-thumbnail-1.jpg"
-                            },
-                            {
-                                "title": "테스트 이벤트 2",
-                                "content": "<P>테스트 이벤트 내용2</P>",
-                                "thumbnail_image": "https://test.com/test-thumbnail-2.jpg"
-                            }
-                        ]
-                    }"""
-            );
+        JsonAssertions.assertThat(String.format("""
+            {
+               "events": [
+                   {
+                       "title": "테스트 이벤트 1",
+                       "content": "<P>테스트 이벤트 내용1</P>",
+                       "thumbnail_image": "https://test.com/test-thumbnail-1.jpg",
+                       "start_date": "2024-02-21",
+                       "end_date": "2024-02-24"
+                   },
+                   {
+                       "title": "테스트 이벤트 2",
+                       "content": "<P>테스트 이벤트 내용2</P>",
+                       "thumbnail_image": "https://test.com/test-thumbnail-2.jpg",
+                       "start_date": "2024-02-21",
+                       "end_date": "2024-02-24"
+                   }
+               ]
+               }""")).isEqualTo(response.asPrettyString());
     }
 
     @Test
