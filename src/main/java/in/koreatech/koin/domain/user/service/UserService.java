@@ -4,10 +4,13 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
+import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
@@ -17,7 +20,9 @@ import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserDeleteEvent;
 import in.koreatech.koin.domain.user.model.UserToken;
+import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
@@ -32,8 +37,12 @@ public class UserService {
 
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
+    private final OwnerRepository ownerRepository;
+    private final OwnerAttachmentRepository ownerAttachmentRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
@@ -80,7 +89,15 @@ public class UserService {
     @Transactional
     public void withdraw(Long userId) {
         User user = userRepository.getById(userId);
+        switch (user.getUserType()) {
+            case STUDENT:
+                studentRepository.deleteByUserId(userId);
+            case OWNER:
+                ownerRepository.deleteByUserId(userId);
+                ownerAttachmentRepository.deleteByOwnerId(userId);
+        }
         userRepository.delete(user);
+        eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail()));
     }
 
     public void checkExistsEmail(EmailCheckExistsRequest request) {
