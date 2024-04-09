@@ -32,7 +32,7 @@ public class Owner {
 
     @Id
     @Column(name = "user_id", nullable = false)
-    private Long id;
+    private Integer id;
 
     @MapsId
     @OneToOne(cascade = ALL)

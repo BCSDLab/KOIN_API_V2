@@ -34,7 +34,7 @@ public interface CommunityApi {
     @Operation(summary = "게시글 단건 조회")
     @GetMapping("/articles/{id}")
     ResponseEntity<ArticleResponse> getArticle(
-        @UserId Long userId,
+        @UserId Integer userId,
         @Parameter(in = PATH) @PathVariable("id") Long articleId,
         @IpAddress String ipAddress
     );

@@ -50,7 +50,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/user/student/me")
     ResponseEntity<StudentResponse> getStudent(
-        @Auth(permit = STUDENT) Long userId
+        @Auth(permit = STUDENT) Integer userId
     );
 
     @ApiResponses(
@@ -66,7 +66,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/user/student/me")
     ResponseEntity<StudentUpdateResponse> updateStudent(
-        @Auth(permit = STUDENT) Long userId,
+        @Auth(permit = STUDENT) Integer userId,
         @Valid StudentUpdateRequest studentUpdateRequest
     );
 
@@ -96,7 +96,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/logout")
     ResponseEntity<Void> logout(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     );
 
     @ApiResponses(
@@ -140,7 +140,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/user")
     ResponseEntity<Void> withdraw(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     );
 
     @ApiResponses(
@@ -186,7 +186,7 @@ public interface UserApi {
     @Operation(summary = "사용자 권한 조회")
     @GetMapping("/user/auth")
     ResponseEntity<AuthResponse> getAuth(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     );
 
     @ApiResponses(

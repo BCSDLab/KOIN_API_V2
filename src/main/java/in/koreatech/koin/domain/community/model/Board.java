@@ -51,11 +51,11 @@ public class Board extends BaseEntity {
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @NotNull
     @Column(name = "is_notice", nullable = false)
-    private Boolean isNotice = false;
+    private boolean isNotice = false;
 
     @Column(name = "parent_id")
     private Long parentId;
@@ -69,8 +69,8 @@ public class Board extends BaseEntity {
     }
 
     @Builder
-    private Board(String tag, String name, Boolean isAnonymous, Long articleCount, Boolean isDeleted,
-        Boolean isNotice, Long parentId, Long seq) {
+    private Board(String tag, String name, boolean isAnonymous, Long articleCount, boolean isDeleted,
+        boolean isNotice, Long parentId, Long seq) {
         this.tag = tag;
         this.name = name;
         this.isAnonymous = isAnonymous;

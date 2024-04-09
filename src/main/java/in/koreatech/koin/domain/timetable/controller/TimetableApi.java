@@ -67,7 +67,7 @@ public interface TimetableApi {
     @GetMapping("/timetables")
     ResponseEntity<TimeTableResponse> getTimeTables(
         @RequestParam(value = "semester") String semester,
-        @Auth(permit = {STUDENT}) Long userId
+        @Auth(permit = {STUDENT}) Integer userId
     );
 
     @ApiResponses(
@@ -83,7 +83,7 @@ public interface TimetableApi {
     @PostMapping("/timetables")
     ResponseEntity<TimeTableResponse> createTimeTables(
         @RequestBody TimeTableRequest timeTableRequest,
-        @Auth(permit = {STUDENT}) Long userId
+        @Auth(permit = {STUDENT}) Integer userId
     );
 
     @ApiResponses(
@@ -99,7 +99,7 @@ public interface TimetableApi {
     @PutMapping("/timetables")
     ResponseEntity<TimeTableResponse> updateTimeTable(
         @RequestBody TimeTableUpdateRequest request,
-        @Auth(permit = {STUDENT}) Long userId
+        @Auth(permit = {STUDENT}) Integer userId
     );
 
     @ApiResponses(
@@ -115,6 +115,6 @@ public interface TimetableApi {
     @PutMapping("/timetables")
     ResponseEntity<Void> deleteTimeTableById(
         @RequestParam(value = "id") Long id,
-        @Auth(permit = {STUDENT}) Long userId
+        @Auth(permit = {STUDENT}) Integer userId
     );
 }

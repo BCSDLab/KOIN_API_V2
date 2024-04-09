@@ -40,13 +40,13 @@ public class TimetableService {
             .toList();
     }
 
-    public TimeTableResponse getTimeTables(Long userId, String semesterRequest) {
+    public TimeTableResponse getTimeTables(Integer userId, String semesterRequest) {
         Semester semester = semesterRepository.getBySemester(semesterRequest);
         return getTimeTableResponse(userId, semester);
     }
 
     @Transactional
-    public TimeTableResponse createTimeTables(Long userId, TimeTableRequest request) {
+    public TimeTableResponse createTimeTables(Integer userId, TimeTableRequest request) {
         User user = userRepository.getById(userId);
         Semester semester = semesterRepository.getBySemester(request.semester());
         for (TimeTableRequest.InnerTimeTableRequest timeTableRequest : request.timetable()) {
@@ -57,7 +57,7 @@ public class TimetableService {
     }
 
     @Transactional
-    public TimeTableResponse updateTimeTables(Long userId, TimeTableUpdateRequest request) {
+    public TimeTableResponse updateTimeTables(Integer userId, TimeTableUpdateRequest request) {
         Semester semester = semesterRepository.getBySemester(request.semester());
         for (TimeTableUpdateRequest.InnerTimeTableRequest timeTableRequest : request.timetable()) {
             TimeTable timeTable = timeTableRepository.getById(timeTableRequest.id());
@@ -72,7 +72,7 @@ public class TimetableService {
         timeTable.updateIsDeleted(true);
     }
 
-    private TimeTableResponse getTimeTableResponse(Long userId, Semester semester) {
+    private TimeTableResponse getTimeTableResponse(Integer userId, Semester semester) {
         List<TimeTable> timeTables = timeTableRepository.findAllByUserIdAndSemesterId(userId, semester.getId());
         return TimeTableResponse.of(semester.getSemester(), timeTables);
     }

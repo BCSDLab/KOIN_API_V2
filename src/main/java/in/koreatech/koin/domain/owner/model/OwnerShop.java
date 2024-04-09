@@ -11,11 +11,11 @@ import lombok.Getter;
 public class OwnerShop {
 
     @Id
-    private Long ownerId;
+    private Integer ownerId;
     private Long shopId;
 
     @Builder
-    private OwnerShop(Long ownerId, Long shopId) {
+    private OwnerShop(Integer ownerId, Long shopId) {
         this.ownerId = ownerId;
         this.shopId = shopId;
     }

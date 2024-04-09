@@ -49,7 +49,7 @@ public record ArticlesResponse(
         String content,
 
         @Schema(description = "작성자 고유 ID", example = "1")
-        Long userId,
+        Integer userId,
 
         @Schema(description = "작성자 닉네임", example = "닉네임")
         String nickname,
@@ -158,8 +158,8 @@ public record ArticlesResponse(
                 board.getName(),
                 board.getIsAnonymous(),
                 board.getArticleCount(),
-                board.getIsDeleted(),
-                board.getIsNotice(),
+                board.isDeleted(),
+                board.isNotice(),
                 board.getParentId(),
                 board.getSeq(),
                 board.getChildren().isEmpty()

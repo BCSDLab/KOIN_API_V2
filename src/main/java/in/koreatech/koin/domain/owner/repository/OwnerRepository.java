@@ -9,9 +9,9 @@ import in.koreatech.koin.domain.owner.model.Owner;
 
 public interface OwnerRepository extends Repository<Owner, Long> {
 
-    Optional<Owner> findById(Long ownerId);
+    Optional<Owner> findById(Integer ownerId);
 
-    default Owner getById(Long ownerId) {
+    default Owner getById(Integer ownerId) {
         return findById(ownerId).orElseThrow(() -> OwnerNotFoundException.withDetail("ownerId: " + ownerId));
     }
 

@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.dto.NotificationPermitRequest;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.dto.NotificationSubscribePermitRequest;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,7 +39,7 @@ public interface NotificationApi {
     @Operation(summary = "푸쉬알림 동의 여부 조회")
     @GetMapping("/notification")
     ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     );
 
     @ApiResponses(
@@ -54,7 +54,7 @@ public interface NotificationApi {
     @Operation(summary = "푸쉬알림 동의")
     @PostMapping("/notification")
     ResponseEntity<Void> permitNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
         @Valid @RequestBody NotificationPermitRequest request
     );
 
@@ -70,7 +70,7 @@ public interface NotificationApi {
     @Operation(summary = "특정 푸쉬알림 구독")
     @PostMapping("/notification/subscribe")
     ResponseEntity<Void> permitNotificationSubscribe(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
         @Valid @RequestBody NotificationSubscribePermitRequest request
     );
 
@@ -86,7 +86,7 @@ public interface NotificationApi {
     @Operation(summary = "푸쉬알림 거절")
     @DeleteMapping("/notification")
     ResponseEntity<Void> rejectNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     );
 
     @ApiResponses(
@@ -101,7 +101,7 @@ public interface NotificationApi {
     @Operation(summary = "특정 푸쉬알림 구독 취소")
     @DeleteMapping("/notification/subscribe")
     ResponseEntity<Void> rejectNotificationSubscribe(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
         @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
     );
 }

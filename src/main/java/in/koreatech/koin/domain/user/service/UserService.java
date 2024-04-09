@@ -52,13 +52,13 @@ public class UserService {
     }
 
     @Transactional
-    public void logout(Long userId) {
+    public void logout(Integer userId) {
         userTokenRepository.deleteById(userId);
     }
 
     public UserTokenRefreshResponse refresh(UserTokenRefreshRequest request) {
         String userId = getUserId(request.refreshToken());
-        UserToken userToken = userTokenRepository.getById(Long.parseLong(userId));
+        UserToken userToken = userTokenRepository.getById(Integer.parseInt(userId));
         if (!Objects.equals(userToken.getRefreshToken(), request.refreshToken())) {
             throw new IllegalArgumentException("refresh token이 일치하지 않습니다. request: " + request);
         }
@@ -77,7 +77,7 @@ public class UserService {
     }
 
     @Transactional
-    public void withdraw(Long userId) {
+    public void withdraw(Integer userId) {
         User user = userRepository.getById(userId);
         userRepository.delete(user);
     }
@@ -94,7 +94,7 @@ public class UserService {
         });
     }
 
-    public AuthResponse getAuth(Long userId) {
+    public AuthResponse getAuth(Integer userId) {
         User user = userRepository.getById(userId);
         return AuthResponse.from(user);
     }

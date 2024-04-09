@@ -45,7 +45,7 @@ public class Comment extends BaseEntity {
 
     @NotNull
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private Integer userId;
 
     @Size(max = 50)
     @NotNull
@@ -62,7 +62,7 @@ public class Comment extends BaseEntity {
     @Transient
     private Boolean grantDelete = false;
 
-    public void updateAuthority(Long userId) {
+    public void updateAuthority(Integer userId) {
         if (this.userId.equals(userId)) {
             this.grantEdit = true;
             this.grantDelete = true;
@@ -70,7 +70,7 @@ public class Comment extends BaseEntity {
     }
 
     @Builder
-    private Comment(Article article, String content, Long userId,
+    private Comment(Article article, String content, Integer userId,
         String nickname, Boolean isDeleted) {
         this.article = article;
         this.content = content;

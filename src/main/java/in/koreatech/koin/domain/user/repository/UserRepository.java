@@ -13,7 +13,7 @@ public interface UserRepository extends Repository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
-    Optional<User> findById(Long id);
+    Optional<User> findById(Integer id);
 
     Optional<User> findByNickname(String nickname);
 
@@ -26,7 +26,7 @@ public interface UserRepository extends Repository<User, Long> {
             .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
     }
 
-    default User getById(Long userId) {
+    default User getById(Integer userId) {
         return findById(userId)
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
     }

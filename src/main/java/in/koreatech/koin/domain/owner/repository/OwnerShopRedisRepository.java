@@ -8,5 +8,5 @@ public interface OwnerShopRedisRepository extends Repository<OwnerShop, Long> {
 
     OwnerShop save(OwnerShop ownerShop);
 
-    OwnerShop findById(Long ownerId);
+    OwnerShop findById(Integer ownerId);
 }

@@ -24,7 +24,7 @@ public class CommunityController implements CommunityApi {
 
     @GetMapping("/articles/{id}")
     public ResponseEntity<ArticleResponse> getArticle(
-        @UserId Long userId,
+        @UserId Integer userId,
         @PathVariable("id") Long articleId,
         @IpAddress String ipAddress
     ) {

@@ -12,18 +12,18 @@ public interface ShopRepository extends Repository<Shop, Long> {
 
     Shop save(Shop shop);
 
-    List<Shop> findAllByOwnerId(Long ownerId);
+    List<Shop> findAllByOwnerId(Integer ownerId);
 
     Optional<Shop> findById(Long shopId);
 
-    Optional<Shop> findByOwnerId(Long ownerId);
+    Optional<Shop> findByOwnerId(Integer ownerId);
 
     default Shop getById(Long shopId) {
         return findById(shopId)
             .orElseThrow(() -> ShopNotFoundException.withDetail("shopId: " + shopId));
     }
 
-    default Shop getByOwnerId(Long ownerId) {
+    default Shop getByOwnerId(Integer ownerId) {
         return findByOwnerId(ownerId)
             .orElseThrow(() -> ShopNotFoundException.withDetail("ownerId: " + ownerId));
     }

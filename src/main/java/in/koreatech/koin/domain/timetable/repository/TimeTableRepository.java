@@ -12,11 +12,11 @@ public interface TimeTableRepository extends Repository<TimeTable, Long> {
 
     TimeTable save(TimeTable timeTable);
 
-    List<TimeTable> findAllByUserIdAndSemesterId(Long userId, Long semesterId);
+    List<TimeTable> findAllByUserIdAndSemesterId(Integer userId, Long semesterId);
 
     Optional<TimeTable> findById(Long id);
 
-    void deleteByUserIdAndSemesterId(Long userId, Long semesterId);
+    void deleteByUserIdAndSemesterId(Integer userId, Long semesterId);
 
     default TimeTable getById(Long id) {
         return findById(id)

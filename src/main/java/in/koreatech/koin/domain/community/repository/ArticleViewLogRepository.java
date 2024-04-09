@@ -8,7 +8,7 @@ import in.koreatech.koin.domain.community.model.ArticleViewLog;
 
 public interface ArticleViewLogRepository extends Repository<ArticleViewLog, Long> {
 
-    Optional<ArticleViewLog> findByArticleIdAndUserId(Long articleId, Long userId);
+    Optional<ArticleViewLog> findByArticleIdAndUserId(Long articleId, Integer userId);
 
     ArticleViewLog save(ArticleViewLog articleViewLog);
 }
