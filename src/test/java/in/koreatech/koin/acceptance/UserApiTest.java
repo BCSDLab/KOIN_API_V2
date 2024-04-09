@@ -583,7 +583,7 @@ class UserApiTest extends AcceptanceTest {
             .extract();
 
         assertThat(response.body().jsonPath().getString("message"))
-            .isEqualTo("이미 존재하는 데이터입니다.");
+            .isEqualTo("존재하는 이메일입니다.");
     }
 
     @Test
@@ -614,7 +614,7 @@ class UserApiTest extends AcceptanceTest {
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getString("message")).isEqualTo("이미 존재하는 데이터입니다.");
+                softly.assertThat(response.body().jsonPath().getString("message")).contains("존재하는 이메일입니다.");
             }
         );
     }
