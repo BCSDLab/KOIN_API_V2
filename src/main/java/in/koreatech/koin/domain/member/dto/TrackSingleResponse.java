@@ -75,7 +75,7 @@ public record TrackSingleResponse(
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     private record InnerMemberResponse(
         @Schema(description = "BCSD 회원 고유 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(description = "이름", example = "최준호")
         String name,
@@ -114,7 +114,7 @@ public record TrackSingleResponse(
                 trackName,
                 member.getEmail(),
                 member.getImageUrl(),
-                member.getIsDeleted(),
+                member.isDeleted(),
                 member.getCreatedAt(),
                 member.getUpdatedAt()
             );
