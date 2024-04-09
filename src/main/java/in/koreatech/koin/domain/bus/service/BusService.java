@@ -9,7 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
+import in.koreatech.koin.domain.bus.exception.BusTypeNotFoundException;
+import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.model.BusTimetable;
+import in.koreatech.koin.domain.bus.model.SchoolBusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
@@ -79,5 +83,29 @@ public class BusService {
         if (depart.equals(arrival)) {
             throw BusIllegalStationException.withDetail("depart: " + depart.name() + ", arrival: " + arrival.name());
         }
+    }
+
+    public List<? extends BusTimetable> getBusTimetable(BusType busType, String direction, String region) {
+        if (busType == BusType.CITY) {
+            throw new BusTypeNotSupportException("CITY");
+        }
+
+        if (busType == BusType.EXPRESS) {
+            return expressBusOpenApiClient.getExpressBusTimetable(direction);
+        }
+
+        if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
+            BusCourse busCourse = busRepository.findByBusTypeAndDirectionAndRegion(busType.name(), direction, region);
+
+            return busCourse.getRoutes().stream()
+                .map(route -> new SchoolBusTimetable(
+                    route.getRouteName(),
+                    route.getArrivalInfos().stream()
+                        .map(node -> new SchoolBusTimetable.ArrivalNode(
+                            node.getNodeName(), node.getArrivalTime())
+                        ).toList())).toList();
+        }
+
+        throw new BusTypeNotFoundException(busType.name());
     }
 }

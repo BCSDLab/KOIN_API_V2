@@ -31,7 +31,6 @@ import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
-import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import io.restassured.RestAssured;
@@ -67,9 +66,6 @@ class BusApiTest extends AcceptanceTest {
     void end() {
         handler.setDateTimeProvider(null);
     }
-
-    @Autowired
-    private ExpressBusCacheRepository expressBusCacheRepository;
 
     @Test
     @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
@@ -129,15 +125,14 @@ class BusApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
-                softly.assertThat((Long) response.body().jsonPath().get("now_bus.bus_number")).isNull();
+                softly.assertThat((Long)response.body().jsonPath().get("now_bus.bus_number")).isNull();
                 softly.assertThat(response.body().jsonPath().getLong("now_bus.remain_time")).isEqualTo(
                     BusRemainTime.of(arrivalTime).getRemainSeconds(clock));
-                softly.assertThat((Long) response.body().jsonPath().get("next_bus.bus_number")).isNull();
-                softly.assertThat((Long) response.body().jsonPath().get("next_bus.remain_time")).isNull();
+                softly.assertThat((Long)response.body().jsonPath().get("next_bus.bus_number")).isNull();
+                softly.assertThat((Long)response.body().jsonPath().get("next_bus.remain_time")).isNull();
             }
         );
     }
-
 
     @Test
     @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - Redis")
@@ -193,8 +188,8 @@ class BusApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(busNumber);
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.remain_time"))
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(busNumber);
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.remain_time"))
                     .isEqualTo(
                         BusRemainTime.of(remainTime, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
                 softly.assertThat(response.body().jsonPath().getObject("next_bus.bus_number", Long.class)).isNull();
@@ -296,15 +291,100 @@ class BusApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(400);
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.remain_time"))
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(400);
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.remain_time"))
                     .isEqualTo(
                         BusRemainTime.of(600L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
-                softly.assertThat((Long) response.body().jsonPath().getLong("next_bus.bus_number")).isEqualTo(405);
-                softly.assertThat((Long) response.body().jsonPath().getLong("next_bus.remain_time"))
+                softly.assertThat((Long)response.body().jsonPath().getLong("next_bus.bus_number")).isEqualTo(405);
+                softly.assertThat((Long)response.body().jsonPath().getLong("next_bus.remain_time"))
                     .isEqualTo(
                         BusRemainTime.of(800L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
             }
         );
+    }
+
+    @Test
+    @DisplayName("버스 시간표를 조회한다 - CITY - 지원하지 않음")
+    void getCityBusTimetable() {
+        when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
+
+        BusType busType = BusType.from("city");
+        BusStation depart = BusStation.from("terminal");
+        BusStation arrival = BusStation.from("koreatech");
+        BusDirection direction = BusStation.getDirection(depart, arrival);
+
+        versionRepository.save(
+            Version.builder()
+                .version("20240_1711255839")
+                .type("city_bus_timetable")
+                .build()
+        );
+
+        Instant requestedAt = ZonedDateTime.parse("2024-02-21 21:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
+            .toInstant();
+
+        when(clock.instant()).thenReturn(requestedAt);
+        when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
+
+        String busApiReturnValue = """
+            {
+              "response": {
+                "header": {
+                  "resultCode": "00",
+                  "resultMsg": "NORMAL SERVICE."
+                },
+                "body": {
+                  "items": {
+                    "item": [
+                      {
+                        "arrprevstationcnt": 3,
+                        "arrtime": 600,
+                        "nodeid": "CAB285000686",
+                        "nodenm": "종합터미널",
+                        "routeid": "CAB285000003",
+                        "routeno": 400,
+                        "routetp": "일반버스",
+                        "vehicletp": "저상버스"
+                      },
+                      {
+                        "arrprevstationcnt": 10,
+                        "arrtime": 800,
+                        "nodeid": "CAB285000686",
+                        "nodenm": "종합터미널",
+                        "routeid": "CAB285000024",
+                        "routeno": 405,
+                        "routetp": "일반버스",
+                        "vehicletp": "일반차량"
+                      },
+                      {
+                        "arrprevstationcnt": 10,
+                        "arrtime": 700,
+                        "nodeid": "CAB285000686",
+                        "nodenm": "종합터미널",
+                        "routeid": "CAB285000024",
+                        "routeno": 200,
+                        "routetp": "일반버스",
+                        "vehicletp": "일반차량"
+                      }
+                    ]
+                  },
+                  "numOfRows": 30,
+                  "pageNo": 1,
+                  "totalCount": 3
+                }
+              }
+            }
+            """;
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .param("bus_type", busType.name().toLowerCase())
+            .param("direction", "to")
+            .param("region", "천안")
+            .get("/bus/timetable")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
     }
 }

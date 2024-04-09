@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.bus.model.express;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -12,7 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@RedisHash(value = "expressBus")
+@RedisHash(value = "Tago@busArrivalInfo:intercityBus:")
 public class ExpressBusCache {
 
     private static final long CACHE_EXPIRE_HOUR = 1L;
@@ -28,7 +27,6 @@ public class ExpressBusCache {
     @Builder
     private ExpressBusCache(String id, List<ExpressBusCacheInfo> busInfos, Long expiration) {
         this.id = id;
-        this.busInfos = (busInfos == null) ? new ArrayList<>() : busInfos;
         this.expiration = expiration == null ? CACHE_EXPIRE_HOUR : expiration;
     }
 
