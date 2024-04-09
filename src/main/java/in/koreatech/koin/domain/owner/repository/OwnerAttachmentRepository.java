@@ -9,4 +9,6 @@ public interface OwnerAttachmentRepository extends Repository<OwnerAttachment, L
     OwnerAttachment save(OwnerAttachment ownerAttachment);
 
     OwnerAttachment findById(Long id);
+
+    void deleteByOwnerId(Long ownerId);
 }
