@@ -90,7 +90,7 @@ public class ShopService {
     }
 
     public ShopEventsResponse getAllEvents() {
-        List<EventArticle> eventArticles = eventArticleRepository.findAllEvents();
+        List<EventArticle> eventArticles = eventArticleRepository.findAllDurationEvents();
         return ShopEventsResponse.from(eventArticles);
     }
 }
