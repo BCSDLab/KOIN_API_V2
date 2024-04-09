@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
@@ -25,7 +26,7 @@ public class BusController implements BusApi {
 
     private final BusService busService;
 
-    @GetMapping
+    @GetMapping("/bus")
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
         @RequestParam(value = "bus_type") BusType busType,
         @RequestParam BusStation depart,
@@ -35,6 +36,11 @@ public class BusController implements BusApi {
         return ResponseEntity.ok().body(busRemainTime);
     }
 
+    @GetMapping("/courses")
+    public ResponseEntity<List<BusCourseResponse>> getBusCourses() {
+        return ResponseEntity.ok().body(busService.getBusCourses());
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<SingleBusTimeResponse>> getSearchTimetable(
         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
@@ -42,7 +48,8 @@ public class BusController implements BusApi {
         @RequestParam BusStation depart,
         @RequestParam BusStation arrival
     ) {
-        List<SingleBusTimeResponse> singleBusTimeResponses = busService.searchTimetable(date, LocalTime.parse(time), depart, arrival);
+        List<SingleBusTimeResponse> singleBusTimeResponses = busService.searchTimetable(date, LocalTime.parse(time),
+            depart, arrival);
         return ResponseEntity.ok().body(singleBusTimeResponses);
     }
 }

@@ -2,12 +2,14 @@ package in.koreatech.koin.domain.user.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import in.koreatech.koin.domain.user.exception.UserResetTokenExpiredException;
 import in.koreatech.koin.global.config.LocalDateTimeAttributeConverter;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -30,9 +32,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "users")
 @Where(clause = "is_deleted=0")
-@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = PROTECTED)
 public class User extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -70,7 +72,7 @@ public class User extends BaseEntity {
 
     @NotNull
     @Column(name = "is_authed", nullable = false)
-    private Boolean isAuthed = false;
+    private boolean isAuthed = false;
 
     @Column(name = "last_logged_at")
     private LocalDateTime lastLoggedAt;
@@ -87,16 +89,16 @@ public class User extends BaseEntity {
     @Column(name = "auth_token")
     private String authToken;
 
-    @Column(name = "auth_expired_at")
     @Convert(converter = LocalDateTimeAttributeConverter.class)
+    @Column(name = "auth_expired_at")
     private LocalDateTime authExpiredAt;
 
     @Size(max = 255)
     @Column(name = "reset_token")
     private String resetToken;
 
-    @Column(name = "reset_expired_at")
     @Convert(converter = LocalDateTimeAttributeConverter.class)
+    @Column(name = "reset_expired_at")
     private LocalDateTime resetExpiredAt;
 
     @Column(name = "device_token", nullable = true)
@@ -104,9 +106,10 @@ public class User extends BaseEntity {
 
     @Builder
     private User(String password, String nickname, String name, String phoneNumber, UserType userType,
-        String email, UserGender gender, Boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-        Boolean isDeleted, String authToken, LocalDateTime authExpiredAt, String resetToken, LocalDateTime resetExpiredAt,
-        String deviceToken) {
+                 String email, UserGender gender, boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
+                 Boolean isDeleted, String authToken, LocalDateTime authExpiredAt, String resetToken,
+                 LocalDateTime resetExpiredAt,
+                 String deviceToken) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -145,6 +148,11 @@ public class User extends BaseEntity {
         this.password = passwordEncoder.encode(password);
     }
 
+    public void generateResetTokenForFindPassword(Clock clock) {
+        this.resetExpiredAt = LocalDateTime.now(clock).plusHours(1);
+        this.resetToken = this.email + this.resetExpiredAt;
+    }
+
     public void update(String nickname, String name, String phoneNumber, UserGender gender) {
         this.nickname = nickname;
         this.name = name;
@@ -154,5 +162,11 @@ public class User extends BaseEntity {
 
     public void auth() {
         this.isAuthed = true;
+    }
+
+    public void validateResetToken() {
+        if (resetExpiredAt.isBefore(LocalDateTime.now())) {
+            throw UserResetTokenExpiredException.withDetail("resetToken: " + resetToken);
+        }
     }
 }

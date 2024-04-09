@@ -64,9 +64,9 @@ public class ShopService {
     }
 
     public ShopMenuResponse getShopMenus(Long shopId) {
-        Shop shop = shopRepository.getById(shopId);
-        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
-        return ShopMenuResponse.from(menuCategories);
+        shopRepository.getById(shopId);
+        List<Menu> menus = menuRepository.findAllByShopId(shopId);
+        return ShopMenuResponse.from(menus);
     }
 
     public ShopsResponse getShops() {
@@ -84,8 +84,13 @@ public class ShopService {
         return ShopCategoriesResponse.from(shopCategories);
     }
 
-    public ShopEventsResponse getEvents(Long shopId) {
+    public ShopEventsResponse getShopEvents(Long shopId) {
         List<EventArticle> eventArticles = eventArticleRepository.findAllByShopId(shopId);
+        return ShopEventsResponse.from(eventArticles);
+    }
+
+    public ShopEventsResponse getAllEvents() {
+        List<EventArticle> eventArticles = eventArticleRepository.findAllDurationEvents();
         return ShopEventsResponse.from(eventArticles);
     }
 }

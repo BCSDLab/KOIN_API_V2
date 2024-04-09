@@ -314,6 +314,27 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("셔틀버스의 코스 정보들을 조회한다.")
+    void getBusCourses() {
+        var response = RestAssured
+            .given()
+            .when()
+            .get("/bus/courses")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getList("").size()).isEqualTo(1);
+                softly.assertThat(response.body().jsonPath().getString("[0].bus_type")).isEqualTo("shuttle");
+                softly.assertThat(response.body().jsonPath().getString("[0].direction")).isEqualTo("from");
+                softly.assertThat(response.body().jsonPath().getString("[0].region")).isEqualTo("천안");
+            }
+        );
+    }
+
+    @Test
     @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
     void getSearchTimetable() {
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));

@@ -128,4 +128,18 @@ public class EventArticle extends BaseEntity {
         this.startDate = startDate;
         this.endDate = endDate;
     }
+
+    public void modifyArticle(
+        String title,
+        String content,
+        String thumbnail,
+        LocalDate startDate,
+        LocalDate endDate
+    ) {
+        this.title = title;
+        this.content = content;
+        this.thumbnail = thumbnail;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 }

@@ -14,6 +14,7 @@ import java.util.Locale;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
@@ -147,4 +148,11 @@ public class BusService {
             throw BusIllegalStationException.withDetail("depart: " + depart.name() + ", arrival: " + arrival.name());
         }
     }
+
+    public List<BusCourseResponse> getBusCourses() {
+        return busRepository.findAll().stream()
+            .map(BusCourseResponse::from)
+            .toList();
+    }
+
 }

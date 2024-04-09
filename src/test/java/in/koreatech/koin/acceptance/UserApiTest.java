@@ -5,7 +5,8 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -500,16 +501,22 @@ class UserApiTest extends AcceptanceTest {
         userRepository.save(user);
         String token = jwtProvider.createToken(user);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .delete("/user")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
 
-        assertThat(userRepository.findById(user.getId())).isNotPresent();
+                RestAssured
+                    .given()
+                    .header("Authorization", "Bearer " + token)
+                    .when()
+                    .delete("/user")
+                    .then()
+                    .statusCode(HttpStatus.NO_CONTENT.value())
+                    .extract();
+
+                assertThat(userRepository.findById(user.getId())).isNotPresent();
+            }
+        });
     }
 
     @Test
@@ -582,7 +589,7 @@ class UserApiTest extends AcceptanceTest {
             .extract();
 
         assertThat(response.body().jsonPath().getString("message"))
-            .isEqualTo("이미 존재하는 데이터입니다.");
+            .contains("존재하는 이메일입니다.");
     }
 
     @Test
@@ -613,7 +620,8 @@ class UserApiTest extends AcceptanceTest {
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getString("message")).isEqualTo("이미 존재하는 데이터입니다.");
+                softly.assertThat(response.body().jsonPath().getString("message"))
+                    .contains("이미 존재하는 닉네임입니다.");
             }
         );
     }
@@ -721,7 +729,8 @@ class UserApiTest extends AcceptanceTest {
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getString("user_type")).isEqualTo(user.getUserType().getValue());
+                softly.assertThat(response.body().jsonPath().getString("user_type"))
+                    .isEqualTo(user.getUserType().getValue());
             }
         );
     }
@@ -764,7 +773,7 @@ class UserApiTest extends AcceptanceTest {
                         softly.assertThat(student.getUser().getPhoneNumber()).isEqualTo("010-0000-0000");
                         softly.assertThat(student.getUser().getUserType()).isEqualTo(STUDENT);
                         softly.assertThat(student.getUser().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
-                        softly.assertThat(student.getUser().getIsAuthed()).isEqualTo(false);
+                        softly.assertThat(student.getUser().isAuthed()).isEqualTo(false);
                         softly.assertThat(student.getStudentNumber()).isEqualTo("2021136012");
                         softly.assertThat(student.getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
                         softly.assertThat(student.getAnonymousNickname()).isNotNull();
@@ -809,7 +818,7 @@ class UserApiTest extends AcceptanceTest {
 
         User user1 = userRepository.getByEmail("koko123@koreatech.ac.kr");
 
-        Assertions.assertThat(user1.getIsAuthed()).isEqualTo(true);
+        Assertions.assertThat(user1.isAuthed()).isTrue();
         verify(studentEventListener).onStudentRegister(any());
     }
 

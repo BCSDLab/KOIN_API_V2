@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
@@ -18,4 +19,6 @@ public interface MenuRepository extends Repository<Menu, Long> {
     default Menu getById(Long menuId) {
         return findById(menuId).orElseThrow(() -> MenuNotFoundException.withDetail("menuId: " + menuId));
     }
+
+    List<Menu> findAllByShopId(Long shopId);
 }
