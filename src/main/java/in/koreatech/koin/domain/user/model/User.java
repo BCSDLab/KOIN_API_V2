@@ -20,7 +20,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -41,7 +40,6 @@ public class User extends BaseEntity {
     private Integer id;
 
     @NotNull
-    @Lob
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -67,7 +65,7 @@ public class User extends BaseEntity {
     @Column(name = "email", nullable = false, length = 100)
     private String email;
 
-    @Column(name = "gender")
+    @Column(name = "gender", columnDefinition = "INT")
     @Enumerated(value = EnumType.ORDINAL)
     private UserGender gender;
 
