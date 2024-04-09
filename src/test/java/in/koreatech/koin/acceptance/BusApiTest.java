@@ -321,7 +321,7 @@ class BusApiTest extends AcceptanceTest {
         assertSoftly(
             softly -> {
                 softly.assertThat(response.body().jsonPath().getList("").size()).isEqualTo(1);
-                softly.assertThat(response.body().jsonPath().getString("[0].busType")).isEqualTo("shuttle");
+                softly.assertThat(response.body().jsonPath().getString("[0].bus_type")).isEqualTo("shuttle");
                 softly.assertThat(response.body().jsonPath().getString("[0].direction")).isEqualTo("from");
                 softly.assertThat(response.body().jsonPath().getString("[0].region")).isEqualTo("천안");
             }
