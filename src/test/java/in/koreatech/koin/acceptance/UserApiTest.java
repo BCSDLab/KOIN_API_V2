@@ -497,20 +497,24 @@ class UserApiTest extends AcceptanceTest {
             .isAuthed(true)
             .isDeleted(false)
             .build();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                userRepository.save(user);
+                String token = jwtProvider.createToken(user);
 
-        userRepository.save(user);
-        String token = jwtProvider.createToken(user);
+                RestAssured
+                    .given()
+                    .header("Authorization", "Bearer " + token)
+                    .when()
+                    .delete("/user")
+                    .then()
+                    .statusCode(HttpStatus.NO_CONTENT.value())
+                    .extract();
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .delete("/user")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
-
-        assertThat(userRepository.findById(user.getId())).isNotPresent();
+                assertThat(userRepository.findById(user.getId())).isNotPresent();
+            }
+        });
     }
 
     @Test
