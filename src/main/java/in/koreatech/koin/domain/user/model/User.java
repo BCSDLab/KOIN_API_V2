@@ -32,7 +32,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "users")
 @Where(clause = "is_deleted=0")
-@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = PROTECTED)
 public class User extends BaseEntity {
 
