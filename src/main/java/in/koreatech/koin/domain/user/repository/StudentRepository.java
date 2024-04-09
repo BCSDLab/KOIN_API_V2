@@ -17,4 +17,6 @@ public interface StudentRepository extends Repository<Student, Long> {
         return findById(userId)
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
     }
+
+    void deleteByUserId(Long userId);
 }
