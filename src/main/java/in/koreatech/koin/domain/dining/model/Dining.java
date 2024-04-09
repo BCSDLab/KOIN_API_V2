@@ -55,10 +55,10 @@ public class Dining extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name = "sold_out", columnDefinition = "TIMESTAMP")
+    @Column(name = "sold_out", columnDefinition = "DATETIME")
     private LocalDateTime soldOut;
 
-    @Column(name = "is_changed", columnDefinition = "TIMESTAMP")
+    @Column(name = "is_changed", columnDefinition = "DATETIME")
     private LocalDateTime isChanged;
 
     @Builder
