@@ -80,8 +80,11 @@ public class ExpressBusOpenApiClient {
         this.expressBusCacheRepository = expressBusCacheRepository;
     }
 
-    public SingleBusTimeResponse searchBusTime(String busType, BusStation depart, BusStation arrival,
-        LocalDateTime at) {
+    public SingleBusTimeResponse searchBusTime(
+        String busType,
+        BusStation depart, BusStation arrival,
+        LocalDateTime at
+    ) {
         List<ExpressBusRemainTime> remainTimes = getBusRemainTime(depart, arrival);
         if (remainTimes.isEmpty()) {
             return null;
@@ -212,7 +215,7 @@ public class ExpressBusOpenApiClient {
         List<ExpressBusTimeTable> busArrivals
     ) {
         return busArrivals.stream()
-            .map(it -> new ExpressBusRemainTime(it.arrival(), EXPRESS.name().toLowerCase()))
+            .map(it -> new ExpressBusRemainTime(it.departure(), EXPRESS.name().toLowerCase()))
             .toList();
     }
 
