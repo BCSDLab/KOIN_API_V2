@@ -133,16 +133,16 @@ public record ArticlesResponse(
         Integer articleCount,
 
         @Schema(description = "삭제 여부", example = "false")
-        Boolean isDeleted,
+        boolean isDeleted,
 
         @Schema(description = "공지 여부", example = "false")
-        Boolean isNotice,
+        boolean isNotice,
 
         @Schema(description = "부모 게시판 고유 ID", example = "1")
-        Long parentId,
+        Integer parentId,
 
         @Schema(description = "순서", example = "1")
-        Long seq,
+        Integer seq,
 
         @Schema(description = "하위 게시판 목록")
         List<InnerBoardResponse> children,

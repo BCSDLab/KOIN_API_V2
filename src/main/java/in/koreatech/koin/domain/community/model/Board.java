@@ -59,11 +59,11 @@ public class Board extends BaseEntity {
     private boolean isNotice = false;
 
     @Column(name = "parent_id")
-    private Long parentId;
+    private Integer parentId;
 
     @NotNull
     @Column(name = "seq", nullable = false)
-    private Long seq;
+    private Integer seq;
 
     public List<Board> getChildren() {
         return new ArrayList<>();
@@ -71,7 +71,7 @@ public class Board extends BaseEntity {
 
     @Builder
     private Board(String tag, String name, boolean isAnonymous, Integer articleCount, boolean isDeleted,
-                  boolean isNotice, Long parentId, Long seq) {
+                  boolean isNotice, Integer parentId, Integer seq) {
         this.tag = tag;
         this.name = name;
         this.isAnonymous = isAnonymous;
