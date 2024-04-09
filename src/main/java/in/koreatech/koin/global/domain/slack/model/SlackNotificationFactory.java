@@ -106,4 +106,19 @@ public class SlackNotificationFactory {
             )
             .build();
     }
+
+    /**
+     * 유저 탈퇴 알림
+     */
+    public SlackNotification generateUserDeleteNotification(
+        String content
+    ) {
+        return SlackNotification.builder()
+            .slackUrl(eventNotificationUrl)
+            .text(String.format("""
+                `%s님이 탈퇴하셨습니다.`
+                """, content)
+            )
+            .build();
+    }
 }

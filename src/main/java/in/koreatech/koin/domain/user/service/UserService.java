@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserDeleteEvent;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
@@ -33,6 +35,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
@@ -80,6 +83,7 @@ public class UserService {
     public void withdraw(Long userId) {
         User user = userRepository.getById(userId);
         userRepository.delete(user);
+        eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail()));
     }
 
     public void checkExistsEmail(EmailCheckExistsRequest request) {
