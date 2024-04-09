@@ -32,7 +32,7 @@ public interface BusApi {
         }
     )
     @Operation(summary = "이번 / 다음 버스 남은 시간 조회")
-    @GetMapping("/bus")
+    @GetMapping
     ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
         @Parameter(description = "버스 종류(city, express, shuttle, commuting)") @RequestParam(value = "bus_type") BusType busType,
         @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation depart,

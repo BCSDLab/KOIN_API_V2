@@ -26,7 +26,7 @@ public class BusController implements BusApi {
 
     private final BusService busService;
 
-    @GetMapping("/bus")
+    @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
         @RequestParam(value = "bus_type") BusType busType,
         @RequestParam BusStation depart,
