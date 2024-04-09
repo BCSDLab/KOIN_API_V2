@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop.model;
 
+import static jakarta.persistence.CascadeType.*;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
@@ -11,7 +12,6 @@ import org.hibernate.annotations.Where;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest.InnerOptionPrice;
 import in.koreatech.koin.global.domain.BaseEntity;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
@@ -62,13 +62,13 @@ public class Menu extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = {DETACH, MERGE, PERSIST})
     private List<MenuCategoryMap> menuCategoryMaps = new ArrayList<>();
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = {DETACH, MERGE, PERSIST})
     private List<MenuOption> menuOptions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = {DETACH, MERGE, PERSIST})
     private List<MenuImage> menuImages = new ArrayList<>();
 
     @Builder
