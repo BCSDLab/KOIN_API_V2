@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,7 +33,9 @@ import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.dto.ExpressBusTimeTable;
+import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
+import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
@@ -85,6 +88,22 @@ public class ExpressBusOpenApiClient {
         return getStoredRemainTime(depart.name().toLowerCase(), arrival.name().toLowerCase());
     }
 
+    public SingleBusTimeResponse searchBusTime(String busType, BusStation depart, BusStation arrival,
+        LocalDateTime at) {
+        List<ExpressBusRemainTime> remainTimes = getBusRemainTime(depart, arrival);
+        if (remainTimes.isEmpty()) {
+            return null;
+        }
+
+        LocalTime arrivalTime = remainTimes.stream()
+            .filter(expressBusRemainTime -> at.toLocalTime().isBefore(expressBusRemainTime.getBusArrivalTime()))
+            .min(Comparator.naturalOrder())
+            .map(BusRemainTime::getBusArrivalTime)
+            .orElse(null);
+
+        return new SingleBusTimeResponse(busType, arrivalTime);
+    }
+
     private void storeRemainTimeByOpenApi(String departName, String arrivalName) {
         JsonObject busApiResponse = getBusApiResponse(departName, arrivalName);
         List<OpenApiExpressBusArrival> busArrivals = extractBusArrivalInfo(busApiResponse);
@@ -112,7 +131,7 @@ public class ExpressBusOpenApiClient {
     private JsonObject getBusApiResponse(String departName, String arrivalName) {
         try {
             URL url = getBusApiURL(departName, arrivalName);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "application/json");
             BufferedReader reader;
