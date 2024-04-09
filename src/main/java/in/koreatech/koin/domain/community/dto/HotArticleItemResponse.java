@@ -17,7 +17,7 @@ public record HotArticleItemResponse(
     Integer id,
 
     @Schema(description = "게시판 고유 ID", example = "1")
-    Long boardId,
+    Integer boardId,
 
     @Schema(description = "제목", example = "제목")
     String title,

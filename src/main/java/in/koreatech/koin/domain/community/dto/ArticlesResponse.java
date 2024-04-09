@@ -40,7 +40,7 @@ public record ArticlesResponse(
         Integer id,
 
         @Schema(description = "게시판 고유 ID", example = "1")
-        Long boardId,
+        Integer boardId,
 
         @Schema(description = "제목", example = "제목")
         String title,
@@ -76,7 +76,7 @@ public record ArticlesResponse(
         Boolean isNotice,
 
         @Schema(description = "공지 게시글 고유 ID", example = "1")
-        Long noticeArticleId,
+        Integer noticeArticleId,
 
         @Schema(description = "요약", example = "요약")
         String summary,
@@ -118,7 +118,7 @@ public record ArticlesResponse(
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerBoardResponse(
         @Schema(description = "게시판 고유 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(description = "게시판 태그", example = "notice")
         String tag,

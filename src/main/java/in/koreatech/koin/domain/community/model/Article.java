@@ -17,7 +17,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
@@ -91,7 +90,6 @@ public class Article extends BaseEntity {
     @Column(name = "comment_count", nullable = false)
     private Byte commentCount;
 
-    @Lob
     @Column(name = "meta")
     private String meta;
 
@@ -100,7 +98,7 @@ public class Article extends BaseEntity {
     private boolean isNotice = false;
 
     @Column(name = "notice_article_id")
-    private Long noticeArticleId;
+    private Integer noticeArticleId;
 
     @Transient
     private String summary;
@@ -141,7 +139,7 @@ public class Article extends BaseEntity {
         Byte commentCount,
         String meta,
         boolean isNotice,
-        Long noticeArticleId
+        Integer noticeArticleId
     ) {
         this.board = board;
         this.title = title;

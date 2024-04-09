@@ -26,10 +26,11 @@ import lombok.NoArgsConstructor;
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
 public class Board extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private Integer id;
 
     @Size(max = 10)
     @NotNull
@@ -70,7 +71,7 @@ public class Board extends BaseEntity {
 
     @Builder
     private Board(String tag, String name, boolean isAnonymous, Long articleCount, boolean isDeleted,
-        boolean isNotice, Long parentId, Long seq) {
+                  boolean isNotice, Long parentId, Long seq) {
         this.tag = tag;
         this.name = name;
         this.isAnonymous = isAnonymous;

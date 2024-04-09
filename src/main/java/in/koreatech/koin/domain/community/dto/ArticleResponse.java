@@ -19,7 +19,7 @@ public record ArticleResponse(
     Integer id,
 
     @Schema(description = "게시판 고유 ID", example = "1")
-    Long boardId,
+    Integer boardId,
 
     @Schema(description = "제목", example = "제목")
     String title,
@@ -80,7 +80,7 @@ public record ArticleResponse(
     @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerBoardResponse(
         @Schema(description = "게시판 고유 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(description = "게시판 태그", example = "tag")
         String tag,
