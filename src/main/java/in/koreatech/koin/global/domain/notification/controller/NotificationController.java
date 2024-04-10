@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.domain.notification.service.NotificationService;
-import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.dto.NotificationPermitRequest;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.dto.NotificationSubscribePermitRequest;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
+import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -30,14 +30,14 @@ public class NotificationController implements NotificationApi {
 
     @GetMapping("/notification")
     public ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     ) {
         return ResponseEntity.ok(notificationService.checkNotification(userId));
     }
 
     @PostMapping("/notification")
     public ResponseEntity<Void> permitNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
         @Valid @RequestBody NotificationPermitRequest request
     ) {
         notificationService.permitNotification(userId, request.deviceToken());
@@ -46,7 +46,7 @@ public class NotificationController implements NotificationApi {
 
     @PostMapping("/notification/subscribe")
     public ResponseEntity<Void> permitNotificationSubscribe(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
         @Valid @RequestBody NotificationSubscribePermitRequest subscribePermitRequest
     ) {
         notificationService.permitNotificationSubscribe(userId, subscribePermitRequest);
@@ -55,7 +55,7 @@ public class NotificationController implements NotificationApi {
 
     @DeleteMapping("/notification")
     public ResponseEntity<Void> rejectNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     ) {
         notificationService.rejectNotification(userId);
         return ResponseEntity.noContent().build();
@@ -63,7 +63,7 @@ public class NotificationController implements NotificationApi {
 
     @DeleteMapping("/notification/subscribe")
     public ResponseEntity<Void> rejectNotificationSubscribe(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId,
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
         @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
     ) {
         notificationService.rejectNotificationByType(userId, notificationSubscribeType);

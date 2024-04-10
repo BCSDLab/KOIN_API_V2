@@ -24,7 +24,7 @@ public record TimeTableResponse(
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimeTableResponse(
         @Schema(name = "시간표 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(name = "과목 코드", example = "ARB244")
         String regularNumber,

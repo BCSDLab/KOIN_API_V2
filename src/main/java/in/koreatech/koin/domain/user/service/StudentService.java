@@ -11,10 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
+import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
+import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.user.exception.StudentNumberNotValidException;
@@ -27,6 +29,7 @@ import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
+import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
 import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.domain.email.service.MailService;
@@ -44,13 +47,13 @@ public class StudentService {
     private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
 
-    public StudentResponse getStudent(Long userId) {
+    public StudentResponse getStudent(Integer userId) {
         Student student = studentRepository.getById(userId);
         return StudentResponse.from(student);
     }
 
     @Transactional
-    public StudentUpdateResponse updateStudent(Long userId, StudentUpdateRequest request) {
+    public StudentUpdateResponse updateStudent(Integer userId, StudentUpdateRequest request) {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
         checkNicknameDuplication(request.nickname());
@@ -121,10 +124,33 @@ public class StudentService {
         if (studentNumber == null) {
             return;
         }
-        Integer studentNumberYear = Student.parseStudentNumberYear(studentNumber);
+        int studentNumberYear = Student.parseStudentNumberYear(studentNumber);
         if (studentNumberYear < 1992
-            || new LocalDateTime().now().getYear() < studentNumberYear) {
+            || LocalDateTime.now().getYear() < studentNumberYear) {
             throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);
         }
+    }
+
+    @Transactional
+    public void findPassword(FindPasswordRequest request, String serverURL) {
+        User user = userRepository.getByEmail(request.email());
+        user.generateResetTokenForFindPassword(clock);
+        User authedUser = userRepository.save(user);
+        mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, authedUser.getResetToken()));
+    }
+
+    public ModelAndView checkResetToken(String resetToken, String serverUrl) {
+        ModelAndView modelAndView = new ModelAndView("change_password_config");
+        modelAndView.addObject("contextPath", serverUrl);
+        modelAndView.addObject("resetToken", resetToken);
+        return modelAndView;
+    }
+
+    @Transactional
+    public void changePassword(UserPasswordChangeRequest request, String resetToken) {
+        User authedUser = userRepository.getByResetToken(resetToken);
+        authedUser.validateResetToken();
+        authedUser.updatePassword(passwordEncoder, request.password());
+        userRepository.save(authedUser);
     }
 }

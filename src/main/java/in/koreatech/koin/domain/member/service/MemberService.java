@@ -23,7 +23,7 @@ public class MemberService {
             .toList();
     }
 
-    public MemberResponse getMember(Long id) {
+    public MemberResponse getMember(Integer id) {
         var member = memberRepository.getById(id);
         return MemberResponse.from(member);
     }

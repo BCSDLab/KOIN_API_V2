@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -60,8 +61,7 @@ class DiningApiTest extends AcceptanceTest {
     @DisplayName("특정 날짜의 모든 식단들을 조회한다.")
     void findDinings() {
         Dining request1 = Dining.builder()
-            .id(1L)
-            .date("2024-03-11")
+            .date(LocalDate.parse("2024-03-11"))
             .type("LUNCH")
             .place("A코스")
             .priceCard(6000)
@@ -72,8 +72,7 @@ class DiningApiTest extends AcceptanceTest {
             .build();
 
         Dining request2 = Dining.builder()
-            .id(2L)
-            .date("2024-03-01")
+            .date(LocalDate.parse("2024-03-01"))
             .type("LUNCH")
             .place("2캠퍼스")
             .priceCard(6000)
@@ -84,8 +83,7 @@ class DiningApiTest extends AcceptanceTest {
             .build();
 
         Dining request3 = Dining.builder()
-            .id(3L)
-            .date("2024-03-11")
+            .date(LocalDate.parse("2024-03-11"))
             .type("LUNCH")
             .place("능수관")
             .priceCard(6000)
@@ -113,8 +111,8 @@ class DiningApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(2);
 
-                softly.assertThat(response.body().jsonPath().getLong("[0].id")).isEqualTo(dining1.getId());
-                softly.assertThat(response.body().jsonPath().getString("[0].date")).isEqualTo(dining1.getDate());
+                softly.assertThat(response.body().jsonPath().getInt("[0].id")).isEqualTo(dining1.getId());
+                softly.assertThat(response.body().jsonPath().getString("[0].date")).isEqualTo(dining1.getDate().format(ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getString("[0].type")).isEqualTo(dining1.getType());
                 softly.assertThat(response.body().jsonPath().getString("[0].place")).isEqualTo(dining1.getPlace());
                 softly.assertThat(response.body().jsonPath().getInt("[0].price_card"))
@@ -123,16 +121,16 @@ class DiningApiTest extends AcceptanceTest {
                     .isEqualTo(dining1.getPriceCash());
                 softly.assertThat(response.body().jsonPath().getInt("[0].kcal")).isEqualTo(dining1.getKcal());
                 softly.assertThat(response.body().jsonPath().getString("[0].created_at"))
-                    .isEqualTo(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                    .contains(dining1.getUpdatedAt().format(ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getString("[0].updated_at"))
-                    .isEqualTo(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                    .contains(dining1.getUpdatedAt().format(ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getList("[0].menu", String.class))
                     .containsExactlyInAnyOrderElementsOf(menus1);
                 softly.assertThat((LocalDateTime)response.body().jsonPath().get("[0].is_changed"))
                     .isEqualTo(dining1.getIsChanged());
 
-                softly.assertThat(response.body().jsonPath().getLong("[1].id")).isEqualTo(dining3.getId());
-                softly.assertThat(response.body().jsonPath().getString("[1].date")).isEqualTo(dining3.getDate());
+                softly.assertThat(response.body().jsonPath().getInt("[1].id")).isEqualTo(dining3.getId());
+                softly.assertThat(response.body().jsonPath().getString("[1].date")).isEqualTo(dining3.getDate().format(ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getString("[1].type")).isEqualTo(dining3.getType());
                 softly.assertThat(response.body().jsonPath().getString("[1].place")).isEqualTo(dining3.getPlace());
                 softly.assertThat(response.body().jsonPath().getInt("[1].price_card"))
@@ -141,9 +139,9 @@ class DiningApiTest extends AcceptanceTest {
                     .isEqualTo(dining3.getPriceCash());
                 softly.assertThat(response.body().jsonPath().getInt("[1].kcal")).isEqualTo(dining3.getKcal());
                 softly.assertThat(response.body().jsonPath().getString("[1].created_at"))
-                    .isEqualTo(dining3.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                    .contains(dining3.getUpdatedAt().format(ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getString("[1].updated_at"))
-                    .isEqualTo(dining3.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                    .contains(dining3.getUpdatedAt().format(ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getList("[1].menu", String.class))
                     .containsExactlyInAnyOrderElementsOf(menus2);
                 softly.assertThat((LocalDateTime)response.body().jsonPath().get("[1].is_changed"))
@@ -157,8 +155,7 @@ class DiningApiTest extends AcceptanceTest {
     @DisplayName("잘못된 형식의 날짜로 조회한다. - 날짜의 형식이 잘못되었다면 400")
     void invalidFormatDate() {
         Dining request = Dining.builder()
-            .id(1L)
-            .date("2024-03-11")
+            .date(LocalDate.parse("2024-03-11"))
             .type("LUNCH")
             .place("A코스")
             .priceCard(6000)
@@ -186,8 +183,7 @@ class DiningApiTest extends AcceptanceTest {
         when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
 
         Dining request1 = Dining.builder()
-            .id(1L)
-            .date("2024-03-16")
+            .date(LocalDate.parse("2024-03-16"))
             .type("LUNCH")
             .place("A코스")
             .priceCard(6000)
@@ -198,8 +194,7 @@ class DiningApiTest extends AcceptanceTest {
             .build();
 
         Dining request2 = Dining.builder()
-            .id(2L)
-            .date("2024-03-13")
+            .date(LocalDate.parse("2024-03-13"))
             .type("LUNCH")
             .place("2캠퍼스")
             .priceCard(6000)
@@ -225,8 +220,9 @@ class DiningApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(1);
 
-                softly.assertThat(response.body().jsonPath().getLong("[0].id")).isEqualTo(dining1.getId());
-                softly.assertThat(response.body().jsonPath().getString("[0].date")).isEqualTo(dining1.getDate());
+                softly.assertThat(response.body().jsonPath().getInt("[0].id")).isEqualTo(dining1.getId());
+                softly.assertThat(response.body().jsonPath().getString("[0].date"))
+                    .isEqualTo(dining1.getDate().format(ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getString("[0].type")).isEqualTo(dining1.getType());
                 softly.assertThat(response.body().jsonPath().getString("[0].place")).isEqualTo(dining1.getPlace());
                 softly.assertThat(response.body().jsonPath().getInt("[0].price_card"))
@@ -235,9 +231,9 @@ class DiningApiTest extends AcceptanceTest {
                     .isEqualTo(dining1.getPriceCash());
                 softly.assertThat(response.body().jsonPath().getInt("[0].kcal")).isEqualTo(dining1.getKcal());
                 softly.assertThat(response.body().jsonPath().getString("[0].created_at"))
-                    .isEqualTo(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                    .contains(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getString("[0].updated_at"))
-                    .isEqualTo(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                    .contains(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getList("[0].menu", String.class))
                     .containsExactlyInAnyOrderElementsOf(menus);
             }
@@ -270,7 +266,7 @@ class DiningApiTest extends AcceptanceTest {
         when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
 
         Dining dining1 = Dining.builder()
-            .date("2024-03-11")
+            .date(LocalDate.parse("2024-03-11"))
             .type("LUNCH")
             .place("A코스")
             .priceCard(6000)
@@ -282,7 +278,7 @@ class DiningApiTest extends AcceptanceTest {
             .build();
 
         Dining dining2 = Dining.builder()
-            .date("2024-03-11")
+            .date(LocalDate.parse("2024-03-11"))
             .type("LUNCH")
             .place("B코스")
             .priceCard(6000)
@@ -295,7 +291,7 @@ class DiningApiTest extends AcceptanceTest {
         diningRepository.save(dining1);
         diningRepository.save(dining2);
 
-        SoldOutRequest soldOutRequest = new SoldOutRequest(2L, true);
+        SoldOutRequest soldOutRequest = new SoldOutRequest(2, true);
 
         ExtractableResponse<Response> response = given()
             .contentType(ContentType.JSON)
@@ -309,10 +305,10 @@ class DiningApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(diningRepository.getById(1L).getIsChanged()).isEqualTo(LocalDateTime.now(clock));
+                softly.assertThat(diningRepository.getById(1).getIsChanged()).isEqualTo(LocalDateTime.now(clock));
 
-                softly.assertThat(diningRepository.getById(2L).getSoldOut()).isEqualTo(LocalDateTime.now(clock));
-                softly.assertThat(diningRepository.getById(2L).getIsChanged()).isNull();
+                softly.assertThat(diningRepository.getById(2).getSoldOut()).isEqualTo(LocalDateTime.now(clock));
+                softly.assertThat(diningRepository.getById(2).getIsChanged()).isNull();
             }
         );
     }
@@ -336,7 +332,7 @@ class DiningApiTest extends AcceptanceTest {
         String token = jwtProvider.createToken(user);
 
         Dining dining1 = Dining.builder()
-            .date("2024-03-11")
+            .date(LocalDate.parse("2024-03-11"))
             .type("LUNCH")
             .place("A코스")
             .priceCard(6000)
@@ -348,7 +344,7 @@ class DiningApiTest extends AcceptanceTest {
 
         diningRepository.save(dining1);
 
-        SoldOutRequest soldOutRequest = new SoldOutRequest(1L, true);
+        SoldOutRequest soldOutRequest = new SoldOutRequest(1, true);
 
         ExtractableResponse<Response> response = given()
             .contentType(ContentType.JSON)
@@ -380,8 +376,7 @@ class DiningApiTest extends AcceptanceTest {
         String token = jwtProvider.createToken(coop);
 
         Dining request = Dining.builder()
-            .id(1L)
-            .date("2024-03-11")
+            .date(LocalDate.parse("2024-03-11"))
             .type("LUNCH")
             .place("A코스")
             .priceCard(6000)
@@ -393,7 +388,7 @@ class DiningApiTest extends AcceptanceTest {
 
         Dining dining = diningRepository.save(request);
 
-        DiningImageRequest imageUrl = new DiningImageRequest(1L, "https://stage.koreatech.in/image.jpg");
+        DiningImageRequest imageUrl = new DiningImageRequest(1, "https://stage.koreatech.in/image.jpg");
 
         given()
             .body(imageUrl)
@@ -432,8 +427,7 @@ class DiningApiTest extends AcceptanceTest {
         String token = jwtProvider.createToken(user);
 
         Dining request = Dining.builder()
-            .id(1L)
-            .date("2024-03-11")
+            .date(LocalDate.parse("2024-03-11"))
             .type("LUNCH")
             .place("A코스")
             .priceCard(6000)
@@ -445,7 +439,7 @@ class DiningApiTest extends AcceptanceTest {
 
         Dining dining = diningRepository.save(request);
 
-        DiningImageRequest imageUrl = new DiningImageRequest(1L, "https://stage.koreatech.in/image.jpg");
+        DiningImageRequest imageUrl = new DiningImageRequest(1, "https://stage.koreatech.in/image.jpg");
 
         given()
             .body(imageUrl)

@@ -23,8 +23,8 @@ public class ShopController implements ShopApi {
 
     @GetMapping("/shops/{shopId}/menus/{menuId}")
     public ResponseEntity<MenuDetailResponse> findMenu(
-        @PathVariable Long shopId,
-        @PathVariable Long menuId
+        @PathVariable Integer shopId,
+        @PathVariable Integer menuId
     ) {
         MenuDetailResponse shopMenu = shopService.findMenu(menuId);
         return ResponseEntity.ok(shopMenu);
@@ -32,7 +32,7 @@ public class ShopController implements ShopApi {
 
     @GetMapping("/shops/{id}/menus")
     public ResponseEntity<ShopMenuResponse> findMenus(
-        @PathVariable Long id
+        @PathVariable Integer id
     ) {
         ShopMenuResponse shopMenuResponse = shopService.getShopMenus(id);
         return ResponseEntity.ok(shopMenuResponse);
@@ -40,7 +40,7 @@ public class ShopController implements ShopApi {
 
     @GetMapping("/shops/{shopId}/menus/categories")
     public ResponseEntity<MenuCategoriesResponse> getMenuCategories(
-        @PathVariable Long shopId
+        @PathVariable Integer shopId
     ) {
         MenuCategoriesResponse menuCategories = shopService.getMenuCategories(shopId);
         return ResponseEntity.ok(menuCategories);
@@ -48,7 +48,7 @@ public class ShopController implements ShopApi {
 
     @GetMapping("/shops/{id}")
     public ResponseEntity<ShopResponse> getShopById(
-        @PathVariable Long id
+        @PathVariable Integer id
     ) {
         ShopResponse shopResponse = shopService.getShop(id);
         return ResponseEntity.ok(shopResponse);
@@ -68,9 +68,15 @@ public class ShopController implements ShopApi {
 
     @GetMapping("/shops/{shopId}/events")
     public ResponseEntity<ShopEventsResponse> getShopEvents(
-        @PathVariable Long shopId
+        @PathVariable Integer shopId
     ) {
-        var response = shopService.getEvents(shopId);
+        var response = shopService.getShopEvents(shopId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/shops/events")
+    public ResponseEntity<ShopEventsResponse> getShopAllEvent() {
+        var response = shopService.getAllEvents();
         return ResponseEntity.ok(response);
     }
 }

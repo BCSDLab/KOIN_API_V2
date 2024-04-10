@@ -13,7 +13,7 @@ import jakarta.validation.constraints.Size;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ModifyMenuRequest(
     @Schema(example = "0", description = "선택된 카테고리 고유 id 리스트")
-    @NotNull List<Long> categoryIds,
+    @NotNull List<Integer> categoryIds,
 
     @Schema(example = "저희 가게의 대표 메뉴 짜장면입니다.", description = "메뉴 구성 설명")
     @Size(max = 80) String description,
@@ -33,6 +33,7 @@ public record ModifyMenuRequest(
     @Schema(description = "단일 메뉴일때의 가격")
     Integer singlePrice
 ) {
+
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerOptionPrice(
         @Schema(example = "대", description = "옵션명")

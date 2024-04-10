@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.version.model.Version;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record VersionResponse(
-    Long id,
+    Integer id,
     String version,
     String type,
     LocalDateTime createdAt,

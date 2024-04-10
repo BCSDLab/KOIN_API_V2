@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,7 @@ import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
+import in.koreatech.koin.domain.shop.model.EventArticle;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -38,6 +40,7 @@ import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryMapRepository;
@@ -82,6 +85,9 @@ class OwnerShopApiTest extends AcceptanceTest {
 
     @Autowired
     private MenuRepository menuRepository;
+
+    @Autowired
+    private EventArticleRepository eventArticleRepository;
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -139,13 +145,13 @@ class OwnerShopApiTest extends AcceptanceTest {
             .address("대전광역시 유성구 대학로 291")
             .description("테스트 상점입니다.")
             .delivery(true)
-            .deliveryPrice(3000L)
+            .deliveryPrice(3000)
             .payCard(true)
             .payBank(true)
             .isDeleted(false)
             .isEvent(false)
             .remarks("비고")
-            .hit(0L)
+            .hit(0)
             .build();
         shop = shopRepository.save(shopRequest);
 
@@ -204,13 +210,13 @@ class OwnerShopApiTest extends AcceptanceTest {
             .address("대전광역시 유성구 대학로 291")
             .description("테스트 상점2입니다.")
             .delivery(true)
-            .deliveryPrice(4000L)
+            .deliveryPrice(4000)
             .payCard(true)
             .payBank(true)
             .isDeleted(false)
             .isEvent(false)
             .remarks("비고2")
-            .hit(10L)
+            .hit(10)
             .build();
         Shop shop2 = shopRepository.save(shopRequest);
 
@@ -226,11 +232,11 @@ class OwnerShopApiTest extends AcceptanceTest {
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getLong("count")).isEqualTo(2);
+                softly.assertThat(response.body().jsonPath().getInt("count")).isEqualTo(2);
                 softly.assertThat(response.body().jsonPath().getList("shops").size()).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getLong("shops[0].id")).isEqualTo(shop.getId());
+                softly.assertThat(response.body().jsonPath().getInt("shops[0].id")).isEqualTo(shop.getId());
                 softly.assertThat(response.body().jsonPath().getString("shops[0].name")).isEqualTo(shop.getName());
-                softly.assertThat(response.body().jsonPath().getLong("shops[1].id")).isEqualTo(shop2.getId());
+                softly.assertThat(response.body().jsonPath().getInt("shops[1].id")).isEqualTo(shop2.getId());
                 softly.assertThat(response.body().jsonPath().getString("shops[1].name")).isEqualTo(shop2.getName());
             }
         );
@@ -253,7 +259,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             LocalTime.of(9, 0)
         );
 
-        List<Long> categoryIds = List.of(1L);
+        List<Integer> categoryIds = List.of(1);
         List<String> imageUrls = List.of(
             "https://test.com/test1.jpg",
             "https://test.com/test2.jpg",
@@ -265,7 +271,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             "대전광역시 유성구 대학로 291",
             categoryIds,
             true,
-            4000L,
+            4000,
             "테스트 상점2입니다.",
             imageUrls,
             "테스트 상점2",
@@ -310,12 +316,12 @@ class OwnerShopApiTest extends AcceptanceTest {
         assertSoftly(
             softly -> {
                 softly.assertThat(createdShop.getAddress()).isEqualTo(ownerShopsRequest.address());
-                softly.assertThat(createdShop.getDelivery()).isEqualTo(ownerShopsRequest.delivery());
+                softly.assertThat(createdShop.isDelivery()).isEqualTo(ownerShopsRequest.delivery());
                 softly.assertThat(createdShop.getDeliveryPrice()).isEqualTo(ownerShopsRequest.deliveryPrice());
                 softly.assertThat(createdShop.getDescription()).isEqualTo(ownerShopsRequest.description());
                 softly.assertThat(createdShop.getName()).isEqualTo(ownerShopsRequest.name());
-                softly.assertThat(createdShop.getPayBank()).isEqualTo(ownerShopsRequest.payBank());
-                softly.assertThat(createdShop.getPayCard()).isEqualTo(ownerShopsRequest.payCard());
+                softly.assertThat(createdShop.isPayBank()).isEqualTo(ownerShopsRequest.payBank());
+                softly.assertThat(createdShop.isPayCard()).isEqualTo(ownerShopsRequest.payCard());
                 softly.assertThat(createdShop.getPhone()).isEqualTo(ownerShopsRequest.phone());
                 softly.assertThat(shopOpens).hasSize(2);
                 softly.assertThat(categoryIds).containsAnyElementsOf(shopCategoryMaps.stream()
@@ -462,7 +468,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .build();
 
         Menu menu1 = Menu.builder()
-            .shopId(1L)
+            .shopId(1)
             .name("짜장면")
             .description("맛있는 짜장면")
             .build();
@@ -496,19 +502,19 @@ class OwnerShopApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getLong("count")).isEqualTo(1);
-                softly.assertThat(response.body().jsonPath().getLong("menu_categories[0].id"))
+                softly.assertThat(response.body().jsonPath().getInt("count")).isEqualTo(1);
+                softly.assertThat(response.body().jsonPath().getInt("menu_categories[0].id"))
                     .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenuCategory().getId());
                 softly.assertThat(response.body().jsonPath().getString("menu_categories[0].name"))
                     .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenuCategory().getName());
                 softly.assertThat(response.body().jsonPath().getString("menu_categories[0].menus[0].description"))
                     .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getDescription());
-                softly.assertThat(response.body().jsonPath().getLong("menu_categories[0].menus[0].id"))
+                softly.assertThat(response.body().jsonPath().getInt("menu_categories[0].menus[0].id"))
                     .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getId());
                 softly.assertThat(response.body().jsonPath().getList("menu_categories[0].menus[0].image_urls"))
                     .hasSize(2);
                 softly.assertThat(response.body().jsonPath().getBoolean("menu_categories[0].menus[0].is_hidden"))
-                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().getIsHidden());
+                    .isEqualTo(menu1.getMenuCategoryMaps().get(0).getMenu().isHidden());
                 softly.assertThat(response.body().jsonPath().getBoolean("menu_categories[0].menus[0].is_single"))
                     .isEqualTo(false);
                 softly.assertThat(response.body().jsonPath().getString("menu_categories[0].menus[0].name"))
@@ -537,7 +543,7 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("사장님이 자신의 상점 메뉴 카테고리들을 조회한다.")
     void findOwnerMenuCategories() {
         // given
-        final long SHOP_ID = 1L;
+        final int SHOP_ID = 1;
 
         Menu menu = Menu.builder()
             .shopId(SHOP_ID)
@@ -579,17 +585,17 @@ class OwnerShopApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getLong("count")).isEqualTo(2);
+                softly.assertThat(response.body().jsonPath().getInt("count")).isEqualTo(2);
 
                 softly.assertThat(response.body().jsonPath().getList("menu_categories"))
                     .hasSize(2);
 
-                softly.assertThat(response.body().jsonPath().getLong("menu_categories[0].id"))
+                softly.assertThat(response.body().jsonPath().getInt("menu_categories[0].id"))
                     .isEqualTo(menuCategory1.getId());
                 softly.assertThat(response.body().jsonPath().getString("menu_categories[0].name"))
                     .isEqualTo(menuCategory1.getName());
 
-                softly.assertThat(response.body().jsonPath().getLong("menu_categories[1].id"))
+                softly.assertThat(response.body().jsonPath().getInt("menu_categories[1].id"))
                     .isEqualTo(menuCategory2.getId());
                 softly.assertThat(response.body().jsonPath().getString("menu_categories[1].name"))
                     .isEqualTo(menuCategory2.getName());
@@ -619,7 +625,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .build();
 
         Menu menu = Menu.builder()
-            .shopId(1L)
+            .shopId(1)
             .name("짜장면")
             .description("맛있는 짜장면")
             .build();
@@ -653,11 +659,11 @@ class OwnerShopApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getLong("id")).isEqualTo(menu.getId());
+                softly.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(menu.getId());
 
-                softly.assertThat(response.body().jsonPath().getLong("shop_id")).isEqualTo(menu.getShopId());
+                softly.assertThat(response.body().jsonPath().getInt("shop_id")).isEqualTo(menu.getShopId());
                 softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(menu.getName());
-                softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.getIsHidden());
+                softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.isHidden());
 
                 softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
                 softly.assertThat((Integer) response.body().jsonPath().get("single_price")).isNull();
@@ -725,7 +731,7 @@ class OwnerShopApiTest extends AcceptanceTest {
     void deleteMenu() {
         // given
         Menu menu = Menu.builder()
-            .shopId(1L)
+            .shopId(1)
             .name("짜장면")
             .description("맛있는 짜장면")
             .build();
@@ -790,7 +796,7 @@ class OwnerShopApiTest extends AcceptanceTest {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Menu menu = menuRepository.getById(1L);
+                Menu menu = menuRepository.getById(1);
                 assertSoftly(
                     softly -> {
                         List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
@@ -800,7 +806,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                         softly.assertThat(menu.getName()).isEqualTo("짜장면");
 
                         softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("string");
-                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1L);
+                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
 
                         softly.assertThat(menuOptions.get(0).getOption()).isEqualTo("중");
                         softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
@@ -852,7 +858,7 @@ class OwnerShopApiTest extends AcceptanceTest {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Menu menu = menuRepository.getById(1L);
+                Menu menu = menuRepository.getById(1);
                 assertSoftly(
                     softly -> {
                         List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
@@ -862,7 +868,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                         softly.assertThat(menu.getName()).isEqualTo("짜장면");
 
                         softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("string");
-                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1L);
+                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
 
                         softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
                     }
@@ -890,7 +896,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        MenuCategory menuCategory = menuCategoryRepository.getById(1L);
+        MenuCategory menuCategory = menuCategoryRepository.getById(1);
 
         assertSoftly(
             softly -> softly.assertThat(menuCategory.getName()).isEqualTo("사이드 메뉴")
@@ -930,7 +936,7 @@ class OwnerShopApiTest extends AcceptanceTest {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Menu menu = menuRepository.getById(1L);
+                Menu menu = menuRepository.getById(1);
                 assertSoftly(
                     softly -> {
                         List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
@@ -940,7 +946,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                         softly.assertThat(menu.getName()).isEqualTo("짜장면2");
 
                         softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("string2");
-                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(2L);
+                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(2);
 
                         softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
 
@@ -992,7 +998,7 @@ class OwnerShopApiTest extends AcceptanceTest {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Menu menu = menuRepository.getById(1L);
+                Menu menu = menuRepository.getById(1);
                 assertSoftly(
                     softly -> {
                         List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
@@ -1002,8 +1008,8 @@ class OwnerShopApiTest extends AcceptanceTest {
                         softly.assertThat(menu.getName()).isEqualTo("짜장면");
 
                         softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("string");
-                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1L);
-                        softly.assertThat(menuCategoryMaps.get(1).getMenuCategory().getId()).isEqualTo(2L);
+                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
+                        softly.assertThat(menuCategoryMaps.get(1).getMenuCategory().getId()).isEqualTo(2);
 
                         softly.assertThat(menuOptions.get(0).getOption()).isEqualTo("중");
                         softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
@@ -1066,23 +1072,23 @@ class OwnerShopApiTest extends AcceptanceTest {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Shop modifiedShop = shopRepository.getById(1L);
+                Shop modifiedShop = shopRepository.getById(1);
                 List<ShopImage> shopImages = modifiedShop.getShopImages();
                 List<ShopOpen> shopOpens = modifiedShop.getShopOpens();
                 List<ShopCategoryMap> shopCategoryMaps = modifiedShop.getShopCategories();
                 assertSoftly(
                     softly -> {
                         softly.assertThat(modifiedShop.getAddress()).isEqualTo("충청남도 천안시 동남구 병천면 충절로 1600");
-                        softly.assertThat(modifiedShop.getIsDeleted()).isFalse();
+                        softly.assertThat(modifiedShop.isDeleted()).isFalse();
                         softly.assertThat(modifiedShop.getDeliveryPrice()).isEqualTo(1000);
                         softly.assertThat(modifiedShop.getDescription()).isEqualTo("이번주 전 메뉴 10% 할인 이벤트합니다.");
                         softly.assertThat(modifiedShop.getName()).isEqualTo("써니 숯불 도시락");
-                        softly.assertThat(modifiedShop.getPayBank()).isTrue();
-                        softly.assertThat(modifiedShop.getPayCard()).isTrue();
+                        softly.assertThat(modifiedShop.isPayBank()).isTrue();
+                        softly.assertThat(modifiedShop.isPayCard()).isTrue();
                         softly.assertThat(modifiedShop.getPhone()).isEqualTo("041-123-4567");
 
-                        softly.assertThat(shopCategoryMaps.get(0).getShopCategory().getId()).isEqualTo(1L);
-                        softly.assertThat(shopCategoryMaps.get(1).getShopCategory().getId()).isEqualTo(2L);
+                        softly.assertThat(shopCategoryMaps.get(0).getShopCategory().getId()).isEqualTo(1);
+                        softly.assertThat(shopCategoryMaps.get(1).getShopCategory().getId()).isEqualTo(2);
 
                         softly.assertThat(shopImages.get(0).getImageUrl()).isEqualTo("string2");
 
@@ -1147,7 +1153,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
-        return menuRepository.getById(1L);
+        return menuRepository.getById(1);
     }
 
     @Test
@@ -1205,7 +1211,7 @@ class OwnerShopApiTest extends AcceptanceTest {
     void ownerCannotDeleteOtherMenusWithoutPermission() {
         // given
         Menu menu = Menu.builder()
-            .shopId(1L)
+            .shopId(1)
             .name("짜장면")
             .description("맛있는 짜장면")
             .build();
@@ -1219,5 +1225,119 @@ class OwnerShopApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("사장님이 이벤트를 추가한다.")
+    void ownerShopCreateEvent() {
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "title": "감성떡볶이 이벤트합니다!",
+                  "content": "테스트 이벤트입니다.",
+                  "thumbnail_image": "https://test.com/test1.jpg",
+                  "start_date": "2024-10-24",
+                  "end_date": "2024-10-26"
+                }
+                """)
+            .when()
+            .post("/owner/shops/{shopId}/event", shop.getId())
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        EventArticle eventArticle = eventArticleRepository.getById(1);
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(eventArticle.getShop().getId()).isEqualTo(1);
+                softly.assertThat(eventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
+                softly.assertThat(eventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
+                softly.assertThat(eventArticle.getThumbnail()).isEqualTo("https://test.com/test1.jpg");
+                softly.assertThat(eventArticle.getStartDate().toString()).isEqualTo("2024-10-24");
+                softly.assertThat(eventArticle.getEndDate().toString()).isEqualTo("2024-10-26");
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("사장님이 이벤트를 수정한다.")
+    void ownerShopModifyEvent() {
+        EventArticle eventArticle = EventArticle.builder()
+            .shop(shop)
+            .title("테스트 제목1")
+            .content("테스트 내용1")
+            .ip("")
+            .startDate(LocalDate.of(2024,10,24))
+            .endDate(LocalDate.of(2024,10,26))
+            .thumbnail("https://test.com/test1.jpg")
+            .hit(0)
+            .build();
+        EventArticle savedEvent = eventArticleRepository.save(eventArticle);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "title": "감성떡볶이 이벤트합니다!",
+                  "content": "테스트 이벤트입니다.",
+                  "thumbnail_image": "https://test.com/test1.jpg",
+                  "start_date": "2024-10-24",
+                  "end_date": "2024-10-26"
+                }
+                """)
+            .when()
+            .put("/owner/shops/{shopId}/event/{eventId}", shop.getId(), savedEvent.getId())
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        EventArticle modifiedEventArticle = eventArticleRepository.getById(savedEvent.getId());
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(modifiedEventArticle.getShop().getId()).isEqualTo(1);
+                softly.assertThat(modifiedEventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
+                softly.assertThat(modifiedEventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
+                softly.assertThat(modifiedEventArticle.getThumbnail()).isEqualTo("https://test.com/test1.jpg");
+                softly.assertThat(modifiedEventArticle.getStartDate().toString()).isEqualTo("2024-10-24");
+                softly.assertThat(modifiedEventArticle.getEndDate().toString()).isEqualTo("2024-10-26");
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("사장님이 이벤트를 삭제한다.")
+    void ownerShopDeleteEvent() {
+        EventArticle eventArticle = EventArticle.builder()
+            .shop(shop)
+            .title("테스트 제목1")
+            .content("테스트 내용1")
+            .ip("")
+            .startDate(LocalDate.of(2024,10,24))
+            .endDate(LocalDate.of(2024,10,26))
+            .thumbnail("https://test.com/test1.jpg")
+            .hit(0)
+            .build();
+        EventArticle savedEvent = eventArticleRepository.save(eventArticle);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .when()
+            .delete("/owner/shops/{shopId}/event/{eventId}", shop.getId(), savedEvent.getId())
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract();
+
+        Optional<EventArticle> modifiedEventArticle = eventArticleRepository.findById(savedEvent.getId());
+
+        assertSoftly(softly -> softly.assertThat(modifiedEventArticle.isPresent()).isFalse());
     }
 }

@@ -48,7 +48,7 @@ public class TimetableController implements TimetableApi {
     @GetMapping("/timetables")
     public ResponseEntity<TimeTableResponse> getTimeTables(
         @RequestParam(name = "semester") String semester,
-        @Auth(permit = {STUDENT}) Long userId
+        @Auth(permit = {STUDENT}) Integer userId
     ) {
         TimeTableResponse timeTableResponse = timetableService.getTimeTables(userId, semester);
         return ResponseEntity.ok(timeTableResponse);
@@ -57,7 +57,7 @@ public class TimetableController implements TimetableApi {
     @PostMapping("/timetables")
     public ResponseEntity<TimeTableResponse> createTimeTables(
         @Valid @RequestBody TimeTableRequest request,
-        @Auth(permit = {STUDENT}) Long userId
+        @Auth(permit = {STUDENT}) Integer userId
     ) {
         TimeTableResponse timeTableResponse = timetableService.createTimeTables(userId, request);
         return ResponseEntity.ok(timeTableResponse);
@@ -66,7 +66,7 @@ public class TimetableController implements TimetableApi {
     @PutMapping("/timetables")
     public ResponseEntity<TimeTableResponse> updateTimeTable(
         @Valid @RequestBody TimeTableUpdateRequest request,
-        @Auth(permit = {STUDENT}) Long userId
+        @Auth(permit = {STUDENT}) Integer userId
     ) {
         TimeTableResponse timeTableResponse = timetableService.updateTimeTables(userId, request);
         return ResponseEntity.ok(timeTableResponse);
@@ -74,8 +74,8 @@ public class TimetableController implements TimetableApi {
 
     @DeleteMapping("/timetable")
     public ResponseEntity<Void> deleteTimeTableById(
-        @RequestParam(name = "id") Long id,
-        @Auth(permit = {STUDENT}) Long userId
+        @RequestParam(name = "id") Integer id,
+        @Auth(permit = {STUDENT}) Integer userId
     ) {
         timetableService.deleteTimeTable(id);
         return ResponseEntity.ok().build();

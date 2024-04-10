@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.shop.model;
 
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
@@ -11,12 +14,10 @@ import org.hibernate.annotations.Where;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest.InnerOptionPrice;
 import in.koreatech.koin.global.domain.BaseEntity;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -37,13 +38,12 @@ public class Menu extends BaseEntity {
     private static final int SINGLE_OPTION_COUNT = 1;
 
     @Id
-    @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = IDENTITY)
+    private Integer id;
 
     @NotNull
     @Column(name = "shop_id", nullable = false)
-    private Long shopId;
+    private Integer shopId;
 
     @Size(max = 255)
     @NotNull
@@ -56,23 +56,23 @@ public class Menu extends BaseEntity {
 
     @NotNull
     @Column(name = "is_hidden", nullable = false)
-    private Boolean isHidden = false;
+    private boolean isHidden = false;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "menu", cascade = {MERGE, PERSIST})
     private List<MenuCategoryMap> menuCategoryMaps = new ArrayList<>();
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "menu", cascade = {MERGE, PERSIST})
     private List<MenuOption> menuOptions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "menu", cascade = {MERGE, PERSIST})
     private List<MenuImage> menuImages = new ArrayList<>();
 
     @Builder
-    private Menu(Long shopId, String name, String description) {
+    private Menu(Integer shopId, String name, String description) {
         this.shopId = shopId;
         this.name = name;
         this.description = description;
@@ -100,8 +100,8 @@ public class Menu extends BaseEntity {
     }
 
     public void modifyMenuImages(List<String> imageUrls, EntityManager entityManager) {
+        this.menuImages.forEach(entityManager::remove);
         this.menuImages.clear();
-        entityManager.flush();
         for (String imageUrl : imageUrls) {
             MenuImage newMenuImage = MenuImage.builder()
                 .imageUrl(imageUrl)
@@ -112,8 +112,8 @@ public class Menu extends BaseEntity {
     }
 
     public void modifyMenuCategories(List<MenuCategory> menuCategories, EntityManager entityManager) {
+        this.menuCategoryMaps.forEach(entityManager::remove);
         this.menuCategoryMaps.clear();
-        entityManager.flush();
         for (MenuCategory menuCategory : menuCategories) {
             MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
                 .menu(this)
@@ -124,8 +124,8 @@ public class Menu extends BaseEntity {
     }
 
     public void modifyMenuSingleOptions(ModifyMenuRequest modifyMenuRequest, EntityManager entityManager) {
+        this.menuOptions.forEach(entityManager::remove);
         this.menuOptions.clear();
-        entityManager.flush();
         MenuOption menuOption = MenuOption.builder()
             .price(modifyMenuRequest.singlePrice())
             .menu(this)
@@ -134,8 +134,8 @@ public class Menu extends BaseEntity {
     }
 
     public void modifyMenuMultipleOptions(List<InnerOptionPrice> innerOptionPrice, EntityManager entityManager) {
+        this.menuOptions.forEach(entityManager::remove);
         this.menuOptions.clear();
-        entityManager.flush();
         for (var option : innerOptionPrice) {
             MenuOption menuOption = MenuOption.builder()
                 .option(option.option())

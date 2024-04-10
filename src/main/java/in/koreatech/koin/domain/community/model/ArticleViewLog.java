@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.model;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
@@ -8,7 +9,6 @@ import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -28,9 +28,8 @@ public class ArticleViewLog {
     private static final Long EXPIRED_HOUR = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @GeneratedValue(strategy = IDENTITY)
+    private Integer id;
 
     @OneToOne
     @JoinColumn(name = "article_id", nullable = false)
@@ -41,7 +40,7 @@ public class ArticleViewLog {
     private User user;
 
     @NotNull
-    @Column(name = "expired_at", nullable = false)
+    @Column(name = "expired_at", columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDateTime expiredAt = LocalDateTime.now().plusHours(EXPIRED_HOUR);
 
     @Size(max = 45)

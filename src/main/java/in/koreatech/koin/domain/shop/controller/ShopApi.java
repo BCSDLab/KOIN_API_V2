@@ -33,8 +33,8 @@ public interface ShopApi {
     @Operation(summary = "메뉴 단건 조회")
     @GetMapping("/shops/{shopId}/menus/{menuId}")
     ResponseEntity<MenuDetailResponse> findMenu(
-        @Parameter(in = PATH) @PathVariable Long shopId,
-        @Parameter(in = PATH) @PathVariable Long menuId
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @Parameter(in = PATH) @PathVariable Integer menuId
     );
 
     @ApiResponses(
@@ -48,7 +48,7 @@ public interface ShopApi {
     @Operation(summary = "특정 상점의 모든 메뉴 조회")
     @GetMapping("/shops/{id}/menus")
     ResponseEntity<ShopMenuResponse> findMenus(
-        @Parameter(in = PATH) @PathVariable Long id
+        @Parameter(in = PATH) @PathVariable Integer id
     );
 
     @ApiResponses(
@@ -60,7 +60,7 @@ public interface ShopApi {
     @Operation(summary = "메뉴 카테고리 목록 조회")
     @GetMapping("/shops/{shopId}/menus/categories")
     ResponseEntity<MenuCategoriesResponse> getMenuCategories(
-        @Parameter(in = PATH) @PathVariable Long shopId
+        @Parameter(in = PATH) @PathVariable Integer shopId
     );
 
     @ApiResponses(
@@ -74,7 +74,7 @@ public interface ShopApi {
     @Operation(summary = "특정 상점 조회")
     @GetMapping("/shops/{id}")
     ResponseEntity<ShopResponse> getShopById(
-        @Parameter(in = PATH) @PathVariable Long id
+        @Parameter(in = PATH) @PathVariable Integer id
     );
 
     @ApiResponses(
@@ -112,6 +112,18 @@ public interface ShopApi {
     @Operation(summary = "특정 상점의 모든 이벤트 조회")
     @GetMapping("/shops/{shopId}/events")
     ResponseEntity<ShopEventsResponse> getShopEvents(
-        @PathVariable Long shopId
+        @PathVariable Integer shopId
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "모든 상점의 모든 이벤트 조회")
+    @GetMapping("/shops/events")
+    ResponseEntity<ShopEventsResponse> getShopAllEvent();
 }

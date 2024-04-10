@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.dining.service;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -25,7 +24,7 @@ public class DiningService {
         if (date == null) {
             date = LocalDate.now(clock);
         }
-        return diningRepository.findAllByDate(date.format(DateTimeFormatter.ISO_DATE))
+        return diningRepository.findAllByDate(date)
             .stream()
             .map(DiningResponse::from)
             .toList();

@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
+import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,7 +33,7 @@ public interface CoopApi {
     @Operation(summary = "특정 코너 품절 요청")
     @PatchMapping("/dining/soldout")
     ResponseEntity<Void> changeSoldOut(
-        @Auth(permit = {COOP}) Long userId,
+        @Auth(permit = {COOP}) Integer userId,
         @RequestBody SoldOutRequest soldOutRequest
     );
 
@@ -49,7 +49,7 @@ public interface CoopApi {
     @Operation(summary = "이미지 사진 업로드")
     @PatchMapping("/dining/image")
     ResponseEntity<Void> saveDiningImage(
-        @Auth(permit = {COOP}) Long userId,
+        @Auth(permit = {COOP}) Integer userId,
         @RequestBody DiningImageRequest imageRequest
     );
 }

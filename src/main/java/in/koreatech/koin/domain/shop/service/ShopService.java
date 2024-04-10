@@ -40,7 +40,7 @@ public class ShopService {
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
 
-    public MenuDetailResponse findMenu(Long menuId) {
+    public MenuDetailResponse findMenu(Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
 
         List<MenuCategory> menuCategories = menu.getMenuCategoryMaps()
@@ -51,22 +51,22 @@ public class ShopService {
         return MenuDetailResponse.createMenuDetailResponse(menu, menuCategories);
     }
 
-    public MenuCategoriesResponse getMenuCategories(Long shopId) {
+    public MenuCategoriesResponse getMenuCategories(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
         return MenuCategoriesResponse.from(menuCategories);
     }
 
-    public ShopResponse getShop(Long shopId) {
+    public ShopResponse getShop(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
         Boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
         return ShopResponse.from(shop, eventDuration);
     }
 
-    public ShopMenuResponse getShopMenus(Long shopId) {
-        Shop shop = shopRepository.getById(shopId);
-        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
-        return ShopMenuResponse.from(menuCategories);
+    public ShopMenuResponse getShopMenus(Integer shopId) {
+        shopRepository.getById(shopId);
+        List<Menu> menus = menuRepository.findAllByShopId(shopId);
+        return ShopMenuResponse.from(menus);
     }
 
     public ShopsResponse getShops() {
@@ -84,8 +84,13 @@ public class ShopService {
         return ShopCategoriesResponse.from(shopCategories);
     }
 
-    public ShopEventsResponse getEvents(Long shopId) {
+    public ShopEventsResponse getShopEvents(Integer shopId) {
         List<EventArticle> eventArticles = eventArticleRepository.findAllByShopId(shopId);
+        return ShopEventsResponse.from(eventArticles);
+    }
+
+    public ShopEventsResponse getAllEvents() {
+        List<EventArticle> eventArticles = eventArticleRepository.findAllDurationEvents();
         return ShopEventsResponse.from(eventArticles);
     }
 }

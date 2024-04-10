@@ -1,7 +1,9 @@
 package in.koreatech.koin.domain.shop.dto;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -24,15 +26,24 @@ public record ShopEventsResponse(
         String content,
 
         @Schema(description = "이벤트 이미지", example = "https://example-static.koreatech.in/route/img.png")
-        String thumbnailImage
+        String thumbnailImage,
 
+        @Schema(description = "시작일", example = "2024-10-22")
+        @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+        LocalDate startDate,
+
+        @Schema(description = "종료일", example = "2024-10-25")
+        @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+        LocalDate endDate
     ) {
 
         public static InnerShopEventResponse from(EventArticle eventArticle) {
             return new InnerShopEventResponse(
                 eventArticle.getTitle(),
                 eventArticle.getContent(),
-                eventArticle.getThumbnail()
+                eventArticle.getThumbnail(),
+                eventArticle.getStartDate(),
+                eventArticle.getEndDate()
             );
         }
     }

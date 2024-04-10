@@ -37,10 +37,10 @@ public record ArticlesResponse(
     private record InnerArticleResponse(
 
         @Schema(description = "게시글 고유 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(description = "게시판 고유 ID", example = "1")
-        Long boardId,
+        Integer boardId,
 
         @Schema(description = "제목", example = "제목")
         String title,
@@ -49,13 +49,16 @@ public record ArticlesResponse(
         String content,
 
         @Schema(description = "작성자 고유 ID", example = "1")
-        Long userId,
+        Integer userId,
 
         @Schema(description = "작성자 닉네임", example = "닉네임")
         String nickname,
 
         @Schema(description = "조회수", example = "1")
-        Long hit, String ip,
+        Integer hit,
+
+        @Schema(description = "IP 주소", example = "123.12.1.3")
+        String ip,
 
         @Schema(description = "해결 여부", example = "false")
         Boolean isSolved,
@@ -73,7 +76,7 @@ public record ArticlesResponse(
         Boolean isNotice,
 
         @Schema(description = "공지 게시글 고유 ID", example = "1")
-        Long noticeArticleId,
+        Integer noticeArticleId,
 
         @Schema(description = "요약", example = "요약")
         String summary,
@@ -98,11 +101,11 @@ public record ArticlesResponse(
                 article.getNickname(),
                 article.getHit(),
                 article.getIp(),
-                article.getIsSolved(),
-                article.getIsDeleted(),
+                article.isSolved(),
+                article.isDeleted(),
                 article.getCommentCount(),
                 article.getMeta(),
-                article.getIsNotice(),
+                article.isNotice(),
                 article.getNoticeArticleId(),
                 article.getSummary(),
                 article.getCreatedAt(),
@@ -115,7 +118,7 @@ public record ArticlesResponse(
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerBoardResponse(
         @Schema(description = "게시판 고유 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(description = "게시판 태그", example = "notice")
         String tag,
@@ -124,22 +127,22 @@ public record ArticlesResponse(
         String name,
 
         @Schema(description = "익명 여부", example = "false")
-        Boolean isAnonymous,
+        boolean isAnonymous,
 
         @Schema(description = "게시글 수", example = "1")
-        Long articleCount,
+        Integer articleCount,
 
         @Schema(description = "삭제 여부", example = "false")
-        Boolean isDeleted,
+        boolean isDeleted,
 
         @Schema(description = "공지 여부", example = "false")
-        Boolean isNotice,
+        boolean isNotice,
 
         @Schema(description = "부모 게시판 고유 ID", example = "1")
-        Long parentId,
+        Integer parentId,
 
         @Schema(description = "순서", example = "1")
-        Long seq,
+        Integer seq,
 
         @Schema(description = "하위 게시판 목록")
         List<InnerBoardResponse> children,
@@ -158,8 +161,8 @@ public record ArticlesResponse(
                 board.getName(),
                 board.getIsAnonymous(),
                 board.getArticleCount(),
-                board.getIsDeleted(),
-                board.getIsNotice(),
+                board.isDeleted(),
+                board.isNotice(),
                 board.getParentId(),
                 board.getSeq(),
                 board.getChildren().isEmpty()
