@@ -729,7 +729,8 @@ class UserApiTest extends AcceptanceTest {
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getString("user_type")).isEqualTo(user.getUserType().getValue());
+                softly.assertThat(response.body().jsonPath().getString("user_type"))
+                    .isEqualTo(user.getUserType().getValue());
             }
         );
     }
