@@ -62,3 +62,7 @@ fcm:
     url: koinAppUrl://
 
 OPEN_API_KEY:
+
+cors:
+  allowedOrigins:
+    - http://localhost:3000
