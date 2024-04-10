@@ -838,8 +838,7 @@ class ShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("특정 상점의 이벤트들을 조회한다.")
     void getShopEvents() {
-        when(clock.instant()).thenReturn(
-            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd HH:mm:ss z")).toInstant());
+        when(clock.instant()).thenReturn(Instant.now());
         when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
 
         var now = LocalDate.of(2024, 2, 21);
@@ -1175,6 +1174,8 @@ class ShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("이벤트 베너 조회")
     void ownerShopDeleteEvent() {
+        when(clock.instant()).thenReturn(Instant.now());
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
         EventArticle savedEvent1 = createEventArticle(
             shop,
             "테스트 제목1",
