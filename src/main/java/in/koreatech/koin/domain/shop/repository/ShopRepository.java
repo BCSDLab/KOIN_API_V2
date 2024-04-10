@@ -30,5 +30,5 @@ public interface ShopRepository extends Repository<Shop, Integer> {
 
     List<Shop> findAll();
 
-    void deleteByOwnerId(Long ownerId);
+    void deleteByOwnerId(Integer ownerId);
 }
