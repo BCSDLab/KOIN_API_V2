@@ -5,7 +5,6 @@ import static lombok.AccessLevel.PROTECTED;
 import java.time.Clock;
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -20,7 +19,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -37,10 +35,9 @@ public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
-    @Lob
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -66,7 +63,7 @@ public class User extends BaseEntity {
     @Column(name = "email", nullable = false, length = 100)
     private String email;
 
-    @Column(name = "gender")
+    @Column(name = "gender", columnDefinition = "INT")
     @Enumerated(value = EnumType.ORDINAL)
     private UserGender gender;
 
@@ -74,7 +71,7 @@ public class User extends BaseEntity {
     @Column(name = "is_authed", nullable = false)
     private boolean isAuthed = false;
 
-    @Column(name = "last_logged_at")
+    @Column(name = "last_logged_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastLoggedAt;
 
     @Size(max = 255)
@@ -83,14 +80,14 @@ public class User extends BaseEntity {
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @Size(max = 255)
     @Column(name = "auth_token")
     private String authToken;
 
     @Convert(converter = LocalDateTimeAttributeConverter.class)
-    @Column(name = "auth_expired_at")
+    @Column(name = "auth_expired_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime authExpiredAt;
 
     @Size(max = 255)
@@ -98,7 +95,7 @@ public class User extends BaseEntity {
     private String resetToken;
 
     @Convert(converter = LocalDateTimeAttributeConverter.class)
-    @Column(name = "reset_expired_at")
+    @Column(name = "reset_expired_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime resetExpiredAt;
 
     @Column(name = "device_token", nullable = true)

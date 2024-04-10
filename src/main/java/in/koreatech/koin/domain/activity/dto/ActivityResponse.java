@@ -38,15 +38,16 @@ public record ActivityResponse(
     List<String> imageUrls,
 
     @Schema(description = "고유 식별자", example = "1")
-    Long id,
+    Integer id,
 
     @Schema(description = "제목", example = "코인 시간표 기능 추가")
     String title
 ) {
+
     public static ActivityResponse of(Activity activity, List<String> imageUrls) {
         return new ActivityResponse(
             activity.getDate(),
-            activity.getIsDeleted(),
+            activity.isDeleted(),
             activity.getUpdatedAt(),
             activity.getCreatedAt(),
             activity.getDescription(),

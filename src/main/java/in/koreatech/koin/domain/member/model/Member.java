@@ -10,7 +10,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -30,7 +29,7 @@ public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Size(max = 50)
     @NotNull
@@ -55,13 +54,12 @@ public class Member extends BaseEntity {
     @Column(name = "email", length = 100)
     private String email;
 
-    @Lob
     @Column(name = "image_url")
     private String imageUrl;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @Builder
     private Member(
@@ -71,7 +69,7 @@ public class Member extends BaseEntity {
         String position,
         String email,
         String imageUrl,
-        Boolean isDeleted
+        boolean isDeleted
     ) {
         this.name = name;
         this.studentNumber = studentNumber;

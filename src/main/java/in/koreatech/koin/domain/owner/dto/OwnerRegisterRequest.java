@@ -49,7 +49,7 @@ public record OwnerRegisterRequest(
     String phoneNumber,
 
     @Schema(description = "상점 고유 ID", requiredMode = NOT_REQUIRED)
-    Long shopId,
+    Integer shopId,
 
     @Schema(description = "상점 이름", example = "고릴라밥", requiredMode = NOT_REQUIRED)
     String shopName,

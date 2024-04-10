@@ -53,7 +53,7 @@ public interface OwnerApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/owner")
     ResponseEntity<OwnerResponse> getOwner(
-        @Auth(permit = {OWNER}) Long userId
+        @Auth(permit = {OWNER}) Integer userId
     );
 
     @ApiResponses(

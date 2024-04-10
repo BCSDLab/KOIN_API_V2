@@ -38,7 +38,7 @@ public class OwnerController implements OwnerApi {
 
     @GetMapping("/owner")
     public ResponseEntity<OwnerResponse> getOwner(
-        @Auth(permit = {OWNER}) Long ownerId
+        @Auth(permit = {OWNER}) Integer ownerId
     ) {
         OwnerResponse ownerInfo = ownerService.getOwner(ownerId);
         return ResponseEntity.ok().body(ownerInfo);

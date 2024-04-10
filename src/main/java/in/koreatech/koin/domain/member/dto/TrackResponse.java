@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record TrackResponse(
     @Schema(description = "트랙 고유 ID", example = "1")
-    Long id,
+    Integer id,
 
     @Schema(description = "트랙 명", example = "Backend")
     String name,
@@ -35,7 +35,7 @@ public record TrackResponse(
             track.getId(),
             track.getName(),
             track.getHeadcount(),
-            track.getIsDeleted(),
+            track.isDeleted(),
             track.getCreatedAt(),
             track.getUpdatedAt()
         );

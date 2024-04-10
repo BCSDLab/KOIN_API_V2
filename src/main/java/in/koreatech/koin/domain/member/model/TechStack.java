@@ -1,14 +1,13 @@
 package in.koreatech.koin.domain.member.model;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -23,10 +22,9 @@ import lombok.NoArgsConstructor;
 public class TechStack extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = IDENTITY)
+    private Integer id;
 
-    @Lob
     @Column(name = "image_url")
     private String imageUrl;
 
@@ -40,14 +38,14 @@ public class TechStack extends BaseEntity {
     private String description;
 
     @Column(name = "track_id")
-    private Long trackId;
+    private Integer trackId;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @Builder
-    private TechStack(String imageUrl, String name, String description, Long trackId, Boolean isDeleted) {
+    private TechStack(String imageUrl, String name, String description, Integer trackId, boolean isDeleted) {
         this.imageUrl = imageUrl;
         this.name = name;
         this.description = description;

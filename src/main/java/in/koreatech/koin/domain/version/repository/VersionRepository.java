@@ -8,7 +8,7 @@ import in.koreatech.koin.domain.version.exception.VersionTypeNotFoundException;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 
-public interface VersionRepository extends Repository<Version, Long> {
+public interface VersionRepository extends Repository<Version, Integer> {
 
     Version save(Version version);
 

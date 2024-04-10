@@ -28,7 +28,7 @@ public class TrackService {
             .toList();
     }
 
-    public TrackSingleResponse getTrack(Long id) {
+    public TrackSingleResponse getTrack(Integer id) {
         Track track = trackRepository.getById(id);
         List<Member> member = memberRepository.findAllByTrackId(id);
         List<TechStack> techStacks = techStackRepository.findAllByTrackId(id);

@@ -6,9 +6,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.member.model.TechStack;
 
-public interface TechStackRepository extends Repository<TechStack, Long> {
+public interface TechStackRepository extends Repository<TechStack, Integer> {
 
     TechStack save(TechStack techStack);
 
-    List<TechStack> findAllByTrackId(Long id);
+    List<TechStack> findAllByTrackId(Integer id);
 }

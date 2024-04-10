@@ -25,7 +25,7 @@ public class MemberController implements MemberApi {
 
     @GetMapping("/members/{id}")
     public ResponseEntity<MemberResponse> getMember(
-        @PathVariable Long id
+        @PathVariable Integer id
     ) {
         var response = memberService.getMember(id);
         return ResponseEntity.ok(response);

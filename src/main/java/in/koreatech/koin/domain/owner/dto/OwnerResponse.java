@@ -44,7 +44,7 @@ public record OwnerResponse(
     @JsonNaming(SnakeCaseStrategy.class)
     private record InnerAttachmentResponse(
         @Schema(description = "첨부 파일 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(description = "첨부 파일 URL", example = "https://static.koreatech.in/1.png")
         String fileUrl,
@@ -65,7 +65,7 @@ public record OwnerResponse(
     @JsonNaming(SnakeCaseStrategy.class)
     private record InnerShopResponse(
         @Schema(description = "가게 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(description = "가게 이름", example = "가게1")
         String name

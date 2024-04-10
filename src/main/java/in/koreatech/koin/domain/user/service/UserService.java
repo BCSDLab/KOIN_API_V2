@@ -22,6 +22,7 @@ import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserDeleteEvent;
 import in.koreatech.koin.domain.user.model.UserToken;
+import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
@@ -62,13 +63,13 @@ public class UserService {
     }
 
     @Transactional
-    public void logout(Long userId) {
+    public void logout(Integer userId) {
         userTokenRepository.deleteById(userId);
     }
 
     public UserTokenRefreshResponse refresh(UserTokenRefreshRequest request) {
         String userId = getUserId(request.refreshToken());
-        UserToken userToken = userTokenRepository.getById(Long.parseLong(userId));
+        UserToken userToken = userTokenRepository.getById(Integer.parseInt(userId));
         if (!Objects.equals(userToken.getRefreshToken(), request.refreshToken())) {
             throw new IllegalArgumentException("refresh token이 일치하지 않습니다. request: " + request);
         }
@@ -87,14 +88,15 @@ public class UserService {
     }
 
     @Transactional
-    public void withdraw(Long userId) {
+    public void withdraw(Integer userId) {
         User user = userRepository.getById(userId);
-        switch (user.getUserType()) {
-            case STUDENT:
-                studentRepository.deleteByUserId(userId);
-            case OWNER:
-                ownerRepository.deleteByUserId(userId);
-                ownerAttachmentRepository.deleteByOwnerId(userId);
+        if (user.getUserType() == UserType.STUDENT) {
+            studentRepository.deleteByUserId(userId);
+            ownerRepository.deleteByUserId(userId);
+            ownerAttachmentRepository.deleteByOwnerId(userId);
+        } else if (user.getUserType() == UserType.OWNER) {
+            ownerRepository.deleteByUserId(userId);
+            ownerAttachmentRepository.deleteByOwnerId(userId);
         }
         userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
@@ -112,7 +114,7 @@ public class UserService {
         });
     }
 
-    public AuthResponse getAuth(Long userId) {
+    public AuthResponse getAuth(Integer userId) {
         User user = userRepository.getById(userId);
         return AuthResponse.from(user);
     }

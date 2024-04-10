@@ -11,16 +11,16 @@ import in.koreatech.koin.domain.user.model.UserType;
 @RequestScope
 public class UserIdContext {
 
-    private Long userId;
+    private Integer userId;
 
-    public Long getUserId() {
+    public Integer getUserId() {
         if (Objects.equals(userId, UserType.ANONYMOUS_ID)) {
             return null;
         }
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 }
