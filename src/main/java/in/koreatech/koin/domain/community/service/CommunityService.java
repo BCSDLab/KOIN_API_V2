@@ -77,7 +77,7 @@ public class CommunityService {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
 
         if (board.isNotice() && board.getTag().equals(BoardTag.공지사항.getTag())) {
-            Page<Article> articles = articleRepository.findByNotice(true, pageRequest);
+            Page<Article> articles = articleRepository.findByIsNotice(true, pageRequest);
             return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
         }
 
