@@ -12,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +21,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "dining_menus")
+@Table(name = "dining_menus", uniqueConstraints = {
+    @UniqueConstraint(
+        name = "ux_date_type_place",
+        columnNames = {"date", "type", "place"}
+    )
+})
 public class Dining extends BaseEntity {
 
     @Id

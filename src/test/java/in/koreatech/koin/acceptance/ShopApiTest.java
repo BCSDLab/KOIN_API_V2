@@ -102,15 +102,15 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         Owner ownerRequest = Owner.builder()
-            .companyRegistrationNumber("123-45-67890")
+            .companyRegistrationNumber("123-45-67892")
             .attachments(List.of(attachment))
             .grantShop(true)
             .grantEvent(true)
             .user(
                 User.builder()
                     .password("1234")
-                    .nickname("주노")
-                    .name("최준호")
+                    .nickname("셋업유저")
+                    .name("셋업")
                     .phoneNumber("010-1234-5678")
                     .userType(OWNER)
                     .gender(UserGender.MAN)
@@ -273,38 +273,38 @@ class ShopApiTest extends AcceptanceTest {
             .get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
             .then()
             .statusCode(HttpStatus.OK.value())
+            .log().all()
             .extract();
 
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(menu.getId());
-
-                softly.assertThat(response.body().jsonPath().getInt("shop_id")).isEqualTo(menu.getShopId());
-                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(menu.getName());
-                softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.isHidden());
-
-                softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
-                softly.assertThat((Integer)response.body().jsonPath().get("single_price")).isNull();
-
-                softly.assertThat(response.body().jsonPath().getList("option_prices")).hasSize(2);
-                softly.assertThat(response.body().jsonPath().getString("option_prices[0].option"))
-                    .isEqualTo(menu.getMenuOptions().get(0).getOption());
-                softly.assertThat(response.body().jsonPath().getInt("option_prices[0].price"))
-                    .isEqualTo(menu.getMenuOptions().get(0).getPrice());
-                softly.assertThat(response.body().jsonPath().getString("option_prices[1].option"))
-                    .isEqualTo(menu.getMenuOptions().get(1).getOption());
-                softly.assertThat(response.body().jsonPath().getInt("option_prices[1].price"))
-                    .isEqualTo(menu.getMenuOptions().get(1).getPrice());
-
-                softly.assertThat(response.body().jsonPath().getString("description")).isEqualTo(menu.getDescription());
-
-                softly.assertThat(response.body().jsonPath().getList("category_ids"))
-                    .hasSize(menu.getMenuCategoryMaps().size());
-
-                softly.assertThat(response.body().jsonPath().getList("image_urls"))
-                    .hasSize(menu.getMenuImages().size());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "id": 1,
+                    "shop_id": 1,
+                    "name": "짜장면",
+                    "is_hidden": false,
+                    "is_single": false,
+                    "single_price": null,
+                    "option_prices": [
+                        {
+                            "option": "곱빼기",
+                            "price": 7500
+                        },
+                        {
+                            "option": "일반",
+                            "price": 7000
+                        }
+                    ],
+                    "description": "맛있는 짜장면",
+                    "category_ids": [
+                        1
+                    ],
+                    "image_urls": [
+                        "https://test.com/hello.jpg",
+                        "https://test.com/test.jpg"
+                    ]
+                }
+                """);
     }
 
     @Test
@@ -600,6 +600,7 @@ class ShopApiTest extends AcceptanceTest {
             .get("/shops/{shopId}/menus", shop.getId())
             .then()
             .statusCode(HttpStatus.OK.value())
+            .log().all()
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())
@@ -677,10 +678,10 @@ class ShopApiTest extends AcceptanceTest {
                                 ]
                             }
                         ],
-                        "updated_at": "%s"
+                        "updated_at": %s
                     }
                     """,
-                LocalDate.now().format(ofPattern("yyyy-MM-dd")))
+                response.jsonPath().getString("updated_at"))
             );
     }
 

@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +21,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "shop_images")
+@Table(name = "shop_images",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "SHOP_ID_AND_IMAGE_URL",
+            columnNames = {"shop_id", "image_url"}
+        )
+    }
+)
 public class ShopImage extends BaseEntity {
 
     @Id

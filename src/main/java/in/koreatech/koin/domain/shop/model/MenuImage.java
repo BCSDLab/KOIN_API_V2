@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -19,7 +20,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "shop_menu_images")
+@Table(name = "shop_menu_images", uniqueConstraints = {
+    @UniqueConstraint(
+        name = "SHOP_MENU_ID_AND_IMAGE_URL",
+        columnNames = {"shop_menu_id", "image_url"}
+    )}
+)
 @NoArgsConstructor(access = PROTECTED)
 public class MenuImage {
 

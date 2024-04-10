@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "shop_category_map")
+@Table(name = "shop_category_map",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "SHOP_ID_AND_SHOP_CATEGORY_ID",
+            columnNames = {"shop_id", "shop_category_id"}
+        )
+    }
+)
 public class ShopCategoryMap extends BaseEntity {
 
     @Id
