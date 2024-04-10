@@ -15,7 +15,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Article save(Article article);
 
-    Page<Article> findByNotice(Boolean isNotice, Pageable pageable);
+    Page<Article> findByIsNotice(Boolean isNotice, Pageable pageable);
 
     Optional<Article> findById(Integer articleId);
 
