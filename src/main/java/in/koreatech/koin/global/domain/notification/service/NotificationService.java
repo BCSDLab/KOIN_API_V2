@@ -21,7 +21,6 @@ import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeT
 import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.fcm.FcmClient;
-import in.koreatech.koin.global.fcm.MobileAppPath;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -34,23 +33,24 @@ public class NotificationService {
     private final NotificationFactory notificationFactory;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
 
-    public void push(Notification notification) {
-        notificationRepository.save(notification);
-        String deviceToken = notification.getUser().getDeviceToken();
-        fcmClient.sendMessage(
-            deviceToken,
-            notification.getTitle(),
-            notification.getMessage(),
-            notification.getImageUrl(),
-            notification.getMobileAppPath(),
-            notification.getType()
-        );
-    }
-
     public void pushSoldOutNotification(DiningSoldOutEvent event) {
         Notification notification = notificationFactory.generateSoldOutNotification(HOME, event.place());
         notificationRepository.save(notification);
         List<String> deviceTokenList = generateDeviceTokenListBySubscribeSoldOut();
+        pushAll(notification, deviceTokenList);
+    }
+
+    private List<String> generateDeviceTokenListBySubscribeSoldOut() {
+        List<NotificationSubscribe> soldOutSubscribes = notificationSubscribeRepository
+            .findAllBySubscribeType(DINING_SOLD_OUT);
+        return soldOutSubscribes.stream()
+            .map(soldOutSubscribe -> userRepository.getById(soldOutSubscribe.getUser().getId()))
+            .map(User::getDeviceToken)
+            .filter(deviceToken -> !deviceToken.isEmpty())
+            .toList();
+    }
+
+    private void pushAll(Notification notification, List<String> deviceTokenList) {
         for (String device : deviceTokenList) {
             fcmClient.sendMessage(
                 device,
@@ -63,17 +63,17 @@ public class NotificationService {
         }
     }
 
-    public List<String> generateDeviceTokenListBySubscribeSoldOut() {
-        List<NotificationSubscribe> notification = notificationSubscribeRepository
-            .findAllBySubscribeType(DINING_SOLD_OUT);
-        List<String> deviceTokenList = new ArrayList<>();
-        for (NotificationSubscribe type : notification) {
-            User user = userRepository.getById(type.getUser().getId());
-            if (!user.getDeviceToken().isEmpty()) {
-                deviceTokenList.add(user.getDeviceToken());
-            }
-        }
-        return deviceTokenList;
+    private void push(Notification notification) {
+        notificationRepository.save(notification);
+        String deviceToken = notification.getUser().getDeviceToken();
+        fcmClient.sendMessage(
+            deviceToken,
+            notification.getTitle(),
+            notification.getMessage(),
+            notification.getImageUrl(),
+            notification.getMobileAppPath(),
+            notification.getType()
+        );
     }
 
     public NotificationStatusResponse checkNotification(Long userId) {
