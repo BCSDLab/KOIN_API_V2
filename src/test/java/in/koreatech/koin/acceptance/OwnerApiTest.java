@@ -682,7 +682,7 @@ class OwnerApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("사장님이 회원탈퇴를 한다.")
-    void ownerDelete(){
+    void ownerDelete() {
         // given
         User user = User.builder()
             .password("1234")
