@@ -150,7 +150,8 @@ public class EventArticle extends BaseEntity {
         this.endDate = endDate;
         this.thumbnailImages.forEach(entityManager::remove);
         this.thumbnailImages.clear();
-        for (String imageUrl: thumbnailImages) {
+        entityManager.flush();
+        for (String imageUrl : thumbnailImages) {
             this.thumbnailImages.add(EventArticleImage.builder()
                 .eventArticle(this)
                 .thumbnailImage(imageUrl)

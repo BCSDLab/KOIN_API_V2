@@ -312,6 +312,6 @@ public class OwnerShopService {
 
     public ShopEventsResponse getShopEvent(Integer shopId, Integer ownerId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        return ShopEventsResponse.from(shop);
+        return ShopEventsResponse.of(shop, clock);
     }
 }

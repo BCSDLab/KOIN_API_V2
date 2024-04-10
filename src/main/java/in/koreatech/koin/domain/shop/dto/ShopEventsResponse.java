@@ -42,11 +42,11 @@ public record ShopEventsResponse(
         List<String> thumbnailImages,
 
         @Schema(description = "시작일", example = "2024-10-22")
-        @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate startDate,
 
         @Schema(description = "종료일", example = "2024-10-25")
-        @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate endDate
     ) {
 
@@ -66,7 +66,7 @@ public record ShopEventsResponse(
         }
     }
 
-    public static ShopEventsResponse from(List<Shop> shops, Clock clock) {
+    public static ShopEventsResponse of(List<Shop> shops, Clock clock) {
         List<InnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
         for (Shop shop : shops) {
             for (EventArticle eventArticle : shop.getEventArticles()) {
@@ -79,11 +79,11 @@ public record ShopEventsResponse(
         return new ShopEventsResponse(innerShopEventResponses);
     }
 
-    public static ShopEventsResponse from(Shop shop) {
+    public static ShopEventsResponse of(Shop shop, Clock clock) {
         List<InnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
         for (EventArticle eventArticle : shop.getEventArticles()) {
-            if (!eventArticle.getStartDate().isAfter(LocalDate.now()) &&
-                !eventArticle.getEndDate().isBefore(LocalDate.now())) {
+            if (!eventArticle.getStartDate().isAfter(LocalDate.now(clock)) &&
+                !eventArticle.getEndDate().isBefore(LocalDate.now(clock))) {
                 innerShopEventResponses.add(InnerShopEventResponse.from(eventArticle));
             }
         }
