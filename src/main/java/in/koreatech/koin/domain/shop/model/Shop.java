@@ -4,6 +4,7 @@ import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.CascadeType.REFRESH;
 import static jakarta.persistence.CascadeType.REMOVE;
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
@@ -19,10 +20,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -40,9 +39,8 @@ import lombok.NoArgsConstructor;
 public class Shop extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @GeneratedValue(strategy = IDENTITY)
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", referencedColumnName = "user_id")
@@ -66,45 +64,42 @@ public class Shop extends BaseEntity {
     @Column(name = "phone", length = 50)
     private String phone;
 
-    @Lob
     @Column(name = "address")
     private String address;
 
-    @Lob
     @Column(name = "description")
     private String description;
 
     @NotNull
     @Column(name = "delivery", nullable = false)
-    private Boolean delivery = false;
+    private boolean delivery = false;
 
     @NotNull
     @Column(name = "delivery_price", nullable = false)
-    private Long deliveryPrice;
+    private Integer deliveryPrice;
 
     @NotNull
     @Column(name = "pay_card", nullable = false)
-    private Boolean payCard = false;
+    private boolean payCard = false;
 
     @NotNull
     @Column(name = "pay_bank", nullable = false)
-    private Boolean payBank = false;
+    private boolean payBank = false;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @NotNull
     @Column(name = "is_event", nullable = false)
-    private Boolean isEvent = false;
+    private boolean isEvent = false;
 
-    @Lob
     @Column(name = "remarks")
     private String remarks;
 
     @NotNull
     @Column(name = "hit", nullable = false)
-    private Long hit;
+    private Integer hit;
 
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<ShopCategoryMap> shopCategories = new ArrayList<>();
@@ -127,14 +122,14 @@ public class Shop extends BaseEntity {
         String phone,
         String address,
         String description,
-        Boolean delivery,
-        Long deliveryPrice,
-        Boolean payCard,
-        Boolean payBank,
-        Boolean isDeleted,
-        Boolean isEvent,
+        boolean delivery,
+        Integer deliveryPrice,
+        boolean payCard,
+        boolean payBank,
+        boolean isDeleted,
+        boolean isEvent,
         String remarks,
-        Long hit,
+        Integer hit,
         List<ShopCategoryMap> shopCategories,
         List<ShopOpen> shopOpens,
         List<ShopImage> shopImages,
@@ -166,10 +161,10 @@ public class Shop extends BaseEntity {
         String phone,
         String address,
         String description,
-        Boolean delivery,
-        Long deliveryPrice,
+        boolean delivery,
+        Integer deliveryPrice,
         Boolean payCard,
-        Boolean payBank
+        boolean payBank
     ) {
         this.address = address;
         this.delivery = delivery;

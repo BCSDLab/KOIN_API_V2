@@ -8,7 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -25,7 +24,7 @@ public class Land extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Size(max = 255)
     @NotNull
@@ -38,36 +37,33 @@ public class Land extends BaseEntity {
     private String internalName;
 
     @Column(name = "size", length = 20)
-    private Double size;
+    private String size;
 
     @Size(max = 20)
     @Column(name = "room_type", length = 20)
     private String roomType;
 
     @Column(name = "latitude", length = 20)
-    private Double latitude;
+    private String latitude;
 
     @Column(name = "longitude", length = 20)
-    private Double longitude;
+    private String longitude;
 
     @Size(max = 20)
     @Column(name = "phone", length = 20)
     private String phone;
 
-    @Lob
     @Column(name = "image_urls")
     private String imageUrls;
 
-    @Lob
     @Column(name = "address")
     private String address;
 
-    @Lob
     @Column(name = "description")
     private String description;
 
     @Column(name = "floor")
-    private Long floor;
+    private Integer floor;
 
     @Size(max = 255)
     @Column(name = "deposit")
@@ -87,76 +83,90 @@ public class Land extends BaseEntity {
 
     @NotNull
     @Column(name = "opt_refrigerator", nullable = false)
-    private Boolean optRefrigerator = false;
+    private boolean optRefrigerator = false;
 
     @NotNull
     @Column(name = "opt_closet", nullable = false)
-    private Boolean optCloset = false;
+    private boolean optCloset = false;
 
     @NotNull
     @Column(name = "opt_tv", nullable = false)
-    private Boolean optTv = false;
+    private boolean optTv = false;
 
     @NotNull
     @Column(name = "opt_microwave", nullable = false)
-    private Boolean optMicrowave = false;
+    private boolean optMicrowave = false;
 
     @NotNull
     @Column(name = "opt_gas_range", nullable = false)
-    private Boolean optGasRange = false;
+    private boolean optGasRange = false;
 
     @NotNull
     @Column(name = "opt_induction", nullable = false)
-    private Boolean optInduction = false;
+    private boolean optInduction = false;
 
     @NotNull
     @Column(name = "opt_water_purifier", nullable = false)
-    private Boolean optWaterPurifier = false;
+    private boolean optWaterPurifier = false;
 
     @NotNull
     @Column(name = "opt_air_conditioner", nullable = false)
-    private Boolean optAirConditioner = false;
+    private boolean optAirConditioner = false;
 
     @NotNull
     @Column(name = "opt_washer", nullable = false)
-    private Boolean optWasher = false;
+    private boolean optWasher = false;
 
     @NotNull
     @Column(name = "opt_bed", nullable = false)
-    private Boolean optBed = false;
+    private boolean optBed = false;
 
     @NotNull
     @Column(name = "opt_desk", nullable = false)
-    private Boolean optDesk = false;
+    private boolean optDesk = false;
 
     @NotNull
     @Column(name = "opt_shoe_closet", nullable = false)
-    private Boolean optShoeCloset = false;
+    private boolean optShoeCloset = false;
 
     @NotNull
     @Column(name = "opt_electronic_door_locks", nullable = false)
-    private Boolean optElectronicDoorLocks = false;
+    private boolean optElectronicDoorLocks = false;
 
     @NotNull
     @Column(name = "opt_bidet", nullable = false)
-    private Boolean optBidet = false;
+    private boolean optBidet = false;
 
     @NotNull
     @Column(name = "opt_veranda", nullable = false)
-    private Boolean optVeranda = false;
+    private boolean optVeranda = false;
 
     @NotNull
     @Column(name = "opt_elevator", nullable = false)
-    private Boolean optElevator = false;
+    private boolean optElevator = false;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @Builder
-    private Land(String internalName, String name, Double size, String roomType, Double latitude, Double longitude,
-        String phone, String imageUrls, String address, String description, Long floor, String deposit,
-        String monthlyFee, String charterFee, String managementFee) {
+    private Land(
+        String internalName,
+        String name,
+        String size,
+        String roomType,
+        String latitude,
+        String longitude,
+        String phone,
+        String imageUrls,
+        String address,
+        String description,
+        Integer floor,
+        String deposit,
+        String monthlyFee,
+        String charterFee,
+        String managementFee
+    ) {
         this.internalName = internalName;
         this.name = name;
         this.size = size;

@@ -7,11 +7,11 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.owner.exception.OwnerNotFoundException;
 import in.koreatech.koin.domain.owner.model.Owner;
 
-public interface OwnerRepository extends Repository<Owner, Long> {
+public interface OwnerRepository extends Repository<Owner, Integer> {
 
-    Optional<Owner> findById(Long ownerId);
+    Optional<Owner> findById(Integer ownerId);
 
-    default Owner getById(Long ownerId) {
+    default Owner getById(Integer ownerId) {
         return findById(ownerId).orElseThrow(() -> OwnerNotFoundException.withDetail("ownerId: " + ownerId));
     }
 
@@ -19,5 +19,5 @@ public interface OwnerRepository extends Repository<Owner, Long> {
 
     Optional<Owner> findByCompanyRegistrationNumber(String companyRegistrationNumber);
 
-    void deleteByUserId(Long userId);
+    void deleteByUserId(Integer userId);
 }

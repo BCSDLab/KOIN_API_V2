@@ -39,7 +39,7 @@ public class CommunityService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ArticleResponse getArticle(Long userId, Long articleId, String ipAddress) {
+    public ArticleResponse getArticle(Integer userId, Integer articleId, String ipAddress) {
         Article article = articleRepository.getById(articleId);
         if (isHittable(articleId, userId, ipAddress)) {
             article.increaseHit();
@@ -48,7 +48,7 @@ public class CommunityService {
         return ArticleResponse.of(article);
     }
 
-    private boolean isHittable(Long articleId, Long userId, String ipAddress) {
+    private boolean isHittable(Integer articleId, Integer userId, String ipAddress) {
         if (userId == null) {
             return false;
         }
@@ -71,13 +71,13 @@ public class CommunityService {
         return false;
     }
 
-    public ArticlesResponse getArticles(Long boardId, Long page, Long limit) {
+    public ArticlesResponse getArticles(Integer boardId, Long page, Long limit) {
         Criteria criteria = Criteria.of(page, limit);
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
 
-        if (board.getIsNotice() && board.getTag().equals(BoardTag.공지사항.getTag())) {
-            Page<Article> articles = articleRepository.findByIsNotice(board.getIsNotice(), pageRequest);
+        if (board.isNotice() && board.getTag().equals(BoardTag.공지사항.getTag())) {
+            Page<Article> articles = articleRepository.findByNotice(true, pageRequest);
             return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
         }
 

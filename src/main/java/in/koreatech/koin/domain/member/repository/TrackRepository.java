@@ -8,15 +8,15 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.member.exception.TrackNotFoundException;
 import in.koreatech.koin.domain.member.model.Track;
 
-public interface TrackRepository extends Repository<Track, Long> {
+public interface TrackRepository extends Repository<Track, Integer> {
 
     Track save(Track track);
 
     List<Track> findAll();
 
-    Optional<Track> findById(Long trackId);
+    Optional<Track> findById(Integer trackId);
 
-    default Track getById(Long trackId) {
+    default Track getById(Integer trackId) {
         return findById(trackId)
             .orElseThrow(() -> TrackNotFoundException.withDetail("trackId: " + trackId));
     }

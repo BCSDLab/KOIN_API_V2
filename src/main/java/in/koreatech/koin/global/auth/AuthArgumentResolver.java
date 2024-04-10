@@ -43,7 +43,7 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
         if (authContext.isAnonymous() && authAt.anonymous()) {
             return null;
         }
-        Long userId = authContext.getUserId();
+        Integer userId = authContext.getUserId();
         User user = userRepository.getById(userId);
 
         if (permitStatus.contains(user.getUserType())) {

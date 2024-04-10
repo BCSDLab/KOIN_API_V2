@@ -12,9 +12,9 @@ import in.koreatech.koin.global.auth.exception.AuthenticationException;
 @RequestScope
 public class AuthContext {
 
-    private Long userId;
+    private Integer userId;
 
-    public Long getUserId() {
+    public Integer getUserId() {
         if (userId == null) {
             throw AuthenticationException.withDetail("userId is null");
         }
@@ -25,7 +25,7 @@ public class AuthContext {
         return Objects.equals(userId, UserType.ANONYMOUS_ID);
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 }

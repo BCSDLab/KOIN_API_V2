@@ -22,11 +22,11 @@ public record MenuCategoriesResponse(
     }
 
     private record MenuCategoryResponse(
-        Long id,
+        Integer id,
         String name
     ) {
 
-        public static MenuCategoryResponse of(Long id, String name) {
+        public static MenuCategoryResponse of(Integer id, String name) {
             return new MenuCategoryResponse(id, name);
         }
     }
