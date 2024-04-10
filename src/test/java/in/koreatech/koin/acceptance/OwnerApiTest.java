@@ -679,4 +679,67 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
+
+    @Test
+    @DisplayName("사장님이 회원탈퇴를 한다.")
+    void ownerDelete(){
+        // given
+        User user = User.builder()
+            .password("1234")
+            .nickname("주노")
+            .name("최준호")
+            .phoneNumber("010-1234-5678")
+            .userType(OWNER)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        OwnerAttachment attachment = OwnerAttachment.builder()
+            .url("https://test.com/test.jpg")
+            .isDeleted(false)
+            .build();
+
+        Owner ownerRequest = Owner.builder()
+            .companyRegistrationNumber("123-45-67890")
+            .attachments(List.of(attachment))
+            .grantShop(true)
+            .grantEvent(true)
+            .user(user)
+            .build();
+        Owner owner = ownerRepository.save(ownerRequest);
+
+        Shop shopRequest = Shop.builder()
+            .owner(owner)
+            .name("테스트 상점")
+            .internalName("테스트")
+            .chosung("테스트")
+            .phone("010-1234-5678")
+            .address("대전광역시 유성구 대학로 291")
+            .description("테스트 상점입니다.")
+            .delivery(true)
+            .deliveryPrice(3000L)
+            .payCard(true)
+            .payBank(true)
+            .isDeleted(false)
+            .isEvent(false)
+            .remarks("비고")
+            .hit(0L)
+            .build();
+        shopRepository.save(shopRequest);
+        String token = jwtProvider.createToken(owner.getUser());
+
+        // when then
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .delete("/user")
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract();
+
+        assertThat(userRepository.findById(user.getId())).isNotPresent();
+    }
 }

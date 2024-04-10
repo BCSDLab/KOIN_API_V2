@@ -29,4 +29,6 @@ public interface ShopRepository extends Repository<Shop, Long> {
     }
 
     List<Shop> findAll();
+
+    void deleteByOwnerId(Long ownerId);
 }
