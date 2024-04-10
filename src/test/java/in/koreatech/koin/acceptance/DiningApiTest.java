@@ -19,14 +19,11 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
-import in.koreatech.koin.domain.coop.model.CoopEventListener;
-import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -57,8 +54,7 @@ class DiningApiTest extends AcceptanceTest {
     @Autowired
     private NotificationSubscribeRepository notificationSubscribeRepository;
 
-    @MockBean
-    private CoopEventListener coopEventListener;
+
 
     @Test
     @DisplayName("특정 날짜의 모든 식단들을 조회한다.")
