@@ -56,7 +56,9 @@ public record ShopEventsResponse(
                 eventArticle.getId(),
                 eventArticle.getTitle(),
                 eventArticle.getContent(),
-                eventArticle.getThumbnailImages().stream().map(EventArticleImage::getThumbnailImage).toList(),
+                eventArticle.getThumbnailImages()
+                    .stream().map(EventArticleImage::getThumbnailImage)
+                    .toList(),
                 eventArticle.getStartDate(),
                 eventArticle.getEndDate()
             );
@@ -65,10 +67,10 @@ public record ShopEventsResponse(
 
     public static ShopEventsResponse from(List<Shop> shops) {
         List<InnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
-        for (Shop shop: shops) {
-            for (EventArticle eventArticle: shop.getEventArticles()) {
-                if(!eventArticle.getStartDate().isAfter(LocalDate.now()) &&
-                   !eventArticle.getEndDate().isBefore(LocalDate.now())) {
+        for (Shop shop : shops) {
+            for (EventArticle eventArticle : shop.getEventArticles()) {
+                if (!eventArticle.getStartDate().isAfter(LocalDate.now()) &&
+                    !eventArticle.getEndDate().isBefore(LocalDate.now())) {
                     innerShopEventResponses.add(InnerShopEventResponse.from(eventArticle));
                 }
             }
@@ -78,8 +80,8 @@ public record ShopEventsResponse(
 
     public static ShopEventsResponse from(Shop shop) {
         List<InnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
-        for (EventArticle eventArticle: shop.getEventArticles()) {
-            if(!eventArticle.getStartDate().isAfter(LocalDate.now()) &&
+        for (EventArticle eventArticle : shop.getEventArticles()) {
+            if (!eventArticle.getStartDate().isAfter(LocalDate.now()) &&
                 !eventArticle.getEndDate().isBefore(LocalDate.now())) {
                 innerShopEventResponses.add(InnerShopEventResponse.from(eventArticle));
             }

@@ -1209,23 +1209,25 @@ class OwnerShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("사장님이 이벤트를 추가한다.")
     void ownerShopCreateEvent() {
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(10);
         ExtractableResponse<Response> response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .body(String.format("""
-                {
-                  "title": "감성떡볶이 이벤트합니다!",
-                  "content": "테스트 이벤트입니다.",
-                  "thumbnail_images": [
-                    "https://test.com/test1.jpg"
-                  ],
-                  "start_date": "%s",
-                  "end_date": "%s"
-                }
-                """,
-                LocalDate.now(),
-                LocalDate.now().plusDays(10)))
+                    {
+                      "title": "감성떡볶이 이벤트합니다!",
+                      "content": "테스트 이벤트입니다.",
+                      "thumbnail_images": [
+                        "https://test.com/test1.jpg"
+                      ],
+                      "start_date": "%s",
+                      "end_date": "%s"
+                    }
+                    """,
+                startDate.format(ofPattern("yyyy-MM-dd")),
+                endDate.format(ofPattern("yyyy-MM-dd"))))
             .when()
             .post("/owner/shops/{shopId}/event", shop.getId())
             .then()
@@ -1233,29 +1235,33 @@ class OwnerShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        EventArticle eventArticle = eventArticleRepository.getById(1);
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(eventArticle.getShop().getId()).isEqualTo(1);
-                softly.assertThat(eventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
-                softly.assertThat(eventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
-                softly.assertThat(eventArticle.getThumbnailImages().get(0)).isEqualTo("https://test.com/test1.jpg");
-                softly.assertThat(eventArticle.getStartDate().toString()).isEqualTo(LocalDate.now());
-                softly.assertThat(eventArticle.getEndDate().toString()).isEqualTo(LocalDate.now().plusDays(10));
-            }
-        );
+        transactionTemplate.executeWithoutResult(status -> {
+            EventArticle eventArticle = eventArticleRepository.getById(1);
+            assertSoftly(
+                softly -> {
+                    softly.assertThat(eventArticle.getShop().getId()).isEqualTo(1);
+                    softly.assertThat(eventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
+                    softly.assertThat(eventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
+                    softly.assertThat(eventArticle.getThumbnailImages().get(0).getThumbnailImage())
+                        .isEqualTo("https://test.com/test1.jpg");
+                    softly.assertThat(eventArticle.getStartDate()).isEqualTo(startDate);
+                    softly.assertThat(eventArticle.getEndDate()).isEqualTo(endDate);
+                }
+            );
+        });
     }
 
     @Test
     @DisplayName("사장님이 이벤트를 수정한다.")
     void ownerShopModifyEvent() {
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(10);
         EventArticle savedEvent = createEventArticle(
             shop,
             "테스트 제목1",
             "테스트 내용1",
-            LocalDate.now(),
-            LocalDate.now().plusDays(10),
+            startDate,
+            endDate,
             List.of("https://test.com/test1.jpg")
         );
 
@@ -1264,36 +1270,38 @@ class OwnerShopApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .body(String.format("""
-                {
-                  "title": "감성떡볶이 이벤트합니다!",
-                  "content": "테스트 이벤트입니다.",
-                  "thumbnail_images": [
-                    "https://test.com/test1.jpg"
-                  ],
-                  "start_date": "%s",
-                  "end_date": "%s"
-                }
-                """,
-                LocalDate.now(),
-                LocalDate.now().plusDays(10)))
+                    {
+                      "title": "감성떡볶이 이벤트합니다!",
+                      "content": "테스트 이벤트입니다.",
+                      "thumbnail_images": [
+                        "https://test.com/test1.jpg"
+                      ],
+                      "start_date": "%s",
+                      "end_date": "%s"
+                    }
+                    """,
+                startDate,
+                endDate))
             .when()
             .put("/owner/shops/{shopId}/event/{eventId}", shop.getId(), savedEvent.getId())
             .then()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        EventArticle modifiedEventArticle = eventArticleRepository.getById(savedEvent.getId());
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(modifiedEventArticle.getShop().getId()).isEqualTo(1);
-                softly.assertThat(modifiedEventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
-                softly.assertThat(modifiedEventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
-                softly.assertThat(modifiedEventArticle.getThumbnailImages().get(0)).isEqualTo("https://test.com/test1.jpg");
-                softly.assertThat(modifiedEventArticle.getStartDate().toString()).isEqualTo(LocalDate.now());
-                softly.assertThat(modifiedEventArticle.getEndDate().toString()).isEqualTo(LocalDate.now().plusDays(10));
-            }
-        );
+        transactionTemplate.executeWithoutResult(status -> {
+            EventArticle modifiedEventArticle = eventArticleRepository.getById(savedEvent.getId());
+            assertSoftly(
+                softly -> {
+                    softly.assertThat(modifiedEventArticle.getShop().getId()).isEqualTo(1);
+                    softly.assertThat(modifiedEventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
+                    softly.assertThat(modifiedEventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
+                    softly.assertThat(modifiedEventArticle.getThumbnailImages().get(0).getThumbnailImage())
+                        .isEqualTo("https://test.com/test1.jpg");
+                    softly.assertThat(modifiedEventArticle.getStartDate()).isEqualTo(startDate);
+                    softly.assertThat(modifiedEventArticle.getEndDate()).isEqualTo(endDate);
+                }
+            );
+        });
     }
 
     @Test
@@ -1303,8 +1311,8 @@ class OwnerShopApiTest extends AcceptanceTest {
             shop,
             "테스트 제목1",
             "테스트 내용1",
-            LocalDate.of(2024,10,24),
-            LocalDate.of(2024,10,26),
+            LocalDate.of(2024, 10, 24),
+            LocalDate.of(2024, 10, 26),
             List.of("https://test.com/test1.jpg")
         );
 
@@ -1341,7 +1349,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .hit(0)
             .build();
         EventArticle savedEvent = eventArticleRepository.save(eventArticle);
-        for (String image: thumbnailImages) {
+        for (String image : thumbnailImages) {
             EventArticleImage eventArticleImage = EventArticleImage.builder()
                 .eventArticle(eventArticle)
                 .thumbnailImage(image)

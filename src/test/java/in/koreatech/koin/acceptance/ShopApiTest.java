@@ -6,6 +6,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -934,34 +935,34 @@ class ShopApiTest extends AcceptanceTest {
             .extract();
 
         JsonAssertions.assertThat(String.format("""
-            {
-               "events": [
-                   {
-                        "shop_id": %s,
-                        "shop_name": "%s",
-                        "event_id": %s,
-                        "title": "테스트 이벤트 1",
-                        "content": "<P>테스트 이벤트 내용1</P>",
-                        "thumbnail_images": [
-                            "https://test.com/test-thumbnail-1.jpg"
-                        ],
-                        "start_date": "%s",
-                        "end_date": "%s"
-                   },
-                   {
-                        "shop_id": %s,
-                        "shop_name": "%s",
-                        "event_id": %s,
-                        "title": "테스트 이벤트 2",
-                        "content": "<P>테스트 이벤트 내용2</P>",
-                        "thumbnail_images": [
-                            "https://test.com/test-thumbnail-2.jpg"
-                        ],
-                        "start_date": "%s",
-                        "end_date": "%s"
-                   }
-               ]
-               }""",
+                {
+                   "events": [
+                       {
+                            "shop_id": %s,
+                            "shop_name": "%s",
+                            "event_id": %s,
+                            "title": "테스트 이벤트 1",
+                            "content": "<P>테스트 이벤트 내용1</P>",
+                            "thumbnail_images": [
+                                "https://test.com/test-thumbnail-1.jpg"
+                            ],
+                            "start_date": "%s",
+                            "end_date": "%s"
+                       },
+                       {
+                            "shop_id": %s,
+                            "shop_name": "%s",
+                            "event_id": %s,
+                            "title": "테스트 이벤트 2",
+                            "content": "<P>테스트 이벤트 내용2</P>",
+                            "thumbnail_images": [
+                                "https://test.com/test-thumbnail-2.jpg"
+                            ],
+                            "start_date": "%s",
+                            "end_date": "%s"
+                       }
+                   ]
+                   }""",
             newShop.getId(),
             newShop.getName(),
             eventArticle1.getId(),
@@ -977,8 +978,7 @@ class ShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("이벤트 진행중인 상점의 정보를 조회한다.")
     void getShopWithEvents() {
-        when(clock.instant()).thenReturn(
-            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd HH:mm:ss z")).toInstant());
+        when(clock.instant()).thenReturn(Instant.now());
         when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
 
         var now = LocalDate.of(2024, 2, 21);
@@ -1064,6 +1064,7 @@ class ShopApiTest extends AcceptanceTest {
             LocalDate.now().plusDays(3),
             List.of("https://test.com/test-thumbnail-2.jpg")
         );
+
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
@@ -1072,6 +1073,7 @@ class ShopApiTest extends AcceptanceTest {
             .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
+
         Assertions.assertThat(response.jsonPath().getBoolean("is_event")).isTrue();
     }
 
@@ -1266,7 +1268,7 @@ class ShopApiTest extends AcceptanceTest {
             .hit(0)
             .build();
         EventArticle savedEvent = eventArticleRepository.save(eventArticle);
-        for (String image: thumbnailImages) {
+        for (String image : thumbnailImages) {
             EventArticleImage eventArticleImage = EventArticleImage.builder()
                 .eventArticle(eventArticle)
                 .thumbnailImage(image)

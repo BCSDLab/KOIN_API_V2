@@ -3,7 +3,9 @@ package in.koreatech.koin.domain.ownershop.dto;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,9 +26,11 @@ public record CreateEventRequest(
     List<String> thumbnailImages,
 
     @Schema(example = "2024-10-24", description = "시작일")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @NotNull LocalDate startDate,
 
     @Schema(example = "2024-11-24", description = "시작일")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @NotNull LocalDate endDate
 ) {
 

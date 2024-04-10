@@ -58,7 +58,7 @@ public class ShopService {
 
     public ShopResponse getShop(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
-        Boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
+        boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
         return ShopResponse.from(shop, eventDuration);
     }
 
@@ -71,7 +71,7 @@ public class ShopService {
     public ShopsResponse getShops() {
         List<Shop> shops = shopRepository.findAll();
         var innerShopResponses = shops.stream().map(shop -> {
-                Boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
+                boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
                 return InnerShopResponse.from(shop, eventDuration);
             })
             .toList();

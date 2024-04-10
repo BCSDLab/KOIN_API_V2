@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.ownershop.service;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -75,7 +76,7 @@ public class OwnerShopService {
     public OwnerShopsResponse getOwnerShops(Integer ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
         var innerShopResponses = shops.stream().map(shop -> {
-                Boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
+                boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
                 return InnerShopResponse.from(shop, eventDuration);
             })
             .toList();
@@ -124,7 +125,7 @@ public class OwnerShopService {
 
     public ShopResponse getShopByShopId(Integer ownerId, Integer shopId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        Boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
+        boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
         return ShopResponse.from(shop, eventDuration);
     }
 
@@ -269,6 +270,7 @@ public class OwnerShopService {
         Shop shop = getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = EventArticle.builder()
             .shop(shop)
+            .thumbnailImages(new ArrayList<>())
             .startDate(shopEventRequest.startDate())
             .endDate(shopEventRequest.endDate())
             .title(shopEventRequest.title())
@@ -278,11 +280,13 @@ public class OwnerShopService {
             .ip("")
             .build();
         EventArticle savedEventArticle = eventArticleRepository.save(eventArticle);
-        for (String image: shopEventRequest.thumbnailImages()) {
-            savedEventArticle.getThumbnailImages().add(EventArticleImage.builder()
-                .eventArticle(eventArticle)
-                .thumbnailImage(image)
-                .build());
+        for (String image : shopEventRequest.thumbnailImages()) {
+
+            savedEventArticle.getThumbnailImages()
+                .add(EventArticleImage.builder()
+                    .eventArticle(eventArticle)
+                    .thumbnailImage(image)
+                    .build());
         }
     }
 

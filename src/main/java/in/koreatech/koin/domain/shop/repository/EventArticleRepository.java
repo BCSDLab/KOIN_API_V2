@@ -22,7 +22,7 @@ public interface EventArticleRepository extends Repository<EventArticle, Integer
         WHERE :now BETWEEN e.startDate AND e.endDate
         AND e.shop.id = :shopId
         """)
-    Boolean isEvent(@Param("shopId") Integer shopId, @Param("now") LocalDate now);
+    boolean isEvent(@Param("shopId") Integer shopId, @Param("now") LocalDate now);
 
     Optional<EventArticle> findById(Integer id);
 
