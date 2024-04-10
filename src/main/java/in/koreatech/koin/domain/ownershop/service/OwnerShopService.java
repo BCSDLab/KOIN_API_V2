@@ -76,7 +76,7 @@ public class OwnerShopService {
     public OwnerShopsResponse getOwnerShops(Integer ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
         var innerShopResponses = shops.stream().map(shop -> {
-                boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
+                boolean eventDuration = eventArticleRepository.isDurationEvent(shop.getId(), LocalDate.now(clock));
                 return InnerShopResponse.from(shop, eventDuration);
             })
             .toList();
@@ -125,7 +125,7 @@ public class OwnerShopService {
 
     public ShopResponse getShopByShopId(Integer ownerId, Integer shopId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
+        boolean eventDuration = eventArticleRepository.isDurationEvent(shopId, LocalDate.now(clock));
         return ShopResponse.from(shop, eventDuration);
     }
 
