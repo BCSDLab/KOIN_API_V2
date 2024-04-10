@@ -42,11 +42,11 @@ public class User extends BaseEntity {
     private String password;
 
     @Size(max = 50)
-    @Column(name = "nickname", length = 50)
+    @Column(name = "nickname", length = 50, unique = true)
     private String nickname;
 
     @Size(max = 50)
-    @Column(name = "name", length = 50)
+    @Column(name = "name", length = 50, unique = true)
     private String name;
 
     @Size(max = 20)

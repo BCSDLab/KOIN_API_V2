@@ -45,7 +45,7 @@ public final class MenuCategory extends BaseEntity {
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @NotNull

@@ -41,7 +41,7 @@ public class Owner {
 
     @Size(max = 12)
     @NotNull
-    @Column(name = "company_registration_number", nullable = false, length = 12)
+    @Column(name = "company_registration_number", nullable = false, length = 12, unique = true)
     private String companyRegistrationNumber;
 
     @Column(name = "grant_shop", columnDefinition = "TINYINT")
