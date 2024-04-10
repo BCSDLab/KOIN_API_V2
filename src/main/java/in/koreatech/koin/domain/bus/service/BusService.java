@@ -163,8 +163,8 @@ public class BusService {
         }
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-            BusCourse busCourse = busRepository.getByBusTypeAndDirectionAndRegion(busType.name().toLowerCase(),
-                direction, region);
+            BusCourse busCourse = busRepository
+                .getByBusTypeAndDirectionAndRegion(busType.name().toLowerCase(), direction, region);
 
             return busCourse.getRoutes().stream()
                 .map(route -> new SchoolBusTimetable(
@@ -183,5 +183,4 @@ public class BusService {
             .map(BusCourseResponse::from)
             .toList();
     }
-
 }

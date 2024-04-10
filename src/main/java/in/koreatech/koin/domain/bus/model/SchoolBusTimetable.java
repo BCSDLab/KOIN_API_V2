@@ -2,11 +2,13 @@ package in.koreatech.koin.domain.bus.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import lombok.Getter;
-import lombok.ToString;
 
 @Getter
-@ToString
+@JsonNaming(value = SnakeCaseStrategy.class)
 public class SchoolBusTimetable extends BusTimetable {
     private final String routeName;
     private final List<ArrivalNode> arrivalInfo;
@@ -17,18 +19,13 @@ public class SchoolBusTimetable extends BusTimetable {
     }
 
     @Getter
-    public static class ArrivalNode implements Comparable<ArrivalNode>{
+    public static class ArrivalNode {
         private final String nodeName;
         private final String arrivalTime;
 
         public ArrivalNode(String nodeName, String arrivalTime){
             this.nodeName = nodeName;
             this.arrivalTime = arrivalTime;
-        }
-
-        @Override
-        public int compareTo(ArrivalNode o) {
-            return arrivalTime.compareTo(o.arrivalTime);
         }
     }
 }

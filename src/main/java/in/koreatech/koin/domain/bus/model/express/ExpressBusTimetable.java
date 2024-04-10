@@ -2,13 +2,17 @@ package in.koreatech.koin.domain.bus.model.express;
 
 import java.time.format.DateTimeFormatter;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import lombok.Getter;
-import lombok.ToString;
 
 @Getter
-@ToString
+@JsonNaming(value = SnakeCaseStrategy.class)
 public class ExpressBusTimetable extends BusTimetable {
+
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     private final String depart;
 
@@ -21,8 +25,6 @@ public class ExpressBusTimetable extends BusTimetable {
         this.arrival = arrival;
         this.charge = charge;
     }
-
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     public static ExpressBusTimetable from(ExpressBusCacheInfo expressBusCacheInfo){
         String departure = expressBusCacheInfo.depart().format(TIME_FORMATTER);

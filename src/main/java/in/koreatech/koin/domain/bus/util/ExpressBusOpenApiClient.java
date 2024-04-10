@@ -165,7 +165,7 @@ public class ExpressBusOpenApiClient {
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
         StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL); /*URL*/
         try {
-            urlBuilder.append("?" + encode("serviceKey", UTF_8) + "=" + encode(openApiKey));
+            urlBuilder.append("?" + encode("serviceKey", UTF_8) + "=" + encode(openApiKey, UTF_8));
             urlBuilder.append("&" + encode("numOfRows", UTF_8) + "=" + encode("30", UTF_8));
             urlBuilder.append("&" + encode("_type", UTF_8) + "=" + encode("json", UTF_8));
             urlBuilder.append("&" + encode("depTerminalId", UTF_8) + "=" + encode(departNode.getStationId(), UTF_8));
@@ -232,14 +232,14 @@ public class ExpressBusOpenApiClient {
             depart = "koreatech";
             arrival = "terminal";
         }
-        if("to".equals(direction)){
+        if ("to".equals(direction)) {
             depart = "terminal";
             arrival = "koreatech";
         }
         if (depart.isEmpty() || arrival.isEmpty()) {
             throw new UnsupportedOperationException();
         }
-        
+
         if (isCacheExpired(version, clock)) {
             storeRemainTimeByOpenApi(depart, arrival);
         }

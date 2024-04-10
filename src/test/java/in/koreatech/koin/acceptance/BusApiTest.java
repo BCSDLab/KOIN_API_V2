@@ -511,34 +511,6 @@ class BusApiTest extends AcceptanceTest {
         String direction = "from";
         String region = "천안";
 
-        // BusCourse busCourse = BusCourse.builder()
-        //     .busType("shuttle")
-        //     .region("천안")
-        //     .direction("from")
-        //     .routes(
-        //         List.of(
-        //             Route.builder()
-        //                 .routeName("주중")
-        //                 .runningDays(List.of("MON", "TUE", "WED", "THU", "FRI"))
-        //                 .arrivalInfos(
-        //                     List.of(
-        //                         Route.ArrivalNode.builder()
-        //                             .nodeName("한기대")
-        //                             .arrivalTime(arrivalTime)
-        //                             .build(),
-        //                         Route.ArrivalNode.builder()
-        //                             .nodeName("신계초,운전리,연춘리")
-        //                             .arrivalTime("정차")
-        //                             .build()
-        //                     )
-        //                 )
-        //                 .build()
-        //         )
-        //     )
-        //     .build();
-        //
-        // busRepository.save(busCourse);
-
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
