@@ -84,8 +84,8 @@ class OwnerApiTest extends AcceptanceTest {
         // given
         User user = User.builder()
             .password("1234")
-            .nickname("주노")
-            .name("최준호")
+            .nickname("셋업유저")
+            .name("셋업")
             .phoneNumber("010-1234-5678")
             .userType(OWNER)
             .gender(UserGender.MAN)
@@ -100,7 +100,7 @@ class OwnerApiTest extends AcceptanceTest {
             .build();
 
         Owner ownerRequest = Owner.builder()
-            .companyRegistrationNumber("123-45-67890")
+            .companyRegistrationNumber("123-45-67190")
             .attachments(List.of(attachment))
             .grantShop(true)
             .grantEvent(true)
