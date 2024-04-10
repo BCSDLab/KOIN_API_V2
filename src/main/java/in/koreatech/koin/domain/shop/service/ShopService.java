@@ -14,6 +14,7 @@ import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
+import in.koreatech.koin.domain.shop.dto.ShopsResponse.InnerShopResponse;
 import in.koreatech.koin.domain.shop.model.EventArticle;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
@@ -63,14 +64,19 @@ public class ShopService {
     }
 
     public ShopMenuResponse getShopMenus(Long shopId) {
-        Shop shop = shopRepository.getById(shopId);
-        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
-        return ShopMenuResponse.from(menuCategories);
+        shopRepository.getById(shopId);
+        List<Menu> menus = menuRepository.findAllByShopId(shopId);
+        return ShopMenuResponse.from(menus);
     }
 
     public ShopsResponse getShops() {
         List<Shop> shops = shopRepository.findAll();
-        return ShopsResponse.from(shops);
+        var innerShopResponses = shops.stream().map(shop -> {
+                Boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
+                return InnerShopResponse.from(shop, eventDuration);
+            })
+            .toList();
+        return ShopsResponse.from(innerShopResponses);
     }
 
     public ShopCategoriesResponse getShopsCategories() {
@@ -78,8 +84,13 @@ public class ShopService {
         return ShopCategoriesResponse.from(shopCategories);
     }
 
-    public ShopEventsResponse getEvents(Long shopId) {
+    public ShopEventsResponse getShopEvents(Long shopId) {
         List<EventArticle> eventArticles = eventArticleRepository.findAllByShopId(shopId);
+        return ShopEventsResponse.from(eventArticles);
+    }
+
+    public ShopEventsResponse getAllEvents() {
+        List<EventArticle> eventArticles = eventArticleRepository.findAllDurationEvents();
         return ShopEventsResponse.from(eventArticles);
     }
 }

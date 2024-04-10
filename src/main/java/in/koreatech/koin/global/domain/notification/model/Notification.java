@@ -1,19 +1,21 @@
 package in.koreatech.koin.global.domain.notification.model;
 
+import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static lombok.AccessLevel.PROTECTED;
+
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin.global.fcm.MobileAppPath;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import static jakarta.persistence.EnumType.STRING;
 import jakarta.persistence.Enumerated;
-import static jakarta.persistence.FetchType.LAZY;
 import jakarta.persistence.GeneratedValue;
-import static jakarta.persistence.GenerationType.IDENTITY;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import static lombok.AccessLevel.PROTECTED;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,8 +29,9 @@ public class Notification extends BaseEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @Column(name = "url", nullable = false)
-    private String url;
+    @Enumerated(STRING)
+    @Column(name = "app_path", nullable = false)
+    private MobileAppPath mobileAppPath;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -51,14 +54,14 @@ public class Notification extends BaseEntity {
     private boolean isRead = false;
 
     public Notification(
-        String url,
+        MobileAppPath appPath,
         String title,
         String message,
         String imageUrl,
         NotificationType type,
         User user
     ) {
-        this.url = url;
+        this.mobileAppPath = appPath;
         this.title = title;
         this.message = message;
         this.imageUrl = imageUrl;

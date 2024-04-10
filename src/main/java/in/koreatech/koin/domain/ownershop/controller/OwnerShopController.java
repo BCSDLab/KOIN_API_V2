@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
+import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.ownershop.service.OwnerShopService;
 import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
@@ -154,5 +156,36 @@ public class OwnerShopController implements OwnerShopApi {
     ) {
         ownerShopService.modifyShop(ownerId, shopId, modifyShopRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/owner/shops/{id}/event")
+    public ResponseEntity<Void> createShopEvent(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("id") Long shopId,
+        @RequestBody @Valid CreateEventRequest shopEventRequest
+    ) {
+        ownerShopService.createEvent(ownerId, shopId, shopEventRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/owner/shops/{shopId}/event/{eventId}")
+    public ResponseEntity<Void> modifyShopEvent(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("shopId") Long shopId,
+        @PathVariable("eventId") Long eventId,
+        @RequestBody @Valid ModifyEventRequest modifyEventRequest
+    ) {
+        ownerShopService.modifyEvent(ownerId, shopId, eventId, modifyEventRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/owner/shops/{shopId}/event/{eventId}")
+    public ResponseEntity<Void> deleteShopEvent(
+        @Auth(permit = {OWNER}) Long ownerId,
+        @PathVariable("shopId") Long shopId,
+        @PathVariable("eventId") Long eventId
+    ) {
+        ownerShopService.deleteEvent(ownerId, shopId, eventId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

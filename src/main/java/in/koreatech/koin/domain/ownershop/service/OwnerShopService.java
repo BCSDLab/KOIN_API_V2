@@ -10,8 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
+import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
+import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse.InnerShopResponse;
 import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
@@ -21,6 +24,7 @@ import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
+import in.koreatech.koin.domain.shop.model.EventArticle;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -68,7 +72,12 @@ public class OwnerShopService {
 
     public OwnerShopsResponse getOwnerShops(Long ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
-        return OwnerShopsResponse.from(shops);
+        var innerShopResponses = shops.stream().map(shop -> {
+                Boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
+                return InnerShopResponse.from(shop, eventDuration);
+            })
+            .toList();
+        return OwnerShopsResponse.from(innerShopResponses);
     }
 
     @Transactional
@@ -76,7 +85,14 @@ public class OwnerShopService {
         Owner owner = ownerRepository.getById(ownerId);
         Shop newShop = ownerShopsRequest.toEntity(owner);
         Shop savedShop = shopRepository.save(newShop);
-
+        List<String> categoryNames = List.of("추천 메뉴", "메인 메뉴", "세트 메뉴", "사이드 메뉴");
+        for (String categoryName : categoryNames) {
+            MenuCategory menuCategory = MenuCategory.builder()
+                .shop(savedShop)
+                .name(categoryName)
+                .build();
+            menuCategoryRepository.save(menuCategory);
+        }
         for (String imageUrl : ownerShopsRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(savedShop)
@@ -130,8 +146,8 @@ public class OwnerShopService {
 
     public ShopMenuResponse getMenus(Long shopId, Long ownerId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
-        return ShopMenuResponse.from(menuCategories);
+        List<Menu> menus = menuRepository.findAllByShopId(shop.getId());
+        return ShopMenuResponse.from(menus);
     }
 
     public MenuCategoriesResponse getCategories(Long shopId, Long ownerId) {
@@ -244,5 +260,40 @@ public class OwnerShopService {
         shop.modifyShopOpens(modifyShopRequest.open(), entityManager);
         shop.modifyShopCategories(shopCategoryRepository.findAllByIdIn(modifyShopRequest.categoryIds()), entityManager);
         shopRepository.save(shop);
+    }
+
+    @Transactional
+    public void createEvent(Long ownerId, Long shopId, CreateEventRequest shopEventRequest) {
+        Shop shop = getOwnerShopById(shopId, ownerId);
+        EventArticle eventArticle = EventArticle.builder()
+                .shop(shop)
+                .startDate(shopEventRequest.startDate())
+                .endDate(shopEventRequest.endDate())
+                .title(shopEventRequest.title())
+                .content(shopEventRequest.content())
+                .thumbnail(shopEventRequest.thumbnailImage())
+                .hit(0)
+                .ip("")
+                .build();
+        eventArticleRepository.save(eventArticle);
+    }
+
+    @Transactional
+    public void modifyEvent(Long ownerId, Long shopId, Long eventId, ModifyEventRequest modifyEventRequest) {
+        getOwnerShopById(shopId, ownerId);
+        EventArticle eventArticle = eventArticleRepository.getById(eventId);
+        eventArticle.modifyArticle(
+            modifyEventRequest.title(),
+            modifyEventRequest.content(),
+            modifyEventRequest.thumbnailImage(),
+            modifyEventRequest.startDate(),
+            modifyEventRequest.endDate()
+        );
+    }
+
+    @Transactional
+    public void deleteEvent(Long ownerId, Long shopId, Long eventId) {
+        getOwnerShopById(shopId, ownerId);
+        eventArticleRepository.deleteById(eventId);
     }
 }
