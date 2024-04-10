@@ -484,7 +484,7 @@ class DiningApiTest extends AcceptanceTest {
             .build());
 
         Dining dining = Dining.builder()
-            .date("2024-04-04")
+            .date(LocalDate.parse("2024-04-04"))
             .type("LUNCH")
             .place("A코스")
             .priceCard(6000)
@@ -500,7 +500,7 @@ class DiningApiTest extends AcceptanceTest {
         given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
-            .body(new SoldOutRequest(1L, true))
+            .body(new SoldOutRequest(1, true))
             .when()
             .patch("/coop/dining/soldout")
             .then()
