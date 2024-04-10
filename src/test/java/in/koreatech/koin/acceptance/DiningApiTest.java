@@ -512,7 +512,6 @@ class DiningApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        // 이벤트 리스너가 품절 이벤트 감지
         verify(coopEventListener).onDiningSoldOutRequest(any());
     }
 }
