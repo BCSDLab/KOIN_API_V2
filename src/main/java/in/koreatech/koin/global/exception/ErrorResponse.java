@@ -1,23 +1,20 @@
 package in.koreatech.koin.global.exception;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 
 @Getter
 public class ErrorResponse {
 
-    private final int code;
+    @JsonIgnore
+    private final int status;
     private final String message;
+    private final String code;
 
-    private ErrorResponse(int code, String message) {
-        this.code = code;
+    public ErrorResponse(int status, String message) {
+        this.status = status;
         this.message = message;
-    }
-
-    public static ErrorResponse of(int code, String message) {
-        return new ErrorResponse(code, message);
-    }
-
-    public static ErrorResponse from(String message) {
-        return new ErrorResponse(0, message);
+        this.code = "";
     }
 }

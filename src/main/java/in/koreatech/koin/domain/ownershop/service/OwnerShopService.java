@@ -219,22 +219,22 @@ public class OwnerShopService {
         menuCategoryRepository.save(menuCategory);
     }
 
-    @Transactional
-    public void modifyMenu(Long ownerId, Long menuId, ModifyMenuRequest modifyMenuRequest) {
-        Menu menu = menuRepository.getById(menuId);
-        getOwnerShopById(menu.getShopId(), ownerId);
-        menu.modifyMenu(
-            modifyMenuRequest.name(),
-            modifyMenuRequest.description()
-        );
-        menu.modifyMenuImages(modifyMenuRequest.imageUrls(), entityManager);
-        menu.modifyMenuCategories(menuCategoryRepository.findAllByIdIn(modifyMenuRequest.categoryIds()), entityManager);
-        if (modifyMenuRequest.isSingle()) {
-            menu.modifyMenuSingleOptions(modifyMenuRequest, entityManager);
-        } else {
-            menu.modifyMenuMultipleOptions(modifyMenuRequest.optionPrices(), entityManager);
+        @Transactional
+        public void modifyMenu(Long ownerId, Long menuId, ModifyMenuRequest modifyMenuRequest) {
+            Menu menu = menuRepository.getById(menuId);
+            getOwnerShopById(menu.getShopId(), ownerId);
+            menu.modifyMenu(
+                modifyMenuRequest.name(),
+                modifyMenuRequest.description()
+            );
+            menu.modifyMenuImages(modifyMenuRequest.imageUrls(), entityManager);
+            menu.modifyMenuCategories(menuCategoryRepository.findAllByIdIn(modifyMenuRequest.categoryIds()), entityManager);
+            if (modifyMenuRequest.isSingle()) {
+                menu.modifyMenuSingleOptions(modifyMenuRequest, entityManager);
+            } else {
+                menu.modifyMenuMultipleOptions(modifyMenuRequest.optionPrices(), entityManager);
+            }
         }
-    }
 
     @Transactional
     public void modifyCategory(Long ownerId, Long categoryId, ModifyCategoryRequest modifyCategoryRequest) {

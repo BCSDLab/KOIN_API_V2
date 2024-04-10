@@ -35,7 +35,7 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+        NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 
         Auth authAt = parameter.getParameterAnnotation(Auth.class);
         requireNonNull(authAt);
@@ -58,7 +58,7 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
             }
             return user.getId();
         }
-        HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+        HttpServletRequest request = (HttpServletRequest)webRequest.getNativeRequest();
         throw AuthorizationException.withDetail("header: " + request);
     }
 }

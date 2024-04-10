@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,15 +32,17 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
+import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
+import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
-import in.koreatech.koin.domain.bus.model.ExpressBusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusStationNode;
+import in.koreatech.koin.domain.bus.model.express.ExpressBusTimetable;
 import in.koreatech.koin.domain.bus.model.express.OpenApiExpressBusArrival;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
@@ -76,6 +79,25 @@ public class ExpressBusOpenApiClient {
         this.gson = gson;
         this.clock = clock;
         this.expressBusCacheRepository = expressBusCacheRepository;
+    }
+
+    public SingleBusTimeResponse searchBusTime(
+        String busType,
+        BusStation depart, BusStation arrival,
+        LocalDateTime targetTime
+    ) {
+        List<ExpressBusRemainTime> remainTimes = getBusRemainTime(depart, arrival);
+        if (remainTimes.isEmpty()) {
+            return null;
+        }
+
+        LocalTime arrivalTime = remainTimes.stream()
+            .filter(expressBusRemainTime -> targetTime.toLocalTime().isBefore(expressBusRemainTime.getBusArrivalTime()))
+            .min(Comparator.naturalOrder())
+            .map(BusRemainTime::getBusArrivalTime)
+            .orElse(null);
+
+        return new SingleBusTimeResponse(busType, arrivalTime);
     }
 
     public List<ExpressBusRemainTime> getBusRemainTime(BusStation depart, BusStation arrival) {
@@ -192,7 +214,7 @@ public class ExpressBusOpenApiClient {
         List<ExpressBusCacheInfo> busArrivals
     ) {
         return busArrivals.stream()
-            .map(it -> new ExpressBusRemainTime(it.arrivalTime(), EXPRESS.name().toLowerCase()))
+            .map(it -> new ExpressBusRemainTime(it.depart(), EXPRESS.name().toLowerCase()))
             .toList();
     }
 
@@ -204,43 +226,34 @@ public class ExpressBusOpenApiClient {
 
     public List<? extends BusTimetable> getExpressBusTimetable(String direction) {
         Version version = versionRepository.getByType(VersionType.EXPRESS);
-
-        if ("to".equals(direction)) {
-            if (isCacheExpired(version, clock)) {
-                storeRemainTimeByOpenApi("terminal", "koreatech");
-            }
-
-            String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute("terminal", "koreatech"));
-            ExpressBusCache expressBusCache = expressBusCacheRepository.getById(busCacheId);
-            if (Objects.isNull(expressBusCache)) {
-                return Collections.emptyList();
-            }
-            List<ExpressBusCacheInfo> busArrivals = expressBusCache.getBusInfos();
-
-            return busArrivals
-                .stream()
-                .map(ExpressBusTimetable::from)
-                .toList();
-        }
+        String depart = "", arrival = "";
 
         if ("from".equals(direction)) {
-            if (isCacheExpired(version, clock)) {
-                storeRemainTimeByOpenApi("koreatech", "termainal");
-            }
-
-            String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute("koreatech", "terminal"));
-            ExpressBusCache expressBusCache = expressBusCacheRepository.getById(busCacheId);
-            if (Objects.isNull(expressBusCache)) {
-                return Collections.emptyList();
-            }
-            List<ExpressBusCacheInfo> busArrivals = expressBusCache.getBusInfos();
-
-            return busArrivals
-                .stream()
-                .map(ExpressBusTimetable::from)
-                .toList();
+            depart = "koreatech";
+            arrival = "terminal";
+        }
+        if("to".equals(direction)){
+            depart = "terminal";
+            arrival = "koreatech";
+        }
+        if (depart.isEmpty() || arrival.isEmpty()) {
+            throw new UnsupportedOperationException();
+        }
+        
+        if (isCacheExpired(version, clock)) {
+            storeRemainTimeByOpenApi(depart, arrival);
         }
 
-        throw new UnsupportedOperationException();
+        String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute(depart, arrival));
+        ExpressBusCache expressBusCache = expressBusCacheRepository.getById(busCacheId);
+        if (Objects.isNull(expressBusCache)) {
+            return Collections.emptyList();
+        }
+        List<ExpressBusCacheInfo> busArrivals = expressBusCache.getBusInfos();
+
+        return busArrivals
+            .stream()
+            .map(ExpressBusTimetable::from)
+            .toList();
     }
 }

@@ -14,7 +14,7 @@ public class CityBusRemainTime extends BusRemainTime {
     private final Long busNumber;
 
     public CityBusRemainTime(Long busNumber, LocalTime busArrivalTime) {
-        super(busArrivalTime);
+        super(busArrivalTime, null);
         this.busNumber = busNumber;
     }
 
@@ -38,7 +38,7 @@ public class CityBusRemainTime extends BusRemainTime {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        CityBusRemainTime that = (CityBusRemainTime) o;
+        CityBusRemainTime that = (CityBusRemainTime)o;
         return Objects.equals(getBusArrivalTime(), that.getBusArrivalTime())
             && Objects.equals(busNumber, that.busNumber);
     }

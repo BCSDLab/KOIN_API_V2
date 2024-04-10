@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.bus.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -7,7 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
@@ -44,4 +47,29 @@ public interface BusApi {
         @RequestParam(value = "direction") String direction,
         @RequestParam(value = "region") String region
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "날짜 & 시간 기준 버스 검색")
+    @GetMapping("/search")
+    ResponseEntity<List<SingleBusTimeResponse>> getSearchTimetable(
+        @Parameter(description = "yyyy-MM-dd") @RequestParam LocalDate date,
+        @Parameter(description = "HH:mm") @RequestParam String time,
+        @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation depart,
+        @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation arrival
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "버스 노선 조회")
+    @GetMapping("/courses")
+    ResponseEntity<List<BusCourseResponse>> getBusCourses();
 }

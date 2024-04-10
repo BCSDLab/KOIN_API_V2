@@ -12,4 +12,3 @@ public class BusTypeNotSupportException extends IllegalArgumentException {
         return new BusTypeNotSupportException(message);
     }
 }
-
