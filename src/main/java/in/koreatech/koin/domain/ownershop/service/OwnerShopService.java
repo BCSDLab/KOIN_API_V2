@@ -273,6 +273,7 @@ public class OwnerShopService {
             .endDate(shopEventRequest.endDate())
             .title(shopEventRequest.title())
             .content(shopEventRequest.content())
+            .user(shop.getOwner().getUser())
             .hit(0)
             .ip("")
             .build();

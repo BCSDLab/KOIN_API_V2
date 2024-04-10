@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -28,6 +29,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.shop.model.EventArticle;
+import in.koreatech.koin.domain.shop.model.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -38,6 +40,7 @@ import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.EventArticleImageRepository;
 import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
@@ -73,6 +76,9 @@ class ShopApiTest extends AcceptanceTest {
 
     @Autowired
     private ShopCategoryMapRepository shopCategoryMapRepository;
+
+    @Autowired
+    private EventArticleImageRepository eventArticleImageRepository;
 
     @Autowired
     private ShopCategoryRepository shopCategoryRepository;
@@ -901,31 +907,23 @@ class ShopApiTest extends AcceptanceTest {
         shopImageRepository.save(shopImage1);
         shopImageRepository.save(shopImage2);
 
-        EventArticle eventArticle1 = EventArticle.builder()
-            .shop(newShop)
-            .title("테스트 이벤트 1")
-            .content("<P>테스트 이벤트 내용1</P>")
-            .user(user)
-            .thumbnail("https://test.com/test-thumbnail-1.jpg")
-            .hit(0)
-            .ip("123.123.123.11")
-            .startDate(now)
-            .endDate(now.plusDays(3))
-            .build();
-        eventArticleRepository.save(eventArticle1);
+        EventArticle eventArticle1 = createEventArticle(
+            newShop,
+            "테스트 이벤트 1",
+            "<P>테스트 이벤트 내용1</P>",
+            LocalDate.now().minusDays(3),
+            LocalDate.now().plusDays(3),
+            List.of("https://test.com/test-thumbnail-1.jpg")
+        );
 
-        EventArticle eventArticle2 = EventArticle.builder()
-            .shop(newShop)
-            .title("테스트 이벤트 2")
-            .content("<P>테스트 이벤트 내용2</P>")
-            .user(user)
-            .thumbnail("https://test.com/test-thumbnail-2.jpg")
-            .hit(0)
-            .ip("123.123.123.12")
-            .startDate(now)
-            .endDate(now.plusDays(3))
-            .build();
-        eventArticleRepository.save(eventArticle2);
+        EventArticle eventArticle2 = createEventArticle(
+            newShop,
+            "테스트 이벤트 2",
+            "<P>테스트 이벤트 내용2</P>",
+            LocalDate.now().minusDays(3),
+            LocalDate.now().plusDays(3),
+            List.of("https://test.com/test-thumbnail-2.jpg")
+        );
 
         ExtractableResponse<Response> response = RestAssured
             .given()
@@ -939,21 +937,41 @@ class ShopApiTest extends AcceptanceTest {
             {
                "events": [
                    {
-                       "title": "테스트 이벤트 1",
-                       "content": "<P>테스트 이벤트 내용1</P>",
-                       "thumbnail_image": "https://test.com/test-thumbnail-1.jpg",
-                       "start_date": "2024-02-21",
-                       "end_date": "2024-02-24"
+                        "shop_id": %s,
+                        "shop_name": "%s",
+                        "event_id": %s,
+                        "title": "테스트 이벤트 1",
+                        "content": "<P>테스트 이벤트 내용1</P>",
+                        "thumbnail_images": [
+                            "https://test.com/test-thumbnail-1.jpg"
+                        ],
+                        "start_date": "%s",
+                        "end_date": "%s"
                    },
                    {
-                       "title": "테스트 이벤트 2",
-                       "content": "<P>테스트 이벤트 내용2</P>",
-                       "thumbnail_image": "https://test.com/test-thumbnail-2.jpg",
-                       "start_date": "2024-02-21",
-                       "end_date": "2024-02-24"
+                        "shop_id": %s,
+                        "shop_name": "%s",
+                        "event_id": %s,
+                        "title": "테스트 이벤트 2",
+                        "content": "<P>테스트 이벤트 내용2</P>",
+                        "thumbnail_images": [
+                            "https://test.com/test-thumbnail-2.jpg"
+                        ],
+                        "start_date": "%s",
+                        "end_date": "%s"
                    }
                ]
-               }""")).isEqualTo(response.asPrettyString());
+               }""",
+            newShop.getId(),
+            newShop.getName(),
+            eventArticle1.getId(),
+            LocalDate.now().minusDays(3),
+            LocalDate.now().plusDays(3),
+            newShop.getId(),
+            newShop.getName(),
+            eventArticle2.getId(),
+            LocalDate.now().minusDays(3),
+            LocalDate.now().plusDays(3))).isEqualTo(response.asPrettyString());
     }
 
     @Test
@@ -987,7 +1005,7 @@ class ShopApiTest extends AcceptanceTest {
         ShopOpen open1 = ShopOpen.builder()
             .openTime(LocalTime.of(0, 0))
             .closeTime(LocalTime.of(21, 0))
-            .shop(shop)
+            .shop(newShop)
             .closed(false)
             .dayOfWeek("MONDAY")
             .build();
@@ -1004,7 +1022,7 @@ class ShopApiTest extends AcceptanceTest {
         shopOpenRepository.save(open2);
 
         ShopCategoryMap shopCategoryMap1 = ShopCategoryMap.builder()
-            .shop(shop)
+            .shop(newShop)
             .shopCategory(shopCategory1)
             .build();
 
@@ -1018,7 +1036,7 @@ class ShopApiTest extends AcceptanceTest {
 
         ShopImage shopImage1 = ShopImage.builder()
             .imageUrl("https://test.com/test1.jpg")
-            .shop(shop)
+            .shop(newShop)
             .build();
 
         ShopImage shopImage2 = ShopImage.builder()
@@ -1029,40 +1047,31 @@ class ShopApiTest extends AcceptanceTest {
         shopImageRepository.save(shopImage1);
         shopImageRepository.save(shopImage2);
 
-        EventArticle eventArticle1 = EventArticle.builder()
-            .shop(newShop)
-            .title("테스트 이벤트 1")
-            .content("<P>테스트 이벤트 내용1</P>")
-            .user(user)
-            .thumbnail("https://test.com/test-thumbnail-1.jpg")
-            .hit(0)
-            .ip("123.123.123.11")
-            .startDate(now)
-            .endDate(now.plusDays(3))
-            .build();
-        eventArticleRepository.save(eventArticle1);
+        EventArticle eventArticle1 = createEventArticle(
+            newShop,
+            "테스트 이벤트 1",
+            "<P>테스트 이벤트 내용1</P>",
+            LocalDate.now().minusDays(3),
+            LocalDate.now().plusDays(3),
+            List.of("https://test.com/test-thumbnail-1.jpg")
+        );
 
-        EventArticle eventArticle2 = EventArticle.builder()
-            .shop(newShop)
-            .title("테스트 이벤트 2")
-            .content("<P>테스트 이벤트 내용2</P>")
-            .user(user)
-            .thumbnail("https://test.com/test-thumbnail-2.jpg")
-            .hit(0)
-            .ip("123.123.123.12")
-            .startDate(now)
-            .endDate(now.plusDays(3))
-            .build();
-        eventArticleRepository.save(eventArticle2);
-
+        EventArticle eventArticle2 = createEventArticle(
+            newShop,
+            "테스트 이벤트 2",
+            "<P>테스트 이벤트 내용2</P>",
+            LocalDate.now().minusDays(3),
+            LocalDate.now().plusDays(3),
+            List.of("https://test.com/test-thumbnail-2.jpg")
+        );
         ExtractableResponse<Response> response = RestAssured
             .given()
             .when()
             .get("/shops/{shopId}", newShop.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
-
         Assertions.assertThat(response.jsonPath().getBoolean("is_event")).isTrue();
     }
 
@@ -1139,18 +1148,16 @@ class ShopApiTest extends AcceptanceTest {
         shopImageRepository.save(shopImage1);
         shopImageRepository.save(shopImage2);
 
-        EventArticle eventArticle1 = EventArticle.builder()
-            .shop(newShop)
-            .title("테스트 이벤트 1")
-            .content("<P>테스트 이벤트 내용1</P>")
-            .user(user)
-            .thumbnail("https://test.com/test-thumbnail-1.jpg")
-            .hit(0)
-            .ip("123.123.123.11")
-            .startDate(now.minusDays(5))
-            .endDate(now.minusDays(1))
-            .build();
-        eventArticleRepository.save(eventArticle1);
+        List<String> thumbnailImages = List.of("https://test.com/test-thumbnail-1.jpg");
+
+        EventArticle eventArticle1 = createEventArticle(
+            newShop,
+            "테스트 이벤트 1",
+            "<P>테스트 이벤트 내용1</P>",
+            LocalDate.now().minusDays(5),
+            LocalDate.now().minusDays(1),
+            List.of("https://test.com/test-thumbnail-1.jpg")
+        );
 
         ExtractableResponse<Response> response = RestAssured
             .given()
@@ -1166,50 +1173,36 @@ class ShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("이벤트 베너 조회")
     void ownerShopDeleteEvent() {
-        LocalDate now = LocalDate.now();
-        EventArticle eventArticle1 = EventArticle.builder()
-            .shop(shop)
-            .title("테스트 제목1")
-            .content("테스트 내용1")
-            .ip("")
-            .startDate(now)
-            .endDate(now.plusDays(10))
-            .thumbnail("https://test.com/test1.jpg")
-            .hit(0)
-            .build();
-        EventArticle savedEvent1 = eventArticleRepository.save(eventArticle1);
-
-        EventArticle eventArticle2 = EventArticle.builder()
-            .shop(shop)
-            .title("테스트 제목1")
-            .content("테스트 내용1")
-            .ip("")
-            .startDate(now.minusDays(10))
-            .endDate(now.minusDays(1))
-            .thumbnail("https://test.com/test1.jpg")
-            .hit(0)
-            .build();
-        EventArticle savedEvent2 = eventArticleRepository.save(eventArticle2);
-
-        EventArticle eventArticle3 = EventArticle.builder()
-            .shop(shop)
-            .title("테스트 제목3")
-            .content("테스트 내용3")
-            .ip("")
-            .startDate(now.minusDays(10))
-            .endDate(now.plusDays(10))
-            .thumbnail("https://test.com/test1.jpg")
-            .hit(0)
-            .build();
-        EventArticle savedEvent3 = eventArticleRepository.save(eventArticle3);
-
+        EventArticle savedEvent1 = createEventArticle(
+            shop,
+            "테스트 제목1",
+            "테스트 내용1",
+            LocalDate.now(),
+            LocalDate.now().plusDays(10),
+            List.of("https://test.com/test1.jpg")
+        );
+        EventArticle savedEvent2 = createEventArticle(
+            shop,
+            "테스트 제목1",
+            "테스트 내용1",
+            LocalDate.now().minusDays(10),
+            LocalDate.now().minusDays(1),
+            List.of("https://test.com/test1.jpg")
+        );
+        EventArticle savedEvent3 = createEventArticle(
+            shop,
+            "테스트 제목3",
+            "테스트 내용3",
+            LocalDate.now().minusDays(10),
+            LocalDate.now().plusDays(10),
+            List.of("https://test.com/test1.jpg")
+        );
         ExtractableResponse<Response> response = RestAssured
             .given()
             .contentType(ContentType.JSON)
             .when()
             .get("/shops/events")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -1218,24 +1211,68 @@ class ShopApiTest extends AcceptanceTest {
                     {
                         "events": [
                             {
+                                "shop_id": %s,
+                                "shop_name": "%s",
+                                "event_id": %s,
                                 "title": "테스트 제목1",
                                 "content": "테스트 내용1",
-                                "thumbnail_image": "https://test.com/test1.jpg",
+                                "thumbnail_images": [
+                                    "https://test.com/test1.jpg"
+                                ],
                                 "start_date": %s,
                                 "end_date": %s
                             },
                             {
+                                "shop_id": %s,
+                                "shop_name": "%s",
+                                "event_id": %s,
                                 "title": "테스트 제목3",
                                 "content": "테스트 내용3",
-                                "thumbnail_image": "https://test.com/test1.jpg",
+                                "thumbnail_images": [
+                                    "https://test.com/test1.jpg"
+                                ],
                                 "start_date": %s,
                                 "end_date": %s
                             }
                         ]
                     }""",
+                shop.getId(),
+                shop.getName(),
+                savedEvent1.getId(),
                 response.jsonPath().getString("events[0].start_date"),
                 response.jsonPath().getString("events[0].end_date"),
+                shop.getId(),
+                shop.getName(),
+                savedEvent3.getId(),
                 response.jsonPath().getString("events[1].start_date"),
                 response.jsonPath().getString("events[1].end_date")));
+    }
+
+    private EventArticle createEventArticle(
+        Shop shop,
+        String title,
+        String content,
+        LocalDate startDate,
+        LocalDate endDate,
+        List<String> thumbnailImages
+    ) {
+        EventArticle eventArticle = EventArticle.builder()
+            .shop(shop)
+            .title(title)
+            .content(content)
+            .ip("")
+            .startDate(startDate)
+            .endDate(endDate)
+            .hit(0)
+            .build();
+        EventArticle savedEvent = eventArticleRepository.save(eventArticle);
+        for (String image: thumbnailImages) {
+            EventArticleImage eventArticleImage = EventArticleImage.builder()
+                .eventArticle(eventArticle)
+                .thumbnailImage(image)
+                .build();
+            eventArticleImageRepository.save(eventArticleImage);
+        }
+        return eventArticleRepository.getById(savedEvent.getId());
     }
 }

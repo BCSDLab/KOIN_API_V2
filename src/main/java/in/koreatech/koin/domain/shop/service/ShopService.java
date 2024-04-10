@@ -15,7 +15,6 @@ import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse.InnerShopResponse;
-import in.koreatech.koin.domain.shop.model.EventArticle;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -85,8 +84,8 @@ public class ShopService {
     }
 
     public ShopEventsResponse getShopEvents(Integer shopId) {
-        List<Shop> shops = shopRepository.findAllById(shopId);
-        return ShopEventsResponse.from(shops);
+        Shop shop = shopRepository.getById(shopId);
+        return ShopEventsResponse.from(shop);
     }
 
     public ShopEventsResponse getAllEvents() {
