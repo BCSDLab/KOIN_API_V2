@@ -71,7 +71,7 @@ class ActivityApiTest extends AcceptanceTest {
             softly -> {
                 // activity2
                 softly.assertThat(response.body().jsonPath().getList("Activities").size()).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getLong("Activities[0].id")).isEqualTo(activity2.getId());
+                softly.assertThat(response.body().jsonPath().getInt("Activities[0].id")).isEqualTo(activity2.getId());
                 softly.assertThat(response.body().jsonPath().getString("Activities[0].title"))
                     .isEqualTo(activity2.getTitle());
                 softly.assertThat(response.body().jsonPath().getString("Activities[0].description"))
@@ -80,10 +80,10 @@ class ActivityApiTest extends AcceptanceTest {
                 LocalDate actualDate = LocalDate.parse(response.body().jsonPath().getString("Activities[0].date"));
                 softly.assertThat(actualDate).isEqualTo(expectedDate2);
                 softly.assertThat(response.body().jsonPath().getBoolean("Activities[0].is_deleted"))
-                    .isEqualTo(activity2.getIsDeleted());
+                    .isEqualTo(activity2.isDeleted());
 
                 //activity3
-                softly.assertThat(response.body().jsonPath().getLong("Activities[1].id")).isEqualTo(activity3.getId());
+                softly.assertThat(response.body().jsonPath().getInt("Activities[1].id")).isEqualTo(activity3.getId());
                 softly.assertThat(response.body().jsonPath().getString("Activities[1].title"))
                     .isEqualTo(activity3.getTitle());
                 softly.assertThat(response.body().jsonPath().getString("Activities[1].description"))
@@ -92,7 +92,7 @@ class ActivityApiTest extends AcceptanceTest {
                 LocalDate actualDate2 = LocalDate.parse(response.body().jsonPath().getString("Activities[1].date"));
                 softly.assertThat(actualDate2).isEqualTo(expectedDate3);
                 softly.assertThat(response.body().jsonPath().getBoolean("Activities[1].is_deleted"))
-                    .isEqualTo(activity3.getIsDeleted());
+                    .isEqualTo(activity3.isDeleted());
             }
         );
     }
@@ -147,7 +147,7 @@ class ActivityApiTest extends AcceptanceTest {
             softly -> {
                 // activity1
                 softly.assertThat(response.body().jsonPath().getList("Activities").size()).isEqualTo(3);
-                softly.assertThat(response.body().jsonPath().getLong("Activities[0].id")).isEqualTo(activity1.getId());
+                softly.assertThat(response.body().jsonPath().getInt("Activities[0].id")).isEqualTo(activity1.getId());
                 softly.assertThat(response.body().jsonPath().getString("Activities[0].title"))
                     .isEqualTo(activity1.getTitle());
                 softly.assertThat(response.body().jsonPath().getString("Activities[0].description"))
@@ -156,11 +156,11 @@ class ActivityApiTest extends AcceptanceTest {
                 LocalDate actualDate = LocalDate.parse(response.body().jsonPath().getString("Activities[0].date"));
                 softly.assertThat(actualDate).isEqualTo(expectedDate1);
                 softly.assertThat(response.body().jsonPath().getBoolean("Activities[0].is_deleted"))
-                    .isEqualTo(activity1.getIsDeleted());
+                    .isEqualTo(activity1.isDeleted());
 
                 // activity2
                 softly.assertThat(response.body().jsonPath().getList("Activities").size()).isEqualTo(3);
-                softly.assertThat(response.body().jsonPath().getLong("Activities[1].id")).isEqualTo(activity2.getId());
+                softly.assertThat(response.body().jsonPath().getInt("Activities[1].id")).isEqualTo(activity2.getId());
                 softly.assertThat(response.body().jsonPath().getString("Activities[1].title"))
                     .isEqualTo(activity2.getTitle());
                 softly.assertThat(response.body().jsonPath().getString("Activities[1].description"))
@@ -169,10 +169,10 @@ class ActivityApiTest extends AcceptanceTest {
                 LocalDate actualDate2 = LocalDate.parse(response.body().jsonPath().getString("Activities[1].date"));
                 softly.assertThat(actualDate2).isEqualTo(expectedDate2);
                 softly.assertThat(response.body().jsonPath().getBoolean("Activities[1].is_deleted"))
-                    .isEqualTo(activity2.getIsDeleted());
+                    .isEqualTo(activity2.isDeleted());
 
                 //activity3
-                softly.assertThat(response.body().jsonPath().getLong("Activities[2].id")).isEqualTo(activity3.getId());
+                softly.assertThat(response.body().jsonPath().getInt("Activities[2].id")).isEqualTo(activity3.getId());
                 softly.assertThat(response.body().jsonPath().getString("Activities[2].title"))
                     .isEqualTo(activity3.getTitle());
                 softly.assertThat(response.body().jsonPath().getString("Activities[2].description"))
@@ -181,7 +181,7 @@ class ActivityApiTest extends AcceptanceTest {
                 LocalDate actualDate3 = LocalDate.parse(response.body().jsonPath().getString("Activities[2].date"));
                 softly.assertThat(actualDate3).isEqualTo(expectedDate3);
                 softly.assertThat(response.body().jsonPath().getBoolean("Activities[2].is_deleted"))
-                    .isEqualTo(activity2.getIsDeleted());
+                    .isEqualTo(activity2.isDeleted());
             }
         );
     }

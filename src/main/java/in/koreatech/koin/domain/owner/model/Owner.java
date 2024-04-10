@@ -32,7 +32,7 @@ public class Owner {
 
     @Id
     @Column(name = "user_id", nullable = false)
-    private Long id;
+    private Integer id;
 
     @MapsId
     @OneToOne(cascade = ALL)
@@ -44,11 +44,11 @@ public class Owner {
     @Column(name = "company_registration_number", nullable = false, length = 12)
     private String companyRegistrationNumber;
 
-    @Column(name = "grant_shop")
-    private Boolean grantShop;
+    @Column(name = "grant_shop", columnDefinition = "TINYINT")
+    private boolean grantShop;
 
-    @Column(name = "grant_event")
-    private Boolean grantEvent;
+    @Column(name = "grant_event", columnDefinition = "TINYINT")
+    private boolean grantEvent;
 
     @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true)
     @JoinColumn(name = "owner_id")

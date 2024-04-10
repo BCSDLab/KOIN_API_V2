@@ -64,7 +64,7 @@ public class JwtProvider {
             .compact();
     }
 
-    public Long getUserId(String token) {
+    public Integer getUserId(String token) {
         try {
             String userId = Jwts.parser()
                 .verifyWith(getSecretKey())
@@ -73,7 +73,7 @@ public class JwtProvider {
                 .getPayload()
                 .get("id")
                 .toString();
-            return Long.parseLong(userId);
+            return Integer.parseInt(userId);
         } catch (JwtException e) {
             throw AuthenticationException.withDetail("token: " + token);
         }

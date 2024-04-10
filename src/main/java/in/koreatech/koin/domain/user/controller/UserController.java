@@ -49,7 +49,7 @@ public class UserController implements UserApi {
 
     @GetMapping("/user/student/me")
     public ResponseEntity<StudentResponse> getStudent(
-        @Auth(permit = STUDENT) Long userId
+        @Auth(permit = STUDENT) Integer userId
     ) {
         StudentResponse studentResponse = studentService.getStudent(userId);
         return ResponseEntity.ok().body(studentResponse);
@@ -57,7 +57,7 @@ public class UserController implements UserApi {
 
     @PutMapping("/user/student/me")
     public ResponseEntity<StudentUpdateResponse> updateStudent(
-        @Auth(permit = STUDENT) Long userId,
+        @Auth(permit = STUDENT) Integer userId,
         @Valid @RequestBody StudentUpdateRequest request
     ) {
         StudentUpdateResponse studentUpdateResponse = studentService.updateStudent(userId, request);
@@ -75,7 +75,7 @@ public class UserController implements UserApi {
 
     @PostMapping("/user/logout")
     public ResponseEntity<Void> logout(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     ) {
         userService.logout(userId);
         return ResponseEntity.ok().build();
@@ -91,7 +91,7 @@ public class UserController implements UserApi {
 
     @DeleteMapping("/user")
     public ResponseEntity<Void> withdraw(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     ) {
         userService.withdraw(userId);
         return ResponseEntity.noContent().build();
@@ -134,7 +134,7 @@ public class UserController implements UserApi {
 
     @GetMapping("/user/auth")
     public ResponseEntity<AuthResponse> getAuth(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Long userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     ) {
         AuthResponse authResponse = userService.getAuth(userId);
         return ResponseEntity.ok().body(authResponse);

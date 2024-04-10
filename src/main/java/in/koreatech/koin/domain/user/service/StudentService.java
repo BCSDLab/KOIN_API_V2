@@ -47,13 +47,13 @@ public class StudentService {
     private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
 
-    public StudentResponse getStudent(Long userId) {
+    public StudentResponse getStudent(Integer userId) {
         Student student = studentRepository.getById(userId);
         return StudentResponse.from(student);
     }
 
     @Transactional
-    public StudentUpdateResponse updateStudent(Long userId, StudentUpdateRequest request) {
+    public StudentUpdateResponse updateStudent(Integer userId, StudentUpdateRequest request) {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
         checkNicknameDuplication(request.nickname());

@@ -19,7 +19,7 @@ public record OwnerShopsResponse(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerShopResponse(
-        Long id,
+        Integer id,
         String name,
         boolean isEvent
     ) {

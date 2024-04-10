@@ -6,15 +6,15 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.user.model.UserToken;
 
-public interface UserTokenRepository extends Repository<UserToken, Long> {
+public interface UserTokenRepository extends Repository<UserToken, Integer> {
 
     UserToken save(UserToken userToken);
 
-    Optional<UserToken> findById(Long userId);
+    Optional<UserToken> findById(Integer userId);
 
-    void deleteById(Long id);
+    void deleteById(Integer id);
 
-    default UserToken getById(Long userId) {
+    default UserToken getById(Integer userId) {
         return findById(userId).orElseThrow(
             () -> new IllegalArgumentException("refresh token이 존재하지 않습니다. userId: " + userId));
     }

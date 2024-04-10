@@ -27,17 +27,19 @@ public record ShopMenuResponse(
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDateTime updatedAt
 ) {
+
     public static ShopMenuResponse from(List<Menu> menus) {
         LocalDateTime lastUpdatedAt = LocalDateTime.MIN;
         List<InnerMenuCategoriesResponse> innerMenuCategoriesResponses = new ArrayList<>();
-        for (Menu menu: menus) {
+        for (Menu menu : menus) {
             if (lastUpdatedAt.isBefore(menu.getUpdatedAt())) {
                 lastUpdatedAt = menu.getUpdatedAt();
             }
-            for (MenuCategoryMap menuCategoryMap: menu.getMenuCategoryMaps()) {
+            for (MenuCategoryMap menuCategoryMap : menu.getMenuCategoryMaps()) {
                 MenuCategory menuCategory = menuCategoryMap.getMenuCategory();
                 Integer index = getInnerMenuCategoriesResponseIndex(innerMenuCategoriesResponses, menuCategory);
-                InnerMenuCategoriesResponse.InnerMenuResponse innerMenuResponse = InnerMenuCategoriesResponse.InnerMenuResponse.from(menuCategoryMap);
+                InnerMenuCategoriesResponse.InnerMenuResponse innerMenuResponse = InnerMenuCategoriesResponse.InnerMenuResponse.from(
+                    menuCategoryMap);
                 if (index != null) {
                     innerMenuCategoriesResponses.get(index).menus.add(innerMenuResponse);
                 } else {
@@ -73,7 +75,7 @@ public record ShopMenuResponse(
     @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerMenuCategoriesResponse(
         @Schema(example = "1", description = "카테고리 id")
-        Long id,
+        Integer id,
 
         @Schema(example = "중식", description = "카테고리 이름")
         String name,
@@ -81,6 +83,7 @@ public record ShopMenuResponse(
         @Schema(description = "해당 상점의 모든 메뉴 리스트")
         List<InnerMenuResponse> menus
     ) {
+
         public static InnerMenuCategoriesResponse from(MenuCategory menuCategory) {
             return new InnerMenuCategoriesResponse(
                 menuCategory.getId(),
@@ -92,7 +95,7 @@ public record ShopMenuResponse(
         @JsonNaming(value = SnakeCaseStrategy.class)
         private record InnerMenuResponse(
             @Schema(example = "1", description = "고유 id")
-            Long id,
+            Integer id,
 
             @Schema(example = "탕수육", description = "이름")
             String name,
@@ -115,13 +118,14 @@ public record ShopMenuResponse(
             @Schema(description = "이미지 URL리스트")
             List<String> imageUrls
         ) {
+
             public static InnerMenuResponse from(MenuCategoryMap menuCategoryMap) {
                 Menu menu = menuCategoryMap.getMenu();
                 boolean isSingle = !menu.hasMultipleOption();
                 return new InnerMenuResponse(
                     menu.getId(),
                     menu.getName(),
-                    menu.getIsHidden(),
+                    menu.isHidden(),
                     isSingle,
                     isSingle ? menu.getMenuOptions().get(0).getPrice() : null,
                     isSingle ? null : menu.getMenuOptions().stream().map(InnerOptionPrice::from).toList(),
@@ -138,6 +142,7 @@ public record ShopMenuResponse(
                 @Schema(example = "26000", description = "가격")
                 Integer price
             ) {
+
                 public static InnerOptionPrice from(MenuOption menuOption) {
                     return new InnerOptionPrice(
                         menuOption.getOption(),

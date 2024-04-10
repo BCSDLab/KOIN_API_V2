@@ -34,7 +34,7 @@ public record TrackSingleResponse(
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     private record InnerTechStackResponse(
         @Schema(description = "기술 스택 고유 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(description = "기술 이름", example = "Backend")
         String name,
@@ -46,7 +46,7 @@ public record TrackSingleResponse(
         String imageUrl,
 
         @Schema(description = "트랙 ID", example = "1")
-        Long trackId,
+        Integer trackId,
 
         @Schema(description = "삭제 여부", example = "false")
         Boolean isDeleted,
@@ -65,7 +65,7 @@ public record TrackSingleResponse(
                 techStack.getDescription(),
                 techStack.getImageUrl(),
                 techStack.getTrackId(),
-                techStack.getIsDeleted(),
+                techStack.isDeleted(),
                 techStack.getCreatedAt(),
                 techStack.getUpdatedAt()
             );
@@ -75,7 +75,7 @@ public record TrackSingleResponse(
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     private record InnerMemberResponse(
         @Schema(description = "BCSD 회원 고유 ID", example = "1")
-        Long id,
+        Integer id,
 
         @Schema(description = "이름", example = "최준호")
         String name,
@@ -114,7 +114,7 @@ public record TrackSingleResponse(
                 trackName,
                 member.getEmail(),
                 member.getImageUrl(),
-                member.getIsDeleted(),
+                member.isDeleted(),
                 member.getCreatedAt(),
                 member.getUpdatedAt()
             );

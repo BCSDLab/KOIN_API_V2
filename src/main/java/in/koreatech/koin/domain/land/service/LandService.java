@@ -32,7 +32,7 @@ public class LandService {
         return new LandsGroupResponse(lands);
     }
 
-    public LandResponse getLand(Long id) {
+    public LandResponse getLand(Integer id) {
         Land land = landRepository.getById(id);
 
         String image = land.getImageUrls();

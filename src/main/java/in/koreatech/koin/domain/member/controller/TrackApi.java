@@ -40,6 +40,6 @@ public interface TrackApi {
     @Operation(summary = "트랙 단건 조회")
     @GetMapping("/tracks/{id}")
     ResponseEntity<TrackSingleResponse> getTrack(
-        @Parameter(in = PATH) @PathVariable Long id
+        @Parameter(in = PATH) @PathVariable Integer id
     );
 }

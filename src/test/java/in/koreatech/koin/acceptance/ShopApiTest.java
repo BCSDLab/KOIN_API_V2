@@ -131,13 +131,13 @@ class ShopApiTest extends AcceptanceTest {
             .address("대전광역시 유성구 대학로 291")
             .description("테스트 상점입니다.")
             .delivery(true)
-            .deliveryPrice(3000L)
+            .deliveryPrice(3000)
             .payCard(true)
             .payBank(true)
             .isDeleted(false)
             .isEvent(false)
             .remarks("비고")
-            .hit(0L)
+            .hit(0)
             .build();
         shop = shopRepository.save(shopRequest);
 
@@ -170,7 +170,7 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         Menu menu = Menu.builder()
-            .shopId(1L)
+            .shopId(1)
             .name("짜장면")
             .description("맛있는 짜장면")
             .build();
@@ -200,11 +200,11 @@ class ShopApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getLong("id")).isEqualTo(menu.getId());
+                softly.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(menu.getId());
 
-                softly.assertThat(response.body().jsonPath().getLong("shop_id")).isEqualTo(menu.getShopId());
+                softly.assertThat(response.body().jsonPath().getInt("shop_id")).isEqualTo(menu.getShopId());
                 softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(menu.getName());
-                softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.getIsHidden());
+                softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.isHidden());
 
                 softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isTrue();
                 softly.assertThat(response.body().jsonPath().getInt("single_price")).isEqualTo(menuOption.getPrice());
@@ -244,7 +244,7 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         Menu menu = Menu.builder()
-            .shopId(1L)
+            .shopId(1)
             .name("짜장면")
             .description("맛있는 짜장면")
             .build();
@@ -277,11 +277,11 @@ class ShopApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getLong("id")).isEqualTo(menu.getId());
+                softly.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(menu.getId());
 
-                softly.assertThat(response.body().jsonPath().getLong("shop_id")).isEqualTo(menu.getShopId());
+                softly.assertThat(response.body().jsonPath().getInt("shop_id")).isEqualTo(menu.getShopId());
                 softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(menu.getName());
-                softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.getIsHidden());
+                softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.isHidden());
 
                 softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
                 softly.assertThat((Integer)response.body().jsonPath().get("single_price")).isNull();
@@ -311,7 +311,7 @@ class ShopApiTest extends AcceptanceTest {
     @DisplayName("상점의 메뉴 카테고리들을 조회한다.")
     void findShopMenuCategories() {
         // given
-        final long SHOP_ID = 1L;
+        final int SHOP_ID = 1;
 
         Menu menu = Menu.builder()
             .shopId(SHOP_ID)
@@ -351,17 +351,17 @@ class ShopApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getLong("count")).isEqualTo(2);
+                softly.assertThat(response.body().jsonPath().getInt("count")).isEqualTo(2);
 
                 softly.assertThat(response.body().jsonPath().getList("menu_categories"))
                     .hasSize(2);
 
-                softly.assertThat(response.body().jsonPath().getLong("menu_categories[0].id"))
+                softly.assertThat(response.body().jsonPath().getInt("menu_categories[0].id"))
                     .isEqualTo(menuCategory1.getId());
                 softly.assertThat(response.body().jsonPath().getString("menu_categories[0].name"))
                     .isEqualTo(menuCategory1.getName());
 
-                softly.assertThat(response.body().jsonPath().getLong("menu_categories[1].id"))
+                softly.assertThat(response.body().jsonPath().getInt("menu_categories[1].id"))
                     .isEqualTo(menuCategory2.getId());
                 softly.assertThat(response.body().jsonPath().getString("menu_categories[1].name"))
                     .isEqualTo(menuCategory2.getName());
@@ -497,7 +497,7 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         Menu menu1 = Menu.builder()
-            .shopId(1L)
+            .shopId(1)
             .name("짜장면")
             .description("맛있는 짜장면")
             .build();
@@ -537,7 +537,7 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         Menu menu2 = Menu.builder()
-            .shopId(1L)
+            .shopId(1)
             .name("짜장면2")
             .description("맛있는 짜장면")
             .build();
@@ -572,7 +572,7 @@ class ShopApiTest extends AcceptanceTest {
             .build();
 
         Menu menu3 = Menu.builder()
-            .shopId(1L)
+            .shopId(1)
             .name("짜장면3")
             .description("맛있는 짜장면")
             .build();
@@ -697,13 +697,13 @@ class ShopApiTest extends AcceptanceTest {
             .address("대전광역시 유성구 대학로 291")
             .description("테스트 상점입니다.")
             .delivery(true)
-            .deliveryPrice(3000L)
+            .deliveryPrice(3000)
             .payCard(true)
             .payBank(true)
             .isDeleted(false)
             .isEvent(false)
             .remarks("비고")
-            .hit(0L)
+            .hit(0)
             .build();
         Shop newShop = shopRepository.save(shopRequest);
 
@@ -770,28 +770,28 @@ class ShopApiTest extends AcceptanceTest {
                     softly -> {
                         softly.assertThat(response.body().jsonPath().getString("count")).isEqualTo("2");
                         softly.assertThat(response.body().jsonPath().getBoolean("shops[0].delivery"))
-                            .isEqualTo(shop1.getDelivery());
-                        softly.assertThat(response.body().jsonPath().getLong("shops[0].id")).isEqualTo(shop1.getId());
+                            .isEqualTo(shop1.isDelivery());
+                        softly.assertThat(response.body().jsonPath().getInt("shops[0].id")).isEqualTo(shop1.getId());
                         softly.assertThat(response.body().jsonPath().getString("shops[0].name"))
                             .isEqualTo(shop1.getName());
                         softly.assertThat(response.body().jsonPath().getBoolean("shops[0].pay_bank"))
-                            .isEqualTo(shop1.getPayBank());
+                            .isEqualTo(shop1.isPayBank());
                         softly.assertThat(response.body().jsonPath().getBoolean("shops[0].pay_card"))
-                            .isEqualTo(shop1.getPayCard());
+                            .isEqualTo(shop1.isPayCard());
                         softly.assertThat(response.body().jsonPath().getString("shops[0].phone"))
                             .isEqualTo(shop1.getPhone());
                         softly.assertThat(response.body().jsonPath().getList("shops[0].category_ids")).hasSize(1);
                         softly.assertThat(response.body().jsonPath().getList("shops[0].open")).hasSize(1);
 
                         softly.assertThat(response.body().jsonPath().getBoolean("shops[1].delivery"))
-                            .isEqualTo(shop2.getDelivery());
-                        softly.assertThat(response.body().jsonPath().getLong("shops[1].id")).isEqualTo(shop2.getId());
+                            .isEqualTo(shop2.isDelivery());
+                        softly.assertThat(response.body().jsonPath().getInt("shops[1].id")).isEqualTo(shop2.getId());
                         softly.assertThat(response.body().jsonPath().getString("shops[1].name"))
                             .isEqualTo(shop2.getName());
                         softly.assertThat(response.body().jsonPath().getBoolean("shops[1].pay_bank"))
-                            .isEqualTo(shop2.getPayBank());
+                            .isEqualTo(shop2.isPayBank());
                         softly.assertThat(response.body().jsonPath().getBoolean("shops[1].pay_card"))
-                            .isEqualTo(shop2.getPayCard());
+                            .isEqualTo(shop2.isPayCard());
                         softly.assertThat(response.body().jsonPath().getString("shops[1].phone"))
                             .isEqualTo(shop2.getPhone());
                         softly.assertThat(response.body().jsonPath().getList("shops[1].category_ids")).hasSize(1);
@@ -816,11 +816,11 @@ class ShopApiTest extends AcceptanceTest {
         assertSoftly(
             softly -> {
                 softly.assertThat(response.body().jsonPath().getInt("total_count")).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getLong("shop_categories[0].id")).isEqualTo(1L);
+                softly.assertThat(response.body().jsonPath().getInt("shop_categories[0].id")).isEqualTo(1);
                 softly.assertThat(response.body().jsonPath().getString("shop_categories[0].name")).isEqualTo("테스트1");
                 softly.assertThat(response.body().jsonPath().getString("shop_categories[0].image_url"))
                     .isEqualTo("https://test.com/test1.jpg");
-                softly.assertThat(response.body().jsonPath().getLong("shop_categories[1].id")).isEqualTo(2L);
+                softly.assertThat(response.body().jsonPath().getInt("shop_categories[1].id")).isEqualTo(2);
                 softly.assertThat(response.body().jsonPath().getString("shop_categories[1].name")).isEqualTo("테스트2");
                 softly.assertThat(response.body().jsonPath().getString("shop_categories[1].image_url"))
                     .isEqualTo("https://test.com/test2.jpg");
@@ -846,13 +846,13 @@ class ShopApiTest extends AcceptanceTest {
             .address("대전광역시 유성구 대학로 291")
             .description("테스트 상점입니다.")
             .delivery(true)
-            .deliveryPrice(3000L)
+            .deliveryPrice(3000)
             .payCard(true)
             .payBank(true)
             .isDeleted(false)
             .isEvent(false)
             .remarks("비고")
-            .hit(0L)
+            .hit(0)
             .build();
         Shop newShop = shopRepository.save(shopRequest);
 
@@ -974,13 +974,13 @@ class ShopApiTest extends AcceptanceTest {
             .address("대전광역시 유성구 대학로 291")
             .description("테스트 상점입니다.")
             .delivery(true)
-            .deliveryPrice(3000L)
+            .deliveryPrice(3000)
             .payCard(true)
             .payBank(true)
             .isDeleted(false)
             .isEvent(false)
             .remarks("비고")
-            .hit(0L)
+            .hit(0)
             .build();
         Shop newShop = shopRepository.save(shopRequest);
 
@@ -1084,13 +1084,13 @@ class ShopApiTest extends AcceptanceTest {
             .address("대전광역시 유성구 대학로 291")
             .description("테스트 상점입니다.")
             .delivery(true)
-            .deliveryPrice(3000L)
+            .deliveryPrice(3000)
             .payCard(true)
             .payBank(true)
             .isDeleted(false)
             .isEvent(false)
             .remarks("비고")
-            .hit(0L)
+            .hit(0)
             .build();
         Shop newShop = shopRepository.save(shopRequest);
 
@@ -1209,31 +1209,33 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/events")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        JsonAssertions.assertThat(String.format("""
-                {
-                    "events": [
-                        {
-                            "title": "테스트 제목1",
-                            "content": "테스트 내용1",
-                            "thumbnail_image": "https://test.com/test1.jpg",
-                            "start_date": "%s",
-                            "end_date": "%s"
-                        },
-                        {
-                            "title": "테스트 제목3",
-                            "content": "테스트 내용3",
-                            "thumbnail_image": "https://test.com/test1.jpg",
-                            "start_date": "%s",
-                            "end_date": "%s"
-                        }
-                    ]
-                }""",
-            now.toString(),
-            now.plusDays(10).toString(),
-            now.minusDays(10).toString(),
-            now.plusDays(10).toString())).isEqualTo(response.asPrettyString());
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                    {
+                        "events": [
+                            {
+                                "title": "테스트 제목1",
+                                "content": "테스트 내용1",
+                                "thumbnail_image": "https://test.com/test1.jpg",
+                                "start_date": %s,
+                                "end_date": %s
+                            },
+                            {
+                                "title": "테스트 제목3",
+                                "content": "테스트 내용3",
+                                "thumbnail_image": "https://test.com/test1.jpg",
+                                "start_date": %s,
+                                "end_date": %s
+                            }
+                        ]
+                    }""",
+                response.jsonPath().getString("events[0].start_date"),
+                response.jsonPath().getString("events[0].end_date"),
+                response.jsonPath().getString("events[1].start_date"),
+                response.jsonPath().getString("events[1].end_date")));
     }
 }

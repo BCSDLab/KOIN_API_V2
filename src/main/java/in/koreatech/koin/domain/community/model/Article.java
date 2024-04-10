@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.model;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
@@ -14,10 +15,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
@@ -41,9 +40,8 @@ public class Article extends BaseEntity {
     private static final int SUMMARY_MAX_LENGTH = 100;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @GeneratedValue(strategy = IDENTITY)
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
@@ -55,7 +53,6 @@ public class Article extends BaseEntity {
     private String title;
 
     @NotNull
-    @Lob
     @Column(name = "content", nullable = false)
     private String content;
 
@@ -70,7 +67,7 @@ public class Article extends BaseEntity {
 
     @NotNull
     @Column(name = "hit", nullable = false)
-    private Long hit;
+    private Integer hit;
 
     @Size(max = 45)
     @NotNull
@@ -79,11 +76,11 @@ public class Article extends BaseEntity {
 
     @NotNull
     @Column(name = "is_solved", nullable = false)
-    private Boolean isSolved = false;
+    private boolean isSolved = false;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @OneToMany(mappedBy = "article", fetch = FetchType.LAZY)
     private List<Comment> comment = new ArrayList<>();
@@ -92,16 +89,15 @@ public class Article extends BaseEntity {
     @Column(name = "comment_count", nullable = false)
     private Byte commentCount;
 
-    @Lob
     @Column(name = "meta")
     private String meta;
 
     @NotNull
     @Column(name = "is_notice", nullable = false)
-    private Boolean isNotice = false;
+    private boolean isNotice = false;
 
     @Column(name = "notice_article_id")
-    private Long noticeArticleId;
+    private Integer noticeArticleId;
 
     @Transient
     private String summary;
@@ -129,9 +125,21 @@ public class Article extends BaseEntity {
     }
 
     @Builder
-    private Article(Board board, String title, String content, User user, String nickname, Long hit,
-        String ip, Boolean isSolved, Boolean isDeleted, Byte commentCount, String meta, Boolean isNotice,
-        Long noticeArticleId) {
+    private Article(
+        Board board,
+        String title,
+        String content,
+        User user,
+        String nickname,
+        Integer hit,
+        String ip,
+        boolean isSolved,
+        boolean isDeleted,
+        Byte commentCount,
+        String meta,
+        boolean isNotice,
+        Integer noticeArticleId
+    ) {
         this.board = board;
         this.title = title;
         this.content = content;

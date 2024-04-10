@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.timetable.model;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
+
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
@@ -9,7 +11,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -29,8 +30,8 @@ import lombok.NoArgsConstructor;
 public class TimeTable extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = IDENTITY)
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -93,12 +94,12 @@ public class TimeTable extends BaseEntity {
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @Builder
     private TimeTable(User user, Semester semester, String code, String classTitle, String classTime,
         String classPlace, String professor, String grades, String lectureClass, String target, String regularNumber,
-        String designScore, String department, String memo, Boolean isDeleted) {
+        String designScore, String department, String memo, boolean isDeleted) {
         this.user = user;
         this.semester = semester;
         this.code = code;
@@ -132,7 +133,7 @@ public class TimeTable extends BaseEntity {
         this.isDeleted = false;
     }
 
-    public void updateIsDeleted(Boolean isDeleted) {
+    public void updateIsDeleted(boolean isDeleted) {
         this.isDeleted = isDeleted;
     }
 }

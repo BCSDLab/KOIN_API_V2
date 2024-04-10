@@ -26,13 +26,13 @@ public record ShopsResponse(
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerShopResponse(
         @Schema(example = "0", description = " 속해있는 상점 카테고리들의 고유 id 리스트")
-        List<Long> categoryIds,
+        List<Integer> categoryIds,
 
         @Schema(example = "true", description = "배달 가능 여부")
         boolean delivery,
 
         @Schema(example = "1", description = "고유 id")
-        Long id,
+        Integer id,
 
         @Schema(example = "수신반점", description = "이름")
         String name,
@@ -58,12 +58,12 @@ public record ShopsResponse(
                 shop.getShopCategories().stream().map(shopCategoryMap ->
                     shopCategoryMap.getShopCategory().getId()
                 ).toList(),
-                shop.getDelivery(),
+                shop.isDelivery(),
                 shop.getId(),
                 shop.getName(),
                 shop.getShopOpens().stream().map(InnerShopOpen::from).toList(),
-                shop.getPayBank(),
-                shop.getPayCard(),
+                shop.isPayBank(),
+                shop.isPayCard(),
                 shop.getPhone(),
                 isEvent
             );

@@ -358,7 +358,7 @@ class TimetableApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getList("timetable"))
                     .hasSize(3);
 
-                softly.assertThat(response.body().jsonPath().getLong("timetable[0].id")).isEqualTo(1);
+                softly.assertThat(response.body().jsonPath().getInt("timetable[0].id")).isEqualTo(1);
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].regular_number")).isEqualTo("28");
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].code")).isEqualTo("CS101");
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].design_score")).isEqualTo("0");
@@ -373,7 +373,7 @@ class TimetableApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].professor")).isEqualTo("김철수");
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].department")).isEqualTo("컴퓨터공학부");
 
-                softly.assertThat(response.body().jsonPath().getLong("timetable[1].id")).isEqualTo(2);
+                softly.assertThat(response.body().jsonPath().getInt("timetable[1].id")).isEqualTo(2);
                 softly.assertThat(response.body().jsonPath().getString("timetable[1].regular_number")).isEqualTo("40");
                 softly.assertThat(response.body().jsonPath().getString("timetable[1].code")).isEqualTo("CS102");
                 softly.assertThat(response.body().jsonPath().getString("timetable[1].design_score")).isEqualTo("0");
@@ -388,7 +388,7 @@ class TimetableApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getString("timetable[1].professor")).isEqualTo("홍길동");
                 softly.assertThat(response.body().jsonPath().getString("timetable[1].department")).isEqualTo("컴퓨터공학부");
 
-                softly.assertThat(response.body().jsonPath().getLong("timetable[2].id")).isEqualTo(3);
+                softly.assertThat(response.body().jsonPath().getInt("timetable[2].id")).isEqualTo(3);
                 softly.assertThat(response.body().jsonPath().getString("timetable[2].regular_number")).isEqualTo("40");
                 softly.assertThat(response.body().jsonPath().getString("timetable[2].code")).isEqualTo("CS102");
                 softly.assertThat(response.body().jsonPath().getString("timetable[2].design_score")).isEqualTo("0");
@@ -520,7 +520,7 @@ class TimetableApiTest extends AcceptanceTest {
                     isEqualTo("20192");
                 softly.assertThat(response.body().jsonPath().getList("timetable"))
                     .hasSize(2);
-                softly.assertThat(response.body().jsonPath().getLong("timetable[0].id"))
+                softly.assertThat(response.body().jsonPath().getInt("timetable[0].id"))
                     .isEqualTo(1);
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].regular_number"))
                     .isEqualTo("25");
@@ -547,7 +547,7 @@ class TimetableApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].department"))
                     .isEqualTo("디자인ㆍ건축공학부");
 
-                softly.assertThat(response.body().jsonPath().getLong("timetable[1].id"))
+                softly.assertThat(response.body().jsonPath().getInt("timetable[1].id"))
                     .isEqualTo(2);
                 softly.assertThat(response.body().jsonPath().getString("timetable[1].regular_number"))
                     .isEqualTo("38");
@@ -753,7 +753,7 @@ class TimetableApiTest extends AcceptanceTest {
         assertSoftly(
             softly -> {
                 softly.assertThat(response.body().jsonPath().getList("timetable")).hasSize(2);
-                softly.assertThat(response.body().jsonPath().getLong("timetable[0].id")).isEqualTo(1);
+                softly.assertThat(response.body().jsonPath().getInt("timetable[0].id")).isEqualTo(1);
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].code")).isEqualTo("CPC490");
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].class_title")).isEqualTo("운영체제");
                 softly.assertThat(response.body().jsonPath().getList("timetable[0].class_time"))
@@ -769,7 +769,7 @@ class TimetableApiTest extends AcceptanceTest {
                     .isEqualTo("디자인ㆍ건축공학부");
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].memo")).isEqualTo(null);
 
-                softly.assertThat(response.body().jsonPath().getLong("timetable[1].id")).isEqualTo(2);
+                softly.assertThat(response.body().jsonPath().getInt("timetable[1].id")).isEqualTo(2);
                 softly.assertThat(response.body().jsonPath().getString("timetable[1].code")).isEqualTo("CSE201");
                 softly.assertThat(response.body().jsonPath().getString("timetable[1].class_title")).isEqualTo("컴퓨터구조");
                 softly.assertThat(response.body().jsonPath().getList("timetable[1].class_time")).isEmpty();

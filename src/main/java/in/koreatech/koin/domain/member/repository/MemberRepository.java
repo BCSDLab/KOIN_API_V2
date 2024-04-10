@@ -8,17 +8,17 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.member.exception.MemberNotFoundException;
 import in.koreatech.koin.domain.member.model.Member;
 
-public interface MemberRepository extends Repository<Member, Long> {
+public interface MemberRepository extends Repository<Member, Integer> {
 
     Member save(Member member);
 
-    List<Member> findAllByTrackId(Long id);
+    List<Member> findAllByTrackId(Integer id);
 
     List<Member> findAll();
 
-    Optional<Member> findById(Long id);
+    Optional<Member> findById(Integer id);
 
-    default Member getById(Long id) {
+    default Member getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> MemberNotFoundException.withDetail("id: " + id));
     }

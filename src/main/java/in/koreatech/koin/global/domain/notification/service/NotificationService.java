@@ -39,7 +39,7 @@ public class NotificationService {
         );
     }
 
-    public NotificationStatusResponse checkNotification(Long userId) {
+    public NotificationStatusResponse checkNotification(Integer userId) {
         User user = userRepository.getById(userId);
         boolean isPermit = user.getDeviceToken() != null;
         List<NotificationSubscribe> notificationSubscribes = notificationSubscribeRepository.findAllByUserId(userId);
@@ -47,13 +47,13 @@ public class NotificationService {
     }
 
     @Transactional
-    public void permitNotification(Long userId, String deviceToken) {
+    public void permitNotification(Integer userId, String deviceToken) {
         User user = userRepository.getById(userId);
         user.permitNotification(deviceToken);
     }
 
     @Transactional
-    public void permitNotificationSubscribe(Long userId, NotificationSubscribePermitRequest request) {
+    public void permitNotificationSubscribe(Integer userId, NotificationSubscribePermitRequest request) {
         if (notificationSubscribeRepository.findByUserIdAndSubscribeType(userId, request.type()).isPresent()) {
             return;
         }
@@ -66,13 +66,13 @@ public class NotificationService {
     }
 
     @Transactional
-    public void rejectNotification(Long userId) {
+    public void rejectNotification(Integer userId) {
         User user = userRepository.getById(userId);
         user.rejectNotification();
     }
 
     @Transactional
-    public void rejectNotificationByType(Long userId, NotificationSubscribeType subscribeType) {
+    public void rejectNotificationByType(Integer userId, NotificationSubscribeType subscribeType) {
         notificationSubscribeRepository.deleteByUserIdAndSubscribeType(userId, subscribeType);
     }
 }
