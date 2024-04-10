@@ -68,8 +68,8 @@ class UserApiTest extends AcceptanceTest {
             .user(
                 User.builder()
                     .password("1234")
-                    .nickname("주노")
-                    .name("최준호")
+                    .nickname("셋업유저")
+                    .name("셋업")
                     .phoneNumber("010-1234-5678")
                     .userType(STUDENT)
                     .gender(UserGender.MAN)
@@ -439,7 +439,7 @@ class UserApiTest extends AcceptanceTest {
 
         Student student2 = Student.builder()
             .studentNumber("2020136065")
-            .anonymousNickname("익명")
+            .anonymousNickname("익명2")
             .department("컴퓨터공학부")
             .userIdentity(UserIdentity.UNDERGRADUATE)
             .isGraduated(false)

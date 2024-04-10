@@ -33,7 +33,7 @@ public class Board extends BaseEntity {
 
     @Size(max = 10)
     @NotNull
-    @Column(name = "tag", nullable = false, length = 10)
+    @Column(name = "tag", nullable = false, length = 10, unique = true)
     private String tag;
 
     @Size(max = 50)
