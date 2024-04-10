@@ -55,8 +55,6 @@ class DiningApiTest extends AcceptanceTest {
     @Autowired
     private NotificationSubscribeRepository notificationSubscribeRepository;
 
-
-
     @Test
     @DisplayName("특정 날짜의 모든 식단들을 조회한다.")
     void findDinings() {
@@ -112,7 +110,8 @@ class DiningApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(2);
 
                 softly.assertThat(response.body().jsonPath().getInt("[0].id")).isEqualTo(dining1.getId());
-                softly.assertThat(response.body().jsonPath().getString("[0].date")).isEqualTo(dining1.getDate().format(ofPattern("yyyy-MM-dd")));
+                softly.assertThat(response.body().jsonPath().getString("[0].date"))
+                    .isEqualTo(dining1.getDate().format(ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getString("[0].type")).isEqualTo(dining1.getType());
                 softly.assertThat(response.body().jsonPath().getString("[0].place")).isEqualTo(dining1.getPlace());
                 softly.assertThat(response.body().jsonPath().getInt("[0].price_card"))
@@ -130,7 +129,8 @@ class DiningApiTest extends AcceptanceTest {
                     .isEqualTo(dining1.getIsChanged());
 
                 softly.assertThat(response.body().jsonPath().getInt("[1].id")).isEqualTo(dining3.getId());
-                softly.assertThat(response.body().jsonPath().getString("[1].date")).isEqualTo(dining3.getDate().format(ofPattern("yyyy-MM-dd")));
+                softly.assertThat(response.body().jsonPath().getString("[1].date"))
+                    .isEqualTo(dining3.getDate().format(ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getString("[1].type")).isEqualTo(dining3.getType());
                 softly.assertThat(response.body().jsonPath().getString("[1].place")).isEqualTo(dining3.getPlace());
                 softly.assertThat(response.body().jsonPath().getInt("[1].price_card"))
@@ -500,7 +500,12 @@ class DiningApiTest extends AcceptanceTest {
         given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
-            .body(new SoldOutRequest(1, true))
+            .body(
+                SoldOutRequest.builder()
+                    .menuId(1)
+                    .soldOut(true)
+                    .build()
+            )
             .when()
             .patch("/coop/dining/soldout")
             .then()

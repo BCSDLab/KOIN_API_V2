@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
+@Builder
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record SoldOutRequest(
     @Schema(description = "메뉴 고유 ID", example = "1")
