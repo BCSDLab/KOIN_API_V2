@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shop.dto;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.EventArticle;
 import in.koreatech.koin.domain.shop.model.EventArticleImage;
+import in.koreatech.koin.domain.shop.model.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -61,12 +63,27 @@ public record ShopEventsResponse(
         }
     }
 
-    public static ShopEventsResponse from(List<EventArticle> eventArticles) {
-        var eventResponses = eventArticles.stream()
-            .map(InnerShopEventResponse::from)
-            .toList();
-        return new ShopEventsResponse(
-            eventResponses
-        );
+    public static ShopEventsResponse from(List<Shop> shops) {
+        List<InnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
+        for (Shop shop: shops) {
+            for (EventArticle eventArticle: shop.getEventArticles()) {
+                if(eventArticle.getStartDate().isBefore(LocalDate.now()) &&
+                   eventArticle.getEndDate().isAfter(LocalDate.now())) {
+                    innerShopEventResponses.add(InnerShopEventResponse.from(eventArticle));
+                }
+            }
+        }
+        return new ShopEventsResponse(innerShopEventResponses);
+    }
+
+    public static ShopEventsResponse from(Shop shop) {
+        List<InnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
+        for (EventArticle eventArticle: shop.getEventArticles()) {
+            if(eventArticle.getStartDate().isBefore(LocalDate.now()) &&
+                eventArticle.getEndDate().isAfter(LocalDate.now())) {
+                innerShopEventResponses.add(InnerShopEventResponse.from(eventArticle));
+            }
+        }
+        return new ShopEventsResponse(innerShopEventResponses);
     }
 }

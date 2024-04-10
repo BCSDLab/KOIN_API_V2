@@ -85,12 +85,12 @@ public class ShopService {
     }
 
     public ShopEventsResponse getShopEvents(Integer shopId) {
-        List<EventArticle> eventArticles = eventArticleRepository.findAllByShopId(shopId);
-        return ShopEventsResponse.from(eventArticles);
+        List<Shop> shops = shopRepository.findAllById(shopId);
+        return ShopEventsResponse.from(shops);
     }
 
     public ShopEventsResponse getAllEvents() {
-        List<EventArticle> eventArticles = eventArticleRepository.findAllDurationEvents();
-        return ShopEventsResponse.from(eventArticles);
+        List<Shop> shops = shopRepository.findAll();
+        return ShopEventsResponse.from(shops);
     }
 }

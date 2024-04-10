@@ -306,8 +306,7 @@ public class OwnerShopService {
     }
 
     public ShopEventsResponse getShopEvent(Integer shopId, Integer ownerId) {
-        getOwnerShopById(shopId, ownerId);
-        List<EventArticle> eventArticles = eventArticleRepository.findAllByShopId(shopId);
-        return ShopEventsResponse.from(eventArticles);
+        Shop shop = getOwnerShopById(shopId, ownerId);
+        return ShopEventsResponse.from(shop);
     }
 }
