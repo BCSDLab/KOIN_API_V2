@@ -15,8 +15,12 @@ import lombok.experimental.SuperBuilder;
 public class BusRemainTime implements Comparable<BusRemainTime> {
 
     private final LocalTime busArrivalTime;
+    private String busArrivalTimeRaw;
 
     public boolean isBefore(Clock clock) {
+        if (busArrivalTime == null) {
+            return false;
+        }
         return LocalTime.now(clock).isBefore(busArrivalTime);
     }
 
@@ -27,10 +31,16 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
         return null;
     }
 
-    public static BusRemainTime of(String arrivalTime) {
-        return builder()
-            .busArrivalTime(toLocalTime(arrivalTime))
-            .build();
+    public static BusRemainTime from(String arrivalTime) {
+        try {
+            return builder()
+                .busArrivalTime(toLocalTime(arrivalTime))
+                .build();
+        } catch (BusIllegalArrivalTime e) {
+            return builder()
+                .busArrivalTimeRaw(arrivalTime)
+                .build();
+        }
     }
 
     public static BusRemainTime of(Long remainTime, LocalTime updatedAt) {
@@ -48,8 +58,9 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
         }
     }
 
-    public BusRemainTime(LocalTime busArrivalTime) {
+    public BusRemainTime(LocalTime busArrivalTime, String busArrivalTimeRaw) {
         this.busArrivalTime = busArrivalTime;
+        this.busArrivalTimeRaw = busArrivalTimeRaw;
     }
 
     @Override

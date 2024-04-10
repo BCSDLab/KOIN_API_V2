@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.shop.model;
 
-import static jakarta.persistence.CascadeType.DETACH;
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -63,13 +62,13 @@ public class Menu extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = {DETACH, MERGE, PERSIST})
+    @OneToMany(mappedBy = "menu", cascade = {MERGE, PERSIST})
     private List<MenuCategoryMap> menuCategoryMaps = new ArrayList<>();
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = {DETACH, MERGE, PERSIST})
+    @OneToMany(mappedBy = "menu", cascade = {MERGE, PERSIST})
     private List<MenuOption> menuOptions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = {DETACH, MERGE, PERSIST})
+    @OneToMany(mappedBy = "menu", cascade = {MERGE, PERSIST})
     private List<MenuImage> menuImages = new ArrayList<>();
 
     @Builder
@@ -101,8 +100,8 @@ public class Menu extends BaseEntity {
     }
 
     public void modifyMenuImages(List<String> imageUrls, EntityManager entityManager) {
+        this.menuImages.forEach(entityManager::remove);
         this.menuImages.clear();
-        entityManager.flush();
         for (String imageUrl : imageUrls) {
             MenuImage newMenuImage = MenuImage.builder()
                 .imageUrl(imageUrl)
@@ -113,8 +112,8 @@ public class Menu extends BaseEntity {
     }
 
     public void modifyMenuCategories(List<MenuCategory> menuCategories, EntityManager entityManager) {
+        this.menuCategoryMaps.forEach(entityManager::remove);
         this.menuCategoryMaps.clear();
-        entityManager.flush();
         for (MenuCategory menuCategory : menuCategories) {
             MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
                 .menu(this)
@@ -125,8 +124,8 @@ public class Menu extends BaseEntity {
     }
 
     public void modifyMenuSingleOptions(ModifyMenuRequest modifyMenuRequest, EntityManager entityManager) {
+        this.menuOptions.forEach(entityManager::remove);
         this.menuOptions.clear();
-        entityManager.flush();
         MenuOption menuOption = MenuOption.builder()
             .price(modifyMenuRequest.singlePrice())
             .menu(this)
@@ -135,8 +134,8 @@ public class Menu extends BaseEntity {
     }
 
     public void modifyMenuMultipleOptions(List<InnerOptionPrice> innerOptionPrice, EntityManager entityManager) {
+        this.menuOptions.forEach(entityManager::remove);
         this.menuOptions.clear();
-        entityManager.flush();
         for (var option : innerOptionPrice) {
             MenuOption menuOption = MenuOption.builder()
                 .option(option.option())

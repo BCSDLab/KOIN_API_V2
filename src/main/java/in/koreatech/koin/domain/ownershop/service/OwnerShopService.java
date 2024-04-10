@@ -266,15 +266,15 @@ public class OwnerShopService {
     public void createEvent(Integer ownerId, Integer shopId, CreateEventRequest shopEventRequest) {
         Shop shop = getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = EventArticle.builder()
-                .shop(shop)
-                .startDate(shopEventRequest.startDate())
-                .endDate(shopEventRequest.endDate())
-                .title(shopEventRequest.title())
-                .content(shopEventRequest.content())
-                .thumbnail(shopEventRequest.thumbnailImage())
-                .hit(0)
-                .ip("")
-                .build();
+            .shop(shop)
+            .startDate(shopEventRequest.startDate())
+            .endDate(shopEventRequest.endDate())
+            .title(shopEventRequest.title())
+            .content(shopEventRequest.content())
+            .thumbnail(shopEventRequest.thumbnailImage())
+            .hit(0)
+            .ip("")
+            .build();
         eventArticleRepository.save(eventArticle);
     }
 

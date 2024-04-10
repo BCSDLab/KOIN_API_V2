@@ -14,7 +14,7 @@ public class CityBusRemainTime extends BusRemainTime {
     private final Long busNumber;
 
     public CityBusRemainTime(Long busNumber, LocalTime busArrivalTime) {
-        super(busArrivalTime);
+        super(busArrivalTime, null);
         this.busNumber = busNumber;
     }
 

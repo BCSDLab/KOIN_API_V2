@@ -45,7 +45,7 @@ public class Route {
         boolean foundDepart = false;
         for (ArrivalNode node : arrivalInfos) {
             if (depart.getDisplayNames().contains(node.getNodeName())
-                && (BusRemainTime.of(node.getArrivalTime()).isBefore(clock))) {
+                && (BusRemainTime.from(node.getArrivalTime()).isBefore(clock))) {
                 foundDepart = true;
             }
             if (arrival.getDisplayNames().contains(node.getNodeName()) && foundDepart) {
@@ -57,7 +57,7 @@ public class Route {
 
     public BusRemainTime getRemainTime(BusStation busStation) {
         ArrivalNode convertedNode = convertToArrivalNode(busStation);
-        return BusRemainTime.of(convertedNode.arrivalTime);
+        return BusRemainTime.from(convertedNode.arrivalTime);
     }
 
     private ArrivalNode convertToArrivalNode(BusStation busStation) {
