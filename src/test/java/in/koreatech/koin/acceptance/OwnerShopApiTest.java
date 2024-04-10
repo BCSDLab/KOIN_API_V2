@@ -1283,7 +1283,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                 startDate,
                 endDate))
             .when()
-            .put("/owner/shops/{shopId}/event/{eventId}", shop.getId(), savedEvent.getId())
+            .put("/owner/shops/{shopId}/events/{eventId}", shop.getId(), savedEvent.getId())
             .then()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
@@ -1321,7 +1321,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .when()
-            .delete("/owner/shops/{shopId}/event/{eventId}", shop.getId(), savedEvent.getId())
+            .delete("/owner/shops/{shopId}/events/{eventId}", shop.getId(), savedEvent.getId())
             .then()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();

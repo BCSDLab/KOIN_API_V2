@@ -2,8 +2,6 @@ package in.koreatech.koin.domain.ownershop.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,7 +28,6 @@ import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
 import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
-import in.koreatech.koin.domain.shop.model.EventArticle;
 import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -174,7 +171,7 @@ public class OwnerShopController implements OwnerShopApi {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PutMapping("/owner/shops/{shopId}/event/{eventId}")
+    @PutMapping("/owner/shops/{shopId}/events/{eventId}")
     public ResponseEntity<Void> modifyShopEvent(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable("shopId") Integer shopId,
@@ -185,7 +182,7 @@ public class OwnerShopController implements OwnerShopApi {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/owner/shops/{shopId}/event/{eventId}")
+    @DeleteMapping("/owner/shops/{shopId}/events/{eventId}")
     public ResponseEntity<Void> deleteShopEvent(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable("shopId") Integer shopId,
