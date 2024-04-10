@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(SnakeCaseStrategy.class)
 public record MemberResponse(
     @Schema(example = "1")
-    Long id,
+    Integer id,
 
     @Schema(example = "최준호")
     String name,
@@ -33,7 +33,7 @@ public record MemberResponse(
     String imageUrl,
 
     @Schema(example = "false")
-    Boolean isDeleted,
+    boolean isDeleted,
 
     @Schema(example = "2020-08-14 16:26:35")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -53,7 +53,7 @@ public record MemberResponse(
             member.getPosition(),
             member.getEmail(),
             member.getImageUrl(),
-            member.getIsDeleted(),
+            member.isDeleted(),
             member.getCreatedAt(),
             member.getUpdatedAt()
         );

@@ -6,9 +6,9 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.shop.model.ShopImage;
 
-public interface ShopImageRepository extends Repository<ShopImage, Long> {
+public interface ShopImageRepository extends Repository<ShopImage, Integer> {
 
     ShopImage save(ShopImage shopImage);
 
-    List<ShopImage> findAllByShopId(Long shopId);
+    List<ShopImage> findAllByShopId(Integer shopId);
 }

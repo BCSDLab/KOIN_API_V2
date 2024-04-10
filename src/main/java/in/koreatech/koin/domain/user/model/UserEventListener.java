@@ -21,7 +21,7 @@ public class UserEventListener {
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onUserDeleteEvent(UserDeleteEvent event) {
-        var notification = slackNotificationFactory.generateUserDeleteNotification(event.email());
+        var notification = slackNotificationFactory.generateUserDeleteNotification(event.email(), event.userType());
         slackClient.sendMessage(notification);
     }
 }

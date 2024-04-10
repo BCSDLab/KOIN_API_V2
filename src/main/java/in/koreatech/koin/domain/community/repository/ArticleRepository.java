@@ -11,19 +11,19 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.community.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.community.model.Article;
 
-public interface ArticleRepository extends Repository<Article, Long> {
+public interface ArticleRepository extends Repository<Article, Integer> {
 
     Article save(Article article);
 
     Page<Article> findByIsNotice(Boolean isNotice, Pageable pageable);
 
-    Optional<Article> findById(Long articleId);
+    Optional<Article> findById(Integer articleId);
 
     List<Article> findAll(Pageable pageable);
 
-    Page<Article> findByBoardId(Long boardId, PageRequest pageRequest);
+    Page<Article> findByBoardId(Integer boardId, PageRequest pageRequest);
 
-    default Article getById(Long articleId) {
+    default Article getById(Integer articleId) {
         return findById(articleId).orElseThrow(
             () -> ArticleNotFoundException.withDetail(
                 "articleId: " + articleId));

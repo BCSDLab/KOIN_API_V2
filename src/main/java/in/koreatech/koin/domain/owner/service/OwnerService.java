@@ -70,7 +70,7 @@ public class OwnerService {
         eventPublisher.publishEvent(new OwnerEmailRequestEvent(ownerInVerification.getEmail()));
     }
 
-    public OwnerResponse getOwner(Long ownerId) {
+    public OwnerResponse getOwner(Integer ownerId) {
         Owner foundOwner = ownerRepository.getById(ownerId);
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
         return OwnerResponse.of(foundOwner, foundOwner.getAttachments(), shops);

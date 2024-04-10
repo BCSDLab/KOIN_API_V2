@@ -24,7 +24,7 @@ public class CoopController implements CoopApi {
 
     @PatchMapping("/dining/soldout")
     public ResponseEntity<Void> changeSoldOut(
-        @Auth(permit = {COOP}) Long userId,
+        @Auth(permit = {COOP}) Integer userId,
         @Valid @RequestBody SoldOutRequest soldOutRequest
     ) {
         coopService.changeSoldOut(soldOutRequest);
@@ -33,7 +33,7 @@ public class CoopController implements CoopApi {
 
     @PatchMapping("/dining/image")
     public ResponseEntity<Void> saveDiningImage(
-        @Auth(permit = {COOP}) Long userId,
+        @Auth(permit = {COOP}) Integer userId,
         @RequestBody DiningImageRequest imageRequest
     ) {
         coopService.saveDiningImage(imageRequest);

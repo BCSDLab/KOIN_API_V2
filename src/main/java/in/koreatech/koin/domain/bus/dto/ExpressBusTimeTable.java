@@ -8,7 +8,7 @@ import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.OpenApiExpressBusArrival;
 
 public record ExpressBusTimeTable(
-    LocalTime departure,
+    LocalTime depart,
     LocalTime arrival,
     int charge
 ) {

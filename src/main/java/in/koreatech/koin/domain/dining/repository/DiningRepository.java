@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.dining.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,17 +8,16 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.coop.exception.MenuNotFoundException;
 import in.koreatech.koin.domain.dining.model.Dining;
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 
-public interface DiningRepository extends Repository<Dining, Long> {
+public interface DiningRepository extends Repository<Dining, Integer> {
 
     Dining save(Dining dining);
 
-    Optional<Dining> findById(Long id);
+    Optional<Dining> findById(Integer id);
 
-    List<Dining> findAllByDate(String date);
+    List<Dining> findAllByDate(LocalDate date);
 
-    default Dining getById(Long id){
+    default Dining getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> MenuNotFoundException.withDetail("menuId: " + id));
     }

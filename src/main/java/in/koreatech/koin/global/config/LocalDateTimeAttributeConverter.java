@@ -1,7 +1,10 @@
 package in.koreatech.koin.global.config;
 
+import static java.time.temporal.ChronoField.MILLI_OF_SECOND;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
@@ -9,15 +12,19 @@ import jakarta.persistence.Converter;
 @Converter(autoApply = true)
 public class LocalDateTimeAttributeConverter implements AttributeConverter<LocalDateTime, String> {
 
-    private final DateTimeFormatter formatterWithThreeMillis = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
-    private final DateTimeFormatter formatterWithTwoMillis = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SS]");
+    private static final DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+        .appendPattern("yyyy-MM-dd HH:mm:ss")
+        .optionalStart()
+        .appendFraction(MILLI_OF_SECOND, 0, 3, true)
+        .optionalEnd()
+        .toFormatter();
 
     @Override
     public String convertToDatabaseColumn(LocalDateTime localDateTime) {
         if (localDateTime == null) {
             return null;
         }
-        return localDateTime.format(formatterWithThreeMillis);
+        return localDateTime.format(formatter);
     }
 
     @Override
@@ -25,11 +32,6 @@ public class LocalDateTimeAttributeConverter implements AttributeConverter<Local
         if (dbData == null) {
             return null;
         }
-
-        if (dbData.matches(".*\\.\\d{3}$")) {
-            return LocalDateTime.parse(dbData, formatterWithThreeMillis);
-        } else {
-            return LocalDateTime.parse(dbData, formatterWithTwoMillis);
-        }
+        return LocalDateTime.parse(dbData, formatter);
     }
 }

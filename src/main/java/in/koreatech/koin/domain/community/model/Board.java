@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.model;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
@@ -11,7 +12,6 @@ import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -26,10 +26,10 @@ import lombok.NoArgsConstructor;
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
 public class Board extends BaseEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @GeneratedValue(strategy = IDENTITY)
+    private Integer id;
 
     @Size(max = 10)
     @NotNull
@@ -47,30 +47,30 @@ public class Board extends BaseEntity {
 
     @NotNull
     @Column(name = "article_count", nullable = false)
-    private Long articleCount;
+    private Integer articleCount;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @NotNull
     @Column(name = "is_notice", nullable = false)
-    private Boolean isNotice = false;
+    private boolean isNotice = false;
 
     @Column(name = "parent_id")
-    private Long parentId;
+    private Integer parentId;
 
     @NotNull
     @Column(name = "seq", nullable = false)
-    private Long seq;
+    private Integer seq;
 
     public List<Board> getChildren() {
         return new ArrayList<>();
     }
 
     @Builder
-    private Board(String tag, String name, Boolean isAnonymous, Long articleCount, Boolean isDeleted,
-        Boolean isNotice, Long parentId, Long seq) {
+    private Board(String tag, String name, boolean isAnonymous, Integer articleCount, boolean isDeleted,
+                  boolean isNotice, Integer parentId, Integer seq) {
         this.tag = tag;
         this.name = name;
         this.isAnonymous = isAnonymous;

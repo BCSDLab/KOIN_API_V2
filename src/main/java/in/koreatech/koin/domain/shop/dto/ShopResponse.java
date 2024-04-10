@@ -24,13 +24,13 @@ public record ShopResponse(
     Boolean delivery,
 
     @Schema(example = "1000", description = "배달비")
-    Long deliveryPrice,
+    Integer deliveryPrice,
 
     @Schema(example = "string", description = "설명")
     String description,
 
     @Schema(example = "1", description = "고유 id")
-    Long id,
+    Integer id,
 
     @Schema(example = "string", description = "이미지 URL 리스트")
     List<String> imageUrls,
@@ -67,7 +67,7 @@ public record ShopResponse(
     public static ShopResponse from(Shop shop, Boolean isEvent) {
         return new ShopResponse(
             shop.getAddress(),
-            shop.getDelivery(),
+            shop.isDelivery(),
             shop.getDeliveryPrice(),
             shop.getDescription(),
             shop.getId(),
@@ -89,8 +89,8 @@ public record ShopResponse(
                     shopOpen.getCloseTime()
                 )
             ).toList(),
-            shop.getPayBank(),
-            shop.getPayCard(),
+            shop.isPayBank(),
+            shop.isPayCard(),
             shop.getPhone(),
             shop.getShopCategories().stream().map(shopCategoryMap -> {
                 ShopCategory shopCategory = shopCategoryMap.getShopCategory();
@@ -135,7 +135,7 @@ public record ShopResponse(
 
     private record InnerShopCategory(
         @Schema(example = "1", description = "고유 id")
-        Long id,
+        Integer id,
 
         @Schema(example = "중국집", description = "이름")
         String name
@@ -145,7 +145,7 @@ public record ShopResponse(
 
     private record InnerMenuCategory(
         @Schema(example = "1", description = "고유 id")
-        Long id,
+        Integer id,
 
         @Schema(example = "대표 메뉴", description = "이름")
         String name

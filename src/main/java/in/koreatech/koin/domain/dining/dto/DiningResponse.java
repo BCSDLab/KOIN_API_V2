@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.dining.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
@@ -16,10 +17,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record DiningResponse(
 
     @Schema(description = "메뉴 고유 ID", example = "1")
-    Long id,
+    Integer id,
 
     @Schema(description = "식단 제공 날짜", example = "2024-03-11")
-    String date,
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    LocalDate date,
 
     @Schema(description = "식사 시간", example = "LUNCH")
     String type,

@@ -117,13 +117,13 @@ class OwnerApiTest extends AcceptanceTest {
             .address("대전광역시 유성구 대학로 291")
             .description("테스트 상점입니다.")
             .delivery(true)
-            .deliveryPrice(3000L)
+            .deliveryPrice(3000)
             .payCard(true)
             .payBank(true)
             .isDeleted(false)
             .isEvent(false)
             .remarks("비고")
-            .hit(0L)
+            .hit(0)
             .build();
         Shop shop = shopRepository.save(shopRequest);
         String token = jwtProvider.createToken(owner.getUser());
@@ -145,14 +145,14 @@ class OwnerApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getString("company_number"))
                     .isEqualTo(owner.getCompanyRegistrationNumber());
 
-                softly.assertThat(response.body().jsonPath().getLong("attachments[0].id"))
+                softly.assertThat(response.body().jsonPath().getInt("attachments[0].id"))
                     .isEqualTo(attachment.getId().intValue());
                 softly.assertThat(response.body().jsonPath().getString("attachments[0].file_url"))
                     .isEqualTo(attachment.getUrl());
                 softly.assertThat(response.body().jsonPath().getString("attachments[0].file_name"))
                     .isEqualTo(attachment.getName());
 
-                softly.assertThat(response.body().jsonPath().getLong("shops[0].id")).isEqualTo(shop.getId().intValue());
+                softly.assertThat(response.body().jsonPath().getInt("shops[0].id")).isEqualTo(shop.getId().intValue());
                 softly.assertThat(response.body().jsonPath().getString("shops[0].name")).isEqualTo(shop.getName());
 
                 softly.assertThat(response.body().jsonPath().getList("attachments").size()).isEqualTo(1);
@@ -283,7 +283,7 @@ class OwnerApiTest extends AcceptanceTest {
                             softly.assertThat(owner.getAttachments().get(0).getUrl())
                                 .isEqualTo("https://static.koreatech.in/testimage.png");
                             softly.assertThat(owner.getUser().isAuthed()).isFalse();
-                            softly.assertThat(owner.getUser().getIsDeleted()).isFalse();
+                            softly.assertThat(owner.getUser().isDeleted()).isFalse();
                             verify(ownerEventListener).onOwnerRegister(any());
                         }
                     );
@@ -390,13 +390,13 @@ class OwnerApiTest extends AcceptanceTest {
                 .address("대전광역시 유성구 대학로 291")
                 .description("테스트 상점입니다.")
                 .delivery(true)
-                .deliveryPrice(3000L)
+                .deliveryPrice(3000)
                 .payCard(true)
                 .payBank(true)
                 .isDeleted(false)
                 .isEvent(false)
                 .remarks("비고")
-                .hit(0L)
+                .hit(0)
                 .build();
 
             var shop = shopRepository.save(shopRequest);

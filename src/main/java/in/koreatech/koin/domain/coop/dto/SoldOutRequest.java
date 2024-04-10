@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record SoldOutRequest(
     @Schema(description = "메뉴 고유 ID", example = "1")
-    Long menuId,
+    Integer menuId,
 
     @NotNull
     @Schema(description = "품절 여부", example = "true")
