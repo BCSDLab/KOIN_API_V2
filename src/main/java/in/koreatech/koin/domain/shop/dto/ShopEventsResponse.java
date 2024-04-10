@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop.dto;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,12 +66,12 @@ public record ShopEventsResponse(
         }
     }
 
-    public static ShopEventsResponse from(List<Shop> shops) {
+    public static ShopEventsResponse from(List<Shop> shops, Clock clock) {
         List<InnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
         for (Shop shop : shops) {
             for (EventArticle eventArticle : shop.getEventArticles()) {
-                if (!eventArticle.getStartDate().isAfter(LocalDate.now()) &&
-                    !eventArticle.getEndDate().isBefore(LocalDate.now())) {
+                if (!eventArticle.getStartDate().isAfter(LocalDate.now(clock)) &&
+                    !eventArticle.getEndDate().isBefore(LocalDate.now(clock))) {
                     innerShopEventResponses.add(InnerShopEventResponse.from(eventArticle));
                 }
             }
