@@ -146,7 +146,7 @@ class BusApiTest extends AcceptanceTest {
                     .isEqualTo(busType.name().toLowerCase());
                 softly.assertThat((Long)response.body().jsonPath().get("now_bus.bus_number")).isNull();
                 softly.assertThat(response.body().jsonPath().getLong("now_bus.remain_time")).isEqualTo(
-                    BusRemainTime.of(arrivalTime).getRemainSeconds(clock));
+                    BusRemainTime.from(arrivalTime).getRemainSeconds(clock));
                 softly.assertThat((Long)response.body().jsonPath().get("next_bus.bus_number")).isNull();
                 softly.assertThat((Long)response.body().jsonPath().get("next_bus.remain_time")).isNull();
             }
