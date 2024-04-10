@@ -50,7 +50,7 @@ public class UserService {
         User user = userRepository.getByEmail(request.email());
 
         if (!user.isSamePassword(passwordEncoder, request.password())) {
-            throw new IllegalArgumentException("비밀번호가 틀렸습니다. request: " + request);
+            throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
         }
 
         String accessToken = jwtProvider.createToken(user);
