@@ -36,7 +36,7 @@ public class UploadController implements UploadApi {
     public ResponseEntity<UploadUrlResponse> getPresignedUrl(
         @PathVariable ImageUploadDomain domain,
         @RequestBody @Valid UploadUrlRequest request,
-        @Auth(permit = {OWNER, STUDENT, COOP}, anonymous = true) Long memberId
+        @Auth(permit = {OWNER, STUDENT, COOP}, anonymous = true) Integer memberId
     ) {
         var response = uploadService.getPresignedUrl(domain, request);
         return ResponseEntity.ok(response);
@@ -50,7 +50,7 @@ public class UploadController implements UploadApi {
     public ResponseEntity<UploadFileResponse> uploadFile(
         @PathVariable ImageUploadDomain domain,
         @RequestPart MultipartFile multipartFile,
-        @Auth(permit = {OWNER, STUDENT, COOP}, anonymous = true) Long memberId
+        @Auth(permit = {OWNER, STUDENT, COOP}, anonymous = true) Integer memberId
     ) {
         var response = uploadService.uploadFile(domain, multipartFile);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -64,7 +64,7 @@ public class UploadController implements UploadApi {
     public ResponseEntity<UploadFilesResponse> uploadFiles(
         @PathVariable ImageUploadDomain domain,
         @RequestPart List<MultipartFile> files,
-        @Auth(permit = {OWNER, STUDENT, COOP}, anonymous = true) Long memberId
+        @Auth(permit = {OWNER, STUDENT, COOP}, anonymous = true) Integer memberId
     ) {
         var response = uploadService.uploadFiles(domain, files);
         return new ResponseEntity<>(response, HttpStatus.CREATED);

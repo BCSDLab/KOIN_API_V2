@@ -26,7 +26,7 @@ public class Student {
     private Integer id;
 
     @Size(max = 255)
-    @Column(name = "anonymous_nickname")
+    @Column(name = "anonymous_nickname", unique = true)
     private String anonymousNickname = "익명_" + System.currentTimeMillis();
 
     @Size(max = 20)
