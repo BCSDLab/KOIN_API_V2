@@ -719,13 +719,13 @@ class OwnerApiTest extends AcceptanceTest {
             .address("대전광역시 유성구 대학로 291")
             .description("테스트 상점입니다.")
             .delivery(true)
-            .deliveryPrice(3000L)
+            .deliveryPrice(3000)
             .payCard(true)
             .payBank(true)
             .isDeleted(false)
             .isEvent(false)
             .remarks("비고")
-            .hit(0L)
+            .hit(0)
             .build();
         shopRepository.save(shopRequest);
         String token = jwtProvider.createToken(owner.getUser());
