@@ -38,7 +38,7 @@ public class CityBusRemainTime extends BusRemainTime {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        CityBusRemainTime that = (CityBusRemainTime) o;
+        CityBusRemainTime that = (CityBusRemainTime)o;
         return Objects.equals(getBusArrivalTime(), that.getBusArrivalTime())
             && Objects.equals(busNumber, that.busNumber);
     }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,6 +38,14 @@ public interface BusApi {
         @Parameter(description = "버스 종류(city, express, shuttle, commuting)") @RequestParam(value = "bus_type") BusType busType,
         @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation depart,
         @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation arrival
+    );
+
+    @Operation(summary = "버스 시간표 조회")
+    @GetMapping("/timetable")
+    ResponseEntity<List<? extends BusTimetable>> getBusTimetable(
+        @RequestParam(value = "bus_type") BusType busType,
+        @RequestParam(value = "direction") String direction,
+        @RequestParam(value = "region") String region
     );
 
     @ApiResponses(
