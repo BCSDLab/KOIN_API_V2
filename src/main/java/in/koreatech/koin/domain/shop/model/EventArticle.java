@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -118,7 +119,7 @@ public class EventArticle extends BaseEntity {
         String title,
         String content,
         User user,
-        String thumbnail,
+        List<EventArticleImage> thumbnailImages,
         Integer hit,
         String ip,
         LocalDate startDate,
@@ -128,7 +129,7 @@ public class EventArticle extends BaseEntity {
         this.title = title;
         this.content = content;
         this.user = user;
-        this.thumbnail = thumbnail;
+        this.thumbnailImages = thumbnailImages;
         this.hit = hit;
         this.ip = ip;
         this.startDate = startDate;
@@ -138,14 +139,22 @@ public class EventArticle extends BaseEntity {
     public void modifyArticle(
         String title,
         String content,
-        String thumbnail,
+        List<String> thumbnailImages,
         LocalDate startDate,
-        LocalDate endDate
+        LocalDate endDate,
+        EntityManager entityManager
     ) {
         this.title = title;
         this.content = content;
-        this.thumbnail = thumbnail;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.thumbnailImages.forEach(entityManager::remove);
+        this.thumbnailImages.clear();
+        for (String imageUrl: thumbnailImages) {
+            this.thumbnailImages.add(EventArticleImage.builder()
+                .eventArticle(this)
+                .thumbnailImage(imageUrl)
+                .build());
+        }
     }
 }

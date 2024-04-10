@@ -23,6 +23,12 @@ public record ShopEventsResponse(
         @Schema(description = "상점 ID", example = "1")
         Integer shopId,
 
+        @Schema(description = "상점 이름", example = "술꾼")
+        String shopName,
+
+        @Schema(description = "이벤트 ID", example = "1")
+        Integer eventId,
+
         @Schema(description = "이벤트 제목", example = "콩순이 사장님이 미쳤어요!!")
         String title,
 
@@ -44,6 +50,8 @@ public record ShopEventsResponse(
         public static InnerShopEventResponse from(EventArticle eventArticle) {
             return new InnerShopEventResponse(
                 eventArticle.getShop().getId(),
+                eventArticle.getShop().getName(),
+                eventArticle.getId(),
                 eventArticle.getTitle(),
                 eventArticle.getContent(),
                 eventArticle.getThumbnailImages().stream().map(EventArticleImage::getThumbnailImage).toList(),

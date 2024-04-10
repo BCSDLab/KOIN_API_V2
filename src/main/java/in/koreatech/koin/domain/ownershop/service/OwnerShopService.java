@@ -22,9 +22,11 @@ import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
+import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.model.EventArticle;
+import in.koreatech.koin.domain.shop.model.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -271,11 +273,16 @@ public class OwnerShopService {
             .endDate(shopEventRequest.endDate())
             .title(shopEventRequest.title())
             .content(shopEventRequest.content())
-            .thumbnail(shopEventRequest.thumbnailImage())
             .hit(0)
             .ip("")
             .build();
-        eventArticleRepository.save(eventArticle);
+        EventArticle savedEventArticle = eventArticleRepository.save(eventArticle);
+        for (String image: shopEventRequest.thumbnailImages()) {
+            savedEventArticle.getThumbnailImages().add(EventArticleImage.builder()
+                .eventArticle(eventArticle)
+                .thumbnailImage(image)
+                .build());
+        }
     }
 
     @Transactional
@@ -285,9 +292,10 @@ public class OwnerShopService {
         eventArticle.modifyArticle(
             modifyEventRequest.title(),
             modifyEventRequest.content(),
-            modifyEventRequest.thumbnailImage(),
+            modifyEventRequest.thumbnailImages(),
             modifyEventRequest.startDate(),
-            modifyEventRequest.endDate()
+            modifyEventRequest.endDate(),
+            entityManager
         );
     }
 
@@ -295,5 +303,11 @@ public class OwnerShopService {
     public void deleteEvent(Integer ownerId, Integer shopId, Integer eventId) {
         getOwnerShopById(shopId, ownerId);
         eventArticleRepository.deleteById(eventId);
+    }
+
+    public ShopEventsResponse getShopEvent(Integer shopId, Integer ownerId) {
+        getOwnerShopById(shopId, ownerId);
+        List<EventArticle> eventArticles = eventArticleRepository.findAllByShopId(shopId);
+        return ShopEventsResponse.from(eventArticles);
     }
 }

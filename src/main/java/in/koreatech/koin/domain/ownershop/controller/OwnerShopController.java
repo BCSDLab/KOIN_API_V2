@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.ownershop.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,8 +27,11 @@ import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
+import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
+import in.koreatech.koin.domain.shop.model.EventArticle;
+import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +41,7 @@ import lombok.RequiredArgsConstructor;
 public class OwnerShopController implements OwnerShopApi {
 
     private final OwnerShopService ownerShopService;
+    private final EventArticleRepository eventArticleRepository;
 
     @GetMapping("/owner/shops")
     public ResponseEntity<OwnerShopsResponse> getOwnerShops(
@@ -187,5 +193,14 @@ public class OwnerShopController implements OwnerShopApi {
     ) {
         ownerShopService.deleteEvent(ownerId, shopId, eventId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/owner/shops/{shopId}/event")
+    public ResponseEntity<ShopEventsResponse> getShopAllEvent(
+        @Auth(permit = {OWNER}) Integer ownerId,
+        @PathVariable("shopId") Integer shopId
+    ) {
+        ShopEventsResponse shopEventsResponse = ownerShopService.getShopEvent(shopId, ownerId);
+        return ResponseEntity.ok(shopEventsResponse);
     }
 }
