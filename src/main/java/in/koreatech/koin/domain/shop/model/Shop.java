@@ -113,6 +113,9 @@ public class Shop extends BaseEntity {
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<MenuCategory> menuCategories = new ArrayList<>();
 
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
+    private List<EventArticle> eventArticles = new ArrayList<>();
+
     @Builder
     private Shop(
         Owner owner,

@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.ownershop.service;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,9 +23,11 @@ import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
+import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.model.EventArticle;
+import in.koreatech.koin.domain.shop.model.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -73,7 +76,7 @@ public class OwnerShopService {
     public OwnerShopsResponse getOwnerShops(Integer ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
         var innerShopResponses = shops.stream().map(shop -> {
-                Boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
+                boolean eventDuration = eventArticleRepository.isDurationEvent(shop.getId(), LocalDate.now(clock));
                 return InnerShopResponse.from(shop, eventDuration);
             })
             .toList();
@@ -122,7 +125,7 @@ public class OwnerShopService {
 
     public ShopResponse getShopByShopId(Integer ownerId, Integer shopId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        Boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
+        boolean eventDuration = eventArticleRepository.isDurationEvent(shopId, LocalDate.now(clock));
         return ShopResponse.from(shop, eventDuration);
     }
 
@@ -267,15 +270,24 @@ public class OwnerShopService {
         Shop shop = getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = EventArticle.builder()
             .shop(shop)
+            .thumbnailImages(new ArrayList<>())
             .startDate(shopEventRequest.startDate())
             .endDate(shopEventRequest.endDate())
             .title(shopEventRequest.title())
             .content(shopEventRequest.content())
-            .thumbnail(shopEventRequest.thumbnailImage())
+            .user(shop.getOwner().getUser())
             .hit(0)
             .ip("")
             .build();
-        eventArticleRepository.save(eventArticle);
+        EventArticle savedEventArticle = eventArticleRepository.save(eventArticle);
+        for (String image : shopEventRequest.thumbnailImages()) {
+
+            savedEventArticle.getThumbnailImages()
+                .add(EventArticleImage.builder()
+                    .eventArticle(eventArticle)
+                    .thumbnailImage(image)
+                    .build());
+        }
     }
 
     @Transactional
@@ -285,9 +297,10 @@ public class OwnerShopService {
         eventArticle.modifyArticle(
             modifyEventRequest.title(),
             modifyEventRequest.content(),
-            modifyEventRequest.thumbnailImage(),
+            modifyEventRequest.thumbnailImages(),
             modifyEventRequest.startDate(),
-            modifyEventRequest.endDate()
+            modifyEventRequest.endDate(),
+            entityManager
         );
     }
 
@@ -295,5 +308,10 @@ public class OwnerShopService {
     public void deleteEvent(Integer ownerId, Integer shopId, Integer eventId) {
         getOwnerShopById(shopId, ownerId);
         eventArticleRepository.deleteById(eventId);
+    }
+
+    public ShopEventsResponse getShopEvent(Integer shopId, Integer ownerId) {
+        Shop shop = getOwnerShopById(shopId, ownerId);
+        return ShopEventsResponse.of(shop, clock);
     }
 }

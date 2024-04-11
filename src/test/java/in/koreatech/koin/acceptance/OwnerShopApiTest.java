@@ -29,6 +29,7 @@ import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.shop.model.EventArticle;
+import in.koreatech.koin.domain.shop.model.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -39,6 +40,7 @@ import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.EventArticleImageRepository;
 import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
@@ -60,6 +62,9 @@ class OwnerShopApiTest extends AcceptanceTest {
 
     @Autowired
     private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private EventArticleImageRepository eventArticleImageRepository;
 
     @Autowired
     private OwnerRepository ownerRepository;
@@ -1204,108 +1209,119 @@ class OwnerShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("사장님이 이벤트를 추가한다.")
     void ownerShopCreateEvent() {
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(10);
         ExtractableResponse<Response> response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
-            .body("""
-                {
-                  "title": "감성떡볶이 이벤트합니다!",
-                  "content": "테스트 이벤트입니다.",
-                  "thumbnail_image": "https://test.com/test1.jpg",
-                  "start_date": "2024-10-24",
-                  "end_date": "2024-10-26"
-                }
-                """)
+            .body(String.format("""
+                    {
+                      "title": "감성떡볶이 이벤트합니다!",
+                      "content": "테스트 이벤트입니다.",
+                      "thumbnail_images": [
+                        "https://test.com/test1.jpg"
+                      ],
+                      "start_date": "%s",
+                      "end_date": "%s"
+                    }
+                    """,
+                startDate.format(ofPattern("yyyy-MM-dd")),
+                endDate.format(ofPattern("yyyy-MM-dd"))))
             .when()
             .post("/owner/shops/{shopId}/event", shop.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        EventArticle eventArticle = eventArticleRepository.getById(1);
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(eventArticle.getShop().getId()).isEqualTo(1);
-                softly.assertThat(eventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
-                softly.assertThat(eventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
-                softly.assertThat(eventArticle.getThumbnail()).isEqualTo("https://test.com/test1.jpg");
-                softly.assertThat(eventArticle.getStartDate().toString()).isEqualTo("2024-10-24");
-                softly.assertThat(eventArticle.getEndDate().toString()).isEqualTo("2024-10-26");
-            }
-        );
+        transactionTemplate.executeWithoutResult(status -> {
+            EventArticle eventArticle = eventArticleRepository.getById(1);
+            assertSoftly(
+                softly -> {
+                    softly.assertThat(eventArticle.getShop().getId()).isEqualTo(1);
+                    softly.assertThat(eventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
+                    softly.assertThat(eventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
+                    softly.assertThat(eventArticle.getThumbnailImages().get(0).getThumbnailImage())
+                        .isEqualTo("https://test.com/test1.jpg");
+                    softly.assertThat(eventArticle.getStartDate()).isEqualTo(startDate);
+                    softly.assertThat(eventArticle.getEndDate()).isEqualTo(endDate);
+                }
+            );
+        });
     }
 
     @Test
     @DisplayName("사장님이 이벤트를 수정한다.")
     void ownerShopModifyEvent() {
-        EventArticle eventArticle = EventArticle.builder()
-            .shop(shop)
-            .title("테스트 제목1")
-            .content("테스트 내용1")
-            .ip("")
-            .startDate(LocalDate.of(2024, 10, 24))
-            .endDate(LocalDate.of(2024, 10, 26))
-            .thumbnail("https://test.com/test1.jpg")
-            .hit(0)
-            .build();
-        EventArticle savedEvent = eventArticleRepository.save(eventArticle);
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(10);
+        EventArticle savedEvent = createEventArticle(
+            shop,
+            "테스트 제목1",
+            "테스트 내용1",
+            startDate,
+            endDate,
+            List.of("https://test.com/test1.jpg")
+        );
 
         ExtractableResponse<Response> response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
-            .body("""
-                {
-                  "title": "감성떡볶이 이벤트합니다!",
-                  "content": "테스트 이벤트입니다.",
-                  "thumbnail_image": "https://test.com/test1.jpg",
-                  "start_date": "2024-10-24",
-                  "end_date": "2024-10-26"
-                }
-                """)
+            .body(String.format("""
+                    {
+                      "title": "감성떡볶이 이벤트합니다!",
+                      "content": "테스트 이벤트입니다.",
+                      "thumbnail_images": [
+                        "https://test.com/test1.jpg"
+                      ],
+                      "start_date": "%s",
+                      "end_date": "%s"
+                    }
+                    """,
+                startDate,
+                endDate))
             .when()
-            .put("/owner/shops/{shopId}/event/{eventId}", shop.getId(), savedEvent.getId())
+            .put("/owner/shops/{shopId}/events/{eventId}", shop.getId(), savedEvent.getId())
             .then()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        EventArticle modifiedEventArticle = eventArticleRepository.getById(savedEvent.getId());
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(modifiedEventArticle.getShop().getId()).isEqualTo(1);
-                softly.assertThat(modifiedEventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
-                softly.assertThat(modifiedEventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
-                softly.assertThat(modifiedEventArticle.getThumbnail()).isEqualTo("https://test.com/test1.jpg");
-                softly.assertThat(modifiedEventArticle.getStartDate().toString()).isEqualTo("2024-10-24");
-                softly.assertThat(modifiedEventArticle.getEndDate().toString()).isEqualTo("2024-10-26");
-            }
-        );
+        transactionTemplate.executeWithoutResult(status -> {
+            EventArticle modifiedEventArticle = eventArticleRepository.getById(savedEvent.getId());
+            assertSoftly(
+                softly -> {
+                    softly.assertThat(modifiedEventArticle.getShop().getId()).isEqualTo(1);
+                    softly.assertThat(modifiedEventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
+                    softly.assertThat(modifiedEventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
+                    softly.assertThat(modifiedEventArticle.getThumbnailImages().get(0).getThumbnailImage())
+                        .isEqualTo("https://test.com/test1.jpg");
+                    softly.assertThat(modifiedEventArticle.getStartDate()).isEqualTo(startDate);
+                    softly.assertThat(modifiedEventArticle.getEndDate()).isEqualTo(endDate);
+                }
+            );
+        });
     }
 
     @Test
     @DisplayName("사장님이 이벤트를 삭제한다.")
     void ownerShopDeleteEvent() {
-        EventArticle eventArticle = EventArticle.builder()
-            .shop(shop)
-            .title("테스트 제목1")
-            .content("테스트 내용1")
-            .ip("")
-            .startDate(LocalDate.of(2024, 10, 24))
-            .endDate(LocalDate.of(2024, 10, 26))
-            .thumbnail("https://test.com/test1.jpg")
-            .hit(0)
-            .build();
-        EventArticle savedEvent = eventArticleRepository.save(eventArticle);
+        EventArticle savedEvent = createEventArticle(
+            shop,
+            "테스트 제목1",
+            "테스트 내용1",
+            LocalDate.of(2024, 10, 24),
+            LocalDate.of(2024, 10, 26),
+            List.of("https://test.com/test1.jpg")
+        );
 
         ExtractableResponse<Response> response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .when()
-            .delete("/owner/shops/{shopId}/event/{eventId}", shop.getId(), savedEvent.getId())
+            .delete("/owner/shops/{shopId}/events/{eventId}", shop.getId(), savedEvent.getId())
             .then()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
@@ -1313,5 +1329,33 @@ class OwnerShopApiTest extends AcceptanceTest {
         Optional<EventArticle> modifiedEventArticle = eventArticleRepository.findById(savedEvent.getId());
 
         assertSoftly(softly -> softly.assertThat(modifiedEventArticle.isPresent()).isFalse());
+    }
+
+    private EventArticle createEventArticle(
+        Shop shop,
+        String title,
+        String content,
+        LocalDate startDate,
+        LocalDate endDate,
+        List<String> thumbnailImages
+    ) {
+        EventArticle eventArticle = EventArticle.builder()
+            .shop(shop)
+            .title(title)
+            .content(content)
+            .ip("")
+            .startDate(startDate)
+            .endDate(endDate)
+            .hit(0)
+            .build();
+        EventArticle savedEvent = eventArticleRepository.save(eventArticle);
+        for (String image : thumbnailImages) {
+            EventArticleImage eventArticleImage = EventArticleImage.builder()
+                .eventArticle(eventArticle)
+                .thumbnailImage(image)
+                .build();
+            eventArticleImageRepository.save(eventArticleImage);
+        }
+        return eventArticleRepository.getById(savedEvent.getId());
     }
 }
