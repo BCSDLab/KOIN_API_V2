@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.ShopEventCreateEvent;
 import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
+import in.koreatech.koin.domain.ownershop.dto.OwnerShopEventsResponse;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse.InnerShopResponse;
@@ -25,7 +26,6 @@ import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
-import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.model.EventArticle;
@@ -319,8 +319,8 @@ public class OwnerShopService {
         eventArticleRepository.deleteById(eventId);
     }
 
-    public ShopEventsResponse getShopEvent(Integer shopId, Integer ownerId) {
+    public OwnerShopEventsResponse getShopEvent(Integer shopId, Integer ownerId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        return ShopEventsResponse.of(shop, clock);
+        return OwnerShopEventsResponse.from(shop);
     }
 }
