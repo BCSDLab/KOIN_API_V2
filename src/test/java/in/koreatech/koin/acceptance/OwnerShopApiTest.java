@@ -3,6 +3,8 @@ package in.koreatech.koin.acceptance;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -1249,6 +1251,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                 }
             );
         });
+        verify(shopEventListener).onShopEventCreate(any());
     }
 
     @Test

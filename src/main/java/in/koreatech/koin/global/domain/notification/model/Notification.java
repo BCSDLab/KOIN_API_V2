@@ -30,20 +30,20 @@ public class Notification extends BaseEntity {
     private Long id;
 
     @Enumerated(STRING)
-    @Column(name = "app_path", nullable = false)
+    @Column(name = "app_path")
     private MobileAppPath mobileAppPath;
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title")
     private String title;
 
-    @Column(name = "message", nullable = false)
+    @Column(name = "message")
     private String message;
 
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url")
     private String imageUrl;
 
     @Enumerated(STRING)
-    @Column(nullable = false)
+    @Column(name = "type")
     private NotificationType type;
 
     @ManyToOne(fetch = LAZY)
