@@ -709,25 +709,6 @@ class OwnerApiTest extends AcceptanceTest {
             .user(user)
             .build();
         Owner owner = ownerRepository.save(ownerRequest);
-
-        Shop shopRequest = Shop.builder()
-            .owner(owner)
-            .name("테스트 상점")
-            .internalName("테스트")
-            .chosung("테스트")
-            .phone("010-1234-5678")
-            .address("대전광역시 유성구 대학로 291")
-            .description("테스트 상점입니다.")
-            .delivery(true)
-            .deliveryPrice(3000)
-            .payCard(true)
-            .payBank(true)
-            .isDeleted(false)
-            .isEvent(false)
-            .remarks("비고")
-            .hit(0)
-            .build();
-        shopRepository.save(shopRequest);
         String token = jwtProvider.createToken(owner.getUser());
 
         // when then

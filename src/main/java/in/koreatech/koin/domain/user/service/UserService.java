@@ -95,8 +95,6 @@ public class UserService {
         if (user.getUserType() == UserType.STUDENT) {
             studentRepository.deleteByUserId(userId);
         } else if (user.getUserType() == UserType.OWNER) {
-            shopRepository.deleteByOwnerId(userId);
-            ownerAttachmentRepository.deleteByOwnerId(userId);
             ownerRepository.deleteByUserId(userId);
         }
         userRepository.delete(user);
