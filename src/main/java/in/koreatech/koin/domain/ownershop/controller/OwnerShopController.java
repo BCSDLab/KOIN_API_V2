@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
+import in.koreatech.koin.domain.ownershop.dto.OwnerShopEventsResponse;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.service.OwnerShopService;
@@ -25,10 +26,8 @@ import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
-import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
-import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +37,6 @@ import lombok.RequiredArgsConstructor;
 public class OwnerShopController implements OwnerShopApi {
 
     private final OwnerShopService ownerShopService;
-    private final EventArticleRepository eventArticleRepository;
 
     @GetMapping("/owner/shops")
     public ResponseEntity<OwnerShopsResponse> getOwnerShops(
@@ -193,11 +191,11 @@ public class OwnerShopController implements OwnerShopApi {
     }
 
     @GetMapping("/owner/shops/{shopId}/event")
-    public ResponseEntity<ShopEventsResponse> getShopAllEvent(
+    public ResponseEntity<OwnerShopEventsResponse> getShopAllEvent(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable("shopId") Integer shopId
     ) {
-        ShopEventsResponse shopEventsResponse = ownerShopService.getShopEvent(shopId, ownerId);
+        OwnerShopEventsResponse shopEventsResponse = ownerShopService.getShopEvent(shopId, ownerId);
         return ResponseEntity.ok(shopEventsResponse);
     }
 }
