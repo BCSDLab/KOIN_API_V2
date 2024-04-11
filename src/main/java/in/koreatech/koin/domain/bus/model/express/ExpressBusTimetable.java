@@ -15,7 +15,7 @@ public class ExpressBusTimetable extends BusTimetable {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    @JsonProperty(value = "depart")
+    @JsonProperty(value = "departure")
     private final String depart;
 
     private final String arrival;
