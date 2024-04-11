@@ -53,6 +53,10 @@ public class UserService {
             throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
         }
 
+        if (!user.isAuthed()) {
+            throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
+        }
+
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
         UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
