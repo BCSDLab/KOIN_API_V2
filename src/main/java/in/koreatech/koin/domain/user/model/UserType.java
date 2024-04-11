@@ -9,7 +9,7 @@ public enum UserType {
     COOP("COOP", "영양사"),
     ;
 
-    public static final Long ANONYMOUS_ID = 0L;
+    public static final int ANONYMOUS_ID = 0;
 
     private final String value;
     private final String description;
