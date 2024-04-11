@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.ownershop.ShopEventCreateEvent;
 import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
@@ -72,6 +74,7 @@ public class OwnerShopService {
     private final MenuImageRepository menuImageRepository;
     private final MenuDetailRepository menuDetailRepository;
     private final EventArticleRepository eventArticleRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public OwnerShopsResponse getOwnerShops(Integer ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
@@ -281,13 +284,19 @@ public class OwnerShopService {
             .build();
         EventArticle savedEventArticle = eventArticleRepository.save(eventArticle);
         for (String image : shopEventRequest.thumbnailImages()) {
-
             savedEventArticle.getThumbnailImages()
                 .add(EventArticleImage.builder()
                     .eventArticle(eventArticle)
                     .thumbnailImage(image)
                     .build());
         }
+        eventPublisher.publishEvent(
+            new ShopEventCreateEvent(
+                shop.getId(),
+                shop.getName(),
+                savedEventArticle.getTitle()
+            )
+        );
     }
 
     @Transactional
