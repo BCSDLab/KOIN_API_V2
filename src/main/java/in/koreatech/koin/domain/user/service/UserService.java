@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
@@ -40,6 +41,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final OwnerRepository ownerRepository;
+    private final ShopRepository shopRepository;
     private final OwnerAttachmentRepository ownerAttachmentRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
@@ -96,11 +98,8 @@ public class UserService {
         User user = userRepository.getById(userId);
         if (user.getUserType() == UserType.STUDENT) {
             studentRepository.deleteByUserId(userId);
-            ownerRepository.deleteByUserId(userId);
-            ownerAttachmentRepository.deleteByOwnerId(userId);
         } else if (user.getUserType() == UserType.OWNER) {
             ownerRepository.deleteByUserId(userId);
-            ownerAttachmentRepository.deleteByOwnerId(userId);
         }
         userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
