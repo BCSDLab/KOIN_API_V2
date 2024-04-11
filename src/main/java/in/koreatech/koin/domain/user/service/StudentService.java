@@ -69,7 +69,7 @@ public class StudentService {
     public void checkNicknameDuplication(String nickname, Integer userId) {
         User checkUser = userRepository.getById(userId);
         if (!checkUser.getNickname().equals(nickname) && userRepository.existsByNickname(nickname)) {
-            throw DuplicationNicknameException.withDetail("Nickname : " + nickname);
+            throw DuplicationNicknameException.withDetail("nickname : " + nickname);
         }
     }
 
