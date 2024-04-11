@@ -63,7 +63,22 @@ public class NotificationService {
         }
     }
 
-    private void push(Notification notification) {
+    public void push(List<Notification> notifications) {
+        for (Notification notification : notifications) {
+            notificationRepository.save(notification);
+            String deviceToken = notification.getUser().getDeviceToken();
+            fcmClient.sendMessage(
+                deviceToken,
+                notification.getTitle(),
+                notification.getMessage(),
+                notification.getImageUrl(),
+                notification.getMobileAppPath(),
+                notification.getType()
+            );
+        }
+    }
+
+    public void push(Notification notification) {
         notificationRepository.save(notification);
         String deviceToken = notification.getUser().getDeviceToken();
         fcmClient.sendMessage(

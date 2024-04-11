@@ -34,7 +34,7 @@ public class Version extends BaseEntity {
     private String version;
 
     @NotNull
-    @Column(name = "type", length = 50)
+    @Column(name = "type", length = 50, unique = true)
     private String type;
 
     @Builder

@@ -102,6 +102,7 @@ public class Menu extends BaseEntity {
     public void modifyMenuImages(List<String> imageUrls, EntityManager entityManager) {
         this.menuImages.forEach(entityManager::remove);
         this.menuImages.clear();
+        entityManager.flush();
         for (String imageUrl : imageUrls) {
             MenuImage newMenuImage = MenuImage.builder()
                 .imageUrl(imageUrl)
@@ -114,6 +115,7 @@ public class Menu extends BaseEntity {
     public void modifyMenuCategories(List<MenuCategory> menuCategories, EntityManager entityManager) {
         this.menuCategoryMaps.forEach(entityManager::remove);
         this.menuCategoryMaps.clear();
+        entityManager.flush();
         for (MenuCategory menuCategory : menuCategories) {
             MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
                 .menu(this)
@@ -126,6 +128,7 @@ public class Menu extends BaseEntity {
     public void modifyMenuSingleOptions(ModifyMenuRequest modifyMenuRequest, EntityManager entityManager) {
         this.menuOptions.forEach(entityManager::remove);
         this.menuOptions.clear();
+        entityManager.flush();
         MenuOption menuOption = MenuOption.builder()
             .price(modifyMenuRequest.singlePrice())
             .menu(this)
@@ -136,6 +139,7 @@ public class Menu extends BaseEntity {
     public void modifyMenuMultipleOptions(List<InnerOptionPrice> innerOptionPrice, EntityManager entityManager) {
         this.menuOptions.forEach(entityManager::remove);
         this.menuOptions.clear();
+        entityManager.flush();
         for (var option : innerOptionPrice) {
             MenuOption menuOption = MenuOption.builder()
                 .option(option.option())

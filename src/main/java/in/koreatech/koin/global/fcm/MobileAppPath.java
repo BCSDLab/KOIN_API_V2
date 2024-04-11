@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum MobileAppPath {
     HOME("home", "home"),
     LOGIN("login", "login"),
+    SHOP("shop", "shop"),
     ;
 
     private final String android;

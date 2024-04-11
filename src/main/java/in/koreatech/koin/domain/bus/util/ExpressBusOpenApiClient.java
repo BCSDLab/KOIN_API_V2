@@ -32,16 +32,17 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
-import in.koreatech.koin.domain.bus.dto.ExpressBusTimeTable;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusStationNode;
+import in.koreatech.koin.domain.bus.model.express.ExpressBusTimetable;
 import in.koreatech.koin.domain.bus.model.express.OpenApiExpressBusArrival;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
@@ -110,31 +111,33 @@ public class ExpressBusOpenApiClient {
     private void storeRemainTimeByOpenApi(String departName, String arrivalName) {
         JsonObject busApiResponse = getBusApiResponse(departName, arrivalName);
         List<OpenApiExpressBusArrival> busArrivals = extractBusArrivalInfo(busApiResponse);
-        expressBusCacheRepository.save(
-            ExpressBusCache.of(
-                new ExpressBusRoute(departName, arrivalName),
-                // API로 받은 yyyyMMddHHmm 형태의 시간을 HH:mm 형태로 변환하여 Redis에 저장한다.
-                busArrivals.stream()
-                    .map(it -> new ExpressBusCacheInfo(
-                        LocalTime.parse(
-                            LocalDateTime.parse(it.depPlandTime(), ofPattern("yyyyMMddHHmm"))
-                                .format(ofPattern("HH:mm"))
-                        ),
-                        LocalTime.parse(
-                            LocalDateTime.parse(it.arrPlandTime(), ofPattern("yyyyMMddHHmm"))
-                                .format(ofPattern("HH:mm"))
-                        ),
-                        it.charge()
-                    ))
-                    .toList()
-            ));
+
+        ExpressBusCache expressBusCache = ExpressBusCache.of(
+            new ExpressBusRoute(departName, arrivalName),
+            // API로 받은 yyyyMMddHHmm 형태의 시간을 HH:mm 형태로 변환하여 Redis에 저장한다.
+            busArrivals.stream()
+                .map(it -> new ExpressBusCacheInfo(
+                    LocalTime.parse(
+                        LocalDateTime.parse(it.depPlandTime(), ofPattern("yyyyMMddHHmm"))
+                            .format(ofPattern("HH:mm"))
+                    ),
+                    LocalTime.parse(
+                        LocalDateTime.parse(it.arrPlandTime(), ofPattern("yyyyMMddHHmm"))
+                            .format(ofPattern("HH:mm"))
+                    ),
+                    it.charge()
+                ))
+                .toList()
+        );
+
+        expressBusCacheRepository.save(expressBusCache);
         versionRepository.getByType(VersionType.EXPRESS).update(clock);
     }
 
     private JsonObject getBusApiResponse(String departName, String arrivalName) {
         try {
             URL url = getBusApiURL(departName, arrivalName);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "application/json");
             BufferedReader reader;
@@ -162,7 +165,7 @@ public class ExpressBusOpenApiClient {
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
         StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL); /*URL*/
         try {
-            urlBuilder.append("?" + encode("serviceKey", UTF_8) + "=" + openApiKey);
+            urlBuilder.append("?" + encode("serviceKey", UTF_8) + "=" + encode(openApiKey, UTF_8));
             urlBuilder.append("&" + encode("numOfRows", UTF_8) + "=" + encode("30", UTF_8));
             urlBuilder.append("&" + encode("_type", UTF_8) + "=" + encode("json", UTF_8));
             urlBuilder.append("&" + encode("depTerminalId", UTF_8) + "=" + encode(departNode.getStationId(), UTF_8));
@@ -204,15 +207,11 @@ public class ExpressBusOpenApiClient {
             return Collections.emptyList();
         }
         List<ExpressBusCacheInfo> busArrivals = expressBusCache.getBusInfos();
-        return getExpressBusRemainTime(
-            busArrivals
-                .stream()
-                .map(ExpressBusTimeTable::from)
-                .toList());
+        return getExpressBusRemainTime(busArrivals);
     }
 
     private List<ExpressBusRemainTime> getExpressBusRemainTime(
-        List<ExpressBusTimeTable> busArrivals
+        List<ExpressBusCacheInfo> busArrivals
     ) {
         return busArrivals.stream()
             .map(it -> new ExpressBusRemainTime(it.depart(), EXPRESS.name().toLowerCase()))
@@ -223,5 +222,39 @@ public class ExpressBusOpenApiClient {
         Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
         return duration.toSeconds() < 0
             || Duration.ofHours(ExpressBusCache.getCacheExpireHour()).toSeconds() <= duration.toSeconds();
+    }
+
+    public List<? extends BusTimetable> getExpressBusTimetable(String direction) {
+        Version version = versionRepository.getByType(VersionType.EXPRESS);
+        String depart = "";
+        String arrival = "";
+
+        if ("from".equals(direction)) {
+            depart = "koreatech";
+            arrival = "terminal";
+        }
+        if ("to".equals(direction)) {
+            depart = "terminal";
+            arrival = "koreatech";
+        }
+        if (depart.isEmpty() || arrival.isEmpty()) {
+            throw new UnsupportedOperationException();
+        }
+
+        if (isCacheExpired(version, clock)) {
+            storeRemainTimeByOpenApi(depart, arrival);
+        }
+
+        String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute(depart, arrival));
+        ExpressBusCache expressBusCache = expressBusCacheRepository.getById(busCacheId);
+        if (Objects.isNull(expressBusCache)) {
+            return Collections.emptyList();
+        }
+        List<ExpressBusCacheInfo> busArrivals = expressBusCache.getBusInfos();
+
+        return busArrivals
+            .stream()
+            .map(ExpressBusTimetable::from)
+            .toList();
     }
 }

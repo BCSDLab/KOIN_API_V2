@@ -8,16 +8,16 @@ import in.koreatech.koin.global.fcm.MobileAppPath;
 @Component
 public class NotificationFactory {
 
-    public Notification generateOwnerNotification(
+    public Notification generateShopEventCreateNotification(
         MobileAppPath path,
         String shopName,
+        String title,
         User target
     ) {
         return new Notification(
             path,
-            "새로운 이벤트가 개설되었어요!",
-            "%s 가게의 이벤트가 오픈되었어요!🎁"
-                .formatted(shopName),
+            "%s의 이벤트가 추가되었어요 🎉".formatted(shopName),
+            "%s".formatted(title),
             null,
             NotificationType.MESSAGE,
             target

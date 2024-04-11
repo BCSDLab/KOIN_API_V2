@@ -25,8 +25,10 @@ import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
+import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
+import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 public class OwnerShopController implements OwnerShopApi {
 
     private final OwnerShopService ownerShopService;
+    private final EventArticleRepository eventArticleRepository;
 
     @GetMapping("/owner/shops")
     public ResponseEntity<OwnerShopsResponse> getOwnerShops(
@@ -168,7 +171,7 @@ public class OwnerShopController implements OwnerShopApi {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PutMapping("/owner/shops/{shopId}/event/{eventId}")
+    @PutMapping("/owner/shops/{shopId}/events/{eventId}")
     public ResponseEntity<Void> modifyShopEvent(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable("shopId") Integer shopId,
@@ -179,7 +182,7 @@ public class OwnerShopController implements OwnerShopApi {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/owner/shops/{shopId}/event/{eventId}")
+    @DeleteMapping("/owner/shops/{shopId}/events/{eventId}")
     public ResponseEntity<Void> deleteShopEvent(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable("shopId") Integer shopId,
@@ -187,5 +190,14 @@ public class OwnerShopController implements OwnerShopApi {
     ) {
         ownerShopService.deleteEvent(ownerId, shopId, eventId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/owner/shops/{shopId}/event")
+    public ResponseEntity<ShopEventsResponse> getShopAllEvent(
+        @Auth(permit = {OWNER}) Integer ownerId,
+        @PathVariable("shopId") Integer shopId
+    ) {
+        ShopEventsResponse shopEventsResponse = ownerShopService.getShopEvent(shopId, ownerId);
+        return ResponseEntity.ok(shopEventsResponse);
     }
 }

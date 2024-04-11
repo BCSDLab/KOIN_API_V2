@@ -15,7 +15,6 @@ import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse.InnerShopResponse;
-import in.koreatech.koin.domain.shop.model.EventArticle;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -59,7 +58,7 @@ public class ShopService {
 
     public ShopResponse getShop(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
-        Boolean eventDuration = eventArticleRepository.isEvent(shopId, LocalDate.now(clock));
+        boolean eventDuration = eventArticleRepository.isDurationEvent(shopId, LocalDate.now(clock));
         return ShopResponse.from(shop, eventDuration);
     }
 
@@ -72,7 +71,7 @@ public class ShopService {
     public ShopsResponse getShops() {
         List<Shop> shops = shopRepository.findAll();
         var innerShopResponses = shops.stream().map(shop -> {
-                Boolean eventDuration = eventArticleRepository.isEvent(shop.getId(), LocalDate.now(clock));
+                boolean eventDuration = eventArticleRepository.isDurationEvent(shop.getId(), LocalDate.now(clock));
                 return InnerShopResponse.from(shop, eventDuration);
             })
             .toList();
@@ -85,12 +84,12 @@ public class ShopService {
     }
 
     public ShopEventsResponse getShopEvents(Integer shopId) {
-        List<EventArticle> eventArticles = eventArticleRepository.findAllByShopId(shopId);
-        return ShopEventsResponse.from(eventArticles);
+        Shop shop = shopRepository.getById(shopId);
+        return ShopEventsResponse.of(shop, clock);
     }
 
     public ShopEventsResponse getAllEvents() {
-        List<EventArticle> eventArticles = eventArticleRepository.findAllDurationEvents();
-        return ShopEventsResponse.from(eventArticles);
+        List<Shop> shops = shopRepository.findAll();
+        return ShopEventsResponse.of(shops, clock);
     }
 }

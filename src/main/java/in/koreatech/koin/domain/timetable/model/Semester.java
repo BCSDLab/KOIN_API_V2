@@ -26,7 +26,7 @@ public class Semester {
 
     @Size(max = 10)
     @NotNull
-    @Column(name = "semester", nullable = false)
+    @Column(name = "semester", nullable = false, unique = true)
     private String semester;
 
     @Builder

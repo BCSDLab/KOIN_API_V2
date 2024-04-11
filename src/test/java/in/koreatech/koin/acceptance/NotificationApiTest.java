@@ -43,8 +43,8 @@ class NotificationApiTest extends AcceptanceTest {
     void setUp() {
         User newUser = User.builder()
             .password("1234")
-            .nickname("주노")
-            .name("최준호")
+            .nickname("셋업유저")
+            .name("셋업")
             .phoneNumber("010-1234-5678")
             .userType(STUDENT)
             .gender(UserGender.MAN)

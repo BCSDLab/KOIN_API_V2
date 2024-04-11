@@ -96,7 +96,7 @@ public class Article extends BaseEntity {
     @Column(name = "is_notice", nullable = false)
     private boolean isNotice = false;
 
-    @Column(name = "notice_article_id")
+    @Column(name = "notice_article_id", unique = true)
     private Integer noticeArticleId;
 
     @Transient

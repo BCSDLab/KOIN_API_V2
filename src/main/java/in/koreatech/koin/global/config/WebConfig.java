@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -31,6 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
     private final IpAddressInterceptor ipAddressInterceptor;
     private final ServerURLArgumentResolver serverURLArgumentResolver;
     private final ServerURLInterceptor serverURLInterceptor;
+    private final CorsProperties corsProperties;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -58,5 +60,15 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addConverter(new BusTypeEnumConverter());
         registry.addConverter(new BusStationEnumConverter());
         registry.addConverter(new ImageUploadDomainEnumConverter());
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+            .allowedOrigins(corsProperties.allowedOrigins().toArray(new String[0]))
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+            .allowedHeaders("*")
+            .allowCredentials(true)
+            .maxAge(3600);
     }
 }
