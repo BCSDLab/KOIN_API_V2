@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.bus.model.express;
 
 import java.time.format.DateTimeFormatter;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -14,6 +15,7 @@ public class ExpressBusTimetable extends BusTimetable {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
+    @JsonProperty(value = "depart")
     private final String depart;
 
     private final String arrival;
