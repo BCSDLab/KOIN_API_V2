@@ -137,7 +137,7 @@ public class ExpressBusOpenApiClient {
     private JsonObject getBusApiResponse(String departName, String arrivalName) {
         try {
             URL url = getBusApiURL(departName, arrivalName);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "application/json");
             BufferedReader reader;
@@ -226,7 +226,8 @@ public class ExpressBusOpenApiClient {
 
     public List<? extends BusTimetable> getExpressBusTimetable(String direction) {
         Version version = versionRepository.getByType(VersionType.EXPRESS);
-        String depart = "", arrival = "";
+        String depart = "";
+        String arrival = "";
 
         if ("from".equals(direction)) {
             depart = "koreatech";

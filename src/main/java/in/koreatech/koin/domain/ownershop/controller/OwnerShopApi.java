@@ -22,6 +22,7 @@ import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
+import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.global.auth.Auth;
@@ -261,7 +262,7 @@ public interface OwnerShopApi {
         }
     )
     @Operation(summary = "상점 이벤트 추가")
-    @PostMapping("/owner/shops/{shopId}/event")
+    @PostMapping("/owner/shops/{shopId}/events")
     ResponseEntity<Void> createShopEvent(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable("shopId") Integer shopId,
@@ -279,7 +280,7 @@ public interface OwnerShopApi {
         }
     )
     @Operation(summary = "상점 이벤트 수정")
-    @PutMapping("/owner/shops/{shopId}/event/{eventId}")
+    @PutMapping("/owner/shops/{shopId}/events/{eventId}")
     ResponseEntity<Void> modifyShopEvent(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable("shopId") Integer shopId,
@@ -296,10 +297,26 @@ public interface OwnerShopApi {
         }
     )
     @Operation(summary = "상점 이벤트 삭제")
-    @DeleteMapping("/owner/shops/{shopId}/event/{eventId}")
+    @DeleteMapping("/owner/shops/{shopId}/events/{eventId}")
     ResponseEntity<Void> deleteShopEvent(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable("shopId") Integer shopId,
         @PathVariable("eventId") Integer eventId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "422", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 상점 모든 이벤트 조회")
+    @GetMapping("/owner/shops/{shopId}/event")
+    ResponseEntity<ShopEventsResponse> getShopAllEvent(
+        @Auth(permit = {OWNER}) Integer ownerId,
+        @PathVariable("shopId") Integer shopId
     );
 }
