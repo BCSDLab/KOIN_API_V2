@@ -2,7 +2,10 @@ package in.koreatech.koin.global.log;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -15,6 +18,7 @@ import org.springframework.util.PathMatcher;
 import org.springframework.util.StopWatch;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.WebUtils;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -54,6 +58,9 @@ public class RequestLoggingFilter implements Filter {
             MDC.put(REQUEST_ID, getRequestId(httpRequest));
             stopWatch.start();
             log.info("request start [uri: {} {}]", httpRequest.getMethod(), httpRequest.getRequestURI());
+            log.info("request header: {}", getHeaders(cachedRequest));
+            log.info("request query string: {}", getQueryString(cachedRequest));
+            log.info("request body: {}", getRequestBody(cachedRequest));
             chain.doFilter(cachedRequest, response);
         } finally {
             stopWatch.stop();
@@ -75,5 +82,42 @@ public class RequestLoggingFilter implements Filter {
             return UUID.randomUUID().toString().replace("-", "");
         }
         return requestId;
+    }
+
+    private Map<String, Object> getHeaders(HttpServletRequest request) {
+        Map<String, Object> headerMap = new HashMap<>();
+        Enumeration<String> headerArray = request.getHeaderNames();
+        while (headerArray.hasMoreElements()) {
+            String headerName = headerArray.nextElement();
+            headerMap.put(headerName, request.getHeader(headerName));
+        }
+        return headerMap;
+    }
+
+    private String getQueryString(HttpServletRequest httpRequest) {
+        String queryString = httpRequest.getQueryString();
+        if (queryString == null) {
+            return " - ";
+        }
+        return queryString;
+    }
+
+    private String getRequestBody(HttpServletRequest request) {
+        var wrapper = WebUtils.getNativeRequest(request, ContentCachingRequestWrapper.class);
+        if (wrapper == null) {
+            return " - ";
+        }
+        try {
+            // body 가 읽히지 않고 예외처리 되는 경우에 캐시하기 위함
+            wrapper.getInputStream().readAllBytes();
+            byte[] buf = wrapper.getContentAsByteArray();
+            if (buf.length == 0) {
+                return " - ";
+            }
+            return new String(buf, wrapper.getCharacterEncoding());
+        } catch (Exception e
+        ) {
+            return " - ";
+        }
     }
 }
