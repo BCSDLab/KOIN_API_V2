@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.user.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
@@ -44,4 +45,6 @@ public interface UserRepository extends Repository<User, Integer> {
     boolean existsByNickname(String nickname);
 
     void delete(User user);
+
+    List<User> findAllByDeviceTokenIsNotNull();
 }

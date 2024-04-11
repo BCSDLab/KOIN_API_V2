@@ -18,10 +18,11 @@ public record CreateEventRequest(
     @Schema(example = "감성떡볶이 이벤트합니다!!!", description = "제목")
     @NotBlank String title,
 
-    @Schema(example = "OwnerShopsRequest", description = "이벤트 내용")
-    String content,
+    @Schema(example = "감성떡볶이 이벤트합니다!!! 많은관심 부탁드려요! 감성을 한스푼 더 얹어드립니다", description = "이벤트 내용")
+    @NotBlank String content,
 
     @Schema(description = "이벤트 이미지")
+    @NotNull
     @Size(min = 0, max = 3, message = "사진은 최대 3개까지 입력 가능합니다.")
     List<String> thumbnailImages,
 
