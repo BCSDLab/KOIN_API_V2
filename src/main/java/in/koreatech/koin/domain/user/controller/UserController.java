@@ -86,7 +86,8 @@ public class UserController implements UserApi {
         @RequestBody @Valid UserTokenRefreshRequest request
     ) {
         UserTokenRefreshResponse tokenGroupResponse = userService.refresh(request);
-        return ResponseEntity.ok().body(tokenGroupResponse);
+        return ResponseEntity.created(URI.create("/"))
+            .body(tokenGroupResponse);
     }
 
     @DeleteMapping("/user")
