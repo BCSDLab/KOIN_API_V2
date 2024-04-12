@@ -1,5 +1,6 @@
 package in.koreatech.koin.acceptance;
 
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,6 +55,48 @@ class UserApiTest extends AcceptanceTest {
         when(clock.instant()).thenReturn(
             ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
         when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+    }
+
+    @Test
+    @DisplayName("올바른 영양사 계정인지 확인한다")
+    void coopCheckMe() {
+        User user = User.builder()
+            .password("1234")
+            .name("영양사")
+            .phoneNumber("010-1234-5678")
+            .userType(COOP)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+        String token = jwtProvider.createToken(user);
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .get("/user/coop/me")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getString("email"))
+                    .isEqualTo(user.getEmail());
+                softly.assertThat(response.body().jsonPath().getInt("gender"))
+                    .isEqualTo(user.getGender().ordinal());
+                softly.assertThat(response.body().jsonPath().getString("name"))
+                    .isEqualTo(user.getName());
+                softly.assertThat(response.body().jsonPath().getString("phone_number"))
+                    .isEqualTo(user.getPhoneNumber());
+                softly.assertThat(response.body().jsonPath().getString("user_type"))
+                    .isEqualTo(user.getUserType().getValue());
+            }
+        );
     }
 
     @Test
