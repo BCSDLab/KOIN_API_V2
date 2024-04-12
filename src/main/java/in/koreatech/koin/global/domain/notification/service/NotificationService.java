@@ -33,36 +33,6 @@ public class NotificationService {
     private final NotificationFactory notificationFactory;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
 
-    public void pushSoldOutNotification(DiningSoldOutEvent event) {
-        Notification notification = notificationFactory.generateSoldOutNotification(HOME, event.place());
-        notificationRepository.save(notification);
-        List<String> deviceTokenList = generateDeviceTokenListBySubscribeSoldOut();
-        pushAll(notification, deviceTokenList);
-    }
-
-    private List<String> generateDeviceTokenListBySubscribeSoldOut() {
-        List<NotificationSubscribe> soldOutSubscribes = notificationSubscribeRepository
-            .findAllBySubscribeType(DINING_SOLD_OUT);
-        return soldOutSubscribes.stream()
-            .map(soldOutSubscribe -> userRepository.getById(soldOutSubscribe.getUser().getId()))
-            .map(User::getDeviceToken)
-            .filter(deviceToken -> !deviceToken.isEmpty())
-            .toList();
-    }
-
-    private void pushAll(Notification notification, List<String> deviceTokenList) {
-        for (String device : deviceTokenList) {
-            fcmClient.sendMessage(
-                device,
-                notification.getTitle(),
-                notification.getMessage(),
-                notification.getImageUrl(),
-                notification.getMobileAppPath(),
-                notification.getType()
-            );
-        }
-    }
-
     public void push(List<Notification> notifications) {
         for (Notification notification : notifications) {
             notificationRepository.save(notification);

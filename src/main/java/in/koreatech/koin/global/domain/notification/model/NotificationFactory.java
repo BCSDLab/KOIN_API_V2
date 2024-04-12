@@ -26,7 +26,8 @@ public class NotificationFactory {
 
     public Notification generateSoldOutNotification(
         MobileAppPath path,
-        String place
+        String place,
+        User target
     ) {
         return new Notification(
             path,
@@ -35,7 +36,7 @@ public class NotificationFactory {
                 .formatted(place),
             null,
             NotificationType.MESSAGE,
-            null
+            target
         );
     }
 }
