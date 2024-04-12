@@ -33,7 +33,6 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
-import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -48,9 +47,6 @@ class DiningApiTest extends AcceptanceTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private NotificationService notificationService;
 
     @Autowired
     private NotificationSubscribeRepository notificationSubscribeRepository;
@@ -291,12 +287,15 @@ class DiningApiTest extends AcceptanceTest {
         diningRepository.save(dining1);
         diningRepository.save(dining2);
 
-        SoldOutRequest soldOutRequest = new SoldOutRequest(2, true);
-
         ExtractableResponse<Response> response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
-            .body(soldOutRequest)
+            .body(
+                SoldOutRequest.builder()
+                    .menuId(2)
+                    .soldOut(true)
+                    .build()
+            )
             .when()
             .patch("/coop/dining/soldout")
             .then()
@@ -344,12 +343,15 @@ class DiningApiTest extends AcceptanceTest {
 
         diningRepository.save(dining1);
 
-        SoldOutRequest soldOutRequest = new SoldOutRequest(1, true);
-
         ExtractableResponse<Response> response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
-            .body(soldOutRequest)
+            .body(
+                SoldOutRequest.builder()
+                    .menuId(1)
+                    .soldOut(true)
+                    .build()
+            )
             .when()
             .patch("/coop/dining/soldout")
             .then()
