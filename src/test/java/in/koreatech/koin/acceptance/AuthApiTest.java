@@ -167,7 +167,7 @@ class AuthApiTest extends AcceptanceTest {
             .when()
             .post("/user/refresh")
             .then()
-            .statusCode(HttpStatus.OK.value())
+            .statusCode(HttpStatus.CREATED.value())
             .extract();
 
         UserToken token = tokenRepository.findById(user.getId()).get();
