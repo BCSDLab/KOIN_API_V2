@@ -46,6 +46,15 @@ public class BusController implements BusApi {
         return ResponseEntity.ok().body(busService.getBusTimetable(busType, direction, region));
     }
 
+    @GetMapping("/timetable/v2")
+    public ResponseEntity<List<? extends BusTimetable>> getBusTimetableV2(
+        @RequestParam(value = "bus_type") BusType busType,
+        @RequestParam(value = "direction") String direction,
+        @RequestParam(value = "region") String region
+    ){
+        return ResponseEntity.ok().body(busService.getBusTimetable(busType, direction, region));
+    }
+
     @GetMapping("/courses")
     public ResponseEntity<List<BusCourseResponse>> getBusCourses() {
         return ResponseEntity.ok().body(busService.getBusCourses());

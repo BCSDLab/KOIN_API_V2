@@ -48,6 +48,14 @@ public interface BusApi {
         @RequestParam(value = "region") String region
     );
 
+    @Operation(summary = "버스 시간표 조회")
+    @GetMapping("/timetable/v2")
+    ResponseEntity<List<? extends BusTimetable>> getBusTimetableV2(
+        @RequestParam(value = "bus_type") BusType busType,
+        @RequestParam(value = "direction") String direction,
+        @RequestParam(value = "region") String region
+    );
+
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
