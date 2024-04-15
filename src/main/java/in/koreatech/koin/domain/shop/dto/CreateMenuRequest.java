@@ -28,10 +28,10 @@ public record CreateMenuRequest(
     @Schema(example = "짜장면", description = "메뉴명")
     @NotNull @Size(min = 1, max = 25) String name,
 
-    @Schema(description = "단일 메뉴가 아닐때의 옵션에 따른 가격 리스트")
+    @Schema(description = "단일 메뉴가 아닐때의 옵션에 따른 가격 리스트 / 단일 메뉴일 경우 null")
     List<InnerOptionPrice> optionPrices,
 
-    @Schema(description = "단일 메뉴일때의 가격")
+    @Schema(description = "단일 메뉴일때의 가격 / 단일 메뉴가 아닐 경우 null")
     Integer singlePrice
 ) {
 
