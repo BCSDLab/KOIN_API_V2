@@ -26,7 +26,7 @@ import jakarta.validation.constraints.Size;
 @JsonNaming(SnakeCaseStrategy.class)
 public record OwnerRegisterRequest(
 
-    @Pattern(regexp = "^[0-9]{3}-[0-9]{2}-[0-9]{5}", message = "사업자 등록 번호 형식이 올바르지 않습니다. ${validatedValue}")
+    @Pattern(regexp = "^\\d{3}-\\d{2}-\\d{5}", message = "사업자 등록 번호 형식이 올바르지 않습니다. ${validatedValue}")
     @Schema(description = "사업자 등록 번호", example = "012-34-56789", requiredMode = NOT_REQUIRED)
     String companyNumber,
 
@@ -44,7 +44,7 @@ public record OwnerRegisterRequest(
     @Schema(description = "비밀번호", example = "password", requiredMode = REQUIRED)
     String password,
 
-    @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}", message = "전화번호 형식이 올바르지 않습니다.")
+    @Pattern(regexp = "^\\d{3}-\\d{3,4}-\\d{4}", message = "전화번호 형식이 올바르지 않습니다.")
     @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = REQUIRED)
     String phoneNumber,
 
@@ -94,7 +94,7 @@ public record OwnerRegisterRequest(
     public record InnerAttachmentUrl(
         @NotBlank(message = "첨부 파일 URL은 필수입니다.")
         @URL(protocol = "https", regexp = ".*static\\.koreatech\\.in.*", message = "코인 파일 저장 형식이 아닙니다.")
-        @Schema(description = "첨부 파일 URL (코인 파일 형식이어야 함)", example = "https://static.koreatech.in/1.png")
+        @Schema(description = "첨부 파일 URL (코인 파일 형식이어야 함)", example = "https://static.koreatech.in/1.png", requiredMode = REQUIRED)
         String fileUrl
     ) {
 
