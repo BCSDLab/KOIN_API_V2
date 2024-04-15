@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,7 +44,7 @@ public class NotificationController implements NotificationApi {
     @PostMapping("/notification/subscribe")
     public ResponseEntity<Void> permitNotificationSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
-        @RequestParam NotificationSubscribeType notificationSubscribeType
+        @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     ) {
         notificationService.permitNotificationSubscribe(userId, notificationSubscribeType);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -62,7 +61,7 @@ public class NotificationController implements NotificationApi {
     @DeleteMapping("/notification/subscribe")
     public ResponseEntity<Void> rejectNotificationSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
-        @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
+        @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     ) {
         notificationService.rejectNotificationByType(userId, notificationSubscribeType);
         return ResponseEntity.noContent().build();

@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -69,7 +68,7 @@ public interface NotificationApi {
     @PostMapping("/notification/subscribe")
     ResponseEntity<Void> permitNotificationSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
-        @RequestParam NotificationSubscribeType notificationSubscribeType
+        @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     );
 
     @ApiResponses(
@@ -100,6 +99,6 @@ public interface NotificationApi {
     @DeleteMapping("/notification/subscribe")
     ResponseEntity<Void> rejectNotificationSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
-        @Valid @ModelAttribute("type") NotificationSubscribeType notificationSubscribeType
+        @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     );
 }

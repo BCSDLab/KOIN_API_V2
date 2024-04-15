@@ -124,15 +124,28 @@ class NotificationApiTest extends AcceptanceTest {
     @DisplayName("특정 알림을 구독한다.")
     void subscribeNotificationType() {
 
+        String deviceToken = "testToken";
+        String notificationType = "SHOP_EVENT";
+
+        RestAssured .given()
+            .header("Authorization", "Bearer " + userToken)
+            .body(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                """, deviceToken))
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/notification")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
         RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
             .contentType(ContentType.JSON)
-            .body("""
-                {
-                "type": "SHOP_EVENT"
-                }
-                """)
+            .queryParam("type", notificationType)
             .when()
             .post("/notification/subscribe")
             .then()
@@ -150,10 +163,10 @@ class NotificationApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getBoolean("is_permit")).isFalse();
+                softly.assertThat(response.body().jsonPath().getBoolean("is_permit")).isTrue();
                 softly.assertThat(response.body().jsonPath().getList("subscribes").size()).isEqualTo(2);
                 softly.assertThat(response.body().jsonPath().getString("subscribes[0].type"))
-                    .isEqualTo("SHOP_EVENT");
+                    .isEqualTo(notificationType);
                 softly.assertThat(response.body().jsonPath().getBoolean("subscribes[0].is_permit")).isTrue();
                 softly.assertThat(response.body().jsonPath().getString("subscribes[1].type")).isEqualTo(
                     "DINING_SOLD_OUT");
@@ -204,10 +217,12 @@ class NotificationApiTest extends AcceptanceTest {
         notificationSubscribeRepository.save(SubscribeShopEvent);
         notificationSubscribeRepository.save(SubscribeDiningSoldOut);
 
+        String notificationType = "SHOP_EVENT";
+
         RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .param("type", SHOP_EVENT)
+            .queryParam("type", notificationType)
             .when()
             .delete("/notification/subscribe")
             .then()
@@ -228,7 +243,7 @@ class NotificationApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getBoolean("is_permit")).isFalse();
                 softly.assertThat(response.body().jsonPath().getList("subscribes").size()).isEqualTo(2);
                 softly.assertThat(response.body().jsonPath().getString("subscribes[0].type"))
-                    .isEqualTo("SHOP_EVENT");
+                    .isEqualTo(notificationType);
                 softly.assertThat(response.body().jsonPath().getBoolean("subscribes[0].is_permit")).isFalse();
                 softly.assertThat(response.body().jsonPath().getString("subscribes[1].type")).isEqualTo(
                     "DINING_SOLD_OUT");
