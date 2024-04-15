@@ -23,4 +23,20 @@ public class NotificationFactory {
             target
         );
     }
+
+    public Notification generateSoldOutNotification(
+        MobileAppPath path,
+        String place,
+        User target
+    ) {
+        return new Notification(
+            path,
+            "학식 품절 알림!",
+            "%s 품절되었습니다."
+                .formatted(place),
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
 }

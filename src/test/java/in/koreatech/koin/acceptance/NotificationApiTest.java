@@ -18,7 +18,6 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
-import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -32,9 +31,6 @@ class NotificationApiTest extends AcceptanceTest {
 
     @Autowired
     private NotificationSubscribeRepository notificationSubscribeRepository;
-
-    @Autowired
-    private NotificationRepository notificationRepository;
 
     @Autowired
     private UserRepository userRepository;
