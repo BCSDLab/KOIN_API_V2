@@ -32,7 +32,7 @@ public record ShopResponse(
     @Schema(example = "1", description = "고유 id")
     Integer id,
 
-    @Schema(example = "string", description = "이미지 URL 리스트")
+    @Schema(description = "이미지 URL 리스트")
     List<String> imageUrls,
 
     @Schema(description = "상점에 있는 메뉴 카테고리 리스트")

@@ -29,7 +29,7 @@ public record ModifyShopRequest(
     @Schema(example = "string", description = "설명")
     String description,
 
-    @Schema(example = "string", description = "이미지 URL 리스트")
+    @Schema(description = "이미지 URL 리스트")
     List<String> imageUrls,
 
     @Schema(example = "수신반점", description = "이름")

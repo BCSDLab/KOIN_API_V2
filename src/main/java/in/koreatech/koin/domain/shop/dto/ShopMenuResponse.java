@@ -106,10 +106,10 @@ public record ShopMenuResponse(
             @Schema(example = "false", description = "단일 메뉴 여부")
             Boolean isSingle,
 
-            @Schema(example = "10000", description = "단일 메뉴일때(is_single이 true일때)의 가격")
+            @Schema(example = "10000", description = "단일 메뉴일때(is_single이 true일때)의 가격 / 단일 메뉴가 아니라면 null")
             Integer singlePrice,
 
-            @Schema(description = "옵션이 있는 메뉴일때(is_single이 false일때)의 옵션에 따른 가격 리스트")
+            @Schema(description = "옵션이 있는 메뉴일때(is_single이 false일때)의 옵션에 따른 가격 리스트 / 단일 메뉴 라면 null")
             List<InnerOptionPrice> optionPrices,
 
             @Schema(example = "저희 식당의 대표 메뉴 탕수육입니다.", description = "설명")
