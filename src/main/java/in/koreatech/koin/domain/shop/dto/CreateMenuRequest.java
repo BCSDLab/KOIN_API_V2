@@ -19,7 +19,7 @@ public record CreateMenuRequest(
     @Schema(example = "저희 가게의 대표 메뉴 짜장면입니다.", description = "메뉴 구성 설명")
     @Size(max = 80) String description,
 
-    @Schema(description = "이미지 URL 리스트")
+    @Schema(example = "[\"https://static.koreatech.in/example.png\"]", description = "이미지 URL 리스트")
     @Size(max = 3) List<String> imageUrls,
 
     @Schema(example = "true", description = "단일 메뉴 여부")
