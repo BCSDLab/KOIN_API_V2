@@ -246,7 +246,7 @@ public class OwnerShopService {
     public void modifyCategory(Integer ownerId, Integer categoryId, ModifyCategoryRequest modifyCategoryRequest) {
         MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
         getOwnerShopById(menuCategory.getShop().getId(), ownerId);
-        menuCategory.modifyCategory(modifyCategoryRequest);
+        menuCategory.modifyName(modifyCategoryRequest.name());
     }
 
     @Transactional

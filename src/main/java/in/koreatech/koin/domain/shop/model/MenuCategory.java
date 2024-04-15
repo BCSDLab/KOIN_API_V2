@@ -1,15 +1,12 @@
 package in.koreatech.koin.domain.shop.model;
 
+import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
-import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,8 +26,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "shop_menu_categories")
-@Where(clause = "is_deleted=0")
-@SQLDelete(sql = "UPDATE shop_menu_categories SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = PROTECTED)
 public final class MenuCategory extends BaseEntity {
 
@@ -48,11 +43,7 @@ public final class MenuCategory extends BaseEntity {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @NotNull
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
-
-    @OneToMany(mappedBy = "menuCategory")
+    @OneToMany(mappedBy = "menuCategory", orphanRemoval = true, cascade = ALL)
     private List<MenuCategoryMap> menuCategoryMaps = new ArrayList<>();
 
     @Builder
@@ -61,7 +52,7 @@ public final class MenuCategory extends BaseEntity {
         this.name = name;
     }
 
-    public void modifyCategory(ModifyCategoryRequest modifyCategoryRequest) {
-        this.name = modifyCategoryRequest.name();
+    public void modifyName(String name) {
+        this.name = name;
     }
 }
