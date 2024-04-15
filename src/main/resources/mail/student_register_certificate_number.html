@@ -11,7 +11,8 @@
 <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border: 1px solid #cccccc;">
     <tr>
         <td align="center" bgcolor="#EAEAEA" style="padding: 40px 0 30px 0;">
-            <img src="https://static.koreatech.in/mail_form_logo.png" alt="Creating Email Magic" width="300" height="295" style="display: block;"/>
+            <img src="https://static.koreatech.in/mail_form_logo.png" alt="Creating Email Magic" width="300"
+                 height="295" style="display: block;"/>
         </td>
     </tr>
     <tr>
@@ -30,12 +31,14 @@
                         회원 가입을 위해 이메일 주소를 인증해주세요.<br><br>
 
                         <br><br>
-                        <a th:href="@{|${contextPath}/user/authenticate?auth_token=${authToken}|}" style="background-color: #005C92; border: none; border-radius: 25px; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px;" class="btn">
+                        <a th:href="@{|${contextPath}/user/authenticate?auth_token=${authToken}|}"
+                           style="background-color: #005C92; border: none; border-radius: 25px; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px;"
+                           class="btn">
                             <b>이메일 주소 인증</b>
                         </a>
 
                         <br><br>
-                        이 메일은 1시간 뒤에 만료됩니다. 만료시 회원가입을 다시 시도해주세요.<br>
+                        이 메일은 10시간 뒤에 만료됩니다. 만료시 회원가입을 다시 시도해주세요.<br>
                     </td>
                 </tr>
 
