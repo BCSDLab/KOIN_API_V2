@@ -286,16 +286,12 @@ class DiningApiTest extends AcceptanceTest {
 
         diningRepository.save(dining1);
         diningRepository.save(dining2);
+        SoldOutRequest soldOutRequest = new SoldOutRequest(2, true);
 
         ExtractableResponse<Response> response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
-            .body(
-                SoldOutRequest.builder()
-                    .menuId(2)
-                    .soldOut(true)
-                    .build()
-            )
+            .body(soldOutRequest)
             .when()
             .patch("/coop/dining/soldout")
             .then()
@@ -342,16 +338,12 @@ class DiningApiTest extends AcceptanceTest {
             .build();
 
         diningRepository.save(dining1);
+        SoldOutRequest soldOutRequest = new SoldOutRequest(1, true);
 
         ExtractableResponse<Response> response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
-            .body(
-                SoldOutRequest.builder()
-                    .menuId(1)
-                    .soldOut(true)
-                    .build()
-            )
+            .body(soldOutRequest)
             .when()
             .patch("/coop/dining/soldout")
             .then()
@@ -499,15 +491,12 @@ class DiningApiTest extends AcceptanceTest {
 
         diningRepository.save(dining);
 
+        SoldOutRequest soldOutRequest = new SoldOutRequest(1, true);
+
         given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
-            .body(
-                SoldOutRequest.builder()
-                    .menuId(1)
-                    .soldOut(true)
-                    .build()
-            )
+            .body(soldOutRequest)
             .when()
             .patch("/coop/dining/soldout")
             .then()

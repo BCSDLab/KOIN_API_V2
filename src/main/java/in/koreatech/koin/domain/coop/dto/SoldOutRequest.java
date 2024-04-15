@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record SoldOutRequest(
@@ -17,9 +16,4 @@ public record SoldOutRequest(
     Boolean soldOut
 ) {
 
-    @Builder
-    public SoldOutRequest(Integer menuId, Boolean soldOut) {
-        this.menuId = menuId;
-        this.soldOut = soldOut;
-    }
 }
