@@ -78,20 +78,23 @@ public record ArticlesResponse(
         @Schema(description = "공지 여부", example = "false", requiredMode = REQUIRED)
         boolean isNotice,
 
-        @Schema(description = "공지 게시글 고유 ID", example = "1", requiredMode = REQUIRED)
-        int noticeArticleId,
+        @Schema(description = "공지 게시글 고유 ID", example = "1", requiredMode = NOT_REQUIRED)
+        Integer noticeArticleId,
 
         @Schema(description = "요약", example = "요약", requiredMode = NOT_REQUIRED)
         String summary,
 
         @Schema(description = "생성 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        LocalDateTime createdAt,
 
         @Schema(description = "수정 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        LocalDateTime updatedAt,
 
         @Schema(description = "내용 요약", example = "내용 요약", requiredMode = NOT_REQUIRED)
-        @JsonProperty("contentSummary") String contentSummary
+        @JsonProperty("contentSummary")
+        String contentSummary
     ) {
 
         public static InnerArticleResponse from(Article article) {
