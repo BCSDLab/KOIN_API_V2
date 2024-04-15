@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
@@ -47,12 +48,12 @@ public class BusController implements BusApi {
     }
 
     @GetMapping("/timetable/v2")
-    public ResponseEntity<List<? extends BusTimetable>> getBusTimetableV2(
+    public ResponseEntity<BusTimetableResponse> getBusTimetableV2(
         @RequestParam(value = "bus_type") BusType busType,
         @RequestParam(value = "direction") String direction,
         @RequestParam(value = "region") String region
     ){
-        return ResponseEntity.ok().body(busService.getBusTimetable(busType, direction, region));
+        return ResponseEntity.ok().body(busService.getBusTimetableWithUpdatedAt(busType, direction, region));
     }
 
     @GetMapping("/courses")
