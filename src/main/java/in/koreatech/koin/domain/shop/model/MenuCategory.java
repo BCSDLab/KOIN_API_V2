@@ -7,7 +7,6 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
-import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -53,7 +52,7 @@ public final class MenuCategory extends BaseEntity {
         this.name = name;
     }
 
-    public void modifyCategory(ModifyCategoryRequest modifyCategoryRequest) {
-        this.name = modifyCategoryRequest.name();
+    public void modifyCategory(String name) {
+        this.name = name;
     }
 }
