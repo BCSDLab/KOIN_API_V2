@@ -52,7 +52,7 @@ public final class MenuCategory extends BaseEntity {
         this.name = name;
     }
 
-    public void modifyCategory(String name) {
+    public void modifyName(String name) {
         this.name = name;
     }
 }
