@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.shop.dto;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 import java.util.List;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
@@ -15,34 +18,34 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record MenuDetailResponse(
-    @Schema(example = "1", description = "고유id")
+    @Schema(example = "1", description = "고유id", requiredMode = REQUIRED)
     Integer id,
 
-    @Schema(example = "1", description = "메뉴가 소속된 상점의 고유 id ")
+    @Schema(example = "1", description = "메뉴가 소속된 상점의 고유 id", requiredMode = REQUIRED)
     Integer shopId,
 
-    @Schema(example = "탕수육", description = "이름")
+    @Schema(example = "탕수육", description = "이름", requiredMode = REQUIRED)
     String name,
 
-    @Schema(example = "false", description = "숨김 여부")
+    @Schema(example = "false", description = "숨김 여부", requiredMode = REQUIRED)
     Boolean isHidden,
 
-    @Schema(example = "false", description = "단일 메뉴 여부")
+    @Schema(example = "false", description = "단일 메뉴 여부", requiredMode = REQUIRED)
     Boolean isSingle,
 
-    @Schema(example = "7000", description = "단일 메뉴일때(is_single이 true일때)의 가격")
+    @Schema(example = "7000", description = "단일 메뉴일때(is_single이 true일때)의 가격", requiredMode = REQUIRED)
     Integer singlePrice,
 
-    @Schema(description = "옵션이 있는 메뉴일때(is_single이 false일때)의 가격")
+    @Schema(description = "옵션이 있는 메뉴일때(is_single이 false일때)의 가격", requiredMode = NOT_REQUIRED)
     List<InnerOptionPriceResponse> optionPrices,
 
-    @Schema(example = "돼지고기 + 튀김", description = "구성 설명")
+    @Schema(example = "돼지고기 + 튀김", description = "구성 설명", requiredMode = REQUIRED)
     String description,
 
-    @Schema(description = "소속되어 있는 메뉴 카테고리 고유 id 리스트")
+    @Schema(description = "소속되어 있는 메뉴 카테고리 고유 id 리스트", requiredMode = REQUIRED)
     List<Integer> categoryIds,
 
-    @Schema(description = "이미지 URL 리스트")
+    @Schema(description = "이미지 URL 리스트", requiredMode = NOT_REQUIRED)
     List<String> imageUrls
 ) {
 
@@ -93,12 +96,13 @@ public record MenuDetailResponse(
     }
 
     private record InnerOptionPriceResponse(
-        @Schema(example = "소", description = "옵션명")
+        @Schema(example = "소", description = "옵션명", requiredMode = REQUIRED)
         String option,
 
-        @Schema(example = "10000", description = "옵션에 대한 가격")
+        @Schema(example = "10000", description = "옵션에 대한 가격", requiredMode = REQUIRED)
         Integer price
     ) {
+
         public static InnerOptionPriceResponse of(MenuOption menuOption) {
             return new InnerOptionPriceResponse(menuOption.getOption(), menuOption.getPrice());
         }
