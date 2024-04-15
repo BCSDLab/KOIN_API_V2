@@ -22,6 +22,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
 import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
+import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.shop.model.ShopEventListener;
 import in.koreatech.koin.domain.user.model.StudentEventListener;
@@ -59,6 +60,9 @@ public abstract class AcceptanceTest {
 
     @MockBean
     protected ShopEventListener shopEventListener;
+
+    @MockBean
+    protected CoopEventListener coopEventListener;
 
     @Autowired
     private DBInitializer dataInitializer;
