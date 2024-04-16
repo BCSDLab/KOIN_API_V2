@@ -10,12 +10,12 @@ import jakarta.validation.constraints.NotNull;
 
 public record OwnerPasswordUpdateRequest(
     @NotNull(message = "비밀번호는 비워둘 수 없습니다.")
-    @Schema(description = "비밀번호", requiredMode = REQUIRED, example = "a0240120305812krlakdsflsa;1235")
+    @Schema(description = "비밀번호", example = "a0240120305812krlakdsflsa;1235", requiredMode = REQUIRED)
     String password,
 
     @Email(message = "이메일 형식이 올바르지 않습니다. ${validatedValue}")
     @NotNull(message = "이메일은 필수입니다.")
-    @Schema(description = "이메일 주소", requiredMode = REQUIRED, example = "asdf@gmail.com")
+    @Schema(description = "이메일 주소", example = "asdf@gmail.com", requiredMode = REQUIRED)
     @JsonProperty(value = "address")
     String email
 ) {

@@ -54,10 +54,10 @@ public class Comment extends BaseEntity {
     private Boolean isDeleted = false;
 
     @Transient
-    private Boolean grantEdit = false;
+    private boolean grantEdit = false;
 
     @Transient
-    private Boolean grantDelete = false;
+    private boolean grantDelete = false;
 
     public void updateAuthority(Integer userId) {
         if (this.userId.equals(userId)) {

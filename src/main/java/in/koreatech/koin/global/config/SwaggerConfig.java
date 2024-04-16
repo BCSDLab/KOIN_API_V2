@@ -36,6 +36,7 @@ public class SwaggerConfig {
         Server server = new Server();
         server.setUrl(serverUrl);
         return new OpenAPI()
+            .openapi("3.1.0")
             .components(new Components())
             .info(apiInfo())
             .addSecurityItem(securityRequirement)

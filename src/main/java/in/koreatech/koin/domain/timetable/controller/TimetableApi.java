@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
-import in.koreatech.koin.domain.timetable.dto.TimeTableRequest;
+import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
 import in.koreatech.koin.global.auth.Auth;
@@ -82,7 +82,7 @@ public interface TimetableApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/timetables")
     ResponseEntity<TimeTableResponse> createTimeTables(
-        @RequestBody TimeTableRequest timeTableRequest,
+        @RequestBody TimeTableCreateRequest timeTableCreateRequest,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
