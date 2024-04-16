@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.domain.ownershop.ShopEventCreateEvent;
+import in.koreatech.koin.domain.ownershop.EventArticleCreateEvent;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
@@ -24,7 +24,7 @@ public class ShopEventListener {
     private final UserRepository userRepository;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onShopEventCreate(ShopEventCreateEvent event) {
+    public void onShopEventCreate(EventArticleCreateEvent event) {
         var notifications = userRepository.findAllByDeviceTokenIsNotNull()
             .stream()
             .map(user -> notificationFactory.generateShopEventCreateNotification(

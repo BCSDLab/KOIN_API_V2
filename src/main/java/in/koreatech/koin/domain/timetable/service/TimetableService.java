@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
-import in.koreatech.koin.domain.timetable.dto.TimeTableRequest;
+import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
@@ -46,10 +46,10 @@ public class TimetableService {
     }
 
     @Transactional
-    public TimeTableResponse createTimeTables(Integer userId, TimeTableRequest request) {
+    public TimeTableResponse createTimeTables(Integer userId, TimeTableCreateRequest request) {
         User user = userRepository.getById(userId);
         Semester semester = semesterRepository.getBySemester(request.semester());
-        for (TimeTableRequest.InnerTimeTableRequest timeTableRequest : request.timetable()) {
+        for (TimeTableCreateRequest.InnerTimeTableRequest timeTableRequest : request.timetable()) {
             TimeTable timeTable = timeTableRequest.toTimeTable(user, semester);
             timeTableRepository.save(timeTable);
         }
