@@ -32,7 +32,7 @@ public class NotificationFactory {
         return new Notification(
             path,
             "%s코너가 품절되었습니다.".formatted(place),
-            "다른 식단 보러가기.",
+            "다른 식단 보러 가기.",
             null,
             NotificationType.MESSAGE,
             target
