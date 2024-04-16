@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -107,6 +108,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn(e.getMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다. " + e.getParsedString());
+    }
+
+    @ExceptionHandler(ClientAbortException.class)
+    public ResponseEntity<Object> handleClientAbortException(
+        HttpServletRequest request,
+        ClientAbortException e
+    ) {
+        logger.warn("클라이언트가 연결을 중단했습니다: " + e.getMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "클라이언트에 의해 연결이 중단되었습니다");
     }
 
     @ExceptionHandler(Exception.class)
