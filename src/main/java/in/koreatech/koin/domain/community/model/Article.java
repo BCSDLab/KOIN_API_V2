@@ -67,7 +67,7 @@ public class Article extends BaseEntity {
 
     @NotNull
     @Column(name = "hit", nullable = false)
-    private Integer hit;
+    private int hit;
 
     @Size(max = 45)
     @NotNull
