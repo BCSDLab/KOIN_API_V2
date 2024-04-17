@@ -90,6 +90,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
     }
 
+    @ExceptionHandler(RequestTooFastException.class)
+    public ResponseEntity<Object> handleRequestTooFastException(
+        HttpServletRequest request,
+        RequestTooFastException e
+    ) {
+        log.warn(e.getMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
+    }
+
     @ExceptionHandler(ExternalServiceException.class)
     public ResponseEntity<Object> handleExternalServiceException(
         HttpServletRequest request,
@@ -154,7 +164,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         return buildErrorResponse(HttpStatus.valueOf(statusCode.value()), ex.getMessage());
     }
-
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
