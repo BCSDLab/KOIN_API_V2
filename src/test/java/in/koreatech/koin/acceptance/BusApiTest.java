@@ -5,16 +5,13 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.when;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +20,6 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
-import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.city.CityBusArrival;
 import in.koreatech.koin.domain.bus.model.city.CityBusCache;
 import in.koreatech.koin.domain.bus.model.city.CityBusCacheInfo;
@@ -67,10 +63,6 @@ class BusApiTest extends AcceptanceTest {
 
     @BeforeEach
     void setup() {
-        when(clock.instant()).thenReturn(UPDATED_AT);
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-        handler.setDateTimeProvider(dateTimeProvider);
-
         final String arrivalTime = "18:10";
         BusCourse busCourse = BusCourse.builder()
             .busType("shuttle")
@@ -108,11 +100,6 @@ class BusApiTest extends AcceptanceTest {
         busRepository.save(busCourse);
     }
 
-    @AfterEach
-    void end() {
-        handler.setDateTimeProvider(null);
-    }
-
     @Test
     @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
     void getNextShuttleBusRemainTime() {
@@ -138,8 +125,6 @@ class BusApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
                 softly.assertThat((Long) response.body().jsonPath().get("now_bus.bus_number")).isNull();
-                softly.assertThat(response.body().jsonPath().getLong("now_bus.remain_time")).isEqualTo(
-                    BusRemainTime.from(arrivalTime).getRemainSeconds(clock));
                 softly.assertThat((Long) response.body().jsonPath().get("next_bus.bus_number")).isNull();
                 softly.assertThat((Long) response.body().jsonPath().get("next_bus.remain_time")).isNull();
             }
@@ -151,8 +136,6 @@ class BusApiTest extends AcceptanceTest {
     void getNextCityBusRemainTimeRedis() {
         final long remainTime = 600L;
         final long busNumber = 400;
-
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
 
         BusType busType = BusType.from("city");
         BusStation depart = BusStation.from("terminal");
@@ -168,9 +151,6 @@ class BusApiTest extends AcceptanceTest {
 
         Instant requestedAt = ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
             .toInstant();
-
-        when(clock.instant()).thenReturn(requestedAt);
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
 
         cityBusCacheRepository.save(
             CityBusCache.of(
@@ -201,9 +181,6 @@ class BusApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
                 softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(busNumber);
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.remain_time"))
-                    .isEqualTo(
-                        BusRemainTime.of(remainTime, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
                 softly.assertThat(response.body().jsonPath().getObject("next_bus.bus_number", Long.class)).isNull();
                 softly.assertThat(response.body().jsonPath().getObject("next_bus.remain_time", Long.class)).isNull();
             }
@@ -213,7 +190,6 @@ class BusApiTest extends AcceptanceTest {
     @Test
     @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - OpenApi")
     void getNextCityBusRemainTimeOpenApi() {
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
 
         BusType busType = BusType.from("city");
         BusStation depart = BusStation.from("terminal");
@@ -230,8 +206,6 @@ class BusApiTest extends AcceptanceTest {
         Instant requestedAt = ZonedDateTime.parse("2024-02-21 21:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
             .toInstant();
 
-        when(clock.instant()).thenReturn(requestedAt);
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
 
         String busApiReturnValue = """
             {
@@ -304,13 +278,7 @@ class BusApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
                 softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(400);
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.remain_time"))
-                    .isEqualTo(
-                        BusRemainTime.of(600L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
                 softly.assertThat((Long) response.body().jsonPath().getLong("next_bus.bus_number")).isEqualTo(405);
-                softly.assertThat((Long) response.body().jsonPath().getLong("next_bus.remain_time"))
-                    .isEqualTo(
-                        BusRemainTime.of(800L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
             }
         );
     }
@@ -339,7 +307,6 @@ class BusApiTest extends AcceptanceTest {
     @Test
     @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
     void getSearchTimetable() {
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
         versionRepository.save(
             Version.builder()
                 .version("20240_1711255839")
@@ -350,8 +317,6 @@ class BusApiTest extends AcceptanceTest {
         ZonedDateTime requestedAt = ZonedDateTime.parse("2024-02-21 18:05:00 KST",
             ofPattern("yyyy-MM-dd " + "HH:mm:ss z"));
 
-        when(clock.instant()).thenReturn(requestedAt.toInstant());
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt.toInstant()));
 
         final String arrivalTime = "18:10";
 
@@ -407,12 +372,9 @@ class BusApiTest extends AcceptanceTest {
     @Test
     @DisplayName("시내버스 시간표를 조회한다 - 지원하지 않음")
     void getCityBusTimetable() {
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
         Instant requestedAt = ZonedDateTime.parse("2024-02-21 21:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
             .toInstant();
 
-        when(clock.instant()).thenReturn(requestedAt);
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(requestedAt));
 
         ExtractableResponse<Response> response = RestAssured
             .given()

@@ -2,8 +2,6 @@ package in.koreatech.koin;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-import java.time.Clock;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,8 +9,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.auditing.AuditingHandler;
-import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -21,6 +17,8 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
+import in.koreatech.koin.config.TestJpaConfiguration;
+import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
 import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
@@ -30,7 +28,7 @@ import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@Import(DBInitializer.class)
+@Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class})
 @ActiveProfiles("test")
 public abstract class AcceptanceTest {
 
@@ -40,17 +38,8 @@ public abstract class AcceptanceTest {
     @LocalServerPort
     protected int port;
 
-    @MockBean
-    protected Clock clock;
-
-    @MockBean
-    protected DateTimeProvider dateTimeProvider;
-
     @SpyBean
     protected CityBusOpenApiClient cityBusOpenApiClient;
-
-    @SpyBean
-    protected AuditingHandler handler;
 
     @MockBean
     protected OwnerEventListener ownerEventListener;
@@ -89,7 +78,7 @@ public abstract class AcceptanceTest {
     }
 
     static {
-        mySqlContainer = (MySQLContainer)new MySQLContainer("mysql:8.0.29")
+        mySqlContainer = (MySQLContainer) new MySQLContainer("mysql:8.0.29")
             .withDatabaseName("test")
             .withUsername(ROOT)
             .withPassword(ROOT_PASSWORD)

@@ -7,12 +7,9 @@ import static io.restassured.RestAssured.given;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -174,10 +171,6 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("날짜가 비어있다. - 오늘 날짜를 받아 조회한다.")
     void nullDate() {
-        when(clock.instant()).thenReturn(
-            ZonedDateTime.parse("2024-03-16 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-
         Dining request1 = Dining.builder()
             .date(LocalDate.parse("2024-03-16"))
             .type("LUNCH")
@@ -254,13 +247,6 @@ class DiningApiTest extends AcceptanceTest {
 
         String token = jwtProvider.createToken(user);
 
-        when(clock.instant()).thenReturn(ZonedDateTime.parse(
-                "2024-04-04 18:00:00 KST",
-                ofPattern("yyyy-MM-dd " + "HH:mm:ss z")
-            )
-            .toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-
         Dining dining1 = Dining.builder()
             .date(LocalDate.parse("2024-03-11"))
             .type("LUNCH")
@@ -270,7 +256,7 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .isChanged(LocalDateTime.now(clock))
+            .isChanged(LocalDateTime.now())
             .build();
 
         Dining dining2 = Dining.builder()
@@ -300,9 +286,9 @@ class DiningApiTest extends AcceptanceTest {
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(diningRepository.getById(1).getIsChanged()).isEqualTo(LocalDateTime.now(clock));
+                softly.assertThat(diningRepository.getById(1).getIsChanged()).isEqualTo(LocalDateTime.now());
 
-                softly.assertThat(diningRepository.getById(2).getSoldOut()).isEqualTo(LocalDateTime.now(clock));
+                softly.assertThat(diningRepository.getById(2).getSoldOut()).isEqualTo(LocalDateTime.now());
                 softly.assertThat(diningRepository.getById(2).getIsChanged()).isNull();
             }
         );
@@ -449,12 +435,6 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("품절 이벤트가 발생한다.")
     void checkSoldOutEventListener() {
-        when(clock.instant()).thenReturn(ZonedDateTime.parse(
-                "2024-04-04 18:00:00 KST",
-                ofPattern("yyyy-MM-dd " + "HH:mm:ss z")
-            )
-            .toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
 
         User user = User.builder()
             .password("1234")
@@ -486,7 +466,7 @@ class DiningApiTest extends AcceptanceTest {
             .kcal(881)
             .menu("""
                 ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .isChanged(LocalDateTime.now(clock))
+            .isChanged(LocalDateTime.now())
             .build();
 
         diningRepository.save(dining);

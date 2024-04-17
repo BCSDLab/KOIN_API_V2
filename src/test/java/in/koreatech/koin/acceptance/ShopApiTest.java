@@ -3,14 +3,10 @@ package in.koreatech.koin.acceptance;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.mockito.Mockito.when;
 
-import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
@@ -98,10 +94,6 @@ class ShopApiTest extends AcceptanceTest {
 
     @BeforeEach
     void setUp() {
-        when(clock.instant()).thenReturn(
-            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-
         OwnerAttachment attachment = OwnerAttachment.builder()
             .url("https://test.com/test.jpg")
             .isDeleted(false)
@@ -836,9 +828,6 @@ class ShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("특정 상점의 이벤트들을 조회한다.")
     void getShopEvents() {
-        when(clock.instant()).thenReturn(Instant.now());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-
         var now = LocalDate.of(2024, 2, 21);
         var user = owner.getUser();
         Shop shopRequest = Shop.builder()
@@ -975,8 +964,6 @@ class ShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("이벤트 진행중인 상점의 정보를 조회한다.")
     void getShopWithEvents() {
-        when(clock.instant()).thenReturn(Instant.now());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
 
         var now = LocalDate.of(2024, 2, 21);
         var user = owner.getUser();
@@ -1076,9 +1063,6 @@ class ShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("이벤트 진행중이지 않은 상점의 정보를 조회한다.")
     void getShopWithoutEvents() {
-        when(clock.instant()).thenReturn(
-            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd HH:mm:ss z")).toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
 
         var now = LocalDate.of(2024, 2, 21);
         var user = owner.getUser();
@@ -1171,8 +1155,6 @@ class ShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("이벤트 베너 조회")
     void ownerShopDeleteEvent() {
-        when(clock.instant()).thenReturn(Instant.now());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
         EventArticle savedEvent1 = createEventArticle(
             shop,
             "테스트 제목1",
