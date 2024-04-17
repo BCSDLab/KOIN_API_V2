@@ -71,7 +71,7 @@ public record ShopResponse(
             shop.getAddress(),
             shop.isDelivery(),
             shop.getDeliveryPrice(),
-            shop.getDescription(),
+            shop.getDescription().isBlank()? "-": shop.getDescription(),
             shop.getId(),
             shop.getShopImages().stream()
                 .map(ShopImage::getImageUrl)
