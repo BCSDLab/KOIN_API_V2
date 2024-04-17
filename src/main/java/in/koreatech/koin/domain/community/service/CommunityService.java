@@ -71,7 +71,7 @@ public class CommunityService {
         return false;
     }
 
-    public ArticlesResponse getArticles(Integer boardId, Long page, Long limit) {
+    public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit) {
         Criteria criteria = Criteria.of(page, limit);
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);

@@ -20,8 +20,8 @@ public class AdminLandController implements AdminLandApi {
     @Override
     @GetMapping("/admin/lands")
     public ResponseEntity<AdminLandsResponse> getLands(
-        @RequestParam(name = "page", defaultValue = "1") Long page,
-        @RequestParam(name = "limit", defaultValue = "10", required = false) Long limit,
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
         @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted
     ) {
         return ResponseEntity.ok().body(adminLandService.getLands(page, limit, isDeleted));

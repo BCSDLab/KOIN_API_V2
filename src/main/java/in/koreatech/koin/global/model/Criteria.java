@@ -6,25 +6,25 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class Criteria {
-    private static final Long DEFAULT_PAGE = 1L;
-    private static final Long MIN_PAGE = 1L;
+    private static final Integer DEFAULT_PAGE = 1;
+    private static final Integer MIN_PAGE = 1;
 
-    private static final Long DEFAULT_LIMIT = 10L;
-    private static final Long MIN_LIMIT = 1L;
-    private static final Long MAX_LIMIT = 50L;
+    private static final Integer DEFAULT_LIMIT = 10;
+    private static final Integer MIN_LIMIT = 1;
+    private static final Integer MAX_LIMIT = 50;
 
     private final int page;
     private final int limit;
 
-    public static Criteria of(Long page, Long limit) {
-        return new Criteria(validatePage(page), validateLimit(limit));
+    public static Criteria of(Integer page, Integer limit) {
+        return new Criteria(validateAndCalculatePage(page), validateAndCalculateLimit(limit));
     }
 
-    public static Criteria of(Long page, Long limit, Long total) {
-        return new Criteria(validatePage(page, total, limit), validateLimit(limit));
+    public static Criteria of(Integer page, Integer limit, Long total) {
+        return new Criteria(validateAndCalculatePage(page, limit, total), validateAndCalculateLimit(limit));
     }
 
-    private static int validatePage(Long page) {
+    private static int validateAndCalculatePage(Integer page) {
         if (page == null) {
             page = DEFAULT_PAGE;
         }
@@ -32,11 +32,11 @@ public class Criteria {
             page = MIN_PAGE;
         }
         page -= 1; // start from 0
-        return page.intValue();
+        return page;
     }
 
-    private static int validatePage(Long page, Long total, Long limit) {
-        long totalPage = total.equals(0L) ? 1L : (int) Math.ceil((double) total / limit);
+    private static int validateAndCalculatePage(Integer page, Integer limit, Long total) {
+        int totalPage = total.equals(0L) ? 1 : (int)Math.ceil((double)total / limit);
 
         if (page == null) {
             page = DEFAULT_PAGE;
@@ -49,10 +49,10 @@ public class Criteria {
         }
 
         page -= 1; // start from 0
-        return page.intValue();
+        return page;
     }
 
-    private static int validateLimit(Long limit) {
+    private static int validateAndCalculateLimit(Integer limit) {
         if (limit == null) {
             limit = DEFAULT_LIMIT;
         }
@@ -62,6 +62,6 @@ public class Criteria {
         if (limit > MAX_LIMIT) {
             limit = MAX_LIMIT;
         }
-        return limit.intValue();
+        return limit;
     }
 }

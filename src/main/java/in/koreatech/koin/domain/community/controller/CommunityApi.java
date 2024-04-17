@@ -49,8 +49,8 @@ public interface CommunityApi {
     @GetMapping("/articles")
     ResponseEntity<ArticlesResponse> getArticles(
         @RequestParam Integer boardId,
-        @RequestParam(required = false) Long page,
-        @RequestParam(required = false) Long limit
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit
     );
 
     @ApiResponses(

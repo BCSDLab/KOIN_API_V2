@@ -20,7 +20,7 @@ public class AdminLandService {
     private final AdminLandRepository adminLandRepository;
 
     @Transactional(readOnly = true)
-    public AdminLandsResponse getLands(Long page, Long limit, Boolean isDeleted) {
+    public AdminLandsResponse getLands(Integer page, Integer limit, Boolean isDeleted) {
 
         // page > totalPage인 경우 totalPage로 조회하기 위해
         Long total = adminLandRepository.countAllByIsDeleted(isDeleted);

@@ -25,8 +25,8 @@ public interface AdminLandApi {
     @Operation(summary = "복덕방 목록 조회")
     @GetMapping("/admin/lands")
     ResponseEntity<AdminLandsResponse> getLands(
-        @RequestParam(name = "page", defaultValue = "1") Long page,
-        @RequestParam(name = "limit", defaultValue = "10", required = false) Long limit,
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
         @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted
     );
 }
