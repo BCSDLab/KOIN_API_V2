@@ -18,13 +18,13 @@ import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
+import in.koreatech.koin.domain.owner.model.EmailVerifyRequest;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.owner.model.OwnerEmailRequest;
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerInVerification;
 import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
-import in.koreatech.koin.domain.owner.repository.OwnerEmailRequestRedisRepository;
+import in.koreatech.koin.domain.owner.repository.EmailVerifyRequestRedisRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRedisRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
@@ -57,11 +57,11 @@ public class OwnerService {
     private final ApplicationEventPublisher eventPublisher;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
     private final OwnerInVerificationRedisRepository ownerInVerificationRedisRepository;
-    private final OwnerEmailRequestRedisRepository ownerEmailRequestRedisRepository;
+    private final EmailVerifyRequestRedisRepository emailVerifyRequestRedisRepository;
 
     @Transactional
     public void requestSignUpEmailVerification(VerifyEmailRequest request) {
-        ownerEmailRequestRedisRepository.findById(request.email()).ifPresent(it -> {
+        emailVerifyRequestRedisRepository.findById(request.email()).ifPresent(it -> {
             throw new RequestTooFastException("요청이 너무 빠릅니다. %d초 뒤에 다시 시도해주세요".formatted(it.getExpiration()));
         });
         userRepository.findByEmail(request.email()).ifPresent(user -> {
@@ -74,7 +74,7 @@ public class OwnerService {
             certificationCode
         );
         ownerInVerificationRedisRepository.save(ownerInVerification);
-        ownerEmailRequestRedisRepository.save(new OwnerEmailRequest(request.email()));
+        emailVerifyRequestRedisRepository.save(new EmailVerifyRequest(request.email()));
         eventPublisher.publishEvent(new OwnerEmailRequestEvent(ownerInVerification.getEmail()));
     }
 

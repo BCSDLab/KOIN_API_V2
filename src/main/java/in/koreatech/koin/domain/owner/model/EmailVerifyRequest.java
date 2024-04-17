@@ -7,11 +7,11 @@ import org.springframework.data.redis.core.TimeToLive;
 import lombok.Getter;
 
 /**
- * 사장님 이메일 재요청 시간제한
+ * 이메일 재요청 시간제한
  */
 @Getter
-@RedisHash(value = "owneremail@")
-public class OwnerEmailRequest {
+@RedisHash(value = "emailverify@")
+public class EmailVerifyRequest {
 
     private static final long CACHE_EXPIRE_SECOND = 60L;
 
@@ -21,7 +21,7 @@ public class OwnerEmailRequest {
     @TimeToLive
     private Long expiration;
 
-    public OwnerEmailRequest(String email) {
+    public EmailVerifyRequest(String email) {
         this.email = email;
         this.expiration = CACHE_EXPIRE_SECOND;
     }
