@@ -35,6 +35,7 @@ public record ModifyShopRequest(
     Integer deliveryPrice,
 
     @Schema(example = "string", description = "설명", requiredMode = NOT_REQUIRED)
+    @NotNull(message = "상점 설명은 null일 수 없습니다.")
     String description,
 
     @Schema(description = "이미지 URL 리스트", example = """

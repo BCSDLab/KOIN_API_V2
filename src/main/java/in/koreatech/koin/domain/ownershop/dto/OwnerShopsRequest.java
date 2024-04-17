@@ -38,7 +38,7 @@ public record OwnerShopsRequest(
     Integer deliveryPrice,
 
     @Schema(description = "기타정보", example = "이번주 전 메뉴 10% 할인 이벤트합니다.", requiredMode = REQUIRED)
-    @NotBlank(message = "상점 설명을 입력해주세요.")
+    @NotNull(message = "상점 설명은 null일 수 없습니다.")
     String description,
 
     @Schema(description = "이미지 URL 리스트", example = """
