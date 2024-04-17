@@ -74,6 +74,24 @@ public class TimetableService {
 
     private TimeTableResponse getTimeTableResponse(Integer userId, Semester semester) {
         List<TimeTable> timeTables = timeTableRepository.findAllByUserIdAndSemesterId(userId, semester.getId());
-        return TimeTableResponse.of(semester.getSemester(), timeTables);
+        Integer grades = timeTables.stream()
+            .mapToInt(timeTable -> Integer.parseInt(timeTable.getGrades()))
+            .sum();
+        Integer totalGrades = calculateTotalGrades(userId);
+
+        return TimeTableResponse.of(semester.getSemester(), timeTables, grades, totalGrades);
+    }
+
+    private int calculateTotalGrades(Integer userId) {
+        int totalGrades = 0;
+        List<Semester> semesters = semesterRepository.findAllByOrderBySemesterDesc();
+
+        for (Semester semester : semesters) {
+            totalGrades += timeTableRepository.findAllByUserIdAndSemesterId(userId, semester.getId()).stream()
+                .mapToInt(timeTable -> Integer.parseInt(timeTable.getGrades()))
+                .sum();
+        }
+
+        return totalGrades;
     }
 }

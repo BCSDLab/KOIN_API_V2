@@ -357,6 +357,10 @@ class TimetableApiTest extends AcceptanceTest {
                     isEqualTo("20192");
                 softly.assertThat(response.body().jsonPath().getList("timetable"))
                     .hasSize(3);
+                softly.assertThat(response.body().jsonPath().getInt("grades")).
+                    isEqualTo(Integer.parseInt(timeTable1.getGrades())
+                        +Integer.parseInt(timeTable2.getGrades())
+                        +Integer.parseInt(timeTable3.getGrades()));
 
                 softly.assertThat(response.body().jsonPath().getInt("timetable[0].id")).isEqualTo(1);
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].regular_number")).isEqualTo("28");
