@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.admin.land.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminLandsResponse(
 
     @Schema(description = "조건에 해당하는 총 집의 수", example = "57", requiredMode = REQUIRED)
@@ -32,13 +33,13 @@ public record AdminLandsResponse(
     @Schema(description = "집 정보 리스트", requiredMode = REQUIRED)
     List<AdminLandResponse> lands
 ) {
-    public static AdminLandsResponse of(Page<Land> result, Criteria criteria) {
+    public static AdminLandsResponse of(Page<Land> pagedResult, Criteria criteria) {
         return new AdminLandsResponse(
-            result.getTotalElements(),
-            result.getContent().size(),
-            result.getTotalPages(),
+            pagedResult.getTotalElements(),
+            pagedResult.getContent().size(),
+            pagedResult.getTotalPages(),
             criteria.getPage() + 1,
-            result.getContent()
+            pagedResult.getContent()
                 .stream()
                 .map(AdminLandResponse::from)
                 .collect(Collectors.toList())

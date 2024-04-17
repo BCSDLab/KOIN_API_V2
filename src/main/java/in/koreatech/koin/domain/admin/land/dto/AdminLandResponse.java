@@ -1,17 +1,20 @@
 package in.koreatech.koin.domain.admin.land.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.land.model.Land;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminLandResponse(
-    @Schema(description = "고유 id", example = "1", required = true)
+    @Schema(description = "고유 id", example = "1", requiredMode = REQUIRED)
     Integer id,
 
-    @Schema(description = "이름", example = "금실타운", required = true)
+    @Schema(description = "이름", example = "금실타운", requiredMode = REQUIRED)
     String name,
 
     @Schema(description = "종류", example = "원룸")
