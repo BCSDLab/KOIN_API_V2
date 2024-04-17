@@ -20,7 +20,7 @@ public class OwnerInVerification {
     private boolean isAuthed = false;
 
     @TimeToLive(unit = TimeUnit.HOURS)
-    private final Long expiration;
+    private Long expiration;
 
     public OwnerInVerification(String email, String certificationCode) {
         this.email = email;

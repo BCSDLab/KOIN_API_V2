@@ -5,11 +5,10 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequest;
-import in.koreatech.koin.domain.owner.model.OwnerInVerification;
 
-public interface OwnerEmailRequestRepository extends Repository<OwnerEmailRequest, String> {
+public interface OwnerEmailRequestRedisRepository extends Repository<OwnerEmailRequest, String> {
 
-    OwnerInVerification save(OwnerEmailRequest ownerInVerification);
+    OwnerEmailRequest save(OwnerEmailRequest ownerEmailRequest);
 
     Optional<OwnerEmailRequest> findById(String email);
 }

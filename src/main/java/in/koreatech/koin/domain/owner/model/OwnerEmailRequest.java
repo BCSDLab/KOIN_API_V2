@@ -10,7 +10,7 @@ import lombok.Getter;
  * 사장님 이메일 재요청 시간제한
  */
 @Getter
-@RedisHash(value = "owner@")
+@RedisHash(value = "owneremail@")
 public class OwnerEmailRequest {
 
     private static final long CACHE_EXPIRE_SECOND = 60L;
@@ -19,7 +19,7 @@ public class OwnerEmailRequest {
     private String email;
 
     @TimeToLive
-    private final Long expiration;
+    private Long expiration;
 
     public OwnerEmailRequest(String email) {
         this.email = email;

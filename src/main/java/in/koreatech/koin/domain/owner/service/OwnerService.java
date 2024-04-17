@@ -24,7 +24,7 @@ import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerInVerification;
 import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
-import in.koreatech.koin.domain.owner.repository.OwnerEmailRequestRepository;
+import in.koreatech.koin.domain.owner.repository.OwnerEmailRequestRedisRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRedisRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
@@ -57,12 +57,12 @@ public class OwnerService {
     private final ApplicationEventPublisher eventPublisher;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
     private final OwnerInVerificationRedisRepository ownerInVerificationRedisRepository;
-    private final OwnerEmailRequestRepository ownerEmailRequestRepository;
+    private final OwnerEmailRequestRedisRepository ownerEmailRequestRedisRepository;
 
     @Transactional
     public void requestSignUpEmailVerification(VerifyEmailRequest request) {
-        ownerEmailRequestRepository.findById(request.email()).ifPresent(it -> {
-            throw new RequestTooFastException("%d초 뒤에 다시 시도해주세요".formatted(it.getExpiration()));
+        ownerEmailRequestRedisRepository.findById(request.email()).ifPresent(it -> {
+            throw new RequestTooFastException("요청이 너무 빠릅니다. %d초 뒤에 다시 시도해주세요".formatted(it.getExpiration()));
         });
         userRepository.findByEmail(request.email()).ifPresent(user -> {
             throw DuplicationEmailException.withDetail("email: " + request.email());
@@ -74,7 +74,7 @@ public class OwnerService {
             certificationCode
         );
         ownerInVerificationRedisRepository.save(ownerInVerification);
-        ownerEmailRequestRepository.save(new OwnerEmailRequest(request.email()));
+        ownerEmailRequestRedisRepository.save(new OwnerEmailRequest(request.email()));
         eventPublisher.publishEvent(new OwnerEmailRequestEvent(ownerInVerification.getEmail()));
     }
 
