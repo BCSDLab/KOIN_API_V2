@@ -18,38 +18,38 @@ public final class ActivityFixture {
         this.activityRepository = activityRepository;
     }
 
-    public ActivityBuilder builder() {
-        return new ActivityBuilder();
+    public ActivityFixtureBuilder builder() {
+        return new ActivityFixtureBuilder();
     }
 
-    public final class ActivityBuilder {
+    public final class ActivityFixtureBuilder {
         private String title;
         private String description;
         private String imageUrls;
         private LocalDate date;
         private boolean isDeleted;
 
-        public ActivityBuilder title(String title) {
+        public ActivityFixtureBuilder title(String title) {
             this.title = title;
             return this;
         }
 
-        public ActivityBuilder description(String description) {
+        public ActivityFixtureBuilder description(String description) {
             this.description = description;
             return this;
         }
 
-        public ActivityBuilder imageUrls(String imageUrls) {
+        public ActivityFixtureBuilder imageUrls(String imageUrls) {
             this.imageUrls = imageUrls;
             return this;
         }
 
-        public ActivityBuilder date(LocalDate date) {
+        public ActivityFixtureBuilder date(LocalDate date) {
             this.date = date;
             return this;
         }
 
-        public ActivityBuilder isDeleted(boolean isDeleted) {
+        public ActivityFixtureBuilder isDeleted(boolean isDeleted) {
             this.isDeleted = isDeleted;
             return this;
         }
