@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.model;
+package in.koreatech.koin.global.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +20,10 @@ public class Criteria {
         return new Criteria(validatePage(page), validateLimit(limit));
     }
 
+    public static Criteria of(Long page, Long limit, Long total) {
+        return new Criteria(validatePage(page, total, limit), validateLimit(limit));
+    }
+
     private static int validatePage(Long page) {
         if (page == null) {
             page = DEFAULT_PAGE;
@@ -27,6 +31,23 @@ public class Criteria {
         if (page < MIN_PAGE) {
             page = MIN_PAGE;
         }
+        page -= 1; // start from 0
+        return page.intValue();
+    }
+
+    private static int validatePage(Long page, Long total, Long limit) {
+        long totalPage = total.equals(0L) ? 1L : (int) Math.ceil((double) total / limit);
+
+        if (page == null) {
+            page = DEFAULT_PAGE;
+        }
+        if (page < MIN_PAGE) {
+            page = MIN_PAGE;
+        }
+        if (page > totalPage) {
+            page = totalPage;
+        }
+
         page -= 1; // start from 0
         return page.intValue();
     }

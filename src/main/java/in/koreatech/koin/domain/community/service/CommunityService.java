@@ -18,7 +18,7 @@ import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.domain.community.model.ArticleViewLog;
 import in.koreatech.koin.domain.community.model.Board;
 import in.koreatech.koin.domain.community.model.BoardTag;
-import in.koreatech.koin.domain.community.model.Criteria;
+import in.koreatech.koin.global.model.Criteria;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.repository.BoardRepository;
