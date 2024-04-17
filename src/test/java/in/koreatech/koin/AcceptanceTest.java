@@ -96,11 +96,11 @@ public abstract class AcceptanceTest {
             .withCommand("--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci");
 
         redisContainer = new GenericContainer<>(
-            DockerImageName.parse("redis:4.0.10"))
+            DockerImageName.parse("redis:7.0.9"))
             .withExposedPorts(6379);
 
         mongoContainer = new GenericContainer<>(
-            DockerImageName.parse("mongo:7.0"))
+            DockerImageName.parse("mongo:6.0.14"))
             .withExposedPorts(27017);
 
         mySqlContainer.start();
