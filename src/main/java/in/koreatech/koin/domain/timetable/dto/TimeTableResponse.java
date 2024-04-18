@@ -22,10 +22,10 @@ public record TimeTableResponse(
     List<InnerTimeTableResponse> timetable,
 
     @Schema(name = "해당 학기 학점", example = "21")
-    Integer credit,
+    Integer grades,
 
     @Schema(name = "전체 학기 학점", example = "121")
-    Integer totalCredit
+    Integer totalGrades
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
@@ -93,12 +93,12 @@ public record TimeTableResponse(
 
     }
 
-    public static TimeTableResponse of(String semester, List<TimeTable> timeTables, Integer credit, Integer totalCredit) {
+    public static TimeTableResponse of(String semester, List<TimeTable> timeTables, Integer grades, Integer totalGrades) {
         return new TimeTableResponse(
             semester,
             InnerTimeTableResponse.from(timeTables),
-            credit,
-            totalCredit
+            grades,
+            totalGrades
         );
     }
 

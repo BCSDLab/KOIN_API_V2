@@ -362,11 +362,11 @@ class TimetableApiTest extends AcceptanceTest {
                     isEqualTo("20192");
                 softly.assertThat(response.body().jsonPath().getList("timetable"))
                     .hasSize(3);
-                softly.assertThat(response.body().jsonPath().getInt("credit")).
+                softly.assertThat(response.body().jsonPath().getInt("grades")).
                     isEqualTo(Integer.parseInt(timeTable1.getGrades())
                         +Integer.parseInt(timeTable2.getGrades())
                         +Integer.parseInt(timeTable3.getGrades()));
-                softly.assertThat(response.body().jsonPath().getInt("total_credit")).
+                softly.assertThat(response.body().jsonPath().getInt("total_grades")).
                     isEqualTo(Integer.parseInt(timeTable1.getGrades())
                         +Integer.parseInt(timeTable2.getGrades())
                         +Integer.parseInt(timeTable3.getGrades()));
@@ -427,8 +427,8 @@ class TimetableApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        Assertions.assertThat(responseA.body().jsonPath().getInt("credit")).isEqualTo(0);
-        Assertions.assertThat(responseA.body().jsonPath().getInt("total_credit")).isEqualTo(
+        Assertions.assertThat(responseA.body().jsonPath().getInt("grades")).isEqualTo(0);
+        Assertions.assertThat(responseA.body().jsonPath().getInt("total_grades")).isEqualTo(
             Integer.parseInt(timeTable1.getGrades())
                 +Integer.parseInt(timeTable2.getGrades())
                 +Integer.parseInt(timeTable3.getGrades())
