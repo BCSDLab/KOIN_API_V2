@@ -14,12 +14,11 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class AdminLandService {
 
     private final AdminLandRepository adminLandRepository;
 
-    @Transactional(readOnly = true)
     public AdminLandsResponse getLands(Integer page, Integer limit, Boolean isDeleted) {
 
         // page > totalPage인 경우 totalPage로 조회하기 위해
