@@ -17,19 +17,17 @@ import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
 class AuthApiTest extends AcceptanceTest {
+
+    @Autowired
+    private UserFixture userFixture;
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private UserTokenRepository tokenRepository;
-
-    @Autowired
-    private UserFixture userFixture;
 
     @Test
     @DisplayName("사용자가 로그인을 수행한다")
@@ -45,7 +43,7 @@ class AuthApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .body("""
                 {
@@ -92,7 +90,7 @@ class AuthApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .body("""
                 {

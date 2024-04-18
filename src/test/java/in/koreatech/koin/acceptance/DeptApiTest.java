@@ -9,8 +9,6 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.dept.model.Dept;
 import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
 class DeptApiTest extends AcceptanceTest {
 
@@ -21,7 +19,7 @@ class DeptApiTest extends AcceptanceTest {
         Dept dept = Dept.COMPUTER_SCIENCE;
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("dept_num", dept.getNumbers().get(0))
@@ -45,7 +43,7 @@ class DeptApiTest extends AcceptanceTest {
         final int DEPT_SIZE = Dept.values().length - 1;
 
         //when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/depts")

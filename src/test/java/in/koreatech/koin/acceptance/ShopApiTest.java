@@ -188,7 +188,7 @@ class ShopApiTest extends AcceptanceTest {
         menuCategoryMap.map(menu, menuCategory);
         menuRepository.save(menu);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
@@ -265,7 +265,7 @@ class ShopApiTest extends AcceptanceTest {
 
         menuRepository.save(menu);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
@@ -338,7 +338,7 @@ class ShopApiTest extends AcceptanceTest {
 
         menuRepository.save(menu);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/shops/{shopId}/menus/categories", menu.getShopId())
@@ -415,7 +415,7 @@ class ShopApiTest extends AcceptanceTest {
         ShopImage newShopImage1 = shopImageRepository.save(shopImage1);
         ShopImage newShopImage2 = shopImageRepository.save(shopImage2);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/shops/{shopId}", shop.getId())

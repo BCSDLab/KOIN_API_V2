@@ -31,8 +31,6 @@ import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
 class DiningApiTest extends AcceptanceTest {
 
@@ -274,7 +272,7 @@ class DiningApiTest extends AcceptanceTest {
         diningRepository.save(dining2);
         SoldOutRequest soldOutRequest = new SoldOutRequest(2, true);
 
-        ExtractableResponse<Response> response = given()
+        var response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
             .body(soldOutRequest)
@@ -326,7 +324,7 @@ class DiningApiTest extends AcceptanceTest {
         diningRepository.save(dining1);
         SoldOutRequest soldOutRequest = new SoldOutRequest(1, true);
 
-        ExtractableResponse<Response> response = given()
+        var response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
             .body(soldOutRequest)

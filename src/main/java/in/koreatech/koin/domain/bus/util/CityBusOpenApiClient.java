@@ -76,7 +76,7 @@ public class CityBusOpenApiClient {
 
     public List<CityBusRemainTime> getBusRemainTime(String nodeId) {
         Version version = versionRepository.getByType(VersionType.CITY);
-        if (isCacheExpired(version, clock)) {
+        if (isCacheExpired(version, clock) || cityBusCacheRepository.findById(nodeId).isEmpty()) {
             storeRemainTimeByOpenApi();
         }
         return getCityBusArrivalInfoByCache(nodeId);

@@ -37,8 +37,6 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
 class OwnerApiTest extends AcceptanceTest {
 
@@ -117,7 +115,7 @@ class OwnerApiTest extends AcceptanceTest {
         String token = jwtProvider.createToken(owner.getUser());
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
@@ -730,7 +728,7 @@ class OwnerApiTest extends AcceptanceTest {
         String token = jwtProvider.createToken(owner.getUser());
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()

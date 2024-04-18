@@ -26,8 +26,6 @@ import in.koreatech.koin.domain.user.model.UserIdentity;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
 class CommunityApiTest extends AcceptanceTest {
 
@@ -141,7 +139,7 @@ class CommunityApiTest extends AcceptanceTest {
         Comment comment = commentRepository.save(request);
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/articles/{articleId}", article1.getId())
@@ -213,7 +211,7 @@ class CommunityApiTest extends AcceptanceTest {
         comment.updateAuthority(student.getUser().getId());
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
@@ -239,7 +237,7 @@ class CommunityApiTest extends AcceptanceTest {
         // given
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
@@ -307,7 +305,7 @@ class CommunityApiTest extends AcceptanceTest {
         final long PAGE_NUMBER_ZERO = 0L;
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
@@ -332,7 +330,7 @@ class CommunityApiTest extends AcceptanceTest {
         final long PAGE_NUMBER_MINUS = -10L;
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
@@ -357,7 +355,7 @@ class CommunityApiTest extends AcceptanceTest {
         final long PAGE_LIMIT_ZERO = 0L;
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
@@ -382,7 +380,7 @@ class CommunityApiTest extends AcceptanceTest {
         final long PAGE_LIMIT_ZERO = -10L;
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
@@ -428,7 +426,7 @@ class CommunityApiTest extends AcceptanceTest {
         }
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
@@ -475,7 +473,7 @@ class CommunityApiTest extends AcceptanceTest {
         }
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
@@ -500,7 +498,7 @@ class CommunityApiTest extends AcceptanceTest {
         final long PAGE_NUMBER = 10000L;
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
@@ -548,7 +546,7 @@ class CommunityApiTest extends AcceptanceTest {
         }
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/articles/hot/list")

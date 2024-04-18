@@ -54,8 +54,6 @@ import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
 class OwnerShopApiTest extends AcceptanceTest {
 
@@ -220,7 +218,7 @@ class OwnerShopApiTest extends AcceptanceTest {
         Shop shop2 = shopRepository.save(shopRequest);
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
@@ -294,7 +292,7 @@ class OwnerShopApiTest extends AcceptanceTest {
         shopCategoryRepository.save(shopCategory1);
         shopCategoryRepository.save(shopCategory2);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
@@ -380,7 +378,7 @@ class OwnerShopApiTest extends AcceptanceTest {
         shopImageRepository.save(shopImage1);
         shopImageRepository.save(shopImage2);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
@@ -489,7 +487,7 @@ class OwnerShopApiTest extends AcceptanceTest {
 
         menuRepository.save(menu1);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .param("shopId", SHOP_ID)
@@ -572,7 +570,7 @@ class OwnerShopApiTest extends AcceptanceTest {
 
         menuRepository.save(menu);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .param("shopId", SHOP_ID)
             .header("Authorization", "Bearer " + token)
@@ -647,7 +645,7 @@ class OwnerShopApiTest extends AcceptanceTest {
 
         menuRepository.save(menu);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
@@ -700,7 +698,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .build();
         MenuCategory svaedMenuCategory = menuCategoryRepository.save(menuCategory);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
@@ -724,7 +722,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .build();
         Menu savedMenu = menuRepository.save(menu);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
@@ -747,7 +745,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .build();
         MenuCategory savedMenuCategory = menuCategoryRepository.save(menuCategory);
         String categoryId = savedMenuCategory.getId().toString();
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -810,7 +808,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .build();
         MenuCategory savedMenuCategory = menuCategoryRepository.save(menuCategory);
         String categoryId = savedMenuCategory.getId().toString();
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -861,7 +859,7 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("사장님이 메뉴 카테고리를 추가한다.")
     void createMenuCategory() {
         // given
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -889,7 +887,7 @@ class OwnerShopApiTest extends AcceptanceTest {
         // given
         Menu createdMenu = createMenu();
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -942,7 +940,7 @@ class OwnerShopApiTest extends AcceptanceTest {
         // given
         Menu createdMenu = createMenu();
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -999,7 +997,7 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("사장님이 상점을 수정한다.")
     void modifyShop() {
         // given
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -1093,7 +1091,7 @@ class OwnerShopApiTest extends AcceptanceTest {
         MenuCategory savedMenuCategory = menuCategoryRepository.save(menuCategory1);
         menuCategoryRepository.save(menuCategory2);
         String categoryId = savedMenuCategory.getId().toString();
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -1168,7 +1166,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .build();
         MenuCategory svaedMenuCategory = menuCategoryRepository.save(menuCategory);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + otherOwnerToken)
             .when()
@@ -1204,7 +1202,7 @@ class OwnerShopApiTest extends AcceptanceTest {
     void ownerShopCreateEvent() {
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = startDate.plusDays(10);
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -1258,7 +1256,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             List.of("https://test.com/test1.jpg")
         );
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -1309,7 +1307,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             List.of("https://test.com/test1.jpg")
         );
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)

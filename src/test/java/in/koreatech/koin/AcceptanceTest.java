@@ -26,6 +26,7 @@ import in.koreatech.koin.domain.shop.model.ShopEventListener;
 import in.koreatech.koin.domain.user.model.StudentEventListener;
 import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
+import jakarta.persistence.EntityManager;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class})
@@ -55,6 +56,9 @@ public abstract class AcceptanceTest {
 
     @Autowired
     private DBInitializer dataInitializer;
+
+    @Autowired
+    protected EntityManager entityManager;
 
     @Container
     protected static MySQLContainer mySqlContainer;

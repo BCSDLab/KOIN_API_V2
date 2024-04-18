@@ -102,10 +102,12 @@ public class ExpressBusOpenApiClient {
 
     public List<ExpressBusRemainTime> getBusRemainTime(BusStation depart, BusStation arrival) {
         Version version = versionRepository.getByType(VersionType.EXPRESS);
-        if (isCacheExpired(version, clock)) {
+        String busCacheId = ExpressBusCache.generateId(
+            new ExpressBusRoute(depart.name().toLowerCase(), arrival.name().toLowerCase()));
+        if (isCacheExpired(version, clock) || expressBusCacheRepository.findById(busCacheId).isEmpty()) {
             storeRemainTimeByOpenApi(depart.name().toLowerCase(), arrival.name().toLowerCase());
         }
-        return getStoredRemainTime(depart.name().toLowerCase(), arrival.name().toLowerCase());
+        return getStoredRemainTime(busCacheId);
     }
 
     private void storeRemainTimeByOpenApi(String departName, String arrivalName) {
@@ -200,8 +202,7 @@ public class ExpressBusOpenApiClient {
         }
     }
 
-    private List<ExpressBusRemainTime> getStoredRemainTime(String departName, String arrivalName) {
-        String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute(departName, arrivalName));
+    private List<ExpressBusRemainTime> getStoredRemainTime(String busCacheId) {
         ExpressBusCache expressBusCache = expressBusCacheRepository.getById(busCacheId);
         if (Objects.isNull(expressBusCache)) {
             return Collections.emptyList();

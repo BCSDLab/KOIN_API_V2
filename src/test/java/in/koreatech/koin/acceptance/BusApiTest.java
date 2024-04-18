@@ -1,11 +1,10 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.version.model.VersionType.CITY;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,22 +28,20 @@ import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
-import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
-import in.koreatech.koin.domain.bus.model.mongo.Route;
-import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
+import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
+import in.koreatech.koin.fixture.BusFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
+@SuppressWarnings("NonAsciiCharacters")
 class BusApiTest extends AcceptanceTest {
 
     @Autowired
-    private BusRepository busRepository;
+    private BusFixture busFixture;
 
     @Autowired
     private VersionRepository versionRepository;
@@ -55,159 +52,10 @@ class BusApiTest extends AcceptanceTest {
     @Autowired
     private ExpressBusCacheRepository expressBusCacheRepository;
 
-    private final Instant UPDATED_AT = ZonedDateTime.parse(
-            "2024-02-21 18:00:00 KST",
-            ofPattern("yyyy-MM-dd " + "HH:mm:ss z")
-        )
-        .toInstant();
-
     @BeforeEach
     void setup() {
-        final String arrivalTime = "18:10";
-        BusCourse busCourse = BusCourse.builder()
-            .busType("shuttle")
-            .region("천안")
-            .direction("from")
-            .routes(
-                List.of(
-                    Route.builder()
-                        .routeName("주중")
-                        .runningDays(List.of("MON", "TUE", "WED", "THU", "FRI"))
-                        .arrivalInfos(
-                            List.of(
-                                Route.ArrivalNode.builder()
-                                    .nodeName("한기대")
-                                    .arrivalTime(arrivalTime)
-                                    .build(),
-                                Route.ArrivalNode.builder()
-                                    .nodeName("신계초,운전리,연춘리")
-                                    .arrivalTime("정차")
-                                    .build(),
-                                Route.ArrivalNode.builder()
-                                    .nodeName("천안역(학화호두과자)")
-                                    .arrivalTime("18:50")
-                                    .build(),
-                                Route.ArrivalNode.builder()
-                                    .nodeName("터미널(신세계 앞 횡단보도)")
-                                    .arrivalTime("18:55")
-                                    .build()
-                            )
-                        )
-                        .build()
-                )
-            )
-            .build();
-        busRepository.save(busCourse);
-    }
-
-    @Test
-    @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
-    void getNextShuttleBusRemainTime() {
-        final String arrivalTime = "18:10";
-
-        BusType busType = BusType.from("shuttle");
-        BusStation depart = BusStation.from("koreatech");
-        BusStation arrival = BusStation.from("terminal");
-
-        ExtractableResponse<Response> response = RestAssured
-            .given()
-            .when()
-            .param("bus_type", busType.name().toLowerCase())
-            .param("depart", depart.name())
-            .param("arrival", arrival.name())
-            .get("/bus")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("bus_type"))
-                    .isEqualTo(busType.name().toLowerCase());
-                softly.assertThat((Long) response.body().jsonPath().get("now_bus.bus_number")).isNull();
-                softly.assertThat((Long) response.body().jsonPath().get("next_bus.bus_number")).isNull();
-                softly.assertThat((Long) response.body().jsonPath().get("next_bus.remain_time")).isNull();
-            }
-        );
-    }
-
-    @Test
-    @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - Redis")
-    void getNextCityBusRemainTimeRedis() {
-        final long remainTime = 600L;
-        final long busNumber = 400;
-
-        BusType busType = BusType.from("city");
-        BusStation depart = BusStation.from("terminal");
-        BusStation arrival = BusStation.from("koreatech");
-        BusDirection direction = BusStation.getDirection(depart, arrival);
-
-        Version version = versionRepository.save(
-            Version.builder()
-                .version("20240_1711255839")
-                .type("city_bus_timetable")
-                .build()
-        );
-
-        Instant requestedAt = ZonedDateTime.parse("2024-02-21 18:00:30 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
-            .toInstant();
-
-        cityBusCacheRepository.save(
-            CityBusCache.of(
-                depart.getNodeId(direction),
-                List.of(CityBusCacheInfo.of(
-                    CityBusArrival.builder()
-                        .routeno(busNumber)
-                        .arrtime(remainTime)
-                        .build(),
-                    version.getUpdatedAt())
-                )
-            )
-        );
-
-        ExtractableResponse<Response> response = RestAssured
-            .given()
-            .when()
-            .param("bus_type", busType.name().toLowerCase())
-            .param("depart", depart.name())
-            .param("arrival", arrival.name())
-            .get("/bus")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("bus_type"))
-                    .isEqualTo(busType.name().toLowerCase());
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(busNumber);
-                softly.assertThat(response.body().jsonPath().getObject("next_bus.bus_number", Long.class)).isNull();
-                softly.assertThat(response.body().jsonPath().getObject("next_bus.remain_time", Long.class)).isNull();
-            }
-        );
-    }
-
-    @Test
-    @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - OpenApi")
-    void getNextCityBusRemainTimeOpenApi() {
-
-        BusType busType = BusType.from("city");
-        BusStation depart = BusStation.from("terminal");
-        BusStation arrival = BusStation.from("koreatech");
-        BusDirection direction = BusStation.getDirection(depart, arrival);
-
-        versionRepository.save(
-            Version.builder()
-                .version("20240_1711255839")
-                .type("city_bus_timetable")
-                .build()
-        );
-
-        Instant requestedAt = ZonedDateTime.parse("2024-02-21 21:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
-            .toInstant();
-
-
-        String busApiReturnValue = """
+        busFixture.버스_시간표_등록();
+        when(cityBusOpenApiClient.getOpenApiResponse(any())).thenReturn("""
             {
               "response": {
                 "header": {
@@ -255,12 +103,68 @@ class BusApiTest extends AcceptanceTest {
                 }
               }
             }
-            """;
+            """);
+    }
 
-        String nodeId = depart.getNodeId(direction);
-        when(cityBusOpenApiClient.getOpenApiResponse(nodeId)).thenReturn(busApiReturnValue);
+    @Test
+    @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
+    void getNextShuttleBusRemainTime() {
+        var response = RestAssured
+            .given()
+            .when()
+            .param("bus_type", "shuttle")
+            .param("depart", "koreatech")
+            .param("arrival", "terminal")
+            .get("/bus")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .log().all()
+            .extract();
 
-        ExtractableResponse<Response> response = RestAssured
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "bus_type": "shuttle",
+                    "now_bus": {
+                        "bus_number": null,
+                        "remain_time": 22200
+                    },
+                    "next_bus": null
+                }
+                """);
+    }
+
+    @Test
+    @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - Redis 캐시 히트")
+    void getNextCityBusRemainTimeRedis() {
+        final long remainTime = 600L;
+        final long busNumber = 400;
+        BusType busType = BusType.CITY;
+        BusStation depart = BusStation.TERMINAL;
+        BusStation arrival = BusStation.KOREATECH;
+
+        BusDirection direction = BusStation.getDirection(depart, arrival);
+        Version version = versionRepository.save(
+            Version.builder()
+                .version("test_version")
+                .type(VersionType.CITY.getValue())
+                .build()
+        );
+
+        cityBusCacheRepository.save(
+            CityBusCache.of(
+                depart.getNodeId(direction),
+                List.of(CityBusCacheInfo.of(
+                    CityBusArrival.builder()
+                        .routeno(busNumber)
+                        .arrtime(remainTime)
+                        .build(),
+                    version.getUpdatedAt())
+                )
+            )
+        );
+
+        var response = RestAssured
             .given()
             .when()
             .param("bus_type", busType.name().toLowerCase())
@@ -268,15 +172,48 @@ class BusApiTest extends AcceptanceTest {
             .param("arrival", arrival.name())
             .get("/bus")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        Version version = versionRepository.getByType(CITY);
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "bus_type": "city",
+                    "now_bus": {
+                        "bus_number": 400,
+                        "remain_time": 600
+                    },
+                    "next_bus": null
+                }
+                """);
+    }
+
+    @Test
+    @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - OpenApi")
+    void getNextCityBusRemainTimeOpenApi() {
+        versionRepository.save(
+            Version.builder()
+                .version("test_version")
+                .type("city_bus_timetable")
+                .build()
+        );
+
+        var response = RestAssured
+            .given()
+            .when()
+            .param("bus_type", "city")
+            .param("depart", "terminal")
+            .param("arrival", "koreatech")
+            .get("/bus")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getString("bus_type"))
-                    .isEqualTo(busType.name().toLowerCase());
+                softly.assertThat(response.body().jsonPath().getString("bus_type")).isEqualTo("city");
                 softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(400);
                 softly.assertThat((Long) response.body().jsonPath().getLong("next_bus.bus_number")).isEqualTo(405);
             }
@@ -309,14 +246,13 @@ class BusApiTest extends AcceptanceTest {
     void getSearchTimetable() {
         versionRepository.save(
             Version.builder()
-                .version("20240_1711255839")
-                .type("express_bus_timetable")
+                .version("test_version")
+                .type(VersionType.EXPRESS.getValue())
                 .build()
         );
 
-        ZonedDateTime requestedAt = ZonedDateTime.parse("2024-02-21 18:05:00 KST",
+        ZonedDateTime requestedAt = ZonedDateTime.parse("2024-01-15 12:05:00 KST",
             ofPattern("yyyy-MM-dd " + "HH:mm:ss z"));
-
 
         final String arrivalTime = "18:10";
 
@@ -345,7 +281,7 @@ class BusApiTest extends AcceptanceTest {
         );
         expressBusCacheRepository.save(expressBusCache);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("date", requestedAt.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
@@ -372,11 +308,7 @@ class BusApiTest extends AcceptanceTest {
     @Test
     @DisplayName("시내버스 시간표를 조회한다 - 지원하지 않음")
     void getCityBusTimetable() {
-        Instant requestedAt = ZonedDateTime.parse("2024-02-21 21:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z"))
-            .toInstant();
-
-
-        ExtractableResponse<Response> response = RestAssured
+        RestAssured
             .given()
             .when()
             .param("bus_type", "city")
@@ -391,18 +323,15 @@ class BusApiTest extends AcceptanceTest {
     @Test
     @DisplayName("셔틀버스 시간표를 조회한다.")
     void getShuttleBusTimetable() {
-        BusType busType = BusType.from("shuttle");
-        String direction = "from";
-        String region = "천안";
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
-            .param("bus_type", busType.name().toLowerCase())
-            .param("direction", direction)
-            .param("region", region)
+            .param("bus_type", "shuttle")
+            .param("direction", "from")
+            .param("region", "천안")
             .get("/bus/timetable")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -410,8 +339,8 @@ class BusApiTest extends AcceptanceTest {
             .isEqualTo("""
                 [
                     {
-                        "routeName": "주중",
-                        "arrivalInfo": [
+                        "route_name": "주중",
+                        "arrival_info": [
                             {
                                 "nodeName": "한기대",
                                 "arrivalTime": "18:10"
@@ -423,7 +352,8 @@ class BusApiTest extends AcceptanceTest {
                             {
                                 "nodeName": "천안역(학화호두과자)",
                                 "arrivalTime": "18:50"
-                            },{
+                            },
+                            {
                                 "nodeName": "터미널(신세계 앞 횡단보도)",
                                 "arrivalTime": "18:55"
                             }

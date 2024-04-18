@@ -1,5 +1,7 @@
 package in.koreatech.koin.support;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
@@ -25,13 +27,24 @@ public class JsonAssertions {
 
         public void isEqualTo(String actual) {
             try {
-                Map<String, Object> responseMap = objectMapper.readValue(expect, new TypeReference<>() {
+                ObjectMapper objectMapper = new ObjectMapper();
+
+                Object responseObj = parseJson(objectMapper, expect);
+                Object expectedObj = parseJson(objectMapper, actual);
+
+                Assertions.assertThat(responseObj).isEqualTo(expectedObj);
+            } catch (Exception e) {
+                throw new AssertionError("json parsing error\n" + e.getMessage());
+            }
+        }
+
+        private Object parseJson(ObjectMapper objectMapper, String json) throws IOException {
+            try {
+                return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {
                 });
-                Map<String, Object> expectedMap = objectMapper.readValue(actual, new TypeReference<>() {
+            } catch (IOException e) {
+                return objectMapper.readValue(json, new TypeReference<List<Object>>() {
                 });
-                Assertions.assertThat(responseMap).isEqualTo(expectedMap);
-            } catch (Exception ignored) {
-                throw new AssertionError("json parsing error");
             }
         }
     }

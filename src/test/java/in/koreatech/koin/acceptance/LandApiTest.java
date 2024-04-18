@@ -15,8 +15,6 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.domain.land.repository.LandRepository;
 import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
 class LandApiTest extends AcceptanceTest {
 
@@ -48,7 +46,7 @@ class LandApiTest extends AcceptanceTest {
         Land land = landRepository.save(request);
         Land land2 = landRepository.save(request2);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/lands")
@@ -117,7 +115,7 @@ class LandApiTest extends AcceptanceTest {
 
         Land land = landRepository.save(request);
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/lands/{id}", land.getId())

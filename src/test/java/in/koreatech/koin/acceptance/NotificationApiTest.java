@@ -21,8 +21,6 @@ import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeT
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
 class NotificationApiTest extends AcceptanceTest {
 
@@ -67,7 +65,7 @@ class NotificationApiTest extends AcceptanceTest {
 
         notificationSubscribeRepository.save(notificationSubscribe);
         //when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
             .when()
@@ -97,7 +95,7 @@ class NotificationApiTest extends AcceptanceTest {
         String deviceToken = "testToken";
 
         //when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
             .body(String.format("""
@@ -148,7 +146,7 @@ class NotificationApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
             .when()
@@ -225,7 +223,7 @@ class NotificationApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
             .when()

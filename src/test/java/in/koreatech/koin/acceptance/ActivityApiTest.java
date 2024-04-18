@@ -11,8 +11,6 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.fixture.ActivityFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
 class ActivityApiTest extends AcceptanceTest {
 
@@ -49,7 +47,7 @@ class ActivityApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("year", 2019)
@@ -123,7 +121,7 @@ class ActivityApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/activities")
