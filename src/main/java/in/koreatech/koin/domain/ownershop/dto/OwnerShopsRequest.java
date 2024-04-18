@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.Shop;
+import in.koreatech.koin.global.validation.UniqueId;
+import in.koreatech.koin.global.validation.UniqueUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -26,6 +28,7 @@ public record OwnerShopsRequest(
     @Schema(description = "상점 카테고리 고유 id 리스트", example = "[1]", requiredMode = REQUIRED)
     @NotNull(message = "카테고리를 입력해주세요.")
     @Size(min = 1, message = "최소 한 개의 카테고리가 필요합니다.")
+    @UniqueId(message = "카테고리 ID는 중복될 수 없습니다.")
     List<Integer> categoryIds,
 
     @Schema(description = "배달 가능 여부", example = "false", requiredMode = REQUIRED)
@@ -44,6 +47,7 @@ public record OwnerShopsRequest(
     @Schema(description = "이미지 URL 리스트", example = """
         [ "https://testimage.com" ]
         """, requiredMode = REQUIRED)
+    @UniqueUrl(message = "이미지 URL은 중복될 수 없습니다.")
     List<String> imageUrls,
 
     @Schema(description = "가게명", example = "써니 숯불 도시락", requiredMode = REQUIRED)
