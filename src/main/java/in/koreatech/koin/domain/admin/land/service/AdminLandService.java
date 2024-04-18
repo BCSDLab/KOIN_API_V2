@@ -23,7 +23,7 @@ public class AdminLandService {
     public AdminLandsResponse getLands(Integer page, Integer limit, Boolean isDeleted) {
 
         // page > totalPage인 경우 totalPage로 조회하기 위해
-        Long total = adminLandRepository.countAllByIsDeleted(isDeleted);
+        Integer total = adminLandRepository.countAllByIsDeleted(isDeleted);
 
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), Sort.by(Sort.Direction.ASC, "id"));

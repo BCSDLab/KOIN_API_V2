@@ -20,7 +20,7 @@ public class Criteria {
         return new Criteria(validateAndCalculatePage(page), validateAndCalculateLimit(limit));
     }
 
-    public static Criteria of(Integer page, Integer limit, Long total) {
+    public static Criteria of(Integer page, Integer limit, Integer total) {
         return new Criteria(validateAndCalculatePage(page, limit, total), validateAndCalculateLimit(limit));
     }
 
@@ -35,8 +35,8 @@ public class Criteria {
         return page;
     }
 
-    private static int validateAndCalculatePage(Integer page, Integer limit, Long total) {
-        int totalPage = total.equals(0L) ? 1 : (int)Math.ceil((double)total / limit);
+    private static int validateAndCalculatePage(Integer page, Integer limit, Integer total) {
+        int totalPage = total.equals(0) ? 1 : (int)Math.ceil((double)total / limit);
 
         if (page == null) {
             page = DEFAULT_PAGE;

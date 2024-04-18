@@ -10,7 +10,7 @@ public interface AdminLandRepository extends Repository<Land, Integer> {
 
     Page<Land> findAllByIsDeleted(boolean isDeleted, Pageable pageable);
 
-    Long countAllByIsDeleted(boolean isDeleted);
+    Integer countAllByIsDeleted(boolean isDeleted);
 
     Land save(Land request);
 
