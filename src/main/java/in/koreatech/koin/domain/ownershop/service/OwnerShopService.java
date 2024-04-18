@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
-import in.koreatech.koin.domain.ownershop.ShopEventCreateEvent;
+import in.koreatech.koin.domain.ownershop.EventArticleCreateShopEvent;
 import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopEventsResponse;
@@ -246,7 +246,7 @@ public class OwnerShopService {
     public void modifyCategory(Integer ownerId, Integer categoryId, ModifyCategoryRequest modifyCategoryRequest) {
         MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
         getOwnerShopById(menuCategory.getShop().getId(), ownerId);
-        menuCategory.modifyCategory(modifyCategoryRequest);
+        menuCategory.modifyName(modifyCategoryRequest.name());
     }
 
     @Transactional
@@ -291,7 +291,7 @@ public class OwnerShopService {
                     .build());
         }
         eventPublisher.publishEvent(
-            new ShopEventCreateEvent(
+            new EventArticleCreateShopEvent(
                 shop.getId(),
                 shop.getName(),
                 savedEventArticle.getTitle()

@@ -22,6 +22,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
 import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
+import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.shop.model.ShopEventListener;
 import in.koreatech.koin.domain.user.model.StudentEventListener;
@@ -60,6 +61,9 @@ public abstract class AcceptanceTest {
     @MockBean
     protected ShopEventListener shopEventListener;
 
+    @MockBean
+    protected CoopEventListener coopEventListener;
+
     @Autowired
     private DBInitializer dataInitializer;
 
@@ -92,11 +96,11 @@ public abstract class AcceptanceTest {
             .withCommand("--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci");
 
         redisContainer = new GenericContainer<>(
-            DockerImageName.parse("redis:4.0.10"))
+            DockerImageName.parse("redis:7.0.9"))
             .withExposedPorts(6379);
 
         mongoContainer = new GenericContainer<>(
-            DockerImageName.parse("mongo:7.0"))
+            DockerImageName.parse("mongo:6.0.14"))
             .withExposedPorts(27017);
 
         mySqlContainer.start();

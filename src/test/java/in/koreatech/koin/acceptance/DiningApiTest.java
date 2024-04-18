@@ -2,8 +2,11 @@ package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
 import static io.restassured.RestAssured.given;
 import static java.time.format.DateTimeFormatter.ofPattern;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -28,6 +31,8 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
+import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -42,6 +47,9 @@ class DiningApiTest extends AcceptanceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private NotificationSubscribeRepository notificationSubscribeRepository;
 
     @Test
     @DisplayName("특정 날짜의 모든 식단들을 조회한다.")
@@ -98,7 +106,8 @@ class DiningApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(2);
 
                 softly.assertThat(response.body().jsonPath().getInt("[0].id")).isEqualTo(dining1.getId());
-                softly.assertThat(response.body().jsonPath().getString("[0].date")).isEqualTo(dining1.getDate().format(ofPattern("yyyy-MM-dd")));
+                softly.assertThat(response.body().jsonPath().getString("[0].date"))
+                    .isEqualTo(dining1.getDate().format(ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getString("[0].type")).isEqualTo(dining1.getType());
                 softly.assertThat(response.body().jsonPath().getString("[0].place")).isEqualTo(dining1.getPlace());
                 softly.assertThat(response.body().jsonPath().getInt("[0].price_card"))
@@ -116,7 +125,8 @@ class DiningApiTest extends AcceptanceTest {
                     .isEqualTo(dining1.getIsChanged());
 
                 softly.assertThat(response.body().jsonPath().getInt("[1].id")).isEqualTo(dining3.getId());
-                softly.assertThat(response.body().jsonPath().getString("[1].date")).isEqualTo(dining3.getDate().format(ofPattern("yyyy-MM-dd")));
+                softly.assertThat(response.body().jsonPath().getString("[1].date"))
+                    .isEqualTo(dining3.getDate().format(ofPattern("yyyy-MM-dd")));
                 softly.assertThat(response.body().jsonPath().getString("[1].type")).isEqualTo(dining3.getType());
                 softly.assertThat(response.body().jsonPath().getString("[1].place")).isEqualTo(dining3.getPlace());
                 softly.assertThat(response.body().jsonPath().getInt("[1].price_card"))
@@ -276,7 +286,6 @@ class DiningApiTest extends AcceptanceTest {
 
         diningRepository.save(dining1);
         diningRepository.save(dining2);
-
         SoldOutRequest soldOutRequest = new SoldOutRequest(2, true);
 
         ExtractableResponse<Response> response = given()
@@ -329,7 +338,6 @@ class DiningApiTest extends AcceptanceTest {
             .build();
 
         diningRepository.save(dining1);
-
         SoldOutRequest soldOutRequest = new SoldOutRequest(1, true);
 
         ExtractableResponse<Response> response = given()
@@ -436,5 +444,65 @@ class DiningApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("품절 이벤트가 발생한다.")
+    void checkSoldOutEventListener() {
+        when(clock.instant()).thenReturn(ZonedDateTime.parse(
+                "2024-04-04 18:00:00 KST",
+                ofPattern("yyyy-MM-dd " + "HH:mm:ss z")
+            )
+            .toInstant());
+        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
+
+        User user = User.builder()
+            .password("1234")
+            .nickname("준기")
+            .name("허준기")
+            .phoneNumber("010-1234-5678")
+            .userType(COOP)
+            .gender(UserGender.MAN)
+            .email("test@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        userRepository.save(user);
+
+        String token = jwtProvider.createToken(user);
+
+        notificationSubscribeRepository.save(NotificationSubscribe.builder()
+            .user(user)
+            .subscribeType(DINING_SOLD_OUT)
+            .build());
+
+        Dining dining = Dining.builder()
+            .date(LocalDate.parse("2024-04-04"))
+            .type("LUNCH")
+            .place("A코스")
+            .priceCard(6000)
+            .priceCash(6000)
+            .kcal(881)
+            .menu("""
+                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
+            .isChanged(LocalDateTime.now(clock))
+            .build();
+
+        diningRepository.save(dining);
+
+        SoldOutRequest soldOutRequest = new SoldOutRequest(1, true);
+
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token)
+            .body(soldOutRequest)
+            .when()
+            .patch("/coop/dining/soldout")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        verify(coopEventListener).onDiningSoldOutRequest(any());
     }
 }

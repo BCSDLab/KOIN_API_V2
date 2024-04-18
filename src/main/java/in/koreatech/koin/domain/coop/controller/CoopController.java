@@ -34,7 +34,7 @@ public class CoopController implements CoopApi {
     @PatchMapping("/dining/image")
     public ResponseEntity<Void> saveDiningImage(
         @Auth(permit = {COOP}) Integer userId,
-        @RequestBody DiningImageRequest imageRequest
+        @RequestBody @Valid DiningImageRequest imageRequest
     ) {
         coopService.saveDiningImage(imageRequest);
         return ResponseEntity.ok().build();

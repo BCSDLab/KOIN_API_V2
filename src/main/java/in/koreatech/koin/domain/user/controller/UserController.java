@@ -1,8 +1,6 @@
 package in.koreatech.koin.domain.user.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.net.URI;
 
@@ -20,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
+import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
@@ -55,6 +54,14 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().body(studentResponse);
     }
 
+    @GetMapping("/user/coop/me")
+    public ResponseEntity<CoopResponse> getCoop(
+        @Auth(permit = COOP) Integer userId
+    ) {
+        CoopResponse coopResponse = userService.getCoop(userId);
+        return ResponseEntity.ok().body(coopResponse);
+    }
+
     @PutMapping("/user/student/me")
     public ResponseEntity<StudentUpdateResponse> updateStudent(
         @Auth(permit = STUDENT) Integer userId,
@@ -86,7 +93,8 @@ public class UserController implements UserApi {
         @RequestBody @Valid UserTokenRefreshRequest request
     ) {
         UserTokenRefreshResponse tokenGroupResponse = userService.refresh(request);
-        return ResponseEntity.ok().body(tokenGroupResponse);
+        return ResponseEntity.created(URI.create("/"))
+            .body(tokenGroupResponse);
     }
 
     @DeleteMapping("/user")

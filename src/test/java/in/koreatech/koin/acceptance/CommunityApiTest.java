@@ -188,9 +188,9 @@ class CommunityApiTest extends AcceptanceTest {
                 softly.assertThat(response.jsonPath().getBoolean("comments[0].is_deleted"))
                     .isEqualTo(comment.getIsDeleted());
                 softly.assertThat(response.jsonPath().getBoolean("comments[0].grantEdit"))
-                    .isEqualTo(comment.getGrantEdit());
+                    .isEqualTo(comment.isGrantEdit());
                 softly.assertThat(response.jsonPath().getBoolean("comments[0].grantDelete"))
-                    .isEqualTo(comment.getGrantDelete());
+                    .isEqualTo(comment.isGrantDelete());
             }
         );
     }
@@ -226,9 +226,9 @@ class CommunityApiTest extends AcceptanceTest {
         assertSoftly(
             softly -> {
                 softly.assertThat(response.jsonPath().getBoolean("comments[0].grantEdit"))
-                    .isEqualTo(comment.getGrantEdit());
+                    .isEqualTo(comment.isGrantEdit());
                 softly.assertThat(response.jsonPath().getBoolean("comments[0].grantDelete"))
-                    .isEqualTo(comment.getGrantDelete());
+                    .isEqualTo(comment.isGrantDelete());
             }
         );
     }

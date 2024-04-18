@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.shop.dto;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +20,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ShopMenuResponse(
-    @Schema(example = "20", description = "개수")
+    @Schema(example = "20", description = "개수", requiredMode = REQUIRED)
     Integer count,
 
     @Schema(description = "카테고리 별로 분류된 소속 메뉴 리스트")
     List<InnerMenuCategoriesResponse> menuCategories,
 
-    @Schema(example = "2024-03-16", description = "해당 상점 마지막 메뉴 업데이트 날짜")
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @Schema(example = "2024-03-16", description = "해당 상점 마지막 메뉴 업데이트 날짜", requiredMode = REQUIRED)
     LocalDateTime updatedAt
 ) {
 
@@ -74,10 +77,10 @@ public record ShopMenuResponse(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerMenuCategoriesResponse(
-        @Schema(example = "1", description = "카테고리 id")
+        @Schema(example = "1", description = "카테고리 id", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(example = "중식", description = "카테고리 이름")
+        @Schema(example = "중식", description = "카테고리 이름", requiredMode = REQUIRED)
         String name,
 
         @Schema(description = "해당 상점의 모든 메뉴 리스트")
@@ -94,28 +97,30 @@ public record ShopMenuResponse(
 
         @JsonNaming(value = SnakeCaseStrategy.class)
         private record InnerMenuResponse(
-            @Schema(example = "1", description = "고유 id")
+            @Schema(example = "1", description = "고유 id", requiredMode = REQUIRED)
             Integer id,
 
-            @Schema(example = "탕수육", description = "이름")
+            @Schema(example = "탕수육", description = "이름", requiredMode = NOT_REQUIRED)
             String name,
 
-            @Schema(example = "false", description = "숨김 여부")
+            @Schema(example = "false", description = "숨김 여부", requiredMode = REQUIRED)
             Boolean isHidden,
 
-            @Schema(example = "false", description = "단일 메뉴 여부")
+            @Schema(example = "false", description = "단일 메뉴 여부", requiredMode = REQUIRED)
             Boolean isSingle,
 
-            @Schema(example = "10000", description = "단일 메뉴일때(is_single이 true일때)의 가격")
+            @Schema(example = "10000", description = "단일 메뉴일때(is_single이 true일때)의 가격 / 단일 메뉴가 아니라면 null", requiredMode = NOT_REQUIRED)
             Integer singlePrice,
 
-            @Schema(description = "옵션이 있는 메뉴일때(is_single이 false일때)의 옵션에 따른 가격 리스트")
+            @Schema(description = "옵션이 있는 메뉴일때(is_single이 false일때)의 옵션에 따른 가격 리스트 / 단일 메뉴 라면 null", requiredMode = NOT_REQUIRED)
             List<InnerOptionPrice> optionPrices,
 
-            @Schema(example = "저희 식당의 대표 메뉴 탕수육입니다.", description = "설명")
+            @Schema(example = "저희 식당의 대표 메뉴 탕수육입니다.", description = "설명", requiredMode = NOT_REQUIRED)
             String description,
 
-            @Schema(description = "이미지 URL리스트")
+            @Schema(description = "이미지 URL리스트", example = """
+                [ "https://static.koreatech.in/example.png", "https://static.koreatech.in/example2.png" ]
+                """, requiredMode = NOT_REQUIRED)
             List<String> imageUrls
         ) {
 
@@ -136,10 +141,10 @@ public record ShopMenuResponse(
 
             @JsonNaming(value = SnakeCaseStrategy.class)
             private record InnerOptionPrice(
-                @Schema(example = "대", description = "옵션명")
+                @Schema(example = "대", description = "옵션명", requiredMode = REQUIRED)
                 String option,
 
-                @Schema(example = "26000", description = "가격")
+                @Schema(example = "26000", description = "가격", requiredMode = REQUIRED)
                 Integer price
             ) {
 

@@ -13,6 +13,7 @@ import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
+import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
@@ -120,5 +121,10 @@ public class UserService {
     public AuthResponse getAuth(Integer userId) {
         User user = userRepository.getById(userId);
         return AuthResponse.from(user);
+    }
+
+    public CoopResponse getCoop(Integer userId) {
+        User user = userRepository.getById(userId);
+        return CoopResponse.from(user);
     }
 }

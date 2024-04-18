@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.shop.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -23,16 +25,16 @@ public record ShopResponse(
     @Schema(example = "true", description = "배달 가능 여부")
     Boolean delivery,
 
-    @Schema(example = "1000", description = "배달비")
+    @Schema(example = "1000", description = "배달비", requiredMode = REQUIRED)
     Integer deliveryPrice,
 
     @Schema(example = "string", description = "설명")
     String description,
 
-    @Schema(example = "1", description = "고유 id")
+    @Schema(example = "1", description = "고유 id", requiredMode = REQUIRED)
     Integer id,
 
-    @Schema(example = "string", description = "이미지 URL 리스트")
+    @Schema(description = "이미지 URL 리스트")
     List<String> imageUrls,
 
     @Schema(description = "상점에 있는 메뉴 카테고리 리스트")
@@ -44,23 +46,23 @@ public record ShopResponse(
     @Schema(description = "요일별 휴무 여부 및 장사 시간")
     List<InnerShopOpen> open,
 
-    @Schema(example = "true", description = "계좌 이체 가능 여부")
+    @Schema(example = "true", description = "계좌 이체 가능 여부", requiredMode = REQUIRED)
     Boolean payBank,
 
-    @Schema(example = "false", description = "카드 계산 가능 여부")
+    @Schema(example = "false", description = "카드 계산 가능 여부", requiredMode = REQUIRED)
     Boolean payCard,
 
-    @Schema(example = "041-000-0000", description = "전화번호")
+    @Schema(example = "041-000-0000", description = "전화번호", requiredMode = NOT_REQUIRED)
     String phone,
 
     @Schema(description = "소속된 상점 카테고리 리스트")
     List<InnerShopCategory> shopCategories,
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Schema(example = "2024-03-01", description = "업데이트 날짜")
+    @Schema(example = "2024-03-01", description = "업데이트 날짜", requiredMode = REQUIRED)
     LocalDateTime updatedAt,
 
-    @Schema(example = "true", description = "상점 이벤트 진행 여부")
+    @Schema(example = "true", description = "상점 이벤트 진행 여부", requiredMode = REQUIRED)
     Boolean isEvent
 ) {
 
@@ -108,18 +110,18 @@ public record ShopResponse(
     public record InnerShopOpen(
         @Schema(example = "MONDAY", description = """
             요일 = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
-            """)
+            """, requiredMode = REQUIRED)
         String dayOfWeek,
 
-        @Schema(example = "false", description = "휴무 여부")
+        @Schema(example = "false", description = "휴무 여부", requiredMode = REQUIRED)
         Boolean closed,
 
-        @Schema(example = "02:00", description = "오픈 시간")
         @JsonFormat(pattern = "HH:mm")
+        @Schema(example = "02:00", description = "오픈 시간", requiredMode = NOT_REQUIRED)
         LocalTime openTime,
 
-        @Schema(example = "16:00", description = "마감 시간")
         @JsonFormat(pattern = "HH:mm")
+        @Schema(example = "16:00", description = "마감 시간", requiredMode = NOT_REQUIRED)
         LocalTime closeTime
     ) {
 
@@ -134,20 +136,20 @@ public record ShopResponse(
     }
 
     private record InnerShopCategory(
-        @Schema(example = "1", description = "고유 id")
+        @Schema(example = "1", description = "고유 id", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(example = "중국집", description = "이름")
+        @Schema(example = "중국집", description = "이름", requiredMode = REQUIRED)
         String name
     ) {
 
     }
 
     private record InnerMenuCategory(
-        @Schema(example = "1", description = "고유 id")
+        @Schema(example = "1", description = "고유 id", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(example = "대표 메뉴", description = "이름")
+        @Schema(example = "대표 메뉴", description = "이름", requiredMode = REQUIRED)
         String name
     ) {
 

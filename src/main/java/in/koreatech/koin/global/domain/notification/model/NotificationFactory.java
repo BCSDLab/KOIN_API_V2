@@ -23,4 +23,19 @@ public class NotificationFactory {
             target
         );
     }
+
+    public Notification generateSoldOutNotification(
+        MobileAppPath path,
+        String place,
+        User target
+    ) {
+        return new Notification(
+            path,
+            "%s코너가 품절되었습니다.".formatted(place),
+            "다른 식단 보러 가기.",
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
 }

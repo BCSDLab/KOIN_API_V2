@@ -10,19 +10,19 @@ import lombok.Getter;
 public enum Dept {
     ARCHITECTURAL_ENGINEERING(
         "건축공학부", List.of("72"),
-        "https://arch.koreatech.ac.kr/menu.es?mid=b30202000000"),
+        "https://www.koreatech.ac.kr/menu.es?mid=b30202000000"),
     EMPLOYMENT_SERVICE_POLICY_DEPARTMENT(
         "고용서비스정책학과", List.of("85"),
         "https://www.koreatech.ac.kr/board.es?mid=b80302000000&bid=0150"),
     MECHANICAL_ENGINEERING(
         "기계공학부", List.of("20"),
-        "https://me.koreatech.ac.kr/menu.es?mid=a70302000000"),
+        "https://www.koreatech.ac.kr/menu.es?mid=a70302000000"),
     DESIGN_ENGINEERING(
         "디자인공학부", List.of("51"),
         "https://www.koreatech.ac.kr/menu.es?mid=b20302000000"),
     MECHATRONICS_ENGINEERING(
         "메카트로닉스공학부", List.of("40"),
-        "https://mecha.koreatech.ac.kr/menu.es?mid=a80302010200"),
+        "https://www.koreatech.ac.kr/menu.es?mid=a80302010200"),
     INDUSTRIAL_MANAGEMENT(
         "산업경영학부", List.of("80"),
         "https://www.koreatech.ac.kr/menu.es?mid=b60302010100"),
