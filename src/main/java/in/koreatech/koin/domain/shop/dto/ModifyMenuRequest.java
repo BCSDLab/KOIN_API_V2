@@ -8,6 +8,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.global.validation.UniqueId;
+import in.koreatech.koin.global.validation.UniqueUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -16,6 +18,7 @@ import jakarta.validation.constraints.Size;
 public record ModifyMenuRequest(
     @Schema(example = "[1, 2, 3]", description = "선택된 카테고리 고유 id 리스트", requiredMode = REQUIRED)
     @NotNull(message = "카테고리는 필수입니다.")
+    @UniqueId(message = "카테고리 ID는 중복될 수 없습니다.")
     List<Integer> categoryIds,
 
     @Schema(example = "저희 가게의 대표 메뉴 짜장면입니다.", description = "메뉴 구성 설명", requiredMode = REQUIRED)
@@ -26,6 +29,7 @@ public record ModifyMenuRequest(
         [ "https://static.koreatech.in/example.png" ]
         """, description = "이미지 URL 리스트", requiredMode = NOT_REQUIRED)
     @Size(max = 3, message = "이미지는 최대 3개까지 입력 가능합니다.")
+    @UniqueUrl(message = "이미지 URL은 중복될 수 없습니다.")
     List<String> imageUrls,
 
     @Schema(example = "true", description = "단일 메뉴 여부", requiredMode = REQUIRED)
