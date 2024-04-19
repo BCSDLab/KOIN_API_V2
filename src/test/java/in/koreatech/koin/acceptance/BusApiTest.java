@@ -483,12 +483,11 @@ class BusApiTest extends AcceptanceTest {
     void getShuttleBusTimetableWithUpdatedAt() {
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
 
-        versionRepository.save(
-            Version.builder()
-                .version("20240_1712920946")
-                .type("shuttle_bus_timetable")
-                .build()
-        );
+        Version version = Version.builder()
+            .version("20240_1712920946")
+            .type("shuttle_bus_timetable")
+            .build();
+        versionRepository.save(version);
 
         BusType busType = BusType.from("shuttle");
         String direction = "from";
@@ -507,7 +506,7 @@ class BusApiTest extends AcceptanceTest {
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+            .isEqualTo(String.format("""
                 {
                     "bus_timetable": [
                         {
@@ -531,8 +530,8 @@ class BusApiTest extends AcceptanceTest {
                             ]
                         }
                     ],
-                    "updated_at": "2024-02-21T18:00:00"
+                    "updated_at": %s
                 }
-                """);
+                """, version.getUpdatedAt()));
     }
 }
