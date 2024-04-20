@@ -130,7 +130,10 @@ public class ExpressBusOpenApiClient {
                 .toList()
         );
 
-        expressBusCacheRepository.save(expressBusCache);
+        if(!expressBusCache.getBusInfos().isEmpty()) {
+            expressBusCacheRepository.save(expressBusCache);
+        }
+
         versionRepository.getByType(VersionType.EXPRESS).update(clock);
     }
 
