@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RequestMapping("/coop")
 @Tag(name = "(OWNER) Coop Dining : 영양사 식단", description = "영양사 식단 페이지")
@@ -50,6 +51,6 @@ public interface CoopApi {
     @PatchMapping("/dining/image")
     ResponseEntity<Void> saveDiningImage(
         @Auth(permit = {COOP}) Integer userId,
-        @RequestBody DiningImageRequest imageRequest
+        @RequestBody @Valid DiningImageRequest imageRequest
     );
 }

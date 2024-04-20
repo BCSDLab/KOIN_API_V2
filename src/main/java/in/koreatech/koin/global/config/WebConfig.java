@@ -14,6 +14,7 @@ import in.koreatech.koin.domain.bus.controller.BusTypeEnumConverter;
 import in.koreatech.koin.global.auth.AuthArgumentResolver;
 import in.koreatech.koin.global.auth.ExtractAuthenticationInterceptor;
 import in.koreatech.koin.global.auth.UserIdArgumentResolver;
+import in.koreatech.koin.global.domain.notification.controller.NotificationSubscribeTypeConverter;
 import in.koreatech.koin.global.domain.upload.controller.ImageUploadDomainEnumConverter;
 import in.koreatech.koin.global.host.ServerURLArgumentResolver;
 import in.koreatech.koin.global.host.ServerURLInterceptor;
@@ -60,6 +61,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addConverter(new BusTypeEnumConverter());
         registry.addConverter(new BusStationEnumConverter());
         registry.addConverter(new ImageUploadDomainEnumConverter());
+        registry.addConverter(new NotificationSubscribeTypeConverter());
     }
 
     @Override

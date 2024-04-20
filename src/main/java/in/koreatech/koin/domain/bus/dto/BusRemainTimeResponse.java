@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.bus.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 
 import java.time.Clock;
 import java.util.List;
@@ -10,9 +11,11 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.city.CityBusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record BusRemainTimeResponse(
+    @Schema(description = "버스 타입", example = "shuttle", requiredMode = NOT_REQUIRED)
     String busType,
     InnerBusResponse nowBus,
     InnerBusResponse nextBus
@@ -28,7 +31,10 @@ public record BusRemainTimeResponse(
 
     @JsonNaming(SnakeCaseStrategy.class)
     private record InnerBusResponse(
+        @Schema(description = "버스 번호", example = "400", requiredMode = NOT_REQUIRED)
         Long busNumber,
+
+        @Schema(description = "남은 시간 / 초", example = "10417", requiredMode = NOT_REQUIRED)
         Long remainTime
     ) {
 

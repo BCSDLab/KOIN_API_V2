@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
-import in.koreatech.koin.global.domain.notification.dto.NotificationSubscribePermitRequest;
+import in.koreatech.koin.global.domain.notification.exception.NotificationNotPermitException;
 import in.koreatech.koin.global.domain.notification.model.Notification;
 import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
@@ -75,14 +75,17 @@ public class NotificationService {
     }
 
     @Transactional
-    public void permitNotificationSubscribe(Integer userId, NotificationSubscribePermitRequest request) {
-        if (notificationSubscribeRepository.findByUserIdAndSubscribeType(userId, request.type()).isPresent()) {
+    public void permitNotificationSubscribe(Integer userId, NotificationSubscribeType subscribeType) {
+        User user = userRepository.getById(userId);
+        if (user.getDeviceToken() == null) {
+            throw NotificationNotPermitException.withDetail("user.deviceToken: " + user.getDeviceToken());
+        }
+        if (notificationSubscribeRepository.findByUserIdAndSubscribeType(userId, subscribeType).isPresent()) {
             return;
         }
-        User user = userRepository.getById(userId);
         NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
             .user(user)
-            .subscribeType(request.type())
+            .subscribeType(subscribeType)
             .build();
         notificationSubscribeRepository.save(notificationSubscribe);
     }

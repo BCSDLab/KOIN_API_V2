@@ -1,15 +1,21 @@
 package in.koreatech.koin.support;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @TestComponent
 public class DBInitializer {
@@ -25,6 +31,12 @@ public class DBInitializer {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Autowired
+    private RedisTemplate<?, ?> redisTemplate;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     private void findDatabaseTableNames() {
         try (final Statement statement = dataSource.getConnection().createStatement()) {
@@ -57,5 +69,11 @@ public class DBInitializer {
         }
         entityManager.clear();
         truncate();
+        // Redis 초기화
+        redisTemplate.getConnectionFactory().getConnection().flushAll();
+        // Mongo 초기화
+        for (String collectionName : mongoTemplate.getCollectionNames()) {
+            mongoTemplate.remove(new Query(), collectionName);
+        }
     }
 }

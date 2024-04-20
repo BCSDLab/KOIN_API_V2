@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop.model;
 
+import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
 import static in.koreatech.koin.global.fcm.MobileAppPath.SHOP;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
@@ -8,9 +9,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.domain.ownershop.ShopEventCreateEvent;
-import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.ownershop.EventArticleCreateShopEvent;
 import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
+import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 
@@ -21,17 +22,18 @@ public class ShopEventListener {
 
     private final NotificationService notificationService;
     private final NotificationFactory notificationFactory;
-    private final UserRepository userRepository;
+    private final NotificationSubscribeRepository notificationSubscribeRepository;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onShopEventCreate(ShopEventCreateEvent event) {
-        var notifications = userRepository.findAllByDeviceTokenIsNotNull()
+    public void onShopEventCreate(EventArticleCreateShopEvent event) {
+        var notifications = notificationSubscribeRepository.findAllBySubscribeType(SHOP_EVENT)
             .stream()
-            .map(user -> notificationFactory.generateShopEventCreateNotification(
+            .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
+            .map(subscribe -> notificationFactory.generateShopEventCreateNotification(
                 SHOP,
                 event.shopName(),
                 event.title(),
-                user
+                subscribe.getUser()
             )).toList();
         notificationService.push(notifications);
     }

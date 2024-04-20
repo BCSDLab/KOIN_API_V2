@@ -31,9 +31,8 @@ public class NotificationFactory {
     ) {
         return new Notification(
             path,
-            "학식 품절 알림!",
-            "%s 품절되었습니다."
-                .formatted(place),
+            "%s코너가 품절되었습니다.".formatted(place),
+            "다른 식단 보러 가기.",
             null,
             NotificationType.MESSAGE,
             target

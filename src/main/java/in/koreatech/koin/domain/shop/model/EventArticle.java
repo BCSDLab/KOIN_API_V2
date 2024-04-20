@@ -80,6 +80,10 @@ public class EventArticle extends BaseEntity {
     @Column(name = "nickname", nullable = false)
     private String nickname = "";
 
+    /**
+     * 미사용 컬럼
+     * TODO: 마이그레이션 종료 후 flyway로 제거
+     */
     @Size(max = 255)
     @Column(name = "thumbnail")
     private String thumbnail;

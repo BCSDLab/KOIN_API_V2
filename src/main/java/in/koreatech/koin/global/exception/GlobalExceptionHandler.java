@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleIllegalArgumentException(
         HttpServletRequest request,
         IllegalArgumentException e
+    ) {
+        log.warn(e.getMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Object> handleIllegalStateException(
+        HttpServletRequest request,
+        IllegalStateException e
     ) {
         log.warn(e.getMessage());
         requestLogging(request);
@@ -79,6 +90,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
     }
 
+    @ExceptionHandler(RequestTooFastException.class)
+    public ResponseEntity<Object> handleRequestTooFastException(
+        HttpServletRequest request,
+        RequestTooFastException e
+    ) {
+        log.warn(e.getMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
+    }
+
     @ExceptionHandler(ExternalServiceException.class)
     public ResponseEntity<Object> handleExternalServiceException(
         HttpServletRequest request,
@@ -107,6 +128,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn(e.getMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "지원하지 않는 API 입니다.");
+
+    @ExceptionHandler(ClientAbortException.class)
+    public ResponseEntity<Object> handleClientAbortException(
+        HttpServletRequest request,
+        ClientAbortException e
+    ) {
+        logger.warn("클라이언트가 연결을 중단했습니다: " + e.getMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "클라이언트에 의해 연결이 중단되었습니다");
     }
 
     @ExceptionHandler(Exception.class)
@@ -143,7 +173,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         return buildErrorResponse(HttpStatus.valueOf(statusCode.value()), ex.getMessage());
     }
-
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(

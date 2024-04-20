@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
-import in.koreatech.koin.domain.timetable.dto.TimeTableRequest;
+import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
@@ -46,10 +46,10 @@ public class TimetableService {
     }
 
     @Transactional
-    public TimeTableResponse createTimeTables(Integer userId, TimeTableRequest request) {
+    public TimeTableResponse createTimeTables(Integer userId, TimeTableCreateRequest request) {
         User user = userRepository.getById(userId);
         Semester semester = semesterRepository.getBySemester(request.semester());
-        for (TimeTableRequest.InnerTimeTableRequest timeTableRequest : request.timetable()) {
+        for (TimeTableCreateRequest.InnerTimeTableRequest timeTableRequest : request.timetable()) {
             TimeTable timeTable = timeTableRequest.toTimeTable(user, semester);
             timeTableRepository.save(timeTable);
         }
@@ -74,6 +74,24 @@ public class TimetableService {
 
     private TimeTableResponse getTimeTableResponse(Integer userId, Semester semester) {
         List<TimeTable> timeTables = timeTableRepository.findAllByUserIdAndSemesterId(userId, semester.getId());
-        return TimeTableResponse.of(semester.getSemester(), timeTables);
+        Integer grades = timeTables.stream()
+            .mapToInt(timeTable -> Integer.parseInt(timeTable.getGrades()))
+            .sum();
+        Integer totalGrades = calculateTotalGrades(userId);
+
+        return TimeTableResponse.of(semester.getSemester(), timeTables, grades, totalGrades);
+    }
+
+    private int calculateTotalGrades(Integer userId) {
+        int totalGrades = 0;
+        List<Semester> semesters = semesterRepository.findAllByOrderBySemesterDesc();
+
+        for (Semester semester : semesters) {
+            totalGrades += timeTableRepository.findAllByUserIdAndSemesterId(userId, semester.getId()).stream()
+                .mapToInt(timeTable -> Integer.parseInt(timeTable.getGrades()))
+                .sum();
+        }
+
+        return totalGrades;
     }
 }

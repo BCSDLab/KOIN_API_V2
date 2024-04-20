@@ -54,6 +54,9 @@ class OwnerApiTest extends AcceptanceTest {
     private ShopRepository shopRepository;
 
     @Autowired
+    private OwnerShopRedisRepository ownerShopRedisRepository;
+
+    @Autowired
     private OwnerInVerificationRedisRepository ownerInVerificationRedisRepository;
 
     @Autowired
@@ -61,9 +64,6 @@ class OwnerApiTest extends AcceptanceTest {
 
     @Autowired
     private TransactionTemplate transactionTemplate;
-
-    @Autowired
-    private OwnerShopRedisRepository ownerShopRedisRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -214,6 +214,36 @@ class OwnerApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value());
         var result = ownerInVerificationRedisRepository.findById(ownerEmail);
         Assertions.assertThat(result).isNotPresent();
+    }
+
+    @Test
+    @DisplayName("사장님이 회원가입 인증번호 전송 요청을 한다 - 1분 이내로 재요청시 오류가 발생한다.")
+    void requestDuplicateVerifySign() {
+        String ownerEmail = "junho5336@gmail.com";
+        RestAssured
+            .given()
+            .body(String.format("""
+                {
+                  "address": "%s"
+                }
+                """, ownerEmail))
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/verification/email")
+            .then()
+            .statusCode(HttpStatus.OK.value());
+        RestAssured
+            .given()
+            .body(String.format("""
+                {
+                  "address": "%s"
+                }
+                """, ownerEmail))
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/verification/email")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value());
     }
 
     @Test
