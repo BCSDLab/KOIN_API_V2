@@ -128,6 +128,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn(e.getMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "지원하지 않는 API 입니다.");
+    }
 
     @ExceptionHandler(ClientAbortException.class)
     public ResponseEntity<Object> handleClientAbortException(
