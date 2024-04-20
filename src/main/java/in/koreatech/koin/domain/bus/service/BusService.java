@@ -56,7 +56,7 @@ public class BusService {
 
         if (busType == BusType.EXPRESS) {
             var remainTimes = expressBusOpenApiClient.getBusRemainTime(depart, arrival);
-            return BusRemainTimeResponse.of(busType, remainTimes, clock);
+            return toResponse(busType,remainTimes);
         }
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
