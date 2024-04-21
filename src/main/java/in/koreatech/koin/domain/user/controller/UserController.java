@@ -29,6 +29,7 @@ import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
+import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.service.StudentService;
@@ -155,6 +156,14 @@ public class UserController implements UserApi {
     ) {
         studentService.findPassword(request, serverURL);
         return new ResponseEntity<>(HttpStatusCode.valueOf(201));
+    }
+
+    @GetMapping("/user/check/password")
+    public boolean checkPassword(
+        @RequestBody UserPasswordCheckRequest request,
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
+    ) {
+        return userService.checkPassword(request, userId);
     }
 
     @GetMapping("/user/change/password/config")

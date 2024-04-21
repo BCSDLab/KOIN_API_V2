@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
@@ -104,6 +105,12 @@ public class UserService {
         }
         userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
+    }
+
+    public boolean checkPassword(UserPasswordCheckRequest request, Integer userId) {
+        User user = userRepository.getById(userId);
+        String password = user.getPassword();
+        return passwordEncoder.matches(request.password(), password);
     }
 
     public void checkExistsEmail(EmailCheckExistsRequest request) {
