@@ -40,6 +40,7 @@ import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
+import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -58,6 +59,9 @@ class BusApiTest extends AcceptanceTest {
 
     @Autowired
     private ExpressBusCacheRepository expressBusCacheRepository;
+
+    @Autowired
+    private VersionService versionService;
 
     private final Instant UPDATED_AT = ZonedDateTime.parse(
             "2024-02-21 18:00:00 KST",
@@ -137,11 +141,11 @@ class BusApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
-                softly.assertThat((Long) response.body().jsonPath().get("now_bus.bus_number")).isNull();
+                softly.assertThat((Long)response.body().jsonPath().get("now_bus.bus_number")).isNull();
                 softly.assertThat(response.body().jsonPath().getLong("now_bus.remain_time")).isEqualTo(
                     BusRemainTime.from(arrivalTime).getRemainSeconds(clock));
-                softly.assertThat((Long) response.body().jsonPath().get("next_bus.bus_number")).isNull();
-                softly.assertThat((Long) response.body().jsonPath().get("next_bus.remain_time")).isNull();
+                softly.assertThat((Long)response.body().jsonPath().get("next_bus.bus_number")).isNull();
+                softly.assertThat((Long)response.body().jsonPath().get("next_bus.remain_time")).isNull();
             }
         );
     }
@@ -200,8 +204,8 @@ class BusApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(busNumber);
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.remain_time"))
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(busNumber);
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.remain_time"))
                     .isEqualTo(
                         BusRemainTime.of(remainTime, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
                 softly.assertThat(response.body().jsonPath().getObject("next_bus.bus_number", Long.class)).isNull();
@@ -303,12 +307,12 @@ class BusApiTest extends AcceptanceTest {
             softly -> {
                 softly.assertThat(response.body().jsonPath().getString("bus_type"))
                     .isEqualTo(busType.name().toLowerCase());
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(400);
-                softly.assertThat((Long) response.body().jsonPath().getLong("now_bus.remain_time"))
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(400);
+                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.remain_time"))
                     .isEqualTo(
                         BusRemainTime.of(600L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
-                softly.assertThat((Long) response.body().jsonPath().getLong("next_bus.bus_number")).isEqualTo(405);
-                softly.assertThat((Long) response.body().jsonPath().getLong("next_bus.remain_time"))
+                softly.assertThat((Long)response.body().jsonPath().getLong("next_bus.bus_number")).isEqualTo(405);
+                softly.assertThat((Long)response.body().jsonPath().getLong("next_bus.remain_time"))
                     .isEqualTo(
                         BusRemainTime.of(800L, version.getUpdatedAt().toLocalTime()).getRemainSeconds(clock));
             }
@@ -469,5 +473,61 @@ class BusApiTest extends AcceptanceTest {
                     }
                 ]
                 """);
+    }
+
+    @Test
+    @DisplayName("셔틀버스 시간표를 조회한다(업데이트 시각 포함).")
+    void getShuttleBusTimetableWithUpdatedAt() {
+        when(dateTimeProvider.getNow()).thenReturn(Optional.of(UPDATED_AT));
+
+        Version version = Version.builder()
+            .version("20240_1712920946")
+            .type("shuttle_bus_timetable")
+            .build();
+        versionRepository.save(version);
+
+        BusType busType = BusType.from("shuttle");
+        String direction = "from";
+        String region = "천안";
+
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+            .when()
+            .param("bus_type", busType.name().toLowerCase())
+            .param("direction", direction)
+            .param("region", region)
+            .get("/bus/timetable/v2")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "bus_timetable": [
+                        {
+                            "route_name": "주중",
+                            "arrival_info": [
+                                {
+                                    "nodeName": "한기대",
+                                    "arrivalTime": "18:10"
+                                },
+                                {
+                                    "nodeName": "신계초,운전리,연춘리",
+                                    "arrivalTime": "정차"
+                                },
+                                {
+                                    "nodeName": "천안역(학화호두과자)",
+                                    "arrivalTime": "18:50"
+                                },{
+                                    "nodeName": "터미널(신세계 앞 횡단보도)",
+                                    "arrivalTime": "18:55"
+                                }
+                            ]
+                        }
+                    ],
+                    "updated_at": %s
+                }
+                """, version.getUpdatedAt()));
     }
 }
