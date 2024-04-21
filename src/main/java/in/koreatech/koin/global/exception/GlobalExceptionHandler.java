@@ -120,6 +120,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다. " + e.getParsedString());
     }
 
+    @ExceptionHandler(UnsupportedOperationException.class)
+    public ResponseEntity<Object> handleUnsupportedOperationException(
+        HttpServletRequest request,
+        DateTimeParseException e
+    ) {
+        log.warn(e.getMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "지원하지 않는 API 입니다.");
+    }
+
     @ExceptionHandler(ClientAbortException.class)
     public ResponseEntity<Object> handleClientAbortException(
         HttpServletRequest request,
