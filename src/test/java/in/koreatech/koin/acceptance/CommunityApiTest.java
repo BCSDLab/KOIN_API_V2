@@ -1,10 +1,6 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
-
-import java.util.ArrayList;
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,111 +13,42 @@ import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.domain.community.model.Board;
 import in.koreatech.koin.domain.community.model.Comment;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.repository.BoardRepository;
 import in.koreatech.koin.domain.community.repository.CommentRepository;
 import in.koreatech.koin.domain.user.model.Student;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.model.UserIdentity;
-import in.koreatech.koin.domain.user.repository.StudentRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.fixture.ArticleFixture;
+import in.koreatech.koin.fixture.BoardFixture;
+import in.koreatech.koin.fixture.UserFixture;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
+@SuppressWarnings("NonAsciiCharacters")
 class CommunityApiTest extends AcceptanceTest {
 
     @Autowired
     private ArticleRepository articleRepository;
 
     @Autowired
-    private BoardRepository boardRepository;
-
-    @Autowired
     private CommentRepository commentRepository;
 
     @Autowired
-    private StudentRepository studentRepository;
+    private UserFixture userFixture;
 
     @Autowired
-    private JwtProvider jwtProvider;
+    private ArticleFixture articleFixture;
 
-    private final long PAGE_NUMBER = 1;
-    private final long PAGE_LIMIT = 1;
-    private final long ARTICLE_COUNT = 2L;
+    @Autowired
+    private BoardFixture boardFixture;
 
-    private Board board;
-    private Article article1, article2;
-    private Student student;
+    Student student;
+    Board board;
+    Article article1, article2;
 
     @BeforeEach
     void givenBeforeEach() {
-        Student studentRequest = Student.builder()
-            .studentNumber("202020136070")
-            .anonymousNickname("익명")
-            .department("컴퓨터공학부")
-            .userIdentity(UserIdentity.UNDERGRADUATE)
-            .isGraduated(false)
-            .user(
-                User.builder()
-                    .password("0000")
-                    .nickname("BCSD")
-                    .name("송선권")
-                    .phoneNumber("010-1234-5678")
-                    .userType(STUDENT)
-                    .gender(UserGender.MAN)
-                    .email("test@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
-        student = studentRepository.save(studentRequest);
-
-        Board boardRequest = Board.builder()
-            .tag("FA001")
-            .name("자유게시판")
-            .isAnonymous(false)
-            .articleCount(338)
-            .isDeleted(false)
-            .isNotice(false)
-            .parentId(null)
-            .seq(1)
-            .build();
-        board = boardRepository.save(boardRequest);
-
-        Article article1Request = Article.builder()
-            .board(board)
-            .title("Article 1")
-            .content("<p>내용</p>")
-            .user(student.getUser())
-            .nickname("BCSD")
-            .hit(14)
-            .ip("123.21.234.321")
-            .isSolved(false)
-            .isDeleted(false)
-            .commentCount((byte)2)
-            .meta(null)
-            .isNotice(false)
-            .noticeArticleId(null)
-            .build();
-        article1 = articleRepository.save(article1Request);
-
-        Article article2Request = Article.builder()
-            .board(board)
-            .title("Article 2")
-            .content("<p> CONTENT</p>")
-            .user(student.getUser())
-            .nickname("BCSD")
-            .hit(14)
-            .ip("123.14.321.213")
-            .isSolved(false)
-            .isDeleted(false)
-            .commentCount((byte)2)
-            .meta(null)
-            .isNotice(false)
-            .noticeArticleId(null)
-            .build();
-
-        article2 = articleRepository.save(article2Request);
+        student = userFixture.준호_학생();
+        board = boardFixture.자유게시판();
+        article1 = articleFixture.자유글_1(student.getUser(), board);
+        article2 = articleFixture.자유글_2(student.getUser(), board);
     }
 
     @Test
@@ -135,8 +62,7 @@ class CommunityApiTest extends AcceptanceTest {
             .nickname("BCSD")
             .isDeleted(false)
             .build();
-
-        Comment comment = commentRepository.save(request);
+        commentRepository.save(request);
 
         // when then
         var response = RestAssured
@@ -144,60 +70,62 @@ class CommunityApiTest extends AcceptanceTest {
             .when()
             .get("/articles/{articleId}", article1.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        article1.updateContentSummary();
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getInt("id")).isEqualTo(article1.getId());
-                softly.assertThat(response.jsonPath().getInt("board_id")).isEqualTo(article1.getBoard().getId());
-                softly.assertThat(response.jsonPath().getString("title")).isEqualTo(article1.getTitle());
-                softly.assertThat(response.jsonPath().getString("content")).isEqualTo(article1.getContent());
-                softly.assertThat(response.jsonPath().getString("nickname")).isEqualTo(article1.getNickname());
-                softly.assertThat(response.jsonPath().getInt("hit")).isEqualTo(article1.getHit());
-                softly.assertThat(response.jsonPath().getBoolean("is_solved")).isEqualTo(article1.isSolved());
-                softly.assertThat(response.jsonPath().getByte("comment_count")).isEqualTo(article1.getCommentCount());
-                softly.assertThat(response.jsonPath().getBoolean("is_notice")).isEqualTo(article1.isNotice());
-                softly.assertThat(response.jsonPath().getString("contentSummary"))
-                    .isEqualTo(article1.getContentSummary());
-
-                softly.assertThat(response.jsonPath().getInt("board.id")).isEqualTo(board.getId());
-                softly.assertThat(response.jsonPath().getString("board.tag")).isEqualTo(board.getTag());
-                softly.assertThat(response.jsonPath().getString("board.name")).isEqualTo(board.getName());
-                softly.assertThat(response.jsonPath().getBoolean("board.is_anonymous"))
-                    .isEqualTo(board.getIsAnonymous());
-                softly.assertThat(response.jsonPath().getInt("board.article_count"))
-                    .isEqualTo(board.getArticleCount());
-                softly.assertThat(response.jsonPath().getBoolean("board.is_deleted")).isEqualTo(board.isDeleted());
-                softly.assertThat(response.jsonPath().getBoolean("board.is_notice")).isEqualTo(board.isNotice());
-                softly.assertThat(response.jsonPath().getString("board.parent_id")).isEqualTo(board.getParentId());
-                softly.assertThat(response.jsonPath().getInt("board.seq")).isEqualTo(board.getSeq());
-                softly.assertThat(response.jsonPath().getString("board.children"))
-                    .isEqualTo(board.getChildren().isEmpty() ? null : board.getChildren());
-
-                softly.assertThat(response.jsonPath().getInt("comments[0].id")).isEqualTo(comment.getId());
-                softly.assertThat(response.jsonPath().getInt("comments[0].article_id"))
-                    .isEqualTo(comment.getArticle().getId());
-                softly.assertThat(response.jsonPath().getString("comments[0].content")).isEqualTo(comment.getContent());
-                softly.assertThat(response.jsonPath().getInt("comments[0].user_id")).isEqualTo(comment.getUserId());
-                softly.assertThat(response.jsonPath().getString("comments[0].nickname"))
-                    .isEqualTo(comment.getNickname());
-                softly.assertThat(response.jsonPath().getBoolean("comments[0].is_deleted"))
-                    .isEqualTo(comment.getIsDeleted());
-                softly.assertThat(response.jsonPath().getBoolean("comments[0].grantEdit"))
-                    .isEqualTo(comment.isGrantEdit());
-                softly.assertThat(response.jsonPath().getBoolean("comments[0].grantDelete"))
-                    .isEqualTo(comment.isGrantDelete());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "contentSummary": "내용",
+                    "id": 1,
+                    "board_id": 1,
+                    "title": "자유 글의 제목입니다",
+                    "content": "<p>내용</p>",
+                    "nickname": "준호",
+                    "is_solved": false,
+                    "is_notice": false,
+                    "hit": 1,
+                    "comment_count": 0,
+                    "board": {
+                        "id": 1,
+                        "tag": "FA001",
+                        "name": "자유게시판",
+                        "is_anonymous": false,
+                        "article_count": 0,
+                        "is_deleted": false,
+                        "is_notice": false,
+                        "parent_id": null,
+                        "seq": 1,
+                        "children": null,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
+                    },
+                    "comments": [
+                        {
+                            "grantEdit": false,
+                            "grantDelete": false,
+                            "id": 1,
+                            "article_id": 1,
+                            "content": "댓글",
+                            "user_id": 1,
+                            "nickname": "BCSD",
+                            "is_deleted": false,
+                            "created_at": "2024-01-15 12:00:00",
+                            "updated_at": "2024-01-15 12:00:00"
+                        }
+                    ],
+                    "created_at": "2024-01-15 12:00:00",
+                    "updated_at": "2024-01-15 12:00:00"
+                }
+                """);
     }
 
     @Test
     @DisplayName("특정 게시글을 단일 조회한다. - 댓글 작성자가 본인이면 수정 및 제거 권한이 부여된다.")
     void getArticleAuthorizationComment() {
         // given
-        String token = jwtProvider.createToken(student.getUser());
+        String token = userFixture.getToken(student.getUser());
 
         Comment request = Comment.builder()
             .article(article1)
@@ -217,196 +145,218 @@ class CommunityApiTest extends AcceptanceTest {
             .when()
             .get("/articles/{articleId}", article1.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        article1.updateContentSummary();
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getBoolean("comments[0].grantEdit"))
-                    .isEqualTo(comment.isGrantEdit());
-                softly.assertThat(response.jsonPath().getBoolean("comments[0].grantDelete"))
-                    .isEqualTo(comment.isGrantDelete());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "contentSummary": "내용",
+                    "id": 1,
+                    "board_id": 1,
+                    "title": "자유 글의 제목입니다",
+                    "content": "<p>내용</p>",
+                    "nickname": "준호",
+                    "is_solved": false,
+                    "is_notice": false,
+                    "hit": 2,
+                    "comment_count": 0,
+                    "board": {
+                        "id": 1,
+                        "tag": "FA001",
+                        "name": "자유게시판",
+                        "is_anonymous": false,
+                        "article_count": 0,
+                        "is_deleted": false,
+                        "is_notice": false,
+                        "parent_id": null,
+                        "seq": 1,
+                        "children": null,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
+                    },
+                    "comments": [
+                        {
+                            "grantEdit": true,
+                            "grantDelete": true,
+                            "id": 1,
+                            "article_id": 1,
+                            "content": "댓글",
+                            "user_id": 1,
+                            "nickname": "BCSD",
+                            "is_deleted": false,
+                            "created_at": "2024-01-15 12:00:00",
+                            "updated_at": "2024-01-15 12:00:00"
+                        }
+                    ],
+                    "created_at": "2024-01-15 12:00:00",
+                    "updated_at": "2024-01-15 12:00:00"
+                }
+                """);
     }
 
     @Test
     @DisplayName("게시글들을 페이지네이션하여 조회한다.")
     void getArticlesByPagination() {
-        // given
-
         // when then
         var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
-            .param("page", PAGE_NUMBER)
-            .param("limit", PAGE_LIMIT)
+            .param("page", 1)
+            .param("limit", 10)
             .get("/articles")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        article2.updateContentSummary();
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getInt("board.id")).isEqualTo(board.getId());
-                softly.assertThat(response.jsonPath().getString("board.tag")).isEqualTo(board.getTag());
-                softly.assertThat(response.jsonPath().getString("board.name")).isEqualTo(board.getName());
-                softly.assertThat(response.jsonPath().getBoolean("board.is_anonymous"))
-                    .isEqualTo(board.getIsAnonymous());
-                softly.assertThat(response.jsonPath().getInt("board.article_count"))
-                    .isEqualTo(board.getArticleCount());
-                softly.assertThat(response.jsonPath().getBoolean("board.is_deleted")).isEqualTo(board.isDeleted());
-                softly.assertThat(response.jsonPath().getBoolean("board.is_notice")).isEqualTo(board.isNotice());
-                softly.assertThat(response.jsonPath().getString("board.parent_id")).isEqualTo(board.getParentId());
-                softly.assertThat(response.jsonPath().getInt("board.seq")).isEqualTo(board.getSeq());
-                softly.assertThat(response.jsonPath().getString("board.children"))
-                    .isEqualTo(board.getChildren().isEmpty() ? null : board.getChildren());
-
-                softly.assertThat(response.jsonPath().getInt("articles[0].id")).isEqualTo(article2.getId());
-                softly.assertThat(response.jsonPath().getInt("articles[0].board_id"))
-                    .isEqualTo(article2.getBoard().getId());
-                softly.assertThat(response.jsonPath().getString("articles[0].title")).isEqualTo(article2.getTitle());
-                softly.assertThat(response.jsonPath().getString("articles[0].content"))
-                    .isEqualTo(article2.getContent());
-                softly.assertThat(response.jsonPath().getInt("articles[0].user_id"))
-                    .isEqualTo(article2.getUser().getId());
-                softly.assertThat(response.jsonPath().getString("articles[0].nickname"))
-                    .isEqualTo(article2.getNickname());
-                softly.assertThat(response.jsonPath().getInt("articles[0].hit")).isEqualTo(article2.getHit());
-                softly.assertThat(response.jsonPath().getString("articles[0].ip")).isEqualTo(article2.getIp());
-                softly.assertThat(response.jsonPath().getBoolean("articles[0].is_solved"))
-                    .isEqualTo(article2.isSolved());
-                softly.assertThat(response.jsonPath().getBoolean("articles[0].is_deleted"))
-                    .isEqualTo(article2.isDeleted());
-                softly.assertThat(response.jsonPath().getByte("articles[0].comment_count"))
-                    .isEqualTo(article2.getCommentCount());
-                softly.assertThat(response.jsonPath().getString("articles[0].meta")).isEqualTo(article2.getMeta());
-                softly.assertThat(response.jsonPath().getBoolean("articles[0].is_notice"))
-                    .isEqualTo(article2.isNotice());
-                softly.assertThat(response.jsonPath().getString("articles[0].notice_article_id"))
-                    .isEqualTo(article2.getNoticeArticleId());
-                softly.assertThat(response.jsonPath().getString("articles[0].summary"))
-                    .isEqualTo(article2.getSummary());
-                softly.assertThat(response.jsonPath().getString("articles[0].contentSummary"))
-                    .isEqualTo(article2.getContentSummary());
-
-                softly.assertThat(response.jsonPath().getInt("totalPage")).isEqualTo(ARTICLE_COUNT / PAGE_LIMIT);
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "articles": [
+                        {
+                            "contentSummary": "내용222",
+                            "id": 2,
+                            "board_id": 1,
+                            "title": "자유 글2의 제목입니다",
+                            "content": "<p>내용222</p>",
+                            "user_id": 1,
+                            "nickname": "준호",
+                            "hit": 1,
+                            "ip": "127.0.0.1",
+                            "is_solved": false,
+                            "is_deleted": false,
+                            "comment_count": 0,
+                            "meta": null,
+                            "is_notice": false,
+                            "notice_article_id": null,
+                            "summary": null,
+                            "created_at": "2024-01-15 12:00:00",
+                            "updated_at": "2024-01-15 12:00:00"
+                        },
+                        {
+                            "contentSummary": "내용",
+                            "id": 1,
+                            "board_id": 1,
+                            "title": "자유 글의 제목입니다",
+                            "content": "<p>내용</p>",
+                            "user_id": 1,
+                            "nickname": "준호",
+                            "hit": 1,
+                            "ip": "123.21.234.321",
+                            "is_solved": false,
+                            "is_deleted": false,
+                            "comment_count": 0,
+                            "meta": null,
+                            "is_notice": false,
+                            "notice_article_id": null,
+                            "summary": null,
+                            "created_at": "2024-01-15 12:00:00",
+                            "updated_at": "2024-01-15 12:00:00"
+                        }
+                    ],
+                    "board": {
+                        "id": 1,
+                        "tag": "FA001",
+                        "name": "자유게시판",
+                        "is_anonymous": false,
+                        "article_count": 0,
+                        "is_deleted": false,
+                        "is_notice": false,
+                        "parent_id": null,
+                        "seq": 1,
+                        "children": null,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
+                    },
+                    "totalPage": 1
+                }
+                """);
     }
 
     @Test
     @DisplayName("게시글들을 페이지네이션하여 조회한다. - 페이지가 0이면 1 페이지 조회")
     void getArticlesByPagination_0Page() {
-        // given
-        final long PAGE_NUMBER_ZERO = 0L;
-
         // when then
         var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
-            .param("page", PAGE_NUMBER_ZERO)
-            .param("limit", PAGE_LIMIT)
+            .param("page", 0L)
+            .param("limit", 1)
             .get("/articles")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getInt("articles[0].id")).isEqualTo(article2.getId());
-            }
-        );
+        assertThat(response.jsonPath().getInt("articles[0].id")).isEqualTo(article2.getId());
     }
 
     @Test
     @DisplayName("게시글들을 페이지네이션하여 조회한다. - 페이지가 음수이면 1 페이지 조회")
     void getArticlesByPagination_lessThan0Pages() {
-        // given
-        final long PAGE_NUMBER_MINUS = -10L;
-
         // when then
         var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
-            .param("page", PAGE_NUMBER_MINUS)
-            .param("limit", PAGE_LIMIT)
+            .param("page", -10L)
+            .param("limit", 1)
             .get("/articles")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getInt("articles[0].id")).isEqualTo(article2.getId());
-            }
-        );
+        assertThat(response.jsonPath().getInt("articles[0].id")).isEqualTo(article2.getId());
     }
 
     @Test
     @DisplayName("게시글들을 페이지네이션하여 조회한다. - limit가 0 이면 한 번에 1 게시글 조회")
     void getArticlesByPagination_1imit() {
-        // given
-        final long PAGE_LIMIT_ZERO = 0L;
-
         // when then
         var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
-            .param("page", PAGE_NUMBER)
-            .param("limit", PAGE_LIMIT_ZERO)
+            .param("page", 1)
+            .param("limit", 0L)
             .get("/articles")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getInt("totalPage")).isEqualTo(ARTICLE_COUNT / PAGE_LIMIT);
-            }
-        );
+        assertThat(response.jsonPath().getList("articles")).hasSize(1);
     }
 
     @Test
     @DisplayName("게시글들을 페이지네이션하여 조회한다. - limit가 음수이면 한 번에 1 게시글 조회")
     void getArticlesByPagination_lessThan0Limit() {
-        // given
-        final long PAGE_LIMIT_ZERO = -10L;
-
         // when then
         var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
-            .param("page", PAGE_NUMBER)
-            .param("limit", PAGE_LIMIT_ZERO)
+            .param("page", 1)
+            .param("limit", -10L)
             .get("/articles")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getInt("totalPage")).isEqualTo(ARTICLE_COUNT / PAGE_LIMIT);
-            }
-        );
+        assertThat(response.jsonPath().getList("articles")).hasSize(1);
     }
 
     @Test
     @DisplayName("게시글들을 페이지네이션하여 조회한다. - limit가 50 이상이면 한 번에 50 게시글 조회")
     void getArticlesByPagination_over50Limit() {
         // given
-        final long PAGE_LIMIT_ZERO = 100L;
-        final long MAX_PAGE_LIMIT = 50L;
-        final long ADD_ARTICLE_COUNT = 60L;
-
-        for (int i = 0; i < ADD_ARTICLE_COUNT; i++) {
+        for (int i = 0; i < 60; i++) {
             Article article = Article.builder()
                 .board(board)
                 .title("제목")
@@ -417,7 +367,7 @@ class CommunityApiTest extends AcceptanceTest {
                 .ip("123.21.234.321")
                 .isSolved(false)
                 .isDeleted(false)
-                .commentCount((byte)2)
+                .commentCount((byte) 2)
                 .meta(null)
                 .isNotice(false)
                 .noticeArticleId(null)
@@ -430,30 +380,22 @@ class CommunityApiTest extends AcceptanceTest {
             .given()
             .when()
             .param("boardId", board.getId())
-            .param("page", PAGE_NUMBER)
-            .param("limit", PAGE_LIMIT_ZERO)
+            .param("page", 1)
+            .param("limit", 100L)
             .get("/articles")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getInt("totalPage"))
-                    .isEqualTo((long)Math.ceil(((double)ARTICLE_COUNT + ADD_ARTICLE_COUNT) / MAX_PAGE_LIMIT));
-            }
-        );
+        assertThat(response.jsonPath().getList("articles")).hasSize(50);
     }
 
     @Test
     @DisplayName("게시글들을 페이지네이션하여 조회한다. - 페이지, limit가 주어지지 않으면 1 페이지 10 게시글 조회")
     void getArticlesByPagination_default() {
         // given
-        final long DEFAULT_LIMIT = 10L;
-        final long ADD_ARTICLE_COUNT = 10L;
-        final long FINAL_ARTICLE_ID = ARTICLE_COUNT + ADD_ARTICLE_COUNT;
-
-        for (int i = 0; i < ADD_ARTICLE_COUNT; i++) {
+        for (int i = 0; i < 10; i++) {
             Article article = Article.builder()
                 .board(board)
                 .title("제목")
@@ -464,7 +406,7 @@ class CommunityApiTest extends AcceptanceTest {
                 .ip("123.21.234.321")
                 .isSolved(false)
                 .isDeleted(false)
-                .commentCount((byte)2)
+                .commentCount((byte) 2)
                 .meta(null)
                 .isNotice(false)
                 .noticeArticleId(null)
@@ -479,70 +421,54 @@ class CommunityApiTest extends AcceptanceTest {
             .param("boardId", board.getId())
             .get("/articles")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getInt("articles[0].id")).isEqualTo(FINAL_ARTICLE_ID);
-                softly.assertThat(response.jsonPath().getInt("totalPage"))
-                    .isEqualTo((long)Math.ceil(((double)ARTICLE_COUNT + ADD_ARTICLE_COUNT) / DEFAULT_LIMIT));
-            }
-        );
+        assertThat(response.jsonPath().getInt("articles")).isEqualTo(10);
+
     }
 
     @Test
     @DisplayName("게시글들을 페이지네이션하여 조회한다. - 요청된 페이지에 게시글이 존재하지 않으면 빈 게시글 배열을 반환한다.")
     void getArticlesByPagination_overMaxPageNotFound() {
-        // given
-        final long PAGE_NUMBER = 10000L;
-
         // when then
         var response = RestAssured
             .given()
             .when()
             .param("boardId", board.getId())
-            .param("page", PAGE_NUMBER)
-            .param("limit", PAGE_LIMIT)
+            .param("page", 10000L)
+            .param("limit", 1)
             .get("/articles")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getList("articles")).hasSize(0);
-            }
-        );
+        assertThat(response.jsonPath().getList("articles")).isEmpty();
     }
 
     @Test
     @DisplayName("인기많은 게시글 목록을 조회한다.")
     void getHotArticles() {
         // given
-        final int ARTICLE_COUNT = 30;
-        final int HOT_ARTICLE_LIMIT = 10;
-        List<Article> articles = new ArrayList<>();
-
-        for (int i = 1; i <= ARTICLE_COUNT; i++) {
-            articles.add(
-                Article.builder()
-                    .board(board)
-                    .title(String.format("Article %d", i))
-                    .content("<p>내용</p>")
-                    .user(student.getUser())
-                    .nickname("BCSD")
-                    .hit(i)
-                    .ip("123.21.234.321")
-                    .isSolved(false)
-                    .isDeleted(false)
-                    .commentCount((byte)2)
-                    .meta(null)
-                    .isNotice(false)
-                    .noticeArticleId(null)
-                    .build()
+        for (int i = 5; i <= 7; i++) {
+            articleRepository.save(Article.builder()
+                .board(board)
+                .title(String.format("Article %d", i))
+                .content("<p>내용</p>")
+                .user(student.getUser())
+                .nickname("BCSD")
+                .hit(i)
+                .ip("123.21.234.321")
+                .isSolved(false)
+                .isDeleted(false)
+                .commentCount((byte) 2)
+                .meta(null)
+                .isNotice(false)
+                .noticeArticleId(null)
+                .build()
             );
-            articleRepository.save(articles.get(i - 1));
         }
 
         // when then
@@ -551,44 +477,59 @@ class CommunityApiTest extends AcceptanceTest {
             .when()
             .get("/articles/hot/list")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getList("").size()).isEqualTo(HOT_ARTICLE_LIMIT);
-
-                softly.assertThat(response.jsonPath().getInt("[0].id"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 1).getId());
-                softly.assertThat(response.jsonPath().getInt("[0].board_id")).isEqualTo(board.getId());
-                softly.assertThat(response.jsonPath().getString("[0].title"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 1).getTitle());
-                softly.assertThat(response.jsonPath().getString("[0].contentSummary"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 1).getContentSummary());
-                softly.assertThat(response.jsonPath().getByte("[0].comment_count"))
-                    .isEqualTo((byte)articles.get(ARTICLE_COUNT - 1).getCommentCount());
-                softly.assertThat(response.jsonPath().getInt("[0].hit"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 1).getHit());
-
-                softly.assertThat(response.jsonPath().getInt("[1].id"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 2).getId());
-                softly.assertThat(response.jsonPath().getInt("[2].id"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 3).getId());
-                softly.assertThat(response.jsonPath().getInt("[3].id"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 4).getId());
-                softly.assertThat(response.jsonPath().getInt("[4].id"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 5).getId());
-                softly.assertThat(response.jsonPath().getInt("[5].id"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 6).getId());
-                softly.assertThat(response.jsonPath().getInt("[6].id"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 7).getId());
-                softly.assertThat(response.jsonPath().getInt("[7].id"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 8).getId());
-                softly.assertThat(response.jsonPath().getInt("[8].id"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 9).getId());
-                softly.assertThat(response.jsonPath().getInt("[9].id"))
-                    .isEqualTo(articles.get(ARTICLE_COUNT - 10).getId());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                [
+                    {
+                        "contentSummary": "내용",
+                        "id": 5,
+                        "board_id": 1,
+                        "title": "Article 7",
+                        "comment_count": 2,
+                        "hit": 7,
+                        "created_at": "2024-01-15 12:00:00"
+                    },
+                    {
+                        "contentSummary": "내용",
+                        "id": 4,
+                        "board_id": 1,
+                        "title": "Article 6",
+                        "comment_count": 2,
+                        "hit": 6,
+                        "created_at": "2024-01-15 12:00:00"
+                    },
+                    {
+                        "contentSummary": "내용",
+                        "id": 3,
+                        "board_id": 1,
+                        "title": "Article 5",
+                        "comment_count": 2,
+                        "hit": 5,
+                        "created_at": "2024-01-15 12:00:00"
+                    },
+                    {
+                        "contentSummary": "내용222",
+                        "id": 2,
+                        "board_id": 1,
+                        "title": "자유 글2의 제목입니다",
+                        "comment_count": 0,
+                        "hit": 1,
+                        "created_at": "2024-01-15 12:00:00"
+                    },
+                    {
+                        "contentSummary": "내용",
+                        "id": 1,
+                        "board_id": 1,
+                        "title": "자유 글의 제목입니다",
+                        "comment_count": 0,
+                        "hit": 1,
+                        "created_at": "2024-01-15 12:00:00"
+                    }
+                ]
+                    """);
     }
 }

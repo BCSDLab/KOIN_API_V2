@@ -1,5 +1,6 @@
 package in.koreatech.koin.acceptance;
 
+import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
 import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +22,6 @@ import in.koreatech.koin.domain.dept.model.Dept;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.model.UserIdentity;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
@@ -93,7 +93,7 @@ class UserApiTest extends AcceptanceTest {
             .studentNumber("2019136135")
             .anonymousNickname("익명")
             .department("컴퓨터공학부")
-            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
             .user(
                 User.builder()
@@ -153,7 +153,7 @@ class UserApiTest extends AcceptanceTest {
             .studentNumber("2019136135")
             .anonymousNickname("익명")
             .department("컴퓨터공학부")
-            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
             .user(
                 User.builder()
@@ -218,7 +218,7 @@ class UserApiTest extends AcceptanceTest {
             .studentNumber("2019136135")
             .anonymousNickname("익명")
             .department("컴퓨터공학부")
-            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
             .user(
                 User.builder()
@@ -266,7 +266,7 @@ class UserApiTest extends AcceptanceTest {
             .studentNumber("2019136135")
             .anonymousNickname("익명")
             .department("컴퓨터공학부")
-            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
             .user(
                 User.builder()
@@ -314,7 +314,7 @@ class UserApiTest extends AcceptanceTest {
             .studentNumber("2019136135")
             .anonymousNickname("익명")
             .department("컴퓨터공학부")
-            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
             .user(
                 User.builder()
@@ -362,7 +362,7 @@ class UserApiTest extends AcceptanceTest {
             .studentNumber("2019136135")
             .anonymousNickname("익명")
             .department("컴퓨터공학부")
-            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
             .user(
                 User.builder()
@@ -450,7 +450,7 @@ class UserApiTest extends AcceptanceTest {
             .studentNumber("2019136135")
             .anonymousNickname("익명")
             .department("컴퓨터공학부")
-            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
             .user(
                 User.builder()
@@ -471,7 +471,7 @@ class UserApiTest extends AcceptanceTest {
             .studentNumber("2020136065")
             .anonymousNickname("익명2")
             .department("컴퓨터공학부")
-            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
             .user(
                 User.builder()
@@ -726,7 +726,7 @@ class UserApiTest extends AcceptanceTest {
             .studentNumber("2019136135")
             .anonymousNickname("익명")
             .department("컴퓨터공학부")
-            .userIdentity(UserIdentity.UNDERGRADUATE)
+            .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
             .user(
                 User.builder()
