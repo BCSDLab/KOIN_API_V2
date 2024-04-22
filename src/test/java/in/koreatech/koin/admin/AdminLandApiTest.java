@@ -1,4 +1,4 @@
-package in.koreatech.koin.acceptance;
+package in.koreatech.koin.admin;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
