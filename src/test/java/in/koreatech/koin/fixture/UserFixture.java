@@ -108,6 +108,40 @@ public final class UserFixture {
         );
     }
 
+    public Owner 준영_사장님() {
+        return ownerRepository.save(
+            Owner.builder()
+                .companyRegistrationNumber("112-80-56789")
+                .attachments(List.of(
+                        OwnerAttachment.builder()
+                            .url("https://test.com/준영_사장님_인증사진_1.jpg")
+                            .isDeleted(false)
+                            .build(),
+                        OwnerAttachment.builder()
+                            .url("https://test.com/준영_사장님_인증사진_2.jpg")
+                            .isDeleted(false)
+                            .build()
+                    )
+                )
+                .grantShop(true)
+                .grantEvent(true)
+                .user(
+                    User.builder()
+                        .password(passwordEncoder.encode("1234"))
+                        .nickname("준영")
+                        .name("테스트용_준영")
+                        .phoneNumber("010-9776-5112")
+                        .userType(OWNER)
+                        .gender(MAN)
+                        .email("testjoonyoung@gmail.com")
+                        .isAuthed(true)
+                        .isDeleted(false)
+                        .build()
+                )
+                .build()
+        );
+    }
+
     public User 준기_영양사() {
         return userRepository.save(
             User.builder()

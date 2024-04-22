@@ -44,6 +44,28 @@ public final class ShopFixture {
         );
     }
 
+    public Shop 신전_떡볶이(Owner owner) {
+        return shopRepository.save(
+            Shop.builder()
+                .owner(owner)
+                .name("신전 떡볶이")
+                .internalName("신전")
+                .chosung("신")
+                .phone("010-7788-9900")
+                .address("천안시 동남구 병천면 1600 신전떡볶이")
+                .description("신전떡볶이입니다.")
+                .delivery(true)
+                .deliveryPrice(2000)
+                .payCard(true)
+                .payBank(true)
+                .isDeleted(false)
+                .isEvent(false)
+                .remarks("비고")
+                .hit(0)
+                .build()
+        );
+    }
+
     public ShopFixtureBuilder builder() {
         return new ShopFixtureBuilder();
     }

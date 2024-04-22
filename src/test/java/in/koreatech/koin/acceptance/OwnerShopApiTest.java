@@ -1,13 +1,12 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static java.time.format.DateTimeFormatter.ofPattern;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,18 +16,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.owner.model.OwnerAttachment;
-import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
-import in.koreatech.koin.domain.owner.repository.OwnerRepository;
-import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.shop.model.EventArticle;
-import in.koreatech.koin.domain.shop.model.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -39,618 +31,352 @@ import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.ShopImage;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
-import in.koreatech.koin.domain.shop.repository.EventArticleImageRepository;
 import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
-import in.koreatech.koin.domain.shop.repository.ShopCategoryMapRepository;
-import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
-import in.koreatech.koin.domain.shop.repository.ShopImageRepository;
-import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.fixture.EventArticleFixture;
+import in.koreatech.koin.fixture.MenuCategoryFixture;
+import in.koreatech.koin.fixture.MenuFixture;
+import in.koreatech.koin.fixture.ShopCategoryFixture;
+import in.koreatech.koin.fixture.ShopFixture;
+import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
+@SuppressWarnings("NonAsciiCharacters")
 class OwnerShopApiTest extends AcceptanceTest {
 
     @Autowired
     private TransactionTemplate transactionTemplate;
 
     @Autowired
-    private EventArticleImageRepository eventArticleImageRepository;
-
-    @Autowired
-    private OwnerRepository ownerRepository;
+    private MenuRepository menuRepository;
 
     @Autowired
     private ShopRepository shopRepository;
 
     @Autowired
-    private ShopCategoryRepository shopCategoryRepository;
-
-    @Autowired
-    private ShopOpenRepository shopOpenRepository;
-
-    @Autowired
-    private ShopImageRepository shopImageRepository;
-
-    @Autowired
-    private ShopCategoryMapRepository shopCategoryMapRepository;
-
-    @Autowired
     private MenuCategoryRepository menuCategoryRepository;
-
-    @Autowired
-    private MenuRepository menuRepository;
 
     @Autowired
     private EventArticleRepository eventArticleRepository;
 
     @Autowired
-    private JwtProvider jwtProvider;
+    private MenuFixture menuFixture;
 
     @Autowired
-    private OwnerAttachmentRepository ownerAttachmentRepository;
+    private UserFixture userFixture;
 
-    private Owner owner;
-    private Shop shop;
-    private String token;
-    private ShopCategory shopCategory1;
-    private ShopCategory shopCategory2;
-    private Owner otherOwner;
-    private String otherOwnerToken;
+    @Autowired
+    private ShopFixture shopFixture;
+
+    @Autowired
+    private ShopCategoryFixture shopCategoryFixture;
+
+    @Autowired
+    private MenuCategoryFixture menuCategoryFixture;
+
+    @Autowired
+    private EventArticleFixture eventArticleFixture;
+
+    private Owner owner_현수;
+    private String token_현수;
+    private Owner owner_준영;
+    private String token_준영;
+    private Shop shop_마슬랜;
+    private ShopCategory shopCategory_치킨;
+    private ShopCategory shopCategory_일반;
+    private MenuCategory menuCategory_메인;
+    private MenuCategory menuCategory_사이드;
 
     @BeforeEach
     void setUp() {
-        OwnerAttachment attachment = OwnerAttachment.builder()
-            .url("https://test.com/test.jpg")
-            .isDeleted(false)
-            .build();
-
-        Owner ownerRequest = Owner.builder()
-            .companyRegistrationNumber("111-45-67890")
-            .attachments(List.of(attachment))
-            .grantShop(true)
-            .grantEvent(true)
-            .user(
-                User.builder()
-                    .password("1234")
-                    .nickname("셋업유저")
-                    .name("셋업")
-                    .phoneNumber("010-1234-5678")
-                    .userType(OWNER)
-                    .gender(UserGender.MAN)
-                    .email("test@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
-        owner = ownerRepository.save(ownerRequest);
-        token = jwtProvider.createToken(owner.getUser());
-
-        Shop shopRequest = Shop.builder()
-            .owner(owner)
-            .name("테스트 상점")
-            .internalName("테스트")
-            .chosung("테스트")
-            .phone("010-1234-5678")
-            .address("대전광역시 유성구 대학로 291")
-            .description("테스트 상점입니다.")
-            .delivery(true)
-            .deliveryPrice(3000)
-            .payCard(true)
-            .payBank(true)
-            .isDeleted(false)
-            .isEvent(false)
-            .remarks("비고")
-            .hit(0)
-            .build();
-        shop = shopRepository.save(shopRequest);
-
-        ShopCategory shopCategoryRequest1 = ShopCategory.builder()
-            .isDeleted(false)
-            .name("테스트1")
-            .imageUrl("https://test.com/test1.jpg")
-            .build();
-
-        ShopCategory shopCategoryRequest2 = ShopCategory.builder()
-            .isDeleted(false)
-            .name("테스트2")
-            .imageUrl("https://test.com/test2.jpg")
-            .build();
-        shopCategory1 = shopCategoryRepository.save(shopCategoryRequest1);
-        shopCategory2 = shopCategoryRepository.save(shopCategoryRequest2);
-
-        var otherAttachment = OwnerAttachment.builder()
-            .url("https://test.com/test.jpg")
-            .isDeleted(false)
-            .build();
-
-        Owner otherOwnerRequest = Owner.builder()
-            .companyRegistrationNumber("123-45-61890")
-            .attachments(List.of(otherAttachment))
-            .grantShop(true)
-            .grantEvent(true)
-            .user(
-                User.builder()
-                    .password("1234")
-                    .nickname("주노")
-                    .name("최준호")
-                    .phoneNumber("010-1234-5678")
-                    .userType(OWNER)
-                    .gender(UserGender.MAN)
-                    .email("test@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
-        otherOwner = ownerRepository.save(otherOwnerRequest);
-        otherOwnerToken = jwtProvider.createToken(otherOwner.getUser());
+        owner_현수 = userFixture.현수_사장님();
+        token_현수 = userFixture.getToken(owner_현수.getUser());
+        owner_준영 = userFixture.준영_사장님();
+        token_준영 = userFixture.getToken(owner_준영.getUser());
+        shop_마슬랜 = shopFixture.마슬랜(owner_현수);
+        shopCategory_치킨 = shopCategoryFixture.카테고리_치킨();
+        shopCategory_일반 = shopCategoryFixture.카테고리_일반음식();
+        menuCategory_메인 = menuCategoryFixture.메인메뉴(shop_마슬랜);
+        menuCategory_사이드 = menuCategoryFixture.사이드메뉴(shop_마슬랜);
     }
 
     @Test
     @DisplayName("사장님의 가게 목록을 조회한다.")
     void getOwnerShops() {
         // given
-        Shop shopRequest = Shop.builder()
-            .owner(owner)
-            .name("테스트 상점2")
-            .internalName("테스트")
-            .chosung("테스트")
-            .phone("010-1234-5678")
-            .address("대전광역시 유성구 대학로 291")
-            .description("테스트 상점2입니다.")
-            .delivery(true)
-            .deliveryPrice(4000)
-            .payCard(true)
-            .payBank(true)
-            .isDeleted(false)
-            .isEvent(false)
-            .remarks("비고2")
-            .hit(10)
-            .build();
-        Shop shop2 = shopRepository.save(shopRequest);
+        shopFixture.신전_떡볶이(owner_현수);
 
         // when then
         var response = RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .when()
             .get("/owner/shops")
             .then()
+            .log().all()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getInt("count")).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getList("shops").size()).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getInt("shops[0].id")).isEqualTo(shop.getId());
-                softly.assertThat(response.body().jsonPath().getString("shops[0].name")).isEqualTo(shop.getName());
-                softly.assertThat(response.body().jsonPath().getInt("shops[1].id")).isEqualTo(shop2.getId());
-                softly.assertThat(response.body().jsonPath().getString("shops[1].name")).isEqualTo(shop2.getName());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "count": 2,
+                    "shops": [
+                        {
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "is_event": false
+                        },
+                        {
+                            "id": 2,
+                            "name": "신전 떡볶이",
+                            "is_event": false
+                        }
+                    ]
+                }
+                """);
     }
 
     @Test
     @DisplayName("상점을 생성한다.")
     void createOwnerShop() {
         // given
-        OwnerShopsRequest.InnerOpenRequest open1 = new OwnerShopsRequest.InnerOpenRequest(
-            LocalTime.of(21, 0),
-            false,
-            "MONDAY",
-            LocalTime.of(9, 0)
-        );
-        OwnerShopsRequest.InnerOpenRequest open2 = new OwnerShopsRequest.InnerOpenRequest(
-            LocalTime.of(21, 0),
-            false,
-            "WEDNESDAY",
-            LocalTime.of(9, 0)
-        );
-
-        List<Integer> categoryIds = List.of(1);
-        List<String> imageUrls = List.of(
-            "https://test.com/test1.jpg",
-            "https://test.com/test2.jpg",
-            "https://test.com/test3.jpg"
-        );
-        List<OwnerShopsRequest.InnerOpenRequest> opens = List.of(open1, open2);
-
-        OwnerShopsRequest ownerShopsRequest = new OwnerShopsRequest(
-            "대전광역시 유성구 대학로 291",
-            categoryIds,
-            true,
-            4000,
-            "테스트 상점2입니다.",
-            imageUrls,
-            "테스트 상점2",
-            opens,
-            true,
-            true,
-            "010-1234-5678"
-        );
-
-        ShopCategory shopCategory1 = ShopCategory.builder()
-            .isDeleted(false)
-            .name("테스트1")
-            .imageUrl("https://test.com/test1.jpg")
-            .build();
-
-        ShopCategory shopCategory2 = ShopCategory.builder()
-            .isDeleted(false)
-            .name("테스트2")
-            .imageUrl("https://test.com/test2.jpg")
-            .build();
-        shopCategoryRepository.save(shopCategory1);
-        shopCategoryRepository.save(shopCategory2);
-
-        var response = RestAssured
+        RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token)
-            .body(ownerShopsRequest)
+            .header("Authorization", "Bearer " + token_현수)
+            .body(String.format("""
+                {
+                    "address": "대전광역시 유성구 대학로 291",
+                    "category_ids": [
+                        %d
+                    ],
+                    "delivery": true,
+                    "delivery_price": 4000,
+                    "description": "테스트 상점2입니다.",
+                    "image_urls": [
+                        "https://test.com/test1.jpg",
+                        "https://test.com/test2.jpg",
+                        "https://test.com/test3.jpg"
+                    ],
+                    "name": "테스트 상점2",
+                    "open": [
+                        {
+                            "close_time": [
+                                21,
+                                0
+                            ],
+                            "closed": false,
+                            "day_of_week": "MONDAY",
+                            "open_time": [
+                                9,
+                                0
+                            ]
+                        },
+                        {
+                            "close_time": [
+                                21,
+                                0
+                            ],
+                            "closed": false,
+                            "day_of_week": "WEDNESDAY",
+                            "open_time": [
+                                9,
+                                0
+                            ]
+                        }
+                    ],
+                    "pay_bank": true,
+                    "pay_card": true,
+                    "phone": "010-1234-5678"
+                }
+                """, shopCategory_치킨.getId())
+            )
+            .log().all()
             .when()
             .post("/owner/shops")
             .then()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        List<Shop> shops = shopRepository.findAllByOwnerId(owner.getId());
-        Shop createdShop = shops.get(1);
-
-        List<ShopOpen> shopOpens = shopOpenRepository.findAllByShopId(createdShop.getId());
-        List<ShopImage> shopImages = shopImageRepository.findAllByShopId(createdShop.getId());
-        List<ShopCategoryMap> shopCategoryMaps = shopCategoryMapRepository.findAllByShopId(createdShop.getId());
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(createdShop.getAddress()).isEqualTo(ownerShopsRequest.address());
-                softly.assertThat(createdShop.isDelivery()).isEqualTo(ownerShopsRequest.delivery());
-                softly.assertThat(createdShop.getDeliveryPrice()).isEqualTo(ownerShopsRequest.deliveryPrice());
-                softly.assertThat(createdShop.getDescription()).isEqualTo(ownerShopsRequest.description());
-                softly.assertThat(createdShop.getName()).isEqualTo(ownerShopsRequest.name());
-                softly.assertThat(createdShop.isPayBank()).isEqualTo(ownerShopsRequest.payBank());
-                softly.assertThat(createdShop.isPayCard()).isEqualTo(ownerShopsRequest.payCard());
-                softly.assertThat(createdShop.getPhone()).isEqualTo(ownerShopsRequest.phone());
-                softly.assertThat(shopOpens).hasSize(2);
-                softly.assertThat(categoryIds).containsAnyElementsOf(shopCategoryMaps.stream()
-                    .map(shopCategory -> shopCategory.getShopCategory().getId()).toList());
-                softly.assertThat(imageUrls).containsAnyElementsOf(shopImages.stream()
-                    .map(ShopImage::getImageUrl).toList());
-            }
-        );
+        transactionTemplate.executeWithoutResult(status -> {
+            List<Shop> shops = shopRepository.findAllByOwnerId(owner_현수.getId());
+            Shop result = shops.get(1);
+            assertSoftly(
+                softly -> {
+                    softly.assertThat(result.getAddress()).isEqualTo("대전광역시 유성구 대학로 291");
+                    softly.assertThat(result.getDeliveryPrice()).isEqualTo(4000);
+                    softly.assertThat(result.getDescription()).isEqualTo("테스트 상점2입니다.");
+                    softly.assertThat(result.getName()).isEqualTo("테스트 상점2");
+                    softly.assertThat(result.getShopImages()).hasSize(3);
+                    softly.assertThat(result.getShopOpens()).hasSize(2);
+                    softly.assertThat(result.getShopCategories()).hasSize(1);
+                }
+            );
+        });
     }
 
     @Test
     @DisplayName("상점 사장님이 특정 상점 조회")
     void getShop() {
         // given
-        ShopOpen open1 = ShopOpen.builder()
-            .openTime(LocalTime.of(0, 0))
-            .closeTime(LocalTime.of(21, 0))
-            .shop(shop)
-            .closed(false)
-            .dayOfWeek("MONDAY")
-            .build();
-
-        ShopOpen open2 = ShopOpen.builder()
-            .openTime(LocalTime.of(0, 0))
-            .closeTime(LocalTime.of(0, 0))
-            .shop(shop)
-            .closed(false)
-            .dayOfWeek("FRIDAY")
-            .build();
-
-        shopOpenRepository.save(open1);
-        shopOpenRepository.save(open2);
-
-        ShopCategoryMap shopCategoryMap1 = ShopCategoryMap.builder()
-            .shop(shop)
-            .shopCategory(shopCategory1)
-            .build();
-
-        ShopCategoryMap shopCategoryMap2 = ShopCategoryMap.builder()
-            .shop(shop)
-            .shopCategory(shopCategory2)
-            .build();
-
-        shopCategoryMapRepository.save(shopCategoryMap1);
-        shopCategoryMapRepository.save(shopCategoryMap2);
-
-        ShopImage shopImage1 = ShopImage.builder()
-            .imageUrl("https://test.com/test1.jpg")
-            .shop(shop)
-            .build();
-
-        ShopImage shopImage2 = ShopImage.builder()
-            .imageUrl("https://test.com/test2.jpg")
-            .shop(shop)
-            .build();
-
-        shopImageRepository.save(shopImage1);
-        shopImageRepository.save(shopImage2);
-
         var response = RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .when()
-            .get("/owner/shops/{shopId}", shop.getId())
+            .get("/owner/shops/{shopId}", shop_마슬랜.getId())
             .then()
+            .log().all()
+
             .statusCode(HttpStatus.OK.value())
             .extract();
-
-        List<ShopImage> savedShopImages = shopImageRepository.findAllByShopId(shop.getId());
-        List<MenuCategory> savedMenuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
-        List<ShopOpen> savedShopOpens = shopOpenRepository.findAllByShopId(shop.getId());
-        List<ShopCategoryMap> savedShopCategoryMaps = shopCategoryMapRepository.findAllByShopId(shop.getId());
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
                 {
-                    "address": "대전광역시 유성구 대학로 291",
+                    "address": "천안시 동남구 병천면 1600",
                     "delivery": true,
                     "delivery_price": 3000,
-                    "description": "테스트 상점입니다.",
+                    "description": "마슬랜 치킨입니다.",
                     "id": 1,
                     "image_urls": [
-                        "https://test.com/test1.jpg",
-                        "https://test.com/test2.jpg"
+                       
                     ],
                     "menu_categories": [
-                     
-                    ],
-                    "name": "테스트 상점",
-                    "open": [
-                        {
-                            "day_of_week": "MONDAY",
-                            "closed": false,
-                            "open_time": "00:00",
-                            "close_time": "21:00"
-                        },
-                        {
-                            "day_of_week": "FRIDAY",
-                            "closed": false,
-                            "open_time": "00:00",
-                            "close_time": "00:00"
-                        }
-                    ],
-                    "pay_bank": true,
-                    "pay_card": true,
-                    "phone": "010-1234-5678",
-                    "shop_categories": [
                         {
                             "id": 1,
-                            "name": "테스트1"
+                            "name": "메인메뉴"
                         },
                         {
                             "id": 2,
-                            "name": "테스트2"
+                            "name": "사이드메뉴"
                         }
                     ],
-                    "updated_at": %s,
+                    "name": "마슬랜 치킨",
+                    "open": [
+                       
+                    ],
+                    "pay_bank": true,
+                    "pay_card": true,
+                    "phone": "010-7574-1212",
+                    "shop_categories": [
+                       
+                    ],
+                    "updated_at": "2024-01-15",
                     "is_event": false
                 }
-                """, response.jsonPath().getString("updated_at")));
+                """));
     }
 
     @Test
     @DisplayName("특정 상점의 모든 메뉴를 조회한다.")
     void findOwnerShopMenu() {
         // given
-        final long SHOP_ID = 1L;
-
-        MenuOption menuOption1 = MenuOption.builder()
-            .option("일반")
-            .price(7000)
-            .build();
-
-        MenuOption menuOption2 = MenuOption.builder()
-            .option("곱빼기")
-            .price(7500)
-            .build();
-
-        MenuImage menuImage1 = MenuImage.builder()
-            .imageUrl("https://test.com/test.jpg")
-            .build();
-        MenuImage menuImage2 = MenuImage.builder()
-            .imageUrl("https://test.com/hello.jpg")
-            .build();
-
-        Menu menu1 = Menu.builder()
-            .shopId(1)
-            .name("짜장면")
-            .description("맛있는 짜장면")
-            .build();
-
-        MenuCategory menuCategory1 = MenuCategory.builder()
-            .shop(shop)
-            .name("중식")
-            .build();
-
-        MenuCategoryMap menuCategoryMap1 = MenuCategoryMap.create();
-        menuCategoryRepository.save(menuCategory1);
-
-        menuOption1.setMenu(menu1);
-        menuOption2.setMenu(menu1);
-        menuImage1.setMenu(menu1);
-        menuImage2.setMenu(menu1);
-
-        menuCategoryMap1.map(menu1, menuCategory1);
-
-        menuRepository.save(menu1);
-
+        menuFixture.짜장면_옵션메뉴(shop_마슬랜, menuCategory_메인);
         var response = RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
-            .param("shopId", SHOP_ID)
+            .header("Authorization", "Bearer " + token_현수)
+            .param("shopId", shop_마슬랜.getId())
             .when()
             .get("/owner/shops/menus")
             .then()
+            .log().all()
+
             .statusCode(HttpStatus.OK.value())
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+            .isEqualTo("""
                 {
-                    "count": 1,
-                    "menu_categories": [
-                        {
-                            "id": 1,
-                            "name": "중식",
-                            "menus": [
-                                {
-                                    "id": 1,
-                                    "name": "짜장면",
-                                    "is_hidden": false,
-                                    "is_single": false,
-                                    "single_price": null,
-                                    "option_prices": [
-                                        {
-                                            "option": "곱빼기",
-                                            "price": 7500
-                                        },
-                                        {
-                                            "option": "일반",
-                                            "price": 7000
-                                        }
-                                    ],
-                                    "description": "맛있는 짜장면",
-                                    "image_urls": [
-                                        "https://test.com/hello.jpg",
-                                        "https://test.com/test.jpg"
-                                    ]
-                                }
-                            ]
-                        }
-                    ],
-                    "updated_at": %s
-                }
-                """, response.jsonPath().getString("updated_at")));
+                     "count": 1,
+                     "menu_categories": [
+                         {
+                             "id": 1,
+                             "name": "메인메뉴",
+                             "menus": [
+                                 {
+                                     "id": 1,
+                                     "name": "짜장면",
+                                     "is_hidden": false,
+                                     "is_single": false,
+                                     "single_price": null,
+                                     "option_prices": [
+                                         {
+                                             "option": "곱빼기",
+                                             "price": 7500
+                                         },
+                                         {
+                                             "option": "일반",
+                                             "price": 7000
+                                         }
+                                     ],
+                                     "description": "맛있는 짜장면",
+                                     "image_urls": [
+                                         "https://test.com/짜장면.jpg",
+                                         "https://test.com/짜장면22.jpg"
+                                     ]
+                                 }
+                             ]
+                         }
+                     ],
+                     "updated_at": "2024-01-15"
+                 }
+                """);
     }
 
     @Test
     @DisplayName("사장님이 자신의 상점 메뉴 카테고리들을 조회한다.")
     void findOwnerMenuCategories() {
         // given
-        final int SHOP_ID = 1;
-
-        Menu menu = Menu.builder()
-            .shopId(SHOP_ID)
-            .name("짜장면")
-            .description("맛있는 짜장면")
-            .build();
-
-        MenuCategory menuCategory1 = MenuCategory.builder()
-            .shop(shop)
-            .name("이벤트 메뉴")
-            .build();
-
-        MenuCategory menuCategory2 = MenuCategory.builder()
-            .shop(shop)
-            .name("메인 메뉴")
-            .build();
-
-        menuCategoryRepository.save(menuCategory1);
-        menuCategoryRepository.save(menuCategory2);
-
-        MenuCategoryMap menuCategoryMap1 = MenuCategoryMap.create();
-        MenuCategoryMap menuCategoryMap2 = MenuCategoryMap.create();
-
-        // when then
-        menuCategoryMap1.map(menu, menuCategory1);
-        menuCategoryMap2.map(menu, menuCategory2);
-
-        menuRepository.save(menu);
+        menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
 
         var response = RestAssured
             .given()
-            .param("shopId", SHOP_ID)
-            .header("Authorization", "Bearer " + token)
+            .param("shopId", shop_마슬랜.getId())
+            .header("Authorization", "Bearer " + token_현수)
             .when()
             .get("/owner/shops/menus/categories")
             .then()
+            .log().all()
+
             .statusCode(HttpStatus.OK.value())
             .extract();
-
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getInt("count")).isEqualTo(2);
-
-                softly.assertThat(response.body().jsonPath().getList("menu_categories"))
-                    .hasSize(2);
-
-                softly.assertThat(response.body().jsonPath().getInt("menu_categories[0].id"))
-                    .isEqualTo(menuCategory1.getId());
-                softly.assertThat(response.body().jsonPath().getString("menu_categories[0].name"))
-                    .isEqualTo(menuCategory1.getName());
-
-                softly.assertThat(response.body().jsonPath().getInt("menu_categories[1].id"))
-                    .isEqualTo(menuCategory2.getId());
-                softly.assertThat(response.body().jsonPath().getString("menu_categories[1].name"))
-                    .isEqualTo(menuCategory2.getName());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "count": 2,
+                    "menu_categories": [
+                        {
+                            "id": 1,
+                            "name": "메인메뉴"
+                        },
+                        {
+                            "id": 2,
+                            "name": "사이드메뉴"
+                        }
+                    ]
+                }
+                """);
     }
 
     @Test
     @DisplayName("사장님이 자신의 상점의 특정 메뉴를 조회한다.")
     void findMenuShopOwner() {
         // given
-        MenuOption menuOption1 = MenuOption.builder()
-            .option("일반")
-            .price(7000)
-            .build();
-
-        MenuOption menuOption2 = MenuOption.builder()
-            .option("곱빼기")
-            .price(7500)
-            .build();
-
-        MenuImage menuImage1 = MenuImage.builder()
-            .imageUrl("https://test.com/test.jpg")
-            .build();
-        MenuImage menuImage2 = MenuImage.builder()
-            .imageUrl("https://test.com/hello.jpg")
-            .build();
-
-        Menu menu = Menu.builder()
-            .shopId(1)
-            .name("짜장면")
-            .description("맛있는 짜장면")
-            .build();
-
-        MenuCategory menuCategory = MenuCategory.builder()
-            .shop(shop)
-            .name("중식")
-            .build();
-
-        MenuCategoryMap menuCategoryMap = MenuCategoryMap.create();
-        menuCategoryRepository.save(menuCategory);
-
-        // when then
-        menuOption1.setMenu(menu);
-        menuOption2.setMenu(menu);
-        menuImage1.setMenu(menu);
-        menuImage2.setMenu(menu);
-
-        menuCategoryMap.map(menu, menuCategory);
-
-        menuRepository.save(menu);
+        Menu menu = menuFixture.짜장면_옵션메뉴(shop_마슬랜, menuCategory_메인);
 
         var response = RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .when()
             .get("/owner/shops/menus/{menuId}", menu.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -680,10 +406,11 @@ class OwnerShopApiTest extends AcceptanceTest {
         // given
         RestAssured
             .given()
-            .header("Authorization", "Bearer " + otherOwnerToken)
+            .header("Authorization", "Bearer " + token_준영)
             .when()
-            .get("/owner/shops/{shopId}", shop.getId())
+            .get("/owner/shops/{shopId}", shop_마슬랜.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
@@ -691,63 +418,47 @@ class OwnerShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("사장님이 메뉴 카테고리를 삭제한다.")
     void deleteMenuCategory() {
-        // given
-        MenuCategory menuCategory = MenuCategory.builder()
-            .shop(shop)
-            .name("중식")
-            .build();
-        MenuCategory svaedMenuCategory = menuCategoryRepository.save(menuCategory);
-
-        var response = RestAssured
+        // when & then
+        RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .when()
-            .delete("/owner/shops/menus/categories/{categoryId}", svaedMenuCategory.getId())
+            .delete("/owner/shops/menus/categories/{categoryId}", menuCategory_메인.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
-        boolean isPresent = menuCategoryRepository.findById(svaedMenuCategory.getId()).isPresent();
-        SoftAssertions.assertSoftly(softly -> softly.assertThat(isPresent).isFalse());
+        assertThat(menuCategoryRepository.findById(menuCategory_메인.getId())).isNotPresent();
     }
 
     @Test
     @DisplayName("사장님이 메뉴를 삭제한다.")
     void deleteMenu() {
         // given
-        Menu menu = Menu.builder()
-            .shopId(1)
-            .name("짜장면")
-            .description("맛있는 짜장면")
-            .build();
-        Menu savedMenu = menuRepository.save(menu);
+        Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
 
-        var response = RestAssured
+        RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .when()
-            .delete("/owner/shops/menus/{menuId}", savedMenu.getId())
+            .delete("/owner/shops/menus/{menuId}", menu.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
-        boolean isPresent = menuRepository.findById(savedMenu.getId()).isPresent();
-        SoftAssertions.assertSoftly(softly -> softly.assertThat(isPresent).isFalse());
+        assertThat(menuRepository.findById(menu.getId())).isNotPresent();
     }
 
     @Test
     @DisplayName("사장님이 옵션이 여러개인 메뉴를 추가한다.")
     void createManyOptionMenu() {
         // given
-        MenuCategory menuCategory = MenuCategory.builder()
-            .name("테스트")
-            .shop(shop)
-            .build();
-        MenuCategory savedMenuCategory = menuCategoryRepository.save(menuCategory);
-        String categoryId = savedMenuCategory.getId().toString();
+        MenuCategory menuCategory = menuCategory_메인;
         var response = RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .contentType(ContentType.JSON)
             .body(String.format("""
                 {
@@ -756,7 +467,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                   ],
                   "description": "테스트메뉴입니다.",
                   "image_urls": [
-                    "string"
+                    "https://test-image.com/짜장면.jpg"
                   ],
                   "is_single": false,
                   "name": "짜장면",
@@ -771,30 +482,29 @@ class OwnerShopApiTest extends AcceptanceTest {
                     }
                   ]
                 }
-                """, categoryId))
+                """, menuCategory.getId()))
             .when()
-            .post("/owner/shops/{id}/menus", shop.getId())
+            .post("/owner/shops/{id}/menus", shop_마슬랜.getId())
             .then()
+            .log().all()
+
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Menu menu = menuRepository.getById(1);
-                assertSoftly(
-                    softly -> {
-                        List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
-                        List<MenuOption> menuOptions = menu.getMenuOptions();
-                        List<MenuImage> menuImages = menu.getMenuImages();
-                        softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
-                        softly.assertThat(menu.getName()).isEqualTo("짜장면");
-                        softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("string");
-                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
-                        softly.assertThat(menuOptions).hasSize(2);
-                    }
-                );
-            }
+        transactionTemplate.executeWithoutResult(status -> {
+            Menu menu = menuRepository.getById(1);
+            assertSoftly(
+                softly -> {
+                    List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
+                    List<MenuOption> menuOptions = menu.getMenuOptions();
+                    List<MenuImage> menuImages = menu.getMenuImages();
+                    softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
+                    softly.assertThat(menu.getName()).isEqualTo("짜장면");
+                    softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
+                    softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
+                    softly.assertThat(menuOptions).hasSize(2);
+                }
+            );
         });
     }
 
@@ -802,15 +512,10 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("사장님이 옵션이 한개인 메뉴를 추가한다.")
     void createOneOptionMenu() {
         // given
-        MenuCategory menuCategory = MenuCategory.builder()
-            .name("테스트")
-            .shop(shop)
-            .build();
-        MenuCategory savedMenuCategory = menuCategoryRepository.save(menuCategory);
-        String categoryId = savedMenuCategory.getId().toString();
+        MenuCategory menuCategory = menuCategory_메인;
         var response = RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .contentType(ContentType.JSON)
             .body(String.format("""
                 {
@@ -819,39 +524,38 @@ class OwnerShopApiTest extends AcceptanceTest {
                   ],
                   "description": "테스트메뉴입니다.",
                   "image_urls": [
-                    "string"
+                    "https://test-image.com/짜장면.jpg"
                   ],
                   "is_single": true,
                   "name": "짜장면",
                   "option_prices": null,
                   "single_price": 10000
                 }
-                """, categoryId))
+                """, menuCategory.getId()))
             .when()
-            .post("/owner/shops/{id}/menus", shop.getId())
+            .post("/owner/shops/{id}/menus", shop_마슬랜.getId())
             .then()
+            .log().all()
+
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Menu menu = menuRepository.getById(1);
-                assertSoftly(
-                    softly -> {
-                        List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
-                        List<MenuOption> menuOptions = menu.getMenuOptions();
-                        List<MenuImage> menuImages = menu.getMenuImages();
-                        softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
-                        softly.assertThat(menu.getName()).isEqualTo("짜장면");
+        transactionTemplate.executeWithoutResult(status -> {
+            Menu menu = menuRepository.getById(1);
+            assertSoftly(
+                softly -> {
+                    List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
+                    List<MenuOption> menuOptions = menu.getMenuOptions();
+                    List<MenuImage> menuImages = menu.getMenuImages();
+                    softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
+                    softly.assertThat(menu.getName()).isEqualTo("짜장면");
 
-                        softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("string");
-                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
+                    softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
+                    softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
 
-                        softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
-                    }
-                );
-            }
+                    softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
+                }
+            );
         });
     }
 
@@ -859,78 +563,77 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("사장님이 메뉴 카테고리를 추가한다.")
     void createMenuCategory() {
         // given
-        var response = RestAssured
+        RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .contentType(ContentType.JSON)
             .body(String.format("""
                 {
-                   "name": "사이드 메뉴"
+                   "name": "대박메뉴"
                 }
                 """))
             .when()
-            .post("/owner/shops/{id}/menus/categories", shop.getId())
+            .post("/owner/shops/{id}/menus/categories", shop_마슬랜.getId())
             .then()
+            .log().all()
+
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        MenuCategory menuCategory = menuCategoryRepository.getById(1);
+        var menuCategories = menuCategoryRepository.findAllByShopId(shop_마슬랜.getId());
 
-        assertSoftly(
-            softly -> softly.assertThat(menuCategory.getName()).isEqualTo("사이드 메뉴")
-        );
+        assertThat(menuCategories).anyMatch(menuCategory -> "대박메뉴".equals(menuCategory.getName()));
     }
 
     @Test
     @DisplayName("사장님이 단일 메뉴로 수정한다.")
     void modifyOneMenu() {
         // given
-        Menu createdMenu = createMenu();
+        Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
 
-        var response = RestAssured
+        RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .contentType(ContentType.JSON)
             .body(String.format("""
                 {
                   "category_ids": [
-                    2
+                    %d
                   ],
                   "description": "테스트메뉴수정",
                   "image_urls": [
-                    "string2"
+                    "https://test-image.net/테스트메뉴.jpeg"
                   ],
                   "is_single": true,
                   "name": "짜장면2",
                   "single_price": 10000
                 }
-                """))
+                """, shopCategory_일반.getId()))
             .when()
-            .put("/owner/shops/menus/{menuId}", createdMenu.getId())
+            .put("/owner/shops/menus/{menuId}", menu.getId())
             .then()
+            .log().all()
+
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Menu menu = menuRepository.getById(1);
-                assertSoftly(
-                    softly -> {
-                        List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
-                        List<MenuOption> menuOptions = menu.getMenuOptions();
-                        List<MenuImage> menuImages = menu.getMenuImages();
-                        softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴수정");
-                        softly.assertThat(menu.getName()).isEqualTo("짜장면2");
+        transactionTemplate.executeWithoutResult(status -> {
+            Menu result = menuRepository.getById(1);
+            assertSoftly(
+                softly -> {
+                    List<MenuCategoryMap> menuCategoryMaps = result.getMenuCategoryMaps();
+                    List<MenuOption> menuOptions = result.getMenuOptions();
+                    List<MenuImage> menuImages = result.getMenuImages();
+                    softly.assertThat(result.getDescription()).isEqualTo("테스트메뉴수정");
+                    softly.assertThat(result.getName()).isEqualTo("짜장면2");
 
-                        softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("string2");
-                        softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(2);
+                    softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.net/테스트메뉴.jpeg");
+                    softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(2);
 
-                        softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
+                    softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
 
-                    }
-                );
-            }
+                }
+            );
         });
     }
 
@@ -938,20 +641,19 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("사장님이 여러옵션을 가진 메뉴로 수정한다.")
     void modifyManyOptionMenu() {
         // given
-        Menu createdMenu = createMenu();
-
-        var response = RestAssured
+        Menu menu = menuFixture.짜장면_옵션메뉴(shop_마슬랜, menuCategory_메인);
+        RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .contentType(ContentType.JSON)
-            .body("""
+            .body(String.format("""
                 {
                   "category_ids": [
-                    1, 2
+                    %d, %d
                   ],
                   "description": "테스트메뉴입니다.",
                   "image_urls": [
-                    "string"
+                    "https://fixed-testimage.com/수정된짜장면.png"
                   ],
                   "is_single": false,
                   "name": "짜장면",
@@ -966,30 +668,31 @@ class OwnerShopApiTest extends AcceptanceTest {
                     }
                   ]
                 }
-                """)
+                """, menuCategory_메인.getId(), menuCategory_사이드.getId())
+            )
             .when()
-            .put("/owner/shops/menus/{menuId}", createdMenu.getId())
+            .put("/owner/shops/menus/{menuId}", menu.getId())
             .then()
+            .log().all()
+
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Menu menu = menuRepository.getById(1);
-                assertSoftly(
-                    softly -> {
-                        List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
-                        List<MenuOption> menuOptions = menu.getMenuOptions();
-                        List<MenuImage> menuImages = menu.getMenuImages();
-                        softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
-                        softly.assertThat(menu.getName()).isEqualTo("짜장면");
-                        softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("string");
-                        softly.assertThat(menuCategoryMaps).hasSize(2);
-                        softly.assertThat(menuOptions).hasSize(2);
-                    }
-                );
-            }
+        transactionTemplate.executeWithoutResult(status -> {
+            Menu result = menuRepository.getById(1);
+            assertSoftly(
+                softly -> {
+                    List<MenuCategoryMap> menuCategoryMaps = result.getMenuCategoryMaps();
+                    List<MenuOption> menuOptions = result.getMenuOptions();
+                    List<MenuImage> menuImages = result.getMenuImages();
+                    softly.assertThat(result.getDescription()).isEqualTo("테스트메뉴입니다.");
+                    softly.assertThat(result.getName()).isEqualTo("짜장면");
+                    softly.assertThat(menuImages.get(0).getImageUrl())
+                        .isEqualTo("https://fixed-testimage.com/수정된짜장면.png");
+                    softly.assertThat(menuCategoryMaps).hasSize(2);
+                    softly.assertThat(menuOptions).hasSize(2);
+                }
+            );
         });
     }
 
@@ -997,21 +700,21 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("사장님이 상점을 수정한다.")
     void modifyShop() {
         // given
-        var response = RestAssured
+        RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .contentType(ContentType.JSON)
-            .body("""
+            .body(String.format("""
                 {
                   "address": "충청남도 천안시 동남구 병천면 충절로 1600",
                   "category_ids": [
-                   1, 2
+                   %d, %d
                   ],
                   "delivery": false,
                   "delivery_price": 1000,
-                  "description": "이번주 전 메뉴 10% 할인 이벤트합니다.",
+                  "description": "이번주 전 메뉴 10%% 할인 이벤트합니다.",
                   "image_urls": [
-                    "string2"
+                    "https://fixed-shopimage.com/수정된_상점_이미지.png"
                   ],
                   "name": "써니 숯불 도시락",
                   "open": [
@@ -1032,98 +735,52 @@ class OwnerShopApiTest extends AcceptanceTest {
                   "pay_card": true,
                   "phone": "041-123-4567"
                 }
-                """)
+                """, shopCategory_일반.getId(), shopCategory_치킨.getId()
+            ))
             .when()
-            .put("/owner/shops/{id}", shop.getId())
+            .put("/owner/shops/{id}", shop_마슬랜.getId())
             .then()
+            .log().all()
+
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Shop modifiedShop = shopRepository.getById(1);
-                List<ShopImage> shopImages = modifiedShop.getShopImages();
-                List<ShopOpen> shopOpens = modifiedShop.getShopOpens();
-                List<ShopCategoryMap> shopCategoryMaps = modifiedShop.getShopCategories();
-                assertSoftly(
-                    softly -> {
-                        softly.assertThat(modifiedShop.getAddress()).isEqualTo("충청남도 천안시 동남구 병천면 충절로 1600");
-                        softly.assertThat(modifiedShop.isDeleted()).isFalse();
-                        softly.assertThat(modifiedShop.getDeliveryPrice()).isEqualTo(1000);
-                        softly.assertThat(modifiedShop.getDescription()).isEqualTo("이번주 전 메뉴 10% 할인 이벤트합니다.");
-                        softly.assertThat(modifiedShop.getName()).isEqualTo("써니 숯불 도시락");
-                        softly.assertThat(modifiedShop.isPayBank()).isTrue();
-                        softly.assertThat(modifiedShop.isPayCard()).isTrue();
-                        softly.assertThat(modifiedShop.getPhone()).isEqualTo("041-123-4567");
+        transactionTemplate.executeWithoutResult(status -> {
+            Shop result = shopRepository.getById(1);
+            List<ShopImage> shopImages = result.getShopImages();
+            List<ShopOpen> shopOpens = result.getShopOpens();
+            List<ShopCategoryMap> shopCategoryMaps = result.getShopCategories();
+            assertSoftly(
+                softly -> {
+                    softly.assertThat(result.getAddress()).isEqualTo("충청남도 천안시 동남구 병천면 충절로 1600");
+                    softly.assertThat(result.isDeleted()).isFalse();
+                    softly.assertThat(result.getDeliveryPrice()).isEqualTo(1000);
+                    softly.assertThat(result.getDescription()).isEqualTo("이번주 전 메뉴 10% 할인 이벤트합니다.");
+                    softly.assertThat(result.getName()).isEqualTo("써니 숯불 도시락");
+                    softly.assertThat(result.isPayBank()).isTrue();
+                    softly.assertThat(result.isPayCard()).isTrue();
+                    softly.assertThat(result.getPhone()).isEqualTo("041-123-4567");
 
-                        softly.assertThat(shopCategoryMaps.get(0).getShopCategory().getId()).isEqualTo(1);
-                        softly.assertThat(shopCategoryMaps.get(1).getShopCategory().getId()).isEqualTo(2);
+                    softly.assertThat(shopCategoryMaps.get(0).getShopCategory().getId()).isEqualTo(1);
+                    softly.assertThat(shopCategoryMaps.get(1).getShopCategory().getId()).isEqualTo(2);
 
-                        softly.assertThat(shopImages.get(0).getImageUrl()).isEqualTo("string2");
+                    softly.assertThat(shopImages.get(0).getImageUrl())
+                        .isEqualTo("https://fixed-shopimage.com/수정된_상점_이미지.png");
 
-                        softly.assertThat(shopOpens.get(0).getCloseTime()).isEqualTo("22:30");
-                        softly.assertThat(shopOpens.get(0).getOpenTime()).isEqualTo("10:00");
+                    softly.assertThat(shopOpens.get(0).getCloseTime()).isEqualTo("22:30");
+                    softly.assertThat(shopOpens.get(0).getOpenTime()).isEqualTo("10:00");
 
-                        softly.assertThat(shopOpens.get(0).getDayOfWeek()).isEqualTo("MONDAY");
-                        softly.assertThat(shopOpens.get(0).getClosed()).isFalse();
+                    softly.assertThat(shopOpens.get(0).getDayOfWeek()).isEqualTo("MONDAY");
+                    softly.assertThat(shopOpens.get(0).getClosed()).isFalse();
 
-                        softly.assertThat(shopOpens.get(1).getCloseTime()).isEqualTo("23:30");
-                        softly.assertThat(shopOpens.get(1).getOpenTime()).isEqualTo("11:00");
+                    softly.assertThat(shopOpens.get(1).getCloseTime()).isEqualTo("23:30");
+                    softly.assertThat(shopOpens.get(1).getOpenTime()).isEqualTo("11:00");
 
-                        softly.assertThat(shopOpens.get(1).getDayOfWeek()).isEqualTo("SUNDAY");
-                        softly.assertThat(shopOpens.get(1).getClosed()).isTrue();
-                    }
-                );
-            }
-        });
-    }
-
-    private Menu createMenu() {
-        MenuCategory menuCategory1 = MenuCategory.builder()
-            .name("테스트")
-            .shop(shop)
-            .build();
-        MenuCategory menuCategory2 = MenuCategory.builder()
-            .name("테스트2")
-            .shop(shop)
-            .build();
-        MenuCategory savedMenuCategory = menuCategoryRepository.save(menuCategory1);
-        menuCategoryRepository.save(menuCategory2);
-        String categoryId = savedMenuCategory.getId().toString();
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                  "category_ids": [
-                    %s
-                  ],
-                  "description": "테스트메뉴입니다.",
-                  "image_urls": [
-                    "string"
-                  ],
-                  "is_single": false,
-                  "name": "짜장면",
-                  "option_prices": [
-                    {
-                      "option": "중",
-                      "price": 10000
-                    },
-                    {
-                      "option": "소",
-                      "price": 5000
-                    }
-                  ]
+                    softly.assertThat(shopOpens.get(1).getDayOfWeek()).isEqualTo("SUNDAY");
+                    softly.assertThat(shopOpens.get(1).getClosed()).isTrue();
                 }
-                """, categoryId))
-            .when()
-            .post("/owner/shops/{id}/menus", shop.getId())
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
-        return menuRepository.getById(1);
+            );
+        });
     }
 
     @Test
@@ -1133,10 +790,12 @@ class OwnerShopApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .param("shopId", 1)
-            .header("Authorization", "Bearer " + otherOwnerToken)
+            .header("Authorization", "Bearer " + token_준영)
             .when()
             .get("/owner/shops/menus/categories")
             .then()
+            .log().all()
+
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
@@ -1147,11 +806,12 @@ class OwnerShopApiTest extends AcceptanceTest {
         // given
         RestAssured
             .given()
-            .header("Authorization", "Bearer " + otherOwnerToken)
+            .header("Authorization", "Bearer " + token_준영)
             .param("shopId", 1)
             .when()
             .get("/owner/shops/menus")
             .then()
+            .log().all()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
@@ -1160,18 +820,14 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("권한이 없는 사장님이 메뉴 카테고리를 삭제한다.")
     void ownerCannotDeleteOtherCategoriesWithoutPermission() {
         // given
-        MenuCategory menuCategory = MenuCategory.builder()
-            .shop(shop)
-            .name("중식")
-            .build();
-        MenuCategory svaedMenuCategory = menuCategoryRepository.save(menuCategory);
-
-        var response = RestAssured
+        MenuCategory menuCategory = menuCategoryFixture.세트메뉴(shop_마슬랜);
+        RestAssured
             .given()
-            .header("Authorization", "Bearer " + otherOwnerToken)
+            .header("Authorization", "Bearer " + token_준영)
             .when()
-            .delete("/owner/shops/menus/categories/{categoryId}", svaedMenuCategory.getId())
+            .delete("/owner/shops/menus/categories/{categoryId}", menuCategory.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
@@ -1180,19 +836,15 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("권한이 없는 사장님이 메뉴를 삭제한다.")
     void ownerCannotDeleteOtherMenusWithoutPermission() {
         // given
-        Menu menu = Menu.builder()
-            .shopId(1)
-            .name("짜장면")
-            .description("맛있는 짜장면")
-            .build();
-        Menu savedMenu = menuRepository.save(menu);
+        Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
 
         RestAssured
             .given()
-            .header("Authorization", "Bearer " + otherOwnerToken)
+            .header("Authorization", "Bearer " + token_준영)
             .when()
-            .delete("/owner/shops/menus/{menuId}", savedMenu.getId())
+            .delete("/owner/shops/menus/{menuId}", menu.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
@@ -1202,9 +854,9 @@ class OwnerShopApiTest extends AcceptanceTest {
     void ownerShopCreateEvent() {
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = startDate.plusDays(10);
-        var response = RestAssured
+        RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .contentType(ContentType.JSON)
             .body(String.format("""
                     {
@@ -1218,10 +870,12 @@ class OwnerShopApiTest extends AcceptanceTest {
                     }
                     """,
                 startDate.format(ofPattern("yyyy-MM-dd")),
-                endDate.format(ofPattern("yyyy-MM-dd"))))
+                endDate.format(ofPattern("yyyy-MM-dd"))
+            ))
             .when()
-            .post("/owner/shops/{shopId}/event", shop.getId())
+            .post("/owner/shops/{shopId}/event", shop_마슬랜.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -1247,18 +901,10 @@ class OwnerShopApiTest extends AcceptanceTest {
     void ownerShopModifyEvent() {
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = startDate.plusDays(10);
-        EventArticle savedEvent = createEventArticle(
-            shop,
-            "테스트 제목1",
-            "테스트 내용1",
-            startDate,
-            endDate,
-            List.of("https://test.com/test1.jpg")
-        );
-
-        var response = RestAssured
+        EventArticle eventArticle = eventArticleFixture.할인_이벤트(shop_마슬랜, startDate, endDate);
+        RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .contentType(ContentType.JSON)
             .body(String.format("""
                     {
@@ -1274,22 +920,23 @@ class OwnerShopApiTest extends AcceptanceTest {
                 startDate,
                 endDate))
             .when()
-            .put("/owner/shops/{shopId}/events/{eventId}", shop.getId(), savedEvent.getId())
+            .put("/owner/shops/{shopId}/events/{eventId}", shop_마슬랜.getId(), eventArticle.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
         transactionTemplate.executeWithoutResult(status -> {
-            EventArticle modifiedEventArticle = eventArticleRepository.getById(savedEvent.getId());
+            EventArticle result = eventArticleRepository.getById(eventArticle.getId());
             assertSoftly(
                 softly -> {
-                    softly.assertThat(modifiedEventArticle.getShop().getId()).isEqualTo(1);
-                    softly.assertThat(modifiedEventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
-                    softly.assertThat(modifiedEventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
-                    softly.assertThat(modifiedEventArticle.getThumbnailImages().get(0).getThumbnailImage())
+                    softly.assertThat(result.getShop().getId()).isEqualTo(1);
+                    softly.assertThat(result.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
+                    softly.assertThat(result.getContent()).isEqualTo("테스트 이벤트입니다.");
+                    softly.assertThat(result.getThumbnailImages().get(0).getThumbnailImage())
                         .isEqualTo("https://test.com/test1.jpg");
-                    softly.assertThat(modifiedEventArticle.getStartDate()).isEqualTo(startDate);
-                    softly.assertThat(modifiedEventArticle.getEndDate()).isEqualTo(endDate);
+                    softly.assertThat(result.getStartDate()).isEqualTo(startDate);
+                    softly.assertThat(result.getEndDate()).isEqualTo(endDate);
                 }
             );
         });
@@ -1298,55 +945,25 @@ class OwnerShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("사장님이 이벤트를 삭제한다.")
     void ownerShopDeleteEvent() {
-        EventArticle savedEvent = createEventArticle(
-            shop,
-            "테스트 제목1",
-            "테스트 내용1",
+        EventArticle eventArticle = eventArticleFixture.할인_이벤트(
+            shop_마슬랜,
             LocalDate.of(2024, 10, 24),
-            LocalDate.of(2024, 10, 26),
-            List.of("https://test.com/test1.jpg")
+            LocalDate.of(2024, 10, 26)
         );
 
-        var response = RestAssured
+        RestAssured
             .given()
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", "Bearer " + token_현수)
             .contentType(ContentType.JSON)
             .when()
-            .delete("/owner/shops/{shopId}/events/{eventId}", shop.getId(), savedEvent.getId())
+            .delete("/owner/shops/{shopId}/events/{eventId}", shop_마슬랜.getId(), eventArticle.getId())
             .then()
+            .log().all()
+
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
-        Optional<EventArticle> modifiedEventArticle = eventArticleRepository.findById(savedEvent.getId());
-
-        assertSoftly(softly -> softly.assertThat(modifiedEventArticle.isPresent()).isFalse());
-    }
-
-    private EventArticle createEventArticle(
-        Shop shop,
-        String title,
-        String content,
-        LocalDate startDate,
-        LocalDate endDate,
-        List<String> thumbnailImages
-    ) {
-        EventArticle eventArticle = EventArticle.builder()
-            .shop(shop)
-            .title(title)
-            .content(content)
-            .ip("")
-            .startDate(startDate)
-            .endDate(endDate)
-            .hit(0)
-            .build();
-        EventArticle savedEvent = eventArticleRepository.save(eventArticle);
-        for (String image : thumbnailImages) {
-            EventArticleImage eventArticleImage = EventArticleImage.builder()
-                .eventArticle(eventArticle)
-                .thumbnailImage(image)
-                .build();
-            eventArticleImageRepository.save(eventArticleImage);
-        }
-        return eventArticleRepository.getById(savedEvent.getId());
+        Optional<EventArticle> modifiedEventArticle = eventArticleRepository.findById(eventArticle.getId());
+        assertThat(modifiedEventArticle).isNotPresent();
     }
 }

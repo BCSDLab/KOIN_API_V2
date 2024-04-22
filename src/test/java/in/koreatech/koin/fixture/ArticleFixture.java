@@ -8,6 +8,7 @@ import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.user.model.User;
 
 @Component
+@SuppressWarnings("NonAsciiCharacters")
 public class ArticleFixture {
 
     private final ArticleRepository articleRepository;

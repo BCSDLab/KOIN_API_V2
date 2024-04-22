@@ -1,12 +1,12 @@
 package in.koreatech.koin.domain.shop.model;
 
-import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -28,7 +28,7 @@ public class EventArticleImage extends BaseEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
     private EventArticle eventArticle;
 
@@ -38,7 +38,10 @@ public class EventArticleImage extends BaseEntity {
     private String thumbnailImage;
 
     @Builder
-    private EventArticleImage(EventArticle eventArticle, String thumbnailImage) {
+    private EventArticleImage(
+        EventArticle eventArticle,
+        String thumbnailImage
+    ) {
         this.eventArticle = eventArticle;
         this.thumbnailImage = thumbnailImage;
     }

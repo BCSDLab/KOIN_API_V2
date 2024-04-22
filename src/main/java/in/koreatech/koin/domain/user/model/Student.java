@@ -48,8 +48,14 @@ public class Student {
     private User user;
 
     @Builder
-    private Student(String anonymousNickname, String studentNumber, String department,
-                    UserIdentity userIdentity, boolean isGraduated, User user) {
+    private Student(
+        String anonymousNickname,
+        String studentNumber,
+        String department,
+        UserIdentity userIdentity,
+        boolean isGraduated,
+        User user
+    ) {
         this.anonymousNickname = anonymousNickname;
         this.studentNumber = studentNumber;
         this.department = department;
