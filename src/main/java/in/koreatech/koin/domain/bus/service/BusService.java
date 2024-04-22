@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotFoundException;
@@ -31,6 +32,8 @@ import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
 import in.koreatech.koin.domain.bus.util.ExpressBusOpenApiClient;
+import in.koreatech.koin.domain.version.dto.VersionResponse;
+import in.koreatech.koin.domain.version.service.VersionService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -42,6 +45,7 @@ public class BusService {
     private final BusRepository busRepository;
     private final CityBusOpenApiClient cityBusOpenApiClient;
     private final ExpressBusOpenApiClient expressBusOpenApiClient;
+    private final VersionService versionService;
 
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
@@ -56,7 +60,7 @@ public class BusService {
 
         if (busType == BusType.EXPRESS) {
             var remainTimes = expressBusOpenApiClient.getBusRemainTime(depart, arrival);
-            return BusRemainTimeResponse.of(busType, remainTimes, clock);
+            return toResponse(busType,remainTimes);
         }
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
@@ -176,6 +180,17 @@ public class BusService {
         }
 
         throw new BusTypeNotFoundException(busType.name());
+    }
+
+    public BusTimetableResponse getBusTimetableWithUpdatedAt(BusType busType, String direction, String region){
+        List<? extends BusTimetable> busTimetables = getBusTimetable(busType, direction, region);
+
+        if (busType.equals(BusType.COMMUTING)){
+            busType = BusType.SHUTTLE;
+        }
+
+        VersionResponse version = versionService.getVersion(busType.name().toLowerCase() + "_bus_timetable");
+        return new BusTimetableResponse(busTimetables, version.updatedAt());
     }
 
     public List<BusCourseResponse> getBusCourses() {

@@ -35,8 +35,8 @@ public class CommunityController implements CommunityApi {
     @GetMapping("/articles")
     public ResponseEntity<ArticlesResponse> getArticles(
         @RequestParam Integer boardId,
-        @RequestParam(required = false) Long page,
-        @RequestParam(required = false) Long limit
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit
     ) {
         ArticlesResponse foundArticles = communityService.getArticles(boardId, page, limit);
         return ResponseEntity.ok().body(foundArticles);

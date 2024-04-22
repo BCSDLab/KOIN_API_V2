@@ -33,6 +33,7 @@ import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
+import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.fixture.BusFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
@@ -51,6 +52,9 @@ class BusApiTest extends AcceptanceTest {
 
     @Autowired
     private ExpressBusCacheRepository expressBusCacheRepository;
+
+    @Autowired
+    private VersionService versionService;
 
     @BeforeEach
     void setup() {
@@ -360,6 +364,62 @@ class BusApiTest extends AcceptanceTest {
                         ]
                     }
                 ]
+                """);
+    }
+
+    @Test
+    @DisplayName("셔틀버스 시간표를 조회한다(업데이트 시각 포함).")
+    void getShuttleBusTimetableWithUpdatedAt() {
+        Version version = Version.builder()
+            .version("test_version")
+            .type(VersionType.SHUTTLE.getValue())
+            .build();
+        versionRepository.save(version);
+
+        BusType busType = BusType.from("shuttle");
+        String direction = "from";
+        String region = "천안";
+
+        var response = RestAssured
+            .given()
+            .when()
+            .param("bus_type", busType.name().toLowerCase())
+            .param("direction", direction)
+            .param("region", region)
+            .get("/bus/timetable/v2")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "bus_timetable": [
+                        {
+                            "route_name": "주중",
+                            "arrival_info": [
+                                {
+                                    "nodeName": "한기대",
+                                    "arrivalTime": "18:10"
+                                },
+                                {
+                                    "nodeName": "신계초,운전리,연춘리",
+                                    "arrivalTime": "정차"
+                                },
+                                {
+                                    "nodeName": "천안역(학화호두과자)",
+                                    "arrivalTime": "18:50"
+                                },
+                                {
+                                    "nodeName": "터미널(신세계 앞 횡단보도)",
+                                    "arrivalTime": "18:55"
+                                }
+                            ]
+                        }
+                    ],
+                    "updated_at": "2024-01-15 12:00:00"
+                }
                 """);
     }
 }

@@ -6,6 +6,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -277,11 +278,15 @@ class TimetableApiTest extends AcceptanceTest {
         User user = userRepository.save(userT);
         String token = jwtProvider.createToken(user);
 
-        Semester semesterT = Semester.builder().
+        Semester semester20192 = Semester.builder().
             semester("20192")
             .build();
+        Semester semester20201 = Semester.builder().
+            semester("20201")
+            .build();
 
-        Semester semester = semesterRepository.save(semesterT);
+        Semester semester = semesterRepository.save(semester20192);
+        semesterRepository.save(semester20201);
 
         TimeTable timeTable1 = TimeTable.builder()
             .user(user)
@@ -357,6 +362,14 @@ class TimetableApiTest extends AcceptanceTest {
                     isEqualTo("20192");
                 softly.assertThat(response.body().jsonPath().getList("timetable"))
                     .hasSize(3);
+                softly.assertThat(response.body().jsonPath().getInt("grades")).
+                    isEqualTo(Integer.parseInt(timeTable1.getGrades())
+                        +Integer.parseInt(timeTable2.getGrades())
+                        +Integer.parseInt(timeTable3.getGrades()));
+                softly.assertThat(response.body().jsonPath().getInt("total_grades")).
+                    isEqualTo(Integer.parseInt(timeTable1.getGrades())
+                        +Integer.parseInt(timeTable2.getGrades())
+                        +Integer.parseInt(timeTable3.getGrades()));
 
                 softly.assertThat(response.body().jsonPath().getInt("timetable[0].id")).isEqualTo(1);
                 softly.assertThat(response.body().jsonPath().getString("timetable[0].regular_number")).isEqualTo("28");
@@ -402,6 +415,23 @@ class TimetableApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getString("timetable[2].professor")).isEqualTo("홍길동");
                 softly.assertThat(response.body().jsonPath().getString("timetable[2].department")).isEqualTo("컴퓨터공학부");
             }
+        );
+
+        ExtractableResponse<Response> responseA = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .param("semester", "20201")
+            .get("/timetables")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Assertions.assertThat(responseA.body().jsonPath().getInt("grades")).isZero();
+        Assertions.assertThat(responseA.body().jsonPath().getInt("total_grades")).isEqualTo(
+            Integer.parseInt(timeTable1.getGrades())
+                +Integer.parseInt(timeTable2.getGrades())
+                +Integer.parseInt(timeTable3.getGrades())
         );
     }
 
