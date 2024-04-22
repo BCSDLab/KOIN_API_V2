@@ -1,6 +1,8 @@
 package in.koreatech.koin.fixture;
 
+import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
@@ -62,7 +64,7 @@ public final class UserFixture {
                         .name("테스트용_준호")
                         .phoneNumber("010-1234-5678")
                         .userType(STUDENT)
-                        .gender(UserGender.MAN)
+                        .gender(MAN)
                         .email("juno@koreatech.ac.kr")
                         .isAuthed(true)
                         .isDeleted(false)
@@ -73,18 +75,6 @@ public final class UserFixture {
     }
 
     public Owner 현수_사장님() {
-        User user = userRepository.save(User.builder()
-            .password(passwordEncoder.encode("1234"))
-            .nickname("현수")
-            .name("테스트용_현수")
-            .phoneNumber("010-9876-5432")
-            .userType(OWNER)
-            .gender(UserGender.MAN)
-            .email("hysoo@naver.com")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build()
-        );
         return ownerRepository.save(
             Owner.builder()
                 .companyRegistrationNumber("123-45-67190")
@@ -101,7 +91,35 @@ public final class UserFixture {
                 )
                 .grantShop(true)
                 .grantEvent(true)
-                .user(user)
+                .user(
+                    User.builder()
+                        .password(passwordEncoder.encode("1234"))
+                        .nickname("현수")
+                        .name("테스트용_현수")
+                        .phoneNumber("010-9876-5432")
+                        .userType(OWNER)
+                        .gender(MAN)
+                        .email("hysoo@naver.com")
+                        .isAuthed(true)
+                        .isDeleted(false)
+                        .build()
+                )
+                .build()
+        );
+    }
+
+    public User 준기_영양사() {
+        return userRepository.save(
+            User.builder()
+                .password(passwordEncoder.encode("1234"))
+                .nickname("준기")
+                .name("허준기")
+                .phoneNumber("010-1122-5678")
+                .userType(COOP)
+                .gender(MAN)
+                .email("coop@koreatech.ac.kr")
+                .isAuthed(true)
+                .isDeleted(false)
                 .build()
         );
     }
