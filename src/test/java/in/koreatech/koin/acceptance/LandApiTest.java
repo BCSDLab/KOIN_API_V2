@@ -1,11 +1,5 @@
 package in.koreatech.koin.acceptance;
 
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.format.DateTimeFormatter;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,187 +7,117 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.land.model.Land;
-import in.koreatech.koin.domain.land.repository.LandRepository;
+import in.koreatech.koin.fixture.LandFixture;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
+@SuppressWarnings("NonAsciiCharacters")
 class LandApiTest extends AcceptanceTest {
 
     @Autowired
-    private LandRepository landRepository;
+    private LandFixture landFixture;
 
     @Test
     @DisplayName("복덕방 리스트를 조회한다.")
     void getLands() {
-        Land request = Land.builder()
-            .internalName("복덕방")
-            .name("복덕방")
-            .roomType("원룸")
-            .latitude("37.555")
-            .longitude("126.555")
-            .monthlyFee("100")
-            .charterFee("1000")
-            .build();
-        Land request2 = Land.builder()
-            .internalName("복덕방2")
-            .name("복덕방2")
-            .roomType("원룸2")
-            .latitude("37.5552")
-            .longitude("126.5552")
-            .monthlyFee("102")
-            .charterFee("1002")
-            .build();
-
-        Land land = landRepository.save(request);
-        Land land2 = landRepository.save(request2);
+        landFixture.신안빌();
+        landFixture.에듀윌();
 
         var response = RestAssured
             .given()
             .when()
             .get("/lands")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getList("lands").size()).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getInt("lands[0].id")).isEqualTo(land.getId());
-                softly.assertThat(response.body().jsonPath().getString("lands[0].internal_name"))
-                    .isEqualTo(land.getInternalName());
-                softly.assertThat(response.body().jsonPath().getString("lands[0].name")).isEqualTo(land.getName());
-                softly.assertThat(response.body().jsonPath().getString("lands[0].room_type"))
-                    .isEqualTo(land.getRoomType());
-                softly.assertThat(response.body().jsonPath().getString("lands[0].latitude"))
-                    .isEqualTo(land.getLatitude());
-                softly.assertThat(response.body().jsonPath().getString("lands[0].longitude"))
-                    .isEqualTo(land.getLongitude());
-                softly.assertThat(response.body().jsonPath().getString("lands[0].monthly_fee"))
-                    .isEqualTo(land.getMonthlyFee());
-                softly.assertThat(response.body().jsonPath().getString("lands[0].charter_fee"))
-                    .isEqualTo(land.getCharterFee());
-
-                softly.assertThat(response.body().jsonPath().getInt("lands[1].id")).isEqualTo(land2.getId());
-                softly.assertThat(response.body().jsonPath().getString("lands[1].internal_name"))
-                    .isEqualTo(land2.getInternalName());
-                softly.assertThat(response.body().jsonPath().getString("lands[1].name")).isEqualTo(land2.getName());
-                softly.assertThat(response.body().jsonPath().getString("lands[1].room_type"))
-                    .isEqualTo(land2.getRoomType());
-                softly.assertThat(response.body().jsonPath().getString("lands[1].latitude"))
-                    .isEqualTo(land2.getLatitude());
-                softly.assertThat(response.body().jsonPath().getString("lands[1].longitude"))
-                    .isEqualTo(land2.getLongitude());
-                softly.assertThat(response.body().jsonPath().getString("lands[1].monthly_fee"))
-                    .isEqualTo(land2.getMonthlyFee());
-                softly.assertThat(response.body().jsonPath().getString("lands[1].charter_fee"))
-                    .isEqualTo(land2.getCharterFee());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "lands": [
+                        {
+                            "internal_name": "신",
+                            "monthly_fee": "100",
+                            "latitude": "37.555",
+                            "charter_fee": "1000",
+                            "name": "신안빌",
+                            "id": 1,
+                            "longitude": "126.555",
+                            "room_type": "원룸"
+                        },
+                        {
+                            "internal_name": "에",
+                            "monthly_fee": "100",
+                            "latitude": "37.555",
+                            "charter_fee": "1000",
+                            "name": "에듀윌",
+                            "id": 2,
+                            "longitude": "126.555",
+                            "room_type": "원룸"
+                        }
+                    ]
+                }
+                    """);
     }
 
     @Test
     @DisplayName("복덕방을 단일 조회한다.")
     void getLand() {
-        Land request = Land.builder()
-            .internalName("복덕방")
-            .name("복덕방")
-            .roomType("원룸")
-            .latitude("37.555")
-            .longitude("126.555")
-            .floor(1)
-            .monthlyFee("100")
-            .charterFee("1000")
-            .deposit("1000")
-            .managementFee("100")
-            .phone("010-1234-5678")
-            .address("서울시 강남구")
-            .size("100.0")
-            .imageUrls("""
-                ["https://example1.test.com/image.jpeg",
-                "https://example2.test.com/image.jpeg"]
-                """)
-            .build();
-
-        Land land = landRepository.save(request);
+        Land land = landFixture.에듀윌();
 
         var response = RestAssured
             .given()
             .when()
             .get("/lands/{id}", land.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_electronic_door_locks"))
-                    .isEqualTo(land.isOptElectronicDoorLocks());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_tv")).isEqualTo(land.isOptTv());
-                softly.assertThat(response.body().jsonPath().getString("monthly_fee"))
-                    .isEqualTo(land.getMonthlyFee());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_elevator"))
-                    .isEqualTo(land.isOptElevator());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_water_purifier"))
-                    .isEqualTo(land.isOptWaterPurifier());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_washer"))
-                    .isEqualTo(land.isOptWasher());
-                softly.assertThat(response.body().jsonPath().getString("latitude"))
-                    .isEqualTo(land.getLatitude());
-                softly.assertThat(response.body().jsonPath().getString("charter_fee"))
-                    .isEqualTo(land.getCharterFee());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_veranda"))
-                    .isEqualTo(land.isOptVeranda());
-                softly.assertThat(response.body().jsonPath().getString("created_at"))
-                    .contains(land.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getString("description"))
-                    .isEqualTo(land.getDescription());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_gas_range"))
-                    .isEqualTo(land.isOptGasRange());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_induction"))
-                    .isEqualTo(land.isOptInduction());
-                softly.assertThat(response.body().jsonPath().getString("internal_name"))
-                    .isEqualTo(land.getInternalName());
-                softly.assertThat(response.body().jsonPath().getBoolean("is_deleted"))
-                    .isEqualTo(land.isDeleted());
-                softly.assertThat(response.body().jsonPath().getString("updated_at"))
-                    .contains(land.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_bidet"))
-                    .isEqualTo(land.isOptBidet());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_shoe_closet"))
-                    .isEqualTo(land.isOptShoeCloset());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_refrigerator"))
-                    .isEqualTo(land.isOptRefrigerator());
-                softly.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(land.getId());
-                softly.assertThat(response.body().jsonPath().getInt("floor")).isEqualTo(land.getFloor());
-                softly.assertThat(response.body().jsonPath().getString("management_fee"))
-                    .isEqualTo(land.getManagementFee());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_desk"))
-                    .isEqualTo(land.isOptDesk());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_closet"))
-                    .isEqualTo(land.isOptCloset());
-                softly.assertThat(response.body().jsonPath().getString("longitude"))
-                    .isEqualTo(land.getLongitude());
-                softly.assertThat(response.body().jsonPath().getString("address"))
-                    .isEqualTo(land.getAddress());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_bed"))
-                    .isEqualTo(land.isOptBed());
-                softly.assertThat(response.body().jsonPath().getString("size"))
-                    .isEqualTo(land.getSize());
-                softly.assertThat(response.body().jsonPath().getString("phone"))
-                    .isEqualTo(land.getPhone());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_air_conditioner"))
-                    .isEqualTo(land.isOptAirConditioner());
-                softly.assertThat(response.body().jsonPath().getString("name"))
-                    .isEqualTo(land.getName());
-                softly.assertThat(response.body().jsonPath().getString("deposit"))
-                    .isEqualTo(land.getDeposit());
-                softly.assertThat(response.body().jsonPath().getBoolean("opt_microwave"))
-                    .isEqualTo(land.isOptMicrowave());
-                softly.assertThat(response.body().jsonPath().getString("permalink"))
-                    .isEqualTo(URLEncoder.encode(land.getInternalName(), StandardCharsets.UTF_8));
-                softly.assertThat(response.body().jsonPath().getString("room_type"))
-                    .isEqualTo(land.getRoomType());
-                softly.assertThat(response.body().jsonPath().getList("image_urls")).hasSize(2);
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "opt_electronic_door_locks": false,
+                    "opt_tv": false,
+                    "monthly_fee": "100",
+                    "opt_elevator": false,
+                    "opt_water_purifier": false,
+                    "opt_washer": false,
+                    "latitude": "37.555",
+                    "charter_fee": "1000",
+                    "opt_veranda": false,
+                    "created_at": "2024-01-15 12:00:00",
+                    "description": null,
+                    "image_urls": [
+                        "https://example1.test.com/image.jpeg",
+                        "https://example2.test.com/image.jpeg"
+                    ],
+                    "opt_gas_range": false,
+                    "opt_induction": false,
+                    "internal_name": "에",
+                    "is_deleted": false,
+                    "updated_at": "2024-01-15 12:00:00",
+                    "opt_bidet": false,
+                    "opt_shoe_closet": false,
+                    "opt_refrigerator": false,
+                    "id": 1,
+                    "floor": 1,
+                    "management_fee": "100",
+                    "opt_desk": false,
+                    "opt_closet": false,
+                    "longitude": "126.555",
+                    "address": "천안시 동남구 강남구",
+                    "opt_bed": false,
+                    "size": "100.0",
+                    "phone": "010-1133-5555",
+                    "opt_air_conditioner": false,
+                    "name": "에듀윌",
+                    "deposit": "1000",
+                    "opt_microwave": false,
+                    "permalink": "%EC%97%90",
+                    "room_type": "원룸"
+                }
+                """);
     }
 }
