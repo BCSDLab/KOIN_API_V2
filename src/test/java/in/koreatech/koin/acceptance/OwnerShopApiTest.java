@@ -237,7 +237,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+            .isEqualTo("""
                 {
                     "address": "천안시 동남구 병천면 1600",
                     "delivery": true,
@@ -270,7 +270,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                     "updated_at": "2024-01-15",
                     "is_event": false
                 }
-                """));
+                """);
     }
 
     @Test

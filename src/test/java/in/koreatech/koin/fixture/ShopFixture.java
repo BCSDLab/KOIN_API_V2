@@ -1,5 +1,7 @@
 package in.koreatech.koin.fixture;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -23,7 +25,7 @@ public final class ShopFixture {
     }
 
     public Shop 마슬랜(Owner owner) {
-        return shopRepository.save(
+        var shop = shopRepository.save(
             Shop.builder()
                 .owner(owner)
                 .name("마슬랜 치킨")
@@ -42,10 +44,41 @@ public final class ShopFixture {
                 .hit(0)
                 .build()
         );
+        shop.getShopImages().addAll(
+            List.of(
+                ShopImage.builder()
+                    .shop(shop)
+                    .imageUrl("https://test-image.com/마슬랜.png")
+                    .build(),
+                ShopImage.builder()
+                    .shop(shop)
+                    .imageUrl("https://test-image.com/마슬랜2.png")
+                    .build()
+            )
+        );
+        shop.getShopOpens().addAll(
+            List.of(
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(21, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("MONDAY")
+                    .build(),
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(0, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("FRIDAY")
+                    .build()
+            )
+        );
+        return shopRepository.save(shop);
     }
 
     public Shop 신전_떡볶이(Owner owner) {
-        return shopRepository.save(
+        var shop = shopRepository.save(
             Shop.builder()
                 .owner(owner)
                 .name("신전 떡볶이")
@@ -64,6 +97,37 @@ public final class ShopFixture {
                 .hit(0)
                 .build()
         );
+        shop.getShopImages().addAll(
+            List.of(
+                ShopImage.builder()
+                    .shop(shop)
+                    .imageUrl("https://test-image.com/신전.png")
+                    .build(),
+                ShopImage.builder()
+                    .shop(shop)
+                    .imageUrl("https://test-image.com/신전2.png")
+                    .build()
+            )
+        );
+        shop.getShopOpens().addAll(
+            List.of(
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(21, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("SUNDAY")
+                    .build(),
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(21, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("FRIDAY")
+                    .build()
+            )
+        );
+        return shopRepository.save(shop);
     }
 
     public ShopFixtureBuilder builder() {
@@ -87,10 +151,10 @@ public final class ShopFixture {
         private boolean isEvent;
         private String remarks;
         private Integer hit;
-        private List<ShopCategoryMap> shopCategories;
-        private List<ShopOpen> shopOpens;
-        private List<ShopImage> shopImages;
-        private List<MenuCategory> menuCategories;
+        private List<ShopCategoryMap> shopCategories = new ArrayList<>();
+        private List<ShopOpen> shopOpens = new ArrayList<>();
+        private List<ShopImage> shopImages = new ArrayList<>();
+        private List<MenuCategory> menuCategories = new ArrayList<>();
 
         public ShopFixtureBuilder owner(Owner owner) {
             this.owner = owner;
@@ -188,10 +252,8 @@ public final class ShopFixture {
         }
 
         public Shop build() {
-            return shopRepository.save(
+            var shop = shopRepository.save(
                 Shop.builder()
-                    .shopOpens(shopOpens)
-                    .menuCategories(menuCategories)
                     .description(description)
                     .owner(owner)
                     .phone(phone)
@@ -201,9 +263,7 @@ public final class ShopFixture {
                     .isEvent(isEvent)
                     .delivery(delivery)
                     .hit(hit)
-                    .shopCategories(shopCategories)
                     .internalName(internalName)
-                    .shopImages(shopImages)
                     .name(name)
                     .chosung(chosung)
                     .deliveryPrice(deliveryPrice)
@@ -211,6 +271,11 @@ public final class ShopFixture {
                     .payBank(payBank)
                     .build()
             );
+            shop.getShopOpens().addAll(shopOpens);
+            shop.getShopImages().addAll(shopImages);
+            shop.getMenuCategories().addAll(menuCategories);
+            shop.getShopCategories().addAll(shopCategories);
+            return shopRepository.save(shop);
         }
     }
 }

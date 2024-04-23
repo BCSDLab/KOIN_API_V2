@@ -38,7 +38,7 @@ public class MenuCategoryFixture {
         return menuCategoryRepository.save(
             MenuCategory.builder()
                 .shop(shop)
-                .name("세트멘")
+                .name("세트메뉴")
                 .build()
         );
     }

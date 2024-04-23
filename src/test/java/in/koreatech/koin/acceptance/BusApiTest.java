@@ -33,7 +33,6 @@ import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.fixture.BusFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
@@ -52,9 +51,6 @@ class BusApiTest extends AcceptanceTest {
 
     @Autowired
     private ExpressBusCacheRepository expressBusCacheRepository;
-
-    @Autowired
-    private VersionService versionService;
 
     @BeforeEach
     void setup() {

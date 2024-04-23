@@ -57,12 +57,4 @@ public final class BusFixture {
                 .build()
         );
     }
-
-    public BusFixtureBuilder builder() {
-        return new BusFixtureBuilder();
-    }
-
-    public final class BusFixtureBuilder {
-
-    }
 }

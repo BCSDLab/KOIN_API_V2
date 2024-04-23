@@ -2,6 +2,8 @@ package in.koreatech.koin;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+import java.time.Clock;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,6 +61,9 @@ public abstract class AcceptanceTest {
 
     @Autowired
     protected EntityManager entityManager;
+
+    @Autowired
+    protected Clock clock;
 
     @Container
     protected static MySQLContainer mySqlContainer;
