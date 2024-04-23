@@ -391,7 +391,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.isHidden());
 
                 softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
-                softly.assertThat((Integer) response.body().jsonPath().get("single_price")).isNull();
+                softly.assertThat((Integer)response.body().jsonPath().get("single_price")).isNull();
                 softly.assertThat(response.body().jsonPath().getList("option_prices")).hasSize(2);
                 softly.assertThat(response.body().jsonPath().getString("description")).isEqualTo(menu.getDescription());
                 softly.assertThat(response.body().jsonPath().getList("category_ids"))

@@ -23,6 +23,7 @@ public final class ActivityFixture {
     }
 
     public final class ActivityFixtureBuilder {
+
         private String title;
         private String description;
         private String imageUrls;
