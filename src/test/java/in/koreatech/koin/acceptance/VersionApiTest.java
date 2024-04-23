@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
+@SuppressWarnings("NonAsciiCharacters")
 class VersionApiTest extends AcceptanceTest {
 
     @Autowired

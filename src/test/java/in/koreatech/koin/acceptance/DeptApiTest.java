@@ -11,6 +11,7 @@ import in.koreatech.koin.domain.dept.model.Dept;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
+@SuppressWarnings("NonAsciiCharacters")
 class DeptApiTest extends AcceptanceTest {
 
     @Test

@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin;
+package in.koreatech.koin.admin.acceptance;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
@@ -14,6 +14,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
+@SuppressWarnings("NonAsciiCharacters")
 class AdminLandApiTest extends AcceptanceTest {
 
     @Autowired

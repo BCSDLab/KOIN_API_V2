@@ -18,6 +18,7 @@ import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
+@SuppressWarnings("NonAsciiCharacters")
 class AuthApiTest extends AcceptanceTest {
 
     @Autowired

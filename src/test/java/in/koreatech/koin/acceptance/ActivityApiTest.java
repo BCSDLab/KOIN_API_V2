@@ -12,6 +12,7 @@ import in.koreatech.koin.fixture.ActivityFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
+@SuppressWarnings("NonAsciiCharacters")
 class ActivityApiTest extends AcceptanceTest {
 
     @Autowired
