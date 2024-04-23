@@ -117,8 +117,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .get("/owner/shops")
             .then()
-            .log().all()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -197,7 +195,6 @@ class OwnerShopApiTest extends AcceptanceTest {
                 }
                 """, shopCategory_치킨.getId())
             )
-            .log().all()
             .when()
             .post("/owner/shops")
             .then()
@@ -231,45 +228,55 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .get("/owner/shops/{shopId}", shop_마슬랜.getId())
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.OK.value())
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 {
-                    "address": "천안시 동남구 병천면 1600",
-                    "delivery": true,
-                    "delivery_price": 3000,
-                    "description": "마슬랜 치킨입니다.",
-                    "id": 1,
-                    "image_urls": [
+                     "address": "천안시 동남구 병천면 1600",
+                     "delivery": true,
+                     "delivery_price": 3000,
+                     "description": "마슬랜 치킨입니다.",
+                     "id": 1,
+                     "image_urls": [
+                         "https://test-image.com/마슬랜.png",
+                         "https://test-image.com/마슬랜2.png"
+                     ],
+                     "menu_categories": [
+                         {
+                             "id": 1,
+                             "name": "메인메뉴"
+                         },
+                         {
+                             "id": 2,
+                             "name": "사이드메뉴"
+                         }
+                     ],
+                     "name": "마슬랜 치킨",
+                     "open": [
+                         {
+                             "day_of_week": "MONDAY",
+                             "closed": false,
+                             "open_time": "00:00",
+                             "close_time": "21:00"
+                         },
+                         {
+                             "day_of_week": "FRIDAY",
+                             "closed": false,
+                             "open_time": "00:00",
+                             "close_time": "00:00"
+                         }
+                     ],
+                     "pay_bank": true,
+                     "pay_card": true,
+                     "phone": "010-7574-1212",
+                     "shop_categories": [
                        
-                    ],
-                    "menu_categories": [
-                        {
-                            "id": 1,
-                            "name": "메인메뉴"
-                        },
-                        {
-                            "id": 2,
-                            "name": "사이드메뉴"
-                        }
-                    ],
-                    "name": "마슬랜 치킨",
-                    "open": [
-                       
-                    ],
-                    "pay_bank": true,
-                    "pay_card": true,
-                    "phone": "010-7574-1212",
-                    "shop_categories": [
-                       
-                    ],
-                    "updated_at": "2024-01-15",
-                    "is_event": false
-                }
+                     ],
+                     "updated_at": "2024-01-15",
+                     "is_event": false
+                 }
                 """);
     }
 
@@ -285,8 +292,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .get("/owner/shops/menus")
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -342,8 +347,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .get("/owner/shops/menus/categories")
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.OK.value())
             .extract();
         JsonAssertions.assertThat(response.asPrettyString())
@@ -376,7 +379,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .get("/owner/shops/menus/{menuId}", menu.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -410,7 +412,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .get("/owner/shops/{shopId}", shop_마슬랜.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
@@ -425,7 +426,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .delete("/owner/shops/menus/categories/{categoryId}", menuCategory_메인.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
@@ -444,7 +444,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .delete("/owner/shops/menus/{menuId}", menu.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
@@ -486,8 +485,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .post("/owner/shops/{id}/menus", shop_마슬랜.getId())
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -535,8 +532,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .post("/owner/shops/{id}/menus", shop_마슬랜.getId())
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -575,8 +570,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .post("/owner/shops/{id}/menus/categories", shop_마슬랜.getId())
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -612,8 +605,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .put("/owner/shops/menus/{menuId}", menu.getId())
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -673,8 +664,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .put("/owner/shops/menus/{menuId}", menu.getId())
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -740,8 +729,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .put("/owner/shops/{id}", shop_마슬랜.getId())
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -794,8 +781,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .get("/owner/shops/menus/categories")
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
@@ -811,7 +796,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .get("/owner/shops/menus")
             .then()
-            .log().all()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
@@ -827,7 +811,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .delete("/owner/shops/menus/categories/{categoryId}", menuCategory.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
@@ -844,7 +827,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .delete("/owner/shops/menus/{menuId}", menu.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
     }
@@ -875,7 +857,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .post("/owner/shops/{shopId}/event", shop_마슬랜.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -922,7 +903,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .put("/owner/shops/{shopId}/events/{eventId}", shop_마슬랜.getId(), eventArticle.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -958,8 +938,6 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .delete("/owner/shops/{shopId}/events/{eventId}", shop_마슬랜.getId(), eventArticle.getId())
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 

@@ -54,7 +54,6 @@ class ActivityApiTest extends AcceptanceTest {
             .get("/activities")
             .then()
             .statusCode(HttpStatus.OK.value())
-            .log().all()
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())
@@ -127,7 +126,6 @@ class ActivityApiTest extends AcceptanceTest {
             .get("/activities")
             .then()
             .statusCode(HttpStatus.OK.value())
-            .log().all()
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())

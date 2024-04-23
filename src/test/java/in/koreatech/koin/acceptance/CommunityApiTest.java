@@ -70,7 +70,6 @@ class CommunityApiTest extends AcceptanceTest {
             .when()
             .get("/articles/{articleId}", article1.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -145,7 +144,6 @@ class CommunityApiTest extends AcceptanceTest {
             .when()
             .get("/articles/{articleId}", article1.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -208,7 +206,6 @@ class CommunityApiTest extends AcceptanceTest {
             .param("limit", 10)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -288,7 +285,6 @@ class CommunityApiTest extends AcceptanceTest {
             .param("limit", 1)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -307,7 +303,6 @@ class CommunityApiTest extends AcceptanceTest {
             .param("limit", 1)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -326,7 +321,6 @@ class CommunityApiTest extends AcceptanceTest {
             .param("limit", 0L)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -345,7 +339,6 @@ class CommunityApiTest extends AcceptanceTest {
             .param("limit", -10L)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -384,7 +377,6 @@ class CommunityApiTest extends AcceptanceTest {
             .param("limit", 100L)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -421,11 +413,10 @@ class CommunityApiTest extends AcceptanceTest {
             .param("boardId", board.getId())
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.jsonPath().getInt("articles")).isEqualTo(10);
+        assertThat(response.jsonPath().getList("articles")).hasSize(10);
 
     }
 
@@ -441,7 +432,6 @@ class CommunityApiTest extends AcceptanceTest {
             .param("limit", 1)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

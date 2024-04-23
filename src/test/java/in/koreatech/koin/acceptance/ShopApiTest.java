@@ -66,10 +66,7 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.OK.value())
-            .log().all()
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())
@@ -106,9 +103,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
             .then()
-            .log().all()
-
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -192,8 +186,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/{shopId}/menus/categories", menu.getShopId())
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -230,7 +222,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/{shopId}", shop.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -294,8 +285,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/{shopId}/menus", shop.getId())
             .then()
-            .log().all()
-
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -368,7 +357,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -445,7 +433,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/categories")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

@@ -1,6 +1,5 @@
 package in.koreatech.koin.acceptance;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +11,7 @@ import in.koreatech.koin.domain.member.model.Member;
 import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.domain.member.repository.TrackRepository;
 import in.koreatech.koin.fixture.MemberFixture;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -53,7 +53,7 @@ class MemberApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        Assertions.assertThat(response.asPrettyString())
+        JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
                     {
                         "id": %d,
@@ -61,7 +61,7 @@ class MemberApiTest extends AcceptanceTest {
                         "student_number": "2019136135",
                         "track": "BackEnd",
                         "position": "Regular",
-                        "email": "juno@gmail.com",
+                        "email": "testjuno@gmail.com",
                         "image_url": "https://imagetest.com/juno.jpg",
                         "is_deleted": false,
                         "created_at": "%s",
@@ -88,7 +88,7 @@ class MemberApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        Assertions.assertThat(response.asPrettyString())
+        JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 [
                     {

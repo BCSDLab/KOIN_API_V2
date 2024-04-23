@@ -28,7 +28,6 @@ class LandApiTest extends AcceptanceTest {
             .when()
             .get("/lands")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -71,7 +70,6 @@ class LandApiTest extends AcceptanceTest {
             .when()
             .get("/lands/{id}", land.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

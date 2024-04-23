@@ -59,7 +59,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .get("/user/coop/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -78,13 +77,21 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .get("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
-                                
+                {
+                    "anonymous_nickname": "익명",
+                    "email": "juno@koreatech.ac.kr",
+                    "gender": 0,
+                    "major": "컴퓨터공학부",
+                    "name": "테스트용_준호",
+                    "nickname": "준호",
+                    "phone_number": "010-1234-5678",
+                    "student_number": "2019136135"
+                }
                 """);
     }
 
@@ -100,7 +107,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .get("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .extract();
     }
@@ -110,15 +116,16 @@ class UserApiTest extends AcceptanceTest {
     void studentCheckMeNotFound() {
         Student student = userFixture.준호_학생();
         String token = jwtProvider.createToken(student.getUser());
-        userRepository.delete(student.getUser());
+        transactionTemplate.executeWithoutResult(status ->
+            studentRepository.deleteByUserId(student.getId())
+        );
 
-        var response = RestAssured
+        RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
             .get("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
     }
@@ -146,7 +153,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .put("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -165,7 +171,16 @@ class UserApiTest extends AcceptanceTest {
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
-                                
+                {
+                    "anonymous_nickname": "익명",
+                    "email": "juno@koreatech.ac.kr",
+                    "gender": 1,
+                    "major": "기계공학부",
+                    "name": "서정빈",
+                    "nickname": "duehee",
+                    "phone_number": "010-2345-6789",
+                    "student_number": "2019136136"
+                }
                 """);
     }
 
@@ -192,7 +207,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .put("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
@@ -220,7 +234,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .put("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
@@ -248,7 +261,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .put("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .extract();
     }
@@ -258,7 +270,9 @@ class UserApiTest extends AcceptanceTest {
     void studentUpdateMeNotFound() {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
-        userRepository.delete(student.getUser());
+        transactionTemplate.executeWithoutResult(status ->
+            studentRepository.deleteByUserId(student.getId())
+        );
 
         RestAssured
             .given()
@@ -277,7 +291,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .put("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
     }
@@ -306,7 +319,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .put("/user/student/me")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CONFLICT.value())
             .extract();
     }
@@ -323,7 +335,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .delete("/user")
             .then()
-            .log().all()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
@@ -342,7 +353,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .get("/user/check/email")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -356,7 +366,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .get("/user/check/email")
             .then()
-            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
@@ -372,7 +381,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .get("/user/check/email")
             .then()
-            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
@@ -388,7 +396,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .get("/user/check/email")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CONFLICT.value())
             .extract();
 
@@ -407,7 +414,6 @@ class UserApiTest extends AcceptanceTest {
             .param("nickname", user.getNickname())
             .get("/user/check/nickname")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CONFLICT.value())
             .extract();
 
@@ -426,7 +432,6 @@ class UserApiTest extends AcceptanceTest {
             .param("nickname", "철수")
             .get("/user/check/nickname")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
     }
@@ -454,7 +459,6 @@ class UserApiTest extends AcceptanceTest {
             .param("nickname", "철".repeat(11))
             .get("/user/check/nickname")
             .then()
-            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
 
@@ -464,7 +468,6 @@ class UserApiTest extends AcceptanceTest {
             .param("nickname", "")
             .get("/user/check/nickname")
             .then()
-            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
@@ -502,7 +505,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .get("/user/auth")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -538,7 +540,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value());
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -588,7 +589,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value());
 
         User user = userRepository.getByEmail("koko123@koreatech.ac.kr");
@@ -627,7 +627,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
-            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
@@ -653,7 +652,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
-            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
@@ -679,7 +677,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
-            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value());
 
         RestAssured
@@ -701,7 +698,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
-            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 }

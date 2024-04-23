@@ -72,7 +72,6 @@ class OwnerApiTest extends AcceptanceTest {
             .when()
             .get("/owner")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

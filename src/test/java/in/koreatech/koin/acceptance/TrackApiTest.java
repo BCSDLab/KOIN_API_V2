@@ -37,9 +37,6 @@ class TrackApiTest extends AcceptanceTest {
             .when()
             .get("/tracks")
             .then()
-            .log().all()
-
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -86,7 +83,6 @@ class TrackApiTest extends AcceptanceTest {
             .when()
             .get("/tracks/{id}", track.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -134,7 +130,6 @@ class TrackApiTest extends AcceptanceTest {
             .when()
             .get("/tracks/{id}", track.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

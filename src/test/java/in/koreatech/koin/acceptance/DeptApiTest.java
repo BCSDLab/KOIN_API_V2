@@ -26,7 +26,6 @@ class DeptApiTest extends AcceptanceTest {
             .param("dept_num", dept.getNumbers().get(0))
             .get("/dept")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -52,7 +51,6 @@ class DeptApiTest extends AcceptanceTest {
             .when()
             .get("/depts")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

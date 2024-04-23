@@ -51,8 +51,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("semester_date", semester)
             .get("/lectures")
             .then()
-            .log().all()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -93,7 +91,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("semester_date", semester)
             .get("/lectures")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -165,7 +162,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("semester_date", "20193")
             .get("/lectures")
             .then()
-            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
     }
@@ -183,7 +179,6 @@ class TimetableApiTest extends AcceptanceTest {
             .when()
             .get("/semesters")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -229,7 +224,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("semester", semester.getSemester())
             .get("/timetables")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -314,7 +308,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("semester", "20231")
             .get("/timetables")
             .then()
-            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
     }
@@ -373,7 +366,6 @@ class TimetableApiTest extends AcceptanceTest {
             .when()
             .post("/timetables")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -462,7 +454,6 @@ class TimetableApiTest extends AcceptanceTest {
             .when()
             .post("/timetables")
             .then()
-            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
@@ -524,7 +515,6 @@ class TimetableApiTest extends AcceptanceTest {
             .when()
             .put("/timetables")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -589,7 +579,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("id", timeTable.getId())
             .delete("/timetable")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value());
 
         assertThat(timeTableRepository.findById(timeTable.getId())).isNotPresent();
@@ -612,7 +601,6 @@ class TimetableApiTest extends AcceptanceTest {
             .param("id", 999)
             .delete("/timetable")
             .then()
-            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value());
     }
 }

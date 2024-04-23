@@ -45,7 +45,6 @@ class DiningApiTest extends AcceptanceTest {
             .when()
             .get("/dinings?date=240311")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -120,7 +119,6 @@ class DiningApiTest extends AcceptanceTest {
             .get("/dinings")
             .then()
             .statusCode(HttpStatus.OK.value())
-            .log().all()
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())
@@ -191,7 +189,6 @@ class DiningApiTest extends AcceptanceTest {
             .when()
             .patch("/coop/dining/soldout")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
     }

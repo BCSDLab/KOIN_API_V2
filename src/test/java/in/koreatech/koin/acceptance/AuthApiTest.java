@@ -55,7 +55,6 @@ class AuthApiTest extends AcceptanceTest {
             .when()
             .post("/user/login")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 

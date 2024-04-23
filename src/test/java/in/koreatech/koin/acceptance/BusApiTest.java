@@ -118,7 +118,6 @@ class BusApiTest extends AcceptanceTest {
             .get("/bus")
             .then()
             .statusCode(HttpStatus.OK.value())
-            .log().all()
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())
@@ -172,7 +171,6 @@ class BusApiTest extends AcceptanceTest {
             .param("arrival", arrival.name())
             .get("/bus")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -207,7 +205,6 @@ class BusApiTest extends AcceptanceTest {
             .param("arrival", "koreatech")
             .get("/bus")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -331,7 +328,6 @@ class BusApiTest extends AcceptanceTest {
             .param("region", "천안")
             .get("/bus/timetable")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

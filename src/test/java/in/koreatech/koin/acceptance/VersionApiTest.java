@@ -33,7 +33,6 @@ class VersionApiTest extends AcceptanceTest {
             .when()
             .get("/versions/" + version.getType())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
