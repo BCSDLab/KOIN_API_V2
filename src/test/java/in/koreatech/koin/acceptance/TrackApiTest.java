@@ -1,162 +1,154 @@
 package in.koreatech.koin.acceptance;
 
-import java.time.format.DateTimeFormatter;
-
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.member.model.Member;
-import in.koreatech.koin.domain.member.model.TechStack;
 import in.koreatech.koin.domain.member.model.Track;
-import in.koreatech.koin.domain.member.repository.MemberRepository;
-import in.koreatech.koin.domain.member.repository.TechStackRepository;
-import in.koreatech.koin.domain.member.repository.TrackRepository;
+import in.koreatech.koin.fixture.MemberFixture;
+import in.koreatech.koin.fixture.TechStackFixture;
+import in.koreatech.koin.fixture.TrackFixture;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
+@SuppressWarnings("NonAsciiCharacters")
 class TrackApiTest extends AcceptanceTest {
 
     @Autowired
-    private TrackRepository trackRepository;
+    private TrackFixture trackFixture;
 
     @Autowired
-    private TechStackRepository techStackRepository;
+    private MemberFixture memberFixture;
 
     @Autowired
-    private MemberRepository memberRepository;
+    private TechStackFixture techStackFixture;
 
     @Test
     @DisplayName("BCSDLab 트랙 정보를 조회한다")
     void findTracks() {
-        Track request = Track.builder().name("BackEnd").build();
-        Track track = trackRepository.save(request);
+        trackFixture.backend();
+        trackFixture.frontend();
+        trackFixture.ios();
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/tracks")
             .then()
+            .log().all()
+
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(1);
-                softly.assertThat(response.body().jsonPath().getInt("[0].id")).isEqualTo(track.getId());
-                softly.assertThat(response.body().jsonPath().getString("[0].name")).isEqualTo(track.getName());
-                softly.assertThat(response.body().jsonPath().getInt("[0].headcount")).isEqualTo(track.getHeadcount());
-                softly.assertThat(response.body().jsonPath().getBoolean("[0].is_deleted"))
-                    .isEqualTo(track.isDeleted());
-                softly.assertThat(response.body().jsonPath().getString("[0].created_at"))
-                    .contains(track.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getString("[0].updated_at"))
-                    .contains(track.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                [
+                    {
+                        "id": 1,
+                        "name": "BackEnd",
+                        "headcount": 0,
+                        "is_deleted": false,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
+                    },
+                    {
+                        "id": 2,
+                        "name": "FrontEnd",
+                        "headcount": 0,
+                        "is_deleted": false,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
+                    },
+                    {
+                        "id": 3,
+                        "name": "iOS",
+                        "headcount": 0,
+                        "is_deleted": false,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
+                    }
+                ]
+                """);
     }
 
     @Test
     @DisplayName("BCSDLab 트랙 정보 단건 조회")
     void findTrack() {
-        Track track = Track.builder().name("BackEnd").build();
-        trackRepository.save(track);
+        Track track = trackFixture.backend();
+        memberFixture.최준호(track);
+        techStackFixture.java(track);
 
-        Member member = Member.builder()
-            .isDeleted(false)
-            .studentNumber("2019136064")
-            .imageUrl("https://imagetest.com/asdf.jpg")
-            .name("박한수")
-            .position("Regular")
-            .track(track)
-            .email("hsp@gmail.com")
-            .build();
-        memberRepository.save(member);
-
-        TechStack techStack = TechStack.builder()
-            .isDeleted(false)
-            .imageUrl("https://testimageurl.com")
-            .trackId(track.getId())
-            .name("Java")
-            .description("Language")
-            .build();
-        techStackRepository.save(techStack);
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/tracks/{id}", track.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("TrackName")).isEqualTo(track.getName());
-                softly.assertThat(response.body().jsonPath().getList("Members")).hasSize(1);
-                softly.assertThat(response.body().jsonPath().getInt("Members[0].id"))
-                    .isEqualTo(member.getId().longValue());
-                softly.assertThat(response.body().jsonPath().getString("Members[0].name")).isEqualTo(member.getName());
-                softly.assertThat(response.body().jsonPath().getString("Members[0].student_number"))
-                    .isEqualTo(member.getStudentNumber());
-                softly.assertThat(response.body().jsonPath().getString("Members[0].position"))
-                    .isEqualTo(member.getPosition());
-                softly.assertThat(response.body().jsonPath().getString("Members[0].track"))
-                    .isEqualTo(track.getName());
-                softly.assertThat(response.body().jsonPath().getString("Members[0].email"))
-                    .isEqualTo(member.getEmail());
-                softly.assertThat(response.body().jsonPath().getString("Members[0].image_url"))
-                    .isEqualTo(member.getImageUrl());
-                softly.assertThat(response.body().jsonPath().getBoolean("Members[0].is_deleted"))
-                    .isEqualTo(member.isDeleted());
-                softly.assertThat(response.body().jsonPath().getString("Members[0].updated_at"))
-                    .contains(member.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getString("Members[0].created_at"))
-                    .contains(member.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-
-                softly.assertThat(response.body().jsonPath().getList("TechStacks")).hasSize(1);
-                softly.assertThat(response.body().jsonPath().getInt("TechStacks[0].id")).isEqualTo(techStack.getId());
-                softly.assertThat(response.body().jsonPath().getString("TechStacks[0].image_url"))
-                    .isEqualTo(techStack.getImageUrl());
-                softly.assertThat(response.body().jsonPath().getInt("TechStacks[0].track_id"))
-                    .isEqualTo(techStack.getTrackId());
-                softly.assertThat(response.body().jsonPath().getString("TechStacks[0].name"))
-                    .isEqualTo(techStack.getName());
-                softly.assertThat(response.body().jsonPath().getString("TechStacks[0].description"))
-                    .isEqualTo(techStack.getDescription());
-                softly.assertThat(response.body().jsonPath().getBoolean("TechStacks[0].is_deleted")).isFalse();
-                softly.assertThat(response.body().jsonPath().getString("TechStacks[0].updated_at"))
-                    .contains(techStack.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getString("TechStacks[0].created_at"))
-                    .contains(techStack.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                     "TrackName": "BackEnd",
+                     "TechStacks": [
+                         {
+                             "id": 1,
+                             "name": "Java",
+                             "description": "Language",
+                             "image_url": "https://testimageurl.com",
+                             "track_id": 1,
+                             "is_deleted": false,
+                             "created_at": "2024-01-15 12:00:00",
+                             "updated_at": "2024-01-15 12:00:00"
+                         }
+                     ],
+                     "Members": [
+                         {
+                             "id": 1,
+                             "name": "최준호",
+                             "student_number": "2019136135",
+                             "position": "Regular",
+                             "track": "BackEnd",
+                             "email": "testjuno@gmail.com",
+                             "image_url": "https://imagetest.com/juno.jpg",
+                             "is_deleted": false,
+                             "created_at": "2024-01-15 12:00:00",
+                             "updated_at": "2024-01-15 12:00:00"
+                         }
+                     ]
+                 }
+                """);
     }
 
     @Test
     @DisplayName("BCSDLab 트랙 정보 단건 조회 - 트랙에 속한 멤버와 기술스택이 없을 때")
     void findTrackWithEmptyMembersAndTechStacks() {
-        Track track = Track.builder().name("BackEnd").build();
-        trackRepository.save(track);
+        Track track = trackFixture.frontend();
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/tracks/{id}", track.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("TrackName")).isEqualTo(track.getName());
-                softly.assertThat(response.body().jsonPath().getList("Members")).hasSize(0);
-                softly.assertThat(response.body().jsonPath().getList("TechStacks")).hasSize(0);
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "TrackName": "FrontEnd",
+                    "TechStacks": [
+                      
+                    ],
+                    "Members": [
+                       
+                    ]
+                }
+                """);
     }
 }

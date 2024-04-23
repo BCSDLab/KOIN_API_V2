@@ -52,7 +52,7 @@ public final class UserFixture {
     public Student 준호_학생() {
         return studentRepository.save(
             Student.builder()
-                .studentNumber("202020136070")
+                .studentNumber("2019136135")
                 .anonymousNickname("익명")
                 .department("컴퓨터공학부")
                 .userIdentity(UNDERGRADUATE)
@@ -66,6 +66,31 @@ public final class UserFixture {
                         .userType(STUDENT)
                         .gender(MAN)
                         .email("juno@koreatech.ac.kr")
+                        .isAuthed(true)
+                        .isDeleted(false)
+                        .build()
+                )
+                .build()
+        );
+    }
+
+    public Student 성빈_학생() {
+        return studentRepository.save(
+            Student.builder()
+                .studentNumber("2023100514")
+                .anonymousNickname("익명123")
+                .department("컴퓨터공학부")
+                .userIdentity(UNDERGRADUATE)
+                .isGraduated(false)
+                .user(
+                    User.builder()
+                        .password(passwordEncoder.encode("1234"))
+                        .nickname("성빈")
+                        .name("테스트용_성빈")
+                        .phoneNumber("010-9941-1123")
+                        .userType(STUDENT)
+                        .gender(MAN)
+                        .email("testsungbeen@koreatech.ac.kr")
                         .isAuthed(true)
                         .isDeleted(false)
                         .build()

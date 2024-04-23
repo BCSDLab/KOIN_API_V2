@@ -1,14 +1,13 @@
 package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
-import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +23,13 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
+@SuppressWarnings("NonAsciiCharacters")
 class UserApiTest extends AcceptanceTest {
 
     @Autowired
@@ -44,141 +44,63 @@ class UserApiTest extends AcceptanceTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
+    @Autowired
+    private UserFixture userFixture;
+
     @Test
     @DisplayName("올바른 영양사 계정인지 확인한다")
     void coopCheckMe() {
-        User user = User.builder()
-            .password("1234")
-            .name("영양사")
-            .phoneNumber("010-1234-5678")
-            .userType(COOP)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        User user = userFixture.준기_영양사();
+        String token = userFixture.getToken(user);
 
-        userRepository.save(user);
-        String token = jwtProvider.createToken(user);
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
             .get("/user/coop/me")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("email"))
-                    .isEqualTo(user.getEmail());
-                softly.assertThat(response.body().jsonPath().getInt("gender"))
-                    .isEqualTo(user.getGender().ordinal());
-                softly.assertThat(response.body().jsonPath().getString("name"))
-                    .isEqualTo(user.getName());
-                softly.assertThat(response.body().jsonPath().getString("phone_number"))
-                    .isEqualTo(user.getPhoneNumber());
-                softly.assertThat(response.body().jsonPath().getString("user_type"))
-                    .isEqualTo(user.getUserType().getValue());
-            }
-        );
+
     }
 
     @Test
     @DisplayName("올바른 학생계정인지 확인한다")
     void studentCheckMe() {
-        Student student = Student.builder()
-            .studentNumber("2019136135")
-            .anonymousNickname("익명")
-            .department("컴퓨터공학부")
-            .userIdentity(UNDERGRADUATE)
-            .isGraduated(false)
-            .user(
-                User.builder()
-                    .password("1234")
-                    .nickname("셋업유저")
-                    .name("셋업")
-                    .phoneNumber("010-1234-5678")
-                    .userType(STUDENT)
-                    .gender(UserGender.MAN)
-                    .email("test@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
+        Student student = userFixture.준호_학생();
+        String token = userFixture.getToken(student.getUser());
 
-        studentRepository.save(student);
-        String token = jwtProvider.createToken(student.getUser());
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
             .get("/user/student/me")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        User user = student.getUser();
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("anonymous_nickname"))
-                    .isEqualTo(student.getAnonymousNickname());
-                softly.assertThat(response.body().jsonPath().getString("email"))
-                    .isEqualTo(user.getEmail());
-                softly.assertThat(response.body().jsonPath().getInt("gender"))
-                    .isEqualTo(user.getGender().ordinal());
-                softly.assertThat(response.body().jsonPath().getString("major"))
-                    .isEqualTo(student.getDepartment());
-                softly.assertThat(response.body().jsonPath().getString("name"))
-                    .isEqualTo(user.getName());
-                softly.assertThat(response.body().jsonPath().getString("nickname"))
-                    .isEqualTo(user.getNickname());
-                softly.assertThat(response.body().jsonPath().getString("phone_number"))
-                    .isEqualTo(user.getPhoneNumber());
-                softly.assertThat(response.body().jsonPath().getString("student_number"))
-                    .isEqualTo(student.getStudentNumber());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                                
+                """);
     }
 
     @Test
     @DisplayName("올바른 학생계정인지 확인한다 - 토큰 정보가 올바르지 않으면  401")
     void studentCheckMeUnAuthorized() {
-        Student student = Student.builder()
-            .studentNumber("2019136135")
-            .anonymousNickname("익명")
-            .department("컴퓨터공학부")
-            .userIdentity(UNDERGRADUATE)
-            .isGraduated(false)
-            .user(
-                User.builder()
-                    .password("1234")
-                    .nickname("주노")
-                    .name("최준호")
-                    .phoneNumber("010-1234-5678")
-                    .userType(STUDENT)
-                    .gender(UserGender.MAN)
-                    .email("test@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
-
-        studentRepository.save(student);
+        userFixture.준호_학생();
         String token = "invalidToken";
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
             .get("/user/student/me")
             .then()
+            .log().all()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .extract();
     }
@@ -186,27 +108,17 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("올바른 학생계정인지 확인한다 - 회원을 찾을 수 없으면 404")
     void studentCheckMeNotFound() {
-        User user = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        Student student = userFixture.준호_학생();
+        String token = jwtProvider.createToken(student.getUser());
+        userRepository.delete(student.getUser());
 
-        userRepository.save(user);
-        String token = jwtProvider.createToken(user);
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
             .get("/user/student/me")
             .then()
+            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
     }
@@ -214,31 +126,10 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("학생이 정보를 수정한다")
     void studentUpdateMe() {
-        Student student = Student.builder()
-            .studentNumber("2019136135")
-            .anonymousNickname("익명")
-            .department("컴퓨터공학부")
-            .userIdentity(UNDERGRADUATE)
-            .isGraduated(false)
-            .user(
-                User.builder()
-                    .password("1234")
-                    .nickname("주노")
-                    .name("최준호")
-                    .phoneNumber("010-1234-5678")
-                    .userType(STUDENT)
-                    .gender(UserGender.MAN)
-                    .email("test@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
+        Student student = userFixture.준호_학생();
+        String token = userFixture.getToken(student.getUser());
 
-        studentRepository.save(student);
-        String token = jwtProvider.createToken(student.getUser());
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -255,38 +146,36 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .put("/user/student/me")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
+
+        transactionTemplate.executeWithoutResult(status -> {
+            Student result = studentRepository.getById(student.getId());
+            SoftAssertions.assertSoftly(
+                softly -> {
+                    softly.assertThat(result.getUser().getName()).isEqualTo("서정빈");
+                    softly.assertThat(result.getUser().getNickname()).isEqualTo("duehee");
+                    softly.assertThat(result.getUser().getName()).isEqualTo("서정빈");
+                    softly.assertThat(result.getUser().getGender()).isEqualTo(UserGender.from(1));
+                    softly.assertThat(result.getStudentNumber()).isEqualTo("2019136136");
+                }
+            );
+        });
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                                
+                """);
     }
 
     @Test
     @DisplayName("학생이 정보를 수정한다 - 학번의 형식이 맞지 않으면 400")
     void studentUpdateMeNotValidStudentNumber() {
-        Student student = Student.builder()
-            .studentNumber("2019136135")
-            .anonymousNickname("익명")
-            .department("컴퓨터공학부")
-            .userIdentity(UNDERGRADUATE)
-            .isGraduated(false)
-            .user(
-                User.builder()
-                    .password("1234")
-                    .nickname("주노")
-                    .name("최준호")
-                    .phoneNumber("010-1234-5678")
-                    .userType(STUDENT)
-                    .gender(UserGender.MAN)
-                    .email("test@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
+        Student student = userFixture.준호_학생();
+        String token = userFixture.getToken(student.getUser());
 
-        studentRepository.save(student);
-        String token = jwtProvider.createToken(student.getUser());
-
-        ExtractableResponse<Response> response = RestAssured
+        RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -303,6 +192,7 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .put("/user/student/me")
             .then()
+            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
@@ -310,31 +200,10 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("학생이 정보를 수정한다 - 학부의 형식이 맞지 않으면 400")
     void studentUpdateMeNotValidDepartment() {
-        Student student = Student.builder()
-            .studentNumber("2019136135")
-            .anonymousNickname("익명")
-            .department("컴퓨터공학부")
-            .userIdentity(UNDERGRADUATE)
-            .isGraduated(false)
-            .user(
-                User.builder()
-                    .password("1234")
-                    .nickname("주노")
-                    .name("최준호")
-                    .phoneNumber("010-1234-5678")
-                    .userType(STUDENT)
-                    .gender(UserGender.MAN)
-                    .email("test@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
+        Student student = userFixture.준호_학생();
+        String token = userFixture.getToken(student.getUser());
 
-        studentRepository.save(student);
-        String token = jwtProvider.createToken(student.getUser());
-
-        ExtractableResponse<Response> response = RestAssured
+        RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -351,6 +220,7 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .put("/user/student/me")
             .then()
+            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
@@ -358,31 +228,10 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("학생이 정보를 수정한다 - 토큰이 올바르지 않다면 401")
     void studentUpdateMeUnAuthorized() {
-        Student student = Student.builder()
-            .studentNumber("2019136135")
-            .anonymousNickname("익명")
-            .department("컴퓨터공학부")
-            .userIdentity(UNDERGRADUATE)
-            .isGraduated(false)
-            .user(
-                User.builder()
-                    .password("1234")
-                    .nickname("주노")
-                    .name("최준호")
-                    .phoneNumber("010-1234-5678")
-                    .userType(STUDENT)
-                    .gender(UserGender.MAN)
-                    .email("test@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
-
-        studentRepository.save(student);
+        userFixture.준호_학생();
         String token = "invalidToken";
 
-        ExtractableResponse<Response> response = RestAssured
+        RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -399,6 +248,7 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .put("/user/student/me")
             .then()
+            .log().all()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .extract();
     }
@@ -406,23 +256,11 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("학생이 정보를 수정한다 - 회원을 찾을 수 없다면 404")
     void studentUpdateMeNotFound() {
-        User user =
-            User.builder()
-                .password("1234")
-                .nickname("주노")
-                .name("최준호")
-                .phoneNumber("010-1234-5678")
-                .userType(STUDENT)
-                .gender(UserGender.MAN)
-                .email("test@koreatech.ac.kr")
-                .isAuthed(true)
-                .isDeleted(false)
-                .build();
+        Student student = userFixture.준호_학생();
+        String token = userFixture.getToken(student.getUser());
+        userRepository.delete(student.getUser());
 
-        userRepository.save(user);
-        String token = jwtProvider.createToken(user);
-
-        ExtractableResponse<Response> response = RestAssured
+        RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -439,6 +277,7 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .put("/user/student/me")
             .then()
+            .log().all()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
     }
@@ -446,69 +285,28 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("학생이 정보를 수정한다 - 이미 있는 닉네임이라면 409")
     void studentUpdateMeDuplicationNickname() {
-        Student student1 = Student.builder()
-            .studentNumber("2019136135")
-            .anonymousNickname("익명")
-            .department("컴퓨터공학부")
-            .userIdentity(UNDERGRADUATE)
-            .isGraduated(false)
-            .user(
-                User.builder()
-                    .password("1234")
-                    .nickname("주노")
-                    .name("최준호")
-                    .phoneNumber("010-1234-5678")
-                    .userType(STUDENT)
-                    .gender(UserGender.MAN)
-                    .email("test1@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
+        Student 준호 = userFixture.준호_학생();
+        Student 성빈 = userFixture.성빈_학생();
+        String token = userFixture.getToken(준호.getUser());
 
-        Student student2 = Student.builder()
-            .studentNumber("2020136065")
-            .anonymousNickname("익명2")
-            .department("컴퓨터공학부")
-            .userIdentity(UNDERGRADUATE)
-            .isGraduated(false)
-            .user(
-                User.builder()
-                    .password("1234")
-                    .nickname("duehee")
-                    .name("서정빈")
-                    .phoneNumber("010-1234-5678")
-                    .userType(STUDENT)
-                    .gender(UserGender.MAN)
-                    .email("test2@koreatech.ac.kr")
-                    .isAuthed(true)
-                    .isDeleted(false)
-                    .build()
-            )
-            .build();
-
-        studentRepository.save(student1);
-        studentRepository.save(student2);
-        String token = jwtProvider.createToken(student1.getUser());
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
-            .body("""
+            .body(String.format("""
                  {
                     "gender" : 0,
                     "major" : "테스트학과",
                     "name" : "최주노",
-                    "nickname" : "duehee",
+                    "nickname" : "%s",
                     "phone_number" : "010-2345-6789",
                     "student_number" : "2019136136"
                  }
-                """)
+                """, 성빈.getUser().getNickname()))
             .when()
             .put("/user/student/me")
             .then()
+            .log().all()
             .statusCode(HttpStatus.CONFLICT.value())
             .extract();
     }
@@ -516,43 +314,27 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("회원이 탈퇴한다")
     void userWithdraw() {
-        User user = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        Student student = userFixture.성빈_학생();
+        String token = userFixture.getToken(student.getUser());
 
-        userRepository.save(user);
-        String token = jwtProvider.createToken(user);
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .delete("/user")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract();
 
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-
-                RestAssured
-                    .given()
-                    .header("Authorization", "Bearer " + token)
-                    .when()
-                    .delete("/user")
-                    .then()
-                    .statusCode(HttpStatus.NO_CONTENT.value())
-                    .extract();
-
-                assertThat(userRepository.findById(user.getId())).isNotPresent();
-            }
-        });
+        assertThat(userRepository.findById(student.getId())).isNotPresent();
     }
+
 
     @Test
     @DisplayName("이메일이 중복인지 확인한다")
     void emailCheckExists() {
-        String email = "test@koreatech.ac.kr";
+        String email = "notduplicated@koreatech.ac.kr";
 
         RestAssured
             .given()
@@ -560,6 +342,7 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .get("/user/check/email")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -567,12 +350,13 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("이메일이 중복인지 확인한다 - 이메일을 보내지 않으면 400")
+    @DisplayName("이메일이 중복인지 확인한다 - 파라미터에 이메일을 포함하지 않으면 400")
     void emailCheckExistsNull() {
         RestAssured
             .when()
             .get("/user/check/email")
             .then()
+            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
@@ -588,6 +372,7 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .get("/user/check/email")
             .then()
+            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
@@ -595,26 +380,15 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("이메일이 중복인지 확인한다 - 중복이면 422")
     void emailCheckExistsAlreadyExists() {
-        User user = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        User user = userFixture.성빈_학생().getUser();
 
-        userRepository.save(user);
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .param("address", user.getEmail())
             .when()
             .get("/user/check/email")
             .then()
+            .log().all()
             .statusCode(HttpStatus.CONFLICT.value())
             .extract();
 
@@ -625,60 +399,34 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("닉네임 중복일때 상태코드 409를 반환한다.")
     void checkDuplicationOfNicknameConflict() {
-        User user = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        User user = userFixture.성빈_학생().getUser();
 
-        userRepository.save(user);
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("nickname", user.getNickname())
             .get("/user/check/nickname")
             .then()
+            .log().all()
             .statusCode(HttpStatus.CONFLICT.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("message"))
-                    .contains("이미 존재하는 닉네임입니다.");
-            }
-        );
+        assertThat(response.body().jsonPath().getString("message"))
+            .contains("이미 존재하는 닉네임입니다.");
     }
 
     @Test
     @DisplayName("닉네임 중복이 아닐시 상태코드 200을 반환한다.")
     void checkDuplicationOfNickname() {
-        User user = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        User user = userFixture.성빈_학생().getUser();
 
-        userRepository.save(user);
-
-        ExtractableResponse<Response> response = RestAssured
+        RestAssured
             .given()
             .when()
             .param("nickname", "철수")
             .get("/user/check/nickname")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
     }
@@ -706,6 +454,7 @@ class UserApiTest extends AcceptanceTest {
             .param("nickname", "철".repeat(11))
             .get("/user/check/nickname")
             .then()
+            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
 
@@ -715,6 +464,7 @@ class UserApiTest extends AcceptanceTest {
             .param("nickname", "")
             .get("/user/check/nickname")
             .then()
+            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
@@ -746,12 +496,13 @@ class UserApiTest extends AcceptanceTest {
         studentRepository.save(student);
         String token = jwtProvider.createToken(student.getUser());
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
             .get("/user/auth")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -787,6 +538,7 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value());
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -836,6 +588,7 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value());
 
         User user = userRepository.getByEmail("koko123@koreatech.ac.kr");
@@ -848,7 +601,7 @@ class UserApiTest extends AcceptanceTest {
 
         User user1 = userRepository.getByEmail("koko123@koreatech.ac.kr");
 
-        Assertions.assertThat(user1.isAuthed()).isTrue();
+        assertThat(user1.isAuthed()).isTrue();
         verify(studentEventListener).onStudentRegister(any());
     }
 
@@ -874,6 +627,7 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
+            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
@@ -899,6 +653,7 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
+            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
@@ -924,6 +679,7 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
+            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value());
 
         RestAssured
@@ -945,6 +701,7 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
+            .log().all()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 }

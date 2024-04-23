@@ -45,11 +45,15 @@ public class TechStack extends BaseEntity {
     private boolean isDeleted = false;
 
     @Builder
-    private TechStack(String imageUrl, String name, String description, Integer trackId, boolean isDeleted) {
+    private TechStack(
+        String imageUrl,
+        String name,
+        String description,
+        Integer trackId
+    ) {
         this.imageUrl = imageUrl;
         this.name = name;
         this.description = description;
         this.trackId = trackId;
-        this.isDeleted = isDeleted;
     }
 }
