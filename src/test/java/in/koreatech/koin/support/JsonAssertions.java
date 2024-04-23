@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonAssertions {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static JsonStringAssert assertThat(String expect) {
         return new JsonStringAssert(expect);
@@ -18,7 +19,6 @@ public class JsonAssertions {
 
     public static class JsonStringAssert {
 
-        private final ObjectMapper objectMapper = new ObjectMapper();
         private final String expect;
 
         JsonStringAssert(String expect) {
@@ -27,10 +27,8 @@ public class JsonAssertions {
 
         public void isEqualTo(String actual) {
             try {
-                ObjectMapper objectMapper = new ObjectMapper();
-
-                Object responseObj = parseJson(objectMapper, expect);
-                Object expectedObj = parseJson(objectMapper, actual);
+                Object responseObj = parseJson(expect);
+                Object expectedObj = parseJson(actual);
 
                 Assertions.assertThat(responseObj).isEqualTo(expectedObj);
             } catch (Exception e) {
@@ -38,7 +36,7 @@ public class JsonAssertions {
             }
         }
 
-        private Object parseJson(ObjectMapper objectMapper, String json) throws IOException {
+        private Object parseJson(String json) throws IOException {
             try {
                 return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {
                 });
