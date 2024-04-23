@@ -22,8 +22,6 @@ import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
 @SuppressWarnings("NonAsciiCharacters")
 class ShopApiTest extends AcceptanceTest {
@@ -280,7 +278,7 @@ class ShopApiTest extends AcceptanceTest {
     void getShopMenus() {
         menuFixture.짜장면_단일메뉴(shop, menuCategoryFixture.추천메뉴(shop));
         menuFixture.짜장면_옵션메뉴(shop, menuCategoryFixture.세트메뉴(shop));
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/shops/{shopId}/menus", shop.getId())
@@ -528,7 +526,7 @@ class ShopApiTest extends AcceptanceTest {
             LocalDate.now(clock).plusDays(3)
         );
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/shops/{shopId}", shop.getId())
