@@ -59,7 +59,6 @@ class NotificationApiTest extends AcceptanceTest {
             .when()
             .get("/notification")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -144,7 +143,6 @@ class NotificationApiTest extends AcceptanceTest {
             .when()
             .get("/notification")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -220,7 +218,6 @@ class NotificationApiTest extends AcceptanceTest {
             .get("/notification")
             .then()
             .statusCode(HttpStatus.OK.value())
-            .log().all()
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())

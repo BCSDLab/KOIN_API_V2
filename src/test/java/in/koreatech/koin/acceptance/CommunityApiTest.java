@@ -467,7 +467,6 @@ class CommunityApiTest extends AcceptanceTest {
             .when()
             .get("/articles/hot/list")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

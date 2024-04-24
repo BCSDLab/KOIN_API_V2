@@ -237,7 +237,6 @@ class DiningApiTest extends AcceptanceTest {
             .when()
             .patch("/coop/dining/image")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

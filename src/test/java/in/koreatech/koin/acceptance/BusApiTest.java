@@ -380,7 +380,6 @@ class BusApiTest extends AcceptanceTest {
             .param("region", region)
             .get("/bus/timetable/v2")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

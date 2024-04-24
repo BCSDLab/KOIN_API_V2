@@ -473,7 +473,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/{shopId}/events", shop.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -531,7 +530,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/{shopId}", shop.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -557,7 +555,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/{shopId}", shop.getId())
             .then()
-            .log().all()
 
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -584,7 +581,6 @@ class ShopApiTest extends AcceptanceTest {
             .when()
             .get("/shops/events")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

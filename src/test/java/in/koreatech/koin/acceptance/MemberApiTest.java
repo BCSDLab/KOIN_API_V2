@@ -84,7 +84,6 @@ class MemberApiTest extends AcceptanceTest {
             .when()
             .get("/members")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
