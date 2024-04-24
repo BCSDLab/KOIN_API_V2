@@ -14,4 +14,9 @@ public class ShopCategoryMapNotFoundException extends DataNotFoundException {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new ShopCategoryMapNotFoundException(message);
     }
+
+    @Override
+    public String getDefaultMessage() {
+        return DEFAULT_MESSAGE;
+    }
 }

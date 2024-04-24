@@ -14,4 +14,9 @@ public class NotificationSubscribeNotFoundException extends DataNotFoundExceptio
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new NotificationSubscribeNotFoundException(message);
     }
+
+    @Override
+    public String getDefaultMessage() {
+        return DEFAULT_MESSAGE;
+    }
 }

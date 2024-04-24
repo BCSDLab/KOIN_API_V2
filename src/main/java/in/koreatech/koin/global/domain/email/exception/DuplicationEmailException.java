@@ -14,4 +14,9 @@ public class DuplicationEmailException extends DuplicationException {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new DuplicationEmailException(message);
     }
+
+    @Override
+    public String getDefaultMessage() {
+        return DEFAULT_MESSAGE;
+    }
 }

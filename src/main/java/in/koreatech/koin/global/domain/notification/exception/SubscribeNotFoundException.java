@@ -14,4 +14,9 @@ public class SubscribeNotFoundException extends DataNotFoundException {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new SubscribeNotFoundException(message);
     }
+
+    @Override
+    public String getDefaultMessage() {
+        return DEFAULT_MESSAGE;
+    }
 }

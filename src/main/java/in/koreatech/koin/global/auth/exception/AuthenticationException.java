@@ -12,4 +12,8 @@ public class AuthenticationException extends RuntimeException {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new AuthenticationException(message);
     }
+
+    public String getDefaultMessage() {
+        return DEFAULT_MESSAGE;
+    }
 }

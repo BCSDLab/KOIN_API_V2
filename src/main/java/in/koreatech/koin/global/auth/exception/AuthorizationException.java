@@ -12,4 +12,8 @@ public class AuthorizationException extends RuntimeException {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new AuthorizationException(message);
     }
+
+    public String getDefaultMessage() {
+        return DEFAULT_MESSAGE;
+    }
 }

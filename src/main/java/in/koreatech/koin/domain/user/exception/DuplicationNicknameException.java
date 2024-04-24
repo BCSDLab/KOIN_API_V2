@@ -14,4 +14,9 @@ public class DuplicationNicknameException extends DuplicationException {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new DuplicationNicknameException(message);
     }
+
+    @Override
+    public String getDefaultMessage() {
+        return DEFAULT_MESSAGE;
+    }
 }

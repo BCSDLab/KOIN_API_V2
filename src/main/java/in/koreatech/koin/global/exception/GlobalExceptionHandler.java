@@ -57,7 +57,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         log.warn(e.getMessage());
         requestLogging(request);
-        return buildErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
+        return buildErrorResponse(HttpStatus.FORBIDDEN, e.getDefaultMessage());
     }
 
     @ExceptionHandler(AuthenticationException.class)
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         log.warn(e.getMessage());
         requestLogging(request);
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED, e.getMessage());
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, e.getDefaultMessage());
     }
 
     @ExceptionHandler(DataNotFoundException.class)
@@ -77,7 +77,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         log.warn(e.getMessage());
         requestLogging(request);
-        return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
+        return buildErrorResponse(HttpStatus.NOT_FOUND, e.getDefaultMessage());
     }
 
     @ExceptionHandler(DuplicationException.class)
@@ -87,7 +87,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         log.warn(e.getMessage());
         requestLogging(request);
-        return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
+        return buildErrorResponse(HttpStatus.CONFLICT, e.getDefaultMessage());
     }
 
     @ExceptionHandler(RequestTooFastException.class)
@@ -107,7 +107,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         log.warn(e.getMessage());
         requestLogging(request);
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getDefaultMessage());
     }
 
     @ExceptionHandler(DateTimeParseException.class)
@@ -182,7 +182,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatusCode status,
         WebRequest webRequest
     ) {
-        HttpServletRequest request = ((ServletWebRequest) webRequest).getRequest();
+        HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
         log.warn("검증과정에서 문제가 발생했습니다. uri: {} {}, ", request.getMethod(), request.getRequestURI(), ex);
         requestLogging(request);
         String errorMessages = ex.getBindingResult().getAllErrors().stream()

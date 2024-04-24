@@ -14,4 +14,9 @@ public class BusOpenApiException extends ExternalServiceException {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new BusOpenApiException(message);
     }
+
+    @Override
+    public String getDefaultMessage() {
+        return DEFAULT_MESSAGE;
+    }
 }

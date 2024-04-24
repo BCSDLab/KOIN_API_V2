@@ -15,4 +15,9 @@ public class DuplicationCompanyNumberException extends DuplicationException {
         String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
         return new MenuNotFoundException(message);
     }
+
+    @Override
+    public String getDefaultMessage() {
+        return DEFAULT_MESSAGE;
+    }
 }
