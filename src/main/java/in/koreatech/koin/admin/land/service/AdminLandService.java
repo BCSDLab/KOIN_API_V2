@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.admin.land.service;
+package in.koreatech.koin.admin.land.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -6,8 +6,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.admin.land.dto.AdminLandsResponse;
-import in.koreatech.koin.domain.admin.land.repository.AdminLandRepository;
+import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
+import in.koreatech.koin.admin.land.repository.AdminLandRepository;
 import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;

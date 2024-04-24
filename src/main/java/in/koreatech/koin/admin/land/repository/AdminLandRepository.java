@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.admin.land.repository;
+package in.koreatech.koin.admin.land.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

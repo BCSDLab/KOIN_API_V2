@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.admin.land.dto;
+package in.koreatech.koin.admin.land.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
