@@ -118,7 +118,7 @@ public class OwnerService {
     }
 
     public OwnerVerifyResponse verifyCode(OwnerVerifyRequest request) {
-        var verify = ownerInVerificationRedisRepository.getByEmail(request.email());
+        var verify = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!Objects.equals(verify.getCertificationCode(), request.certificationCode())) {
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
@@ -137,7 +137,7 @@ public class OwnerService {
 
     @Transactional
     public void verifyResetPasswordCode(OwnerPasswordResetVerifyRequest request) {
-        var verification = ownerInVerificationRedisRepository.getByEmail(request.email());
+        var verification = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!Objects.equals(verification.getCertificationCode(), request.certificationCode())) {
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
@@ -150,7 +150,7 @@ public class OwnerService {
 
     @Transactional
     public void updatePassword(OwnerPasswordUpdateRequest request) {
-        var verification = ownerInVerificationRedisRepository.getByEmail(request.email());
+        var verification = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!verification.isAuthed()) {
             throw new IllegalArgumentException("인증이 완료되지 않았습니다.");
         }
@@ -171,7 +171,8 @@ public class OwnerService {
         });
         String certificationCode = CertificateNumberGenerator.generate();
 
-        ownerInVerificationRedisRepository.save(OwnerInVerification.of(verifyPhoneRequest.phoneNumber(), certificationCode));
+        ownerInVerificationRedisRepository.save(
+            OwnerInVerification.of(verifyPhoneRequest.phoneNumber(), certificationCode));
 
         naverSmsService.sendVerificationCode(certificationCode, verifyPhoneRequest.phoneNumber());
     }

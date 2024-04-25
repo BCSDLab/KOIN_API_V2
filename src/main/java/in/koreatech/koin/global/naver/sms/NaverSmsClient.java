@@ -23,6 +23,7 @@ import in.koreatech.koin.global.naver.sms.NaverSmsSendRequest.InnerMessage;
 public class NaverSmsClient {
 
     private final RestTemplate restTemplate;
+    private final String apiUrl;
     private final String serviceKey;
     private final String sendNumber;
     private final String accessKey;
@@ -30,12 +31,14 @@ public class NaverSmsClient {
 
     public NaverSmsClient(
         RestTemplate restTemplate,
+        @Value("${naver.sms.apiUrl}") String apiUrl,
         @Value("${naver.sms.serviceId}") String serviceKey,
         @Value("${naver.sms.fromNumber}") String fromNumber,
         @Value("${naver.accessKey}") String accessKey,
         @Value("${naver.secretKey}") String secretKey
     ) {
         this.restTemplate = restTemplate;
+        this.apiUrl = apiUrl;
         this.serviceKey = serviceKey;
         this.sendNumber = fromNumber;
         this.accessKey = accessKey;
@@ -43,7 +46,6 @@ public class NaverSmsClient {
     }
 
     public void sendMessage(String content, String targetPhoneNumber) {
-        String url = "https://sens.apigw.ntruss.com";
         String path = String.format("/sms/v2/services/%s/messages", serviceKey);
 
         NaverSmsSendRequest request = new NaverSmsSendRequest(
@@ -64,7 +66,7 @@ public class NaverSmsClient {
         HttpEntity<NaverSmsSendRequest> entity = new HttpEntity<>(request, headers);
 
         ResponseEntity<NaverSmsResponse> response = restTemplate.exchange(
-            url + path,
+            apiUrl + path,
             HttpMethod.POST,
             entity,
             NaverSmsResponse.class
