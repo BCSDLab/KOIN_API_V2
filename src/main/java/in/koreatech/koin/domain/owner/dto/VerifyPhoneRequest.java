@@ -13,7 +13,7 @@ import jakarta.validation.constraints.Size;
 public record VerifyPhoneRequest(
     @Size(min = 10, max = 11)
     @NotBlank(message = "휴대폰번호는 필수입니다.")
-    @Schema(description = "휴대폰번호", example = "01084084888", requiredMode = REQUIRED)
+    @Schema(description = "휴대폰번호", example = "01012341234", requiredMode = REQUIRED)
     String phoneNumber
 ) {
 
