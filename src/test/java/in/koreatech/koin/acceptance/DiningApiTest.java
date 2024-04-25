@@ -1,22 +1,12 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
 import static io.restassured.RestAssured.given;
-import static java.time.format.DateTimeFormatter.ofPattern;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.time.Clock;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,72 +14,32 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
-import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
-import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.fixture.DiningFixture;
+import in.koreatech.koin.fixture.UserFixture;
+import in.koreatech.koin.support.JsonAssertions;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
+@SuppressWarnings("NonAsciiCharacters")
 class DiningApiTest extends AcceptanceTest {
 
     @Autowired
     private DiningRepository diningRepository;
 
     @Autowired
-    private JwtProvider jwtProvider;
+    private UserFixture userFixture;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private NotificationSubscribeRepository notificationSubscribeRepository;
+    private DiningFixture diningFixture;
 
     @Test
     @DisplayName("특정 날짜의 모든 식단들을 조회한다.")
     void findDinings() {
-        Dining request1 = Dining.builder()
-            .date(LocalDate.parse("2024-03-11"))
-            .type("LUNCH")
-            .place("A코스")
-            .priceCard(6000)
-            .priceCash(6000)
-            .kcal(881)
-            .menu("""
-                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .build();
-
-        Dining request2 = Dining.builder()
-            .date(LocalDate.parse("2024-03-01"))
-            .type("LUNCH")
-            .place("2캠퍼스")
-            .priceCard(6000)
-            .priceCash(6000)
-            .kcal(881)
-            .menu("""
-                ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]""")
-            .build();
-
-        Dining request3 = Dining.builder()
-            .date(LocalDate.parse("2024-03-11"))
-            .type("LUNCH")
-            .place("능수관")
-            .priceCard(6000)
-            .priceCash(6000)
-            .kcal(300)
-            .menu("""
-                ["참치김치볶음밥", "유부된장국", "땡초부추전", "누룽지탕"]""")
-            .build();
-
-        Dining dining1 = diningRepository.save(request1);
-        Dining dining2 = diningRepository.save(request2);
-        Dining dining3 = diningRepository.save(request3);
+        diningFixture.능수관_점심(LocalDate.parse("2024-03-11"));
+        diningFixture.캠퍼스2_점심(LocalDate.parse("2024-03-11"));
 
         var response = given()
             .when()
@@ -98,70 +48,57 @@ class DiningApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        List<String> menus1 = List.of("병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕");
-        List<String> menus2 = List.of("참치김치볶음밥", "유부된장국", "땡초부추전", "누룽지탕");
-
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(2);
-
-                softly.assertThat(response.body().jsonPath().getInt("[0].id")).isEqualTo(dining1.getId());
-                softly.assertThat(response.body().jsonPath().getString("[0].date"))
-                    .isEqualTo(dining1.getDate().format(ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getString("[0].type")).isEqualTo(dining1.getType());
-                softly.assertThat(response.body().jsonPath().getString("[0].place")).isEqualTo(dining1.getPlace());
-                softly.assertThat(response.body().jsonPath().getInt("[0].price_card"))
-                    .isEqualTo(dining1.getPriceCard());
-                softly.assertThat(response.body().jsonPath().getInt("[0].price_cash"))
-                    .isEqualTo(dining1.getPriceCash());
-                softly.assertThat(response.body().jsonPath().getInt("[0].kcal")).isEqualTo(dining1.getKcal());
-                softly.assertThat(response.body().jsonPath().getString("[0].created_at"))
-                    .contains(dining1.getUpdatedAt().format(ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getString("[0].updated_at"))
-                    .contains(dining1.getUpdatedAt().format(ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getList("[0].menu", String.class))
-                    .containsExactlyInAnyOrderElementsOf(menus1);
-                softly.assertThat((LocalDateTime)response.body().jsonPath().get("[0].is_changed"))
-                    .isEqualTo(dining1.getIsChanged());
-
-                softly.assertThat(response.body().jsonPath().getInt("[1].id")).isEqualTo(dining3.getId());
-                softly.assertThat(response.body().jsonPath().getString("[1].date"))
-                    .isEqualTo(dining3.getDate().format(ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getString("[1].type")).isEqualTo(dining3.getType());
-                softly.assertThat(response.body().jsonPath().getString("[1].place")).isEqualTo(dining3.getPlace());
-                softly.assertThat(response.body().jsonPath().getInt("[1].price_card"))
-                    .isEqualTo(dining3.getPriceCard());
-                softly.assertThat(response.body().jsonPath().getInt("[1].price_cash"))
-                    .isEqualTo(dining3.getPriceCash());
-                softly.assertThat(response.body().jsonPath().getInt("[1].kcal")).isEqualTo(dining3.getKcal());
-                softly.assertThat(response.body().jsonPath().getString("[1].created_at"))
-                    .contains(dining3.getUpdatedAt().format(ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getString("[1].updated_at"))
-                    .contains(dining3.getUpdatedAt().format(ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getList("[1].menu", String.class))
-                    .containsExactlyInAnyOrderElementsOf(menus2);
-                softly.assertThat((LocalDateTime)response.body().jsonPath().get("[1].is_changed"))
-                    .isEqualTo(dining3.getIsChanged());
-
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                [
+                    {
+                        "id": 2,
+                        "date": "2024-03-11",
+                        "type": "LUNCH",
+                        "place": "2캠퍼스",
+                        "price_card": 6000,
+                        "price_cash": 6000,
+                        "kcal": 881,
+                        "menu": [
+                            "혼합잡곡밥",
+                            "가쓰오장국",
+                            "땡초부추전",
+                            "누룽지탕"
+                        ],
+                        "image_url": null,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00",
+                        "soldout_at": null,
+                        "changed_at": null
+                    },
+                    {
+                        "id": 1,
+                        "date": "2024-03-11",
+                        "type": "LUNCH",
+                        "place": "능수관",
+                        "price_card": 6000,
+                        "price_cash": 6000,
+                        "kcal": 300,
+                        "menu": [
+                            "참치김치볶음밥",
+                            "유부된장국",
+                            "땡초부추전",
+                            "누룽지탕"
+                        ],
+                        "image_url": null,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00",
+                        "soldout_at": null,
+                        "changed_at": null
+                    }
+                ]
+                """);
     }
 
     @Test
     @DisplayName("잘못된 형식의 날짜로 조회한다. - 날짜의 형식이 잘못되었다면 400")
     void invalidFormatDate() {
-        Dining request = Dining.builder()
-            .date(LocalDate.parse("2024-03-11"))
-            .type("LUNCH")
-            .place("A코스")
-            .priceCard(6000)
-            .priceCash(6000)
-            .kcal(881)
-            .menu("""
-                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .build();
-
-        Dining dining = diningRepository.save(request);
+        diningFixture.능수관_점심(LocalDate.parse("2024-03-11"));
 
         given()
             .when()
@@ -174,36 +111,8 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("날짜가 비어있다. - 오늘 날짜를 받아 조회한다.")
     void nullDate() {
-        when(clock.instant()).thenReturn(
-            ZonedDateTime.parse("2024-03-16 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-
-        Dining request1 = Dining.builder()
-            .date(LocalDate.parse("2024-03-16"))
-            .type("LUNCH")
-            .place("A코스")
-            .priceCard(6000)
-            .priceCash(6000)
-            .kcal(881)
-            .menu("""
-                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "총각김치"]""")
-            .build();
-
-        Dining request2 = Dining.builder()
-            .date(LocalDate.parse("2024-03-13"))
-            .type("LUNCH")
-            .place("2캠퍼스")
-            .priceCard(6000)
-            .priceCash(6000)
-            .kcal(881)
-            .menu("""
-                ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]""")
-            .build();
-
-        Dining dining1 = diningRepository.save(request1);
-        Dining dining2 = diningRepository.save(request2);
-
-        List<String> menus = List.of("병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "총각김치");
+        diningFixture.A코스_점심(LocalDate.parse("2024-01-15"));
+        diningFixture.캠퍼스2_점심(LocalDate.parse("2024-01-15"));
 
         var response = given()
             .when()
@@ -212,138 +121,94 @@ class DiningApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(1);
-
-                softly.assertThat(response.body().jsonPath().getInt("[0].id")).isEqualTo(dining1.getId());
-                softly.assertThat(response.body().jsonPath().getString("[0].date"))
-                    .isEqualTo(dining1.getDate().format(ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getString("[0].type")).isEqualTo(dining1.getType());
-                softly.assertThat(response.body().jsonPath().getString("[0].place")).isEqualTo(dining1.getPlace());
-                softly.assertThat(response.body().jsonPath().getInt("[0].price_card"))
-                    .isEqualTo(dining1.getPriceCard());
-                softly.assertThat(response.body().jsonPath().getInt("[0].price_cash"))
-                    .isEqualTo(dining1.getPriceCash());
-                softly.assertThat(response.body().jsonPath().getInt("[0].kcal")).isEqualTo(dining1.getKcal());
-                softly.assertThat(response.body().jsonPath().getString("[0].created_at"))
-                    .contains(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getString("[0].updated_at"))
-                    .contains(dining1.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-                softly.assertThat(response.body().jsonPath().getList("[0].menu", String.class))
-                    .containsExactlyInAnyOrderElementsOf(menus);
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                [
+                    {
+                        "id": 2,
+                        "date": "2024-01-15",
+                        "type": "LUNCH",
+                        "place": "2캠퍼스",
+                        "price_card": 6000,
+                        "price_cash": 6000,
+                        "kcal": 881,
+                        "menu": [
+                            "혼합잡곡밥",
+                            "가쓰오장국",
+                            "땡초부추전",
+                            "누룽지탕"
+                        ],
+                        "image_url": null,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00",
+                        "soldout_at": null,
+                        "changed_at": null
+                    },
+                    {
+                        "id": 1,
+                        "date": "2024-01-15",
+                        "type": "LUNCH",
+                        "place": "A코스",
+                        "price_card": 6000,
+                        "price_cash": 6000,
+                        "kcal": 881,
+                        "menu": [
+                            "병아리콩밥",
+                            "(탕)소고기육개장",
+                            "땡초부추전",
+                            "누룽지탕"
+                        ],
+                        "image_url": null,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00",
+                        "soldout_at": null,
+                        "changed_at": null
+                    }
+                ]
+                """);
     }
 
     @Test
     @DisplayName("영양사 권한으로 품절 요청을 보내고 메뉴를 변경한다.")
     void requestSoldOut() {
-        User user = User.builder()
-            .password("1234")
-            .nickname("준기")
-            .name("허준기")
-            .phoneNumber("010-1234-5678")
-            .userType(COOP)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-        userRepository.save(user);
+        User user = userFixture.준기_영양사();
+        String token = userFixture.getToken(user);
+        diningFixture.A코스_점심(LocalDate.parse("2024-03-11"));
+        Dining menu2 = diningFixture.B코스_점심(LocalDate.parse("2024-03-11"));
 
-        String token = jwtProvider.createToken(user);
-
-        when(clock.instant()).thenReturn(ZonedDateTime.parse(
-                "2024-04-04 18:00:00 KST",
-                ofPattern("yyyy-MM-dd " + "HH:mm:ss z")
-            )
-            .toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-
-        Dining dining1 = Dining.builder()
-            .date(LocalDate.parse("2024-03-11"))
-            .type("LUNCH")
-            .place("A코스")
-            .priceCard(6000)
-            .priceCash(6000)
-            .kcal(881)
-            .menu("""
-                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .isChanged(LocalDateTime.now(clock))
-            .build();
-
-        Dining dining2 = Dining.builder()
-            .date(LocalDate.parse("2024-03-11"))
-            .type("LUNCH")
-            .place("B코스")
-            .priceCard(6000)
-            .priceCash(6000)
-            .kcal(881)
-            .menu("""
-                ["병아리", "소고기", "땡초", "탕"]""")
-            .build();
-
-        diningRepository.save(dining1);
-        diningRepository.save(dining2);
-        SoldOutRequest soldOutRequest = new SoldOutRequest(2, true);
-
-        ExtractableResponse<Response> response = given()
+        RestAssured.given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
-            .body(soldOutRequest)
+            .body(String.format("""
+                {
+                    "menu_id": "%s",
+                    "sold_out": %s
+                }
+                """, menu2.getId(), true)
+            )
             .when()
             .patch("/coop/dining/soldout")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
-
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(diningRepository.getById(1).getIsChanged()).isEqualTo(LocalDateTime.now(clock));
-
-                softly.assertThat(diningRepository.getById(2).getSoldOut()).isEqualTo(LocalDateTime.now(clock));
-                softly.assertThat(diningRepository.getById(2).getIsChanged()).isNull();
-            }
-        );
     }
 
     @Test
     @DisplayName("권한이 없는 사용자가 품절 요청을 보낸다")
     void requestSoldOutNoAuth() {
-        User user = User.builder()
-            .password("1234")
-            .nickname("준기")
-            .name("허준기")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-        userRepository.save(user);
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Dining menu = diningFixture.A코스_점심(LocalDate.parse("2024-03-11"));
 
-        String token = jwtProvider.createToken(user);
-
-        Dining dining1 = Dining.builder()
-            .date(LocalDate.parse("2024-03-11"))
-            .type("LUNCH")
-            .place("A코스")
-            .priceCard(6000)
-            .priceCash(6000)
-            .kcal(881)
-            .menu("""
-                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .build();
-
-        diningRepository.save(dining1);
-        SoldOutRequest soldOutRequest = new SoldOutRequest(1, true);
-
-        ExtractableResponse<Response> response = given()
+        var response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
-            .body(soldOutRequest)
+            .body(String.format("""
+                {
+                    "menu_id": "%s",
+                    "sold_out": %s
+                }
+                """, menu.getId(), true))
             .when()
             .patch("/coop/dining/soldout")
             .then()
@@ -354,91 +219,50 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("영양사님 권한으로 식단 이미지를 업로드한다. - 이미지 URL이 DB에 저장된다.")
     void ImageUpload() {
-        User coop = User.builder()
-            .password("1234")
-            .nickname("춘식")
-            .name("황현식")
-            .phoneNumber("010-1234-5678")
-            .userType(COOP)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-        userRepository.save(coop);
+        User user = userFixture.준기_영양사();
+        String token = userFixture.getToken(user);
+        Dining menu = diningFixture.A코스_점심(LocalDate.parse("2024-03-11"));
 
-        String token = jwtProvider.createToken(coop);
-
-        Dining request = Dining.builder()
-            .date(LocalDate.parse("2024-03-11"))
-            .type("LUNCH")
-            .place("A코스")
-            .priceCard(6000)
-            .priceCash(6000)
-            .kcal(881)
-            .menu("""
-                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .build();
-
-        Dining dining = diningRepository.save(request);
-
-        DiningImageRequest imageUrl = new DiningImageRequest(1, "https://stage.koreatech.in/image.jpg");
-
+        String imageUrl = "https://stage.koreatech.in/image.jpg";
         given()
-            .body(imageUrl)
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
+            .body(String.format("""
+                {
+                    "menu_id": "%s",
+                    "image_url": "%s"
+                }
+                """, menu.getId(), imageUrl)
+            )
             .when()
             .patch("/coop/dining/image")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
-            softly ->
-                softly.assertThat(diningRepository.getById(request.getId()).getImageUrl())
-                    .isEqualTo(imageUrl.imageUrl())
-        );
+        Dining result = diningRepository.getById(menu.getId());
+        assertThat(result.getImageUrl()).isEqualTo(imageUrl);
     }
 
     @Test
     @DisplayName("허용되지 않은 권한으로 식단 이미지를 업로드한다. - 권한 오류.")
     void ImageUploadWithNoAuth() {
-        User user = User.builder()
-            .password("1234")
-            .nickname("춘식")
-            .name("황현식")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-
-        userRepository.save(user);
-
-        String token = jwtProvider.createToken(user);
-
-        Dining request = Dining.builder()
-            .date(LocalDate.parse("2024-03-11"))
-            .type("LUNCH")
-            .place("A코스")
-            .priceCard(6000)
-            .priceCash(6000)
-            .kcal(881)
-            .menu("""
-                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .build();
-
-        Dining dining = diningRepository.save(request);
+        User user = userFixture.현수_사장님().getUser();
+        String token = userFixture.getToken(user);
+        Dining menu = diningFixture.A코스_점심(LocalDate.parse("2024-03-11"));
 
         DiningImageRequest imageUrl = new DiningImageRequest(1, "https://stage.koreatech.in/image.jpg");
 
         given()
-            .body(imageUrl)
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
+            .body(String.format("""
+                {
+                    "menu_id": "%s",
+                    "image_url": "%s"
+                }
+                """, menu.getId(), imageUrl)
+            )
             .when()
             .patch("/coop/dining/image")
             .then()
@@ -449,54 +273,19 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("품절 이벤트가 발생한다.")
     void checkSoldOutEventListener() {
-        when(clock.instant()).thenReturn(ZonedDateTime.parse(
-                "2024-04-04 18:00:00 KST",
-                ofPattern("yyyy-MM-dd " + "HH:mm:ss z")
-            )
-            .toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-
-        User user = User.builder()
-            .password("1234")
-            .nickname("준기")
-            .name("허준기")
-            .phoneNumber("010-1234-5678")
-            .userType(COOP)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-
-        userRepository.save(user);
-
-        String token = jwtProvider.createToken(user);
-
-        notificationSubscribeRepository.save(NotificationSubscribe.builder()
-            .user(user)
-            .subscribeType(DINING_SOLD_OUT)
-            .build());
-
-        Dining dining = Dining.builder()
-            .date(LocalDate.parse("2024-04-04"))
-            .type("LUNCH")
-            .place("A코스")
-            .priceCard(6000)
-            .priceCash(6000)
-            .kcal(881)
-            .menu("""
-                ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
-            .isChanged(LocalDateTime.now(clock))
-            .build();
-
-        diningRepository.save(dining);
-
-        SoldOutRequest soldOutRequest = new SoldOutRequest(1, true);
+        User user = userFixture.준기_영양사();
+        String token = userFixture.getToken(user);
+        Dining menu = diningFixture.A코스_점심(LocalDate.parse("2024-03-11"));
 
         given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token)
-            .body(soldOutRequest)
+            .body(String.format("""
+                {
+                    "menu_id": "%s",
+                    "sold_out": %s
+                }
+                """, menu.getId(), true))
             .when()
             .patch("/coop/dining/soldout")
             .then()

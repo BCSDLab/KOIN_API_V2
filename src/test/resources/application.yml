@@ -44,8 +44,8 @@ slack:
 
 aws:
   ses:
-    access-key:
-    secret-key:
+    access-key: testck
+    secret-key: testsk
 
 s3:
   key: test-ck
@@ -57,11 +57,7 @@ koin:
   admin:
     url: https://admin-url-path.com
 
-fcm:
-  koin:
-    url: koinAppUrl://
-
-OPEN_API_KEY:
+OPEN_API_KEY: test
 
 cors:
   allowedOrigins:

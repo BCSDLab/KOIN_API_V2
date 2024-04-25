@@ -42,9 +42,13 @@ public class Activity extends BaseEntity {
     private boolean isDeleted = false;
 
     @Builder
-    private Activity(Integer id, String title, String description, String imageUrls, LocalDate date,
-                     boolean isDeleted) {
-        this.id = id;
+    private Activity(
+        String title,
+        String description,
+        String imageUrls,
+        LocalDate date,
+        boolean isDeleted
+    ) {
         this.title = title;
         this.description = description;
         this.imageUrls = imageUrls;

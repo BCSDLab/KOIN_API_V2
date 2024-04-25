@@ -102,11 +102,24 @@ public class User extends BaseEntity {
     private String deviceToken;
 
     @Builder
-    private User(String password, String nickname, String name, String phoneNumber, UserType userType,
-                 String email, UserGender gender, boolean isAuthed, LocalDateTime lastLoggedAt, String profileImageUrl,
-                 Boolean isDeleted, String authToken, LocalDateTime authExpiredAt, String resetToken,
-                 LocalDateTime resetExpiredAt,
-                 String deviceToken) {
+    private User(
+        String password,
+        String nickname,
+        String name,
+        String phoneNumber,
+        UserType userType,
+        String email,
+        UserGender gender,
+        boolean isAuthed,
+        LocalDateTime lastLoggedAt,
+        String profileImageUrl,
+        Boolean isDeleted,
+        String authToken,
+        LocalDateTime authExpiredAt,
+        String resetToken,
+        LocalDateTime resetExpiredAt,
+        String deviceToken
+    ) {
         this.password = password;
         this.nickname = nickname;
         this.name = name;

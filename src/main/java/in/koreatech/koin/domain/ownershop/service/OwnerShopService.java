@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.ownershop.service;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -273,7 +272,6 @@ public class OwnerShopService {
         Shop shop = getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = EventArticle.builder()
             .shop(shop)
-            .thumbnailImages(new ArrayList<>())
             .startDate(shopEventRequest.startDate())
             .endDate(shopEventRequest.endDate())
             .title(shopEventRequest.title())

@@ -1,11 +1,10 @@
-package in.koreatech.koin.domain.admin.land.controller;
+package in.koreatech.koin.admin.land.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.admin.land.dto.AdminLandsResponse;
-import in.koreatech.koin.domain.land.dto.LandsGroupResponse;
+import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

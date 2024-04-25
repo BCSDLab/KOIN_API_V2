@@ -69,8 +69,16 @@ public class Board extends BaseEntity {
     }
 
     @Builder
-    private Board(String tag, String name, boolean isAnonymous, Integer articleCount, boolean isDeleted,
-                  boolean isNotice, Integer parentId, Integer seq) {
+    private Board(
+        String tag,
+        String name,
+        boolean isAnonymous,
+        Integer articleCount,
+        boolean isDeleted,
+        boolean isNotice,
+        Integer parentId,
+        Integer seq
+    ) {
         this.tag = tag;
         this.name = name;
         this.isAnonymous = isAnonymous;
