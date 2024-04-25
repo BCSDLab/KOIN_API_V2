@@ -122,7 +122,7 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        var verifyCode = ownerInVerificationRedisRepository.getByEmail(ownerEmail);
+        var verifyCode = ownerInVerificationRedisRepository.getByVerify(ownerEmail);
 
         RestAssured
             .given()
@@ -428,7 +428,7 @@ class OwnerApiTest extends AcceptanceTest {
             .post("/owners/verification/code")
             .then()
             .statusCode(HttpStatus.OK.value());
-        var result = ownerInVerificationRedisRepository.findById(verification.getEmail());
+        var result = ownerInVerificationRedisRepository.findById(verification.getKey());
         assertThat(result).isNotPresent();
     }
 
@@ -498,7 +498,7 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        var result = ownerInVerificationRedisRepository.getByEmail(email);
+        var result = ownerInVerificationRedisRepository.getByVerify(email);
         assertSoftly(
             softly -> {
                 softly.assertThat(result).isNotNull();

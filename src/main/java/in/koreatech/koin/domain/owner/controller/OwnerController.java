@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
+import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
 import in.koreatech.koin.domain.owner.service.OwnerService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -29,10 +30,18 @@ public class OwnerController implements OwnerApi {
     private final OwnerService ownerService;
 
     @PostMapping("/owners/verification/email")
-    public ResponseEntity<Void> requestVerificationToRegister(
+    public ResponseEntity<Void> requestVerificationToRegisterByEmail(
         @RequestBody @Valid VerifyEmailRequest request
     ) {
         ownerService.requestSignUpEmailVerification(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/owners/verification/phone")
+    public ResponseEntity<Void> requestVerificationToRegisterByPhone(
+        @RequestBody @Valid VerifyPhoneRequest verifyPhoneRequest
+    ) {
+        ownerService.requestSignUpPhoneVerification(verifyPhoneRequest);
         return ResponseEntity.ok().build();
     }
 

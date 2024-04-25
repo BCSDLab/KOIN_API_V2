@@ -15,15 +15,15 @@ public class OwnerInVerification {
     private static final long CACHE_EXPIRE_HOUR = 2L;
 
     @Id
-    private String email;
+    private String key;
     private String certificationCode;
     private boolean isAuthed = false;
 
     @TimeToLive(unit = TimeUnit.HOURS)
     private Long expiration;
 
-    public OwnerInVerification(String email, String certificationCode) {
-        this.email = email;
+    public OwnerInVerification(String key, String certificationCode) {
+        this.key = key;
         this.certificationCode = certificationCode;
         this.expiration = CACHE_EXPIRE_HOUR;
     }
@@ -32,7 +32,7 @@ public class OwnerInVerification {
         this.isAuthed = true;
     }
 
-    public static OwnerInVerification of(String email, String certificationCode) {
-        return new OwnerInVerification(email, certificationCode);
+    public static OwnerInVerification of(String key, String certificationCode) {
+        return new OwnerInVerification(key, certificationCode);
     }
 }
