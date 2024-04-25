@@ -1,9 +1,8 @@
-package in.koreatech.koin.domain.admin.land.dto;
+package in.koreatech.koin.admin.land.dto;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.land.model.Land;
@@ -26,7 +25,7 @@ public record AdminLandResponse(
     @Schema(description = "전세", example = "3500")
     String charterFee,
 
-    @Schema(description = "삭제(soft delete) 여부", example = "false", required = true)
+    @Schema(description = "삭제(soft delete) 여부", example = "false", requiredMode = REQUIRED)
     Boolean isDeleted
 ) {
     public static AdminLandResponse from(Land land) {

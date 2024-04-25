@@ -1,7 +1,5 @@
 package in.koreatech.koin.acceptance;
 
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +9,10 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
+@SuppressWarnings("NonAsciiCharacters")
 class VersionApiTest extends AcceptanceTest {
 
     @Autowired
@@ -23,30 +21,33 @@ class VersionApiTest extends AcceptanceTest {
     @Test
     @DisplayName("버전 타입을 통해 버전 정보를 조회한다.")
     void findVersionByType() {
-        VersionType versionType = VersionType.ANDROID;
-        String versionDetail = "1.0.0";
-
-        Version version = Version.builder()
-            .version(versionDetail)
-            .type(versionType.getValue())
-            .build();
-
-        versionRepository.save(version);
+        Version version = versionRepository.save(
+            Version.builder()
+                .version("1.0.0")
+                .type(VersionType.ANDROID.getValue())
+                .build()
+        );
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
-            .get("/versions/" + versionType.getValue())
+            .get("/versions/" + version.getType())
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        // 데이터 검증
-        assertSoftly(softly -> {
-            softly.assertThat(response.body().jsonPath().getString("version")).isEqualTo(versionDetail);
-            softly.assertThat(response.body().jsonPath().getString("type")).isEqualTo(versionType.getValue());
-        });
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "id": %d,
+                    "version": "1.0.0",
+                    "type": "android",
+                    "created_at": "2024-01-15 12:00:00",
+                    "updated_at": "2024-01-15"
+                }
+                """, version.getId()
+            ));
     }
 
 
@@ -54,7 +55,7 @@ class VersionApiTest extends AcceptanceTest {
     @DisplayName("버전 타입을 통해 버전 정보를 조회한다. - 저장되지 않은 버전 타입을 요청한 경우 에러가 발생한다.")
     void findVersionByTypeError() {
         VersionType failureType = VersionType.TIMETABLE;
-        ExtractableResponse<Response> notFoundFailureResponse = RestAssured
+        RestAssured
             .given()
             .when()
             .get("/versions/" + failureType.getValue())
@@ -63,7 +64,7 @@ class VersionApiTest extends AcceptanceTest {
             .extract();
 
         String undefinedType = "undefined";
-        ExtractableResponse<Response> enumTypeFailureResponse = RestAssured
+        RestAssured
             .given()
             .when()
             .get("/versions/" + undefinedType)

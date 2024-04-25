@@ -1,4 +1,4 @@
-package in.koreatech.koin.acceptance;
+package in.koreatech.koin.admin.acceptance;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
@@ -8,13 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.admin.land.repository.AdminLandRepository;
+import in.koreatech.koin.admin.land.repository.AdminLandRepository;
 import in.koreatech.koin.domain.land.model.Land;
 import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
-public class AdminLandApiTest extends AcceptanceTest {
+@SuppressWarnings("NonAsciiCharacters")
+class AdminLandApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminLandRepository adminLandRepository;
@@ -36,7 +35,7 @@ public class AdminLandApiTest extends AcceptanceTest {
             adminLandRepository.save(request);
         }
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("page", 1)

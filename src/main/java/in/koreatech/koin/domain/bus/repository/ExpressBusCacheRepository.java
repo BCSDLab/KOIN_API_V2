@@ -20,5 +20,5 @@ public interface ExpressBusCacheRepository extends Repository<ExpressBusCache, S
 
     List<ExpressBusCache> findAll();
 
-    Boolean existsById(String id);
+    boolean existsById(String id);
 }

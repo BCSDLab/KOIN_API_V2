@@ -104,7 +104,7 @@ public class ExpressBusOpenApiClient {
         if (!expressBusCacheRepository.existsById(busCacheId)) {
             storeRemainTimeByOpenApi(depart.name().toLowerCase(), arrival.name().toLowerCase());
         }
-        return getStoredRemainTime(depart.name().toLowerCase(), arrival.name().toLowerCase());
+        return getStoredRemainTime(busCacheId);
     }
 
     private void storeRemainTimeByOpenApi(String departName, String arrivalName) {
@@ -139,7 +139,7 @@ public class ExpressBusOpenApiClient {
     private JsonObject getBusApiResponse(String departName, String arrivalName) {
         try {
             URL url = getBusApiURL(departName, arrivalName);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "application/json");
             BufferedReader reader;
@@ -202,8 +202,7 @@ public class ExpressBusOpenApiClient {
         }
     }
 
-    private List<ExpressBusRemainTime> getStoredRemainTime(String departName, String arrivalName) {
-        String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute(departName, arrivalName));
+    private List<ExpressBusRemainTime> getStoredRemainTime(String busCacheId) {
         ExpressBusCache expressBusCache = expressBusCacheRepository.getById(busCacheId);
         if (Objects.isNull(expressBusCache)) {
             return Collections.emptyList();
