@@ -62,3 +62,11 @@ OPEN_API_KEY: test
 cors:
   allowedOrigins:
     - http://localhost:3000
+
+naver:
+  accessKey: testck
+  secretKey: testsk
+  sms:
+    apiUrl: http://localhost:8888
+    serviceId: ncp:sms:kr:test
+    fromNumber: "01012331234"

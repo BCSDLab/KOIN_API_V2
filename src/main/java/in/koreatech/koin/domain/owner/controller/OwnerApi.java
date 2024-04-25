@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
+import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -37,8 +38,20 @@ public interface OwnerApi {
     )
     @Operation(summary = "회원가입 인증번호 전송 요청")
     @PostMapping("/owners/verification/email")
-    ResponseEntity<Void> requestVerificationToRegister(
+    ResponseEntity<Void> requestVerificationToRegisterByEmail(
         @RequestBody @Valid VerifyEmailRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "회원가입 문자 인증번호 전송 요청")
+    @PostMapping("/owners/verification/phone")
+    ResponseEntity<Void> requestVerificationToRegisterByPhone(
+        @RequestBody @Valid VerifyPhoneRequest verifyPhoneRequest
     );
 
     @ApiResponses(
