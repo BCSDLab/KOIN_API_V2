@@ -183,4 +183,18 @@ public class Land extends BaseEntity {
         this.charterFee = charterFee;
         this.managementFee = managementFee;
     }
+
+    public Double getLatitude() {
+        if (this.latitude == null) {
+            return null;
+        }
+        return Double.parseDouble(latitude);
+    }
+
+    public Double getLongitude() {
+        if (this.longitude == null) {
+            return null;
+        }
+        return Double.parseDouble(longitude);
+    }
 }
