@@ -17,7 +17,7 @@ public class ArticleNotFoundException extends DataNotFoundException {
         this.detail = detail;
     }
 
-    public ArticleNotFoundException withDetail(String detail) {
+    public static ArticleNotFoundException withDetail(String detail) {
         return new ArticleNotFoundException(DEFAULT_MESSAGE, detail);
     }
 

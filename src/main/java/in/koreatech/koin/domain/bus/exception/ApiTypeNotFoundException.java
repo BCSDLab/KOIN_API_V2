@@ -17,7 +17,7 @@ public class ApiTypeNotFoundException extends DataNotFoundException {
         this.detail = detail;
     }
 
-    public ApiTypeNotFoundException withDetail(String detail) {
+    public static ApiTypeNotFoundException withDetail(String detail) {
         return new ApiTypeNotFoundException(DEFAULT_MESSAGE, detail);
     }
 

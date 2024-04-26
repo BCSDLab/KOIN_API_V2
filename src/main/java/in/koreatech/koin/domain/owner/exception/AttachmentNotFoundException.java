@@ -17,7 +17,7 @@ public class AttachmentNotFoundException extends DataNotFoundException {
         this.detail = detail;
     }
 
-    public AttachmentNotFoundException withDetail(String detail) {
+    public static AttachmentNotFoundException withDetail(String detail) {
         return new AttachmentNotFoundException(DEFAULT_MESSAGE, detail);
     }
 
