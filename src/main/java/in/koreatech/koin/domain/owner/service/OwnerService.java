@@ -167,7 +167,7 @@ public class OwnerService {
         emailVerifyRequestRedisRepository.findById(verifyPhoneRequest.phoneNumber()).ifPresent(it -> {
             throw new RequestTooFastException("요청이 너무 빠릅니다. %d초 뒤에 다시 시도해주세요".formatted(it.getExpiration()));
         });
-        userRepository.findByPhoneNumber(verifyPhoneRequest.phoneNumber()).ifPresent(e -> {
+        userRepository.findByPhoneNumber(verifyPhoneRequest.phoneNumber()).ifPresent(user -> {
             throw DuplicationEmailException.withDetail("phone: " + verifyPhoneRequest.phoneNumber());
         });
         String certificationCode = CertificateNumberGenerator.generate();
