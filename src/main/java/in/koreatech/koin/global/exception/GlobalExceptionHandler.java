@@ -55,7 +55,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         AuthorizationException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getDetail());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
     }
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         AuthenticationException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getDetail());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
@@ -75,7 +75,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         DataNotFoundException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getDetail());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
@@ -85,7 +85,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         DuplicationException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getDetail());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
     }
@@ -105,7 +105,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         ExternalServiceException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getDetail());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
@@ -182,7 +182,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatusCode status,
         WebRequest webRequest
     ) {
-        HttpServletRequest request = ((ServletWebRequest) webRequest).getRequest();
+        HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
         log.warn("검증과정에서 문제가 발생했습니다. uri: {} {}, ", request.getMethod(), request.getRequestURI(), ex);
         requestLogging(request);
         String errorMessages = ex.getBindingResult().getAllErrors().stream()

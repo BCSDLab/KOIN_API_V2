@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.exception.DuplicationCertificationException;
 import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
 import in.koreatech.koin.domain.owner.model.EmailVerifyRequest;
 import in.koreatech.koin.domain.owner.model.Owner;
@@ -39,7 +40,6 @@ import in.koreatech.koin.global.domain.email.form.OwnerPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.OwnerRegistrationData;
 import in.koreatech.koin.global.domain.email.service.MailService;
 import in.koreatech.koin.global.domain.random.model.CertificateNumberGenerator;
-import in.koreatech.koin.global.exception.DuplicationException;
 import in.koreatech.koin.global.exception.RequestTooFastException;
 import in.koreatech.koin.global.naver.service.NaverSmsService;
 import jakarta.validation.Valid;
@@ -142,7 +142,7 @@ public class OwnerService {
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
         if (verification.isAuthed()) {
-            throw new DuplicationException("이미 인증이 완료되었습니다.");
+            throw new DuplicationCertificationException("이미 인증이 완료되었습니다.");
         }
         verification.verify();
         ownerInVerificationRedisRepository.save(verification);
