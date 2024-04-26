@@ -6,6 +6,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.bus.model.BusTimetable;
@@ -25,6 +26,8 @@ public record BusTimetableResponse(
     List<? extends BusTimetable> busTimetable,
 
     @Schema(description = "업데이트 시각", example = "2024-04-20 18:00:00", requiredMode = NOT_REQUIRED)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime updatedAt
 ) {
+
 }

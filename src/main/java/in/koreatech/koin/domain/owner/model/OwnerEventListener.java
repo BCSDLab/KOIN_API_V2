@@ -40,7 +40,7 @@ public class OwnerEventListener {
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerRegister(OwnerRegisterEvent event) {
         Owner owner = event.owner();
-        ownerInVerificationRedisRepository.deleteByEmail(owner.getUser().getEmail());
+        ownerInVerificationRedisRepository.deleteByVerify(owner.getUser().getEmail());
         String shopsName = shopRepository.findAllByOwnerId(owner.getId())
             .stream().map(Shop::getName).collect(Collectors.joining(", "));
         var notification = slackNotificationFactory.generateOwnerRegisterRequestNotification(

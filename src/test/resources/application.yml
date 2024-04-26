@@ -44,8 +44,8 @@ slack:
 
 aws:
   ses:
-    access-key:
-    secret-key:
+    access-key: testck
+    secret-key: testsk
 
 s3:
   key: test-ck
@@ -57,12 +57,16 @@ koin:
   admin:
     url: https://admin-url-path.com
 
-fcm:
-  koin:
-    url: koinAppUrl://
-
-OPEN_API_KEY:
+OPEN_API_KEY: test
 
 cors:
   allowedOrigins:
     - http://localhost:3000
+
+naver:
+  accessKey: testck
+  secretKey: testsk
+  sms:
+    apiUrl: http://localhost:8888
+    serviceId: ncp:sms:kr:test
+    fromNumber: "01012331234"

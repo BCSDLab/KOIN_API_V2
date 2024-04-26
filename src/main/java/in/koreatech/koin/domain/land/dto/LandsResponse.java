@@ -18,7 +18,7 @@ public record LandsResponse(
     String monthlyFee,
 
     @Schema(description = "위도", example = "36.769204", requiredMode = NOT_REQUIRED)
-    String latitude,
+    Double latitude,
 
     @Schema(description = "보증금", example = "4500", requiredMode = NOT_REQUIRED)
     String charterFee,
@@ -30,7 +30,7 @@ public record LandsResponse(
     Integer id,
 
     @Schema(description = "경도", example = "127.282554", requiredMode = NOT_REQUIRED)
-    String longitude,
+    Double longitude,
 
     @Schema(description = "방 종류", example = "투베이", requiredMode = NOT_REQUIRED)
     String roomType

@@ -11,8 +11,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.auditing.AuditingHandler;
-import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -21,6 +19,8 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
+import in.koreatech.koin.config.TestJpaConfiguration;
+import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
 import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
@@ -28,9 +28,10 @@ import in.koreatech.koin.domain.shop.model.ShopEventListener;
 import in.koreatech.koin.domain.user.model.StudentEventListener;
 import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
+import jakarta.persistence.EntityManager;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@Import(DBInitializer.class)
+@Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class})
 @ActiveProfiles("test")
 public abstract class AcceptanceTest {
 
@@ -40,17 +41,8 @@ public abstract class AcceptanceTest {
     @LocalServerPort
     protected int port;
 
-    @MockBean
-    protected Clock clock;
-
-    @MockBean
-    protected DateTimeProvider dateTimeProvider;
-
     @SpyBean
     protected CityBusOpenApiClient cityBusOpenApiClient;
-
-    @SpyBean
-    protected AuditingHandler handler;
 
     @MockBean
     protected OwnerEventListener ownerEventListener;
@@ -66,6 +58,12 @@ public abstract class AcceptanceTest {
 
     @Autowired
     private DBInitializer dataInitializer;
+
+    @Autowired
+    protected EntityManager entityManager;
+
+    @Autowired
+    protected Clock clock;
 
     @Container
     protected static MySQLContainer mySqlContainer;

@@ -34,7 +34,7 @@ public record LandResponse(
     boolean optWasher,
 
     @Schema(description = "위도 좌표", example = "36.769062", requiredMode = NOT_REQUIRED)
-    String latitude,
+    Double latitude,
 
     @Schema(description = "전세 가격", example = "4500", requiredMode = NOT_REQUIRED)
     String charterFee,
@@ -95,7 +95,7 @@ public record LandResponse(
     boolean optCloset,
 
     @Schema(description = "경도 좌표", example = "127.28265", requiredMode = NOT_REQUIRED)
-    String longitude,
+    Double longitude,
 
     @Schema(description = "주소", example = "충남 천안시 동남구 병천면 가전6길 17-1", requiredMode = NOT_REQUIRED)
     String address,

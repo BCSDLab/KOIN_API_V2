@@ -1,12 +1,9 @@
 package in.koreatech.koin.global.domain.upload;
 
 import static in.koreatech.koin.global.domain.upload.model.ImageUploadDomain.OWNERS;
-import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import java.time.Clock;
-import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -66,13 +63,10 @@ class UploadServiceTest extends AcceptanceTest {
     @Test
     void 이미지_확장자를_받아_이미지_이름을_UUID로_생성_후_Presigned_URL을_생성하여_반환한다() {
         // given
-        when(clock.instant()).thenReturn(
-            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
         S3Utils utils = new S3Utils(
             presigner,
             s3Client,
-            clock,
+            Clock.systemDefaultZone(),
             "test-bucket",
             "https://test-image.koreatech.in/"
         );
@@ -84,7 +78,7 @@ class UploadServiceTest extends AcceptanceTest {
             "hello.png"
         );
 
-        UploadService uploadService = new UploadService(utils, clock);
+        UploadService uploadService = new UploadService(utils, Clock.systemDefaultZone());
         var url = uploadService.getPresignedUrl(OWNERS, request);
 
         // then

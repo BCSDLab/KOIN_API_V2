@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.owner.model.OwnerInVerification;
-import in.koreatech.koin.global.domain.email.exception.EmailNotFoundException;
+import in.koreatech.koin.global.domain.email.exception.VerifyNotFoundException;
 
 public interface OwnerInVerificationRedisRepository extends Repository<OwnerInVerification, String> {
 
@@ -15,11 +15,11 @@ public interface OwnerInVerificationRedisRepository extends Repository<OwnerInVe
 
     void deleteById(String email);
 
-    default void deleteByEmail(String email) {
+    default void deleteByVerify(String email) {
         deleteById(email);
     }
 
-    default OwnerInVerification getByEmail(String email) {
-        return findById(email).orElseThrow(() -> EmailNotFoundException.withDetail("email: " + email));
+    default OwnerInVerification getByVerify(String verify) {
+        return findById(verify).orElseThrow(() -> VerifyNotFoundException.withDetail("verify: " + verify));
     }
 }

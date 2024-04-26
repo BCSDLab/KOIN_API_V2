@@ -62,7 +62,11 @@ public class Menu extends BaseEntity {
     private List<MenuImage> menuImages = new ArrayList<>();
 
     @Builder
-    private Menu(Integer shopId, String name, String description) {
+    private Menu(
+        Integer shopId,
+        String name,
+        String description
+    ) {
         this.shopId = shopId;
         this.name = name;
         this.description = description;

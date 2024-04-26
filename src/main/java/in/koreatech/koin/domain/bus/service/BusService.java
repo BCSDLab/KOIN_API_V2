@@ -183,14 +183,14 @@ public class BusService {
     }
 
     public BusTimetableResponse getBusTimetableWithUpdatedAt(BusType busType, String direction, String region){
-        List<? extends BusTimetable> BusTimetables = getBusTimetable(busType, direction, region);
+        List<? extends BusTimetable> busTimetables = getBusTimetable(busType, direction, region);
 
         if (busType.equals(BusType.COMMUTING)){
             busType = BusType.SHUTTLE;
         }
 
         VersionResponse version = versionService.getVersion(busType.name().toLowerCase() + "_bus_timetable");
-        return new BusTimetableResponse(BusTimetables, version.updatedAt());
+        return new BusTimetableResponse(busTimetables, version.updatedAt());
     }
 
     public List<BusCourseResponse> getBusCourses() {

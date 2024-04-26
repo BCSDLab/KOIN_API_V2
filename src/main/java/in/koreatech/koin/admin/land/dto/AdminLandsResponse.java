@@ -1,14 +1,12 @@
-package in.koreatech.koin.domain.admin.land.dto;
+package in.koreatech.koin.admin.land.dto;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.land.model.Land;
@@ -42,7 +40,7 @@ public record AdminLandsResponse(
             pagedResult.getContent()
                 .stream()
                 .map(AdminLandResponse::from)
-                .collect(Collectors.toList())
+                .toList()
         );
     }
 }

@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
+import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
 import in.koreatech.koin.domain.owner.exception.DuplicationCertificationException;
 import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
 import in.koreatech.koin.domain.owner.model.EmailVerifyRequest;
@@ -40,6 +41,8 @@ import in.koreatech.koin.global.domain.email.form.OwnerRegistrationData;
 import in.koreatech.koin.global.domain.email.service.MailService;
 import in.koreatech.koin.global.domain.random.model.CertificateNumberGenerator;
 import in.koreatech.koin.global.exception.RequestTooFastException;
+import in.koreatech.koin.global.naver.service.NaverSmsService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -58,6 +61,7 @@ public class OwnerService {
     private final OwnerShopRedisRepository ownerShopRedisRepository;
     private final OwnerInVerificationRedisRepository ownerInVerificationRedisRepository;
     private final EmailVerifyRequestRedisRepository emailVerifyRequestRedisRepository;
+    private final NaverSmsService naverSmsService;
 
     @Transactional
     public void requestSignUpEmailVerification(VerifyEmailRequest request) {
@@ -75,7 +79,7 @@ public class OwnerService {
         );
         ownerInVerificationRedisRepository.save(ownerInVerification);
         emailVerifyRequestRedisRepository.save(new EmailVerifyRequest(request.email()));
-        eventPublisher.publishEvent(new OwnerEmailRequestEvent(ownerInVerification.getEmail()));
+        eventPublisher.publishEvent(new OwnerEmailRequestEvent(ownerInVerification.getKey()));
     }
 
     public OwnerResponse getOwner(Integer ownerId) {
@@ -114,7 +118,7 @@ public class OwnerService {
     }
 
     public OwnerVerifyResponse verifyCode(OwnerVerifyRequest request) {
-        var verify = ownerInVerificationRedisRepository.getByEmail(request.email());
+        var verify = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!Objects.equals(verify.getCertificationCode(), request.certificationCode())) {
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
@@ -133,7 +137,7 @@ public class OwnerService {
 
     @Transactional
     public void verifyResetPasswordCode(OwnerPasswordResetVerifyRequest request) {
-        var verification = ownerInVerificationRedisRepository.getByEmail(request.email());
+        var verification = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!Objects.equals(verification.getCertificationCode(), request.certificationCode())) {
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
@@ -146,13 +150,30 @@ public class OwnerService {
 
     @Transactional
     public void updatePassword(OwnerPasswordUpdateRequest request) {
-        var verification = ownerInVerificationRedisRepository.getByEmail(request.email());
+        var verification = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!verification.isAuthed()) {
             throw new IllegalArgumentException("인증이 완료되지 않았습니다.");
         }
         User user = userRepository.getByEmail(request.email());
         user.updatePassword(passwordEncoder, request.password());
         userRepository.save(user);
-        ownerInVerificationRedisRepository.deleteById(verification.getEmail());
+        ownerInVerificationRedisRepository.deleteById(verification.getKey());
+    }
+
+    @Transactional
+    public void requestSignUpPhoneVerification(@Valid VerifyPhoneRequest verifyPhoneRequest) {
+
+        emailVerifyRequestRedisRepository.findById(verifyPhoneRequest.phoneNumber()).ifPresent(it -> {
+            throw new RequestTooFastException("요청이 너무 빠릅니다. %d초 뒤에 다시 시도해주세요".formatted(it.getExpiration()));
+        });
+        userRepository.findByPhoneNumber(verifyPhoneRequest.phoneNumber()).ifPresent(user -> {
+            throw DuplicationEmailException.withDetail("phone: " + verifyPhoneRequest.phoneNumber());
+        });
+        String certificationCode = CertificateNumberGenerator.generate();
+
+        ownerInVerificationRedisRepository.save(
+            OwnerInVerification.of(verifyPhoneRequest.phoneNumber(), certificationCode));
+
+        naverSmsService.sendVerificationCode(certificationCode, verifyPhoneRequest.phoneNumber());
     }
 }
