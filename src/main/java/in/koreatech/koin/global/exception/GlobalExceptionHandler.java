@@ -55,9 +55,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         AuthorizationException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getDetail());
         requestLogging(request);
-        return buildErrorResponse(HttpStatus.FORBIDDEN, e.getDefaultMessage());
+        return buildErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
     }
 
     @ExceptionHandler(AuthenticationException.class)
@@ -65,9 +65,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         AuthenticationException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getDetail());
         requestLogging(request);
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED, e.getDefaultMessage());
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
 
     @ExceptionHandler(DataNotFoundException.class)
@@ -75,9 +75,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         DataNotFoundException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getDetail());
         requestLogging(request);
-        return buildErrorResponse(HttpStatus.NOT_FOUND, e.getDefaultMessage());
+        return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
     @ExceptionHandler(DuplicationException.class)
@@ -85,9 +85,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         DuplicationException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getDetail());
         requestLogging(request);
-        return buildErrorResponse(HttpStatus.CONFLICT, e.getDefaultMessage());
+        return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
     }
 
     @ExceptionHandler(RequestTooFastException.class)
@@ -105,9 +105,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         ExternalServiceException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getDetail());
         requestLogging(request);
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getDefaultMessage());
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
     @ExceptionHandler(DateTimeParseException.class)

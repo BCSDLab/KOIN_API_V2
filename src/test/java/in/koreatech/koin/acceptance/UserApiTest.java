@@ -396,7 +396,7 @@ class UserApiTest extends AcceptanceTest {
         String token = "invalidToken";
 
         ExtractableResponse<Response> response = RestAssured
-            .given()
+            .given().log().all()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .body("""
@@ -409,9 +409,9 @@ class UserApiTest extends AcceptanceTest {
                     "student_number" : "2019136136"
                   }
                 """)
-            .when()
+            .when().log().all()
             .put("/user/student/me")
-            .then()
+            .then().log().all()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .extract();
     }

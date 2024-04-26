@@ -5,18 +5,24 @@ import in.koreatech.koin.global.exception.DataNotFoundException;
 public class TimeTableNotFoundException extends DataNotFoundException {
 
     private static final String DEFAULT_MESSAGE = "존재하지 않는 시간표입니다.";
+    private final String detail;
 
     public TimeTableNotFoundException(String message) {
         super(message);
+        this.detail = null;
+    }
+
+    public TimeTableNotFoundException(String message, String detail) {
+        super(message);
+        this.detail = detail;
     }
 
     public static TimeTableNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new TimeTableNotFoundException(message);
+        return new TimeTableNotFoundException(DEFAULT_MESSAGE, detail);
     }
 
     @Override
-    public String getDefaultMessage() {
-        return DEFAULT_MESSAGE;
+    public String getDetail() {
+        return detail;
     }
 }

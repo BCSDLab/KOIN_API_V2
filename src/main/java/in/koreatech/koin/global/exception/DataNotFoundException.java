@@ -6,5 +6,5 @@ public abstract class DataNotFoundException extends RuntimeException {
         super(message);
     }
 
-    public abstract String getDefaultMessage();
+    public abstract String getDetail();
 }

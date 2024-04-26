@@ -5,18 +5,24 @@ import in.koreatech.koin.global.exception.DataNotFoundException;
 public class ImageUploadDomainNotFoundException extends DataNotFoundException {
 
     private static final String DEFAULT_MESSAGE = "타입이 존재하지 않습니다.";
+    private final String detail;
 
     public ImageUploadDomainNotFoundException(String message) {
         super(message);
+        this.detail = null;
+    }
+
+    public ImageUploadDomainNotFoundException(String message, String detail) {
+        super(message);
+        this.detail = detail;
     }
 
     public static ImageUploadDomainNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new ImageUploadDomainNotFoundException(message);
+        return new ImageUploadDomainNotFoundException(DEFAULT_MESSAGE, detail);
     }
 
     @Override
-    public String getDefaultMessage() {
-        return DEFAULT_MESSAGE;
+    public String getDetail() {
+        return detail;
     }
 }

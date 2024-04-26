@@ -5,18 +5,24 @@ import in.koreatech.koin.global.exception.DuplicationException;
 public class DuplicationNicknameException extends DuplicationException {
 
     private static final String DEFAULT_MESSAGE = "이미 존재하는 닉네임입니다.";
+    private final String detail;
 
     public DuplicationNicknameException(String message) {
         super(message);
+        this.detail = null;
+    }
+
+    public DuplicationNicknameException(String message, String detail) {
+        super(message);
+        this.detail = detail;
     }
 
     public static DuplicationNicknameException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new DuplicationNicknameException(message);
+        return new DuplicationNicknameException(DEFAULT_MESSAGE, detail);
     }
 
     @Override
-    public String getDefaultMessage() {
-        return DEFAULT_MESSAGE;
+    public String getDetail() {
+        return detail;
     }
 }
