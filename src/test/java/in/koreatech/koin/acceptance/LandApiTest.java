@@ -38,21 +38,21 @@ class LandApiTest extends AcceptanceTest {
                         {
                             "internal_name": "신",
                             "monthly_fee": "100",
-                            "latitude": "37.555",
+                            "latitude": 37.555,
                             "charter_fee": "1000",
                             "name": "신안빌",
                             "id": 1,
-                            "longitude": "126.555",
+                            "longitude": 126.555,
                             "room_type": "원룸"
                         },
                         {
                             "internal_name": "에",
                             "monthly_fee": "100",
-                            "latitude": "37.555",
+                            "latitude": 37.555,
                             "charter_fee": "1000",
                             "name": "에듀윌",
                             "id": 2,
-                            "longitude": "126.555",
+                            "longitude": 126.555,
                             "room_type": "원룸"
                         }
                     ]
@@ -82,7 +82,7 @@ class LandApiTest extends AcceptanceTest {
                     "opt_elevator": false,
                     "opt_water_purifier": false,
                     "opt_washer": false,
-                    "latitude": "37.555",
+                    "latitude": 37.555,
                     "charter_fee": "1000",
                     "opt_veranda": false,
                     "created_at": "2024-01-15 12:00:00",
@@ -104,7 +104,7 @@ class LandApiTest extends AcceptanceTest {
                     "management_fee": "100",
                     "opt_desk": false,
                     "opt_closet": false,
-                    "longitude": "126.555",
+                    "longitude": 126.555,
                     "address": "천안시 동남구 강남구",
                     "opt_bed": false,
                     "size": "100.0",

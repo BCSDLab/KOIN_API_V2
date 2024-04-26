@@ -8,7 +8,5 @@ public record LandsGroupResponse(
     @JsonProperty("lands")
     List<LandsResponse> lands
 ) {
-    public LandsGroupResponse(List<LandsResponse> lands) {
-        this.lands = lands;
-    }
+
 }
