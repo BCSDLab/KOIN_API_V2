@@ -24,6 +24,7 @@ import in.koreatech.koin.domain.owner.model.EmailVerifyRequest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerInVerification;
+import in.koreatech.koin.domain.owner.model.OwnerPhoneRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.owner.repository.EmailVerifyRequestRedisRepository;
@@ -166,7 +167,7 @@ public class OwnerService {
         emailVerifyRequestRedisRepository.findById(verifyPhoneRequest.phoneNumber()).ifPresent(it -> {
             throw new RequestTooFastException("요청이 너무 빠릅니다. %d초 뒤에 다시 시도해주세요".formatted(it.getExpiration()));
         });
-        userRepository.findByPhoneNumber(verifyPhoneRequest.phoneNumber()).ifPresent(user -> {
+        userRepository.findByPhoneNumber(verifyPhoneRequest.phoneNumber()).ifPresent(e -> {
             throw DuplicationEmailException.withDetail("phone: " + verifyPhoneRequest.phoneNumber());
         });
         String certificationCode = CertificateNumberGenerator.generate();
@@ -175,5 +176,6 @@ public class OwnerService {
             OwnerInVerification.of(verifyPhoneRequest.phoneNumber(), certificationCode));
 
         naverSmsService.sendVerificationCode(certificationCode, verifyPhoneRequest.phoneNumber());
+        eventPublisher.publishEvent(new OwnerPhoneRequestEvent(verifyPhoneRequest.phoneNumber()));
     }
 }

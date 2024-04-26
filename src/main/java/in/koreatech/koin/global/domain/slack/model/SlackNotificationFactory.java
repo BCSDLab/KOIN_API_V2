@@ -39,6 +39,22 @@ public class SlackNotificationFactory {
             .build();
     }
 
+    public SlackNotification generateOwnerPhoneVerificationRequestNotification(
+        String content
+    ) {
+        String phoneFormat = String.format("%s-%s-%s"
+            , content.substring(0,3)
+            , content.substring(3,7)
+            , content.substring(7,11));
+        return SlackNotification.builder()
+            .slackUrl(ownerEventNotificationUrl)
+            .text(String.format("""
+                `%s(사장님)님이 문자 인증을 요청하셨습니다.`
+                """, phoneFormat)
+            )
+            .build();
+    }
+
     /**
      * 사장님 이메일 인증 완료 알림
      */

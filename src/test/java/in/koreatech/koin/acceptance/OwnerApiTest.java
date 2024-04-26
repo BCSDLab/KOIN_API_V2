@@ -173,8 +173,8 @@ class OwnerApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님 회원가입 인증번호 전송 요청 이벤트 발생 시 슬랙 전송 이벤트가 발생한다.")
-    void checkOwnerEventListener() {
+    @DisplayName("사장님 회원가입 이메일 인증번호 전송 요청 이벤트 발생 시 슬랙 전송 이벤트가 발생한다.")
+    void checkOwnerEventListenerByEmail() {
         RestAssured
             .given()
             .body("""
