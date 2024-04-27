@@ -228,7 +228,7 @@ public interface UserApi {
         }
     )
 
-    @Operation(summary = "비밀번호 확인")
+    @Operation(summary = "비밀번호 검증")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/check/password")
     ResponseEntity<Boolean> checkPassword(
