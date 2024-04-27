@@ -61,8 +61,6 @@ class UserApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
-
-
     }
 
     @Test
@@ -340,7 +338,6 @@ class UserApiTest extends AcceptanceTest {
 
         assertThat(userRepository.findById(student.getId())).isNotPresent();
     }
-
 
     @Test
     @DisplayName("이메일이 중복인지 확인한다")
@@ -699,5 +696,30 @@ class UserApiTest extends AcceptanceTest {
             .post("/user/student/register")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("사용자가 비밀번호를 통해 자신이 맞는지 인증한다.")
+    void userCheckPassword() {
+        Student student = userFixture.준호_학생();
+        String token = userFixture.getToken(student.getUser());
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                  {
+                    "password": "1234"
+                  }
+                """)
+            .when()
+            .post("/user/check/password")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract()
+            .as(Boolean.class);
+
+        assertThat(response).isTrue();
     }
 }
