@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.coop.model;
 
 public record DiningSoldOutEvent(
-    String place
+    String place,
+    String type
 ) {
 }
