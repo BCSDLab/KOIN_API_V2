@@ -105,13 +105,9 @@ public class OwnerService {
                 .ownerId(owner.getId())
                 .shopId(shop.getId())
                 .build());
-            ownerShopRedisRepository.save(OwnerShop.builder()
-                .build());
         } else {
             ownerShopRedisRepository.save(OwnerShop.builder()
                 .ownerId(owner.getId())
-                .build());
-            ownerShopRedisRepository.save(OwnerShop.builder()
                 .build());
         }
 
