@@ -233,6 +233,6 @@ public interface UserApi {
     @PostMapping("/user/check/password")
     ResponseEntity<Boolean> checkPassword(
         @Valid @RequestBody UserPasswordCheckRequest request,
-        @Auth(permit = {STUDENT, COOP}) Integer userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     );
 }
