@@ -32,6 +32,12 @@ public class OwnerEventListener {
         slackClient.sendMessage(notification);
     }
 
+    @TransactionalEventListener(phase = AFTER_COMMIT)
+    public void onOwnerPhoneRequest(OwnerPhoneRequestEvent ownerPhoneRequestEvent) {
+        var notification = slackNotificationFactory.generateOwnerPhoneVerificationRequestNotification(ownerPhoneRequestEvent.phoneNumber());
+        slackClient.sendMessage(notification);
+    }
+
     /**
      * 사장님 회원가입 시 상점 id Redis 임시저장
      * <p>
