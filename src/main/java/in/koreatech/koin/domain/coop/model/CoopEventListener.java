@@ -4,12 +4,16 @@ import static in.koreatech.koin.global.domain.notification.model.NotificationSub
 import static in.koreatech.koin.global.fcm.MobileAppPath.HOME;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
+import java.time.Clock;
+import java.time.LocalTime;
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
@@ -25,9 +29,17 @@ public class CoopEventListener {
     private final UserRepository userRepository;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
     private final NotificationFactory notificationFactory;
+    private final Clock clock;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onDiningSoldOutRequest(DiningSoldOutEvent event) {
+        Map<String, LocalTime> diningTime = DiningType.getDiningTime(event.type());
+        LocalTime now = LocalTime.now(clock);
+
+        if (now.isBefore(diningTime.get("startTime")) || now.isAfter(diningTime.get("endTime"))) {
+            return;
+        }
+
         var notifications = notificationSubscribeRepository.findAllBySubscribeType(DINING_SOLD_OUT).stream()
             .map(subscribe -> userRepository.getById(subscribe.getUser().getId()))
             .filter(user -> user.getDeviceToken() != null)
