@@ -24,6 +24,7 @@ import in.koreatech.koin.domain.owner.model.EmailVerifyRequest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerInVerification;
+import in.koreatech.koin.domain.owner.model.OwnerPhoneRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.owner.repository.EmailVerifyRequestRedisRepository;
@@ -175,5 +176,6 @@ public class OwnerService {
             OwnerInVerification.of(verifyPhoneRequest.phoneNumber(), certificationCode));
 
         naverSmsService.sendVerificationCode(certificationCode, verifyPhoneRequest.phoneNumber());
+        eventPublisher.publishEvent(new OwnerPhoneRequestEvent(verifyPhoneRequest.phoneNumber()));
     }
 }
