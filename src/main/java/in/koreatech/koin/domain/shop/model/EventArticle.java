@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.shop.model;
 
-import static jakarta.persistence.CascadeType.MERGE;
-import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
@@ -51,7 +50,7 @@ public class EventArticle extends BaseEntity {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @OneToMany(mappedBy = "eventArticle", cascade = {MERGE, PERSIST})
+    @OneToMany(mappedBy = "eventArticle", orphanRemoval = true, cascade = ALL)
     private List<EventArticleImage> thumbnailImages = new ArrayList<>();
 
     /**
@@ -123,7 +122,6 @@ public class EventArticle extends BaseEntity {
         String title,
         String content,
         User user,
-        List<EventArticleImage> thumbnailImages,
         Integer hit,
         String ip,
         LocalDate startDate,
@@ -133,7 +131,6 @@ public class EventArticle extends BaseEntity {
         this.title = title;
         this.content = content;
         this.user = user;
-        this.thumbnailImages = thumbnailImages;
         this.hit = hit;
         this.ip = ip;
         this.startDate = startDate;
@@ -152,7 +149,6 @@ public class EventArticle extends BaseEntity {
         this.content = content;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.thumbnailImages.forEach(entityManager::remove);
         this.thumbnailImages.clear();
         entityManager.flush();
         for (String imageUrl : thumbnailImages) {

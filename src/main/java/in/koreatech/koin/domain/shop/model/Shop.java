@@ -132,11 +132,7 @@ public class Shop extends BaseEntity {
         boolean isDeleted,
         boolean isEvent,
         String remarks,
-        Integer hit,
-        List<ShopCategoryMap> shopCategories,
-        List<ShopOpen> shopOpens,
-        List<ShopImage> shopImages,
-        List<MenuCategory> menuCategories
+        Integer hit
     ) {
         this.owner = owner;
         this.name = name;
@@ -153,10 +149,6 @@ public class Shop extends BaseEntity {
         this.isEvent = isEvent;
         this.remarks = remarks;
         this.hit = hit;
-        this.shopCategories = shopCategories;
-        this.shopOpens = shopOpens;
-        this.shopImages = shopImages;
-        this.menuCategories = menuCategories;
     }
 
     public void modifyShop(

@@ -89,7 +89,8 @@ public record MenuDetailResponse(
             menu.isHidden(),
             false,
             null,
-            menu.getMenuOptions().stream().map(InnerOptionPriceResponse::of).toList(), menu.getDescription(),
+            menu.getMenuOptions().stream().map(InnerOptionPriceResponse::of).toList(),
+            menu.getDescription(),
             shopMenuCategories.stream().map(MenuCategory::getId).toList(),
             menu.getMenuImages().stream().map(MenuImage::getImageUrl).toList()
         );

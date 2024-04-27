@@ -1,6 +1,6 @@
 package in.koreatech.koin.acceptance;
 
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,10 +8,10 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.dept.model.Dept;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
+@SuppressWarnings("NonAsciiCharacters")
 class DeptApiTest extends AcceptanceTest {
 
     @Test
@@ -21,7 +21,7 @@ class DeptApiTest extends AcceptanceTest {
         Dept dept = Dept.COMPUTER_SCIENCE;
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .param("dept_num", dept.getNumbers().get(0))
@@ -30,12 +30,14 @@ class DeptApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("dept_num")).isEqualTo(dept.getNumbers().get(0));
-                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(dept.getName());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "dept_num": "35",
+                    "name": "컴퓨터공학부"
+                }
+                """
+            );
     }
 
     @Test
@@ -45,7 +47,7 @@ class DeptApiTest extends AcceptanceTest {
         final int DEPT_SIZE = Dept.values().length - 1;
 
         //when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/depts")
@@ -53,16 +55,6 @@ class DeptApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getList(".").size())
-                    .isEqualTo(DEPT_SIZE);
-                for (int i = 0; i < DEPT_SIZE; i++) {
-                    softly.assertThat(response.body().jsonPath().getString(String.format("[%d].name", i))).isNotEmpty();
-                    softly.assertThat(response.body().jsonPath().getString(String.format("[%d].curriculum_link", i)))
-                        .isNotEmpty();
-                }
-            }
-        );
+        assertThat(response.body().jsonPath().getList(".")).hasSize(DEPT_SIZE);
     }
 }

@@ -1,10 +1,8 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,51 +11,38 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
+@SuppressWarnings("NonAsciiCharacters")
 class NotificationApiTest extends AcceptanceTest {
-
-    @Autowired
-    private JwtProvider jwtProvider;
 
     @Autowired
     private NotificationSubscribeRepository notificationSubscribeRepository;
 
     @Autowired
+    private UserFixture userFixture;
+
+    @Autowired
     private UserRepository userRepository;
 
-    private static User user;
-
-    private static String userToken;
+    User user;
+    String userToken;
 
     @BeforeEach
     void setUp() {
-        User newUser = User.builder()
-            .password("1234")
-            .nickname("셋업유저")
-            .name("셋업")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-        user = userRepository.save(newUser);
-        userToken = jwtProvider.createToken(user);
+        user = userFixture.준호_학생().getUser();
+        userToken = userFixture.getToken(user);
     }
 
     @Test
-    @DisplayName("알림 구독 내역 조회한다.")
+    @DisplayName("알림 구독 내역을 조회한다.")
     void getNotificationSubscribe() {
         //given
         NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
@@ -66,8 +51,9 @@ class NotificationApiTest extends AcceptanceTest {
             .build();
 
         notificationSubscribeRepository.save(notificationSubscribe);
+
         //when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
             .when()
@@ -76,18 +62,22 @@ class NotificationApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getBoolean("is_permit")).isFalse();
-                softly.assertThat(response.body().jsonPath().getList("subscribes").size()).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getString("subscribes[0].type"))
-                    .isEqualTo("SHOP_EVENT");
-                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[0].is_permit")).isTrue();
-                softly.assertThat(response.body().jsonPath().getString("subscribes[1].type")).isEqualTo(
-                    "DINING_SOLD_OUT");
-                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[1].is_permit")).isFalse();
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "is_permit": false,
+                    "subscribes": [
+                        {
+                            "type": "SHOP_EVENT",
+                            "is_permit": true
+                        },
+                        {
+                            "type": "DINING_SOLD_OUT",
+                            "is_permit": false
+                        }
+                    ]
+                }
+                """);
     }
 
     @Test
@@ -97,13 +87,13 @@ class NotificationApiTest extends AcceptanceTest {
         String deviceToken = "testToken";
 
         //when then
-        ExtractableResponse<Response> response = RestAssured
+        RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
             .body(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
+                {
+                  "device_token": "%s"
+                }
                 """, deviceToken))
             .contentType(ContentType.JSON)
             .when()
@@ -112,23 +102,22 @@ class NotificationApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        User changedDeviceTokenUser = userRepository.getById(user.getId());
-        assertThat(changedDeviceTokenUser.getDeviceToken()).isEqualTo(deviceToken);
+        User result = userRepository.getById(user.getId());
+        assertThat(result.getDeviceToken()).isEqualTo(deviceToken);
     }
 
     @Test
     @DisplayName("특정 알림을 구독한다.")
     void subscribeNotificationType() {
-
         String deviceToken = "testToken";
-        String notificationType = "SHOP_EVENT";
+        String notificationType = SHOP_EVENT.name();
 
-        RestAssured .given()
+        RestAssured.given()
             .header("Authorization", "Bearer " + userToken)
             .body(String.format("""
-                    {
-                      "device_token": "%s"
-                    }
+                {
+                  "device_token": "%s"
+                }
                 """, deviceToken))
             .contentType(ContentType.JSON)
             .when()
@@ -148,7 +137,7 @@ class NotificationApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
             .when()
@@ -157,31 +146,29 @@ class NotificationApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getBoolean("is_permit")).isTrue();
-                softly.assertThat(response.body().jsonPath().getList("subscribes").size()).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getString("subscribes[0].type"))
-                    .isEqualTo(notificationType);
-                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[0].is_permit")).isTrue();
-                softly.assertThat(response.body().jsonPath().getString("subscribes[1].type")).isEqualTo(
-                    "DINING_SOLD_OUT");
-                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[1].is_permit")).isFalse();
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "is_permit": true,
+                    "subscribes": [
+                        {
+                            "type": "SHOP_EVENT",
+                            "is_permit": true
+                        },
+                        {
+                            "type": "DINING_SOLD_OUT",
+                            "is_permit": false
+                        }
+                    ]
+                }
+                """);
     }
 
     @Test
     @DisplayName("전체 알림 구독을 취소한다. - 디바이스 토큰을 삭제한다.")
     void deleteDeviceToken() {
-
         String deviceToken = "testToken";
-
         user.permitNotification(deviceToken);
-        userRepository.save(user);
-        User changedDeviceTokenUser = userRepository.getById(user.getId());
-
-        assertThat(changedDeviceTokenUser.getDeviceToken()).isEqualTo(deviceToken);
 
         RestAssured
             .given()
@@ -192,14 +179,13 @@ class NotificationApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
-        User noneDeviceTokenUser = userRepository.getById(user.getId());
-        assertThat(noneDeviceTokenUser.getDeviceToken()).isNull();
+        User result = userRepository.getById(user.getId());
+        assertThat(result.getDeviceToken()).isNull();
     }
 
     @Test
     @DisplayName("특정 알림 구독을 취소한다.")
     void unsubscribeNotificationType() {
-
         var SubscribeShopEvent = NotificationSubscribe.builder()
             .subscribeType(SHOP_EVENT)
             .user(user)
@@ -213,7 +199,7 @@ class NotificationApiTest extends AcceptanceTest {
         notificationSubscribeRepository.save(SubscribeShopEvent);
         notificationSubscribeRepository.save(SubscribeDiningSoldOut);
 
-        String notificationType = "SHOP_EVENT";
+        String notificationType = SHOP_EVENT.name();
 
         RestAssured
             .given()
@@ -225,7 +211,7 @@ class NotificationApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
             .when()
@@ -234,17 +220,21 @@ class NotificationApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        SoftAssertions.assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getBoolean("is_permit")).isFalse();
-                softly.assertThat(response.body().jsonPath().getList("subscribes").size()).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getString("subscribes[0].type"))
-                    .isEqualTo(notificationType);
-                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[0].is_permit")).isFalse();
-                softly.assertThat(response.body().jsonPath().getString("subscribes[1].type")).isEqualTo(
-                    "DINING_SOLD_OUT");
-                softly.assertThat(response.body().jsonPath().getBoolean("subscribes[1].is_permit")).isTrue();
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "is_permit": false,
+                    "subscribes": [
+                        {
+                            "type": "SHOP_EVENT",
+                            "is_permit": false
+                        },
+                        {
+                            "type": "DINING_SOLD_OUT",
+                            "is_permit": true
+                        }
+                    ]
+                }
+                """);
     }
 }

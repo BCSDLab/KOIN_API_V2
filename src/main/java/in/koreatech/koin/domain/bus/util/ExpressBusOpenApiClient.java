@@ -11,7 +11,6 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -45,7 +44,6 @@ import in.koreatech.koin.domain.bus.model.express.ExpressBusStationNode;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusTimetable;
 import in.koreatech.koin.domain.bus.model.express.OpenApiExpressBusArrival;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
-import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 
@@ -101,11 +99,12 @@ public class ExpressBusOpenApiClient {
     }
 
     public List<ExpressBusRemainTime> getBusRemainTime(BusStation depart, BusStation arrival) {
-        Version version = versionRepository.getByType(VersionType.EXPRESS);
-        if (isCacheExpired(version, clock)) {
+        String busCacheId = ExpressBusCache.generateId(
+            new ExpressBusRoute(depart.name().toLowerCase(), arrival.name().toLowerCase()));
+        if (!expressBusCacheRepository.existsById(busCacheId)) {
             storeRemainTimeByOpenApi(depart.name().toLowerCase(), arrival.name().toLowerCase());
         }
-        return getStoredRemainTime(depart.name().toLowerCase(), arrival.name().toLowerCase());
+        return getStoredRemainTime(busCacheId);
     }
 
     private void storeRemainTimeByOpenApi(String departName, String arrivalName) {
@@ -130,7 +129,10 @@ public class ExpressBusOpenApiClient {
                 .toList()
         );
 
-        expressBusCacheRepository.save(expressBusCache);
+        if (!expressBusCache.getBusInfos().isEmpty()) {
+            expressBusCacheRepository.save(expressBusCache);
+        }
+
         versionRepository.getByType(VersionType.EXPRESS).update(clock);
     }
 
@@ -200,8 +202,7 @@ public class ExpressBusOpenApiClient {
         }
     }
 
-    private List<ExpressBusRemainTime> getStoredRemainTime(String departName, String arrivalName) {
-        String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute(departName, arrivalName));
+    private List<ExpressBusRemainTime> getStoredRemainTime(String busCacheId) {
         ExpressBusCache expressBusCache = expressBusCacheRepository.getById(busCacheId);
         if (Objects.isNull(expressBusCache)) {
             return Collections.emptyList();
@@ -218,14 +219,7 @@ public class ExpressBusOpenApiClient {
             .toList();
     }
 
-    public boolean isCacheExpired(Version version, Clock clock) {
-        Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
-        return duration.toSeconds() < 0
-            || Duration.ofHours(ExpressBusCache.getCacheExpireHour()).toSeconds() <= duration.toSeconds();
-    }
-
     public List<? extends BusTimetable> getExpressBusTimetable(String direction) {
-        Version version = versionRepository.getByType(VersionType.EXPRESS);
         String depart = "";
         String arrival = "";
 
@@ -237,15 +231,16 @@ public class ExpressBusOpenApiClient {
             depart = "terminal";
             arrival = "koreatech";
         }
+
         if (depart.isEmpty() || arrival.isEmpty()) {
             throw new UnsupportedOperationException();
         }
 
-        if (isCacheExpired(version, clock)) {
+        String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute(depart, arrival));
+        if (!expressBusCacheRepository.existsById(busCacheId)) {
             storeRemainTimeByOpenApi(depart, arrival);
         }
 
-        String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute(depart, arrival));
         ExpressBusCache expressBusCache = expressBusCacheRepository.getById(busCacheId);
         if (Objects.isNull(expressBusCache)) {
             return Collections.emptyList();

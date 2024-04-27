@@ -1,10 +1,6 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
-
-import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,224 +8,158 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.model.TimeTable;
-import in.koreatech.koin.domain.timetable.repository.LectureRepository;
-import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
 import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.fixture.LectureFixture;
+import in.koreatech.koin.fixture.SemesterFixture;
+import in.koreatech.koin.fixture.TimeTableFixture;
+import in.koreatech.koin.fixture.UserFixture;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
+@SuppressWarnings("NonAsciiCharacters")
 class TimetableApiTest extends AcceptanceTest {
-
-    @Autowired
-    private LectureRepository lectureRepository;
-
-    @Autowired
-    private SemesterRepository semesterRepository;
 
     @Autowired
     private TimeTableRepository timeTableRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserFixture userFixture;
 
     @Autowired
-    private JwtProvider jwtProvider;
+    private LectureFixture lectureFixture;
+
+    @Autowired
+    private SemesterFixture semesterFixture;
+
+    @Autowired
+    private TimeTableFixture timeTableFixture;
 
     @Test
     @DisplayName("특정 학기 강의를 조회한다")
     void getSemesterLecture() {
-        Lecture lecture1 = Lecture.builder()
-            .code("ARB244")
-            .semester("20192")
-            .name("건축구조의 이해 및 실습")
-            .grades("3")
-            .lectureClass("01")
-            .regularNumber("25")
-            .department("디자인ㆍ건축공학부")
-            .target("디자 1 건축")
-            .professor("이돈우")
-            .isEnglish("N")
-            .designScore("0")
-            .isElearning("N")
-            .classTime("[200, 201, 202, 203, 204, 205, 206, 207]")
-            .build();
+        String semester = "20201";
+        lectureFixture.HRD_개론(semester);
+        lectureFixture.건축구조의_이해_및_실습("20192");
 
-        Lecture lecture2 = Lecture.builder()
-            .code("ARB244")
-            .semester("20201")
-            .name("건축구조의 이해 및 실습")
-            .grades("3")
-            .lectureClass("02")
-            .regularNumber("30")
-            .department("컴퓨터공학부")
-            .target("컴퓨터")
-            .professor("허준기")
-            .isEnglish("N")
-            .designScore("0")
-            .isElearning("N")
-            .classTime("[200,201,202,203,204,205,206,207]")
-            .build();
-
-        lectureRepository.save(lecture1);
-        lectureRepository.save(lecture2);
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
-            .param("semester_date", lecture1.getSemester())
+            .param("semester_date", semester)
             .get("/lectures")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        List<Long> classTime = List.of(200L, 201L, 202L, 203L, 204L, 205L, 206L, 207L);
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("[0].code")).isEqualTo(lecture1.getCode());
-                softly.assertThat(response.body().jsonPath().getString("[0].name")).isEqualTo(lecture1.getName());
-                softly.assertThat(response.body().jsonPath().getString("[0].grades")).isEqualTo(lecture1.getGrades());
-                softly.assertThat(response.body().jsonPath().getString("[0].lecture_class"))
-                    .isEqualTo(lecture1.getLectureClass());
-                softly.assertThat(response.body().jsonPath().getString("[0].regular_number"))
-                    .isEqualTo(lecture1.getRegularNumber());
-                softly.assertThat(response.body().jsonPath().getString("[0].department"))
-                    .isEqualTo(lecture1.getDepartment());
-                softly.assertThat(response.body().jsonPath().getString("[0].target")).isEqualTo(lecture1.getTarget());
-                softly.assertThat(response.body().jsonPath().getString("[0].professor"))
-                    .isEqualTo(lecture1.getProfessor());
-                softly.assertThat(response.body().jsonPath().getString("[0].is_english"))
-                    .isEqualTo(lecture1.getIsEnglish());
-                softly.assertThat(response.body().jsonPath().getString("[0].design_score"))
-                    .isEqualTo(lecture1.getDesignScore());
-                softly.assertThat(response.body().jsonPath().getString("[0].is_elearning"))
-                    .isEqualTo(lecture1.getIsElearning());
-                softly.assertThat(response.body().jsonPath().getList("[0].class_time", Long.class))
-                    .containsExactlyInAnyOrderElementsOf(classTime);
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                [
+                    {
+                        "code": "BSM590",
+                        "name": "컴퓨팅사고",
+                        "grades": "3",
+                        "lecture_class": "06",
+                        "regular_number": "22",
+                        "department": "기계공학부",
+                        "target": "기공1",
+                        "professor": "박한수,최준호",
+                        "is_english": "",
+                        "design_score": "0",
+                        "is_elearning": "",
+                        "class_time": [
+                           12, 13, 14, 15, 210, 211, 212, 213
+                        ]
+                    }
+                ]
+                """);
     }
 
     @Test
     @DisplayName("특정 학기 강의들을 조회한다")
     void getSemesterLectures() {
-        Lecture lecture1 = Lecture.builder()
-            .code("ARB244")
-            .semester("20192")
-            .name("건축구조의 이해 및 실습")
-            .grades("3")
-            .lectureClass("01")
-            .regularNumber("25")
-            .department("디자인ㆍ건축공학부")
-            .target("디자 1 건축")
-            .professor("이돈우")
-            .isEnglish("N")
-            .designScore("0")
-            .isElearning("N")
-            .classTime("[200, 201, 202, 203, 204, 205, 206, 207]")
-            .build();
+        String semester = "20201";
+        lectureFixture.HRD_개론(semester);
+        lectureFixture.건축구조의_이해_및_실습(semester);
+        lectureFixture.재료역학(semester);
 
-        Lecture lecture2 = Lecture.builder()
-            .code("ARB244")
-            .semester("20192")
-            .name("건축구조의 이해 및 실습")
-            .grades("3")
-            .lectureClass("02")
-            .regularNumber("30")
-            .department("컴퓨터공학부")
-            .target("컴퓨터")
-            .professor("허준기")
-            .isEnglish("N")
-            .designScore("0")
-            .isElearning("N")
-            .classTime("[200,201,202,203,204,205,206,207]")
-            .build();
-
-        Lecture lecture3 = Lecture.builder()
-            .code("ARB244")
-            .semester("20201")
-            .name("건축구조의 이해 및 실습")
-            .grades("3")
-            .lectureClass("02")
-            .regularNumber("30")
-            .department("컴퓨터공학부")
-            .target("컴퓨터")
-            .professor("허준기")
-            .isEnglish("N")
-            .designScore("0")
-            .isElearning("N")
-            .classTime("[200, 201, 202, 203, 204, 205, 206, 207]")
-            .build();
-
-        lectureRepository.save(lecture1);
-        lectureRepository.save(lecture2);
-        lectureRepository.save(lecture3);
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
-            .param("semester_date", lecture1.getSemester())
+            .param("semester_date", semester)
             .get("/lectures")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> softly.assertThat(response.body().jsonPath().getList(".").size()).isEqualTo(2)
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                [
+                    {
+                        "code": "BSM590",
+                        "name": "컴퓨팅사고",
+                        "grades": "3",
+                        "lecture_class": "06",
+                        "regular_number": "22",
+                        "department": "기계공학부",
+                        "target": "기공1",
+                        "professor": "박한수,최준호",
+                        "is_english": "",
+                        "design_score": "0",
+                        "is_elearning": "",
+                        "class_time": [
+                            12, 13, 14, 15, 210, 211, 212, 213
+                        ]
+                    },
+                    {
+                        "code": "ARB244",
+                        "name": "건축구조의 이해 및 실습",
+                        "grades": "3",
+                        "lecture_class": "01",
+                        "regular_number": "25",
+                        "department": "디자인ㆍ건축공학부",
+                        "target": "디자 1 건축",
+                        "professor": "황현식",
+                        "is_english": "N",
+                        "design_score": "0",
+                        "is_elearning": "N",
+                        "class_time": [
+                            200, 201, 202, 203, 204, 205, 206, 207
+                        ]
+                    },
+                    {
+                        "code": "MEB311",
+                        "name": "재료역학",
+                        "grades": "3",
+                        "lecture_class": "01",
+                        "regular_number": "35",
+                        "department": "기계공학부",
+                        "target": "기공전체",
+                        "professor": "허준기",
+                        "is_english": "",
+                        "design_score": "0",
+                        "is_elearning": "",
+                        "class_time": [
+                            100, 101, 102, 103, 308, 309
+                        ]
+                    }
+                ]
+                """);
     }
 
     @Test
     @DisplayName("존재하지 않는 학기를 조회하면 404")
     void isNotSemester() {
-        Lecture lecture1 = Lecture.builder()
-            .code("ARB244")
-            .semester("20192")
-            .name("건축구조의 이해 및 실습")
-            .grades("3")
-            .lectureClass("01")
-            .regularNumber("25")
-            .department("디자인ㆍ건축공학부")
-            .target("디자 1 건축")
-            .professor("이돈우")
-            .isEnglish("N")
-            .designScore("0")
-            .isElearning("N")
-            .classTime("[200, 201, 202, 203, 204, 205, 206, 207]")
-            .build();
+        String semester = "20201";
+        lectureFixture.HRD_개론(semester);
+        lectureFixture.건축구조의_이해_및_실습(semester);
 
-        Lecture lecture2 = Lecture.builder()
-            .code("ARB244")
-            .semester("20201")
-            .name("건축구조의 이해 및 실습")
-            .grades("3")
-            .lectureClass("02")
-            .regularNumber("30")
-            .department("컴퓨터공학부")
-            .target("컴퓨터")
-            .professor("허준기")
-            .isEnglish("N")
-            .designScore("0")
-            .isElearning("N")
-            .classTime("[200,201,202,203,204,205,206,207]")
-            .build();
-
-        lectureRepository.save(lecture1);
-        lectureRepository.save(lecture2);
-
-        ExtractableResponse<Response> response = RestAssured
+        RestAssured
             .given()
             .when()
-            .param("semester_date", 20193)
+            .param("semester_date", "20193")
             .get("/lectures")
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
@@ -239,16 +169,12 @@ class TimetableApiTest extends AcceptanceTest {
     @Test
     @DisplayName("모든 학기를 조회한다.")
     void findAllSemesters() {
-        Semester request1 = Semester.builder().semester("20221").build();
-        Semester request2 = Semester.builder().semester("20222").build();
-        Semester request3 = Semester.builder().semester("20231").build();
-        Semester request4 = Semester.builder().semester("20232").build();
-        semesterRepository.save(request1);
-        semesterRepository.save(request2);
-        semesterRepository.save(request3);
-        semesterRepository.save(request4);
+        semesterFixture.semester("20221");
+        semesterFixture.semester("20222");
+        semesterFixture.semester("20231");
+        semesterFixture.semester("20232");
 
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .when()
             .get("/semesters")
@@ -256,180 +182,126 @@ class TimetableApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.body().jsonPath().getList(".")).hasSize(4);
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                [
+                    {
+                        "id": 4,
+                        "semester": "20232"
+                    },
+                    {
+                        "id": 3,
+                        "semester": "20231"
+                    },
+                    {
+                        "id": 2,
+                        "semester": "20222"
+                    },
+                    {
+                        "id": 1,
+                        "semester": "20221"
+                    }
+                ]
+                """);
     }
 
     @Test
     @DisplayName("시간표를 조회한다.")
     void getTimeTables() {
-        User userT = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        // given
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+        TimeTable 이산수학 = timeTableFixture.이산수학(user, semester);
+        TimeTable 알고리즘및실습 = timeTableFixture.알고리즘및실습(user, semester);
+        TimeTable 컴퓨터구조 = timeTableFixture.컴퓨터구조(user, semester);
 
-        User user = userRepository.save(userT);
-        String token = jwtProvider.createToken(user);
-
-        Semester semesterT = Semester.builder().
-            semester("20192")
-            .build();
-
-        Semester semester = semesterRepository.save(semesterT);
-
-        TimeTable timeTable1 = TimeTable.builder()
-            .user(user)
-            .semester(semester)
-            .code("CS101")
-            .classTitle("컴퓨터 구조")
-            .classTime("[14, 15, 16, 17, 204, 205, 206, 207]")
-            .classPlace(null)
-            .professor("김철수")
-            .grades("3")
-            .lectureClass("02")
-            .target("컴부전체")
-            .regularNumber("28")
-            .designScore("0")
-            .department("컴퓨터공학부")
-            .memo(null)
-            .isDeleted(false)
-            .build();
-
-        TimeTable timeTable2 = TimeTable.builder()
-            .user(user)
-            .semester(semester)
-            .code("CS102")
-            .classTitle("운영체제")
-            .classTime("[932]")
-            .classPlace(null)
-            .professor("홍길동")
-            .grades("3")
-            .lectureClass("01")
-            .target("컴부전체")
-            .regularNumber("40")
-            .designScore("0")
-            .department("컴퓨터공학부")
-            .memo(null)
-            .isDeleted(false)
-            .build();
-
-        TimeTable timeTable3 = TimeTable.builder()
-            .user(user)
-            .semester(semester)
-            .code("CS102")
-            .classTitle("운영체제")
-            .classTime("[]")
-            .classPlace(null)
-            .professor("홍길동")
-            .grades("3")
-            .lectureClass("01")
-            .target("컴부전체")
-            .regularNumber("40")
-            .designScore("0")
-            .department("컴퓨터공학부")
-            .memo(null)
-            .isDeleted(false)
-            .build();
-
-        timeTableRepository.save(timeTable1);
-        timeTableRepository.save(timeTable2);
-        timeTableRepository.save(timeTable3);
-
-        ExtractableResponse<Response> response = RestAssured
+        // when & then
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
-            .param("semester", "20192")
+            .param("semester", semester.getSemester())
             .get("/timetables")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("semester")).
-                    isEqualTo("20192");
-                softly.assertThat(response.body().jsonPath().getList("timetable"))
-                    .hasSize(3);
-
-                softly.assertThat(response.body().jsonPath().getInt("timetable[0].id")).isEqualTo(1);
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].regular_number")).isEqualTo("28");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].code")).isEqualTo("CS101");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].design_score")).isEqualTo("0");
-                softly.assertThat(response.body().jsonPath().getList("timetable[0].class_time"))
-                    .containsAll(List.of(14, 15, 16, 17, 204, 205, 206, 207));
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].class_place")).isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].memo")).isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].grades")).isEqualTo("3");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].class_title")).isEqualTo("컴퓨터 구조");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].lecture_class")).isEqualTo("02");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].target")).isEqualTo("컴부전체");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].professor")).isEqualTo("김철수");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].department")).isEqualTo("컴퓨터공학부");
-
-                softly.assertThat(response.body().jsonPath().getInt("timetable[1].id")).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].regular_number")).isEqualTo("40");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].code")).isEqualTo("CS102");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].design_score")).isEqualTo("0");
-                softly.assertThat(response.body().jsonPath().getList("timetable[1].class_time"))
-                    .containsAll(List.of(932));
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].class_place")).isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].memo")).isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].grades")).isEqualTo("3");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].class_title")).isEqualTo("운영체제");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].lecture_class")).isEqualTo("01");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].target")).isEqualTo("컴부전체");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].professor")).isEqualTo("홍길동");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].department")).isEqualTo("컴퓨터공학부");
-
-                softly.assertThat(response.body().jsonPath().getInt("timetable[2].id")).isEqualTo(3);
-                softly.assertThat(response.body().jsonPath().getString("timetable[2].regular_number")).isEqualTo("40");
-                softly.assertThat(response.body().jsonPath().getString("timetable[2].code")).isEqualTo("CS102");
-                softly.assertThat(response.body().jsonPath().getString("timetable[2].design_score")).isEqualTo("0");
-                softly.assertThat(response.body().jsonPath().getList("timetable[2].class_time")).isEmpty();
-                softly.assertThat(response.body().jsonPath().getString("timetable[2].class_place")).isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getString("timetable[2].memo")).isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getString("timetable[2].grades")).isEqualTo("3");
-                softly.assertThat(response.body().jsonPath().getString("timetable[2].class_title")).isEqualTo("운영체제");
-                softly.assertThat(response.body().jsonPath().getString("timetable[2].lecture_class")).isEqualTo("01");
-                softly.assertThat(response.body().jsonPath().getString("timetable[2].target")).isEqualTo("컴부전체");
-                softly.assertThat(response.body().jsonPath().getString("timetable[2].professor")).isEqualTo("홍길동");
-                softly.assertThat(response.body().jsonPath().getString("timetable[2].department")).isEqualTo("컴퓨터공학부");
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "semester": "20192",
+                    "timetable": [
+                        {
+                            "id": %d,
+                            "regular_number": "40",
+                            "code": "CSE125",
+                            "design_score": "0",
+                            "class_time": [
+                                14, 15, 16, 17, 312, 313
+                            ],
+                            "class_place": null,
+                            "memo": null,
+                            "grades": "3",
+                            "class_title": "이산수학",
+                            "lecture_class": "01",
+                            "target": "컴부전체",
+                            "professor": "서정빈",
+                            "department": "컴퓨터공학부"
+                        },
+                        {
+                            "id": %d,
+                            "regular_number": "32",
+                            "code": "CSE130",
+                            "design_score": "0",
+                            "class_time": [
+                                14, 15, 16, 17, 310, 311, 312, 313
+                            ],
+                            "class_place": null,
+                            "memo": null,
+                            "grades": "3",
+                            "class_title": "알고리즘및실습",
+                            "lecture_class": "03",
+                            "target": "컴부전체",
+                            "professor": "박다희",
+                            "department": "컴퓨터공학부"
+                        },
+                        {
+                            "id": %d,
+                            "regular_number": "28",
+                            "code": "CS101",
+                            "design_score": "0",
+                            "class_time": [
+                                14, 15, 16, 17, 204, 205, 206, 207
+                            ],
+                            "class_place": null,
+                            "memo": null,
+                            "grades": "3",
+                            "class_title": "컴퓨터 구조",
+                            "lecture_class": "02",
+                            "target": "컴부전체",
+                            "professor": "김성재",
+                            "department": "컴퓨터공학부"
+                        }
+                    ],
+                    "grades": 9,
+                    "total_grades": 9
+                }
+                """, 이산수학.getId(), 알고리즘및실습.getId(), 컴퓨터구조.getId()
+            ));
     }
 
     @Test
     @DisplayName("조회된 시간표가 없으면 404에러를 반환한다.")
     void getTimeTablesNotFound() {
-        User userT = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+        timeTableFixture.이산수학(user, semester);
+        timeTableFixture.알고리즘및실습(user, semester);
+        timeTableFixture.컴퓨터구조(user, semester);
 
-        User user = userRepository.save(userT);
-        String token = jwtProvider.createToken(user);
-
-        Semester semester = Semester.builder().
-            semester("20192")
-            .build();
-
-        semesterRepository.save(semester);
-
-        ExtractableResponse<Response> response = RestAssured
+        RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
@@ -438,38 +310,20 @@ class TimetableApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
-
     }
 
     @Test
     @DisplayName("시간표를 생성한다.")
     void createTimeTables() {
-        User userT = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
 
-        User user = userRepository.save(userT);
-        String token = jwtProvider.createToken(user);
-
-        Semester semester = Semester.builder().
-            semester("20192")
-            .build();
-
-        semesterRepository.save(semester);
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
-            .body("""
+            .body(String.format("""
                 {
                   "timetable": [
                     {
@@ -505,107 +359,74 @@ class TimetableApiTest extends AcceptanceTest {
                       "memo": null
                     }
                   ],
-                  "semester": "20192"
+                  "semester": "%s"
                 }
-                """)
+                """, semester.getSemester()
+            ))
             .when()
             .post("/timetables")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("semester")).
-                    isEqualTo("20192");
-                softly.assertThat(response.body().jsonPath().getList("timetable"))
-                    .hasSize(2);
-                softly.assertThat(response.body().jsonPath().getInt("timetable[0].id"))
-                    .isEqualTo(1);
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].regular_number"))
-                    .isEqualTo("25");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].code"))
-                    .isEqualTo("CPC490");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].design_score"))
-                    .isEqualTo("0");
-                softly.assertThat(response.body().jsonPath().getList("timetable[0].class_time"))
-                    .containsAll(List.of(210, 211));
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].class_place"))
-                    .isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].memo"))
-                    .isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].grades"))
-                    .isEqualTo("3");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].class_title"))
-                    .isEqualTo("운영체제");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].lecture_class"))
-                    .isEqualTo("01");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].target"))
-                    .isEqualTo("디자 1 건축");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].professor"))
-                    .isEqualTo("이돈우");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].department"))
-                    .isEqualTo("디자인ㆍ건축공학부");
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "semester": "20192",
+                    "timetable": [
+                        {
+                            "id": 1,
+                            "regular_number": "25",
+                            "code": "CPC490",
+                            "design_score": "0",
+                            "class_time": [
+                                210, 211
+                            ],
+                            "class_place": null,
+                            "memo": null,
+                            "grades": "3",
+                            "class_title": "운영체제",
+                            "lecture_class": "01",
+                            "target": "디자 1 건축",
+                            "professor": "이돈우",
+                            "department": "디자인ㆍ건축공학부"
+                        },
+                        {
+                            "id": 2,
+                            "regular_number": "38",
+                            "code": "CSE201",
+                            "design_score": "0",
+                            "class_time": [
 
-                softly.assertThat(response.body().jsonPath().getInt("timetable[1].id"))
-                    .isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].regular_number"))
-                    .isEqualTo("38");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].code"))
-                    .isEqualTo("CSE201");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].design_score"))
-                    .isEqualTo("0");
-                softly.assertThat(response.body().jsonPath().getList("timetable[1].class_time"))
-                    .isEmpty();
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].class_place"))
-                    .isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].memo"))
-                    .isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].grades"))
-                    .isEqualTo("1");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].class_title"))
-                    .isEqualTo("컴퓨터구조");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].lecture_class"))
-                    .isEqualTo("02");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].target"))
-                    .isEqualTo("컴퓨 3");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].professor"))
-                    .isEqualTo("이강환");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].department"))
-                    .isEqualTo("컴퓨터공학부");
-            }
-        );
+                            ],
+                            "class_place": null,
+                            "memo": null,
+                            "grades": "1",
+                            "class_title": "컴퓨터구조",
+                            "lecture_class": "02",
+                            "target": "컴퓨 3",
+                            "professor": "이강환",
+                            "department": "컴퓨터공학부"
+                        }
+                    ],
+                    "grades": 4,
+                    "total_grades": 4
+                }
+                """);
     }
 
     @Test
-    @DisplayName("시간표 생성시 필수 필드를 안넣을때 에러코드400을 반환한다.")
+    @DisplayName("시간표 생성시 필수 필드를 안넣을때 에러코드 400을 반환한다.")
     void createTimeTablesBadRequest() {
-        User userT = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
 
-        User user = userRepository.save(userT);
-        String token = jwtProvider.createToken(user);
-
-        Semester semester = Semester.builder().
-            semester("20192")
-            .build();
-
-        semesterRepository.save(semester);
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
-            .body("""
+            .body(String.format("""
                 {
                   "timetable": [
                     {
@@ -626,9 +447,10 @@ class TimetableApiTest extends AcceptanceTest {
                       "memo": null
                     }
                   ],
-                  "semester": "20192"
+                  "semester": "%s"
                 }
-                """)
+                """, semester.getSemester()
+            ))
             .when()
             .post("/timetables")
             .then()
@@ -639,99 +461,44 @@ class TimetableApiTest extends AcceptanceTest {
     @Test
     @DisplayName("시간표 수정한다.")
     void updateTimeTables() {
-        User userT = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+        TimeTable timeTable1 = timeTableFixture.이산수학(user, semester);
+        TimeTable timeTable2 = timeTableFixture.알고리즘및실습(user, semester);
 
-        User user = userRepository.save(userT);
-        String token = jwtProvider.createToken(user);
-
-        Semester semesterT = Semester.builder().
-            semester("20192")
-            .build();
-
-        Semester semester = semesterRepository.save(semesterT);
-
-        TimeTable timeTable1 = TimeTable.builder()
-            .user(user)
-            .semester(semester)
-            .code("CS101")
-            .classTitle("컴퓨터 구조")
-            .classTime("[14, 15, 16, 17, 204, 205, 206, 207]")
-            .classPlace(null)
-            .professor("김철수")
-            .grades("3")
-            .lectureClass("02")
-            .target("컴부전체")
-            .regularNumber("28")
-            .designScore("0")
-            .department("컴퓨터공학부")
-            .memo(null)
-            .isDeleted(false)
-            .build();
-
-        TimeTable timeTable2 = TimeTable.builder()
-            .user(user)
-            .semester(semester)
-            .code("CS102")
-            .classTitle("운영체제")
-            .classTime("[932]")
-            .classPlace(null)
-            .professor("홍길동")
-            .grades("3")
-            .lectureClass("01")
-            .target("컴부전체")
-            .regularNumber("40")
-            .designScore("0")
-            .department("컴퓨터공학부")
-            .memo(null)
-            .isDeleted(false)
-            .build();
-
-        timeTableRepository.save(timeTable1);
-        timeTableRepository.save(timeTable2);
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
-            .body("""
+            .body(String.format("""
                 {
                   "timetable": [
                     {
-                      "id": 1,
-                      "code": "CPC490",
-                      "class_title": "운영체제",
+                      "id": %d,
+                      "code": "CPC999",
+                      "class_title": "안녕체제",
                       "class_time": [
-                        210,
-                        211
+                        210, 211
                       ],
                       "class_place": null,
-                      "professor": "이돈우",
-                      "grades": "3",
+                      "professor": "차은우",
+                      "grades": "1",
                       "lecture_class": "01",
-                      "target": "디자 1 건축",
+                      "target": "전체",
                       "regular_number": "25",
                       "design_score": "0",
-                      "department": "디자인ㆍ건축공학부",
+                      "department": "교양학부",
                       "memo": null
                     },
                                         {
-                      "id": 2,
-                      "code": "CSE201",
-                      "class_title": "컴퓨터구조",
+                      "id": %d,
+                      "code": "CSE777",
+                      "class_title": "구조화된컴퓨터",
                       "class_time": [
                       ],
                       "class_place": null,
-                      "professor": "이강환",
+                      "professor": "장원영",
                       "grades": "1",
                       "lecture_class": "02",
                       "target": "컴퓨 3",
@@ -741,166 +508,97 @@ class TimetableApiTest extends AcceptanceTest {
                       "memo": null
                     }
                   ],
-                  "semester": "20192"
+                  "semester": "%s"
                 }
-                """)
+                """, timeTable1.getId(), timeTable2.getId(), semester.getSemester()
+            ))
             .when()
             .put("/timetables")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getList("timetable")).hasSize(2);
-                softly.assertThat(response.body().jsonPath().getInt("timetable[0].id")).isEqualTo(1);
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].code")).isEqualTo("CPC490");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].class_title")).isEqualTo("운영체제");
-                softly.assertThat(response.body().jsonPath().getList("timetable[0].class_time"))
-                    .containsAll(List.of(210, 211));
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].class_place")).isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].professor")).isEqualTo("이돈우");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].grades")).isEqualTo("3");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].lecture_class")).isEqualTo("01");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].target")).isEqualTo("디자 1 건축");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].regular_number")).isEqualTo("25");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].design_score")).isEqualTo("0");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].department"))
-                    .isEqualTo("디자인ㆍ건축공학부");
-                softly.assertThat(response.body().jsonPath().getString("timetable[0].memo")).isEqualTo(null);
-
-                softly.assertThat(response.body().jsonPath().getInt("timetable[1].id")).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].code")).isEqualTo("CSE201");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].class_title")).isEqualTo("컴퓨터구조");
-                softly.assertThat(response.body().jsonPath().getList("timetable[1].class_time")).isEmpty();
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].class_place")).isEqualTo(null);
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].professor")).isEqualTo("이강환");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].grades")).isEqualTo("1");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].lecture_class")).isEqualTo("02");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].target")).isEqualTo("컴퓨 3");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].regular_number")).isEqualTo("38");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].design_score")).isEqualTo("0");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].department")).isEqualTo("컴퓨터공학부");
-                softly.assertThat(response.body().jsonPath().getString("timetable[1].memo")).isEqualTo(null);
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "semester": "20192",
+                    "timetable": [
+                        {
+                            "id": 1,
+                            "regular_number": "25",
+                            "code": "CPC999",
+                            "design_score": "0",
+                            "class_time": [
+                                210, 211
+                            ],
+                            "class_place": null,
+                            "memo": null,
+                            "grades": "1",
+                            "class_title": "안녕체제",
+                            "lecture_class": "01",
+                            "target": "전체",
+                            "professor": "차은우",
+                            "department": "교양학부"
+                        },
+                        {
+                            "id": 2,
+                            "regular_number": "38",
+                            "code": "CSE777",
+                            "design_score": "0",
+                            "class_time": [
+                               
+                            ],
+                            "class_place": null,
+                            "memo": null,
+                            "grades": "1",
+                            "class_title": "구조화된컴퓨터",
+                            "lecture_class": "02",
+                            "target": "컴퓨 3",
+                            "professor": "장원영",
+                            "department": "컴퓨터공학부"
+                        }
+                    ],
+                    "grades": 2,
+                    "total_grades": 2
+                }
+                """);
     }
 
     @Test
     @DisplayName("시간표를 삭제한다.")
     void deleteTimeTable() {
-        User userT = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-
-        User user = userRepository.save(userT);
-        String token = jwtProvider.createToken(user);
-
-        Semester semesterT = Semester.builder().
-            semester("20192")
-            .build();
-
-        Semester semester = semesterRepository.save(semesterT);
-
-        TimeTable timeTable = TimeTable.builder()
-            .user(user)
-            .semester(semester)
-            .code("CS101")
-            .classTitle("컴퓨터 구조")
-            .classTime("[14, 15, 16, 17, 204, 205, 206, 207]")
-            .classPlace(null)
-            .professor("김철수")
-            .grades("3")
-            .lectureClass("02")
-            .target("컴부전체")
-            .regularNumber("28")
-            .designScore("0")
-            .department("컴퓨터공학부")
-            .memo(null)
-            .isDeleted(false)
-            .build();
-
-        timeTableRepository.save(timeTable);
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+        TimeTable timeTable = timeTableFixture.이산수학(user, semester);
 
         RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
-            .param("id", 1L)
+            .param("id", timeTable.getId())
             .delete("/timetable")
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        ExtractableResponse<Response> response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .param("semester", "20192")
-            .get("/timetables")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        assertThat(response.body().jsonPath().getList("timetable")).isEmpty();
+        assertThat(timeTableRepository.findById(timeTable.getId())).isNotPresent();
     }
 
     @Test
     @DisplayName("시간표 삭제 실패시(=조회 실패시) 404 에러코드를 반환한다.")
     void deleteTimeTableNotFound() {
-        User userT = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(STUDENT)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-
-        User user = userRepository.save(userT);
-        String token = jwtProvider.createToken(user);
-
-        Semester semesterT = Semester.builder().
-            semester("20192")
-            .build();
-
-        Semester semester = semesterRepository.save(semesterT);
-
-        TimeTable timeTable = TimeTable.builder()
-            .user(user)
-            .semester(semester)
-            .code("CS101")
-            .classTitle("컴퓨터 구조")
-            .classTime("[14, 15, 16, 17, 204, 205, 206, 207]")
-            .classPlace(null)
-            .professor("김철수")
-            .grades("3")
-            .lectureClass("02")
-            .target("컴부전체")
-            .regularNumber("28")
-            .designScore("0")
-            .department("컴퓨터공학부")
-            .memo(null)
-            .isDeleted(false)
-            .build();
-
-        timeTableRepository.save(timeTable);
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+        timeTableFixture.이산수학(user, semester);
+        timeTableFixture.알고리즘및실습(user, semester);
+        timeTableFixture.컴퓨터구조(user, semester);
 
         RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
-            .param("id", 3)
+            .param("id", 999)
             .delete("/timetable")
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value());

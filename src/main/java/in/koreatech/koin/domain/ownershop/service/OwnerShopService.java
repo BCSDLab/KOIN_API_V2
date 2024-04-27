@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.ownershop.service;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
-import in.koreatech.koin.domain.ownershop.EventArticleCreateEvent;
+import in.koreatech.koin.domain.ownershop.EventArticleCreateShopEvent;
 import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopEventsResponse;
@@ -273,7 +272,6 @@ public class OwnerShopService {
         Shop shop = getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = EventArticle.builder()
             .shop(shop)
-            .thumbnailImages(new ArrayList<>())
             .startDate(shopEventRequest.startDate())
             .endDate(shopEventRequest.endDate())
             .title(shopEventRequest.title())
@@ -291,7 +289,7 @@ public class OwnerShopService {
                     .build());
         }
         eventPublisher.publishEvent(
-            new EventArticleCreateEvent(
+            new EventArticleCreateShopEvent(
                 shop.getId(),
                 shop.getName(),
                 savedEventArticle.getTitle()

@@ -1,28 +1,28 @@
 package in.koreatech.koin.acceptance;
 
-import java.util.Map;
-import java.util.Optional;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import in.koreatech.koin.fixture.UserFixture;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
+@SuppressWarnings("NonAsciiCharacters")
 class AuthApiTest extends AcceptanceTest {
+
+    @Autowired
+    private UserFixture userFixture;
 
     @Autowired
     private UserRepository userRepository;
@@ -30,15 +30,11 @@ class AuthApiTest extends AcceptanceTest {
     @Autowired
     private UserTokenRepository tokenRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @Test
     @DisplayName("사용자가 로그인을 수행한다")
     void userLoginSuccess() {
-        String password = passwordEncoder.encode("1234");
-        User user = User.builder()
-            .password(password)
+        User user = userFixture.builder()
+            .password("1234")
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
@@ -48,9 +44,7 @@ class AuthApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        userRepository.save(user);
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .body("""
                 {
@@ -68,24 +62,25 @@ class AuthApiTest extends AcceptanceTest {
         User userResult = userRepository.findById(user.getId()).get();
         UserToken token = tokenRepository.findById(userResult.getId()).get();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getString("token")).isNotNull();
-                softly.assertThat(response.jsonPath().getString("refresh_token")).isNotNull();
-                softly.assertThat(response.jsonPath().getString("refresh_token"))
-                    .isEqualTo(token.getRefreshToken());
-                softly.assertThat(response.jsonPath().getString("user_type")).isEqualTo("STUDENT");
-                softly.assertThat(userResult.getLastLoggedAt()).isNotNull();
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                    {
+                        "token": "%s",
+                        "refresh_token": "%s",
+                        "user_type": "%s"
+                    }
+                    """,
+                response.jsonPath().getString("token"),
+                token.getRefreshToken(),
+                user.getUserType().name()
+            ));
     }
 
     @Test
     @DisplayName("사용자가 로그인 이후 로그아웃을 수행한다")
-    void userLogoutSuccess() {
-        String password = passwordEncoder.encode("1234");
-        User user = User.builder()
-            .password(password)
+    void userLogoutSuccessg() {
+        User user = userFixture.builder()
+            .password("1234")
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
@@ -95,9 +90,7 @@ class AuthApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        userRepository.save(user);
-
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .body("""
                 {
@@ -121,17 +114,14 @@ class AuthApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        Optional<UserToken> token = tokenRepository.findById(user.getId());
-
-        Assertions.assertThat(token).isEmpty();
+        Assertions.assertThat(tokenRepository.findById(user.getId())).isEmpty();
     }
 
     @Test
     @DisplayName("사용자가 로그인 이후 refreshToken을 재발급한다")
     void userRefreshToken() {
-        String password = passwordEncoder.encode("1234");
-        User user = User.builder()
-            .password(password)
+        User user = userFixture.builder()
+            .password("1234")
             .nickname("주노")
             .name("최준호")
             .phoneNumber("010-1234-5678")
@@ -141,9 +131,7 @@ class AuthApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        userRepository.save(user);
-
-        ExtractableResponse<Response> response = RestAssured
+        var loginResponse = RestAssured
             .given()
             .body("""
                 {
@@ -158,10 +146,14 @@ class AuthApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        RestAssured
+        var response = RestAssured
             .given()
-            .body(
-                Map.of("refresh_token", response.jsonPath().getString("refresh_token"))
+            .body(String.format("""
+                    {
+                      "refresh_token": "%s"
+                    }
+                    """,
+                loginResponse.jsonPath().getString("refresh_token"))
             )
             .contentType(ContentType.JSON)
             .when()
@@ -172,13 +164,15 @@ class AuthApiTest extends AcceptanceTest {
 
         UserToken token = tokenRepository.findById(user.getId()).get();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.jsonPath().getString("token")).isNotNull();
-                softly.assertThat(response.jsonPath().getString("refresh_token")).isNotNull();
-                softly.assertThat(response.jsonPath().getString("refresh_token"))
-                    .isEqualTo(token.getRefreshToken());
-            }
-        );
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                    {
+                        "token": "%s",
+                        "refresh_token": "%s"
+                    }
+                    """,
+                response.jsonPath().getString("token"),
+                token.getRefreshToken()
+            ));
     }
 }

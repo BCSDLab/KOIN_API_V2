@@ -1,66 +1,52 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Clock;
-import java.time.ZonedDateTime;
-import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.model.OwnerInVerification;
-import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRedisRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.fixture.ShopFixture;
+import in.koreatech.koin.fixture.UserFixture;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
+@SuppressWarnings("NonAsciiCharacters")
 class OwnerApiTest extends AcceptanceTest {
 
     @Autowired
-    private OwnerRepository ownerRepository;
+    private UserFixture userFixture;
 
     @Autowired
-    private ShopRepository shopRepository;
+    private ShopFixture shopFixture;
+
+    @Autowired
+    private OwnerRepository ownerRepository;
 
     @Autowired
     private OwnerShopRedisRepository ownerShopRedisRepository;
 
     @Autowired
     private OwnerInVerificationRedisRepository ownerInVerificationRedisRepository;
-
-    @Autowired
-    private JwtProvider jwtProvider;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -71,65 +57,16 @@ class OwnerApiTest extends AcceptanceTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @BeforeEach
-    void setUp() {
-        when(clock.instant()).thenReturn(
-            ZonedDateTime.parse("2024-02-21 18:00:00 KST", ofPattern("yyyy-MM-dd " + "HH:mm:ss z")).toInstant());
-        when(clock.getZone()).thenReturn(Clock.systemDefaultZone().getZone());
-    }
-
     @Test
     @DisplayName("로그인된 사장님 정보를 조회한다.")
     void getOwner() {
         // given
-        User user = User.builder()
-            .password("1234")
-            .nickname("셋업유저")
-            .name("셋업")
-            .phoneNumber("010-1234-5678")
-            .userType(OWNER)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-
-        OwnerAttachment attachment = OwnerAttachment.builder()
-            .url("https://test.com/test.jpg")
-            .isDeleted(false)
-            .build();
-
-        Owner ownerRequest = Owner.builder()
-            .companyRegistrationNumber("123-45-67190")
-            .attachments(List.of(attachment))
-            .grantShop(true)
-            .grantEvent(true)
-            .user(user)
-            .build();
-        Owner owner = ownerRepository.save(ownerRequest);
-
-        Shop shopRequest = Shop.builder()
-            .owner(owner)
-            .name("테스트 상점")
-            .internalName("테스트")
-            .chosung("테스트")
-            .phone("010-1234-5678")
-            .address("대전광역시 유성구 대학로 291")
-            .description("테스트 상점입니다.")
-            .delivery(true)
-            .deliveryPrice(3000)
-            .payCard(true)
-            .payBank(true)
-            .isDeleted(false)
-            .isEvent(false)
-            .remarks("비고")
-            .hit(0)
-            .build();
-        Shop shop = shopRepository.save(shopRequest);
-        String token = jwtProvider.createToken(owner.getUser());
+        Owner owner = userFixture.현수_사장님();
+        Shop shop = shopFixture.마슬랜(owner);
+        String token = userFixture.getToken(owner.getUser());
 
         // when then
-        ExtractableResponse<Response> response = RestAssured
+        var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
@@ -138,48 +75,33 @@ class OwnerApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("email")).isEqualTo(user.getEmail());
-                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(user.getName());
-                softly.assertThat(response.body().jsonPath().getString("company_number"))
-                    .isEqualTo(owner.getCompanyRegistrationNumber());
-
-                softly.assertThat(response.body().jsonPath().getInt("attachments[0].id"))
-                    .isEqualTo(attachment.getId().intValue());
-                softly.assertThat(response.body().jsonPath().getString("attachments[0].file_url"))
-                    .isEqualTo(attachment.getUrl());
-                softly.assertThat(response.body().jsonPath().getString("attachments[0].file_name"))
-                    .isEqualTo(attachment.getName());
-
-                softly.assertThat(response.body().jsonPath().getInt("shops[0].id")).isEqualTo(shop.getId().intValue());
-                softly.assertThat(response.body().jsonPath().getString("shops[0].name")).isEqualTo(shop.getName());
-
-                softly.assertThat(response.body().jsonPath().getList("attachments").size()).isEqualTo(1);
-                softly.assertThat(response.body().jsonPath().getList("shops").size()).isEqualTo(1);
-            }
-        );
-    }
-
-    @Test
-    @DisplayName("사장님이 회원가입 인증번호 전송 요청을 한다. - 슬랙 전송 실패해도 200으로 응답")
-    void requestSignUpEmailVerification() {
-        RestAssured
-            .given()
-            .body("""
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
                 {
-                  "address": "test@gmail.com"
+                    "email": "hysoo@naver.com",
+                    "name": "테스트용_현수",
+                    "company_number": "123-45-67190",
+                    "attachments": [
+                        {
+                            "id": 1,
+                            "file_url": "https://test.com/현수_사장님_인증사진_1.jpg",
+                            "file_name": "현수_사장님_인증사진_1.jpg"
+                        },
+                        {
+                            "id": 2,
+                            "file_url": "https://test.com/현수_사장님_인증사진_2.jpg",
+                            "file_name": "현수_사장님_인증사진_2.jpg"
+                        }
+                    ],
+                    "shops": [
+                        {
+                            "id": %d,
+                            "name": "마슬랜 치킨"
+                        }
+                    ]
                 }
-                """)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/verification/email")
-            .then()
-            .statusCode(HttpStatus.OK.value());
-
-        assertDoesNotThrow(() ->
-            ownerInVerificationRedisRepository.getByEmail("test@gmail.com")
-        );
+                """, shop.getId()
+            ));
     }
 
     @Test
@@ -192,13 +114,16 @@ class OwnerApiTest extends AcceptanceTest {
                 {
                   "address": "%s"
                 }
-                """, ownerEmail))
+                """, ownerEmail)
+            )
             .contentType(ContentType.JSON)
             .when()
             .post("/owners/verification/email")
             .then()
             .statusCode(HttpStatus.OK.value());
-        var verify = ownerInVerificationRedisRepository.getByEmail(ownerEmail);
+
+        var verifyCode = ownerInVerificationRedisRepository.getByVerify(ownerEmail);
+
         RestAssured
             .given()
             .body(String.format("""
@@ -206,12 +131,13 @@ class OwnerApiTest extends AcceptanceTest {
                       "address": "%s",
                       "certification_code": "%s"
                     }
-                """, ownerEmail, verify.getCertificationCode()))
+                """, ownerEmail, verifyCode.getCertificationCode()))
             .contentType(ContentType.JSON)
             .when()
             .post("/owners/verification/code")
             .then()
             .statusCode(HttpStatus.OK.value());
+
         var result = ownerInVerificationRedisRepository.findById(ownerEmail);
         Assertions.assertThat(result).isNotPresent();
     }
@@ -247,8 +173,8 @@ class OwnerApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님 회원가입 인증번호 전송 요청 이벤트 발생 시 슬랙 전송 이벤트가 발생한다.")
-    void checkOwnerEventListener() {
+    @DisplayName("사장님 회원가입 이메일 인증번호 전송 요청 이벤트 발생 시 슬랙 전송 이벤트가 발생한다.")
+    void checkOwnerEventListenerByEmail() {
         RestAssured
             .given()
             .body("""
@@ -272,8 +198,8 @@ class OwnerApiTest extends AcceptanceTest {
         @Test
         @DisplayName("사장님이 회원가입 요청을 한다.")
         void register() {
-            // given
-            RestAssured
+            // when & then
+            var response = RestAssured
                 .given()
                 .body("""
                     {
@@ -295,14 +221,12 @@ class OwnerApiTest extends AcceptanceTest {
                 .when()
                 .post("/owners/register")
                 .then()
-                .statusCode(HttpStatus.OK.value());
+                .statusCode(HttpStatus.OK.value())
+                .extract();
 
             // when
-            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
+            transactionTemplate.executeWithoutResult(status -> {
                     Owner owner = ownerRepository.findByCompanyRegistrationNumber("012-34-56789").get();
-                    var event = new OwnerRegisterEvent(owner);
                     assertSoftly(
                         softly -> {
                             softly.assertThat(owner).isNotNull();
@@ -318,7 +242,7 @@ class OwnerApiTest extends AcceptanceTest {
                         }
                     );
                 }
-            });
+            );
         }
 
         @Test
@@ -412,25 +336,7 @@ class OwnerApiTest extends AcceptanceTest {
         @DisplayName("사장님이 회원가입 요청을 한다 - 기존에 존재하는 상점과 함께 회원가입")
         void registerWithExistShop() {
             // given
-            Shop shopRequest = Shop.builder()
-                .name("테스트 상점")
-                .internalName("테스트")
-                .chosung("테스트")
-                .phone("010-1234-56778")
-                .address("대전광역시 유성구 대학로 291")
-                .description("테스트 상점입니다.")
-                .delivery(true)
-                .deliveryPrice(3000)
-                .payCard(true)
-                .payBank(true)
-                .isDeleted(false)
-                .isEvent(false)
-                .remarks("비고")
-                .hit(0)
-                .build();
-
-            var shop = shopRepository.save(shopRequest);
-
+            Shop shop = shopFixture.마슬랜(null);
             RestAssured
                 .given()
                 .body(String.format("""
@@ -448,12 +354,13 @@ class OwnerApiTest extends AcceptanceTest {
                        "shop_id": %d,
                        "shop_name": "기분좋은 뷔짱"
                      }
-                    """, shopRequest.getId()))
+                    """, shop.getId()))
                 .contentType(ContentType.JSON)
                 .when()
                 .post("/owners/register")
                 .then()
                 .statusCode(HttpStatus.OK.value());
+
             Owner owner = ownerRepository.findByCompanyRegistrationNumber("011-34-12312").get();
             var ownerShop = ownerShopRedisRepository.findById(owner.getId());
             assertSoftly(
@@ -521,7 +428,7 @@ class OwnerApiTest extends AcceptanceTest {
             .post("/owners/verification/code")
             .then()
             .statusCode(HttpStatus.OK.value());
-        var result = ownerInVerificationRedisRepository.findById(verification.getEmail());
+        var result = ownerInVerificationRedisRepository.findById(verification.getKey());
         assertThat(result).isNotPresent();
     }
 
@@ -591,7 +498,7 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        var result = ownerInVerificationRedisRepository.getByEmail(email);
+        var result = ownerInVerificationRedisRepository.getByVerify(email);
         assertSoftly(
             softly -> {
                 softly.assertThat(result).isNotNull();
@@ -608,6 +515,7 @@ class OwnerApiTest extends AcceptanceTest {
         String code = "123123";
         OwnerInVerification verification = OwnerInVerification.of(email, code);
         ownerInVerificationRedisRepository.save(verification);
+        // when
         RestAssured
             .given()
             .body(String.format("""
@@ -623,6 +531,7 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
+        // then
         RestAssured
             .given()
             .body(String.format("""
@@ -643,24 +552,14 @@ class OwnerApiTest extends AcceptanceTest {
     @DisplayName("사장님이 비밀번호를 변경한다.")
     void ownerChangePassword() {
         // given
-        User user = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(OWNER)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
-        userRepository.save(user);
-        String token = jwtProvider.createToken(user);
+        User user = userFixture.현수_사장님().getUser();
         String code = "123123";
         OwnerInVerification verification = OwnerInVerification.of(user.getEmail(), code);
         verification.verify();
         ownerInVerificationRedisRepository.save(verification);
         String password = "asdf1234!";
+
+        // when
         RestAssured
             .given()
             .body(String.format("""
@@ -675,6 +574,8 @@ class OwnerApiTest extends AcceptanceTest {
             .put("/owners/password/reset")
             .then()
             .statusCode(HttpStatus.OK.value());
+
+        // then
         var result = ownerInVerificationRedisRepository.findById(user.getEmail());
         User userResult = userRepository.getByEmail(user.getEmail());
         SoftAssertions.assertSoftly(
@@ -694,6 +595,8 @@ class OwnerApiTest extends AcceptanceTest {
         OwnerInVerification verification = OwnerInVerification.of(email, code);
         ownerInVerificationRedisRepository.save(verification);
         String password = "asdf1234!";
+
+        // when & then
         RestAssured
             .given()
             .body(String.format("""
@@ -714,35 +617,11 @@ class OwnerApiTest extends AcceptanceTest {
     @DisplayName("사장님이 회원탈퇴를 한다.")
     void ownerDelete() {
         // given
-        User user = User.builder()
-            .password("1234")
-            .nickname("주노")
-            .name("최준호")
-            .phoneNumber("010-1234-5678")
-            .userType(OWNER)
-            .gender(UserGender.MAN)
-            .email("test@koreatech.ac.kr")
-            .isAuthed(true)
-            .isDeleted(false)
-            .build();
+        Owner owner = userFixture.현수_사장님();
+        String token = userFixture.getToken(owner.getUser());
 
-        OwnerAttachment attachment = OwnerAttachment.builder()
-            .url("https://test.com/test.jpg")
-            .isDeleted(false)
-            .build();
-
-        Owner ownerRequest = Owner.builder()
-            .companyRegistrationNumber("123-45-67890")
-            .attachments(List.of(attachment))
-            .grantShop(true)
-            .grantEvent(true)
-            .user(user)
-            .build();
-        Owner owner = ownerRepository.save(ownerRequest);
-        String token = jwtProvider.createToken(owner.getUser());
-
-        // when then
-        ExtractableResponse<Response> response = RestAssured
+        // when
+        RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
@@ -751,6 +630,7 @@ class OwnerApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
-        assertThat(userRepository.findById(user.getId())).isNotPresent();
+        // then
+        assertThat(userRepository.findById(owner.getId())).isNotPresent();
     }
 }
