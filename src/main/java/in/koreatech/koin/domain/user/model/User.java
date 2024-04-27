@@ -170,6 +170,11 @@ public class User extends BaseEntity {
         this.gender = gender;
     }
 
+    public void updateStudentPassword(PasswordEncoder passwordEncoder, String password) {
+        if (password != null && !password.isEmpty())
+            this.password = passwordEncoder.encode(password);
+    }
+
     public void auth() {
         this.isAuthed = true;
     }

@@ -62,7 +62,6 @@ class UserApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-
     }
 
     @Test
@@ -145,6 +144,7 @@ class UserApiTest extends AcceptanceTest {
                     "gender" : 1,
                     "major" : "기계공학부",
                     "name" : "서정빈",
+                    "password" : "0c4be6acaba1839d3433c1ccf04e1eec4d1fa841ee37cb019addc269e8bc1b77",
                     "nickname" : "duehee",
                     "phone_number" : "010-2345-6789",
                     "student_number" : "2019136136"
@@ -340,7 +340,6 @@ class UserApiTest extends AcceptanceTest {
 
         assertThat(userRepository.findById(student.getId())).isNotPresent();
     }
-
 
     @Test
     @DisplayName("이메일이 중복인지 확인한다")
