@@ -230,9 +230,9 @@ public interface UserApi {
 
     @Operation(summary = "비밀번호 확인")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/user/check/password")
-    ResponseEntity<?> checkPassword(
+    @PostMapping("/user/check/password")
+    ResponseEntity<Boolean> checkPassword(
         @Valid @RequestBody UserPasswordCheckRequest request,
-        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
+        @Auth(permit = {STUDENT, COOP}) Integer userId
     );
 }

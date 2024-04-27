@@ -158,8 +158,8 @@ public class UserController implements UserApi {
         return new ResponseEntity<>(HttpStatusCode.valueOf(201));
     }
 
-    @GetMapping("/user/check/password")
-    public ResponseEntity<?> checkPassword(
+    @PostMapping("/user/check/password")
+    public ResponseEntity<Boolean> checkPassword(
         @Valid @RequestBody UserPasswordCheckRequest request,
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     ) {
