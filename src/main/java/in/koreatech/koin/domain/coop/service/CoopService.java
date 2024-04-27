@@ -30,10 +30,10 @@ public class CoopService {
 
         if (Boolean.TRUE.equals(soldOutRequest.soldOut())) {
             dining.setSoldOut(LocalDateTime.now(clock));
+            eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getPlace(), dining.getType()));
         } else {
             dining.setSoldOut(null);
         }
-        eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getPlace()));
     }
 
     @Transactional
