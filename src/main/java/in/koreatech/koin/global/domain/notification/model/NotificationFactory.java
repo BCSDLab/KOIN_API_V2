@@ -31,11 +31,17 @@ public class NotificationFactory {
     ) {
         return new Notification(
             path,
-            "%s코너가 품절되었습니다.".formatted(place),
+            "%s 품절되었습니다.".formatted(getPostposition(place, "이", "가")),
             "다른 식단 보러 가기.",
             null,
             NotificationType.MESSAGE,
             target
         );
+    }
+
+    public String getPostposition(String place, String firstPost, String secondPost){
+        char lastChar = place.charAt(place.length() - 1);
+        String result = (lastChar - 0xAC00) % 28 > 0 ? firstPost : secondPost;
+        return place + result;
     }
 }
