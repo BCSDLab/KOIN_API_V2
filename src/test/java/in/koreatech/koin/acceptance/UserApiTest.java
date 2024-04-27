@@ -61,7 +61,6 @@ class UserApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
-
     }
 
     @Test
