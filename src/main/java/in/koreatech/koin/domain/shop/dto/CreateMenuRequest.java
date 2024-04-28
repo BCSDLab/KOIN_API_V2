@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -46,6 +47,7 @@ public record CreateMenuRequest(
     List<InnerOptionPrice> optionPrices,
 
     @Schema(description = "단일 메뉴일때의 가격 / 단일 메뉴가 아닐 경우 null", requiredMode = NOT_REQUIRED)
+    @Min(value = 0, message = "가격은 0원 이상이어야 합니다.")
     Integer singlePrice
 ) {
 
@@ -63,6 +65,7 @@ public record CreateMenuRequest(
         @NotNull @Size(min = 1, max = 50) String option,
 
         @Schema(example = "26000", description = "가격", requiredMode = REQUIRED)
+        @Min(value = 0, message = "가격은 0원 이상이어야 합니다.")
         @NotNull Integer price
     ) {
 
