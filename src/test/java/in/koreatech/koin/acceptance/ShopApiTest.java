@@ -388,68 +388,6 @@ class ShopApiTest extends AcceptanceTest {
         ) {
             신전_떡볶이_영업여부 = true;
         }
-        System.out.println(String.format("""
-                {
-                    "count": 2,
-                    "shops": [
-                        {
-                            "category_ids": [
-                               \s
-                            ],
-                            "delivery": true,
-                            "id": 1,
-                            "name": "마슬랜 치킨",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
-                            "pay_bank": true,
-                            "pay_card": true,
-                            "phone": "010-7574-1212",
-                            "is_event": false,
-                            "is_open": %s
-                        },
-                        {
-                            "category_ids": [
-                               \s
-                            ],
-                            "delivery": true,
-                            "id": 2,
-                            "name": "신전 떡볶이",
-                            "open": [
-                                {
-                                    "day_of_week": "SUNDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                }
-                            ],
-                            "pay_bank": true,
-                            "pay_card": true,
-                            "phone": "010-7788-9900",
-                            "is_event": false,
-                            "is_open": %s
-                        }
-                    ]
-                }
-                """, 마슬랜_영업여부, 신전_떡볶이_영업여부));
-        System.out.println(response.asPrettyString());
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
                 {
