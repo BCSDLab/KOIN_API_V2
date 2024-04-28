@@ -37,12 +37,12 @@ public record DiningResponse(
     @Schema(description = "현금 가격", example = "5000", requiredMode = NOT_REQUIRED)
     Integer priceCash,
 
-    @Schema(description = "칼로리", example = "790", requiredMode = REQUIRED)
+    @Schema(description = "칼로리", example = "790", requiredMode = NOT_REQUIRED)
     Integer kcal,
 
     @Schema(description = "식단", example = """
         ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "고구마순들깨볶음", "총각김치", "생야채샐러드&D", "누룽지탕"]
-        """, requiredMode = NOT_REQUIRED)
+        """, requiredMode = REQUIRED)
     List<String> menu,
 
     @Schema(description = "이미지 URL", example = "https://stage.koreatech.in/image.jpg", requiredMode = NOT_REQUIRED)
