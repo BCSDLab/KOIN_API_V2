@@ -1,8 +1,13 @@
 package in.koreatech.koin.domain.shop.service;
 
+import static in.koreatech.koin.domain.shop.dto.ShopsResponse.*;
+
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +19,6 @@ import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
-import in.koreatech.koin.domain.shop.dto.ShopsResponse.InnerShopResponse;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -24,6 +28,7 @@ import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
+import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -38,6 +43,7 @@ public class ShopService {
     private final ShopRepository shopRepository;
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
+    private final ShopOpenRepository shopOpenRepository;
 
     public MenuDetailResponse findMenu(Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
@@ -72,9 +78,11 @@ public class ShopService {
         List<Shop> shops = shopRepository.findAll();
         var innerShopResponses = shops.stream().map(shop -> {
                 boolean eventDuration = eventArticleRepository.isDurationEvent(shop.getId(), LocalDate.now(clock));
-                return InnerShopResponse.from(shop, eventDuration);
+                boolean inOperation = shopOpenRepository.isOpen(shop.getId());
+                return InnerShopResponse.from(shop, eventDuration, inOperation);
             })
-            .toList();
+            .collect(Collectors.toList());
+        innerShopResponses.sort(Comparator.comparing(InnerShopResponse::isOpen, Collections.reverseOrder()));
         return ShopsResponse.from(innerShopResponses);
     }
 
