@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.kakao.controller;
 
-import static in.koreatech.koin.domain.kakao.config.KakaoRequestType.DINING;
+import static in.koreatech.koin.domain.kakao.model.KakaoRequestType.DINING;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +21,14 @@ public class KakaoBotController {
 
     @PostMapping("/dinings")
     public ResponseEntity<String> requestDinings(
+        @RequestBody @KakaoRequest(type = DINING) String diningRequest
+    ) {
+        var result = kakaoBotService.getDiningMenus(diningRequest);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/buses")
+    public ResponseEntity<String> requestBusTimes(
         @RequestBody @KakaoRequest(type = DINING) String diningRequest
     ) {
         var result = kakaoBotService.getDiningMenus(diningRequest);

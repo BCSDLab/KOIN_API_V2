@@ -1,16 +1,14 @@
-package in.koreatech.koin.domain.kakao.config;
-
-import java.util.function.UnaryOperator;
+package in.koreatech.koin.domain.kakao.model;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import in.koreatech.koin.domain.kakao.exception.KakaoApiException;
-import lombok.Getter;
 
-@Getter
-public enum KakaoRequestType {
-    DINING(request -> {
+public class KakaoDiningRequestParser implements KakaoSkillRequestParser<String, String> {
+
+    @Override
+    public String parse(String request) {
         try {
             JsonElement jsonElement = JsonParser.parseString(request);
             JsonElement action = jsonElement.getAsJsonObject().get("action");
@@ -19,12 +17,5 @@ public enum KakaoRequestType {
         } catch (Exception e) {
             throw new KakaoApiException("잘못된 API 요청 형식입니다.", request);
         }
-    }),
-    ;
-
-    private final UnaryOperator<String> parser;
-
-    KakaoRequestType(UnaryOperator<String> parser) {
-        this.parser = parser;
     }
 }

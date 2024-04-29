@@ -43,7 +43,7 @@ public class KakaoRequestBodyAdvice implements RequestBodyAdvice {
         KakaoRequest authAt = parameter.getParameterAnnotation(KakaoRequest.class);
         requireNonNull(authAt);
         String request = (String)body;
-        return authAt.type().getParser().apply(request);
+        return authAt.type().parse(request);
     }
 
     @Override
