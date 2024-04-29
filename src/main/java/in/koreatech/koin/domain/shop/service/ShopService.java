@@ -81,12 +81,12 @@ public class ShopService {
         LocalDate nowDate = now.toLocalDate();
         LocalTime nowTime = now.toLocalTime();
         var innerShopResponses = shops.stream().map(shop -> {
-                boolean eventDuration = eventArticleRepository.isDurationEvent(shop.getId(), nowDate);
-                boolean inOperation = shopOpenRepository.isOpen(
+                boolean isDurationEvent = eventArticleRepository.isDurationEvent(shop.getId(), nowDate);
+                boolean isShopOpen = shopOpenRepository.isOpen(
                     shop.getId(),
                     nowDate,
                     nowTime);
-                return InnerShopResponse.from(shop, eventDuration, inOperation);
+                return InnerShopResponse.from(shop, isDurationEvent, isShopOpen);
             })
             .sorted(Comparator.comparing(InnerShopResponse::isOpen, Collections.reverseOrder()))
             .toList();
