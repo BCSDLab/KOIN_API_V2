@@ -42,13 +42,13 @@ public class RequestLoggingFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
         throws ServletException, IOException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletRequest httpRequest = (HttpServletRequest)request;
         if (CorsUtils.isPreFlightRequest(httpRequest) || isIgnoredUrl(httpRequest)) {
             chain.doFilter(request, response);
             return;
         }
 
-        var cachedRequest = new ContentCachingRequestWrapper((HttpServletRequest) request);
+        var cachedRequest = new ContentCachingRequestWrapper((HttpServletRequest)request);
         StopWatch stopWatch = new StopWatch();
         try {
             MDC.put(REQUEST_ID, getRequestId(httpRequest));

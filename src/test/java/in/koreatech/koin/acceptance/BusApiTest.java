@@ -166,7 +166,7 @@ class BusApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .param("bus_type", busType.name().toLowerCase())
+            .param("bus_type", busType.getName())
             .param("depart", depart.name())
             .param("arrival", arrival.name())
             .get("/bus")
@@ -257,7 +257,7 @@ class BusApiTest extends AcceptanceTest {
         BusStation arrival = BusStation.from("terminal");
 
         ExpressBusCache expressBusCache = ExpressBusCache.of(
-            new ExpressBusRoute(depart.name().toLowerCase(), arrival.name().toLowerCase()),
+            new ExpressBusRoute(depart.getName(), arrival.getName()),
             List.of(
                 new ExpressBusCacheInfo(
                     LocalTime.parse(arrivalTime),
@@ -375,7 +375,7 @@ class BusApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .param("bus_type", busType.name().toLowerCase())
+            .param("bus_type", busType.getName())
             .param("direction", direction)
             .param("region", region)
             .get("/bus/timetable/v2")

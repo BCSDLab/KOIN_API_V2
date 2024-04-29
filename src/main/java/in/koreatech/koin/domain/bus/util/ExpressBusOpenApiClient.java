@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.bus.util;
 
+import static in.koreatech.koin.domain.bus.model.enums.BusStation.KOREATECH;
+import static in.koreatech.koin.domain.bus.model.enums.BusStation.TERMINAL;
 import static in.koreatech.koin.domain.bus.model.enums.BusType.EXPRESS;
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -100,19 +102,19 @@ public class ExpressBusOpenApiClient {
 
     public List<ExpressBusRemainTime> getBusRemainTime(BusStation depart, BusStation arrival) {
         String busCacheId = ExpressBusCache.generateId(
-            new ExpressBusRoute(depart.name().toLowerCase(), arrival.name().toLowerCase()));
+            new ExpressBusRoute(depart.getName(), arrival.getName()));
         if (!expressBusCacheRepository.existsById(busCacheId)) {
-            storeRemainTimeByOpenApi(depart.name().toLowerCase(), arrival.name().toLowerCase());
+            storeRemainTimeByOpenApi(depart, arrival);
         }
         return getStoredRemainTime(busCacheId);
     }
 
-    private void storeRemainTimeByOpenApi(String departName, String arrivalName) {
-        JsonObject busApiResponse = getBusApiResponse(departName, arrivalName);
+    private void storeRemainTimeByOpenApi(BusStation depart, BusStation arrival) {
+        JsonObject busApiResponse = getBusApiResponse(depart, arrival);
         List<OpenApiExpressBusArrival> busArrivals = extractBusArrivalInfo(busApiResponse);
 
         ExpressBusCache expressBusCache = ExpressBusCache.of(
-            new ExpressBusRoute(departName, arrivalName),
+            new ExpressBusRoute(depart.getName(), arrival.getName()),
             // API로 받은 yyyyMMddHHmm 형태의 시간을 HH:mm 형태로 변환하여 Redis에 저장한다.
             busArrivals.stream()
                 .map(it -> new ExpressBusCacheInfo(
@@ -136,10 +138,10 @@ public class ExpressBusOpenApiClient {
         versionRepository.getByType(VersionType.EXPRESS).update(clock);
     }
 
-    private JsonObject getBusApiResponse(String departName, String arrivalName) {
+    private JsonObject getBusApiResponse(BusStation departName, BusStation arrivalName) {
         try {
             URL url = getBusApiURL(departName, arrivalName);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "application/json");
             BufferedReader reader;
@@ -158,11 +160,12 @@ public class ExpressBusOpenApiClient {
             return JsonParser.parseString(result.toString())
                 .getAsJsonObject();
         } catch (Exception e) {
+            e.printStackTrace();
             throw BusOpenApiException.withDetail("departName: " + departName + " arrivalName: " + arrivalName);
         }
     }
 
-    private URL getBusApiURL(String depart, String arrival) {
+    private URL getBusApiURL(BusStation depart, BusStation arrival) {
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
         StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL); /*URL*/
@@ -215,28 +218,29 @@ public class ExpressBusOpenApiClient {
         List<ExpressBusCacheInfo> busArrivals
     ) {
         return busArrivals.stream()
-            .map(it -> new ExpressBusRemainTime(it.depart(), EXPRESS.name().toLowerCase()))
+            .map(it -> new ExpressBusRemainTime(it.depart(), EXPRESS.getName()))
             .toList();
     }
 
     public List<? extends BusTimetable> getExpressBusTimetable(String direction) {
-        String depart = "";
-        String arrival = "";
+        BusStation depart = null;
+        BusStation arrival = null;
 
         if ("from".equals(direction)) {
-            depart = "koreatech";
-            arrival = "terminal";
+            depart = KOREATECH;
+            arrival = TERMINAL;
         }
         if ("to".equals(direction)) {
-            depart = "terminal";
-            arrival = "koreatech";
+            depart = TERMINAL;
+            arrival = KOREATECH;
         }
 
-        if (depart.isEmpty() || arrival.isEmpty()) {
+        if (depart == null || arrival == null) {
             throw new UnsupportedOperationException();
         }
 
-        String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute(depart, arrival));
+        String busCacheId = ExpressBusCache.generateId(
+            new ExpressBusRoute(depart.getName(), arrival.getName()));
         if (!expressBusCacheRepository.existsById(busCacheId)) {
             storeRemainTimeByOpenApi(depart, arrival);
         }

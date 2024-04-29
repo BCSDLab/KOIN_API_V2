@@ -23,14 +23,14 @@ public record BusRemainTimeResponse(
 
     public static BusRemainTimeResponse of(BusType busType, List<? extends BusRemainTime> remainTimes, Clock clock) {
         return new BusRemainTimeResponse(
-            busType.name().toLowerCase(),
+            busType.getName(),
             InnerBusResponse.of(remainTimes, 0, clock),
             InnerBusResponse.of(remainTimes, 1, clock)
         );
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
-    private record InnerBusResponse(
+    public record InnerBusResponse(
         @Schema(description = "버스 번호", example = "400", requiredMode = NOT_REQUIRED)
         Long busNumber,
 

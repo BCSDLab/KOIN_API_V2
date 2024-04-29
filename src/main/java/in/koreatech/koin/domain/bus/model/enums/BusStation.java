@@ -10,9 +10,9 @@ import lombok.Getter;
 
 @Getter
 public enum BusStation {
-    KOREATECH(List.of("학교", "한기대"), BusStationNode.KOREATECH),
+    KOREATECH(List.of("학교", "한기대", "코리아텍"), BusStationNode.KOREATECH),
     STATION(List.of("천안역", "천안역(학화호두과자)"), BusStationNode.STATION),
-    TERMINAL(List.of("터미널", "터미널(신세계 앞 횡단보도)"), BusStationNode.TERMINAL),
+    TERMINAL(List.of("터미널", "터미널(신세계 앞 횡단보도)", "야우리"), BusStationNode.TERMINAL),
     ;
 
     private final List<String> displayNames;
@@ -26,7 +26,10 @@ public enum BusStation {
     @JsonCreator
     public static BusStation from(String busStationName) {
         return Arrays.stream(values())
-            .filter(busStation -> busStation.name().equalsIgnoreCase(busStationName))
+            .filter(
+                busStation -> busStation.name().equalsIgnoreCase(busStationName) ||
+                    busStation.displayNames.contains(busStationName)
+            )
             .findAny()
             .orElseThrow(() -> BusStationNotFoundException.withDetail("busStation: " + busStationName));
     }
@@ -40,5 +43,9 @@ public enum BusStation {
 
     public String getNodeId(BusDirection direction) {
         return node.getId(direction);
+    }
+
+    public String getName() {
+        return this.name().toLowerCase();
     }
 }

@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.bus.service;
 
+import static in.koreatech.koin.domain.bus.model.enums.BusStation.STATION;
+import static in.koreatech.koin.domain.bus.model.enums.BusStation.getDirection;
+
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,18 +56,18 @@ public class BusService {
         validateBusCourse(depart, arrival);
         if (busType == BusType.CITY) {
             // 시내버스에서 상행, 하행 구분할때 사용하는 로직
-            BusDirection direction = BusStation.getDirection(depart, arrival);
+            BusDirection direction = getDirection(depart, arrival);
             var remainTimes = cityBusOpenApiClient.getBusRemainTime(depart.getNodeId(direction));
             return toResponse(busType, remainTimes);
         }
 
         if (busType == BusType.EXPRESS) {
             var remainTimes = expressBusOpenApiClient.getBusRemainTime(depart, arrival);
-            return toResponse(busType,remainTimes);
+            return toResponse(busType, remainTimes);
         }
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-            List<BusCourse> busCourses = busRepository.findByBusType(busType.name().toLowerCase());
+            List<BusCourse> busCourses = busRepository.findByBusType(busType.getName());
             var remainTimes = busCourses.stream()
                 .map(BusCourse::getRoutes)
                 .flatMap(routes ->
@@ -93,9 +96,9 @@ public class BusService {
         for (BusType busType : BusType.values()) {
             SingleBusTimeResponse busTimeResponse = null;
 
-            if (busType == BusType.EXPRESS && depart != BusStation.STATION) {
+            if (busType == BusType.EXPRESS && depart != STATION) {
                 busTimeResponse = expressBusOpenApiClient.searchBusTime(
-                    busType.name().toLowerCase(),
+                    busType.getName(),
                     depart,
                     arrival,
                     targetTime
@@ -110,7 +113,7 @@ public class BusService {
                     .getDisplayName(TextStyle.SHORT, Locale.US)
                     .toUpperCase();
 
-                LocalTime arrivalTime = busRepository.findByBusType(busType.name().toLowerCase()).stream()
+                LocalTime arrivalTime = busRepository.findByBusType(busType.getName()).stream()
                     .filter(busCourse -> busCourse.getRegion().equals("천안"))
                     .map(BusCourse::getRoutes)
                     .flatMap(routes ->
@@ -128,7 +131,7 @@ public class BusService {
                     .map(LocalTime::parse)
                     .orElse(null);
 
-                busTimeResponse = new SingleBusTimeResponse(busType.name().toLowerCase(), arrivalTime);
+                busTimeResponse = new SingleBusTimeResponse(busType.getName(), arrivalTime);
             }
 
             if (busTimeResponse == null) {
@@ -168,7 +171,7 @@ public class BusService {
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
             BusCourse busCourse = busRepository
-                .getByBusTypeAndDirectionAndRegion(busType.name().toLowerCase(), direction, region);
+                .getByBusTypeAndDirectionAndRegion(busType.getName(), direction, region);
 
             return busCourse.getRoutes().stream()
                 .map(route -> new SchoolBusTimetable(
@@ -182,14 +185,14 @@ public class BusService {
         throw new BusTypeNotFoundException(busType.name());
     }
 
-    public BusTimetableResponse getBusTimetableWithUpdatedAt(BusType busType, String direction, String region){
+    public BusTimetableResponse getBusTimetableWithUpdatedAt(BusType busType, String direction, String region) {
         List<? extends BusTimetable> busTimetables = getBusTimetable(busType, direction, region);
 
-        if (busType.equals(BusType.COMMUTING)){
+        if (busType.equals(BusType.COMMUTING)) {
             busType = BusType.SHUTTLE;
         }
 
-        VersionResponse version = versionService.getVersion(busType.name().toLowerCase() + "_bus_timetable");
+        VersionResponse version = versionService.getVersion(busType.getName() + "_bus_timetable");
         return new BusTimetableResponse(busTimetables, version.updatedAt());
     }
 

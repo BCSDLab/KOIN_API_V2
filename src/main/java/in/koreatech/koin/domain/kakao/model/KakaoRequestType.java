@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.kakao.model;
 
 public enum KakaoRequestType {
     DINING(new KakaoDiningRequestParser()),
+    BUS_TIME(new KakaoBusRequestParser()),
     ;
 
     private final KakaoSkillRequestParser<String, ?> parser;

@@ -6,23 +6,28 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse.InnerBusResponse;
+import in.koreatech.koin.domain.bus.model.enums.BusStation;
+import in.koreatech.koin.domain.bus.model.enums.BusType;
+import in.koreatech.koin.domain.bus.service.BusService;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
+import in.koreatech.koin.domain.kakao.dto.KakaoBusRequest;
 import in.koreatech.koin.domain.kakao.dto.KakaoSkillResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class KakaoBotService {
 
     private final Clock clock;
     private final DiningRepository diningRepository;
+    private final BusService busService;
 
     public String getDiningMenus(String diningTime) {
-        StringJoiner result = new StringJoiner("\n");
+        StringJoiner result = new StringJoiner(System.lineSeparator());
         var now = LocalDateTime.now(clock);
         List<Dining> dinings = diningRepository.findAllByDate(now.toLocalDate()).stream()
             .filter(it -> it.getType().getLabel().equals(diningTime))
@@ -44,5 +49,66 @@ public class KakaoBotService {
         return KakaoSkillResponse.builder()
             .simpleText(result.toString())
             .build();
+    }
+
+    public String getBusRemainTime(KakaoBusRequest request) {
+        StringJoiner resultNow = new StringJoiner(System.lineSeparator());
+        resultNow.add("[바로 도착]");
+        StringJoiner resultNext = new StringJoiner(System.lineSeparator());
+        resultNext.add("[다음 도착]");
+
+        BusStation depart = BusStation.from(request.depart());
+        BusStation arrival = BusStation.from(request.arrival());
+
+        StringJoiner nowBuses = new StringJoiner(System.lineSeparator());
+        StringJoiner nextBuses = new StringJoiner(System.lineSeparator());
+        for (BusType type : BusType.values()) {
+            try {
+                BusRemainTimeResponse remainTime = busService.getBusRemainTime(
+                    type,
+                    depart,
+                    arrival
+                );
+                String nowRemain = getRemainTime(type, remainTime.nowBus());
+                if (nowRemain != null) {
+                    nowBuses.add(nowRemain);
+                }
+                String nextRemain = getRemainTime(type, remainTime.nextBus());
+                if (nextRemain != null) {
+                    nextBuses.add(nextRemain);
+                }
+            } catch (Exception ignore) {
+                ignore.printStackTrace();
+            }
+        }
+
+        if (nowBuses.length() == 0) {
+            resultNow.add("버스 운행정보없음");
+        }
+        if (nextBuses.length() == 0) {
+            resultNow.add("버스 운행정보없음");
+        }
+        resultNow.add(nowBuses.toString());
+        resultNext.add(nextBuses.toString());
+
+        return KakaoSkillResponse.builder()
+            .simpleText(resultNow.toString())
+            .simpleText(resultNext.toString())
+            .build();
+    }
+
+    private String getRemainTime(
+        BusType type,
+        InnerBusResponse response
+    ) {
+        if (response != null) {
+            return String.format("%s, %d시간 %d분 %d초 남음",
+                type.getLabel(),
+                response.remainTime() / 3600,
+                response.remainTime() % 3600 / 60,
+                response.remainTime() % 60
+            );
+        }
+        return null;
     }
 }
