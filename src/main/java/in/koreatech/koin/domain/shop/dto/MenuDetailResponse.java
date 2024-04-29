@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuImage;
 import in.koreatech.koin.domain.shop.model.MenuOption;
+import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,7 +53,7 @@ public record MenuDetailResponse(
     public static MenuDetailResponse createForSingleOption(Menu menu, List<MenuCategory> shopMenuCategories) {
         if (menu.hasMultipleOption()) {
             log.warn("{}는 옵션이 하나 이상인 메뉴입니다. createForMultipleOption 메서드를 이용해야 합니다.", menu);
-            throw new IllegalStateException("서버에 에러가 발생했습니다.");
+            throw new KoinIllegalStateException("서버에 에러가 발생했습니다.");
         }
 
         return new MenuDetailResponse(
@@ -79,7 +80,7 @@ public record MenuDetailResponse(
     public static MenuDetailResponse createForMultipleOption(Menu menu, List<MenuCategory> shopMenuCategories) {
         if (!menu.hasMultipleOption()) {
             log.error("{}는 옵션이 하나인 메뉴입니다. createForSingleOption 메서드를 이용해야 합니다.", menu);
-            throw new IllegalStateException("서버에 에러가 발생했습니다.");
+            throw new KoinIllegalStateException("서버에 에러가 발생했습니다.");
         }
 
         return new MenuDetailResponse(

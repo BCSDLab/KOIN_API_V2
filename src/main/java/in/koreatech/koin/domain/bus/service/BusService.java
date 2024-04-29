@@ -37,6 +37,7 @@ import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
 import in.koreatech.koin.domain.bus.util.ExpressBusOpenApiClient;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -82,7 +83,7 @@ public class BusService {
             return toResponse(busType, remainTimes);
         }
 
-        throw new IllegalArgumentException("Invalid bus type: " + busType);
+        throw new KoinIllegalArgumentException("Invalid bus", "type: " + busType);
     }
 
     public List<SingleBusTimeResponse> searchTimetable(

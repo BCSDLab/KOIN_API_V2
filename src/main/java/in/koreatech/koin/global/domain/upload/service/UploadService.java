@@ -17,6 +17,7 @@ import in.koreatech.koin.global.domain.upload.dto.UploadFilesResponse;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlRequest;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlResponse;
 import in.koreatech.koin.global.domain.upload.model.ImageUploadDomain;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.s3.S3Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,7 @@ public class UploadService {
             return s3Util.uploadFile(filePath, multipartFile.getBytes());
         } catch (Exception e) {
             log.warn("파일 업로드중 문제가 발생했습니다. file: {} \n message: {}", multipartFile, e.getMessage());
-            throw new IllegalArgumentException("파일 업로드중 오류가 발생했습니다.");
+            throw new KoinIllegalArgumentException("파일 업로드중 오류가 발생했습니다.");
         }
     }
 

@@ -48,6 +48,7 @@ import in.koreatech.koin.domain.bus.model.express.OpenApiExpressBusArrival;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
+import in.koreatech.koin.global.exception.KoinIllegalStateException;
 
 /**
  * OpenApi 상세: 국토교통부_(TAGO)_버스도착정보
@@ -178,7 +179,7 @@ public class ExpressBusOpenApiClient {
                 + encode(LocalDateTime.now(clock).format(ofPattern("yyyyMMdd")), UTF_8));
             return new URL(urlBuilder.toString());
         } catch (Exception e) {
-            throw new IllegalStateException("시외버스 API URL 생성중 문제가 발생했습니다. uri:" + urlBuilder);
+            throw new KoinIllegalStateException("시외버스 API URL 생성중 문제가 발생했습니다.", "uri:" + urlBuilder);
         }
     }
 

@@ -30,24 +30,34 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    @ExceptionHandler(KoinException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(
         HttpServletRequest request,
-        IllegalArgumentException e
+        KoinException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getDetail());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
-    @ExceptionHandler(IllegalStateException.class)
+    @ExceptionHandler(KoinIllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgumentException(
+        HttpServletRequest request,
+        KoinIllegalArgumentException e
+    ) {
+        log.warn(e.getMessage() + e.getDetail());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(KoinIllegalStateException.class)
     public ResponseEntity<Object> handleIllegalStateException(
         HttpServletRequest request,
-        IllegalStateException e
+        KoinIllegalStateException e
     ) {
         log.warn(e.getMessage());
         requestLogging(request);
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
     @ExceptionHandler(AuthorizationException.class)

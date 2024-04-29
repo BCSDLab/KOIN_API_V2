@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.user.exception;
 
-public class UserGenderNotValidException extends IllegalArgumentException {
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+
+public class UserGenderNotValidException extends KoinIllegalArgumentException {
 
     private static final String DEFAULT_MESSAGE = "잘못된 성별 인덱스입니다.";
 
@@ -8,8 +10,11 @@ public class UserGenderNotValidException extends IllegalArgumentException {
         super(message);
     }
 
+    public UserGenderNotValidException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static UserGenderNotValidException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new UserGenderNotValidException(message);
+        return new UserGenderNotValidException(DEFAULT_MESSAGE, detail);
     }
 }
