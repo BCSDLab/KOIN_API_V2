@@ -1,5 +1,7 @@
 package in.koreatech.koin.fixture;
 
+import static in.koreatech.koin.domain.dining.model.DiningType.LUNCH;
+
 import java.time.LocalDate;
 
 import org.springframework.stereotype.Component;
@@ -21,7 +23,7 @@ public class DiningFixture {
         return diningRepository.save(
             Dining.builder()
                 .date(date)
-                .type("LUNCH")
+                .type(LUNCH)
                 .place("능수관")
                 .priceCard(6000)
                 .priceCash(6000)
@@ -36,7 +38,7 @@ public class DiningFixture {
         return diningRepository.save(
             Dining.builder()
                 .date(date)
-                .type("LUNCH")
+                .type(LUNCH)
                 .place("2캠퍼스")
                 .priceCard(6000)
                 .priceCash(6000)
@@ -51,7 +53,7 @@ public class DiningFixture {
         return diningRepository.save(
             Dining.builder()
                 .date(date)
-                .type("LUNCH")
+                .type(LUNCH)
                 .place("A코스")
                 .priceCard(6000)
                 .priceCash(6000)
@@ -66,7 +68,7 @@ public class DiningFixture {
         return diningRepository.save(
             Dining.builder()
                 .date(date)
-                .type("LUNCH")
+                .type(LUNCH)
                 .place("B코스")
                 .priceCard(6000)
                 .priceCash(6000)
