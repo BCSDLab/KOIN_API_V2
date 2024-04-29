@@ -2,9 +2,19 @@ package in.koreatech.koin.global.exception;
 
 public abstract class KoinException extends RuntimeException {
 
+    protected final String detail;
+
     protected KoinException(String message) {
         super(message);
+        this.detail = null;
     }
 
-    public abstract String getDetail();
+    protected KoinException(String message, String detail) {
+        super(message);
+        this.detail = detail;
+    }
+
+    protected String getDetail() {
+        return detail;
+    }
 }
