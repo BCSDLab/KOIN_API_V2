@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.shop.dto.ShopsResponse.InnerShopResponse;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Comparator;
@@ -77,8 +78,9 @@ public class ShopService {
 
     public ShopsResponse getShops() {
         List<Shop> shops = shopRepository.findAll();
-        LocalDate nowDate = LocalDate.now(clock);
-        LocalTime nowTime = LocalTime.now(clock);
+        LocalDateTime now = LocalDateTime.now(clock);
+        LocalDate nowDate = now.toLocalDate();
+        LocalTime nowTime = now.toLocalTime();
         var innerShopResponses = shops.stream().map(shop -> {
                 boolean eventDuration = eventArticleRepository.isDurationEvent(shop.getId(), nowDate);
                 boolean inOperation = shopOpenRepository.isOpen(
