@@ -112,7 +112,7 @@ public class UserService {
         User user = userRepository.getById(userId);
         String password = user.getPassword();
         if (!passwordEncoder.matches(request.password(), password)) {
-            throw new AuthenticationException("올바르지 않은 비밀정보입니다.");
+            throw new AuthenticationException("올바르지 않은 비밀번호입니다.");
         }
     }
 
