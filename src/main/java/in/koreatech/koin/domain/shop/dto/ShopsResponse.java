@@ -52,10 +52,13 @@ public record ShopsResponse(
         String phone,
 
         @Schema(example = "true", description = "삭제 여부", requiredMode = REQUIRED)
-        boolean isEvent
+        boolean isEvent,
+
+        @Schema(example = "true", description = "운영중 여부", requiredMode = REQUIRED)
+        boolean isOpen
     ) {
 
-        public static InnerShopResponse from(Shop shop, boolean isEvent) {
+        public static InnerShopResponse from(Shop shop, boolean isEvent, boolean isOpen) {
             return new InnerShopResponse(
                 shop.getShopCategories().stream().map(shopCategoryMap ->
                     shopCategoryMap.getShopCategory().getId()
@@ -67,7 +70,8 @@ public record ShopsResponse(
                 shop.isPayBank(),
                 shop.isPayCard(),
                 shop.getPhone(),
-                isEvent
+                isEvent,
+                isOpen
             );
         }
     }

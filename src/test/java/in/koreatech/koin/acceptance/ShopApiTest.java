@@ -1,6 +1,9 @@
 package in.koreatech.koin.acceptance;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.TextStyle;
+import java.util.Locale;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -358,12 +361,39 @@ class ShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
+        boolean 마슬랜_영업여부 = false;
+        boolean 신전_떡볶이_영업여부 = false;
+
+        String dayOfWeek = LocalDate.now(clock).getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
+        if (
+            dayOfWeek.equals("MONDAY") &&
+                LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
+                LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
+        ) {
+            마슬랜_영업여부 = true;
+        } else if (dayOfWeek.equals("FRIDAY")) {
+            신전_떡볶이_영업여부 = true;
+        }
+
+        if (
+            dayOfWeek.equals("SUNDAY") &&
+                LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
+                LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
+        ) {
+            마슬랜_영업여부 = true;
+        } else if (
+            dayOfWeek.equals("FRIDAY") &&
+                LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
+                LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
+        ) {
+            신전_떡볶이_영업여부 = true;
+        }
         JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+            .isEqualTo(String.format("""
                 {
                     "count": 2,
                     "shops": [
-                        {
+                    {
                             "category_ids": [
                                \s
                             ],
@@ -387,9 +417,9 @@ class ShopApiTest extends AcceptanceTest {
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7574-1212",
-                            "is_event": false
-                        },
-                        {
+                            "is_event": false,
+                            "is_open": %s
+                        },{
                             "category_ids": [
                                \s
                             ],
@@ -413,11 +443,12 @@ class ShopApiTest extends AcceptanceTest {
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7788-9900",
-                            "is_event": false
+                            "is_event": false,
+                            "is_open": %s
                         }
                     ]
                 }
-                """);
+                """, 마슬랜_영업여부, 신전_떡볶이_영업여부));
     }
 
     @Test
