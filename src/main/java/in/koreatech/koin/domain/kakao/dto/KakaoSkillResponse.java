@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class KakaoSkillResponse {
 
     private static final String SIMPLE_TEXT = "simpleText";
-    private static final String QUICK_ACTION_MESSAGE = "message";
+    public static final String QUICK_ACTION_MESSAGE = "message";
 
     public static SkillResponseBuilder builder() {
         return new SkillResponseBuilder();
@@ -49,7 +49,7 @@ public class KakaoSkillResponse {
             return this;
         }
 
-        public SkillResponseBuilder addQuickReply(String label, String action, String messageText) {
+        public SkillResponseBuilder quickReply(String label, String action, String messageText) {
             if (quickReplies.size() >= 10) {
                 throw new KakaoSkillFailedException("quickReplies의 제한은 10개 이하입니다.");
             }

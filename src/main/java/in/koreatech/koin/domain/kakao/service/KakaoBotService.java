@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.kakao.service;
 
+import static in.koreatech.koin.domain.kakao.dto.KakaoSkillResponse.QUICK_ACTION_MESSAGE;
+
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -110,5 +112,17 @@ public class KakaoBotService {
             );
         }
         return null;
+    }
+
+    public String getBusRoutes() {
+        return KakaoSkillResponse.builder()
+            .simpleText("선택하세요!")
+            .quickReply("한기대→터미널", QUICK_ACTION_MESSAGE, "한기대→터미널")
+            .quickReply("한기대→천안역", QUICK_ACTION_MESSAGE, "한기대→천안역")
+            .quickReply("터미널→한기대", QUICK_ACTION_MESSAGE, "터미널→한기대")
+            .quickReply("터미널→천안역", QUICK_ACTION_MESSAGE, "터미널→천안역")
+            .quickReply("천안역→한기대", QUICK_ACTION_MESSAGE, "천안역→한기대")
+            .quickReply("천안역→터미널", QUICK_ACTION_MESSAGE, "천안역→터미널")
+            .build();
     }
 }

@@ -39,4 +39,10 @@ public class KakaoBotController {
         var result = kakaoBotService.getBusRemainTime(request);
         return ResponseEntity.ok(result);
     }
+
+    @PostMapping(value = "/buses/request", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> requestBusRoutes() {
+        var result = kakaoBotService.getBusRoutes();
+        return ResponseEntity.ok(result);
+    }
 }
