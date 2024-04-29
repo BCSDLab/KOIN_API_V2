@@ -7,7 +7,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -69,24 +68,17 @@ public record DiningResponse(
         return new DiningResponse(
             dining.getId(),
             dining.getDate(),
-            dining.getType(),
+            dining.getType().name(),
             dining.getPlace(),
             dining.getPriceCard() != null ? dining.getPriceCard() : 0,
             dining.getPriceCash() != null ? dining.getPriceCash() : 0,
             dining.getKcal() != null ? dining.getKcal() : 0,
-            toListMenus(dining.getMenu()),
+            dining.getMenu(),
             dining.getImageUrl(),
             dining.getCreatedAt(),
             dining.getUpdatedAt(),
             dining.getSoldOut(),
             dining.getIsChanged()
         );
-    }
-
-    public static List<String> toListMenus(String menu) {
-        menu = menu.substring(1, menu.length() - 1);
-        return Stream.of(menu.split(","))
-            .map(str -> str.strip().replace("\"", ""))
-            .toList();
     }
 }
