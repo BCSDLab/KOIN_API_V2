@@ -1,9 +1,10 @@
 package in.koreatech.koin.domain.shop.service;
 
-import static in.koreatech.koin.domain.shop.dto.ShopsResponse.*;
+import static in.koreatech.koin.domain.shop.dto.ShopsResponse.InnerShopResponse;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -78,7 +79,10 @@ public class ShopService {
         List<Shop> shops = shopRepository.findAll();
         var innerShopResponses = shops.stream().map(shop -> {
                 boolean eventDuration = eventArticleRepository.isDurationEvent(shop.getId(), LocalDate.now(clock));
-                boolean inOperation = shopOpenRepository.isOpen(shop.getId());
+                boolean inOperation = shopOpenRepository.isOpen(
+                    shop.getId(),
+                    LocalDate.now(clock),
+                    LocalTime.now(clock));
                 return InnerShopResponse.from(shop, eventDuration, inOperation);
             })
             .collect(Collectors.toList());
