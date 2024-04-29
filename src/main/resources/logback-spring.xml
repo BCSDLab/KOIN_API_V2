@@ -6,7 +6,7 @@
     value="[%d{yyyy-MM-dd'T'HH:mm:ss.SSS}] %clr(%-5level) %clr(${PID:-}){magenta} %clr(---){faint} %clr([%15.15thread]){faint} %clr(%-40.40logger{36}){cyan} %clr(:){faint} : %msg%n"/>
   <property name="slackLogPattern" value="[Stage] %msg%n"/>
 
-  <springProfile name="default, dev, test">
+  <springPrifile name="test">
     <conversionRule conversionWord="clr"
       converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
 
@@ -17,6 +17,37 @@
     </appender>
 
     <root level="info">
+      <appender-ref ref="console"/>
+    </root>
+  </springPrifile>
+
+  <springProfile name="default, dev, prod">
+    <conversionRule conversionWord="clr"
+      converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder>
+        <pattern>${consoleLogPattern}</pattern>
+      </encoder>
+    </appender>
+
+    <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
+      <webhookUri>${SLACK_WEBHOOK_URI}</webhookUri>
+      <layout class="ch.qos.logback.classic.PatternLayout">
+        <pattern>${slackLogPattern}</pattern>
+      </layout>
+      <colorCoding>true</colorCoding>
+    </appender>
+
+    <appender name="ASYNC_SLACK" class="ch.qos.logback.classic.AsyncAppender">
+      <appender-ref ref="SLACK"/>
+      <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>ERROR</level>
+      </filter>
+    </appender>
+
+    <root level="info">
+      <appender-ref ref="ASYNC_SLACK"/>
       <appender-ref ref="console"/>
     </root>
   </springProfile>
@@ -73,24 +104,7 @@
       </filter>
     </appender>
 
-    <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
-      <webhookUri>${SLACK_WEBHOOK_URI}</webhookUri>
-      <layout class="ch.qos.logback.classic.PatternLayout">
-        <pattern>${slackLogPattern}</pattern>
-      </layout>
-      <iconEmoji>:stuck_out_tongue_winking_eye:</iconEmoji>
-      <colorCoding>true</colorCoding>
-    </appender>
-
-    <appender name="ASYNC_SLACK" class="ch.qos.logback.classic.AsyncAppender">
-      <appender-ref ref="SLACK"/>
-      <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-        <level>ERROR</level>
-      </filter>
-    </appender>
-
     <root level="info">
-      <appender-ref ref="ASYNC_SLACK"/>
       <appender-ref ref="info-warn-error-appender"/>
       <appender-ref ref="error-appender"/>
     </root>
