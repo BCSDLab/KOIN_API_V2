@@ -227,11 +227,10 @@ public interface UserApi {
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-
     @Operation(summary = "비밀번호 검증")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/check/password")
-    ResponseEntity<Boolean> checkPassword(
+    ResponseEntity<Void> checkPassword(
         @Valid @RequestBody UserPasswordCheckRequest request,
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     );

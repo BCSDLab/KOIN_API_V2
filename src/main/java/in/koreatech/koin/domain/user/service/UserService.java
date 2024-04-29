@@ -30,6 +30,7 @@ import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import lombok.RequiredArgsConstructor;
@@ -107,10 +108,12 @@ public class UserService {
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
     }
 
-    public boolean checkPassword(UserPasswordCheckRequest request, Integer userId) {
+    public void checkPassword(UserPasswordCheckRequest request, Integer userId) {
         User user = userRepository.getById(userId);
         String password = user.getPassword();
-        return passwordEncoder.matches(request.password(), password);
+        if (!passwordEncoder.matches(request.password(), password)) {
+            throw new AuthenticationException("올바르지 않은 비밀정보입니다.");
+        }
     }
 
     public void checkExistsEmail(EmailCheckExistsRequest request) {

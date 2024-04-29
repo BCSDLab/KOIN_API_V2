@@ -159,11 +159,12 @@ public class UserController implements UserApi {
     }
 
     @PostMapping("/user/check/password")
-    public ResponseEntity<Boolean> checkPassword(
+    public ResponseEntity<Void> checkPassword(
         @Valid @RequestBody UserPasswordCheckRequest request,
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     ) {
-        return ResponseEntity.ok(userService.checkPassword(request, userId));
+        userService.checkPassword(request, userId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/user/change/password/config")
