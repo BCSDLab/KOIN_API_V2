@@ -704,7 +704,7 @@ class UserApiTest extends AcceptanceTest {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
 
-        var response = RestAssured
+        RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
@@ -716,10 +716,20 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/check/password")
             .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .as(Boolean.class);
+            .statusCode(HttpStatus.OK.value());
 
-        assertThat(response).isTrue();
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                  {
+                    "password": "1233"
+                  }
+                """)
+            .when()
+            .post("/user/check/password")
+            .then()
+            .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 }
