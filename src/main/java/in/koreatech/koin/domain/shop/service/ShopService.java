@@ -9,7 +9,6 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,8 +88,7 @@ public class ShopService {
                     nowTime);
                 return InnerShopResponse.from(shop, eventDuration, inOperation);
             })
-            .collect(Collectors.toList());
-        innerShopResponses.sort(Comparator.comparing(InnerShopResponse::isOpen, Collections.reverseOrder()));
+            .sorted(Comparator.comparing(InnerShopResponse::isOpen, Collections.reverseOrder())).toList();
         return ShopsResponse.from(innerShopResponses);
     }
 
