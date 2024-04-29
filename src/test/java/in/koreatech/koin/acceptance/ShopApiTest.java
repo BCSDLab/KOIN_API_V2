@@ -365,11 +365,11 @@ class ShopApiTest extends AcceptanceTest {
         boolean 마슬랜_영업여부 = false;
         boolean 신전_떡볶이_영업여부 = false;
 
-        String dayOfWeek = LocalDate.now().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
+        String dayOfWeek = LocalDate.now(clock).getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
         if (
             dayOfWeek.equals("MONDAY") &&
-                LocalTime.now().isAfter(LocalTime.parse("00:00")) &&
-                LocalTime.now().isBefore(LocalTime.parse("21:00"))
+            LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
+            LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
         ) {
             마슬랜_영업여부 = true;
         } else if (dayOfWeek.equals("FRIDAY")) {
@@ -378,14 +378,14 @@ class ShopApiTest extends AcceptanceTest {
 
         if (
             dayOfWeek.equals("SUNDAY") &&
-                LocalTime.now().isAfter(LocalTime.parse("00:00")) &&
-                LocalTime.now().isBefore(LocalTime.parse("21:00"))
+            LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
+            LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
         ) {
             마슬랜_영업여부 = true;
         } else if (
             dayOfWeek.equals("FRIDAY") &&
-                LocalTime.now().isAfter(LocalTime.parse("00:00")) &&
-                LocalTime.now().isBefore(LocalTime.parse("21:00"))
+            LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
+            LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
         ) {
             신전_떡볶이_영업여부 = true;
         }
@@ -394,33 +394,7 @@ class ShopApiTest extends AcceptanceTest {
                 {
                     "count": 2,
                     "shops": [
-                        {
-                            "category_ids": [
-                               \s
-                            ],
-                            "delivery": true,
-                            "id": 2,
-                            "name": "신전 떡볶이",
-                            "open": [
-                                {
-                                    "day_of_week": "SUNDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                }
-                            ],
-                            "pay_bank": true,
-                            "pay_card": true,
-                            "phone": "010-7788-9900",
-                            "is_event": false,
-                            "is_open": %s
-                        },{
+                    {
                             "category_ids": [
                                \s
                             ],
@@ -444,6 +418,32 @@ class ShopApiTest extends AcceptanceTest {
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s
+                        },{
+                            "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 2,
+                            "name": "신전 떡볶이",
+                            "open": [
+                                {
+                                    "day_of_week": "SUNDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7788-9900",
                             "is_event": false,
                             "is_open": %s
                         }
