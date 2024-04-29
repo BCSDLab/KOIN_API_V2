@@ -93,7 +93,7 @@ public class BusService {
         for (BusType busType : BusType.values()) {
             SingleBusTimeResponse busTimeResponse = null;
 
-            if (busType == BusType.EXPRESS) {
+            if (busType == BusType.EXPRESS && depart != BusStation.STATION) {
                 busTimeResponse = expressBusOpenApiClient.searchBusTime(
                     busType.name().toLowerCase(),
                     depart,
