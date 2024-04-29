@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.Shop;
@@ -367,8 +368,8 @@ class ShopApiTest extends AcceptanceTest {
         String dayOfWeek = LocalDate.now(clock).getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
         if (
             dayOfWeek.equals("MONDAY") &&
-                LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
-                LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
+            LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
+            LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
         ) {
             마슬랜_영업여부 = true;
         } else if (dayOfWeek.equals("FRIDAY")) {
@@ -377,14 +378,14 @@ class ShopApiTest extends AcceptanceTest {
 
         if (
             dayOfWeek.equals("SUNDAY") &&
-                LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
-                LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
+            LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
+            LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
         ) {
             마슬랜_영업여부 = true;
         } else if (
             dayOfWeek.equals("FRIDAY") &&
-                LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
-                LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
+            LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
+            LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
         ) {
             신전_떡볶이_영업여부 = true;
         }

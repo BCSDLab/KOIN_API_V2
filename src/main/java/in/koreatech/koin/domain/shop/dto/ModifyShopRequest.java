@@ -17,6 +17,7 @@ import in.koreatech.koin.global.validation.UniqueUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -35,6 +36,7 @@ public record ModifyShopRequest(
 
     @Schema(example = "1000", description = "배달비", requiredMode = REQUIRED)
     @NotNull(message = "배달비는 필수입니다.")
+    @PositiveOrZero(message = "배달비는 0원 이상이어야 합니다.")
     Integer deliveryPrice,
 
     @Schema(example = "string", description = "설명", requiredMode = NOT_REQUIRED)
