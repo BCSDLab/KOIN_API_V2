@@ -21,7 +21,6 @@ public class DiningTypeNotFoundException extends DataNotFoundException {
         return new DiningTypeNotFoundException(DEFAULT_MESSAGE, detail);
     }
 
-
     @Override
     public String getDetail() {
         return detail;

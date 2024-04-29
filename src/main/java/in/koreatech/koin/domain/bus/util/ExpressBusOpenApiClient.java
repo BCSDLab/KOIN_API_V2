@@ -159,8 +159,7 @@ public class ExpressBusOpenApiClient {
             conn.disconnect();
             return JsonParser.parseString(result.toString())
                 .getAsJsonObject();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignore) {
             throw BusOpenApiException.withDetail("departName: " + departName + " arrivalName: " + arrivalName);
         }
     }

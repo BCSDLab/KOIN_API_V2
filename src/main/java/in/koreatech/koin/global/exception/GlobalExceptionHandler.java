@@ -107,7 +107,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         log.warn(e.getMessage() + e.getDetail());
         requestLogging(request);
-        e.printStackTrace();
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
@@ -162,7 +161,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             {}
             """, request.getMethod(), request.getRequestURI(), detail);
         requestLogging(request);
-        e.printStackTrace();
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 오류가 발생했습니다.");
     }
 

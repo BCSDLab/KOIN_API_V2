@@ -42,8 +42,7 @@ public class KakaoRequestBodyAdvice implements RequestBodyAdvice {
             new InputStreamReader(inputMessage.getBody(), StandardCharsets.UTF_8)
         )) {
             requestBody = reader.lines().collect(Collectors.joining("\n"));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
         ByteArrayInputStream newInputStream = new ByteArrayInputStream(requestBody.getBytes(StandardCharsets.UTF_8));
         return new HttpInputMessage() {

@@ -30,9 +30,4 @@ public enum ExpressBusStationNode {
             .findAny()
             .orElseThrow(() -> BusStationNotFoundException.withDetail("busStation: " + busStation));
     }
-
-    public static boolean contains(BusStation busStation) {
-        return Arrays.stream(values())
-            .anyMatch(it -> it.busStation.equals(busStation));
-    }
 }

@@ -18,7 +18,7 @@ public class BusStationNotFoundException extends DataNotFoundException {
     }
 
     public static BusStationNotFoundException withDetail(String detail) {
-        return new BusStationNotFoundException(DEFAULT_MESSAGE + detail, detail);
+        return new BusStationNotFoundException(DEFAULT_MESSAGE, detail);
     }
 
     @Override
