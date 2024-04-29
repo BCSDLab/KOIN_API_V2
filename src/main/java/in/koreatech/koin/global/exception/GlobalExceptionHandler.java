@@ -35,7 +35,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         KoinException e
     ) {
-        log.warn(e.getMessage() + e.getDetail());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         KoinIllegalArgumentException e
     ) {
-        log.warn(e.getMessage() + e.getDetail());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         AuthorizationException e
     ) {
-        log.warn(e.getMessage() + e.getDetail());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
     }
@@ -75,7 +75,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         AuthenticationException e
     ) {
-        log.warn(e.getMessage() + e.getDetail());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
@@ -85,7 +85,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         DataNotFoundException e
     ) {
-        log.warn(e.getMessage() + e.getDetail());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
@@ -95,7 +95,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         DuplicationException e
     ) {
-        log.warn(e.getMessage() + e.getDetail());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
     }
@@ -115,7 +115,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         ExternalServiceException e
     ) {
-        log.warn(e.getMessage() + e.getDetail());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
