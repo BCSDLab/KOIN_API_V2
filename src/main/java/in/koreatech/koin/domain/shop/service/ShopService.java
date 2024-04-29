@@ -78,8 +78,8 @@ public class ShopService {
         List<Shop> shops = shopRepository.findAll();
         var innerShopResponses = shops.stream().map(shop -> {
                 boolean eventDuration = eventArticleRepository.isDurationEvent(shop.getId(), LocalDate.now(clock));
-                boolean inOperation = shopOpenRepository.isOpen(shop.getId());
-                return InnerShopResponse.from(shop, eventDuration, inOperation);
+                boolean isOpen = shopOpenRepository.isOpen(shop.getId());
+                return InnerShopResponse.from(shop, eventDuration, isOpen);
             })
             .collect(Collectors.toList());
         innerShopResponses.sort(Comparator.comparing(InnerShopResponse::isOpen, Collections.reverseOrder()));
