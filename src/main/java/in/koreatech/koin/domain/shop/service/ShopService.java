@@ -88,8 +88,7 @@ public class ShopService {
                     nowTime);
                 return InnerShopResponse.from(shop, isDurationEvent, isShopOpen);
             })
-            .sorted(Comparator.comparing(InnerShopResponse::isOpen, Collections.reverseOrder()))
-            .toList();
+            .sorted(Comparator.comparing(InnerShopResponse::isOpen, Collections.reverseOrder())).toList();
         return ShopsResponse.from(innerShopResponses);
     }
 
