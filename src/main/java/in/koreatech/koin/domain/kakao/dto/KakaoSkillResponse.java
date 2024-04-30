@@ -43,7 +43,7 @@ public class KakaoSkillResponse {
 
         public SkillResponseBuilder simpleText(String text) {
 
-            if (outputs.size() >= OUTPUTS_LIMIT) {
+            if (outputs.size() > OUTPUTS_LIMIT) {
                 throw new KakaoSkillFailedException("outputs의 제한은 1개 이상 3개 이하입니다.");
             }
             JsonObject field = new JsonObject();
@@ -55,7 +55,7 @@ public class KakaoSkillResponse {
         }
 
         public SkillResponseBuilder quickReply(String label, String action, String messageText) {
-            if (quickReplies.size() >= QUICK_REPLIES_LIMIT) {
+            if (quickReplies.size() > QUICK_REPLIES_LIMIT) {
                 throw new KakaoSkillFailedException("quickReplies의 제한은 10개 이하입니다.");
             }
             if (!QUICK_ACTION_MESSAGE.equals(action)) {
