@@ -50,7 +50,6 @@ class VersionApiTest extends AcceptanceTest {
             ));
     }
 
-
     @Test
     @DisplayName("버전 타입을 통해 버전 정보를 조회한다. - 저장되지 않은 버전 타입을 요청한 경우 에러가 발생한다.")
     void findVersionByTypeError() {

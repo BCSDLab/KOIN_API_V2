@@ -93,7 +93,8 @@ public record TimeTableResponse(
 
     }
 
-    public static TimeTableResponse of(String semester, List<TimeTable> timeTables, Integer grades, Integer totalGrades) {
+    public static TimeTableResponse of(String semester, List<TimeTable> timeTables, Integer grades,
+        Integer totalGrades) {
         return new TimeTableResponse(
             semester,
             InnerTimeTableResponse.from(timeTables),

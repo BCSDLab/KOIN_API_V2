@@ -68,7 +68,7 @@ public class Comment extends BaseEntity {
 
     @Builder
     private Comment(Article article, String content, Integer userId,
-                    String nickname, Boolean isDeleted) {
+        String nickname, Boolean isDeleted) {
         this.article = article;
         this.content = content;
         this.userId = userId;

@@ -14,6 +14,7 @@ public class NotificationSubscribeTypeConverter implements Converter<String, Not
         return Arrays.stream(NotificationSubscribeType.values())
             .filter(it -> it.name().equalsIgnoreCase(source))
             .findAny()
-            .orElseThrow(() -> NotificationSubscribeNotFoundException.withDetail("NotificationSubscribeType: " + source));
+            .orElseThrow(
+                () -> NotificationSubscribeNotFoundException.withDetail("NotificationSubscribeType: " + source));
     }
 }
