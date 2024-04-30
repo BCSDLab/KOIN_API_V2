@@ -29,17 +29,17 @@ public class KakaoSkillResponse {
 
     public static class SkillResponseBuilder {
 
+        private final JsonArray outputs = new JsonArray();
+        private final JsonObject template = new JsonObject();
+        private final JsonArray quickReplies = new JsonArray();
+        private final JsonObject skillPayload = new JsonObject();
+
         public SkillResponseBuilder() {
             skillPayload.addProperty("version", "2.0");
             skillPayload.add("template", template);
             template.add("outputs", outputs);
             template.add("quickReplies", quickReplies);
         }
-
-        private final JsonArray outputs = new JsonArray();
-        private final JsonObject template = new JsonObject();
-        private final JsonArray quickReplies = new JsonArray();
-        private final JsonObject skillPayload = new JsonObject();
 
         public SkillResponseBuilder simpleText(String text) {
 
