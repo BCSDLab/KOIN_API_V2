@@ -78,7 +78,7 @@ public record ModifyShopRequest(
 
         @Schema(example = "false", description = "휴무 여부", requiredMode = REQUIRED)
         @NotNull(message = "휴무 여부는 필수입니다.")
-        Boolean closed,
+        boolean closed,
 
         @JsonFormat(pattern = "HH:mm")
         @Schema(example = "02:00", description = "오픈 시간", requiredMode = NOT_REQUIRED)
@@ -92,8 +92,8 @@ public record ModifyShopRequest(
         public ShopOpen toEntity(Shop shop) {
             return ShopOpen.builder()
                 .shop(shop)
-                .openTime(openTime)
                 .closed(closed)
+                .openTime(openTime)
                 .closeTime(closeTime)
                 .dayOfWeek(dayOfWeek)
                 .build();

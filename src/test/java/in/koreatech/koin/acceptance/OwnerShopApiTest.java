@@ -758,13 +758,13 @@ class OwnerShopApiTest extends AcceptanceTest {
                     softly.assertThat(shopOpens.get(0).getOpenTime()).isEqualTo("10:00");
 
                     softly.assertThat(shopOpens.get(0).getDayOfWeek()).isEqualTo("MONDAY");
-                    softly.assertThat(shopOpens.get(0).getClosed()).isFalse();
+                    softly.assertThat(shopOpens.get(0).isClosed()).isFalse();
 
                     softly.assertThat(shopOpens.get(1).getCloseTime()).isEqualTo("23:30");
                     softly.assertThat(shopOpens.get(1).getOpenTime()).isEqualTo("11:00");
 
                     softly.assertThat(shopOpens.get(1).getDayOfWeek()).isEqualTo("SUNDAY");
-                    softly.assertThat(shopOpens.get(1).getClosed()).isTrue();
+                    softly.assertThat(shopOpens.get(1).isClosed()).isTrue();
                 }
             );
         });
