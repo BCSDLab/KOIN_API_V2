@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.service.BusService;
 import in.koreatech.koin.domain.dining.model.Dining;
+import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.kakao.dto.KakaoBusRequest;
 import in.koreatech.koin.domain.kakao.dto.KakaoSkillResponse;
@@ -29,10 +30,11 @@ public class KakaoBotService {
     private final BusService busService;
 
     public String getDiningMenus(String diningTime) {
+        DiningType diningType = DiningType.from(diningTime);
         StringJoiner result = new StringJoiner(System.lineSeparator());
         var now = LocalDateTime.now(clock);
         List<Dining> dinings = diningRepository.findAllByDate(now.toLocalDate()).stream()
-            .filter(it -> it.getType().getLabel().equals(diningTime))
+            .filter(it -> it.getType().equals(diningType))
             .toList();
 
         if (dinings.isEmpty()) {
