@@ -45,7 +45,7 @@ public class ShopOpen extends BaseEntity {
 
     @NotNull
     @Column(name = "closed", nullable = false)
-    private Boolean closed;
+    private boolean closed;
 
     @NotNull
     @Column(name = "open_time")

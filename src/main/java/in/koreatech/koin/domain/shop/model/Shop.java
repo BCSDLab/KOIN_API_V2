@@ -1,6 +1,9 @@
 package in.koreatech.koin.domain.shop.model;
 
-import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.REFRESH;
+import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
@@ -215,7 +218,7 @@ public class Shop extends BaseEntity {
             .toUpperCase();
         for (ShopOpen shopOpen : this.shopOpens) {
             if (shopOpen.getDayOfWeek().equals(currDayOfWeek)) {
-                if (!shopOpen.getClosed()) {
+                if (!shopOpen.isClosed()) {
                     if (shopOpen.getOpenTime().isBefore(now.toLocalTime()) && shopOpen.getCloseTime().equals("00:00")) {
                         return true;
                     } else if ((
@@ -227,7 +230,7 @@ public class Shop extends BaseEntity {
                 }
             } else if (shopOpen.getDayOfWeek().equals(prevDayOfWeek)) {
                 LocalDateTime prevDateTime = now.minusDays(1);
-                if (!shopOpen.getClosed()) {
+                if (!shopOpen.isClosed()) {
                     if (
                         (shopOpen.getCloseTime().isBefore(shopOpen.getOpenTime()) ||
                             shopOpen.getCloseTime().equals(shopOpen.getOpenTime())) &&
