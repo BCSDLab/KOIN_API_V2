@@ -1,0 +1,72 @@
+jwt:
+  secret-key: EXAMPLE7A3E4F37B3DAD9CD8KEY6AA4B1AF7123!@#
+  access-token:
+    expiration-time: 600000 # (ms) = 10 minutes
+
+spring:
+  flyway:
+    enabled: false
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+    hibernate:
+      ddl-auto: create
+  thymeleaf:
+    prefix: "classpath:/mail/"
+    suffix: ".html"
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  tomcat:
+    max-http-form-post-size: 10MB
+
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
+
+swagger:
+  server-url: http://localhost:8080
+
+slack:
+  koin_event_notify_url: https://slack-weehookurl.com
+  koin_owner_event_notify_url: https://slack-weehookurl.com
+  logging:
+    error: https://slack-weehookurl.com
+
+aws:
+  ses:
+    access-key: testck
+    secret-key: testsk
+
+s3:
+  key: test-ck
+  secret: test-sk
+  bucket: test-bucket
+  custom_domain: https://test.koreatech.in/
+
+koin:
+  admin:
+    url: https://admin-url-path.com
+
+OPEN_API_KEY: test
+
+cors:
+  allowedOrigins:
+    - http://localhost:3000
+
+naver:
+  accessKey: testck
+  secretKey: testsk
+  sms:
+    apiUrl: http://localhost:8888
+    serviceId: ncp:sms:kr:test
+    fromNumber: "01012331234"

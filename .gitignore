@@ -38,3 +38,6 @@ out/
 .DS_STORE
 
 application.yml
+*adminsdk.json
+
+logs
