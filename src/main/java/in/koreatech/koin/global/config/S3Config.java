@@ -1,5 +1,6 @@
 package in.koreatech.koin.global.config;
 
+import static software.amazon.awssdk.regions.Region.AP_NORTHEAST_2;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +15,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
-import static software.amazon.awssdk.regions.Region.AP_NORTHEAST_2;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration

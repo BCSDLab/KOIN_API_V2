@@ -43,7 +43,7 @@ public class BusController implements BusApi {
         @RequestParam(value = "bus_type") BusType busType,
         @RequestParam(value = "direction") String direction,
         @RequestParam(value = "region") String region
-    ){
+    ) {
         return ResponseEntity.ok().body(busService.getBusTimetable(busType, direction, region));
     }
 
@@ -52,7 +52,7 @@ public class BusController implements BusApi {
         @RequestParam(value = "bus_type") BusType busType,
         @RequestParam(value = "direction") String direction,
         @RequestParam(value = "region") String region
-    ){
+    ) {
         return ResponseEntity.ok().body(busService.getBusTimetableWithUpdatedAt(busType, direction, region));
     }
 

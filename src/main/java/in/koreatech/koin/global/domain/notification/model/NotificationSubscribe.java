@@ -7,7 +7,6 @@ import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
-import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;

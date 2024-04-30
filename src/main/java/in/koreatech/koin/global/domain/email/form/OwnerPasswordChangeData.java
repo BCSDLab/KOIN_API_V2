@@ -1,6 +1,5 @@
 package in.koreatech.koin.global.domain.email.form;
 
-
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Map;

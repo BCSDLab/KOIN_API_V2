@@ -1,6 +1,5 @@
 package in.koreatech.koin.global.domain.upload.controller;
 
-
 import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;

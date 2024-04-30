@@ -24,7 +24,7 @@ public record MenuCategoriesResponse(
             .map(menuCategory -> MenuCategoryResponse.of(menuCategory.getId(), menuCategory.getName()))
             .toList();
 
-        return new MenuCategoriesResponse((long) categories.size(), categories);
+        return new MenuCategoriesResponse((long)categories.size(), categories);
     }
 
     private record MenuCategoryResponse(

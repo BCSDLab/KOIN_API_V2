@@ -13,7 +13,7 @@ public class SchoolBusTimetable extends BusTimetable {
     private final String routeName;
     private final List<ArrivalNode> arrivalInfo;
 
-    public SchoolBusTimetable(String routeName, List<ArrivalNode> arrivalInfo){
+    public SchoolBusTimetable(String routeName, List<ArrivalNode> arrivalInfo) {
         this.routeName = routeName;
         this.arrivalInfo = arrivalInfo;
     }
@@ -23,7 +23,7 @@ public class SchoolBusTimetable extends BusTimetable {
         private final String nodeName;
         private final String arrivalTime;
 
-        public ArrivalNode(String nodeName, String arrivalTime){
+        public ArrivalNode(String nodeName, String arrivalTime) {
             this.nodeName = nodeName;
             this.arrivalTime = arrivalTime;
         }

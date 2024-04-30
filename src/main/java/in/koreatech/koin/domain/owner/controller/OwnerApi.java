@@ -111,7 +111,7 @@ public interface OwnerApi {
     @PostMapping("/owners/password/reset/verification")
     ResponseEntity<Void> sendResetPasswordEmail(
         @Valid @RequestBody OwnerSendEmailRequest request
-    ) ;
+    );
 
     @ApiResponses(
         value = {
@@ -125,7 +125,7 @@ public interface OwnerApi {
     @PostMapping("/owners/password/reset/send")
     ResponseEntity<Void> sendVerifyCode(
         @Valid @RequestBody OwnerPasswordResetVerifyRequest request
-    ) ;
+    );
 
     @ApiResponses(
         value = {
@@ -138,5 +138,5 @@ public interface OwnerApi {
     @PutMapping("/owners/password/reset")
     ResponseEntity<Void> updatePassword(
         @Valid @RequestBody OwnerPasswordUpdateRequest request
-    ) ;
+    );
 }
