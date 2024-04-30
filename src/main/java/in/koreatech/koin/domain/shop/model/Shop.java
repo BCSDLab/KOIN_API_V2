@@ -223,11 +223,9 @@ public class Shop extends BaseEntity {
             if (shopOpen.isClosed()) {
                 continue;
             }
-
             if (shopOpen.getDayOfWeek().equals(currentDayOfWeek) && (isShopOpenToday(shopOpen, currentTime))) {
                 return true;
             }
-
             if (shopOpen.getDayOfWeek().equals(previousDayOfWeek) && (isShopOpenAtNightShift(shopOpen, currentTime))) {
                 return true;
             }
