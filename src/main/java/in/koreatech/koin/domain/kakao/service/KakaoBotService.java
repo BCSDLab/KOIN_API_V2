@@ -88,7 +88,7 @@ public class KakaoBotService {
             resultNow.add("버스 운행정보없음");
         }
         if (nextBuses.length() == 0) {
-            resultNow.add("버스 운행정보없음");
+            resultNext.add("버스 운행정보없음");
         }
         resultNow.add(nowBuses.toString());
         resultNext.add(nextBuses.toString());
