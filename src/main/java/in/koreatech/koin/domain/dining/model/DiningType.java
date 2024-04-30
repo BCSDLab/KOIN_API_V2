@@ -20,7 +20,10 @@ public enum DiningType {
 
     public static DiningType from(String diningType) {
         return Arrays.stream(values())
-            .filter(it -> it.label.equalsIgnoreCase(diningType))
+            .filter(it ->
+                it.label.equalsIgnoreCase(diningType) ||
+                    it.name().equalsIgnoreCase(diningType)
+            )
             .findAny()
             .orElseThrow(() -> DiningTypeNotFoundException.withDetail(diningType));
     }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.kakao.config.KakaoRequest;
 import in.koreatech.koin.domain.kakao.dto.KakaoBusRequest;
+import in.koreatech.koin.domain.kakao.dto.KakaoDiningRequest;
 import in.koreatech.koin.domain.kakao.service.KakaoBotService;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class KakaoBotController {
 
     @PostMapping(value = "/dinings", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<String> requestDinings(
-        @RequestBody @KakaoRequest(type = DINING) String diningRequest
+        @RequestBody @KakaoRequest(type = DINING) KakaoDiningRequest diningRequest
     ) {
         var result = kakaoBotService.getDiningMenus(diningRequest);
         return ResponseEntity.ok(result);

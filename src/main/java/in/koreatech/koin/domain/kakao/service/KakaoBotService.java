@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.kakao.dto.KakaoBusRequest;
+import in.koreatech.koin.domain.kakao.dto.KakaoDiningRequest;
 import in.koreatech.koin.domain.kakao.dto.KakaoSkillResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -29,8 +30,8 @@ public class KakaoBotService {
     private final DiningRepository diningRepository;
     private final BusService busService;
 
-    public String getDiningMenus(String diningTime) {
-        DiningType diningType = DiningType.from(diningTime);
+    public String getDiningMenus(KakaoDiningRequest request) {
+        DiningType diningType = request.diningType();
         StringJoiner result = new StringJoiner(System.lineSeparator());
         var now = LocalDateTime.now(clock);
         List<Dining> dinings = diningRepository.findAllByDate(now.toLocalDate()).stream()
@@ -38,7 +39,7 @@ public class KakaoBotService {
             .toList();
 
         if (dinings.isEmpty()) {
-            return String.format("금일 %s식사는 운영되지 않습니다.", diningTime);
+            return String.format("금일 %s식사는 운영되지 않습니다.", diningType.getLabel());
         }
         for (Dining dining : dinings) {
             result.add(String.format("# %s", dining.getPlace()));
@@ -82,7 +83,6 @@ public class KakaoBotService {
                     nextBuses.add(nextRemain);
                 }
             } catch (Exception ignore) {
-                ignore.printStackTrace();
             }
         }
 
