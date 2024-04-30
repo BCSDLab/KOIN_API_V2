@@ -237,6 +237,9 @@ public class Shop extends BaseEntity {
         long currTime = currentTime.toNanoOfDay();
         long openTime = shopOpen.getOpenTime().toNanoOfDay();
         long closeTime = shopOpen.getCloseTime().toNanoOfDay();
+        if (closeTime < openTime) {
+            closeTime += (LocalTime.of(12, 0).toNanoOfDay() * 2);
+        }
         return (closeTime == 0 && openTime <= currTime) || (openTime <= currTime && currTime <= closeTime);
     }
 
