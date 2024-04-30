@@ -16,6 +16,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PRIVATE)
 public class KakaoSkillResponse {
 
+    private static final int OUTPUTS_LIMIT = 3;
+    private static final int QUICK_REPLIES_LIMIT = 10;
+    private static final int MAX_QUICK_REPLIES_LABEL_SIZE = 8;
+
     private static final String SIMPLE_TEXT = "simpleText";
     public static final String QUICK_ACTION_MESSAGE = "message";
 
@@ -38,7 +42,8 @@ public class KakaoSkillResponse {
         private final JsonObject skillPayload = new JsonObject();
 
         public SkillResponseBuilder simpleText(String text) {
-            if (outputs.size() >= 3) {
+
+            if (outputs.size() >= OUTPUTS_LIMIT) {
                 throw new KakaoSkillFailedException("outputs의 제한은 1개 이상 3개 이하입니다.");
             }
             JsonObject field = new JsonObject();
@@ -50,13 +55,14 @@ public class KakaoSkillResponse {
         }
 
         public SkillResponseBuilder quickReply(String label, String action, String messageText) {
-            if (quickReplies.size() >= 10) {
+            if (quickReplies.size() >= QUICK_REPLIES_LIMIT) {
                 throw new KakaoSkillFailedException("quickReplies의 제한은 10개 이하입니다.");
             }
             if (!QUICK_ACTION_MESSAGE.equals(action)) {
                 throw new KakaoSkillFailedException("quickReplies의 action이 올바르게 설정되지 않았습니다.");
             }
-            if (label.length() > 8) {
+
+            if (label.length() > MAX_QUICK_REPLIES_LABEL_SIZE) {
                 throw new KakaoSkillFailedException("quickReplies에서 label은 최대 8자 제한입니다.");
             }
 
