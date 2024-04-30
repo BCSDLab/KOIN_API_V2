@@ -45,7 +45,7 @@ public class KakaoBotService {
             }
             result.add(String.format("%dkcal", dining.getKcal()));
             result.add(String.format("현금 %d원", dining.getPriceCash()));
-            result.add(String.format(" %d원", dining.getPriceCard()));
+            result.add(String.format("페이코 %d원", dining.getPriceCard()));
             result.add("────────────");
         }
         return KakaoSkillResponse.builder()
