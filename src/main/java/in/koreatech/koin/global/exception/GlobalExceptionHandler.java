@@ -30,24 +30,36 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    // 커스텀 예외
+
+    @ExceptionHandler(KoinException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(
         HttpServletRequest request,
-        IllegalArgumentException e
+        KoinException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Object> handleIllegalStateException(
+    @ExceptionHandler(KoinIllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgumentException(
         HttpServletRequest request,
-        IllegalStateException e
+        KoinIllegalArgumentException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(KoinIllegalStateException.class)
+    public ResponseEntity<Object> handleIllegalStateException(
+        HttpServletRequest request,
+        KoinIllegalStateException e
+    ) {
+        log.warn(e.getFullMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
     @ExceptionHandler(AuthorizationException.class)
@@ -55,7 +67,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         AuthorizationException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
     }
@@ -65,7 +77,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         AuthenticationException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
@@ -75,7 +87,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         DataNotFoundException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
@@ -85,9 +97,41 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         DuplicationException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getFullMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<Object> handleExternalServiceException(
+        HttpServletRequest request,
+        ExternalServiceException e
+    ) {
+        log.warn(e.getFullMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+
+    // 표준 예외 및 정의되어 있는 예외
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleRequestTooFastException(
+        HttpServletRequest request,
+        IllegalArgumentException e
+    ) {
+        log.warn(e.getMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Object> handleRequestTooFastException(
+        HttpServletRequest request,
+        IllegalStateException e
+    ) {
+        log.warn(e.getMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     @ExceptionHandler(RequestTooFastException.class)
@@ -100,22 +144,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
     }
 
-    @ExceptionHandler(ExternalServiceException.class)
-    public ResponseEntity<Object> handleExternalServiceException(
-        HttpServletRequest request,
-        ExternalServiceException e
-    ) {
-        log.warn(e.getMessage());
-        requestLogging(request);
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-    }
-
     @ExceptionHandler(DateTimeParseException.class)
     public ResponseEntity<Object> handleDateTimeParseException(
         HttpServletRequest request,
         DateTimeParseException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getParsedString());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다. " + e.getParsedString());
     }
@@ -125,7 +159,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpServletRequest request,
         DateTimeParseException e
     ) {
-        log.warn(e.getMessage());
+        log.warn(e.getMessage() + e.getParsedString());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "지원하지 않는 API 입니다.");
     }
@@ -165,6 +199,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+        MethodArgumentNotValidException ex,
+        HttpHeaders headers,
+        HttpStatusCode status,
+        WebRequest webRequest
+    ) {
+        HttpServletRequest request = ((ServletWebRequest)webRequest).getRequest();
+        log.warn("검증과정에서 문제가 발생했습니다. uri: {} {}, ", request.getMethod(), request.getRequestURI(), ex);
+        requestLogging(request);
+        String errorMessages = ex.getBindingResult().getAllErrors().stream()
+            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .collect(Collectors.joining(", "));
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessages);
+    }
+
+    // 예외 메시지 구성 로직
+
+    @Override
     protected ResponseEntity<Object> handleExceptionInternal(
         Exception ex,
         Object body,
@@ -173,22 +225,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         WebRequest request
     ) {
         return buildErrorResponse(HttpStatus.valueOf(statusCode.value()), ex.getMessage());
-    }
-
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-        MethodArgumentNotValidException ex,
-        HttpHeaders headers,
-        HttpStatusCode status,
-        WebRequest webRequest
-    ) {
-        HttpServletRequest request = ((ServletWebRequest) webRequest).getRequest();
-        log.warn("검증과정에서 문제가 발생했습니다. uri: {} {}, ", request.getMethod(), request.getRequestURI(), ex);
-        requestLogging(request);
-        String errorMessages = ex.getBindingResult().getAllErrors().stream()
-            .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .collect(Collectors.joining(", "));
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessages);
     }
 
     private ResponseEntity<Object> buildErrorResponse(

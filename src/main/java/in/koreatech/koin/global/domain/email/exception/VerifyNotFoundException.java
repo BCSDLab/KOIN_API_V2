@@ -10,8 +10,11 @@ public class VerifyNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public VerifyNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static VerifyNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new VerifyNotFoundException(message);
+        return new VerifyNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

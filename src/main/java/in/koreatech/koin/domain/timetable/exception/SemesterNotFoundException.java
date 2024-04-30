@@ -10,8 +10,11 @@ public class SemesterNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public SemesterNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static SemesterNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new SemesterNotFoundException(message);
+        return new SemesterNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

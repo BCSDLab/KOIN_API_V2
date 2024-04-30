@@ -10,8 +10,11 @@ public class MemberNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public MemberNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static MemberNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new MemberNotFoundException(message);
+        return new MemberNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

@@ -10,8 +10,11 @@ public class UserNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public UserNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static UserNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new UserNotFoundException(message);
+        return new UserNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

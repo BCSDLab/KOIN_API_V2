@@ -10,8 +10,11 @@ public class BusTypeNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public BusTypeNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static BusTypeNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new BusTypeNotFoundException(message);
+        return new BusTypeNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

@@ -10,8 +10,11 @@ public class VersionTypeNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public VersionTypeNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static VersionTypeNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new VersionTypeNotFoundException(message);
+        return new VersionTypeNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

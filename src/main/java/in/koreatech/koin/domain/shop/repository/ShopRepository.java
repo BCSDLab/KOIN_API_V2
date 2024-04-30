@@ -29,5 +29,4 @@ public interface ShopRepository extends Repository<Shop, Integer> {
     }
 
     List<Shop> findAll();
-    List<Shop> findAllById(Integer shopId);
 }

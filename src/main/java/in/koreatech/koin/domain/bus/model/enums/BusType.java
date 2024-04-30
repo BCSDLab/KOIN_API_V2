@@ -9,11 +9,17 @@ import lombok.Getter;
 
 @Getter
 public enum BusType {
-    CITY,
-    EXPRESS,
-    SHUTTLE,
-    COMMUTING,
+    CITY("시내버스"),
+    EXPRESS("대성고속"),
+    SHUTTLE("셔틀버스"),
+    COMMUTING("통학버스"),
     ;
+
+    private final String label;
+
+    BusType(String label) {
+        this.label = label;
+    }
 
     @JsonCreator
     public static BusType from(String busTypeName) {
@@ -21,5 +27,9 @@ public enum BusType {
             .filter(busType -> busType.name().equalsIgnoreCase(busTypeName))
             .findAny()
             .orElseThrow(() -> BusTypeNotFoundException.withDetail("busType: " + busTypeName));
+    }
+
+    public String getName() {
+        return this.name().toLowerCase();
     }
 }

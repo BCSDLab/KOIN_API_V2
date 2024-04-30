@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
@@ -29,8 +30,10 @@ import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -53,7 +56,7 @@ public class UserService {
         User user = userRepository.getByEmail(request.email());
 
         if (!user.isSamePassword(passwordEncoder, request.password())) {
-            throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
+            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
 
         if (!user.isAuthed()) {
@@ -78,7 +81,7 @@ public class UserService {
         String userId = getUserId(request.refreshToken());
         UserToken userToken = userTokenRepository.getById(Integer.parseInt(userId));
         if (!Objects.equals(userToken.getRefreshToken(), request.refreshToken())) {
-            throw new IllegalArgumentException("refresh token이 일치하지 않습니다. request: " + request);
+            throw new KoinIllegalArgumentException("refresh token이 일치하지 않습니다.", "request: " + request);
         }
         User user = userRepository.getById(userToken.getId());
 
@@ -104,6 +107,13 @@ public class UserService {
         }
         userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
+    }
+
+    public void checkPassword(UserPasswordCheckRequest request, Integer userId) {
+        User user = userRepository.getById(userId);
+        if (!user.isSamePassword(passwordEncoder, request.password())) {
+            throw new AuthenticationException("올바르지 않은 비밀번호입니다.");
+        }
     }
 
     public void checkExistsEmail(EmailCheckExistsRequest request) {

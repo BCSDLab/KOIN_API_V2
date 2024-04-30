@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.owner.exception;
 
-import in.koreatech.koin.domain.shop.exception.MenuNotFoundException;
 import in.koreatech.koin.global.exception.DuplicationException;
 
 public class DuplicationCompanyNumberException extends DuplicationException {
@@ -11,8 +10,11 @@ public class DuplicationCompanyNumberException extends DuplicationException {
         super(message);
     }
 
-    public static MenuNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new MenuNotFoundException(message);
+    public DuplicationCompanyNumberException(String message, String detail) {
+        super(message, detail);
+    }
+
+    public static DuplicationCompanyNumberException withDetail(String detail) {
+        return new DuplicationCompanyNumberException(DEFAULT_MESSAGE, detail);
     }
 }

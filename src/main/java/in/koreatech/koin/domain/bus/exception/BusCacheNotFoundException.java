@@ -10,8 +10,11 @@ public class BusCacheNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public BusCacheNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static BusCacheNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new BusCacheNotFoundException(message);
+        return new BusCacheNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

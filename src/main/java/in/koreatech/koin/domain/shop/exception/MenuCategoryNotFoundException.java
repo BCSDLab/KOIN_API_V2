@@ -10,8 +10,11 @@ public class MenuCategoryNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public MenuCategoryNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static MenuCategoryNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new MenuCategoryNotFoundException(message);
+        return new MenuCategoryNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

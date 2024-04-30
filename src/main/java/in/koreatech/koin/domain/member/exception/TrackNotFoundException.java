@@ -10,8 +10,11 @@ public class TrackNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public TrackNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static TrackNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new TrackNotFoundException(message);
+        return new TrackNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

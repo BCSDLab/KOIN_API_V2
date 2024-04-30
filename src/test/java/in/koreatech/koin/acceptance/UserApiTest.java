@@ -61,8 +61,6 @@ class UserApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
-
-
     }
 
     @Test
@@ -145,6 +143,7 @@ class UserApiTest extends AcceptanceTest {
                     "gender" : 1,
                     "major" : "기계공학부",
                     "name" : "서정빈",
+                    "password" : "0c4be6acaba1839d3433c1ccf04e1eec4d1fa841ee37cb019addc269e8bc1b77",
                     "nickname" : "duehee",
                     "phone_number" : "010-2345-6789",
                     "student_number" : "2019136136"
@@ -340,7 +339,6 @@ class UserApiTest extends AcceptanceTest {
 
         assertThat(userRepository.findById(student.getId())).isNotPresent();
     }
-
 
     @Test
     @DisplayName("이메일이 중복인지 확인한다")
@@ -699,5 +697,47 @@ class UserApiTest extends AcceptanceTest {
             .post("/user/student/register")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("사용자가 비밀번호를 통해 자신이 맞는지 인증한다.")
+    void userCheckPassword() {
+        Student student = userFixture.준호_학생();
+        String token = userFixture.getToken(student.getUser());
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                  {
+                    "password": "1234"
+                  }
+                """)
+            .when()
+            .post("/user/check/password")
+            .then()
+            .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    @DisplayName("사용자가 비밀번호를 통해 자신이 맞는지 인증한다. - 비밀번호가 다르면 401 반환")
+    void userCheckPasswordInvalid() {
+        Student student = userFixture.준호_학생();
+        String token = userFixture.getToken(student.getUser());
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                  {
+                    "password": "1233"
+                  }
+                """)
+            .when()
+            .post("/user/check/password")
+            .then()
+            .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 }

@@ -10,8 +10,11 @@ public class NotificationSubscribeNotFoundException extends DataNotFoundExceptio
         super(message);
     }
 
+    public NotificationSubscribeNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static NotificationSubscribeNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new NotificationSubscribeNotFoundException(message);
+        return new NotificationSubscribeNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

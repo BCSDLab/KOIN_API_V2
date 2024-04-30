@@ -10,8 +10,11 @@ public class BusStationNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public BusStationNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static BusStationNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new BusStationNotFoundException(message);
+        return new BusStationNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

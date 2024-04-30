@@ -10,8 +10,11 @@ public class ApiTypeNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public ApiTypeNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static ApiTypeNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new ApiTypeNotFoundException(message);
+        return new ApiTypeNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

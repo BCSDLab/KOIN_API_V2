@@ -1,6 +1,8 @@
 package in.koreatech.koin.global.auth.exception;
 
-public class AuthorizationException extends RuntimeException {
+import in.koreatech.koin.global.exception.KoinException;
+
+public class AuthorizationException extends KoinException {
 
     private static final String DEFAULT_MESSAGE = "권한이 없습니다.";
 
@@ -8,8 +10,11 @@ public class AuthorizationException extends RuntimeException {
         super(message);
     }
 
+    public AuthorizationException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static AuthorizationException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new AuthorizationException(message);
+        return new AuthorizationException(DEFAULT_MESSAGE, detail);
     }
 }

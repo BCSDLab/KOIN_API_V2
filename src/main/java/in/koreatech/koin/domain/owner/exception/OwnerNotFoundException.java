@@ -10,8 +10,11 @@ public class OwnerNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public OwnerNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static OwnerNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new OwnerNotFoundException(message);
+        return new OwnerNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

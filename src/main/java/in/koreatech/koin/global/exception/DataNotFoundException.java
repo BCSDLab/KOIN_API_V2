@@ -1,8 +1,12 @@
 package in.koreatech.koin.global.exception;
 
-public class DataNotFoundException extends RuntimeException {
+public abstract class DataNotFoundException extends KoinException {
 
-    public DataNotFoundException(String message) {
+    protected DataNotFoundException(String message) {
         super(message);
+    }
+
+    protected DataNotFoundException(String message, String detail) {
+        super(message, detail);
     }
 }

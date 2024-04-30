@@ -12,6 +12,7 @@ import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -45,6 +46,7 @@ public record ModifyMenuRequest(
     List<InnerOptionPrice> optionPrices,
 
     @Schema(description = "단일 메뉴일때의 가격 / 단일 메뉴가 아닐 경우 null", requiredMode = NOT_REQUIRED)
+    @PositiveOrZero(message = "가격은 0원 이상이어야 합니다.")
     Integer singlePrice
 ) {
 
@@ -57,6 +59,7 @@ public record ModifyMenuRequest(
 
         @Schema(example = "26000", description = "가격", requiredMode = REQUIRED)
         @NotNull(message = "가격은 필수입니다.")
+        @PositiveOrZero(message = "가격은 0원 이상이어야 합니다.")
         Integer price
     ) {
 

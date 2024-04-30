@@ -10,8 +10,11 @@ public class DuplicationNicknameException extends DuplicationException {
         super(message);
     }
 
+    public DuplicationNicknameException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static DuplicationNicknameException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new DuplicationNicknameException(message);
+        return new DuplicationNicknameException(DEFAULT_MESSAGE, detail);
     }
 }

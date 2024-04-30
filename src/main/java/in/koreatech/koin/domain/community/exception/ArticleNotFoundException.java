@@ -10,8 +10,11 @@ public class ArticleNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public ArticleNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static ArticleNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new ArticleNotFoundException(message);
+        return new ArticleNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

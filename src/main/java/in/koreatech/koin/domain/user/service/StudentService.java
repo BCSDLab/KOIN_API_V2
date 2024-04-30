@@ -60,6 +60,7 @@ public class StudentService {
         checkDepartmentValid(request.major());
         user.update(request.nickname(), request.name(),
             request.phoneNumber(), UserGender.from(request.gender()));
+        user.updateStudentPassword(passwordEncoder, request.password());
         student.update(request.studentNumber(), request.major());
         studentRepository.save(student);
 

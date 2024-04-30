@@ -39,6 +39,10 @@ public record StudentUpdateRequest
         @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
         String name,
 
+        @Size(message = "SHA 256 해시 알고리즘으로 암호화 된 비밀번호")
+        @Schema(description = "비밀번호", example = "a0240120305812krlakdsflsa;1235", requiredMode = NOT_REQUIRED)
+        String password,
+
         @Size(max = 10, message = "닉네임은 10자 이내여야 합니다.")
         @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
         String nickname,

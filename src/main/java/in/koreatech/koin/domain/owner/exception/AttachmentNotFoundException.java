@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.owner.exception;
 
-import in.koreatech.koin.domain.shop.exception.MenuNotFoundException;
 import in.koreatech.koin.global.exception.DataNotFoundException;
 
 public class AttachmentNotFoundException extends DataNotFoundException {
@@ -11,8 +10,11 @@ public class AttachmentNotFoundException extends DataNotFoundException {
         super(message);
     }
 
-    public static MenuNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new MenuNotFoundException(message);
+    public AttachmentNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
+    public static AttachmentNotFoundException withDetail(String detail) {
+        return new AttachmentNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

@@ -10,8 +10,11 @@ public class NaverSmsException extends ExternalServiceException {
         super(message);
     }
 
+    public NaverSmsException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static NaverSmsException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new NaverSmsException(message);
+        return new NaverSmsException(DEFAULT_MESSAGE, detail);
     }
 }

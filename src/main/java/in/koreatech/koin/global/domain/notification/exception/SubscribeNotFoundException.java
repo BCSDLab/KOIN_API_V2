@@ -10,8 +10,11 @@ public class SubscribeNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public SubscribeNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static SubscribeNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new SubscribeNotFoundException(message);
+        return new SubscribeNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

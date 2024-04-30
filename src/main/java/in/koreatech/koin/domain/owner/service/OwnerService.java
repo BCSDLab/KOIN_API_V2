@@ -18,11 +18,13 @@ import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.exception.DuplicationCertificationException;
 import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
 import in.koreatech.koin.domain.owner.model.EmailVerifyRequest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerInVerification;
+import in.koreatech.koin.domain.owner.model.OwnerPhoneRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.owner.repository.EmailVerifyRequestRedisRepository;
@@ -39,7 +41,7 @@ import in.koreatech.koin.global.domain.email.form.OwnerPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.OwnerRegistrationData;
 import in.koreatech.koin.global.domain.email.service.MailService;
 import in.koreatech.koin.global.domain.random.model.CertificateNumberGenerator;
-import in.koreatech.koin.global.exception.DuplicationException;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.exception.RequestTooFastException;
 import in.koreatech.koin.global.naver.service.NaverSmsService;
 import jakarta.validation.Valid;
@@ -104,13 +106,9 @@ public class OwnerService {
                 .ownerId(owner.getId())
                 .shopId(shop.getId())
                 .build());
-            ownerShopRedisRepository.save(OwnerShop.builder()
-                .build());
         } else {
             ownerShopRedisRepository.save(OwnerShop.builder()
                 .ownerId(owner.getId())
-                .build());
-            ownerShopRedisRepository.save(OwnerShop.builder()
                 .build());
         }
 
@@ -120,7 +118,7 @@ public class OwnerService {
     public OwnerVerifyResponse verifyCode(OwnerVerifyRequest request) {
         var verify = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!Objects.equals(verify.getCertificationCode(), request.certificationCode())) {
-            throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
+            throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
         ownerInVerificationRedisRepository.deleteById(request.email());
         String token = jwtProvider.createTemporaryToken();
@@ -139,10 +137,10 @@ public class OwnerService {
     public void verifyResetPasswordCode(OwnerPasswordResetVerifyRequest request) {
         var verification = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!Objects.equals(verification.getCertificationCode(), request.certificationCode())) {
-            throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
+            throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
         if (verification.isAuthed()) {
-            throw new DuplicationException("이미 인증이 완료되었습니다.");
+            throw new DuplicationCertificationException("이미 인증이 완료되었습니다.");
         }
         verification.verify();
         ownerInVerificationRedisRepository.save(verification);
@@ -152,7 +150,7 @@ public class OwnerService {
     public void updatePassword(OwnerPasswordUpdateRequest request) {
         var verification = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!verification.isAuthed()) {
-            throw new IllegalArgumentException("인증이 완료되지 않았습니다.");
+            throw new KoinIllegalArgumentException("인증이 완료되지 않았습니다.");
         }
         User user = userRepository.getByEmail(request.email());
         user.updatePassword(passwordEncoder, request.password());
@@ -175,5 +173,6 @@ public class OwnerService {
             OwnerInVerification.of(verifyPhoneRequest.phoneNumber(), certificationCode));
 
         naverSmsService.sendVerificationCode(certificationCode, verifyPhoneRequest.phoneNumber());
+        eventPublisher.publishEvent(new OwnerPhoneRequestEvent(verifyPhoneRequest.phoneNumber()));
     }
 }

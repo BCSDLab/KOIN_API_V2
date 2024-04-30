@@ -10,8 +10,11 @@ public class ShopCategoryNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public ShopCategoryNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static ShopCategoryNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new ShopCategoryNotFoundException(message);
+        return new ShopCategoryNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

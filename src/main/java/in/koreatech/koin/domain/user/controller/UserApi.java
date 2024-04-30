@@ -21,6 +21,7 @@ import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
+import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.global.auth.Auth;
@@ -217,5 +218,20 @@ public interface UserApi {
     ResponseEntity<Void> findPassword(
         @RequestBody @Valid FindPasswordRequest findPasswordRequest,
         @ServerURL String serverURL
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "비밀번호 검증")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/user/check/password")
+    ResponseEntity<Void> checkPassword(
+        @Valid @RequestBody UserPasswordCheckRequest request,
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     );
 }

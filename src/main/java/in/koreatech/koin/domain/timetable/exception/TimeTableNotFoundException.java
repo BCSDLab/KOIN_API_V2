@@ -10,8 +10,11 @@ public class TimeTableNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public TimeTableNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static TimeTableNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new TimeTableNotFoundException(message);
+        return new TimeTableNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

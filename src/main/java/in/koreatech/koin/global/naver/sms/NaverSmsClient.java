@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.naver.sms.NaverSmsSendRequest.InnerMessage;
 
 @Component
@@ -102,7 +103,7 @@ public class NaverSmsClient {
 
             return Base64.encodeBase64String(rawHmac);
         } catch (Exception e) {
-            throw new IllegalArgumentException("잘못된 입력 값입니다.");
+            throw new KoinIllegalArgumentException("잘못된 입력 값입니다.");
         }
     }
 }

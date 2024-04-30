@@ -10,8 +10,11 @@ public class LandNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public LandNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static LandNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new LandNotFoundException(message);
+        return new LandNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

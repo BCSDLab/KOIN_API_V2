@@ -1,8 +1,12 @@
 package in.koreatech.koin.global.exception;
 
-public class ExternalServiceException extends RuntimeException {
+public abstract class ExternalServiceException extends KoinException {
 
-    public ExternalServiceException(String message) {
+    protected ExternalServiceException(String message) {
         super(message);
+    }
+
+    protected ExternalServiceException(String message, String detail) {
+        super(message, detail);
     }
 }

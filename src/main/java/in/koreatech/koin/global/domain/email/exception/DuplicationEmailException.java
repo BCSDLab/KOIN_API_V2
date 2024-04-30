@@ -10,8 +10,11 @@ public class DuplicationEmailException extends DuplicationException {
         super(message);
     }
 
+    public DuplicationEmailException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static DuplicationEmailException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new DuplicationEmailException(message);
+        return new DuplicationEmailException(DEFAULT_MESSAGE, detail);
     }
 }

@@ -1,14 +1,19 @@
 package in.koreatech.koin.domain.dining.model;
 
+import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Stream;
 
 import in.koreatech.koin.global.domain.BaseEntity;
+import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -38,8 +43,9 @@ public class Dining extends BaseEntity {
     private LocalDate date;
 
     @NotNull
+    @Enumerated(value = STRING)
     @Column(name = "type", nullable = false)
-    private String type;
+    private DiningType type;
 
     @NotNull
     @Column(name = "place", nullable = false)
@@ -68,8 +74,18 @@ public class Dining extends BaseEntity {
     private LocalDateTime isChanged;
 
     @Builder
-    private Dining(LocalDate date, String type, String place, Integer priceCard, Integer priceCash,
-                   Integer kcal, String menu, String imageUrl, LocalDateTime soldOut, LocalDateTime isChanged) {
+    private Dining(
+        LocalDate date,
+        DiningType type,
+        String place,
+        Integer priceCard,
+        Integer priceCash,
+        Integer kcal,
+        String menu,
+        String imageUrl,
+        LocalDateTime soldOut,
+        LocalDateTime isChanged
+    ) {
         this.date = date;
         this.type = type;
         this.place = place;
@@ -88,5 +104,17 @@ public class Dining extends BaseEntity {
 
     public void setSoldOut(LocalDateTime soldout) {
         this.soldOut = soldout;
+    }
+
+    /**
+     * DB에 "[메뉴, 메뉴, ...]" 형태로 저장되어 List로 파싱하여 반환
+     */
+    public List<String> getMenu() {
+        if (menu == null || menu.isBlank()) {
+            throw new KoinIllegalStateException("메뉴가 잘못된 형태로 저장되어있습니다.", menu);
+        }
+        return Stream.of(menu.substring(1, menu.length() - 1).split(","))
+            .map(str -> str.strip().replace("\"", ""))
+            .toList();
     }
 }

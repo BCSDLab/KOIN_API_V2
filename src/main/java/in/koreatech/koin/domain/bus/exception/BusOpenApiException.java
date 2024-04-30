@@ -10,8 +10,11 @@ public class BusOpenApiException extends ExternalServiceException {
         super(message);
     }
 
+    public BusOpenApiException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static BusOpenApiException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new BusOpenApiException(message);
+        return new BusOpenApiException(DEFAULT_MESSAGE, detail);
     }
 }

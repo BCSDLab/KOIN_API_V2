@@ -10,8 +10,11 @@ public class BusArrivalNodeNotFoundException extends DataNotFoundException {
         super(message);
     }
 
+    public BusArrivalNodeNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static BusArrivalNodeNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new BusArrivalNodeNotFoundException(message);
+        return new BusArrivalNodeNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }
