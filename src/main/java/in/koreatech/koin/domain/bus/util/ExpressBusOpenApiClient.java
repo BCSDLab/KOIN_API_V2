@@ -139,9 +139,9 @@ public class ExpressBusOpenApiClient {
         versionRepository.getByType(VersionType.EXPRESS).update(clock);
     }
 
-    private JsonObject getBusApiResponse(BusStation departName, BusStation arrivalName) {
+    private JsonObject getBusApiResponse(BusStation depart, BusStation arrival) {
         try {
-            URL url = getBusApiURL(departName, arrivalName);
+            URL url = getBusApiURL(depart, arrival);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "application/json");
@@ -161,7 +161,7 @@ public class ExpressBusOpenApiClient {
             return JsonParser.parseString(result.toString())
                 .getAsJsonObject();
         } catch (Exception ignore) {
-            throw BusOpenApiException.withDetail("departName: " + departName + " arrivalName: " + arrivalName);
+            throw BusOpenApiException.withDetail("depart: " + depart + " arrival: " + arrival);
         }
     }
 
