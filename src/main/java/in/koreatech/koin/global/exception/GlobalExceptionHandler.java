@@ -114,6 +114,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // 표준 예외 및 정의되어 있는 예외
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleRequestTooFastException(
+        HttpServletRequest request,
+        IllegalArgumentException e
+    ) {
+        log.warn(e.getMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Object> handleRequestTooFastException(
+        HttpServletRequest request,
+        IllegalStateException e
+    ) {
+        log.warn(e.getMessage());
+        requestLogging(request);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
     @ExceptionHandler(RequestTooFastException.class)
     public ResponseEntity<Object> handleRequestTooFastException(
         HttpServletRequest request,
