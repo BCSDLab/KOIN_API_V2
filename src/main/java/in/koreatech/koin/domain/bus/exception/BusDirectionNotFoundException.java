@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.bus.exception;
 
-public class BusDirectionNotFoundException extends IllegalArgumentException {
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+
+public class BusDirectionNotFoundException extends KoinIllegalArgumentException {
 
     private static final String DEFAULT_MESSAGE = "정상적인 버스 방향이 아닙니다.";
 
@@ -8,8 +10,11 @@ public class BusDirectionNotFoundException extends IllegalArgumentException {
         super(message);
     }
 
+    public BusDirectionNotFoundException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static BusDirectionNotFoundException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new BusDirectionNotFoundException(message);
+        return new BusDirectionNotFoundException(DEFAULT_MESSAGE, detail);
     }
 }

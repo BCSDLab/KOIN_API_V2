@@ -1,6 +1,8 @@
 package in.koreatech.koin.global.domain.email.exception;
 
-public class EmailAddressInvalidException extends IllegalArgumentException {
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+
+public class EmailAddressInvalidException extends KoinIllegalArgumentException {
 
     private static final String DEFAULT_MESSAGE = "유효하지 않는 이메일 주소입니다.";
 
@@ -8,8 +10,11 @@ public class EmailAddressInvalidException extends IllegalArgumentException {
         super(message);
     }
 
+    public EmailAddressInvalidException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static EmailAddressInvalidException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new EmailAddressInvalidException(message);
+        return new EmailAddressInvalidException(DEFAULT_MESSAGE, detail);
     }
 }

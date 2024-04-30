@@ -10,8 +10,11 @@ public class UserResetTokenExpiredException extends AuthenticationException {
         super(message);
     }
 
+    public UserResetTokenExpiredException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static UserResetTokenExpiredException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new UserResetTokenExpiredException(message);
+        return new UserResetTokenExpiredException(DEFAULT_MESSAGE, detail);
     }
 }

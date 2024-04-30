@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.user.exception;
 
-public class StudentDepartmentNotValidException extends IllegalArgumentException {
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+
+public class StudentDepartmentNotValidException extends KoinIllegalArgumentException {
 
     private static final String DEFAULT_MESSAGE = "학생의 전공 형식이 아닙니다.";
 
@@ -8,8 +10,11 @@ public class StudentDepartmentNotValidException extends IllegalArgumentException
         super(message);
     }
 
+    public StudentDepartmentNotValidException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static StudentDepartmentNotValidException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new StudentDepartmentNotValidException(message);
+        return new StudentDepartmentNotValidException(DEFAULT_MESSAGE, detail);
     }
 }

@@ -41,6 +41,7 @@ import in.koreatech.koin.global.domain.email.form.OwnerPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.OwnerRegistrationData;
 import in.koreatech.koin.global.domain.email.service.MailService;
 import in.koreatech.koin.global.domain.random.model.CertificateNumberGenerator;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.exception.RequestTooFastException;
 import in.koreatech.koin.global.naver.service.NaverSmsService;
 import jakarta.validation.Valid;
@@ -117,7 +118,7 @@ public class OwnerService {
     public OwnerVerifyResponse verifyCode(OwnerVerifyRequest request) {
         var verify = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!Objects.equals(verify.getCertificationCode(), request.certificationCode())) {
-            throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
+            throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
         ownerInVerificationRedisRepository.deleteById(request.email());
         String token = jwtProvider.createTemporaryToken();
@@ -136,7 +137,7 @@ public class OwnerService {
     public void verifyResetPasswordCode(OwnerPasswordResetVerifyRequest request) {
         var verification = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!Objects.equals(verification.getCertificationCode(), request.certificationCode())) {
-            throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
+            throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
         if (verification.isAuthed()) {
             throw new DuplicationCertificationException("이미 인증이 완료되었습니다.");
@@ -149,7 +150,7 @@ public class OwnerService {
     public void updatePassword(OwnerPasswordUpdateRequest request) {
         var verification = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!verification.isAuthed()) {
-            throw new IllegalArgumentException("인증이 완료되지 않았습니다.");
+            throw new KoinIllegalArgumentException("인증이 완료되지 않았습니다.");
         }
         User user = userRepository.getByEmail(request.email());
         user.updatePassword(passwordEncoder, request.password());

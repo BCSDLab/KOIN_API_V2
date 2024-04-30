@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.bus.exception;
 
-public class BusIllegalArrivalTime extends IllegalArgumentException {
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+
+public class BusIllegalArrivalTime extends KoinIllegalArgumentException {
 
     private static final String DEFAULT_MESSAGE = "버스 도착 시각이 잘못되었습니다.";
 
@@ -8,8 +10,11 @@ public class BusIllegalArrivalTime extends IllegalArgumentException {
         super(message);
     }
 
+    public BusIllegalArrivalTime(String message, String detail) {
+        super(message, detail);
+    }
+
     public static BusIllegalArrivalTime withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new BusIllegalArrivalTime(message);
+        return new BusIllegalArrivalTime(DEFAULT_MESSAGE, detail);
     }
 }
