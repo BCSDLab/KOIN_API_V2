@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.bus.exception;
 
-public class BusIllegalStationException extends IllegalArgumentException {
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+
+public class BusIllegalStationException extends KoinIllegalArgumentException {
 
     private static final String DEFAULT_MESSAGE = "버스 정류장이 잘못되었습니다.";
 
@@ -8,8 +10,11 @@ public class BusIllegalStationException extends IllegalArgumentException {
         super(message);
     }
 
+    public BusIllegalStationException(String message, String detail) {
+        super(message, detail);
+    }
+
     public static BusIllegalStationException withDetail(String detail) {
-        String message = String.format("%s %s", DEFAULT_MESSAGE, detail);
-        return new BusIllegalStationException(message);
+        return new BusIllegalStationException(DEFAULT_MESSAGE, detail);
     }
 }

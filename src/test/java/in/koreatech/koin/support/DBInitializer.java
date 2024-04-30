@@ -45,8 +45,7 @@ public class DBInitializer {
                 final String tableName = resultSet.getString(COLUMN_INDEX);
                 tableNames.add(tableName);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignore) {
         }
     }
 

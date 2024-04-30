@@ -1,10 +1,12 @@
 package in.koreatech.koin.global.exception;
 
-public abstract class DuplicationException extends RuntimeException {
+public abstract class DuplicationException extends KoinException {
 
-    public DuplicationException(String message) {
+    protected DuplicationException(String message) {
         super(message);
     }
 
-    public abstract String getDetail();
+    protected DuplicationException(String message, String detail) {
+        super(message, detail);
+    }
 }
