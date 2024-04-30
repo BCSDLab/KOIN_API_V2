@@ -77,7 +77,7 @@ public class ShopService {
         LocalDateTime now = LocalDateTime.now(clock);
         List<InnerShopResponse> innerShopResponses = shops.stream().map(shop -> {
                 boolean isDurationEvent = eventArticleRepository.isDurationEvent(shop.getId(), now.toLocalDate());
-                return InnerShopResponse.from(shop, isDurationEvent, shop.isEvent(now));
+                return InnerShopResponse.from(shop, isDurationEvent, shop.isOpen(now));
             })
             .sorted(Comparator.comparing(InnerShopResponse::isOpen, Collections.reverseOrder())).toList();
         return ShopsResponse.from(innerShopResponses);

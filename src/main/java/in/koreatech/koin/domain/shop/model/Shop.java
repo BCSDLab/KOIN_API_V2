@@ -8,6 +8,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
@@ -209,39 +210,42 @@ public class Shop extends BaseEntity {
         }
     }
 
-    public boolean isEvent(LocalDateTime now) {
-        String currDayOfWeek = now.toLocalDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
-        String prevDayOfWeek = now.toLocalDate()
-            .minusDays(1)
+    public boolean isOpen(LocalDateTime now) {
+        String currentDayOfWeek = now.getDayOfWeek()
+            .getDisplayName(TextStyle.FULL, Locale.US)
+            .toUpperCase();
+        String previousDayOfWeek = now.minusDays(1)
             .getDayOfWeek()
             .getDisplayName(TextStyle.FULL, Locale.US)
             .toUpperCase();
+        LocalTime currentTime = now.toLocalTime();
         for (ShopOpen shopOpen : this.shopOpens) {
-            if (shopOpen.getDayOfWeek().equals(currDayOfWeek)) {
-                if (!shopOpen.isClosed()) {
-                    if (shopOpen.getOpenTime().isBefore(now.toLocalTime()) && shopOpen.getCloseTime().equals("00:00")) {
-                        return true;
-                    } else if ((
-                        shopOpen.getOpenTime().isBefore(now.toLocalTime()) &&
-                            shopOpen.getCloseTime().isAfter(now.toLocalTime())) ||
-                        shopOpen.getCloseTime().equals(now.toLocalTime())) {
-                        return true;
-                    }
-                }
-            } else if (shopOpen.getDayOfWeek().equals(prevDayOfWeek)) {
-                LocalDateTime prevDateTime = now.minusDays(1);
-                if (!shopOpen.isClosed()) {
-                    if (
-                        (shopOpen.getCloseTime().isBefore(shopOpen.getOpenTime()) ||
-                            shopOpen.getCloseTime().equals(shopOpen.getOpenTime())) &&
-                            (shopOpen.getCloseTime().isAfter(prevDateTime.toLocalTime()) ||
-                                shopOpen.getCloseTime().equals(prevDateTime.toLocalTime()))
-                    ) {
-                        return true;
-                    }
-                }
+            if (shopOpen.isClosed()) {
+                continue;
+            }
+
+            if (shopOpen.getDayOfWeek().equals(currentDayOfWeek) && (isShopOpenToday(shopOpen, currentTime))) {
+                return true;
+            }
+
+            if (shopOpen.getDayOfWeek().equals(previousDayOfWeek) && (isShopOpenAtNightShift(shopOpen, currentTime))) {
+                return true;
             }
         }
         return false;
+    }
+
+    private boolean isShopOpenToday(ShopOpen shopOpen, LocalTime currentTime) {
+        long currTime = currentTime.toNanoOfDay();
+        long openTime = shopOpen.getOpenTime().toNanoOfDay();
+        long closeTime = shopOpen.getCloseTime().toNanoOfDay();
+        return (closeTime == 0 && openTime <= currTime) || (openTime <= currTime && currTime <= closeTime);
+    }
+
+    private boolean isShopOpenAtNightShift(ShopOpen shopOpen, LocalTime currentTime) {
+        long currTime = currentTime.toNanoOfDay();
+        long openTime = shopOpen.getOpenTime().toNanoOfDay();
+        long closeTime = shopOpen.getCloseTime().toNanoOfDay();
+        return 0 < closeTime && currTime <= closeTime && closeTime <= openTime;
     }
 }
