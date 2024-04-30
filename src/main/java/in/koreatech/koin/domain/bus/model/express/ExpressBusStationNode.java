@@ -25,8 +25,8 @@ public enum ExpressBusStationNode {
     }
 
     public static ExpressBusStationNode from(BusStation busStation) {
-        return Arrays.stream(values()).
-            filter(it -> it.busStation.equals(busStation))
+        return Arrays.stream(values())
+            .filter(it -> it.busStation.equals(busStation))
             .findAny()
             .orElseThrow(() -> BusStationNotFoundException.withDetail("busStation: " + busStation));
     }
