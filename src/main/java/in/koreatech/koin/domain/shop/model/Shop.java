@@ -4,8 +4,11 @@ import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.hibernate.annotations.Where;
 
@@ -201,5 +204,41 @@ public class Shop extends BaseEntity {
                 .build();
             this.shopCategories.add(shopCategoryMap);
         }
+    }
+
+    public boolean isEvent(LocalDateTime now) {
+        String currDayOfWeek = now.toLocalDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
+        String prevDayOfWeek = now.toLocalDate()
+            .minusDays(1)
+            .getDayOfWeek()
+            .getDisplayName(TextStyle.FULL, Locale.US)
+            .toUpperCase();
+        for (ShopOpen shopOpen : this.shopOpens) {
+            if (shopOpen.getDayOfWeek().equals(currDayOfWeek)) {
+                if (!shopOpen.getClosed()) {
+                    if (shopOpen.getOpenTime().isBefore(now.toLocalTime()) && shopOpen.getCloseTime().equals("00:00")) {
+                        return true;
+                    } else if ((
+                        shopOpen.getOpenTime().isBefore(now.toLocalTime()) &&
+                            shopOpen.getCloseTime().isAfter(now.toLocalTime())) ||
+                        shopOpen.getCloseTime().equals(now.toLocalTime())) {
+                        return true;
+                    }
+                }
+            } else if (shopOpen.getDayOfWeek().equals(prevDayOfWeek)) {
+                LocalDateTime prevDateTime = now.minusDays(1);
+                if (!shopOpen.getClosed()) {
+                    if (
+                        (shopOpen.getCloseTime().isBefore(shopOpen.getOpenTime()) ||
+                            shopOpen.getCloseTime().equals(shopOpen.getOpenTime())) &&
+                            (shopOpen.getCloseTime().isAfter(prevDateTime.toLocalTime()) ||
+                                shopOpen.getCloseTime().equals(prevDateTime.toLocalTime()))
+                    ) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
