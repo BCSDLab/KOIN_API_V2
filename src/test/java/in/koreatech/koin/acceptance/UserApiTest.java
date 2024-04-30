@@ -717,6 +717,13 @@ class UserApiTest extends AcceptanceTest {
             .post("/user/check/password")
             .then()
             .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    @DisplayName("사용자가 비밀번호를 통해 자신이 맞는지 인증한다. - 비밀번호가 다르면 401 반환")
+    void userCheckPasswordInvalid() {
+        Student student = userFixture.준호_학생();
+        String token = userFixture.getToken(student.getUser());
 
         RestAssured
             .given()

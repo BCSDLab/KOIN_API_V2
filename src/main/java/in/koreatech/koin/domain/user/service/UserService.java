@@ -111,7 +111,7 @@ public class UserService {
     public void checkPassword(UserPasswordCheckRequest request, Integer userId) {
         User user = userRepository.getById(userId);
         String password = user.getPassword();
-        if (!passwordEncoder.matches(request.password(), password)) {
+        if (user.isSamePassword(passwordEncoder, password)) {
             throw new AuthenticationException("올바르지 않은 비밀번호입니다.");
         }
     }
