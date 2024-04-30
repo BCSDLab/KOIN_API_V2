@@ -13,7 +13,7 @@ import jakarta.validation.Payload;
 
 @Documented
 @Constraint(validatedBy = UniqueUrlsValidator.class)
-@Target({ FIELD, ANNOTATION_TYPE })
+@Target({FIELD, ANNOTATION_TYPE})
 @Retention(RUNTIME)
 public @interface UniqueUrl {
 

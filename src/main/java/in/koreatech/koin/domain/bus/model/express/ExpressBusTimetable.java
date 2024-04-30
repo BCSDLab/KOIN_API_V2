@@ -22,13 +22,13 @@ public class ExpressBusTimetable extends BusTimetable {
 
     private final int charge;
 
-    public ExpressBusTimetable(String depart, String arrival, int charge){
+    public ExpressBusTimetable(String depart, String arrival, int charge) {
         this.depart = depart;
         this.arrival = arrival;
         this.charge = charge;
     }
 
-    public static ExpressBusTimetable from(ExpressBusCacheInfo expressBusCacheInfo){
+    public static ExpressBusTimetable from(ExpressBusCacheInfo expressBusCacheInfo) {
         String departure = expressBusCacheInfo.depart().format(TIME_FORMATTER);
         String arrival = expressBusCacheInfo.arrival().format(TIME_FORMATTER);
         int charge = expressBusCacheInfo.charge();

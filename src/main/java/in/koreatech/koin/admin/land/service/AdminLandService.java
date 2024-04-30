@@ -25,7 +25,8 @@ public class AdminLandService {
         Integer total = adminLandRepository.countAllByIsDeleted(isDeleted);
 
         Criteria criteria = Criteria.of(page, limit, total);
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), Sort.by(Sort.Direction.ASC, "id"));
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
+            Sort.by(Sort.Direction.ASC, "id"));
 
         Page<Land> result = adminLandRepository.findAllByIsDeleted(isDeleted, pageRequest);
 
