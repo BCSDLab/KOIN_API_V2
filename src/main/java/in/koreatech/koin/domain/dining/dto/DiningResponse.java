@@ -61,7 +61,10 @@ public record DiningResponse(
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "메뉴 변경 시각", example = "2024-04-04 23:01:52", requiredMode = NOT_REQUIRED)
-    LocalDateTime changedAt
+    LocalDateTime changedAt,
+
+    @Schema(description = "품절 알림 발송 여부", example = "false", requiredMode = REQUIRED)
+    boolean isSent
 ) {
 
     public static DiningResponse from(Dining dining) {
@@ -78,7 +81,8 @@ public record DiningResponse(
             dining.getCreatedAt(),
             dining.getUpdatedAt(),
             dining.getSoldOut(),
-            dining.getIsChanged()
+            dining.getIsChanged(),
+            dining.isSent()
         );
     }
 }
