@@ -51,7 +51,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class OwnerService {
+public class OwnerRegisterService {
 
     private final JwtProvider jwtProvider;
     private final Clock clock;
@@ -65,6 +65,12 @@ public class OwnerService {
     private final OwnerInVerificationRedisRepository ownerInVerificationRedisRepository;
     private final EmailVerifyRequestRedisRepository emailVerifyRequestRedisRepository;
     private final NaverSmsService naverSmsService;
+
+    public OwnerResponse getOwner(Integer ownerId) {
+        Owner foundOwner = ownerRepository.getById(ownerId);
+        List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
+        return OwnerResponse.of(foundOwner, foundOwner.getAttachments(), shops);
+    }
 
     @Transactional
     public void requestSignUpEmailVerification(VerifyEmailRequest request) {
@@ -85,10 +91,21 @@ public class OwnerService {
         eventPublisher.publishEvent(new OwnerEmailRequestEvent(ownerInVerification.getKey()));
     }
 
-    public OwnerResponse getOwner(Integer ownerId) {
-        Owner foundOwner = ownerRepository.getById(ownerId);
-        List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
-        return OwnerResponse.of(foundOwner, foundOwner.getAttachments(), shops);
+    @Transactional
+    public void requestSignUpPhoneVerification(@Valid VerifyPhoneRequest verifyPhoneRequest) {
+        emailVerifyRequestRedisRepository.findById(verifyPhoneRequest.phoneNumber()).ifPresent(it -> {
+            throw new RequestTooFastException("요청이 너무 빠릅니다. %d초 뒤에 다시 시도해주세요".formatted(it.getExpiration()));
+        });
+        userRepository.findByPhoneNumber(verifyPhoneRequest.phoneNumber()).ifPresent(user -> {
+            throw DuplicationEmailException.withDetail("phone: " + verifyPhoneRequest.phoneNumber());
+        });
+        String certificationCode = CertificateNumberGenerator.generate();
+
+        ownerInVerificationRedisRepository.save(
+            OwnerInVerification.of(verifyPhoneRequest.phoneNumber(), certificationCode));
+
+        naverSmsService.sendVerificationCode(certificationCode, verifyPhoneRequest.phoneNumber());
+        eventPublisher.publishEvent(new OwnerPhoneRequestEvent(verifyPhoneRequest.phoneNumber()));
     }
 
     @Transactional
@@ -181,23 +198,5 @@ public class OwnerService {
         user.updatePassword(passwordEncoder, request.password());
         userRepository.save(user);
         ownerInVerificationRedisRepository.deleteById(verification.getKey());
-    }
-
-    @Transactional
-    public void requestSignUpPhoneVerification(@Valid VerifyPhoneRequest verifyPhoneRequest) {
-
-        emailVerifyRequestRedisRepository.findById(verifyPhoneRequest.phoneNumber()).ifPresent(it -> {
-            throw new RequestTooFastException("요청이 너무 빠릅니다. %d초 뒤에 다시 시도해주세요".formatted(it.getExpiration()));
-        });
-        userRepository.findByPhoneNumber(verifyPhoneRequest.phoneNumber()).ifPresent(user -> {
-            throw DuplicationEmailException.withDetail("phone: " + verifyPhoneRequest.phoneNumber());
-        });
-        String certificationCode = CertificateNumberGenerator.generate();
-
-        ownerInVerificationRedisRepository.save(
-            OwnerInVerification.of(verifyPhoneRequest.phoneNumber(), certificationCode));
-
-        naverSmsService.sendVerificationCode(certificationCode, verifyPhoneRequest.phoneNumber());
-        eventPublisher.publishEvent(new OwnerPhoneRequestEvent(verifyPhoneRequest.phoneNumber()));
     }
 }

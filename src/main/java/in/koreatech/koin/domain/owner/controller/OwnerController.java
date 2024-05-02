@@ -19,7 +19,7 @@ import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
-import in.koreatech.koin.domain.owner.service.OwnerService;
+import in.koreatech.koin.domain.owner.service.OwnerRegisterService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OwnerController implements OwnerApi {
 
-    private final OwnerService ownerService;
+    private final OwnerRegisterService ownerService;
 
     @PostMapping("/owners/verification/email")
     public ResponseEntity<Void> requestVerificationToRegisterByEmail(
