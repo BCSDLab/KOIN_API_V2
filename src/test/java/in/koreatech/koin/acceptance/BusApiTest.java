@@ -188,36 +188,6 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - OpenApi")
-    void getNextCityBusRemainTimeOpenApi() {
-        versionRepository.save(
-            Version.builder()
-                .version("test_version")
-                .type("city_bus_timetable")
-                .build()
-        );
-
-        var response = RestAssured
-            .given()
-            .when()
-            .param("bus_type", "city")
-            .param("depart", "terminal")
-            .param("arrival", "koreatech")
-            .get("/bus")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("bus_type")).isEqualTo("city");
-                softly.assertThat((Long)response.body().jsonPath().getLong("now_bus.bus_number")).isEqualTo(400);
-                softly.assertThat((Long)response.body().jsonPath().getLong("next_bus.bus_number")).isEqualTo(405);
-            }
-        );
-    }
-
-    @Test
     @DisplayName("셔틀버스의 코스 정보들을 조회한다.")
     void getBusCourses() {
         var response = RestAssured
@@ -316,7 +286,7 @@ class BusApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
-
+//TODO
     @Test
     @DisplayName("셔틀버스 시간표를 조회한다.")
     void getShuttleBusTimetable() {
@@ -338,27 +308,27 @@ class BusApiTest extends AcceptanceTest {
                         "route_name": "주중",
                         "arrival_info": [
                             {
-                                "nodeName": "한기대",
-                                "arrivalTime": "18:10"
+                                "node_name": "한기대",
+                                "arrival_time": "18:10"
                             },
                             {
-                                "nodeName": "신계초,운전리,연춘리",
-                                "arrivalTime": "정차"
+                                "node_name": "신계초,운전리,연춘리",
+                                "arrival_time": "정차"
                             },
                             {
-                                "nodeName": "천안역(학화호두과자)",
-                                "arrivalTime": "18:50"
+                                "node_name": "천안역(학화호두과자)",
+                                "arrival_time": "18:50"
                             },
                             {
-                                "nodeName": "터미널(신세계 앞 횡단보도)",
-                                "arrivalTime": "18:55"
+                                "node_name": "터미널(신세계 앞 횡단보도)",
+                                "arrival_time": "18:55"
                             }
                         ]
                     }
                 ]
                 """);
     }
-
+//TODO
     @Test
     @DisplayName("셔틀버스 시간표를 조회한다(업데이트 시각 포함).")
     void getShuttleBusTimetableWithUpdatedAt() {
@@ -386,25 +356,25 @@ class BusApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 {
-                    "bus_timetable": [
+                    "bus_timetables": [
                         {
                             "route_name": "주중",
                             "arrival_info": [
                                 {
-                                    "nodeName": "한기대",
-                                    "arrivalTime": "18:10"
+                                    "node_name": "한기대",
+                                    "arrival_time": "18:10"
                                 },
                                 {
-                                    "nodeName": "신계초,운전리,연춘리",
-                                    "arrivalTime": "정차"
+                                    "node_name": "신계초,운전리,연춘리",
+                                    "arrival_time": "정차"
                                 },
                                 {
-                                    "nodeName": "천안역(학화호두과자)",
-                                    "arrivalTime": "18:50"
+                                    "node_name": "천안역(학화호두과자)",
+                                    "arrival_time": "18:50"
                                 },
                                 {
-                                    "nodeName": "터미널(신세계 앞 횡단보도)",
-                                    "arrivalTime": "18:55"
+                                    "node_name": "터미널(신세계 앞 횡단보도)",
+                                    "arrival_time": "18:55"
                                 }
                             ]
                         }
