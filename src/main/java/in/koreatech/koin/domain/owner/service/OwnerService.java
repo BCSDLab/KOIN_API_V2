@@ -136,7 +136,6 @@ public class OwnerService {
 
     @Transactional
     public void sendResetPasswordByPhone(OwnerSendPhoneRequest request) {
-        userRepository.getByPhoneNumber(request.phoneNumber());
         String certificationCode = CertificateNumberGenerator.generate();
         OwnerInVerification verification = OwnerInVerification.of(request.phoneNumber(), certificationCode);
         ownerInVerificationRedisRepository.save(verification);
@@ -174,7 +173,11 @@ public class OwnerService {
         if (!verification.isAuthed()) {
             throw new KoinIllegalArgumentException("인증이 완료되지 않았습니다.");
         }
-        User user = userRepository.getByPhoneNumber(request.email());
+        StringBuilder phoneNumber = new StringBuilder();
+        phoneNumber.append(request.email().substring(0, 3)).append('-');
+        phoneNumber.append(request.email().substring(3, 7)).append('-');
+        phoneNumber.append(request.email().substring(7, 11));
+        User user = userRepository.getByPhoneNumber(phoneNumber.toString());
         user.updatePassword(passwordEncoder, request.password());
         userRepository.save(user);
         ownerInVerificationRedisRepository.deleteById(verification.getKey());
