@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -19,6 +20,7 @@ import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.DiningFixture;
 import in.koreatech.koin.fixture.UserFixture;
+import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -34,6 +36,9 @@ class DiningApiTest extends AcceptanceTest {
 
     @Autowired
     private DiningFixture diningFixture;
+
+    @MockBean
+    private NotificationService notificationService;
 
     @Test
     @DisplayName("특정 날짜의 모든 식단들을 조회한다.")
