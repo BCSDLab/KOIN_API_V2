@@ -3,7 +3,7 @@ package in.koreatech.koin.acceptance;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
 
@@ -271,8 +271,8 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("품절 이벤트가 발생한다.")
-    void checkSoldOutEventListener() {
+    @DisplayName("해당 식사시간에 품절 요청을 한다. - 품절 알림이 발송된다.")
+    void checkSoldOutNotification() {
         User user = userFixture.준기_영양사();
         String token = userFixture.getToken(user);
         Dining menu = diningFixture.A코스_점심(LocalDate.parse("2024-03-11"));
@@ -289,9 +289,68 @@ class DiningApiTest extends AcceptanceTest {
             .when()
             .patch("/coop/dining/soldout")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
         verify(coopEventListener).onDiningSoldOutRequest(any());
+        verify(notificationService).push(anyList());
+    }
+
+    @Test
+    @DisplayName("해당 식사시간 외에 품절 요청을 한다. - 품절 알림이 발송되지 않는다.")
+    void checkSoldOutNotificationAfterHours() {
+        User user = userFixture.준기_영양사();
+        String token = userFixture.getToken(user);
+        Dining menu = diningFixture.A코스_저녁(LocalDate.parse("2024-03-11"));
+
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token)
+            .body(String.format("""
+                {
+                    "menu_id": "%s",
+                    "sold_out": %s
+                }
+                """, menu.getId(), true))
+            .when()
+            .patch("/coop/dining/soldout")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        verify(coopEventListener).onDiningSoldOutRequest(any());
+        verify(notificationService, never()).push(anyList());
+    }
+
+    @Test
+    @DisplayName("동일한 식단 코너의 두 번째 품절 요청은 알림이 가지 않는다.")
+    void checkSoldOutNotificationResend() {
+        User user = userFixture.준기_영양사();
+        String token = userFixture.getToken(user);
+        Dining menu = diningFixture.A코스_점심(LocalDate.parse("2024-03-11"));
+
+        menu.setIsSent(true);
+        diningRepository.save(menu);
+
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token)
+            .body(String.format("""
+                {
+                    "menu_id": "%s",
+                    "sold_out": %s
+                }
+                """, menu.getId(), true))
+            .when()
+            .patch("/coop/dining/soldout")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        verify(coopEventListener).onDiningSoldOutRequest(any());
+        verify(notificationService, never()).push(anyList());
     }
 }
