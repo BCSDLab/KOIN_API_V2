@@ -1,7 +1,7 @@
 package in.koreatech.koin.domain.coop.model;
 
 import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
-import static in.koreatech.koin.global.fcm.MobileAppPath.HOME;
+import static in.koreatech.koin.global.fcm.MobileAppPath.DINING;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import java.time.Clock;
