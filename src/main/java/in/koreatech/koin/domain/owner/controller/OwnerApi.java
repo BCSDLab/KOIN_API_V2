@@ -13,6 +13,7 @@ import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSendPhoneRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
@@ -109,8 +110,21 @@ public interface OwnerApi {
     @Operation(summary = "사장님 비밀번호 변경 인증번호 이메일 발송")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/password/reset/verification")
-    ResponseEntity<Void> sendResetPasswordEmail(
+    ResponseEntity<Void> sendResetPasswordByEmail(
         @Valid @RequestBody OwnerSendEmailRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "사장님 비밀번호 변경 인증번호 문자 발송")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/owners/password/reset/verification/phone")
+    ResponseEntity<Void> sendResetPasswordByPhone(
+        @Valid @RequestBody OwnerSendPhoneRequest request
     );
 
     @ApiResponses(
@@ -133,10 +147,23 @@ public interface OwnerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "사장님 비밀번호 변경")
+    @Operation(summary = "이메일 인증을 이용한 사장님 비밀번호 변경")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/owners/password/reset")
-    ResponseEntity<Void> updatePassword(
+    ResponseEntity<Void> updatePasswordByEmail(
+        @Valid @RequestBody OwnerPasswordUpdateRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "문자 인증을 이용한 사장님 비밀번호 변경")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/owners/password/reset/phone")
+    ResponseEntity<Void> updatePasswordByPhone(
         @Valid @RequestBody OwnerPasswordUpdateRequest request
     );
 }

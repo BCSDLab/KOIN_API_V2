@@ -14,6 +14,7 @@ import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSendPhoneRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
@@ -70,10 +71,18 @@ public class OwnerController implements OwnerApi {
     }
 
     @PostMapping("/owners/password/reset/verification")
-    public ResponseEntity<Void> sendResetPasswordEmail(
+    public ResponseEntity<Void> sendResetPasswordByEmail(
         @Valid @RequestBody OwnerSendEmailRequest request
     ) {
-        ownerService.sendResetPasswordEmail(request);
+        ownerService.sendResetPasswordByEmail(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/owners/password/reset/verification/phone")
+    public ResponseEntity<Void> sendResetPasswordByPhone(
+        @Valid @RequestBody OwnerSendPhoneRequest request
+    ) {
+        ownerService.sendResetPasswordByPhone(request);
         return ResponseEntity.ok().build();
     }
 
@@ -86,10 +95,18 @@ public class OwnerController implements OwnerApi {
     }
 
     @PutMapping("/owners/password/reset")
-    public ResponseEntity<Void> updatePassword(
+    public ResponseEntity<Void> updatePasswordByEmail(
         @Valid @RequestBody OwnerPasswordUpdateRequest request
     ) {
-        ownerService.updatePassword(request);
+        ownerService.updatePasswordByEmail(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/owners/password/reset/phone")
+    public ResponseEntity<Void> updatePasswordByPhone(
+        @Valid @RequestBody OwnerPasswordUpdateRequest request
+    ) {
+        ownerService.updatePasswordByPhone(request);
         return ResponseEntity.ok().build();
     }
 }

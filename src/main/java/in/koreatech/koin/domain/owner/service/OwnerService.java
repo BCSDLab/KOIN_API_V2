@@ -14,6 +14,7 @@ import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSendPhoneRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
@@ -126,11 +127,20 @@ public class OwnerService {
     }
 
     @Transactional
-    public void sendResetPasswordEmail(OwnerSendEmailRequest request) {
+    public void sendResetPasswordByEmail(OwnerSendEmailRequest request) {
         String certificationCode = CertificateNumberGenerator.generate();
         var verification = OwnerInVerification.of(request.email(), certificationCode);
         ownerInVerificationRedisRepository.save(verification);
         mailService.sendMail(request.email(), new OwnerPasswordChangeData(request.email(), certificationCode, clock));
+    }
+
+    @Transactional
+    public void sendResetPasswordByPhone(OwnerSendPhoneRequest request) {
+        userRepository.getByPhoneNumber(request.phoneNumber());
+        String certificationCode = CertificateNumberGenerator.generate();
+        OwnerInVerification verification = OwnerInVerification.of(request.phoneNumber(), certificationCode);
+        ownerInVerificationRedisRepository.save(verification);
+        naverSmsService.sendVerificationCode(certificationCode, request.phoneNumber());
     }
 
     @Transactional
@@ -147,12 +157,24 @@ public class OwnerService {
     }
 
     @Transactional
-    public void updatePassword(OwnerPasswordUpdateRequest request) {
+    public void updatePasswordByEmail(OwnerPasswordUpdateRequest request) {
         var verification = ownerInVerificationRedisRepository.getByVerify(request.email());
         if (!verification.isAuthed()) {
             throw new KoinIllegalArgumentException("인증이 완료되지 않았습니다.");
         }
         User user = userRepository.getByEmail(request.email());
+        user.updatePassword(passwordEncoder, request.password());
+        userRepository.save(user);
+        ownerInVerificationRedisRepository.deleteById(verification.getKey());
+    }
+
+    @Transactional
+    public void updatePasswordByPhone(OwnerPasswordUpdateRequest request) {
+        var verification = ownerInVerificationRedisRepository.getByVerify(request.email());
+        if (!verification.isAuthed()) {
+            throw new KoinIllegalArgumentException("인증이 완료되지 않았습니다.");
+        }
+        User user = userRepository.getByPhoneNumber(request.email());
         user.updatePassword(passwordEncoder, request.password());
         userRepository.save(user);
         ownerInVerificationRedisRepository.deleteById(verification.getKey());
