@@ -43,9 +43,9 @@ public class SlackNotificationFactory {
         String content
     ) {
         String phoneFormat = String.format("%s-%s-%s"
-            , content.substring(0,3)
-            , content.substring(3,7)
-            , content.substring(7,11));
+            , content.substring(0, 3)
+            , content.substring(3, 7)
+            , content.substring(7, 11));
         return SlackNotification.builder()
             .slackUrl(ownerEventNotificationUrl)
             .text(String.format("""

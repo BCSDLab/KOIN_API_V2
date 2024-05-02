@@ -47,7 +47,7 @@ public record CreateMenuRequest(
     List<InnerOptionPrice> optionPrices,
 
     @Schema(description = "단일 메뉴일때의 가격 / 단일 메뉴가 아닐 경우 null", requiredMode = NOT_REQUIRED)
-    @PositiveOrZero( message = "가격은 0원 이상이어야 합니다.")
+    @PositiveOrZero(message = "가격은 0원 이상이어야 합니다.")
     Integer singlePrice
 ) {
 

@@ -98,9 +98,9 @@ public class TimeTable extends BaseEntity {
 
     @Builder
     private TimeTable(User user, Semester semester, String code, String classTitle, String classTime,
-                      String classPlace, String professor, String grades, String lectureClass, String target,
-                      String regularNumber,
-                      String designScore, String department, String memo, boolean isDeleted) {
+        String classPlace, String professor, String grades, String lectureClass, String target,
+        String regularNumber,
+        String designScore, String department, String memo, boolean isDeleted) {
         this.user = user;
         this.semester = semester;
         this.code = code;

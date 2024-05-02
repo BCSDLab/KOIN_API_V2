@@ -1,9 +1,7 @@
 package in.koreatech.koin.acceptance;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.TextStyle;
-import java.util.Locale;
+import java.time.LocalDateTime;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.Shop;
@@ -353,7 +350,7 @@ class ShopApiTest extends AcceptanceTest {
     @DisplayName("모든 상점 조회")
     void getAllShop() {
         // given
-        Shop otherShop = shopFixture.신전_떡볶이(owner);
+        shopFixture.신전_떡볶이(owner);
         var response = RestAssured
             .given()
             .when()
@@ -362,33 +359,11 @@ class ShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        boolean 마슬랜_영업여부 = false;
+        // 2024-01-15 월요일 기준
+        boolean 마슬랜_영업여부 = true;
         boolean 신전_떡볶이_영업여부 = false;
 
-        String dayOfWeek = LocalDate.now(clock).getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
-        if (
-            dayOfWeek.equals("MONDAY") &&
-            LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
-            LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
-        ) {
-            마슬랜_영업여부 = true;
-        } else if (dayOfWeek.equals("FRIDAY")) {
-            신전_떡볶이_영업여부 = true;
-        }
-
-        if (
-            dayOfWeek.equals("SUNDAY") &&
-            LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
-            LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
-        ) {
-            마슬랜_영업여부 = true;
-        } else if (
-            dayOfWeek.equals("FRIDAY") &&
-            LocalTime.now(clock).isAfter(LocalTime.parse("00:00")) &&
-            LocalTime.now(clock).isBefore(LocalTime.parse("21:00"))
-        ) {
-            신전_떡볶이_영업여부 = true;
-        }
+        System.out.println(LocalDateTime.now(clock));
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
                 {

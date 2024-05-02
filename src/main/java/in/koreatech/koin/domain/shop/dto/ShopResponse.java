@@ -71,7 +71,7 @@ public record ShopResponse(
             shop.getAddress(),
             shop.isDelivery(),
             shop.getDeliveryPrice(),
-            (shop.getDescription() == null || shop.getDescription().isBlank())? "-": shop.getDescription(),
+            (shop.getDescription() == null || shop.getDescription().isBlank()) ? "-" : shop.getDescription(),
             shop.getId(),
             shop.getShopImages().stream()
                 .map(ShopImage::getImageUrl)
@@ -86,7 +86,7 @@ public record ShopResponse(
             shop.getShopOpens().stream().map(shopOpen ->
                 new InnerShopOpen(
                     shopOpen.getDayOfWeek(),
-                    shopOpen.getClosed(),
+                    shopOpen.isClosed(),
                     shopOpen.getOpenTime(),
                     shopOpen.getCloseTime()
                 )
@@ -128,7 +128,7 @@ public record ShopResponse(
         public static InnerShopOpen from(ShopOpen shopOpen) {
             return new InnerShopOpen(
                 shopOpen.getDayOfWeek(),
-                shopOpen.getClosed(),
+                shopOpen.isClosed(),
                 shopOpen.getOpenTime(),
                 shopOpen.getCloseTime()
             );

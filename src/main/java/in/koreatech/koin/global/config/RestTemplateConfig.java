@@ -1,5 +1,7 @@
 package in.koreatech.koin.global.config;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.time.Duration;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -9,8 +11,6 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Configuration
 public class RestTemplateConfig {

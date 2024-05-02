@@ -34,7 +34,8 @@ public class OwnerEventListener {
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerPhoneRequest(OwnerPhoneRequestEvent ownerPhoneRequestEvent) {
-        var notification = slackNotificationFactory.generateOwnerPhoneVerificationRequestNotification(ownerPhoneRequestEvent.phoneNumber());
+        var notification = slackNotificationFactory.generateOwnerPhoneVerificationRequestNotification(
+            ownerPhoneRequestEvent.phoneNumber());
         slackClient.sendMessage(notification);
     }
 

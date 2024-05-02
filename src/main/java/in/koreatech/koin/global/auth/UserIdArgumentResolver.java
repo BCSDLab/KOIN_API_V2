@@ -25,7 +25,7 @@ public class UserIdArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+        NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 
         return userIdContext.getUserId();
     }

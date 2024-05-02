@@ -123,7 +123,7 @@ public class CityBusOpenApiClient {
     public String getOpenApiResponse(String nodeId) {
         try {
             URL url = new URL(getRequestURL(CHEONAN_CITY_CODE, nodeId));
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "application/json");
 

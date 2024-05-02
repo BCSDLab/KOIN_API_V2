@@ -1,11 +1,18 @@
 package in.koreatech.koin.domain.shop.model;
 
-import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.REFRESH;
+import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.hibernate.annotations.Where;
 
@@ -174,10 +181,7 @@ public class Shop extends BaseEntity {
         this.shopImages.clear();
         entityManager.flush();
         for (String imageUrl : imageUrls) {
-            ShopImage shopImage = ShopImage.builder()
-                .shop(this)
-                .imageUrl(imageUrl)
-                .build();
+            ShopImage shopImage = ShopImage.builder().shop(this).imageUrl(imageUrl).build();
             this.shopImages.add(shopImage);
         }
     }
@@ -195,11 +199,49 @@ public class Shop extends BaseEntity {
         this.shopCategories.clear();
         entityManager.flush();
         for (ShopCategory shopCategory : shopCategories) {
-            ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
-                .shop(this)
-                .shopCategory(shopCategory)
-                .build();
+            ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder().shop(this).shopCategory(shopCategory).build();
             this.shopCategories.add(shopCategoryMap);
         }
+    }
+
+    public boolean isOpen(LocalDateTime now) {
+        String currentDayOfWeek = now.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
+        String previousDayOfWeek = now.minusDays(1)
+            .getDayOfWeek()
+            .getDisplayName(TextStyle.FULL, Locale.US)
+            .toUpperCase();
+        LocalTime currentTime = now.toLocalTime();
+        for (ShopOpen shopOpen : this.shopOpens) {
+            if (shopOpen.isClosed()) {
+                continue;
+            }
+            if (shopOpen.getDayOfWeek().equals(currentDayOfWeek) && (isShopOpenToday(shopOpen, currentTime))) {
+                return true;
+            }
+            if (shopOpen.getDayOfWeek().equals(previousDayOfWeek) && (isShopOpenAtNightShift(shopOpen, currentTime))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isShopOpenToday(ShopOpen shopOpen, LocalTime currentTime) {
+        long currTime = currentTime.toNanoOfDay();
+        long openTime = shopOpen.getOpenTime().toNanoOfDay();
+        long closeTime = shopOpen.getCloseTime().toNanoOfDay();
+        if (closeTime == 0 && openTime == 0) {
+            return true;
+        }
+        if (closeTime < openTime) {
+            closeTime += (LocalTime.of(12, 0).toNanoOfDay() * 2);
+        }
+        return (closeTime == 0 && openTime <= currTime) || (openTime <= currTime && currTime <= closeTime);
+    }
+
+    private boolean isShopOpenAtNightShift(ShopOpen shopOpen, LocalTime currentTime) {
+        long currTime = currentTime.toNanoOfDay();
+        long openTime = shopOpen.getOpenTime().toNanoOfDay();
+        long closeTime = shopOpen.getCloseTime().toNanoOfDay();
+        return 0 < closeTime && currTime <= closeTime && closeTime <= openTime;
     }
 }
