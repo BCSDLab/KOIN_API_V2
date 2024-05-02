@@ -66,6 +66,7 @@ class DiningApiTest extends AcceptanceTest {
                             "누룽지탕"
                         ],
                         "image_url": null,
+                        "is_sent": false,
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
@@ -86,6 +87,7 @@ class DiningApiTest extends AcceptanceTest {
                             "누룽지탕"
                         ],
                         "image_url": null,
+                        "is_sent": false,
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
@@ -139,6 +141,7 @@ class DiningApiTest extends AcceptanceTest {
                             "누룽지탕"
                         ],
                         "image_url": null,
+                        "is_sent": false,
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
@@ -159,6 +162,7 @@ class DiningApiTest extends AcceptanceTest {
                             "누룽지탕"
                         ],
                         "image_url": null,
+                        "is_sent": false,
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
