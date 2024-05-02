@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 public class CoopService {
 
     private final DiningRepository diningRepository;
-
     private final Clock clock;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -30,7 +29,7 @@ public class CoopService {
 
         if (Boolean.TRUE.equals(soldOutRequest.soldOut())) {
             dining.setSoldOut(LocalDateTime.now(clock));
-            eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getPlace(), dining.getType()));
+            eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getId(), dining.getPlace(), dining.getType()));
         } else {
             dining.setSoldOut(null);
         }

@@ -1,10 +1,8 @@
 package in.koreatech.koin.domain.dining.model;
 
-import java.util.Arrays;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
 
 import in.koreatech.koin.domain.dining.exception.DiningTypeNotFoundException;
 import lombok.Getter;
@@ -23,7 +21,6 @@ public enum DiningType {
         this.diningTime = diningTime;
     }
 
-
     public static DiningType from(String diningType) {
         return Arrays.stream(values())
             .filter(it ->
@@ -32,10 +29,5 @@ public enum DiningType {
             )
             .findAny()
             .orElseThrow(() -> DiningTypeNotFoundException.withDetail(diningType));
-    }
-
-    @JsonCreator
-    public static Map<String, LocalTime> getDiningTime(String diningType) {
-        return DiningType.valueOf(diningType.toUpperCase()).getDiningTime();
     }
 }
