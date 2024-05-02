@@ -163,7 +163,7 @@ public class BusService {
 
     public List<? extends BusTimetable> getBusTimetable(BusType busType, String direction, String region) {
         if (busType == BusType.CITY) {
-            throw new BusTypeNotSupportException("CITY");
+            throw BusTypeNotSupportException.withDetail("busType: CITY");
         }
 
         if (busType == BusType.EXPRESS) {
@@ -183,7 +183,7 @@ public class BusService {
                         ).toList())).toList();
         }
 
-        throw new BusTypeNotFoundException(busType.name());
+        throw BusTypeNotFoundException.withDetail(busType.name());
     }
 
     public BusTimetableResponse getBusTimetableWithUpdatedAt(BusType busType, String direction, String region) {
