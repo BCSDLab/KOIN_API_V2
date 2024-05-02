@@ -1,5 +1,6 @@
 package in.koreatech.koin.fixture;
 
+import static in.koreatech.koin.domain.dining.model.DiningType.DINNER;
 import static in.koreatech.koin.domain.dining.model.DiningType.LUNCH;
 
 import java.time.LocalDate;
@@ -68,7 +69,7 @@ public class DiningFixture {
         return diningRepository.save(
             Dining.builder()
                 .date(date)
-                .type("DINNER")
+                .type(DINNER)
                 .place("A코스")
                 .priceCard(6000)
                 .priceCash(6000)
