@@ -11,8 +11,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,7 +36,6 @@ import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * OpenApi 상세: 국토교통부_(TAGO)_버스도착정보
@@ -46,7 +43,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Transactional(readOnly = true)
-@Slf4j
 public class CityBusOpenApiClient {
 
     private static final String ENCODE_TYPE = "UTF-8";
@@ -83,7 +79,6 @@ public class CityBusOpenApiClient {
 
     @Transactional
     public void storeRemainTimeByOpenApi() {
-        log.info(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         List<List<CityBusArrival>> arrivalInfosList = BusStationNode.getNodeIds().stream()
             .map(this::getOpenApiResponse)
             .map(this::extractBusArrivalInfo)

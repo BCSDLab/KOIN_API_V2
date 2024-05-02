@@ -10,9 +10,15 @@ import lombok.RequiredArgsConstructor;
 public class BusScheduler {
 
     private final CityBusOpenApiClient cityBusOpenApiClient;
+    private final ExpressBusOpenApiClient expressBusOpenApiClient;
 
     @Scheduled(cron = "0 */1 * * * *")
-    public void cachingCityBusByOpenApi() {
+    public void cacheCityBusByOpenApi() {
         cityBusOpenApiClient.storeRemainTimeByOpenApi();
+    }
+
+    @Scheduled(cron = "0 0 * * * *")
+    public void cacheExpressBusByOpenApi() {
+        expressBusOpenApiClient.storeRemainTimeByOpenApi();
     }
 }
