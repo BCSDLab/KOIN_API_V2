@@ -17,8 +17,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.owner.model.OwnerInVerification;
-import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRedisRepository;
+import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
+import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
@@ -46,7 +46,7 @@ class OwnerApiTest extends AcceptanceTest {
     private OwnerShopRedisRepository ownerShopRedisRepository;
 
     @Autowired
-    private OwnerInVerificationRedisRepository ownerInVerificationRedisRepository;
+    private OwnerVerificationStatusRepository ownerInVerificationRedisRepository;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -413,7 +413,7 @@ class OwnerApiTest extends AcceptanceTest {
     @DisplayName("사장님이 회원가입 인증번호를 확인한다")
     void ownerCodeVerification() {
         // given
-        OwnerInVerification verification = OwnerInVerification.of("junho5336@gmail.com", "123456");
+        OwnerVerificationStatus verification = OwnerVerificationStatus.of("junho5336@gmail.com", "123456");
         ownerInVerificationRedisRepository.save(verification);
         RestAssured
             .given()
@@ -436,7 +436,7 @@ class OwnerApiTest extends AcceptanceTest {
     @DisplayName("사장님이 회원가입 인증번호를 확인한다 - 존재하지 않는 이메일로 요청을 보낸다")
     void ownerCodeVerificationNotExistEmail() {
         // given
-        OwnerInVerification verification = OwnerInVerification.of("junho5336@gmail.com", "123456");
+        OwnerVerificationStatus verification = OwnerVerificationStatus.of("junho5336@gmail.com", "123456");
         ownerInVerificationRedisRepository.save(verification);
         RestAssured
             .given()
@@ -481,7 +481,7 @@ class OwnerApiTest extends AcceptanceTest {
         // given
         String email = "test@test.com";
         String code = "123123";
-        OwnerInVerification verification = OwnerInVerification.of(email, code);
+        OwnerVerificationStatus verification = OwnerVerificationStatus.of(email, code);
         ownerInVerificationRedisRepository.save(verification);
         RestAssured
             .given()
@@ -513,7 +513,7 @@ class OwnerApiTest extends AcceptanceTest {
         // given
         String email = "test@test.com";
         String code = "123123";
-        OwnerInVerification verification = OwnerInVerification.of(email, code);
+        OwnerVerificationStatus verification = OwnerVerificationStatus.of(email, code);
         ownerInVerificationRedisRepository.save(verification);
         // when
         RestAssured
@@ -554,7 +554,7 @@ class OwnerApiTest extends AcceptanceTest {
         // given
         User user = userFixture.현수_사장님().getUser();
         String code = "123123";
-        OwnerInVerification verification = OwnerInVerification.of(user.getEmail(), code);
+        OwnerVerificationStatus verification = OwnerVerificationStatus.of(user.getEmail(), code);
         verification.verify();
         ownerInVerificationRedisRepository.save(verification);
         String password = "asdf1234!";
@@ -592,7 +592,7 @@ class OwnerApiTest extends AcceptanceTest {
         // given
         String email = "test@test.com";
         String code = "123123";
-        OwnerInVerification verification = OwnerInVerification.of(email, code);
+        OwnerVerificationStatus verification = OwnerVerificationStatus.of(email, code);
         ownerInVerificationRedisRepository.save(verification);
         String password = "asdf1234!";
 

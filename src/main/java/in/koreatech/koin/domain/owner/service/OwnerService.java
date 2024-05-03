@@ -1,0 +1,196 @@
+package in.koreatech.koin.domain.owner.service;
+
+import java.time.Clock;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPhoneVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSendPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
+import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
+import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
+import in.koreatech.koin.domain.owner.model.redis.DailyVerificationLimit;
+import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
+import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
+import in.koreatech.koin.domain.owner.model.OwnerPhoneRequestEvent;
+import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
+import in.koreatech.koin.domain.owner.model.OwnerShop;
+import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRepository;
+import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
+import in.koreatech.koin.domain.owner.repository.OwnerRepository;
+import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
+import in.koreatech.koin.domain.shop.repository.ShopRepository;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
+import in.koreatech.koin.global.domain.email.form.OwnerRegistrationData;
+import in.koreatech.koin.global.domain.email.service.MailService;
+import in.koreatech.koin.global.domain.phone.exception.DuplicationPhoneException;
+import in.koreatech.koin.global.domain.random.model.CertificateNumberGenerator;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin.global.naver.service.NaverSmsService;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class OwnerService {
+
+    private final JwtProvider jwtProvider;
+    private final Clock clock;
+    private final MailService mailService;
+    private final UserRepository userRepository;
+    private final ShopRepository shopRepository;
+    private final OwnerRepository ownerRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
+    private final OwnerShopRedisRepository ownerShopRedisRepository;
+    private final OwnerVerificationStatusRepository ownerVerificationStatusRedisRepository;
+    private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
+    private final NaverSmsService naverSmsService;
+
+    private void setVerificationLimit(String key) {
+        Optional<DailyVerificationLimit> dailyVerificationLimit = dailyVerificationLimitRedisRepository.findById(key);
+        if (!dailyVerificationLimit.isPresent()) {
+            dailyVerificationLimitRedisRepository.save(new DailyVerificationLimit(key));
+        } else {
+            dailyVerificationLimit.get().requestVerification();
+        }
+    }
+
+    private void sendCertificationEmail(String email) {
+        setVerificationLimit(email);
+        String certificationCode = CertificateNumberGenerator.generate();
+        mailService.sendMail(email, new OwnerRegistrationData(certificationCode));
+        OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
+            email,
+            certificationCode
+        );
+        ownerVerificationStatusRedisRepository.save(ownerVerificationStatus);
+        eventPublisher.publishEvent(new OwnerEmailRequestEvent(email));
+    }
+
+    private void sendCertificationPhone(String phoneNumber) {
+        setVerificationLimit(phoneNumber);
+        String certificationCode = CertificateNumberGenerator.generate();
+        naverSmsService.sendVerificationCode(certificationCode, phoneNumber);
+        OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
+            phoneNumber,
+            certificationCode
+        );
+        ownerVerificationStatusRedisRepository.save(ownerVerificationStatus);
+        eventPublisher.publishEvent(new OwnerPhoneRequestEvent(phoneNumber));
+    }
+
+    private OwnerVerificationStatus verifyCode(String key, String code) {
+        OwnerVerificationStatus verify = ownerVerificationStatusRedisRepository.getByVerify(key);
+        if (!Objects.equals(verify.getCertificationCode(), code)) {
+            throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
+        }
+        return verify;
+    }
+
+    @Transactional
+    public void requestSignUpEmailVerification(VerifyEmailRequest request) {
+        userRepository.findByEmail(request.email()).ifPresent(user -> {
+            throw DuplicationEmailException.withDetail("email: " + request.email());
+        });
+        sendCertificationEmail(request.email());
+    }
+
+    @Transactional
+    public void requestSignUpPhoneVerification(VerifyPhoneRequest request) {
+        userRepository.findByPhoneNumber(request.phoneNumber()).ifPresent(user -> {
+            throw DuplicationPhoneException.withDetail("phoneNumber: " + request.phoneNumber());
+        });
+        sendCertificationPhone(request.phoneNumber());
+    }
+
+    @Transactional
+    public OwnerVerifyResponse verifyCode(OwnerEmailVerifyRequest request) {
+        verifyCode(request.email(), request.certificationCode());
+        String token = jwtProvider.createTemporaryToken();
+        return new OwnerVerifyResponse(token);
+    }
+
+    @Transactional
+    public OwnerVerifyResponse verifyCode(OwnerPhoneVerifyRequest request) {
+        verifyCode(request.phoneNumber(), request.certificationCode());
+        String token = jwtProvider.createTemporaryToken();
+        return new OwnerVerifyResponse(token);
+    }
+
+    @Transactional
+    public void register(OwnerRegisterRequest request) {
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            throw DuplicationEmailException.withDetail("email: " + request.email());
+        }
+        if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
+            throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
+        }
+        Owner owner = request.toOwner(passwordEncoder);
+        Owner saved = ownerRepository.save(owner);
+        if (request.shopId() != null) {
+            var shop = shopRepository.getById(request.shopId());
+            ownerShopRedisRepository.save(OwnerShop.builder()
+                .ownerId(owner.getId())
+                .shopId(shop.getId())
+                .build());
+        } else {
+            ownerShopRedisRepository.save(OwnerShop.builder()
+                .ownerId(owner.getId())
+                .build());
+        }
+        eventPublisher.publishEvent(new OwnerRegisterEvent(saved));
+    }
+
+    @Transactional
+    public void sendResetPasswordByEmail(OwnerSendEmailRequest request) {
+        sendCertificationEmail(request.email());
+    }
+
+    @Transactional
+    public void sendResetPasswordByPhone(OwnerSendPhoneRequest request) {
+        sendCertificationPhone(request.phoneNumber());
+    }
+
+    @Transactional
+    public void verifyResetPasswordCode(OwnerPasswordResetVerifyRequest request) {
+        verifyCode(request.email(), request.certificationCode());
+    }
+
+    @Transactional
+    public void updatePasswordByEmail(OwnerPasswordUpdateRequest request) {
+        OwnerVerificationStatus verify = verifyCode(request.email(), request.password());
+        User user = userRepository.getByEmail(request.email());
+        user.updatePassword(passwordEncoder, request.password());
+        userRepository.save(user);
+        ownerVerificationStatusRedisRepository.deleteById(verify.getKey());
+    }
+
+    @Transactional
+    public void updatePasswordByPhone(OwnerPasswordUpdateRequest request) {
+        OwnerVerificationStatus verify = verifyCode(request.email(), request.password());
+        StringBuilder phoneNumber = new StringBuilder();
+        phoneNumber.append(request.email().substring(0, 3)).append('-');
+        phoneNumber.append(request.email().substring(3, 7)).append('-');
+        phoneNumber.append(request.email().substring(7, 11));
+        User user = userRepository.getByPhoneNumber(phoneNumber.toString());
+        user.updatePassword(passwordEncoder, request.password());
+        userRepository.save(user);
+        ownerVerificationStatusRedisRepository.deleteById(verify.getKey());
+    }
+}

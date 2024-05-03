@@ -11,15 +11,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPhoneVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSendPhoneRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
-import in.koreatech.koin.domain.owner.service.OwnerRegisterService;
+import in.koreatech.koin.domain.owner.service.OwnerService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OwnerController implements OwnerApi {
 
-    private final OwnerRegisterService ownerService;
+    private final OwnerService ownerService;
 
     @PostMapping("/owners/verification/email")
     public ResponseEntity<Void> requestVerificationToRegisterByEmail(
@@ -64,7 +65,15 @@ public class OwnerController implements OwnerApi {
 
     @PostMapping("/owners/verification/code")
     public ResponseEntity<OwnerVerifyResponse> codeVerification(
-        @Valid @RequestBody OwnerVerifyRequest request
+        @Valid @RequestBody OwnerEmailVerifyRequest request
+    ) {
+        OwnerVerifyResponse response = ownerService.verifyCode(request);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("/owners/verification/code/phone")
+    public ResponseEntity<OwnerVerifyResponse> codeVerification(
+        @Valid @RequestBody OwnerPhoneVerifyRequest request
     ) {
         OwnerVerifyResponse response = ownerService.verifyCode(request);
         return ResponseEntity.ok().body(response);

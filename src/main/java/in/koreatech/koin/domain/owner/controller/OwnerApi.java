@@ -10,11 +10,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPhoneVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSendPhoneRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
@@ -98,7 +99,23 @@ public interface OwnerApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/verification/code")
     ResponseEntity<OwnerVerifyResponse> codeVerification(
-        @Valid @RequestBody OwnerVerifyRequest request
+        @Valid @RequestBody OwnerEmailVerifyRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "사장님 문자 인증번호 입력")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/owners/verification/code/phone")
+    ResponseEntity<OwnerVerifyResponse> codeVerification(
+        @Valid @RequestBody OwnerPhoneVerifyRequest request
     );
 
     @ApiResponses(
