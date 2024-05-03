@@ -288,11 +288,13 @@ public class OwnerShopService {
                     .thumbnailImage(image)
                     .build());
         }
+        List<EventArticleImage> eventArticleImages = savedEventArticle.getThumbnailImages();
         eventPublisher.publishEvent(
             new EventArticleCreateShopEvent(
                 shop.getId(),
                 shop.getName(),
-                savedEventArticle.getTitle()
+                savedEventArticle.getTitle(),
+                eventArticleImages.isEmpty() ? null : eventArticleImages.get(0).getThumbnailImage()
             )
         );
     }
