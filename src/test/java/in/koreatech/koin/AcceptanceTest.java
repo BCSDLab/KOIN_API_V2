@@ -57,9 +57,6 @@ public abstract class AcceptanceTest {
     @SpyBean
     protected CoopEventListener coopEventListener;
 
-    @MockBean
-    protected NotificationService notificationService;
-
     @Autowired
     private DBInitializer dataInitializer;
 
