@@ -8,4 +8,5 @@ public record DiningSoldOutEvent(
     Dining dining,
     LocalDateTime soldOutDateTime
 ) {
+
 }

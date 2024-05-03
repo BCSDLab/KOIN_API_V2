@@ -10,7 +10,8 @@ import lombok.Getter;
 public enum DiningType {
     BREAKFAST("아침", LocalTime.of(8, 30), LocalTime.of(9, 30)),
     LUNCH("점심", LocalTime.of(11, 30), LocalTime.of(13, 30)),
-    DINNER("저녁", LocalTime.of(17, 30), LocalTime.of(18, 30));
+    DINNER("저녁", LocalTime.of(17, 30), LocalTime.of(18, 30)),
+    ;
 
     private final String mealTime;
     private final LocalTime startTime;
