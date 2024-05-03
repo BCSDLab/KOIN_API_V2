@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.coop.service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -9,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
-import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +27,18 @@ public class CoopService {
     @Transactional
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
         Dining dining = diningRepository.getById(soldOutRequest.menuId());
-
-        if (Boolean.TRUE.equals(soldOutRequest.soldOut())) {
-            dining.setSoldOut(LocalDateTime.now(clock));
-            eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getId(), dining.getPlace(), dining.getType()));
+        LocalDateTime now = LocalDateTime.now(clock);
+        LocalTime nowTime = now.toLocalTime();
+        if (soldOutRequest.soldOut()) {
+            dining.setSoldOut(now);
+            LocalTime startTime = dining.getType().getStartTime();
+            LocalTime endTime = dining.getType().getEndTime();
+            if (!dining.isSent() && (!nowTime.isBefore(startTime) && !nowTime.isAfter(endTime))) {
+                eventPublisher.publishEvent(dining.getPlace());
+                dining.setSent();
+            }
         } else {
-            dining.setSoldOut(null);
+            dining.cancelSoldOut();
         }
     }
 
