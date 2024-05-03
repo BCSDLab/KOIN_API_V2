@@ -54,7 +54,7 @@ public abstract class AcceptanceTest {
     @MockBean
     protected ShopEventListener shopEventListener;
 
-    @SpyBean
+    @MockBean
     protected CoopEventListener coopEventListener;
 
     @Autowired
