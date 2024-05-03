@@ -112,8 +112,12 @@ public class Dining extends BaseEntity {
         this.soldOut = soldout;
     }
 
-    public void setIsSent(boolean isSent) {
-        this.isSent = isSent;
+    public void setSent() {
+        this.isSent = true;
+    }
+
+    public void cancelSoldOut() {
+        this.soldOut = null;
     }
 
     /**

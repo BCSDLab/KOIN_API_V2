@@ -1,10 +1,11 @@
 package in.koreatech.koin.domain.coop.model;
 
-import in.koreatech.koin.domain.dining.model.DiningType;
+import java.time.LocalDateTime;
+
+import in.koreatech.koin.domain.dining.model.Dining;
 
 public record DiningSoldOutEvent(
-    Integer id,
-    String place,
-    DiningType type
+    Dining dining,
+    LocalDateTime soldOutDateTime
 ) {
 }
