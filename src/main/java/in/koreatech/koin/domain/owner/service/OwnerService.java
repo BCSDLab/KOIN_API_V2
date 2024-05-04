@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.owner.service;
 
-import java.time.Clock;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -9,28 +9,30 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPhoneVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSendPhoneRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
 import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
-import in.koreatech.koin.domain.owner.model.redis.DailyVerificationLimit;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
-import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
 import in.koreatech.koin.domain.owner.model.OwnerPhoneRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
-import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRepository;
-import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
+import in.koreatech.koin.domain.owner.model.redis.DailyVerificationLimit;
+import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
+import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRepository;
+import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
+import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -50,7 +52,6 @@ import lombok.RequiredArgsConstructor;
 public class OwnerService {
 
     private final JwtProvider jwtProvider;
-    private final Clock clock;
     private final MailService mailService;
     private final UserRepository userRepository;
     private final ShopRepository shopRepository;
@@ -61,6 +62,12 @@ public class OwnerService {
     private final OwnerVerificationStatusRepository ownerVerificationStatusRedisRepository;
     private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
     private final NaverSmsService naverSmsService;
+
+    public OwnerResponse getOwner(Integer ownerId) {
+        Owner foundOwner = ownerRepository.getById(ownerId);
+        List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
+        return OwnerResponse.of(foundOwner, foundOwner.getAttachments(), shops);
+    }
 
     private void setVerificationLimit(String key) {
         Optional<DailyVerificationLimit> dailyVerificationLimit = dailyVerificationLimitRedisRepository.findById(key);
@@ -167,7 +174,7 @@ public class OwnerService {
         sendCertificationPhone(request.phoneNumber());
     }
 
-    @Transactional
+    @Transactional // email, phone구분
     public void verifyResetPasswordCode(OwnerPasswordResetVerifyRequest request) {
         verifyCode(request.email(), request.certificationCode());
     }
