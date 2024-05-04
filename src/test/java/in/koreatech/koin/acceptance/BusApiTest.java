@@ -286,7 +286,7 @@ class BusApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
     }
-//TODO
+
     @Test
     @DisplayName("셔틀버스 시간표를 조회한다.")
     void getShuttleBusTimetable() {
@@ -328,7 +328,7 @@ class BusApiTest extends AcceptanceTest {
                 ]
                 """);
     }
-//TODO
+
     @Test
     @DisplayName("셔틀버스 시간표를 조회한다(업데이트 시각 포함).")
     void getShuttleBusTimetableWithUpdatedAt() {
