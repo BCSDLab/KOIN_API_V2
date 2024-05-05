@@ -8,8 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
+import in.koreatech.koin.admin.land.execption.LandNameDuplicationException;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
 import in.koreatech.koin.domain.land.model.Land;
+import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
@@ -37,7 +39,9 @@ public class AdminLandService {
     @Transactional
     public void createLands(AdminLandsRequest adminLandsRequest) {
 
-        adminLandRepository.getByName(adminLandsRequest.name());
+        if (adminLandRepository.findByName(adminLandsRequest.name()).isPresent()) {
+            throw LandNameDuplicationException.withDetail("email: " + adminLandsRequest.name());
+        }
         Land land = adminLandsRequest.toLand();
         adminLandRepository.save(land);
     }
