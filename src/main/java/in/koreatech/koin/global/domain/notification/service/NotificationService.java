@@ -10,7 +10,6 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.exception.NotificationNotPermitException;
 import in.koreatech.koin.global.domain.notification.model.Notification;
-import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
@@ -25,21 +24,11 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
     private final FcmClient fcmClient;
-    private final NotificationFactory notificationFactory;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
 
     public void push(List<Notification> notifications) {
         for (Notification notification : notifications) {
-            notificationRepository.save(notification);
-            String deviceToken = notification.getUser().getDeviceToken();
-            fcmClient.sendMessage(
-                deviceToken,
-                notification.getTitle(),
-                notification.getMessage(),
-                notification.getImageUrl(),
-                notification.getMobileAppPath(),
-                notification.getType()
-            );
+            push(notification);
         }
     }
 

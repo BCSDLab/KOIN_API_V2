@@ -10,6 +10,7 @@ public class NotificationFactory {
 
     public Notification generateShopEventCreateNotification(
         MobileAppPath path,
+        String imageUrl,
         String shopName,
         String title,
         User target
@@ -18,7 +19,7 @@ public class NotificationFactory {
             path,
             "%s의 이벤트가 추가되었어요 🎉".formatted(shopName),
             "%s".formatted(title),
-            null,
+            imageUrl,
             NotificationType.MESSAGE,
             target
         );
