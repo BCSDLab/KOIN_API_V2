@@ -194,7 +194,7 @@ public class Land extends BaseEntity {
         this.latitude = latitude;
         this.longitude = longitude;
         this.phone = phone;
-        this.imageUrls = convertImageUrlsToJson(imageUrls);
+        this.imageUrls = convertToSting(imageUrls);
         this.address = address;
         this.description = description;
         this.floor = floor;
@@ -235,7 +235,7 @@ public class Land extends BaseEntity {
         return Double.parseDouble(longitude);
     }
 
-    private String convertImageUrlsToJson(List<String> imageUrls) {
+    private String convertToSting(List<String> imageUrls) {
         if (imageUrls == null || imageUrls.isEmpty()) {
             return null;
         }
