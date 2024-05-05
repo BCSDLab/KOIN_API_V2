@@ -51,13 +51,13 @@ public record NotificationStatusResponse(
         List<NotificationSubscribeResponse> subscribeResponses = new ArrayList<>();
         List<NotificationDetailSubscribeResponse> diningDetailSubscribes = new ArrayList<>();
         for (NotificationSubscribeType type : NotificationSubscribeType.values()) {
-            if (type.name().equals(SHOP_EVENT.name())) {
+            if (type.equals(SHOP_EVENT)) {
                 subscribeResponses.add(new NotificationSubscribeResponse(
                     type.name(),
                     subscribes.stream().anyMatch(subscribe -> subscribe.getSubscribeType() == type),
                     new ArrayList<>()
                 ));
-            } else if (type.name().equals(DINING_SOLD_OUT.name())) {
+            } else if (type.equals(DINING_SOLD_OUT)) {
                 subscribeResponses.add(new NotificationSubscribeResponse(
                     type.name(),
                     subscribes.stream().anyMatch(subscribe -> subscribe.getSubscribeType() == type),
