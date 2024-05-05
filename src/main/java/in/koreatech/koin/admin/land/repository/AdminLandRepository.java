@@ -14,4 +14,5 @@ public interface AdminLandRepository extends Repository<Land, Integer> {
 
     Land save(Land request);
 
+    Land findByName(String name);
 }
