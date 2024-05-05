@@ -77,31 +77,31 @@ public record AdminLandsRequest(
     String managementFee,
 
     @Schema(description = "냉장고 보유 여부 - null일경우 false로 요청됨", example = "true")
-    Boolean optRefrigerator,
+    boolean optRefrigerator,
 
     @Schema(description = "옷장 보유 여부 - null일경우 false로 요청됨", example = "true")
-    Boolean optCloset,
+    boolean optCloset,
 
     @Schema(description = "tv 보유 여부 - null일경우 false로 요청됨", example = "true")
-    Boolean optTv,
+    boolean optTv,
 
     @Schema(description = "전자레인지 보유 여부 - null일경우 false로 요청됨", example = "true")
-    Boolean optMicrowave,
+    boolean optMicrowave,
 
     @Schema(description = "가스레인지 보유 여부 - null일경우 false로 요청됨", example = "false")
-    Boolean optGasRange,
+    boolean optGasRange,
 
     @Schema(description = "인덕션 보유 여부 - null일경우 false로 요청됨", example = "true")
-    Boolean optInduction,
+    boolean optInduction,
 
     @Schema(description = "정수기 보유 여부 - null일경우 false로 요청됨", example = "true")
-    Boolean optWaterPurifier,
+    boolean optWaterPurifier,
 
     @Schema(description = "에어컨 보유 여부 - null일경우 false로 요청됨", example = "true")
-    Boolean optAirConditioner,
+    boolean optAirConditioner,
 
     @Schema(description = "샤워기 보유 여부 - null일경우 false로 요청됨", example = "true")
-    Boolean optWasher
+    boolean optWasher
 ) {
     public Land toLand() {
         return Land.builder()
@@ -120,15 +120,15 @@ public record AdminLandsRequest(
             .monthlyFee(monthlyFee)
             .charterFee(charterFee)
             .managementFee(managementFee)
-            .optRefrigerator(optRefrigerator != null ? optRefrigerator : false)
-            .optCloset(optCloset != null ? optCloset : false)
-            .optTv(optTv != null ? optTv : false)
-            .optMicrowave(optMicrowave != null ? optMicrowave : false)
-            .optGasRange(optGasRange != null ? optGasRange : false)
-            .optInduction(optInduction != null ? optInduction : false)
-            .optWaterPurifier(optWaterPurifier != null ? optWaterPurifier : false)
-            .optAirConditioner(optAirConditioner != null ? optAirConditioner : false)
-            .optWasher(optWasher != null ? optWasher : false)
+            .optRefrigerator(optRefrigerator)
+            .optCloset(optCloset)
+            .optTv(optTv)
+            .optMicrowave(optMicrowave)
+            .optGasRange(optGasRange)
+            .optInduction(optInduction)
+            .optWaterPurifier(optWaterPurifier)
+            .optAirConditioner(optAirConditioner)
+            .optWasher(optWasher)
             .build();
     }
 }
