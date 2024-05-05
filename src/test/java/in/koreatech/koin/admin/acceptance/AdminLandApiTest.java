@@ -85,7 +85,6 @@ class AdminLandApiTest extends AcceptanceTest {
         "monthly_fee": "200만원 (6개월)",
         "charter_fee": "3500",
         "management_fee": "21(1인 기준)",
-        "opt_refrigerator": true,
         "opt_closet": true,
         "opt_tv": true,
         "opt_microwave": true,
@@ -115,6 +114,7 @@ class AdminLandApiTest extends AcceptanceTest {
             softly.assertThat(savedLand.getAddress()).isEqualTo("충청남도 천안시 동남구 병천면");
             softly.assertThat(savedLand.getDescription()).isEqualTo("1년 계약시 20만원 할인");
             softly.assertThat(savedLand.getMonthlyFee()).isEqualTo("200만원 (6개월)");
+            softly.assertThat(savedLand.isOptRefrigerator()).as("opt_refrigerator가 누락될 경우 false 반환여부").isEqualTo(false);
         });
     }
 }
