@@ -73,10 +73,6 @@ public class Dining extends BaseEntity {
     @Column(name = "is_changed", columnDefinition = "DATETIME")
     private LocalDateTime isChanged;
 
-    @NotNull
-    @Column(name = "is_sent", nullable = false)
-    private boolean isSent;
-
     @Builder
     private Dining(
         LocalDate date,
@@ -88,8 +84,7 @@ public class Dining extends BaseEntity {
         String menu,
         String imageUrl,
         LocalDateTime soldOut,
-        LocalDateTime isChanged,
-        boolean isSent
+        LocalDateTime isChanged
     ) {
         this.date = date;
         this.type = type;
@@ -101,7 +96,6 @@ public class Dining extends BaseEntity {
         this.imageUrl = imageUrl;
         this.soldOut = soldOut;
         this.isChanged = isChanged;
-        this.isSent = isSent;
     }
 
     public void setImageUrl(String imageUrl) {
@@ -110,10 +104,6 @@ public class Dining extends BaseEntity {
 
     public void setSoldOut(LocalDateTime soldout) {
         this.soldOut = soldout;
-    }
-
-    public void setSent() {
-        this.isSent = true;
     }
 
     public void cancelSoldOut() {
