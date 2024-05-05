@@ -16,7 +16,6 @@ public class AdminMemberController implements AdminMemberApi {
 
     private final AdminMemberService adminMemberService;
 
-    @Override
     @GetMapping("/admin/members")
     public ResponseEntity<AdminMembersResponse> getMembers(
         @RequestParam(name = "page", defaultValue = "1") Integer page,

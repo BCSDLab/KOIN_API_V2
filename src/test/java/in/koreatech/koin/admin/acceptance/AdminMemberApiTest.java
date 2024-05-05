@@ -10,6 +10,7 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.domain.member.repository.TrackRepository;
 import in.koreatech.koin.fixture.MemberFixture;
+import in.koreatech.koin.fixture.TrackFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
@@ -17,32 +18,15 @@ import io.restassured.RestAssured;
 public class AdminMemberApiTest extends AcceptanceTest {
 
     @Autowired
-    private TrackRepository trackRepository;
-
-    @Autowired
     private MemberFixture memberFixture;
 
-    Track backend;
-    Track frontend;
-
-    @BeforeEach
-    void setUp() {
-        backend = trackRepository.save(
-            Track.builder()
-                .name("BackEnd")
-                .build()
-        );
-        frontend = trackRepository.save(
-            Track.builder()
-                .name("FrontEnd")
-                .build()
-        );
-    }
+    @Autowired
+    private TrackFixture trackFixture;
 
     @Test
     @DisplayName("BCSDLab 회원들의 정보를 조회한다")
     void getMembers() {
-        memberFixture.최준호(backend);
+        memberFixture.최준호(trackFixture.backend());
 
         var response = RestAssured
             .given()

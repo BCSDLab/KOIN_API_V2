@@ -11,7 +11,7 @@ public enum TrackTag {
     PM("P&M"),
     HR("HR"),
     UI_UX("UI/UX"),
-    IOS("iOS")
+    IOS("iOS"),
     ;
 
     private final String tag;

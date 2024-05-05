@@ -68,7 +68,7 @@ public record AdminMembersResponse(
         String imageUrl,
 
         @Schema(description = "삭제(soft delete) 여부", example = "false", requiredMode = REQUIRED)
-        Boolean isDeleted
+        boolean isDeleted
     ) {
 
         public static SimpleMemberInformation from(Member member) {
