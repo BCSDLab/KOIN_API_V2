@@ -2,6 +2,9 @@ package in.koreatech.koin.domain.land.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -158,7 +161,7 @@ public class Land extends BaseEntity {
         String latitude,
         String longitude,
         String phone,
-        String imageUrls,
+        List<String> imageUrls,
         String address,
         String description,
         Integer floor,
@@ -191,7 +194,7 @@ public class Land extends BaseEntity {
         this.latitude = latitude;
         this.longitude = longitude;
         this.phone = phone;
-        this.imageUrls = imageUrls;
+        this.imageUrls = convertImageUrlsToJson(imageUrls);
         this.address = address;
         this.description = description;
         this.floor = floor;
@@ -230,5 +233,14 @@ public class Land extends BaseEntity {
             return null;
         }
         return Double.parseDouble(longitude);
+    }
+
+    private String convertImageUrlsToJson(List<String> imageUrls) {
+        if (imageUrls == null || imageUrls.isEmpty()) {
+            return "[]";
+        }
+        return "[" + imageUrls.stream()
+            .map(url -> "\"" + url + "\"")
+            .collect(Collectors.joining(", ")) + "]";
     }
 }

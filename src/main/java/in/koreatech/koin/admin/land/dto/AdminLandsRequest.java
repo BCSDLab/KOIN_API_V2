@@ -1,9 +1,7 @@
 package in.koreatech.koin.admin.land.dto;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -76,7 +74,7 @@ public record AdminLandsRequest(
     @Size(max = 255, message = "관리비의 최대 길이는 255자입니다.")
     String managementFee,
 
-    @Schema(description = "냉장고 보유 여부 - null일경우 false로 요청됨", example = "true", requiredMode = NOT_REQUIRED)
+    @Schema(description = "냉장고 보유 여부 - null일경우 false로 요청됨", example = "true")
     Boolean optRefrigerator,
 
     @Schema(description = "옷장 보유 여부 - null일경우 false로 요청됨", example = "true")
@@ -104,11 +102,6 @@ public record AdminLandsRequest(
     Boolean optWasher
 ) {
     public Land toLand() {
-
-        String jsonImageUrls = "[" + imageUrls.stream()
-            .map(s -> "\"" + s + "\"")
-            .collect(Collectors.joining(", ")) + "]";
-
         return Land.builder()
             .name(name)
             .internalName(internalName)
@@ -117,7 +110,7 @@ public record AdminLandsRequest(
             .latitude(latitude)
             .longitude(longitude)
             .phone(phone)
-            .imageUrls(jsonImageUrls)
+            .imageUrls(imageUrls)
             .address(address)
             .description(description)
             .floor(floor)
