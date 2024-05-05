@@ -165,7 +165,24 @@ public class Land extends BaseEntity {
         String deposit,
         String monthlyFee,
         String charterFee,
-        String managementFee
+        String managementFee,
+        boolean optRefrigerator,
+        boolean optCloset,
+        boolean optTv,
+        boolean optMicrowave,
+        boolean optGasRange,
+        boolean optInduction,
+        boolean optWaterPurifier,
+        boolean optAirConditioner,
+        boolean optWasher,
+        boolean optBed,
+        boolean optDesk,
+        boolean optShoeCloset,
+        boolean optElectronicDoorLocks,
+        boolean optBidet,
+        boolean optVeranda,
+        boolean optElevator,
+        boolean isDeleted
     ) {
         this.internalName = internalName;
         this.name = name;
@@ -182,6 +199,23 @@ public class Land extends BaseEntity {
         this.monthlyFee = monthlyFee;
         this.charterFee = charterFee;
         this.managementFee = managementFee;
+        this.optRefrigerator = optRefrigerator;
+        this.optCloset = optCloset;
+        this.optTv = optTv;
+        this.optMicrowave = optMicrowave;
+        this.optGasRange = optGasRange;
+        this.optInduction = optInduction;
+        this.optWaterPurifier = optWaterPurifier;
+        this.optAirConditioner = optAirConditioner;
+        this.optWasher = optWasher;
+        this.optBed = optBed;
+        this.optDesk = optDesk;
+        this.optShoeCloset = optShoeCloset;
+        this.optElectronicDoorLocks = optElectronicDoorLocks;
+        this.optBidet = optBidet;
+        this.optVeranda = optVeranda;
+        this.optElevator = optElevator;
+        this.isDeleted = isDeleted;
     }
 
     public Double getLatitude() {
