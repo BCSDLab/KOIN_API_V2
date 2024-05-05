@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
-import in.koreatech.koin.admin.land.execption.LandNameDuplicationException;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
 import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.global.model.Criteria;
