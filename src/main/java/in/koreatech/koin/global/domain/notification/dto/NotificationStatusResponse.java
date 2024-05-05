@@ -1,9 +1,12 @@
 package in.koreatech.koin.global.domain.notification.dto;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
+
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
@@ -45,12 +48,16 @@ public record NotificationStatusResponse(
     }
 
     public static NotificationStatusResponse of(boolean isPermit, List<NotificationSubscribe> subscribes) {
-        var results = Arrays.stream(NotificationSubscribeType.values())
-            .map(type -> new NotificationSubscribeResponse(
-                type.name(),
-                subscribes.stream().anyMatch(subscribe -> subscribe.getSubscribeType() == type)
-            ))
-            .toList();
+        List<NotificationSubscribeResponse> subscribeList = new ArrayList<>();
+        boolean diningIsPermit = false;
+        boolean shopIsPermit = false;
+        Arrays.stream(NotificationSubscribeType.values()).forEach(notificationSubscribeType -> {
+            if (notificationSubscribeType.name().equals(SHOP_EVENT)) {
+                subscribeList.add(new NotificationSubscribeResponse(SHOP_EVENT, true))
+            } else {
+
+            }
+        });
         return new NotificationStatusResponse(isPermit, results);
     }
 }
