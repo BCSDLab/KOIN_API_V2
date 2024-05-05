@@ -38,7 +38,6 @@ public class AdminLandService {
 
     @Transactional
     public void createLands(AdminLandsRequest adminLandsRequest) {
-
         if (adminLandRepository.findByName(adminLandsRequest.name()).isPresent()) {
             throw LandNameDuplicationException.withDetail("email: " + adminLandsRequest.name());
         }
