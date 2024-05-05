@@ -13,12 +13,12 @@ public enum DiningType {
     DINNER("저녁", LocalTime.of(17, 30), LocalTime.of(18, 30)),
     ;
 
-    private final String mealTime;
+    private final String diningName;
     private final LocalTime startTime;
     private final LocalTime endTime;
 
     DiningType(String label, LocalTime startTime, LocalTime endTime) {
-        this.mealTime = label;
+        this.diningName = label;
         this.startTime = startTime;
         this.endTime = endTime;
     }
@@ -26,7 +26,7 @@ public enum DiningType {
     public static DiningType from(String diningType) {
         return Arrays.stream(values())
             .filter(it ->
-                it.mealTime.equalsIgnoreCase(diningType) ||
+                it.diningName.equalsIgnoreCase(diningType) ||
                     it.name().equalsIgnoreCase(diningType)
             )
             .findAny()
