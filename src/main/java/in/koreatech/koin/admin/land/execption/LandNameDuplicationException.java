@@ -4,7 +4,7 @@ import in.koreatech.koin.global.exception.DuplicationException;
 
 public class LandNameDuplicationException extends DuplicationException {
 
-    private static final String DEFAULT_MESSAGE = "매물 이름은 사용중입니다";
+    private static final String DEFAULT_MESSAGE = "매물명이 이미 존재합니다";
 
     public LandNameDuplicationException(String message) {
         super(message);
@@ -14,8 +14,8 @@ public class LandNameDuplicationException extends DuplicationException {
         super(message, detail);
     }
 
-    public static LandNameDuplicationException withDetail(String detail) {
-        return new LandNameDuplicationException(DEFAULT_MESSAGE, detail);
+    public static LandNameDuplicationException withDetail(String name) {
+        return new LandNameDuplicationException(DEFAULT_MESSAGE,"name: '" + name + "'");
     }
 }
 

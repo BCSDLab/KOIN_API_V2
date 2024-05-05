@@ -3,10 +3,11 @@ package in.koreatech.koin.admin.land.dto;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.land.model.Land;
@@ -17,7 +18,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(SnakeCaseStrategy.class)
 public record AdminLandsRequest(
     @Schema(description = "이름 - not null - 최대 255자", example = "금실타운", required = true)
     @NotNull(message = "방이름은 필수입니다.")
@@ -95,7 +96,6 @@ public record AdminLandsRequest(
     @Schema(description = "인덕션 보유 여부 - null일경우 false로 요청됨", example = "true")
     Boolean optInduction,
 
-    // Continue adding other options following the same pattern
     @Schema(description = "정수기 보유 여부 - null일경우 false로 요청됨", example = "true")
     Boolean optWaterPurifier,
 
@@ -107,14 +107,9 @@ public record AdminLandsRequest(
 ) {
     public Land toLand() {
 
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonImageUrls = "[]";
-
-        try {
-            jsonImageUrls = mapper.writeValueAsString(imageUrls);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        String jsonImageUrls = "[" + imageUrls.stream()
+            .map(s -> "\"" + s + "\"")
+            .collect(Collectors.joining(", ")) + "]";
 
         return Land.builder()
             .name(name)

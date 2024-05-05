@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.util.List;
 import java.util.Optional;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,7 @@ class AdminLandApiTest extends AcceptanceTest {
     @Test
     @DisplayName("관리자 권한으로 복덕방을 추가한다.")
     void postLands() {
+        // Given
         AdminLandsRequest request = new AdminLandsRequest(
             "금실타운",
             "금실타운",
@@ -94,6 +96,7 @@ class AdminLandApiTest extends AcceptanceTest {
             true
         );
 
+        // When
         RestAssured
             .given()
             .contentType("application/json")
@@ -104,13 +107,15 @@ class AdminLandApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.CREATED.value())
             .extract().asString();
 
-        Land savedLand = adminLandRepository.findByName("금실타운");
+        // Then
+        Land savedLand = adminLandRepository.getByName("금실타운");
         assertNotNull(savedLand);
-        assertAll("복덕방이 잘 업데이트 되었는지 확인해본다",
-            () -> assertEquals("금실타운", savedLand.getName()),
-            () -> assertEquals("충청남도 천안시 동남구 병천면", savedLand.getAddress()),
-            () -> assertEquals("1년 계약시 20만원 할인", savedLand.getDescription()),
-            () -> assertEquals("200만원 (6개월)", savedLand.getMonthlyFee())
-        );
+
+        SoftAssertions softly = new SoftAssertions();
+        softly.assertThat(savedLand.getName()).as("복덕방명 확인").isEqualTo("금실타운");
+        softly.assertThat(savedLand.getAddress()).as("주소확인").isEqualTo("충청남도 천안시 동남구 병천면");
+        softly.assertThat(savedLand.getDescription()).as("계약사항 확인").isEqualTo("1년 계약시 20만원 할인");
+        softly.assertThat(savedLand.getMonthlyFee()).as("월세확인").isEqualTo("200만원 (6개월)");
+        softly.assertAll();
     }
 }

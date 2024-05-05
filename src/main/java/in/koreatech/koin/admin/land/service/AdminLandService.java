@@ -37,12 +37,9 @@ public class AdminLandService {
 
     @Transactional
     public void createLands(AdminLandsRequest adminLandsRequest) {
-        Land existingLand = adminLandRepository.findByName(adminLandsRequest.name());
-        if (existingLand != null) {
-            throw LandNameDuplicationException.withDetail("Land: " + existingLand.getName());
-        }
+
+        adminLandRepository.getByName(adminLandsRequest.name());
         Land land = adminLandsRequest.toLand();
         adminLandRepository.save(land);
-
     }
 }
