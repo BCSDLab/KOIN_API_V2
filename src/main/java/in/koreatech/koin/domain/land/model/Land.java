@@ -237,10 +237,10 @@ public class Land extends BaseEntity {
 
     private String convertImageUrlsToJson(List<String> imageUrls) {
         if (imageUrls == null || imageUrls.isEmpty()) {
-            return "[]";
+            return null;
         }
         return "[" + imageUrls.stream()
             .map(url -> "\"" + url + "\"")
-            .collect(Collectors.joining(", ")) + "]";
+            .collect(Collectors.joining(",")) + "]";
     }
 }
