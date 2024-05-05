@@ -27,6 +27,7 @@ public class CoopEventListener {
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onDiningSoldOutRequest(DiningSoldOutEvent event) {
+        //TODO : detailType 필터링 추가
         var notifications = notificationSubscribeRepository.findAllBySubscribeType(DINING_SOLD_OUT).stream()
             .map(subscribe -> userRepository.getById(subscribe.getUser().getId()))
             .filter(user -> user.getDeviceToken() != null)

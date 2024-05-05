@@ -33,7 +33,7 @@ public class CoopService {
         } else {
             dining.setSoldOut(null);
         }
-        eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getPlace()));
+        eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getPlace(), dining.getType()));
     }
 
     @Transactional
