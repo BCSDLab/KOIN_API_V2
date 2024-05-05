@@ -1,22 +1,21 @@
 package in.koreatech.koin.admin.land.dto;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
-import in.koreatech.koin.global.validation.UniqueId;
-import in.koreatech.koin.global.validation.UniqueUrl;
+import in.koreatech.koin.domain.land.model.Land;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
-
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record AdminLandsRequest(
@@ -25,18 +24,23 @@ public record AdminLandsRequest(
     @Size(max = 255, message = "방이름의 최대 길이는 255자입니다.")
     String name,
 
+    @Schema(description = "이름 - not null - 최대 50자", example = "금실타운", required = true)
+    @NotNull(message = "방이름은 필수입니다.")
+    @Size(max = 50, message = "방이름의 최대 길이는 50자입니다.")
+    String internalName,
+
     @Schema(description = "크기", example = "9.0")
-    Double size,
+    String size,
 
     @Schema(description = "종류 - 최대 20자", example = "원룸")
     @Size(max = 20, message = "방종류의 최대 길이는 20자입니다.")
     String roomType,
 
     @Schema(description = "위도", example = "36.766205")
-    Double latitude,
+    String latitude,
 
     @Schema(description = "경도", example = "127.284638")
-    Double longitude,
+    String longitude,
 
     @Schema(description = "전화번호 - 정규식 `^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$` 을 만족해야함", example = "041-111-1111")
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "전화번호의 형식이 올바르지 않습니다.")
@@ -73,13 +77,12 @@ public record AdminLandsRequest(
     @Size(max = 255, message = "관리비의 최대 길이는 255자입니다.")
     String managementFee,
 
-    @Schema(description = "냉장고 보유 여부 - null일경우 false로 요청됨", example = "true")
+    @Schema(description = "냉장고 보유 여부 - null일경우 false로 요청됨", example = "true", requiredMode = NOT_REQUIRED)
     Boolean optRefrigerator,
 
     @Schema(description = "옷장 보유 여부 - null일경우 false로 요청됨", example = "true")
     Boolean optCloset,
 
-    // Add additional options as needed
     @Schema(description = "tv 보유 여부 - null일경우 false로 요청됨", example = "true")
     Boolean optTv,
 
@@ -101,6 +104,44 @@ public record AdminLandsRequest(
 
     @Schema(description = "샤워기 보유 여부 - null일경우 false로 요청됨", example = "true")
     Boolean optWasher
-) {}
+) {
+    public Land toLand() {
 
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonImageUrls = "[]";
+
+        try {
+            jsonImageUrls = mapper.writeValueAsString(imageUrls);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return Land.builder()
+            .name(name)
+            .internalName(internalName)
+            .size(size)
+            .roomType(roomType)
+            .latitude(latitude)
+            .longitude(longitude)
+            .phone(phone)
+            .imageUrls(jsonImageUrls)
+            .address(address)
+            .description(description)
+            .floor(floor)
+            .deposit(deposit)
+            .monthlyFee(monthlyFee)
+            .charterFee(charterFee)
+            .managementFee(managementFee)
+            .optRefrigerator(optRefrigerator != null ? optRefrigerator : false)
+            .optCloset(optCloset != null ? optCloset : false)
+            .optTv(optTv != null ? optTv : false)
+            .optMicrowave(optMicrowave != null ? optMicrowave : false)
+            .optGasRange(optGasRange != null ? optGasRange : false)
+            .optInduction(optInduction != null ? optInduction : false)
+            .optWaterPurifier(optWaterPurifier != null ? optWaterPurifier : false)
+            .optAirConditioner(optAirConditioner != null ? optAirConditioner : false)
+            .optWasher(optWasher != null ? optWasher : false)
+            .build();
+    }
+}
 
