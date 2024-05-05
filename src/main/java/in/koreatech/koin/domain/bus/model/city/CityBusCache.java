@@ -15,8 +15,7 @@ import lombok.Getter;
 @RedisHash("CityBus")
 public class CityBusCache {
 
-    private static final long CACHE_EXPIRE_MINUTE = 1L;
-    private static final long CACHE_EXPIRE_SECONDS = 60L;
+    private static final long CACHE_EXPIRE_MINUTE = 2L;
 
     @Id
     private String id;
@@ -42,6 +41,6 @@ public class CityBusCache {
     }
 
     public static long getCacheExpireSeconds() {
-        return CACHE_EXPIRE_SECONDS;
+        return CACHE_EXPIRE_MINUTE * 60;
     }
 }
