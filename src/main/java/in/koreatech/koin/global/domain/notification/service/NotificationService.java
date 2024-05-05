@@ -10,11 +10,8 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.exception.NotificationNotPermitException;
 import in.koreatech.koin.global.domain.notification.model.Notification;
-import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribe;
-import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
-import in.koreatech.koin.global.domain.notification.repository.NotificationDetailSubscribeRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.fcm.FcmClient;
@@ -28,7 +25,6 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final FcmClient fcmClient;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
-    private final NotificationDetailSubscribeRepository notificationDetailSubscribeRepository;
 
     public void push(List<Notification> notifications) {
         for (Notification notification : notifications) {
@@ -79,15 +75,14 @@ public class NotificationService {
     }
 
     @Transactional
-    public void permitNotificationDetailSubscribe(Integer userId, NotificationDetailSubscribeType detailType) {
+    public void permitNotificationDetailSubscribe(Integer userId, NotificationSubscribeType detailType) {
         User user = userRepository.getById(userId);
-        NotificationSubscribeType subscribeType = detailType.getSubscribeType();
 
         if (user.getDeviceToken() == null) {
             throw NotificationNotPermitException.withDetail("user.deviceToken: " + user.getDeviceToken());
         }
-        if (notificationSubscribeRepository.findByUserIdAndSubscribeType(userId, subscribeType).isPresent()) {
-            throw NotificationNotPermitException.withDetail("userId: " + userId + ", subscribeType: " + subscribeType);
+        if (notificationSubscribeRepository.findByUserIdAndSubscribeType(userId, detailType).isPresent()) {
+            throw NotificationNotPermitException.withDetail("userId: " + userId + ", subscribeType: " + detailType);
         }
         if (notificationDetailSubscribeRepository.findByUserIdAndDetailSubscribeType(userId, detailType).isPresent()) {
             return;

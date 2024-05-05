@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.domain.notification.dto.NotificationPermitRequest;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
-import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import jakarta.validation.Valid;
