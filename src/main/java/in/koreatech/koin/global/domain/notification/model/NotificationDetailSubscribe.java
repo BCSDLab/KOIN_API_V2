@@ -35,7 +35,7 @@ public class NotificationDetailSubscribe extends BaseEntity {
 
     @Enumerated(STRING)
     @Column(name = "detail_subscribe_type", nullable = false)
-    private NotificationDetailSubscribeType notificationDetailSubscribeType;
+    private NotificationDetailSubscribeType detailSubscribeType;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -44,11 +44,11 @@ public class NotificationDetailSubscribe extends BaseEntity {
     @Builder
     public NotificationDetailSubscribe(
         NotificationSubscribeType notificationSubscribeType,
-        NotificationDetailSubscribeType notificationDetailSubscribeType,
+        NotificationDetailSubscribeType detailSubscribeType,
         User user
     ) {
         this.notificationSubscribeType = notificationSubscribeType;
-        this.notificationDetailSubscribeType = notificationDetailSubscribeType;
+        this.detailSubscribeType = detailSubscribeType;
         this.user = user;
     }
 

@@ -27,7 +27,7 @@ public record NotificationStatusResponse(
         @Schema(description = "푸쉬 알림 동의 여부")
         boolean isPermit,
 
-        @Schema(description = "세부 푸쉬 알림 구독 목록")
+        @Schema(description = "세부 알림 구독 목록")
         List<NotificationDetailSubscribeResponse> detailSubscribes
     ) {
 
@@ -35,10 +35,10 @@ public record NotificationStatusResponse(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record NotificationDetailSubscribeResponse(
-        @Schema(description = "구독 타입")
+        @Schema(description = "세부 구독 타입")
         String detailType,
 
-        @Schema(description = "푸쉬 알림 동의 여부")
+        @Schema(description = "세부 알림 동의 여부")
         boolean isPermit
     ) {
 

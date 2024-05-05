@@ -96,7 +96,7 @@ public class NotificationService {
         NotificationDetailSubscribe detailSubscribe = NotificationDetailSubscribe.builder()
             .user(user)
             .notificationSubscribeType(subscribeType)
-            .notificationDetailSubscribeType(detailType)
+            .detailSubscribeType(detailType)
             .build();
         notificationDetailSubscribeRepository.save(detailSubscribe);
     }
