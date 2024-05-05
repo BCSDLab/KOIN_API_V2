@@ -1,7 +1,5 @@
 package in.koreatech.koin.admin.land.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
