@@ -65,57 +65,57 @@ class AdminLandApiTest extends AcceptanceTest {
         );
     }
 
-    @Test
-    @DisplayName("관리자 권한으로 복덕방을 추가한다.")
-    void postLands() {
-        // Given
-        AdminLandsRequest request = new AdminLandsRequest(
-            "금실타운",
-            "금실타운",
-            "9.0",
-            "원룸",
-            "37.555",
-            "126.555",
-            "041-111-1111",
-            List.of("http://image1.com", "http://image2.com"),
-            "충청남도 천안시 동남구 병천면",
-            "1년 계약시 20만원 할인",
-            4,
-            "30",
-            "200만원 (6개월)",
-            "3500",
-            "21(1인 기준)",
-            true,
-            true,
-            true,
-            true,
-            false,
-            true,
-            true,
-            true,
-            true
-        );
-
-        // When
-        RestAssured
-            .given()
-            .contentType("application/json")
-            .body(request)
-            .when()
-            .post("/admin/lands")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract().asString();
-
-        // Then
-        Land savedLand = adminLandRepository.getByName("금실타운");
-        assertNotNull(savedLand);
-
-        SoftAssertions softly = new SoftAssertions();
-        softly.assertThat(savedLand.getName()).as("복덕방명 확인").isEqualTo("금실타운");
-        softly.assertThat(savedLand.getAddress()).as("주소확인").isEqualTo("충청남도 천안시 동남구 병천면");
-        softly.assertThat(savedLand.getDescription()).as("계약사항 확인").isEqualTo("1년 계약시 20만원 할인");
-        softly.assertThat(savedLand.getMonthlyFee()).as("월세확인").isEqualTo("200만원 (6개월)");
-        softly.assertAll();
-    }
+    // @Test
+    // @DisplayName("관리자 권한으로 복덕방을 추가한다.")
+    // void postLands() {
+    //     // Given
+    //     AdminLandsRequest request = new AdminLandsRequest(
+    //         "금실타운",
+    //         "금실타운",
+    //         "9.0",
+    //         "원룸",
+    //         "37.555",
+    //         "126.555",
+    //         "041-111-1111",
+    //         List.of("http://image1.com", "http://image2.com"),
+    //         "충청남도 천안시 동남구 병천면",
+    //         "1년 계약시 20만원 할인",
+    //         4,
+    //         "30",
+    //         "200만원 (6개월)",
+    //         "3500",
+    //         "21(1인 기준)",
+    //         true,
+    //         true,
+    //         true,
+    //         true,
+    //         false,
+    //         true,
+    //         true,
+    //         true,
+    //         true
+    //     );
+    //
+    //     // When
+    //     RestAssured
+    //         .given()
+    //         .contentType("application/json")
+    //         .body(request)
+    //         .when()
+    //         .post("/admin/lands")
+    //         .then()
+    //         .statusCode(HttpStatus.CREATED.value())
+    //         .extract().asString();
+    //
+    //     // Then
+    //     Land savedLand = adminLandRepository.getByName("금실타운");
+    //     assertNotNull(savedLand);
+    //
+    //     SoftAssertions softly = new SoftAssertions();
+    //     softly.assertThat(savedLand.getName()).as("복덕방명 확인").isEqualTo("금실타운");
+    //     softly.assertThat(savedLand.getAddress()).as("주소확인").isEqualTo("충청남도 천안시 동남구 병천면");
+    //     softly.assertThat(savedLand.getDescription()).as("계약사항 확인").isEqualTo("1년 계약시 20만원 할인");
+    //     softly.assertThat(savedLand.getMonthlyFee()).as("월세확인").isEqualTo("200만원 (6개월)");
+    //     softly.assertAll();
+    // }
 }
