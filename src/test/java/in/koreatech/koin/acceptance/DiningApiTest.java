@@ -15,7 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
+import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.dining.model.Dining;
+import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.DiningFixture;
@@ -29,6 +32,9 @@ class DiningApiTest extends AcceptanceTest {
 
     @Autowired
     private DiningRepository diningRepository;
+
+    @Autowired
+    private DiningSoldOutCacheRepository diningSoldOutCacheRepository;
 
     @Autowired
     private UserFixture userFixture;
@@ -81,7 +87,6 @@ class DiningApiTest extends AcceptanceTest {
                             "누룽지탕"
                         ],
                         "image_url": null,
-                        "is_sent": false,
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
@@ -102,7 +107,6 @@ class DiningApiTest extends AcceptanceTest {
                             "누룽지탕"
                         ],
                         "image_url": null,
-                        "is_sent": false,
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
@@ -151,7 +155,6 @@ class DiningApiTest extends AcceptanceTest {
                             "누룽지탕"
                         ],
                         "image_url": null,
-                        "is_sent": false,
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
@@ -172,7 +175,6 @@ class DiningApiTest extends AcceptanceTest {
                             "누룽지탕"
                         ],
                         "image_url": null,
-                        "is_sent": false,
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
@@ -283,7 +285,6 @@ class DiningApiTest extends AcceptanceTest {
             .when()
             .patch("/coop/dining/soldout")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -314,8 +315,9 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("동일한 식단 코너의 두 번째 품절 요청은 알림이 가지 않는다.")
     void checkSoldOutNotificationResend() {
-        A코너_점심.setSent();
-        diningRepository.save(A코너_점심);
+        diningSoldOutCacheRepository.save(DiningSoldOutCache.of(DiningType.LUNCH));
+        var a = diningSoldOutCacheRepository.findByDiningType(DiningType.LUNCH);
+        System.out.println(a);
 
         given()
             .contentType(ContentType.JSON)

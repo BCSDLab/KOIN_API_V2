@@ -25,10 +25,10 @@ public class DiningSoldOutCache {
     private final Long expiration;
 
     @Builder
-    private DiningSoldOutCache(String id, DiningType diningType, Long expiration) {
+    private DiningSoldOutCache(String id, DiningType diningType) {
         this.id = id;
         this.diningType = diningType;
-        this.expiration = expiration == null ? CACHE_EXPIRE_HOUR : expiration;
+        this.expiration = CACHE_EXPIRE_HOUR;
     }
 
     public static DiningSoldOutCache of(DiningType diningType) {
@@ -36,9 +36,5 @@ public class DiningSoldOutCache {
             .id(diningType.name())
             .diningType(diningType)
             .build();
-    }
-
-    public static long getCacheExpireHour() {
-        return CACHE_EXPIRE_HOUR;
     }
 }
