@@ -1,8 +1,5 @@
 package in.koreatech.koin.admin.land.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,14 +8,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
-import in.koreatech.koin.domain.user.dto.UserLoginRequest;
-import in.koreatech.koin.global.auth.Auth;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
