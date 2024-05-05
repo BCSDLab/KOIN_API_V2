@@ -55,7 +55,7 @@ public class NotificationController implements NotificationApi {
     @PostMapping("/notification/subscribe/detail")
     public ResponseEntity<Void> permitNotificationDetailSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
-        @RequestParam(value = "detail_type") NotificationDetailSubscribeType detailSubscribeType
+        @RequestParam(value = "detail_type") NotificationSubscribeType detailSubscribeType
     ) {
         notificationService.permitNotificationDetailSubscribe(userId, detailSubscribeType);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -81,7 +81,7 @@ public class NotificationController implements NotificationApi {
     @DeleteMapping("/notification/subscribe/detail")
     public ResponseEntity<Void> rejectNotificationDetailSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
-        @RequestParam(value = "detail_type") NotificationDetailSubscribeType detailSubscribeType
+        @RequestParam(value = "detail_type") NotificationSubscribeType detailSubscribeType
     ) {
         notificationService.rejectNotificationDetailSubscribe(userId, detailSubscribeType);
         return ResponseEntity.noContent().build();

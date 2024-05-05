@@ -84,16 +84,12 @@ public class NotificationService {
         if (notificationSubscribeRepository.findByUserIdAndSubscribeType(userId, detailType).isPresent()) {
             throw NotificationNotPermitException.withDetail("userId: " + userId + ", subscribeType: " + detailType);
         }
-        if (notificationDetailSubscribeRepository.findByUserIdAndDetailSubscribeType(userId, detailType).isPresent()) {
-            return;
-        }
 
-        NotificationDetailSubscribe detailSubscribe = NotificationDetailSubscribe.builder()
+        NotificationSubscribe detailSubscribe = NotificationSubscribe.builder()
             .user(user)
-            .notificationSubscribeType(subscribeType)
-            .detailSubscribeType(detailType)
+            .subscribeType(detailType)
             .build();
-        notificationDetailSubscribeRepository.save(detailSubscribe);
+        notificationSubscribeRepository.save(detailSubscribe);
     }
 
     @Transactional
@@ -108,7 +104,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void rejectNotificationDetailSubscribe(Integer userId, NotificationDetailSubscribeType detailSubscribeType) {
-        notificationDetailSubscribeRepository.deleteByUserIdAndDetailSubscribeType(userId, detailSubscribeType);
+    public void rejectNotificationDetailSubscribe(Integer userId, NotificationSubscribeType detailSubscribeType) {
+        notificationSubscribeRepository.deleteByUserIdAndSubscribeType(userId, detailSubscribeType);
     }
 }
