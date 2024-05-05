@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.land.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,7 @@ public interface AdminLandApi {
 
     @ApiResponses(
         value = {
+            @ApiResponse(responseCode = "201"),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
