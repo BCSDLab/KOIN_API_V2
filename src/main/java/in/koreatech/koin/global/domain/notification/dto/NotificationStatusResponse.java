@@ -1,11 +1,11 @@
 package in.koreatech.koin.global.domain.notification.dto;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
 import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -48,16 +48,30 @@ public record NotificationStatusResponse(
     }
 
     public static NotificationStatusResponse of(boolean isPermit, List<NotificationSubscribe> subscribes) {
-        List<NotificationSubscribeResponse> subscribeList = new ArrayList<>();
-        boolean diningIsPermit = false;
-        boolean shopIsPermit = false;
-        Arrays.stream(NotificationSubscribeType.values()).forEach(notificationSubscribeType -> {
-            if (notificationSubscribeType.name().equals(SHOP_EVENT)) {
-                subscribeList.add(new NotificationSubscribeResponse(SHOP_EVENT, true))
+        List<NotificationSubscribeResponse> subscribeResponses = new ArrayList<>();
+        List<NotificationDetailSubscribeResponse> diningDetailSubscribes = new ArrayList<>();
+        for (NotificationSubscribeType type : NotificationSubscribeType.values()) {
+            if (type.name().equals(SHOP_EVENT.name())) {
+                subscribeResponses.add(new NotificationSubscribeResponse(
+                    type.name(),
+                    subscribes.stream().anyMatch(subscribe -> subscribe.getSubscribeType() == type),
+                    new ArrayList<>()
+                ));
+            } else if (type.name().equals(DINING_SOLD_OUT.name())) {
+                subscribeResponses.add(new NotificationSubscribeResponse(
+                    type.name(),
+                    subscribes.stream().anyMatch(subscribe -> subscribe.getSubscribeType() == type),
+                    diningDetailSubscribes
+                ));
             } else {
-
+                diningDetailSubscribes.add(new NotificationDetailSubscribeResponse(
+                    type.name(),
+                    subscribes
+                        .stream()
+                        .anyMatch(subscribe -> subscribe.getSubscribeType() == type)
+                ));
             }
-        });
-        return new NotificationStatusResponse(isPermit, results);
+        }
+        return new NotificationStatusResponse(isPermit, subscribeResponses);
     }
 }
