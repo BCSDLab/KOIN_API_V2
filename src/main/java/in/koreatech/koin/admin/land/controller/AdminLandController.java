@@ -20,7 +20,6 @@ public class AdminLandController implements AdminLandApi {
 
     private final AdminLandService adminLandService;
 
-    @Override
     @GetMapping("/admin/lands")
     public ResponseEntity<AdminLandsResponse> getLands(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -30,7 +29,6 @@ public class AdminLandController implements AdminLandApi {
         return ResponseEntity.ok().body(adminLandService.getLands(page, limit, isDeleted));
     }
 
-    @Override
     @PostMapping("/admin/lands")
     public ResponseEntity<AdminLandsResponse> postLands(@RequestBody @Valid AdminLandsRequest adminLandsRequest) {
         adminLandService.createLands(adminLandsRequest);
