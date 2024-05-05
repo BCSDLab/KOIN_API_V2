@@ -239,8 +239,8 @@ public class Land extends BaseEntity {
         if (imageUrls == null || imageUrls.isEmpty()) {
             return null;
         }
-        return "[" + imageUrls.stream()
+        return String.format("[%s]", imageUrls.stream()
             .map(url -> "\"" + url + "\"")
-            .collect(Collectors.joining(",")) + "]";
+            .collect(Collectors.joining(",")));
     }
 }
