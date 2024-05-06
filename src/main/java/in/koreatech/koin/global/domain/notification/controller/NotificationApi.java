@@ -119,8 +119,17 @@ public interface NotificationApi {
         @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     );
 
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "400"),
+            @ApiResponse(responseCode = "401"),
+            @ApiResponse(responseCode = "403"),
+            @ApiResponse(responseCode = "404"),
+        }
+    )
     @Operation(summary = "특정 세부알림 구독 취소")
-    @DeleteMapping("/notification/subscribe")
+    @DeleteMapping("/notification/subscribe/detail")
     ResponseEntity<Void> rejectNotificationDetailSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
         @RequestParam(value = "detail_type") NotificationDetailSubscribeType notificationSubscribeType
