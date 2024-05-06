@@ -2,10 +2,10 @@ package in.koreatech.koin.domain.coop.model;
 
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
 

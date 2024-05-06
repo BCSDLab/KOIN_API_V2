@@ -36,7 +36,7 @@ public class CoopService {
             dining.setSoldOut(now);
             LocalTime startTime = dining.getType().getStartTime();
             LocalTime endTime = dining.getType().getEndTime();
-            if (diningSoldOutCacheRepository.findById(dining.getType().name()).isEmpty() &&
+            if (diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty() &&
                 (!nowTime.isBefore(startTime) && !nowTime.isAfter(endTime))) {
                 eventPublisher.publishEvent(dining.getPlace());
             }
