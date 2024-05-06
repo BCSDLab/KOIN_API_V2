@@ -15,11 +15,9 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
-import in.koreatech.koin.global.domain.notification.repository.NotificationDetailSubscribeRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
@@ -30,9 +28,6 @@ class NotificationApiTest extends AcceptanceTest {
 
     @Autowired
     private NotificationSubscribeRepository notificationSubscribeRepository;
-
-    @Autowired
-    private NotificationDetailSubscribeRepository notificationDetailSubsribeRepository;
 
     @Autowired
     private UserFixture userFixture;
@@ -244,6 +239,7 @@ class NotificationApiTest extends AcceptanceTest {
             .when()
             .post("/notification/subscribe/detail")
             .then()
+            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -403,21 +399,21 @@ class NotificationApiTest extends AcceptanceTest {
             .user(user)
             .build();
 
-        var SubscribeBreakfast = NotificationDetailSubscribe.builder()
-            .detailSubscribeType(NotificationDetailSubscribeType.BREAKFAST)
+        var SubscribeBreakfast = NotificationSubscribe.builder()
+            .detailType(NotificationDetailSubscribeType.BREAKFAST)
             .subscribeType(NotificationSubscribeType.DINING_SOLD_OUT)
             .user(user)
             .build();
 
-        var SubscribeLunch = NotificationDetailSubscribe.builder()
-            .detailSubscribeType(NotificationDetailSubscribeType.LUNCH)
+        var SubscribeLunch = NotificationSubscribe.builder()
+            .detailType(NotificationDetailSubscribeType.LUNCH)
             .subscribeType(NotificationSubscribeType.DINING_SOLD_OUT)
             .user(user)
             .build();
 
         notificationSubscribeRepository.save(SubscribeDiningSoldOut);
-        notificationDetailSubsribeRepository.save(SubscribeBreakfast);
-        notificationDetailSubsribeRepository.save(SubscribeLunch);
+        notificationSubscribeRepository.save(SubscribeBreakfast);
+        notificationSubscribeRepository.save(SubscribeLunch);
 
         String notificationType = DINING_SOLD_OUT.name();
         String notificationDetailType = LUNCH.name();

@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
@@ -52,31 +51,19 @@ public record NotificationStatusResponse(
     public static NotificationStatusResponse of(
         boolean isPermit,
         List<NotificationSubscribe> subscribes,
-        List<NotificationDetailSubscribe> detailSubscribes
+        List<NotificationSubscribe> detailSubscribes
     ) {
-        List<NotificationSubscribeResponse> subscribeResponses = new ArrayList<>();
-
-        for (NotificationSubscribeType type : NotificationSubscribeType.values()) {
-            if (type.equals(SHOP_EVENT)) {
-                subscribeResponses.add(new NotificationSubscribeResponse(
-                    type.name(),
-                    subscribes.stream().anyMatch(subscribe -> subscribe.getSubscribeType() == type),
-                    new ArrayList<>()
-                ));
-            } else {
-                var diningDetailSubscribes = Arrays.stream(NotificationDetailSubscribeType.values())
+        var subscribeResponses = Arrays.stream(NotificationSubscribeType.values())
+            .map(type -> new NotificationSubscribeResponse(
+                type.name(),
+                subscribes.stream().anyMatch(subscribe -> subscribe.getSubscribeType() == type),
+                Arrays.stream(type.getDetailTypes().toArray(new NotificationDetailSubscribeType[0]))
                     .map(detailType -> new NotificationDetailSubscribeResponse(
                         detailType.name(),
                         detailSubscribes.stream()
-                            .anyMatch(detailSubscribe -> detailSubscribe.getDetailSubscribeType() == detailType)
-                    )).toList();
-                subscribeResponses.add(new NotificationSubscribeResponse(
-                    type.name(),
-                    subscribes.stream().anyMatch(subscribe -> subscribe.getSubscribeType() == type),
-                    diningDetailSubscribes
-                ));
-            }
-        }
+                            .anyMatch(detailSubscribe -> detailSubscribe.getDetailType() == detailType)
+                    )).toList()
+            )).toList();
         return new NotificationStatusResponse(isPermit, subscribeResponses);
     }
 }
