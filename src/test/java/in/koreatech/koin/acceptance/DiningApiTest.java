@@ -18,7 +18,6 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.dining.model.Dining;
-import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.DiningFixture;
@@ -315,7 +314,7 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("동일한 식단 코너의 두 번째 품절 요청은 알림이 가지 않는다.")
     void checkSoldOutNotificationResend() {
-        diningSoldOutCacheRepository.save(DiningSoldOutCache.of(DiningType.LUNCH.name()));
+        diningSoldOutCacheRepository.save(DiningSoldOutCache.from(A코너_점심.getPlace()));
 
         given()
             .contentType(ContentType.JSON)
@@ -329,7 +328,6 @@ class DiningApiTest extends AcceptanceTest {
             .when()
             .patch("/coop/dining/soldout")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 

@@ -11,11 +11,11 @@ public interface DiningSoldOutCacheRepository extends Repository<DiningSoldOutCa
 
     DiningSoldOutCache save(DiningSoldOutCache diningSoldOutCache);
 
-    Optional<DiningSoldOutCache> findById(String diningType);
+    Optional<DiningSoldOutCache> findById(String diningPlace);
 
-    default DiningSoldOutCache getById(String diningType) {
-        return findById(diningType).orElseThrow(
-            () -> DiningCacheNotFoundException.withDetail("diningSoldOutCache: " + diningType));
+    default DiningSoldOutCache getById(String diningPlace) {
+        return findById(diningPlace).orElseThrow(
+            () -> DiningCacheNotFoundException.withDetail("diningSoldOutCache: " + diningPlace));
     }
 
 }
