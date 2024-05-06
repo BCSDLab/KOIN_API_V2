@@ -315,9 +315,7 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("동일한 식단 코너의 두 번째 품절 요청은 알림이 가지 않는다.")
     void checkSoldOutNotificationResend() {
-        diningSoldOutCacheRepository.save(DiningSoldOutCache.of(DiningType.LUNCH));
-        var a = diningSoldOutCacheRepository.findByDiningType(DiningType.LUNCH);
-        System.out.println(a);
+        diningSoldOutCacheRepository.save(DiningSoldOutCache.of(DiningType.LUNCH.name()));
 
         given()
             .contentType(ContentType.JSON)
@@ -331,6 +329,7 @@ class DiningApiTest extends AcceptanceTest {
             .when()
             .patch("/coop/dining/soldout")
             .then()
+            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
