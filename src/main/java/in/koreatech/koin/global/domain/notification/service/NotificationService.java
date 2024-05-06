@@ -91,7 +91,8 @@ public class NotificationService {
         if (notificationSubscribeRepository.findByUserIdAndSubscribeType(userId, type).isEmpty()) {
             throw NotificationNotPermitException.withDetail("userId: " + userId + ", type: " + type);
         }
-        if (notificationDetailSubscribeRepository.findByUserIdAndDetailSubscribeType(userId, detailType).isPresent()) {
+        if (notificationDetailSubscribeRepository.findByUserIdAndDetailSubscribeType(userId, detailType.name())
+            .isPresent()) {
             return;
         }
 
@@ -132,7 +133,8 @@ public class NotificationService {
         if (notificationSubscribeRepository.findByUserIdAndSubscribeType(userId, type).isEmpty()) {
             throw NotificationNotPermitException.withDetail("userId: " + userId + ", type: " + type);
         }
-        if (notificationDetailSubscribeRepository.findByUserIdAndDetailSubscribeType(userId, detailType).isEmpty()) {
+        if (notificationDetailSubscribeRepository.findByUserIdAndDetailSubscribeType(userId, detailType.name())
+            .isEmpty()) {
             return;
         }
         notificationDetailSubscribeRepository.deleteByUserIdAndDetailSubscribeType(userId, detailType);

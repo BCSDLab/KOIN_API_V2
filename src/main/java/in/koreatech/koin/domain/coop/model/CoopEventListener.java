@@ -11,6 +11,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
+import in.koreatech.koin.global.domain.notification.repository.NotificationDetailSubscribeRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -24,18 +25,20 @@ public class CoopEventListener {
     private final NotificationSubscribeRepository notificationSubscribeRepository;
     private final NotificationFactory notificationFactory;
     private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
+    private final NotificationDetailSubscribeRepository notificationDetailSubscribeRepository;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onDiningSoldOutRequest(DiningSoldOutEvent event) {
         var notifications = notificationSubscribeRepository.findAllBySubscribeType(DINING_SOLD_OUT).stream()
+            .filter(subscribe -> notificationDetailSubscribeRepository.findByUserIdAndDetailSubscribeType(
+                subscribe.getUser().getId(), event.diningType().name()).isPresent())
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
-            .filter(subscribe -> subscribe.getSubscribeType().name().equals(event.type().name()))
-            .filter(user -> user.getDeviceToken() != null)
-            .map(user -> notificationFactory.generateSoldOutNotification(
-                HOME,
+            .map(subscribe -> notificationFactory.generateSoldOutNotification(
+                DINING,
                 event.place(),
                 subscribe.getUser()
             )).toList();
+
         notificationService.push(notifications);
         diningSoldOutCacheRepository.save(DiningSoldOutCache.of(event.diningType().name()));
     }

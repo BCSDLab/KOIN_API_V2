@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.global.domain.notification.exception.NotificationSubscribeNotFoundException;
+import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
@@ -16,19 +16,13 @@ public interface NotificationDetailSubscribeRepository extends Repository<Notifi
 
     List<NotificationDetailSubscribe> findAllBySubscribeType(NotificationSubscribeType subscribeType);
 
-    Optional<NotificationDetailSubscribe> findByUserIdAndDetailSubscribeType(Integer userId,
-        NotificationDetailSubscribeType detailType);
+    List<NotificationDetailSubscribe> findAllByUserId(Integer userId);
 
-    default NotificationDetailSubscribe getByUserIdAndDetailSubscribeType(Integer userId,
-        NotificationDetailSubscribeType detailType) {
-        return findByUserIdAndDetailSubscribeType(userId, detailType)
-            .orElseThrow(
-                () -> NotificationSubscribeNotFoundException.withDetail(
-                    "userId: " + userId + ", detailType: " + detailType)
-            );
-    }
+    List<NotificationDetailSubscribe> findAllByDetailSubscribeType(DiningType diningType);
+
+    Optional<NotificationDetailSubscribe> findByUserIdAndDetailSubscribeType(Integer userId,
+        String detailType);
 
     void deleteByUserIdAndDetailSubscribeType(Integer userId, NotificationDetailSubscribeType type);
 
-    List<NotificationDetailSubscribe> findAllByUserId(Integer userId);
 }
