@@ -26,15 +26,15 @@ public class CoopEventListener {
     private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onDiningSoldOutRequest(String place) {
+    public void onDiningSoldOutRequest(DiningSoldOutEvent event) {
         var notifications = notificationSubscribeRepository.findAllBySubscribeType(DINING_SOLD_OUT).stream()
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .map(subscribe -> notificationFactory.generateSoldOutNotification(
                 DINING,
-                place,
+                event.place(),
                 subscribe.getUser()
             )).toList();
         notificationService.push(notifications);
-        diningSoldOutCacheRepository.save(DiningSoldOutCache.from(place));
+        diningSoldOutCacheRepository.save(DiningSoldOutCache.from(event.place()));
     }
 }
