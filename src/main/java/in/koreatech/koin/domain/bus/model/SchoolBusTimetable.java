@@ -19,6 +19,7 @@ public class SchoolBusTimetable extends BusTimetable {
     }
 
     @Getter
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public static class ArrivalNode {
         private final String nodeName;
         private final String arrivalTime;

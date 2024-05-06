@@ -10,9 +10,7 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +34,6 @@ import in.koreatech.koin.domain.bus.model.city.CityBusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
-import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 
@@ -75,21 +72,13 @@ public class CityBusOpenApiClient {
     }
 
     public List<CityBusRemainTime> getBusRemainTime(String nodeId) {
-        Version version = versionRepository.getByType(VersionType.CITY);
-        if (isCacheExpired(version, clock) || cityBusCacheRepository.findById(nodeId).isEmpty()) {
-            storeRemainTimeByOpenApi();
-        }
-        return getCityBusArrivalInfoByCache(nodeId);
-    }
-
-    private List<CityBusRemainTime> getCityBusArrivalInfoByCache(String nodeId) {
         Optional<CityBusCache> cityBusCache = cityBusCacheRepository.findById(nodeId);
-
         return cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBusRemainTime::from).toList())
             .orElseGet(ArrayList::new);
     }
 
-    private void storeRemainTimeByOpenApi() {
+    @Transactional
+    public void storeRemainTimeByOpenApi() {
         List<List<CityBusArrival>> arrivalInfosList = BusStationNode.getNodeIds().stream()
             .map(this::getOpenApiResponse)
             .map(this::extractBusArrivalInfo)
@@ -184,10 +173,5 @@ public class CityBusOpenApiClient {
         } catch (JsonSyntaxException e) {
             return result;
         }
-    }
-
-    public boolean isCacheExpired(Version version, Clock clock) {
-        Duration duration = Duration.between(version.getUpdatedAt().toLocalTime(), LocalTime.now(clock));
-        return duration.toSeconds() < 0 || CityBusCache.getCacheExpireSeconds() <= duration.toSeconds();
     }
 }

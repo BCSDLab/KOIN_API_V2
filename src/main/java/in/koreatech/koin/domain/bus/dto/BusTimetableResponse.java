@@ -23,7 +23,7 @@ public record BusTimetableResponse(
             }
         }
         """, requiredMode = NOT_REQUIRED)
-    List<? extends BusTimetable> busTimetable,
+    List<? extends BusTimetable> busTimetables,
 
     @Schema(description = "업데이트 시각", example = "2024-04-20 18:00:00", requiredMode = NOT_REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
