@@ -11,6 +11,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
 import in.koreatech.koin.domain.shop.model.ShopImage;
@@ -67,6 +68,7 @@ public record ShopResponse(
 ) {
 
     public static ShopResponse from(Shop shop, Boolean isEvent) {
+        MenuCategory.sortMenuCategories(shop.getMenuCategories());
         return new ShopResponse(
             shop.getAddress(),
             shop.isDelivery(),

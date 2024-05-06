@@ -20,7 +20,7 @@ public class MenuCategoryFixture {
         return menuCategoryRepository.save(
             MenuCategory.builder()
                 .shop(shop)
-                .name("추천메뉴")
+                .name("추천 메뉴")
                 .build()
         );
     }
@@ -29,7 +29,7 @@ public class MenuCategoryFixture {
         return menuCategoryRepository.save(
             MenuCategory.builder()
                 .shop(shop)
-                .name("사이드메뉴")
+                .name("사이드 메뉴")
                 .build()
         );
     }
@@ -38,7 +38,7 @@ public class MenuCategoryFixture {
         return menuCategoryRepository.save(
             MenuCategory.builder()
                 .shop(shop)
-                .name("세트메뉴")
+                .name("세트 메뉴")
                 .build()
         );
     }
@@ -47,7 +47,7 @@ public class MenuCategoryFixture {
         return menuCategoryRepository.save(
             MenuCategory.builder()
                 .shop(shop)
-                .name("메인메뉴")
+                .name("메인 메뉴")
                 .build()
         );
     }

@@ -5,7 +5,10 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -40,7 +43,7 @@ public final class MenuCategory extends BaseEntity {
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @OneToMany(mappedBy = "menuCategory", orphanRemoval = true, cascade = ALL)
@@ -54,5 +57,18 @@ public final class MenuCategory extends BaseEntity {
 
     public void modifyName(String name) {
         this.name = name;
+    }
+
+    public static void sortMenuCategories(List<MenuCategory> menuCategories) {
+        Map<String, Integer> priorityMap = new HashMap<>();
+        priorityMap.put("추천 메뉴", 1);
+        priorityMap.put("메인 메뉴", 2);
+        priorityMap.put("세트 메뉴", 3);
+        priorityMap.put("사이드 메뉴", 4);
+        Collections.sort(menuCategories, (cat1, cat2) -> {
+            Integer priority1 = priorityMap.getOrDefault(cat1.getName(), 5);
+            Integer priority2 = priorityMap.getOrDefault(cat2.getName(), 5);
+            return priority1.compareTo(priority2);
+        });
     }
 }

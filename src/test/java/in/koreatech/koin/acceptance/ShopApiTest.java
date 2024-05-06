@@ -194,16 +194,16 @@ class ShopApiTest extends AcceptanceTest {
                     "count": 3,
                     "menu_categories": [
                         {
-                            "id": 1,
-                            "name": "사이드메뉴"
+                            "id": 3,
+                            "name": "추천 메뉴"
                         },
                         {
                             "id": 2,
-                            "name": "세트메뉴"
+                            "name": "세트 메뉴"
                         },
                         {
-                            "id": 3,
-                            "name": "추천메뉴"
+                            "id": 1,
+                            "name": "사이드 메뉴"
                         }
                     ]
                 }
@@ -238,13 +238,13 @@ class ShopApiTest extends AcceptanceTest {
                     ],
                     "menu_categories": [
                         {
-                            "id": 1,
-                            "name": "사이드메뉴"
+                            "id": 2,
+                            "name": "세트 메뉴"
                         },
                         {
-                            "id": 2,
-                            "name": "세트메뉴"
-                        }
+                            "id": 1,
+                            "name": "사이드 메뉴"
+                        }                        
                     ],
                     "name": "마슬랜 치킨",
                     "open": [
@@ -294,7 +294,7 @@ class ShopApiTest extends AcceptanceTest {
                     "menu_categories": [
                         {
                             "id": 1,
-                            "name": "추천메뉴",
+                            "name": "추천 메뉴",
                             "menus": [
                                 {
                                     "id": 1,
@@ -313,7 +313,7 @@ class ShopApiTest extends AcceptanceTest {
                         },
                         {
                             "id": 2,
-                            "name": "세트메뉴",
+                            "name": "세트 메뉴",
                             "menus": [
                                 {
                                     "id": 2,
