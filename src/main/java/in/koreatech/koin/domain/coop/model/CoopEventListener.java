@@ -35,6 +35,6 @@ public class CoopEventListener {
                 subscribe.getUser()
             )).toList();
         notificationService.push(notifications);
-        diningSoldOutCacheRepository.save(DiningSoldOutCache.of(event.diningType().name()));
+        diningSoldOutCacheRepository.save(DiningSoldOutCache.from(event.place()));
     }
 }
