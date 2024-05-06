@@ -6,8 +6,10 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.dining.model.DiningType;
+import in.koreatech.koin.global.domain.notification.exception.NotificationSubscribeNotFoundException;
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 
 public interface NotificationDetailSubscribeRepository extends Repository<NotificationDetailSubscribe, Integer> {
@@ -20,8 +22,7 @@ public interface NotificationDetailSubscribeRepository extends Repository<Notifi
 
     List<NotificationDetailSubscribe> findAllByDetailSubscribeType(DiningType diningType);
 
-    Optional<NotificationDetailSubscribe> findByUserIdAndDetailSubscribeType(Integer userId,
-        String detailType);
+    Optional<NotificationDetailSubscribe> findByUserIdAndDetailSubscribeType(Integer userId, String detailType);
 
     void deleteByUserIdAndDetailSubscribeType(Integer userId, NotificationDetailSubscribeType type);
 
