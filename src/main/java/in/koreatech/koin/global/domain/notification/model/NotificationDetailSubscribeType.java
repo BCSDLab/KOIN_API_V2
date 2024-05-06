@@ -25,7 +25,7 @@ public enum NotificationDetailSubscribeType {
             .orElseThrow(() -> SubscribeNotFoundException.withDetail("detailType: " + detailType));
     }
 
-    public static NotificationSubscribeType getSubscribeType(NotificationDetailSubscribeType detailType){
+    public static NotificationSubscribeType getSubscribeType(NotificationDetailSubscribeType detailType) {
         if (detailType == BREAKFAST || detailType == LUNCH || detailType == DINNER) {
             return DINING_SOLD_OUT;
         }

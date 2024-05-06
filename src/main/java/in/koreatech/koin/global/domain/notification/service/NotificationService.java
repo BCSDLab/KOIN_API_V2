@@ -85,7 +85,7 @@ public class NotificationService {
     @Transactional
     public void permitNotificationDetailSubscribe(Integer userId, NotificationDetailSubscribeType detailType) {
         User user = userRepository.getById(userId);
-        NotificationSubscribeType type = detailType.getSubscribeType(detailType);
+        NotificationSubscribeType type = NotificationDetailSubscribeType.getSubscribeType(detailType);
 
         if (user.getDeviceToken() == null) {
             throw NotificationNotPermitException.withDetail("user.deviceToken: " + user.getDeviceToken());
@@ -123,14 +123,13 @@ public class NotificationService {
             .findByUserIdAndSubscribeTypeAndDetailType(userId, subscribeType, null).isEmpty()) {
             return;
         }
-        notificationSubscribeRepository.deleteByUserIdAndSubscribeTypeAndDetailType(userId, subscribeType,
-            null);
+        notificationSubscribeRepository.deleteByUserIdAndSubscribeTypeAndDetailType(userId, subscribeType, null);
     }
 
     @Transactional
     public void rejectNotificationDetailSubscribe(Integer userId, NotificationDetailSubscribeType detailType) {
         User user = userRepository.getById(userId);
-        NotificationSubscribeType type = detailType.getSubscribeType(detailType);
+        NotificationSubscribeType type = NotificationDetailSubscribeType.getSubscribeType(detailType);
 
         if (user.getDeviceToken() == null) {
             throw NotificationNotPermitException.withDetail("user.deviceToken: " + user.getDeviceToken());

@@ -1,9 +1,7 @@
 package in.koreatech.koin.global.domain.notification.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
