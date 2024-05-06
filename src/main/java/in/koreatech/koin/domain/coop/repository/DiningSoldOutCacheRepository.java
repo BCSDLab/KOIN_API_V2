@@ -4,17 +4,18 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
+import in.koreatech.koin.domain.coop.exception.DiningCacheNotFoundException;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
-import in.koreatech.koin.domain.dining.model.DiningType;
 
 public interface DiningSoldOutCacheRepository extends Repository<DiningSoldOutCache, String> {
 
     DiningSoldOutCache save(DiningSoldOutCache diningSoldOutCache);
 
-    Optional<DiningSoldOutCache> findByDiningType(DiningType diningType);
+    Optional<DiningSoldOutCache> findById(String diningType);
 
-    default DiningSoldOutCache getByDiningType(DiningType diningType) {
-        return findByDiningType(diningType).orElseThrow(() -> new RuntimeException("DiningSoldOutCache not found"));
+    default DiningSoldOutCache getById(String diningType) {
+        return findById(diningType).orElseThrow(
+            () -> DiningCacheNotFoundException.withDetail("diningSoldOutCache: " + diningType));
     }
 
 }

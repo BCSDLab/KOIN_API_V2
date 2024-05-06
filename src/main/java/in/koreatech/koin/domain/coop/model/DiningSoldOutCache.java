@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import in.koreatech.koin.domain.dining.model.DiningType;
 import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,22 +18,18 @@ public class DiningSoldOutCache {
     @Id
     private String id;
 
-    private DiningType diningType;
-
     @TimeToLive(unit = TimeUnit.HOURS)
     private final Long expiration;
 
     @Builder
-    private DiningSoldOutCache(String id, DiningType diningType) {
+    private DiningSoldOutCache(String id, Long expiration) {
         this.id = id;
-        this.diningType = diningType;
-        this.expiration = CACHE_EXPIRE_HOUR;
+        this.expiration = expiration == null ? CACHE_EXPIRE_HOUR : expiration;
     }
 
-    public static DiningSoldOutCache of(DiningType diningType) {
+    public static DiningSoldOutCache of(String diningType) {
         return DiningSoldOutCache.builder()
-            .id(diningType.name())
-            .diningType(diningType)
+            .id(diningType)
             .build();
     }
 }

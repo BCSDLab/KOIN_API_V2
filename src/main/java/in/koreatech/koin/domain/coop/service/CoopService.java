@@ -31,11 +31,12 @@ public class CoopService {
         Dining dining = diningRepository.getById(soldOutRequest.menuId());
         LocalDateTime now = LocalDateTime.now(clock);
         LocalTime nowTime = now.toLocalTime();
+
         if (soldOutRequest.soldOut()) {
             dining.setSoldOut(now);
             LocalTime startTime = dining.getType().getStartTime();
             LocalTime endTime = dining.getType().getEndTime();
-            if (diningSoldOutCacheRepository.findByDiningType(dining.getType()).isEmpty() &&
+            if (diningSoldOutCacheRepository.findById(dining.getType().name()).isEmpty() &&
                 (!nowTime.isBefore(startTime) && !nowTime.isAfter(endTime))) {
                 eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getPlace(), dining.getType()));
             }
