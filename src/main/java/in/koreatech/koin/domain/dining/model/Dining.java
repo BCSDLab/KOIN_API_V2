@@ -106,6 +106,10 @@ public class Dining extends BaseEntity {
         this.soldOut = soldout;
     }
 
+    public void cancelSoldOut() {
+        this.soldOut = null;
+    }
+
     /**
      * DB에 "[메뉴, 메뉴, ...]" 형태로 저장되어 List로 파싱하여 반환
      */
