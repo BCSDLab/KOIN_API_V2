@@ -48,9 +48,15 @@ public record NotificationStatusResponse(
 
     public static NotificationStatusResponse of(
         boolean isPermit,
-        List<NotificationSubscribe> subscribes,
-        List<NotificationSubscribe> detailSubscribes
+        List<NotificationSubscribe> subscribeList
     ) {
+        List<NotificationSubscribe> subscribes = subscribeList.stream()
+            .filter(subscribe -> subscribe.getDetailType() == null)
+            .toList();
+        List<NotificationSubscribe> detailSubscribes = subscribeList.stream()
+            .filter(subscribe -> subscribe.getDetailType() != null)
+            .toList();
+
         var subscribeResponses = Arrays.stream(NotificationSubscribeType.values())
             .map(type -> new NotificationSubscribeResponse(
                 type.name(),

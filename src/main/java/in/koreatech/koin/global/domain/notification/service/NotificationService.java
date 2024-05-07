@@ -50,13 +50,7 @@ public class NotificationService {
         User user = userRepository.getById(userId);
         boolean isPermit = user.getDeviceToken() != null;
         List<NotificationSubscribe> subscribeList = notificationSubscribeRepository.findAllByUserId(userId);
-        List<NotificationSubscribe> subscribes = subscribeList.stream()
-            .filter(subscribe -> subscribe.getDetailType() == null)
-            .toList();
-        List<NotificationSubscribe> detailSubscribes = subscribeList.stream()
-            .filter(subscribe -> subscribe.getDetailType() != null)
-            .toList();
-        return NotificationStatusResponse.of(isPermit, subscribes, detailSubscribes);
+        return NotificationStatusResponse.of(isPermit, subscribeList);
     }
 
     @Transactional
@@ -85,7 +79,7 @@ public class NotificationService {
     @Transactional
     public void permitNotificationDetailSubscribe(Integer userId, NotificationDetailSubscribeType detailType) {
         User user = userRepository.getById(userId);
-        NotificationSubscribeType type = NotificationDetailSubscribeType.getSubscribeType(detailType);
+        NotificationSubscribeType type = NotificationSubscribeType.getParentType(detailType);
 
         if (user.getDeviceToken() == null) {
             throw NotificationNotPermitException.withDetail("user.deviceToken: " + user.getDeviceToken());
@@ -129,7 +123,7 @@ public class NotificationService {
     @Transactional
     public void rejectNotificationDetailSubscribe(Integer userId, NotificationDetailSubscribeType detailType) {
         User user = userRepository.getById(userId);
-        NotificationSubscribeType type = NotificationDetailSubscribeType.getSubscribeType(detailType);
+        NotificationSubscribeType type = NotificationSubscribeType.getParentType(detailType);
 
         if (user.getDeviceToken() == null) {
             throw NotificationNotPermitException.withDetail("user.deviceToken: " + user.getDeviceToken());
