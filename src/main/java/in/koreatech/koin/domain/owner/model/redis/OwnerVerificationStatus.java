@@ -17,7 +17,6 @@ public class OwnerVerificationStatus {
     @Id
     private String key;
     private String certificationCode;
-    private boolean isAuthed = false;
 
     @TimeToLive(unit = TimeUnit.HOURS)
     private Long expiration;
@@ -26,10 +25,6 @@ public class OwnerVerificationStatus {
         this.key = key;
         this.certificationCode = certificationCode;
         this.expiration = CACHE_EXPIRE_HOUR;
-    }
-
-    public void verify() {
-        this.isAuthed = true;
     }
 
     public static OwnerVerificationStatus of(String key, String certificationCode) {

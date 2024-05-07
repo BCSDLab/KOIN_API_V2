@@ -468,11 +468,11 @@ class OwnerApiTest extends AcceptanceTest {
             .post("/owners/password/reset/send")
             .then()
             .statusCode(HttpStatus.OK.value());
-        var result = ownerVerificationStatusRepository.getByVerify(email);
+        var result = ownerVerificationStatusRepository.findById(email);
         assertSoftly(
             softly -> {
                 softly.assertThat(result).isNotNull();
-                softly.assertThat(result.isAuthed()).isTrue();
+                softly.assertThat(result).isNotPresent();
             }
         );
     }
@@ -515,7 +515,7 @@ class OwnerApiTest extends AcceptanceTest {
             .when()
             .post("/owners/password/reset/send")
             .then()
-            .statusCode(HttpStatus.CONFLICT.value());
+            .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -525,9 +525,23 @@ class OwnerApiTest extends AcceptanceTest {
         User user = userFixture.현수_사장님().getUser();
         String code = "123123";
         OwnerVerificationStatus verification = OwnerVerificationStatus.of(user.getEmail(), code);
-        verification.verify();
         ownerVerificationStatusRepository.save(verification);
         String password = "asdf1234!";
+
+        RestAssured
+            .given()
+            .body(String.format("""
+                    {
+                      "address": "%s",
+                      "certification_code": "%s"
+                    }
+                """, user.getEmail(), code)
+            )
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/password/reset/send")
+            .then()
+            .statusCode(HttpStatus.OK.value());
 
         // when
         RestAssured
@@ -554,33 +568,6 @@ class OwnerApiTest extends AcceptanceTest {
                 passwordEncoder.matches(password, userResult.getPassword());
             }
         );
-    }
-
-    @Test
-    @DisplayName("사장님이 비밀번호를 변경한다. - 인증되지 않으면 400을 반환한다.")
-    void ownerChangePasswordNotAuthed() {
-        // given
-        String email = "test@test.com";
-        String code = "123123";
-        OwnerVerificationStatus verification = OwnerVerificationStatus.of(email, code);
-        ownerVerificationStatusRepository.save(verification);
-        String password = "asdf1234!";
-
-        // when & then
-        RestAssured
-            .given()
-            .body(String.format("""
-                    {
-                       "address": "%s",
-                       "password": "%s"
-                     }
-                """, email, password)
-            )
-            .contentType(ContentType.JSON)
-            .when()
-            .put("/owners/password/reset")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test

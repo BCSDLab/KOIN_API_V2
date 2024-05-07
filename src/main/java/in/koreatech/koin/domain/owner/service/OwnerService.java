@@ -74,7 +74,9 @@ public class OwnerService {
         if (!dailyVerificationLimit.isPresent()) {
             dailyVerificationLimitRedisRepository.save(new DailyVerificationLimit(key));
         } else {
-            dailyVerificationLimit.get().requestVerification();
+            DailyVerificationLimit dailyVerification = dailyVerificationLimit.get();
+            dailyVerification.requestVerification();
+            dailyVerificationLimitRedisRepository.save(dailyVerification);
         }
     }
 
@@ -102,14 +104,12 @@ public class OwnerService {
         eventPublisher.publishEvent(new OwnerPhoneRequestEvent(phoneNumber));
     }
 
-    private OwnerVerificationStatus verifyCode(String key, String code) {
+    private void verifyCode(String key, String code) {
         OwnerVerificationStatus verify = ownerVerificationStatusRepository.getByVerify(key);
         if (!Objects.equals(verify.getCertificationCode(), code)) {
             throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
-        verify.verify();
-        ownerVerificationStatusRepository.save(verify);
-        return verify;
+        ownerVerificationStatusRepository.deleteById(key);
     }
 
     @Transactional
@@ -131,7 +131,6 @@ public class OwnerService {
     @Transactional
     public OwnerVerifyResponse verifyCode(OwnerEmailVerifyRequest request) {
         verifyCode(request.email(), request.certificationCode());
-        ownerVerificationStatusRepository.deleteByVerify(request.email());
         String token = jwtProvider.createTemporaryToken();
         return new OwnerVerifyResponse(token);
     }
@@ -184,23 +183,19 @@ public class OwnerService {
 
     @Transactional
     public void updatePasswordByEmail(OwnerPasswordUpdateRequest request) {
-        OwnerVerificationStatus verify = verifyCode(request.email(), request.password());
-        User user = userRepository.getByEmail(request.email());
+        User user = userRepository.getByEmail(request.address());
         user.updatePassword(passwordEncoder, request.password());
         userRepository.save(user);
-        ownerVerificationStatusRepository.deleteById(verify.getKey());
     }
 
     @Transactional
     public void updatePasswordByPhone(OwnerPasswordUpdateRequest request) {
-        OwnerVerificationStatus verify = verifyCode(request.email(), request.password());
         StringBuilder phoneNumber = new StringBuilder();
-        phoneNumber.append(request.email().substring(0, 3)).append('-');
-        phoneNumber.append(request.email().substring(3, 7)).append('-');
-        phoneNumber.append(request.email().substring(7, 11));
+        phoneNumber.append(request.address().substring(0, 3)).append('-');
+        phoneNumber.append(request.address().substring(3, 7)).append('-');
+        phoneNumber.append(request.address().substring(7, 11));
         User user = userRepository.getByPhoneNumber(phoneNumber.toString());
         user.updatePassword(passwordEncoder, request.password());
         userRepository.save(user);
-        ownerVerificationStatusRepository.deleteById(verify.getKey());
     }
 }

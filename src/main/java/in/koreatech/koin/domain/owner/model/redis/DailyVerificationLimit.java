@@ -32,7 +32,7 @@ public class DailyVerificationLimit {
     }
 
     public void requestVerification() {
-        if (requestCount >= 5) throw RequestVerificationLimitException.withDetail("limit: 5");
+        if (requestCount > 5) throw RequestVerificationLimitException.withDetail("limit: 5");
         ++requestCount;
     }
 }
