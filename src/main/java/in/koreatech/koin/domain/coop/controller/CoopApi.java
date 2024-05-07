@@ -35,7 +35,7 @@ public interface CoopApi {
     @PatchMapping("/dining/soldout")
     ResponseEntity<Void> changeSoldOut(
         @Auth(permit = {COOP}) Integer userId,
-        @RequestBody SoldOutRequest soldOutRequest
+        @RequestBody @Valid SoldOutRequest soldOutRequest
     );
 
     @ApiResponses(

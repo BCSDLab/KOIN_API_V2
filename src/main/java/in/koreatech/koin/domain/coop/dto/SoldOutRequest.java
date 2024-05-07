@@ -16,7 +16,7 @@ public record SoldOutRequest(
 
     @Schema(description = "품절 여부", example = "true", requiredMode = REQUIRED)
     @NotNull(message = "품절 여부는 필수입니다.")
-    Boolean soldOut
+    boolean soldOut
 ) {
 
 }

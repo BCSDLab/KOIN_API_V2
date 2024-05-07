@@ -39,7 +39,7 @@ public class KakaoBotService {
             .toList();
 
         if (dinings.isEmpty()) {
-            return String.format("금일 %s식사는 운영되지 않습니다.", diningType.getLabel());
+            return String.format("금일 %s식사는 운영되지 않습니다.", diningType.getDiningName());
         }
         for (Dining dining : dinings) {
             result.add(String.format("# %s", dining.getPlace()));

@@ -7,6 +7,7 @@ public enum MobileAppPath {
     HOME("home", "home"),
     LOGIN("login", "login"),
     SHOP("shop", "shop"),
+    DINING("dining", "dining"),
     ;
 
     private final String android;
