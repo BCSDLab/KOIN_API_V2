@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record OwnerPasswordResetVerifyRequest(
+public record OwnerPasswordResetVerifyEmailRequest(
     @JsonProperty(value = "address")
     @NotBlank(message = "검증값은 필수입니다.")
     @Schema(description = "검증값 (전화번호, 이메일)", example = "01012341234", requiredMode = REQUIRED)

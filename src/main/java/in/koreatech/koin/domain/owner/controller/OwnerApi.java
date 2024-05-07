@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdatePhoneRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPhoneVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
@@ -35,6 +37,21 @@ public interface OwnerApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "사장님 정보 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/owner")
+    ResponseEntity<OwnerResponse> getOwner(
+        @Auth(permit = {OWNER}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
@@ -54,21 +71,6 @@ public interface OwnerApi {
     @PostMapping("/owners/verification/phone")
     ResponseEntity<Void> requestVerificationToRegisterByPhone(
         @RequestBody @Valid VerifyPhoneRequest verifyPhoneRequest
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "사장님 정보 조회")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/owner")
-    ResponseEntity<OwnerResponse> getOwner(
-        @Auth(permit = {OWNER}) Integer userId
     );
 
     @ApiResponses(
@@ -151,11 +153,25 @@ public interface OwnerApi {
             @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "사장님 비밀번호 변경 인증번호 인증")
+    @Operation(summary = "사장님 비밀번호 변경 인증번호 인증-이메일")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/password/reset/send")
     ResponseEntity<Void> sendVerifyCode(
-        @Valid @RequestBody OwnerPasswordResetVerifyRequest request
+        @Valid @RequestBody OwnerPasswordResetVerifyEmailRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "사장님 비밀번호 변경 인증번호 인증-휴대폰번호")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/owners/password/reset/send/phone")
+    ResponseEntity<Void> sendVerifyCodeByPhone(
+        @Valid @RequestBody OwnerPasswordResetVerifyPhoneRequest request
     );
 
     @ApiResponses(
@@ -168,7 +184,7 @@ public interface OwnerApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/owners/password/reset")
     ResponseEntity<Void> updatePasswordByEmail(
-        @Valid @RequestBody OwnerPasswordUpdateRequest request
+        @Valid @RequestBody OwnerPasswordUpdateEmailRequest request
     );
 
     @ApiResponses(
@@ -181,6 +197,6 @@ public interface OwnerApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/owners/password/reset/phone")
     ResponseEntity<Void> updatePasswordByPhone(
-        @Valid @RequestBody OwnerPasswordUpdateRequest request
+        @Valid @RequestBody OwnerPasswordUpdatePhoneRequest request
     );
 }

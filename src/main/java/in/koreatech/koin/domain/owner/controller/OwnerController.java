@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdatePhoneRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPhoneVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
@@ -97,15 +99,23 @@ public class OwnerController implements OwnerApi {
 
     @PostMapping("/owners/password/reset/send")
     public ResponseEntity<Void> sendVerifyCode(
-        @Valid @RequestBody OwnerPasswordResetVerifyRequest request
+        @Valid @RequestBody OwnerPasswordResetVerifyEmailRequest request
     ) {
-        ownerService.verifyResetPasswordCode(request);
+        ownerService.verifyResetPasswordCodeByEmail(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/owners/password/reset/send/phone")
+    public ResponseEntity<Void> sendVerifyCodeByPhone(
+        @Valid @RequestBody OwnerPasswordResetVerifyPhoneRequest request
+    ) {
+        ownerService.verifyResetPasswordCodeByPhone(request);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/owners/password/reset")
     public ResponseEntity<Void> updatePasswordByEmail(
-        @Valid @RequestBody OwnerPasswordUpdateRequest request
+        @Valid @RequestBody OwnerPasswordUpdateEmailRequest request
     ) {
         ownerService.updatePasswordByEmail(request);
         return ResponseEntity.ok().build();
@@ -113,7 +123,7 @@ public class OwnerController implements OwnerApi {
 
     @PutMapping("/owners/password/reset/phone")
     public ResponseEntity<Void> updatePasswordByPhone(
-        @Valid @RequestBody OwnerPasswordUpdateRequest request
+        @Valid @RequestBody OwnerPasswordUpdatePhoneRequest request
     ) {
         ownerService.updatePasswordByPhone(request);
         return ResponseEntity.ok().build();

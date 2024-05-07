@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdatePhoneRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPhoneVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
@@ -177,23 +179,28 @@ public class OwnerService {
     }
 
     @Transactional
-    public void verifyResetPasswordCode(OwnerPasswordResetVerifyRequest request) {
+    public void verifyResetPasswordCodeByEmail(OwnerPasswordResetVerifyEmailRequest request) {
         verifyCode(request.email(), request.certificationCode());
     }
 
     @Transactional
-    public void updatePasswordByEmail(OwnerPasswordUpdateRequest request) {
-        User user = userRepository.getByEmail(request.address());
+    public void verifyResetPasswordCodeByPhone(OwnerPasswordResetVerifyPhoneRequest request) {
+        verifyCode(request.phoneNumber(), request.certificationCode());
+    }
+
+    @Transactional
+    public void updatePasswordByEmail(OwnerPasswordUpdateEmailRequest request) {
+        User user = userRepository.getByEmail(request.email());
         user.updatePassword(passwordEncoder, request.password());
         userRepository.save(user);
     }
 
     @Transactional
-    public void updatePasswordByPhone(OwnerPasswordUpdateRequest request) {
+    public void updatePasswordByPhone(OwnerPasswordUpdatePhoneRequest request) {
         StringBuilder phoneNumber = new StringBuilder();
-        phoneNumber.append(request.address().substring(0, 3)).append('-');
-        phoneNumber.append(request.address().substring(3, 7)).append('-');
-        phoneNumber.append(request.address().substring(7, 11));
+        phoneNumber.append(request.phoneNumber(), 0, 3).append('-');
+        phoneNumber.append(request.phoneNumber(), 3, 7).append('-');
+        phoneNumber.append(request.phoneNumber(), 7, 11);
         User user = userRepository.getByPhoneNumber(phoneNumber.toString());
         user.updatePassword(passwordEncoder, request.password());
         userRepository.save(user);
