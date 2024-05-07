@@ -42,7 +42,6 @@ class DiningApiTest extends AcceptanceTest {
     private DiningFixture diningFixture;
 
     private Dining A코너_점심;
-    private Dining A코너_저녁;
     private User coop_준기;
     private String token_준기;
     private User owner_현수;
@@ -55,7 +54,6 @@ class DiningApiTest extends AcceptanceTest {
         owner_현수 = userFixture.현수_사장님().getUser();
         token_현수 = userFixture.getToken(owner_현수);
         A코너_점심 = diningFixture.A코스_점심(LocalDate.parse("2024-01-15"));
-        A코너_저녁 = diningFixture.A코스_저녁(LocalDate.parse("2024-01-15"));
     }
 
     @Test
@@ -71,26 +69,6 @@ class DiningApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 [
-                    {
-                        "id": 2,
-                        "date": "2024-01-15",
-                        "type": "DINNER",
-                        "place": "A코스",
-                        "price_card": 6000,
-                        "price_cash": 6000,
-                        "kcal": 881,
-                        "menu": [
-                            "병아리콩밥",
-                            "(탕)소고기육개장",
-                            "땡초부추전",
-                            "누룽지탕"
-                        ],
-                        "image_url": null,
-                        "created_at": "2024-01-15 12:00:00",
-                        "updated_at": "2024-01-15 12:00:00",
-                        "soldout_at": null,
-                        "changed_at": null
-                    },
                     {
                         "id": 1,
                         "date": "2024-01-15",
@@ -139,26 +117,6 @@ class DiningApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 [
-                    {
-                        "id": 2,
-                        "date": "2024-01-15",
-                        "type": "DINNER",
-                        "place": "A코스",
-                        "price_card": 6000,
-                        "price_cash": 6000,
-                        "kcal": 881,
-                        "menu": [
-                            "병아리콩밥",
-                            "(탕)소고기육개장",
-                            "땡초부추전",
-                            "누룽지탕"
-                        ],
-                        "image_url": null,
-                        "created_at": "2024-01-15 12:00:00",
-                        "updated_at": "2024-01-15 12:00:00",
-                        "soldout_at": null,
-                        "changed_at": null
-                    },
                     {
                         "id": 1,
                         "date": "2024-01-15",
@@ -293,6 +251,7 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("해당 식사시간 외에 품절 요청을 한다. - 품절 알림이 발송되지 않는다.")
     void checkSoldOutNotificationAfterHours() {
+        Dining A코너_저녁 = diningFixture.A코스_저녁(LocalDate.parse("2024-01-15"));
         given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token_준기)
