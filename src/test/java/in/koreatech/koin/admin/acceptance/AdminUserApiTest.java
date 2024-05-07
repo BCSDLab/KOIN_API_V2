@@ -30,15 +30,15 @@ public class AdminUserApiTest extends AcceptanceTest {
     private UserFixture userFixture;
 
     @Test
-    @DisplayName("관리자가 특정 학생 정보를 수정한다.")
-    void studentUpdateAdmin() {
+    @DisplayName("관리자가 특정 학생 정보를 수정한다. - 관리자가 아니면 403 반환")
+    void studentUpdateAdminNoAuth() {
         Student student = userFixture.준호_학생();
 
         User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        String token = userFixture.getToken(student.getUser());
 
         var response = RestAssured
-            .given().log().all()
+            .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .body("""
@@ -52,10 +52,41 @@ public class AdminUserApiTest extends AcceptanceTest {
                     "student_number" : "2019136136"
                   }
                 """)
-            .when().log().all()
+            .when()
             .pathParam("id", student.getUser().getId())
             .put("/admin/users/student/{id}")
-            .then().log().all()
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("관리자가 특정 학생 정보를 수정한다.")
+    void studentUpdateAdmin() {
+        Student student = userFixture.준호_학생();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                  {
+                    "gender" : 1,
+                    "major" : "기계공학부",
+                    "name" : "서정빈",
+                    "password" : "0c4be6acaba1839d3433c1ccf04e1eec4d1fa841ee37cb019addc269e8bc1b77",
+                    "nickname" : "duehee",
+                    "phone_number" : "010-2345-6789",
+                    "student_number" : "2019136136"
+                  }
+                """)
+            .when()
+            .pathParam("id", student.getUser().getId())
+            .put("/admin/users/student/{id}")
+            .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
