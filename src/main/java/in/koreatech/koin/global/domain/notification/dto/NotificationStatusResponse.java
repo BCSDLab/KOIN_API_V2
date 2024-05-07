@@ -55,7 +55,7 @@ public record NotificationStatusResponse(
             .map(type -> new NotificationSubscribeResponse(
                 type.name(),
                 subscribes.stream().anyMatch(subscribe -> subscribe.getSubscribeType() == type),
-                Arrays.stream(type.getDetailTypes().toArray(new NotificationDetailSubscribeType[0]))
+                Arrays.stream(type.getDetailTypes().toArray(NotificationDetailSubscribeType[]::new))
                     .map(detailType -> new NotificationDetailSubscribeResponse(
                         detailType.name(),
                         detailSubscribes.stream()
