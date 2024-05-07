@@ -13,7 +13,8 @@ public interface NotificationSubscribeRepository extends Repository<Notification
 
     NotificationSubscribe save(NotificationSubscribe notificationSubscribe);
 
-    List<NotificationSubscribe> findAllBySubscribeType(NotificationSubscribeType type);
+    List<NotificationSubscribe> findAllBySubscribeTypeAndDetailType(NotificationSubscribeType type,
+        NotificationDetailSubscribeType detailType);
 
     Optional<NotificationSubscribe> findByUserIdAndSubscribeTypeAndDetailType(Integer userId,
         NotificationSubscribeType type, NotificationDetailSubscribeType detailType);

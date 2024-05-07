@@ -29,7 +29,8 @@ public class ShopEventListener {
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onShopEventCreate(EventArticleCreateShopEvent event) {
-        List<Notification> notifications = notificationSubscribeRepository.findAllBySubscribeType(SHOP_EVENT)
+        List<Notification> notifications = notificationSubscribeRepository
+            .findAllBySubscribeTypeAndDetailType(SHOP_EVENT, null)
             .stream()
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .map(subscribe -> notificationFactory.generateShopEventCreateNotification(
