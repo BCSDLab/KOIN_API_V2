@@ -6,14 +6,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
+import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
+import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.StudentDepartment;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.repository.StudentRepository;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,13 +21,13 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class AdminUserService {
 
-    private final StudentRepository studentRepository;
-    private final UserRepository userRepository;
+    private final AdminStudentRepository adminStudentRepository;
+    private final AdminUserRepository adminUserRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public AdminStudentUpdateResponse updateStudent(Integer id, AdminStudentUpdateRequest adminRequest) {
-        Student student = studentRepository.getById(id);
+        Student student = adminStudentRepository.getById(id);
         User user = student.getUser();
         checkNicknameDuplication(adminRequest.nickname(), id);
         checkDepartmentValid(adminRequest.major());
@@ -35,15 +35,15 @@ public class AdminUserService {
             adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
         user.updateStudentPassword(passwordEncoder, adminRequest.password());
         student.update(adminRequest.studentNumber(), adminRequest.major());
-        studentRepository.save(student);
+        adminStudentRepository.save(student);
 
         return AdminStudentUpdateResponse.from(student);
     }
 
     public void checkNicknameDuplication(String nickname, Integer userId) {
-        User checkUser = userRepository.getById(userId);
+        User checkUser = adminUserRepository.getById(userId);
         if (nickname != null && !nickname.equals(checkUser.getNickname())
-            && userRepository.existsByNickname(nickname)) {
+            && adminUserRepository.existsByNickname(nickname)) {
             throw DuplicationNicknameException.withDetail("nickname : " + nickname);
         }
     }
