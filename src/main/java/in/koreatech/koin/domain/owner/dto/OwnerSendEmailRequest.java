@@ -13,7 +13,7 @@ public record OwnerSendEmailRequest(
     @NotBlank(message = "이메일은 필수입니다.")
     @JsonProperty(value = "address")
     @Schema(description = "이메일", example = "temp@gmail.com", requiredMode = REQUIRED)
-    String email
+    String address
 ) {
 
 }

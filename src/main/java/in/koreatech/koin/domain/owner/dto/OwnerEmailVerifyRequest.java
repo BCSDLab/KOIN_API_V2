@@ -13,12 +13,11 @@ import jakarta.validation.constraints.NotBlank;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record OwnerEmailVerifyRequest(
-    // TODO: DTO 적절히 변경
     @Email(message = "이메일 형식이 올바르지 않습니다. ${validatedValue}")
     @NotBlank(message = "이메일은 필수입니다.")
     @JsonProperty(value = "address")
     @Schema(description = "이메일", example = "temp@gmail.com", requiredMode = REQUIRED)
-    String email,
+    String address,
 
     @NotBlank(message = "인증 코드는 필수입니다.")
     @Digits(integer = 6, fraction = 0, message = "인증 코드는 6자리 정수여야 합니다. ${validatedValue}")

@@ -15,7 +15,7 @@ public record OwnerPasswordResetVerifyEmailRequest(
     @JsonProperty(value = "address")
     @NotBlank(message = "검증값은 필수입니다.")
     @Schema(description = "검증값 (전화번호, 이메일)", example = "01012341234", requiredMode = REQUIRED)
-    String email,
+    String address,
 
     @NotBlank(message = "인증 코드는 필수입니다.")
     @Digits(integer = 6, fraction = 0, message = "인증 코드는 6자리 정수여야 합니다. ${validatedValue}")
