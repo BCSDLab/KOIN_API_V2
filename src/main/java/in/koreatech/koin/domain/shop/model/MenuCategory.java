@@ -5,8 +5,6 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -30,7 +29,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "shop_menu_categories")
 @NoArgsConstructor(access = PROTECTED)
-public final class MenuCategory extends BaseEntity {
+public final class MenuCategory extends BaseEntity implements Comparable<MenuCategory> {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -49,6 +48,14 @@ public final class MenuCategory extends BaseEntity {
     @OneToMany(mappedBy = "menuCategory", orphanRemoval = true, cascade = ALL)
     private List<MenuCategoryMap> menuCategoryMaps = new ArrayList<>();
 
+    @Transient
+    private Map<String, Integer> priorityMap = Map.of(
+        "추천 메뉴", 1,
+        "메인 메뉴", 2,
+        "세트 메뉴", 3,
+        "사이드 메뉴", 4
+    );
+
     @Builder
     private MenuCategory(Shop shop, String name) {
         this.shop = shop;
@@ -59,16 +66,8 @@ public final class MenuCategory extends BaseEntity {
         this.name = name;
     }
 
-    public static void sortMenuCategories(List<MenuCategory> menuCategories) {
-        Map<String, Integer> priorityMap = new HashMap<>();
-        priorityMap.put("추천 메뉴", 1);
-        priorityMap.put("메인 메뉴", 2);
-        priorityMap.put("세트 메뉴", 3);
-        priorityMap.put("사이드 메뉴", 4);
-        Collections.sort(menuCategories, (cat1, cat2) -> {
-            Integer priority1 = priorityMap.getOrDefault(cat1.getName(), 5);
-            Integer priority2 = priorityMap.getOrDefault(cat2.getName(), 5);
-            return priority1.compareTo(priority2);
-        });
+    @Override
+    public int compareTo(MenuCategory other) {
+        return priorityMap.getOrDefault(name, 5) - priorityMap.getOrDefault(other.name, 5);
     }
 }

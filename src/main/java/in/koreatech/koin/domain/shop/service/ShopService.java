@@ -57,7 +57,7 @@ public class ShopService {
     public MenuCategoriesResponse getMenuCategories(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
-        MenuCategory.sortMenuCategories(menuCategories);
+        Collections.sort(menuCategories);
         return MenuCategoriesResponse.from(menuCategories);
     }
 
@@ -70,7 +70,7 @@ public class ShopService {
     public ShopMenuResponse getShopMenus(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
-        MenuCategory.sortMenuCategories(menuCategories);
+        Collections.sort(menuCategories);
         return ShopMenuResponse.from(menuCategories);
     }
 
