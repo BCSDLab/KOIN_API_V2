@@ -2,9 +2,7 @@ package in.koreatech.koin.fixture;
 
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,6 +45,22 @@ public final class UserFixture {
         this.ownerRepository = ownerRepository;
         this.studentRepository = studentRepository;
         this.jwtProvider = jwtProvider;
+    }
+
+    public User 코인_운영자() {
+        return userRepository.save(
+            User.builder()
+                .password(passwordEncoder.encode("1234"))
+                .nickname("코인운영자")
+                .name("테스트용_코인운영자")
+                .phoneNumber("010-1234-2344")
+                .userType(ADMIN)
+                .gender(MAN)
+                .email("juno@koreatech.ac.kr")
+                .isAuthed(true)
+                .isDeleted(false)
+                .build()
+        );
     }
 
     public Student 준호_학생() {
