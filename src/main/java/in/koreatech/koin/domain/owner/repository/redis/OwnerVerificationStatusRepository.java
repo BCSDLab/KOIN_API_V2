@@ -11,15 +11,15 @@ public interface OwnerVerificationStatusRepository extends Repository<OwnerVerif
 
     OwnerVerificationStatus save(OwnerVerificationStatus ownerInVerification);
 
-    Optional<OwnerVerificationStatus> findById(String email);
+    Optional<OwnerVerificationStatus> findById(String key);
 
-    void deleteById(String email);
+    void deleteById(String key);
 
-    default void deleteByVerify(String email) {
-        deleteById(email);
+    default void deleteByVerify(String key) {
+        deleteById(key);
     }
 
-    default OwnerVerificationStatus getByVerify(String verify) {
-        return findById(verify).orElseThrow(() -> VerifyNotFoundException.withDetail("verify: " + verify));
+    default OwnerVerificationStatus getByVerify(String key) {
+        return findById(key).orElseThrow(() -> VerifyNotFoundException.withDetail("verify: " + key));
     }
 }

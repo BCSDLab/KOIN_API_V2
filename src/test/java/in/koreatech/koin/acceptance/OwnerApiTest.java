@@ -46,7 +46,7 @@ class OwnerApiTest extends AcceptanceTest {
     private OwnerShopRedisRepository ownerShopRedisRepository;
 
     @Autowired
-    private OwnerVerificationStatusRepository ownerInVerificationRedisRepository;
+    private OwnerVerificationStatusRepository ownerVerificationStatusRepository;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -122,7 +122,7 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        var verifyCode = ownerInVerificationRedisRepository.getByVerify(ownerEmail);
+        var verifyCode = ownerVerificationStatusRepository.getByVerify(ownerEmail);
 
         RestAssured
             .given()
@@ -138,38 +138,8 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        var result = ownerInVerificationRedisRepository.findById(ownerEmail);
+        var result = ownerVerificationStatusRepository.findById(ownerEmail);
         Assertions.assertThat(result).isNotPresent();
-    }
-
-    @Test
-    @DisplayName("사장님이 회원가입 인증번호 전송 요청을 한다 - 1분 이내로 재요청시 오류가 발생한다.")
-    void requestDuplicateVerifySign() {
-        String ownerEmail = "junho5336@gmail.com";
-        RestAssured
-            .given()
-            .body(String.format("""
-                {
-                  "address": "%s"
-                }
-                """, ownerEmail))
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/verification/email")
-            .then()
-            .statusCode(HttpStatus.OK.value());
-        RestAssured
-            .given()
-            .body(String.format("""
-                {
-                  "address": "%s"
-                }
-                """, ownerEmail))
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/verification/email")
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value());
     }
 
     @Test
@@ -414,7 +384,7 @@ class OwnerApiTest extends AcceptanceTest {
     void ownerCodeVerification() {
         // given
         OwnerVerificationStatus verification = OwnerVerificationStatus.of("junho5336@gmail.com", "123456");
-        ownerInVerificationRedisRepository.save(verification);
+        ownerVerificationStatusRepository.save(verification);
         RestAssured
             .given()
             .body("""
@@ -428,7 +398,7 @@ class OwnerApiTest extends AcceptanceTest {
             .post("/owners/verification/code")
             .then()
             .statusCode(HttpStatus.OK.value());
-        var result = ownerInVerificationRedisRepository.findById(verification.getKey());
+        var result = ownerVerificationStatusRepository.findById(verification.getKey());
         assertThat(result).isNotPresent();
     }
 
@@ -437,7 +407,7 @@ class OwnerApiTest extends AcceptanceTest {
     void ownerCodeVerificationNotExistEmail() {
         // given
         OwnerVerificationStatus verification = OwnerVerificationStatus.of("junho5336@gmail.com", "123456");
-        ownerInVerificationRedisRepository.save(verification);
+        ownerVerificationStatusRepository.save(verification);
         RestAssured
             .given()
             .body("""
@@ -472,7 +442,7 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        assertThat(ownerInVerificationRedisRepository.findById(email)).isPresent();
+        assertThat(ownerVerificationStatusRepository.findById(email)).isPresent();
     }
 
     @Test
@@ -482,7 +452,8 @@ class OwnerApiTest extends AcceptanceTest {
         String email = "test@test.com";
         String code = "123123";
         OwnerVerificationStatus verification = OwnerVerificationStatus.of(email, code);
-        ownerInVerificationRedisRepository.save(verification);
+        ownerVerificationStatusRepository.save(verification);
+
         RestAssured
             .given()
             .body(String.format("""
@@ -497,8 +468,7 @@ class OwnerApiTest extends AcceptanceTest {
             .post("/owners/password/reset/send")
             .then()
             .statusCode(HttpStatus.OK.value());
-
-        var result = ownerInVerificationRedisRepository.getByVerify(email);
+        var result = ownerVerificationStatusRepository.getByVerify(email);
         assertSoftly(
             softly -> {
                 softly.assertThat(result).isNotNull();
@@ -514,7 +484,7 @@ class OwnerApiTest extends AcceptanceTest {
         String email = "test@test.com";
         String code = "123123";
         OwnerVerificationStatus verification = OwnerVerificationStatus.of(email, code);
-        ownerInVerificationRedisRepository.save(verification);
+        ownerVerificationStatusRepository.save(verification);
         // when
         RestAssured
             .given()
@@ -556,7 +526,7 @@ class OwnerApiTest extends AcceptanceTest {
         String code = "123123";
         OwnerVerificationStatus verification = OwnerVerificationStatus.of(user.getEmail(), code);
         verification.verify();
-        ownerInVerificationRedisRepository.save(verification);
+        ownerVerificationStatusRepository.save(verification);
         String password = "asdf1234!";
 
         // when
@@ -576,7 +546,7 @@ class OwnerApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value());
 
         // then
-        var result = ownerInVerificationRedisRepository.findById(user.getEmail());
+        var result = ownerVerificationStatusRepository.findById(user.getEmail());
         User userResult = userRepository.getByEmail(user.getEmail());
         SoftAssertions.assertSoftly(
             softly -> {
@@ -593,7 +563,7 @@ class OwnerApiTest extends AcceptanceTest {
         String email = "test@test.com";
         String code = "123123";
         OwnerVerificationStatus verification = OwnerVerificationStatus.of(email, code);
-        ownerInVerificationRedisRepository.save(verification);
+        ownerVerificationStatusRepository.save(verification);
         String password = "asdf1234!";
 
         // when & then

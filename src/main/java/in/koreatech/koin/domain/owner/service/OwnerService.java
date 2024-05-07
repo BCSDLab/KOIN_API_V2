@@ -59,7 +59,7 @@ public class OwnerService {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
-    private final OwnerVerificationStatusRepository ownerVerificationStatusRedisRepository;
+    private final OwnerVerificationStatusRepository ownerVerificationStatusRepository;
     private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
     private final NaverSmsService naverSmsService;
 
@@ -69,7 +69,7 @@ public class OwnerService {
         return OwnerResponse.of(foundOwner, foundOwner.getAttachments(), shops);
     }
 
-    private void setVerificationLimit(String key) {
+    private void setVerificationCount(String key) {
         Optional<DailyVerificationLimit> dailyVerificationLimit = dailyVerificationLimitRedisRepository.findById(key);
         if (!dailyVerificationLimit.isPresent()) {
             dailyVerificationLimitRedisRepository.save(new DailyVerificationLimit(key));
@@ -79,34 +79,36 @@ public class OwnerService {
     }
 
     private void sendCertificationEmail(String email) {
-        setVerificationLimit(email);
+        setVerificationCount(email);
         String certificationCode = CertificateNumberGenerator.generate();
         mailService.sendMail(email, new OwnerRegistrationData(certificationCode));
         OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
             email,
             certificationCode
         );
-        ownerVerificationStatusRedisRepository.save(ownerVerificationStatus);
+        ownerVerificationStatusRepository.save(ownerVerificationStatus);
         eventPublisher.publishEvent(new OwnerEmailRequestEvent(email));
     }
 
     private void sendCertificationPhone(String phoneNumber) {
-        setVerificationLimit(phoneNumber);
+        setVerificationCount(phoneNumber);
         String certificationCode = CertificateNumberGenerator.generate();
         naverSmsService.sendVerificationCode(certificationCode, phoneNumber);
         OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
             phoneNumber,
             certificationCode
         );
-        ownerVerificationStatusRedisRepository.save(ownerVerificationStatus);
+        ownerVerificationStatusRepository.save(ownerVerificationStatus);
         eventPublisher.publishEvent(new OwnerPhoneRequestEvent(phoneNumber));
     }
 
     private OwnerVerificationStatus verifyCode(String key, String code) {
-        OwnerVerificationStatus verify = ownerVerificationStatusRedisRepository.getByVerify(key);
+        OwnerVerificationStatus verify = ownerVerificationStatusRepository.getByVerify(key);
         if (!Objects.equals(verify.getCertificationCode(), code)) {
             throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
+        verify.verify();
+        ownerVerificationStatusRepository.save(verify);
         return verify;
     }
 
@@ -129,6 +131,7 @@ public class OwnerService {
     @Transactional
     public OwnerVerifyResponse verifyCode(OwnerEmailVerifyRequest request) {
         verifyCode(request.email(), request.certificationCode());
+        ownerVerificationStatusRepository.deleteByVerify(request.email());
         String token = jwtProvider.createTemporaryToken();
         return new OwnerVerifyResponse(token);
     }
@@ -174,7 +177,7 @@ public class OwnerService {
         sendCertificationPhone(request.phoneNumber());
     }
 
-    @Transactional // email, phone구분
+    @Transactional
     public void verifyResetPasswordCode(OwnerPasswordResetVerifyRequest request) {
         verifyCode(request.email(), request.certificationCode());
     }
@@ -185,7 +188,7 @@ public class OwnerService {
         User user = userRepository.getByEmail(request.email());
         user.updatePassword(passwordEncoder, request.password());
         userRepository.save(user);
-        ownerVerificationStatusRedisRepository.deleteById(verify.getKey());
+        ownerVerificationStatusRepository.deleteById(verify.getKey());
     }
 
     @Transactional
@@ -198,6 +201,6 @@ public class OwnerService {
         User user = userRepository.getByPhoneNumber(phoneNumber.toString());
         user.updatePassword(passwordEncoder, request.password());
         userRepository.save(user);
-        ownerVerificationStatusRedisRepository.deleteById(verify.getKey());
+        ownerVerificationStatusRepository.deleteById(verify.getKey());
     }
 }
