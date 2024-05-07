@@ -64,7 +64,6 @@ class NotificationApiTest extends AcceptanceTest {
             .when()
             .get("/notification")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -239,7 +238,6 @@ class NotificationApiTest extends AcceptanceTest {
             .when()
             .post("/notification/subscribe/detail")
             .then()
-            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
