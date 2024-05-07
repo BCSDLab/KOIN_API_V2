@@ -446,6 +446,43 @@ class OwnerApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("사장님이 비밀번호 변경을 위한 인증번호 이메일을 전송을 하루 요청 횟수(5번)를 초과하여 요청한다 - 400에러를 반환한다.")
+    void sendResetPasswordEmailWithDailyLimit() {
+        // given
+        int DAILY_LIMIT = 5;
+        String email = "test@test.com";
+        for (int i = 0; i < DAILY_LIMIT; ++i) {
+            RestAssured
+                .given()
+                .body(String.format("""
+                        {
+                          "address": "%s"
+                        }
+                    """, email)
+                )
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/owners/password/reset/verification")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+        }
+
+        RestAssured
+            .given()
+            .body(String.format("""
+                    {
+                      "address": "%s"
+                    }
+                """, email)
+            )
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/password/reset/verification")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
     @DisplayName("사장님이 인증번호를 확인한다.")
     void ownerVerify() {
         // given
@@ -478,7 +515,7 @@ class OwnerApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님이 인증번호를 확인한다. - 중복 시 409를 반환한다.")
+    @DisplayName("사장님이 인증번호를 확인한다. - 중복 시 404를 반환한다.")
     void ownerVerifyDuplicated() {
         // given
         String email = "test@test.com";
