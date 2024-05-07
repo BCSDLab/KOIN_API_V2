@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.user.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
+import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,6 +34,7 @@ public interface AdminUserApi {
     @PutMapping("/admin/users/student/{id}")
     ResponseEntity<AdminStudentUpdateResponse> updateStudent(
         @Valid @RequestBody AdminStudentUpdateRequest adminRequest,
-        @PathVariable Integer id
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 }
