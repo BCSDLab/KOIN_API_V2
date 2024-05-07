@@ -40,7 +40,7 @@ public class NotificationFactory {
         );
     }
 
-    public String getPostposition(String place, String firstPost, String secondPost){
+    private String getPostposition(String place, String firstPost, String secondPost){
         char lastChar = place.charAt(place.length() - 1);
         String result = (lastChar - 0xAC00) % 28 > 0 ? firstPost : secondPost;
         return place + result;

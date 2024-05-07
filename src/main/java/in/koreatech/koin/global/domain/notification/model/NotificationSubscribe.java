@@ -33,13 +33,22 @@ public class NotificationSubscribe extends BaseEntity {
     @Column(name = "subscribe_type", nullable = false)
     private NotificationSubscribeType subscribeType;
 
+    @Enumerated(STRING)
+    @Column(name = "detail_type")
+    private NotificationDetailSubscribeType detailType;
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Builder
-    private NotificationSubscribe(NotificationSubscribeType subscribeType, User user) {
+    private NotificationSubscribe(
+        NotificationSubscribeType subscribeType,
+        NotificationDetailSubscribeType detailType,
+        User user
+    ) {
         this.subscribeType = subscribeType;
+        this.detailType = detailType;
         this.user = user;
     }
 }

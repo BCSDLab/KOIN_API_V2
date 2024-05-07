@@ -1,8 +1,6 @@
 package in.koreatech.koin.global.domain.notification.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.domain.notification.dto.NotificationPermitRequest;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
+import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import jakarta.validation.Valid;
@@ -52,6 +51,15 @@ public class NotificationController implements NotificationApi {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PostMapping("/notification/subscribe/detail")
+    public ResponseEntity<Void> permitNotificationDetailSubscribe(
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
+        @RequestParam(value = "detail_type") NotificationDetailSubscribeType detailSubscribeType
+    ) {
+        notificationService.permitNotificationDetailSubscribe(userId, detailSubscribeType);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
     @DeleteMapping("/notification")
     public ResponseEntity<Void> rejectNotification(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
@@ -66,6 +74,15 @@ public class NotificationController implements NotificationApi {
         @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     ) {
         notificationService.rejectNotificationByType(userId, notificationSubscribeType);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/notification/subscribe/detail")
+    public ResponseEntity<Void> rejectNotificationDetailSubscribe(
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
+        @RequestParam(value = "detail_type") NotificationDetailSubscribeType detailSubscribeType
+    ) {
+        notificationService.rejectNotificationDetailSubscribe(userId, detailSubscribeType);
         return ResponseEntity.noContent().build();
     }
 }
