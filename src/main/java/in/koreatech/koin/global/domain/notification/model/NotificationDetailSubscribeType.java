@@ -1,7 +1,5 @@
 package in.koreatech.koin.global.domain.notification.model;
 
-import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
-
 import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -23,13 +21,6 @@ public enum NotificationDetailSubscribeType {
             .filter(it -> it.name().equalsIgnoreCase(detailType))
             .findAny()
             .orElseThrow(() -> SubscribeNotFoundException.withDetail("detailType: " + detailType));
-    }
-
-    public static NotificationSubscribeType getSubscribeType(NotificationDetailSubscribeType detailType) {
-        if (detailType == BREAKFAST || detailType == LUNCH || detailType == DINNER) {
-            return DINING_SOLD_OUT;
-        }
-        return null;
     }
 
     public static NotificationDetailSubscribeType from(DiningType diningType) {

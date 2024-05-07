@@ -29,4 +29,11 @@ public enum NotificationSubscribeType {
             .findAny()
             .orElseThrow(() -> SubscribeNotFoundException.withDetail("type: " + type));
     }
+
+    public static NotificationSubscribeType getParentType(NotificationDetailSubscribeType childType) {
+        return Arrays.stream(values())
+            .filter(parentType -> parentType.detailTypes.contains(childType))
+            .findAny()
+            .orElseThrow(() -> SubscribeNotFoundException.withDetail("childType: " + childType));
+    }
 }
