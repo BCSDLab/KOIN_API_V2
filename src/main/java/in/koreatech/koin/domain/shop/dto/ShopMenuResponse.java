@@ -31,23 +31,27 @@ public record ShopMenuResponse(
 ) {
 
     public static ShopMenuResponse from(List<MenuCategory> menuCategories) {
-        int count = 0;
-        LocalDateTime lastUpdatedAt = LocalDateTime.MIN;
-        List<MenuCategory> filterMenuCategory = menuCategories
-            .stream()
+        List<MenuCategory> filteredMenuCategories = menuCategories.stream()
             .filter(menuCategory -> !menuCategory.getMenuCategoryMaps().isEmpty())
             .toList();
-        for (MenuCategory menuCategory : filterMenuCategory) {
-            for (MenuCategoryMap menuCategoryMap: menuCategory.getMenuCategoryMaps()) {
-                if (lastUpdatedAt.isBefore(menuCategoryMap.getMenu().getUpdatedAt())) {
-                    lastUpdatedAt = menuCategoryMap.getMenu().getUpdatedAt();
-                }
-            }
-            count += menuCategory.getMenuCategoryMaps().size();
-        }
+
+        int totalMapsCount = filteredMenuCategories.stream()
+            .mapToInt(menuCategory -> menuCategory.getMenuCategoryMaps().size())
+            .sum();
+
+        LocalDateTime lastUpdatedAt = filteredMenuCategories.stream()
+            .flatMap(menuCategory -> menuCategory.getMenuCategoryMaps().stream())
+            .map(menuCategoryMap -> menuCategoryMap.getMenu().getUpdatedAt())
+            .max(LocalDateTime::compareTo)
+            .orElse(LocalDateTime.MIN);
+
+        List<InnerMenuCategoriesResponse> responses = filteredMenuCategories.stream()
+            .map(InnerMenuCategoriesResponse::from)
+            .toList();
+
         return new ShopMenuResponse(
-            count,
-            filterMenuCategory.stream().map(InnerMenuCategoriesResponse::from).toList(),
+            totalMapsCount,
+            responses,
             lastUpdatedAt
         );
     }
