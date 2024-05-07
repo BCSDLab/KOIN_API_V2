@@ -45,7 +45,8 @@ public class NotificationSubscribe extends BaseEntity {
     private NotificationSubscribe(
         NotificationSubscribeType subscribeType,
         NotificationDetailSubscribeType detailType,
-        User user) {
+        User user
+    ) {
         this.subscribeType = subscribeType;
         this.detailType = detailType;
         this.user = user;

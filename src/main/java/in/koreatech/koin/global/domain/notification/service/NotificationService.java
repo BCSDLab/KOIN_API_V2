@@ -63,7 +63,7 @@ public class NotificationService {
     public void permitNotificationSubscribe(Integer userId, NotificationSubscribeType subscribeType) {
         User user = userRepository.getById(userId);
         if (user.getDeviceToken() == null) {
-            throw NotificationNotPermitException.withDetail("user.deviceToken: " + user.getDeviceToken());
+            throw NotificationNotPermitException.withDetail("user.deviceToken: null");
         }
         if (notificationSubscribeRepository
             .findByUserIdAndSubscribeTypeAndDetailType(userId, subscribeType, null).isPresent()) {
@@ -82,7 +82,7 @@ public class NotificationService {
         NotificationSubscribeType type = NotificationSubscribeType.getParentType(detailType);
 
         if (user.getDeviceToken() == null) {
-            throw NotificationNotPermitException.withDetail("user.deviceToken: " + user.getDeviceToken());
+            throw NotificationNotPermitException.withDetail("user.deviceToken: null");
         }
         if (notificationSubscribeRepository
             .findByUserIdAndSubscribeTypeAndDetailType(userId, type, null).isEmpty()) {
@@ -111,7 +111,7 @@ public class NotificationService {
     public void rejectNotificationByType(Integer userId, NotificationSubscribeType subscribeType) {
         User user = userRepository.getById(userId);
         if (user.getDeviceToken() == null) {
-            throw NotificationNotPermitException.withDetail("user.deviceToken: " + user.getDeviceToken());
+            throw NotificationNotPermitException.withDetail("user.deviceToken: null");
         }
         if (notificationSubscribeRepository
             .findByUserIdAndSubscribeTypeAndDetailType(userId, subscribeType, null).isEmpty()) {
@@ -126,7 +126,7 @@ public class NotificationService {
         NotificationSubscribeType type = NotificationSubscribeType.getParentType(detailType);
 
         if (user.getDeviceToken() == null) {
-            throw NotificationNotPermitException.withDetail("user.deviceToken: " + user.getDeviceToken());
+            throw NotificationNotPermitException.withDetail("user.deviceToken: null");
         }
         if (notificationSubscribeRepository
             .findByUserIdAndSubscribeTypeAndDetailType(userId, type, null).isEmpty()) {

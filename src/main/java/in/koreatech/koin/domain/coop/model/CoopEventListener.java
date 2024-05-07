@@ -30,10 +30,11 @@ public class CoopEventListener {
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onDiningSoldOutRequest(DiningSoldOutEvent event) {
         NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(event.diningType());
-        var notifications = notificationSubscribeRepository.findAllBySubscribeTypeAndDetailType(DINING_SOLD_OUT,
-                null).stream()
+        var notifications = notificationSubscribeRepository
+            .findAllBySubscribeTypeAndDetailType(DINING_SOLD_OUT, null).stream()
             .filter(subscribe -> notificationSubscribeRepository.findByUserIdAndSubscribeTypeAndDetailType(
-                subscribe.getUser().getId(), DINING_SOLD_OUT, detailType).isPresent())
+                subscribe.getUser().getId(), DINING_SOLD_OUT, detailType).isPresent()
+            )
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .map(subscribe -> notificationFactory.generateSoldOutNotification(
                 DINING,
