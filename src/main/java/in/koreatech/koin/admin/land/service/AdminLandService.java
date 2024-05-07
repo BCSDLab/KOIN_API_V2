@@ -6,9 +6,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
+import in.koreatech.koin.admin.land.execption.LandNameDuplicationException;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
 import in.koreatech.koin.domain.land.model.Land;
+import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
@@ -31,5 +34,14 @@ public class AdminLandService {
         Page<Land> result = adminLandRepository.findAllByIsDeleted(isDeleted, pageRequest);
 
         return AdminLandsResponse.of(result, criteria);
+    }
+
+    @Transactional
+    public void createLands(AdminLandsRequest adminLandsRequest) {
+        if (adminLandRepository.findByName(adminLandsRequest.name()).isPresent()) {
+            throw LandNameDuplicationException.withDetail("name: " + adminLandsRequest.name());
+        }
+        Land land = adminLandsRequest.toLand();
+        adminLandRepository.save(land);
     }
 }
