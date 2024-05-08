@@ -15,13 +15,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "notification_subscribe")
+@Table(name = "notification_subscribe", uniqueConstraints = {
+    @UniqueConstraint(
+        name = "unique_user_id_subscribe_type_detail_type",
+        columnNames = {"user_id", "subscribe_type", "detail_type"}
+    )
+})
 @NoArgsConstructor(access = PROTECTED)
 public class NotificationSubscribe extends BaseEntity {
 
