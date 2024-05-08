@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.coop.service;
 
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -30,14 +31,15 @@ public class CoopService {
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
         Dining dining = diningRepository.getById(soldOutRequest.menuId());
         LocalDateTime now = LocalDateTime.now(clock);
+        LocalDate today = now.toLocalDate();
         LocalTime nowTime = now.toLocalTime();
 
         if (soldOutRequest.soldOut()) {
             dining.setSoldOut(now);
             LocalTime startTime = dining.getType().getStartTime();
             LocalTime endTime = dining.getType().getEndTime();
-            if (diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty() &&
-                (!nowTime.isBefore(startTime) && !nowTime.isAfter(endTime))) {
+            if (today.equals(dining.getDate()) && (!nowTime.isBefore(startTime) && !nowTime.isAfter(endTime)) &&
+                diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty()) {
                 eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getPlace(), dining.getType()));
             }
         } else {
