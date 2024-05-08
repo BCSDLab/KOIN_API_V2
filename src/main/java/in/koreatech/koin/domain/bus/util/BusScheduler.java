@@ -17,7 +17,7 @@ public class BusScheduler {
         cityBusOpenApiClient.storeRemainTimeByOpenApi();
     }
 
-    // 시외버스 Open API 복구되면 주석 해제
+    // TODO: 시외버스 Open API 복구되면 주석 해제
 /*    @Scheduled(cron = "0 0 * * * *")
     public void cacheExpressBusByOpenApi() {
         expressBusOpenApiClient.storeRemainTimeByOpenApi();
