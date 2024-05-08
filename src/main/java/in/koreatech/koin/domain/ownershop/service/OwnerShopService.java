@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.ownershop.service;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -151,8 +152,9 @@ public class OwnerShopService {
 
     public ShopMenuResponse getMenus(Integer shopId, Integer ownerId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        List<Menu> menus = menuRepository.findAllByShopId(shop.getId());
-        return ShopMenuResponse.from(menus);
+        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
+        Collections.sort(menuCategories);
+        return ShopMenuResponse.from(menuCategories);
     }
 
     public MenuCategoriesResponse getCategories(Integer shopId, Integer ownerId) {

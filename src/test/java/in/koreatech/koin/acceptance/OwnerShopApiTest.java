@@ -246,11 +246,11 @@ class OwnerShopApiTest extends AcceptanceTest {
                      "menu_categories": [
                          {
                              "id": 1,
-                             "name": "메인메뉴"
+                             "name": "메인 메뉴"
                          },
                          {
                              "id": 2,
-                             "name": "사이드메뉴"
+                             "name": "사이드 메뉴"
                          }
                      ],
                      "name": "마슬랜 치킨",
@@ -302,7 +302,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                      "menu_categories": [
                          {
                              "id": 1,
-                             "name": "메인메뉴",
+                             "name": "메인 메뉴",
                              "menus": [
                                  {
                                      "id": 1,
@@ -356,11 +356,11 @@ class OwnerShopApiTest extends AcceptanceTest {
                     "menu_categories": [
                         {
                             "id": 1,
-                            "name": "메인메뉴"
+                            "name": "메인 메뉴"
                         },
                         {
                             "id": 2,
-                            "name": "사이드메뉴"
+                            "name": "사이드 메뉴"
                         }
                     ]
                 }

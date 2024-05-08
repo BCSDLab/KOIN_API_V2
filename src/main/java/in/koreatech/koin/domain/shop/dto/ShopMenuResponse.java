@@ -4,7 +4,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -31,48 +30,30 @@ public record ShopMenuResponse(
     LocalDateTime updatedAt
 ) {
 
-    public static ShopMenuResponse from(List<Menu> menus) {
-        LocalDateTime lastUpdatedAt = LocalDateTime.MIN;
-        List<InnerMenuCategoriesResponse> innerMenuCategoriesResponses = new ArrayList<>();
-        for (Menu menu : menus) {
-            if (lastUpdatedAt.isBefore(menu.getUpdatedAt())) {
-                lastUpdatedAt = menu.getUpdatedAt();
-            }
-            for (MenuCategoryMap menuCategoryMap : menu.getMenuCategoryMaps()) {
-                MenuCategory menuCategory = menuCategoryMap.getMenuCategory();
-                Integer index = getInnerMenuCategoriesResponseIndex(innerMenuCategoriesResponses, menuCategory);
-                InnerMenuCategoriesResponse.InnerMenuResponse innerMenuResponse = InnerMenuCategoriesResponse.InnerMenuResponse.from(
-                    menuCategoryMap);
-                if (index != null) {
-                    innerMenuCategoriesResponses.get(index).menus.add(innerMenuResponse);
-                } else {
-                    List<InnerMenuCategoriesResponse.InnerMenuResponse> menuResponses = new ArrayList<>();
-                    menuResponses.add(innerMenuResponse);
-                    innerMenuCategoriesResponses.add(new InnerMenuCategoriesResponse(
-                        menuCategory.getId(),
-                        menuCategory.getName(),
-                        menuResponses
-                    ));
-                }
-            }
-        }
+    public static ShopMenuResponse from(List<MenuCategory> menuCategories) {
+        List<MenuCategory> filteredMenuCategories = menuCategories.stream()
+            .filter(menuCategory -> !menuCategory.getMenuCategoryMaps().isEmpty())
+            .toList();
+
+        int totalMapsCount = filteredMenuCategories.stream()
+            .mapToInt(menuCategory -> menuCategory.getMenuCategoryMaps().size())
+            .sum();
+
+        LocalDateTime lastUpdatedAt = filteredMenuCategories.stream()
+            .flatMap(menuCategory -> menuCategory.getMenuCategoryMaps().stream())
+            .map(menuCategoryMap -> menuCategoryMap.getMenu().getUpdatedAt())
+            .max(LocalDateTime::compareTo)
+            .orElse(LocalDateTime.MIN);
+
+        List<InnerMenuCategoriesResponse> responses = filteredMenuCategories.stream()
+            .map(InnerMenuCategoriesResponse::from)
+            .toList();
+
         return new ShopMenuResponse(
-            menus.size(),
-            innerMenuCategoriesResponses,
+            totalMapsCount,
+            responses,
             lastUpdatedAt
         );
-    }
-
-    private static Integer getInnerMenuCategoriesResponseIndex(
-        List<InnerMenuCategoriesResponse> innerMenuCategoriesResponses,
-        MenuCategory menuCategory
-    ) {
-        for (int i = 0; i < innerMenuCategoriesResponses.size(); ++i) {
-            if (innerMenuCategoriesResponses.get(i).id.equals(menuCategory.getId())) {
-                return i;
-            }
-        }
-        return null;
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
