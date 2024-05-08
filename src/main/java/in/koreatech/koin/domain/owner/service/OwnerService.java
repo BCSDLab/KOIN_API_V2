@@ -116,10 +116,10 @@ public class OwnerService {
 
     @Transactional
     public void requestSignUpEmailVerification(VerifyEmailRequest request) {
-        userRepository.findByEmail(request.email()).ifPresent(user -> {
-            throw DuplicationEmailException.withDetail("email: " + request.email());
+        userRepository.findByEmail(request.address()).ifPresent(user -> {
+            throw DuplicationEmailException.withDetail("email: " + request.address());
         });
-        sendCertificationEmail(request.email());
+        sendCertificationEmail(request.address());
     }
 
     @Transactional
@@ -132,7 +132,7 @@ public class OwnerService {
 
     @Transactional
     public OwnerVerifyResponse verifyCode(OwnerEmailVerifyRequest request) {
-        verifyCode(request.email(), request.certificationCode());
+        verifyCode(request.address(), request.certificationCode());
         String token = jwtProvider.createTemporaryToken();
         return new OwnerVerifyResponse(token);
     }
@@ -170,7 +170,7 @@ public class OwnerService {
 
     @Transactional
     public void sendResetPasswordByEmail(OwnerSendEmailRequest request) {
-        sendCertificationEmail(request.email());
+        sendCertificationEmail(request.address());
     }
 
     @Transactional
@@ -180,7 +180,7 @@ public class OwnerService {
 
     @Transactional
     public void verifyResetPasswordCodeByEmail(OwnerPasswordResetVerifyEmailRequest request) {
-        verifyCode(request.email(), request.certificationCode());
+        verifyCode(request.address(), request.certificationCode());
     }
 
     @Transactional
@@ -190,7 +190,7 @@ public class OwnerService {
 
     @Transactional
     public void updatePasswordByEmail(OwnerPasswordUpdateEmailRequest request) {
-        User user = userRepository.getByEmail(request.email());
+        User user = userRepository.getByEmail(request.address());
         user.updatePassword(passwordEncoder, request.password());
         userRepository.save(user);
     }
