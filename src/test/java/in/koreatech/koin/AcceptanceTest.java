@@ -26,7 +26,6 @@ import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.shop.model.ShopEventListener;
 import in.koreatech.koin.domain.user.model.StudentEventListener;
-import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
