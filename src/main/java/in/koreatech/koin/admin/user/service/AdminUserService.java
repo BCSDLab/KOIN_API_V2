@@ -29,8 +29,8 @@ public class AdminUserService {
     public AdminStudentUpdateResponse updateStudent(Integer id, AdminStudentUpdateRequest adminRequest) {
         Student student = adminStudentRepository.getById(id);
         User user = student.getUser();
-        checkNicknameDuplication(adminRequest.nickname(), id);
-        checkDepartmentValid(adminRequest.major());
+        validateNicknameDuplication(adminRequest.nickname(), id);
+        validateDepartmentValid(adminRequest.major());
         user.update(adminRequest.nickname(), adminRequest.name(),
             adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
         user.updateStudentPassword(passwordEncoder, adminRequest.password());
@@ -40,14 +40,14 @@ public class AdminUserService {
         return AdminStudentUpdateResponse.from(student);
     }
 
-    private void checkNicknameDuplication(String nickname, Integer userId) {
+    private void validateNicknameDuplication(String nickname, Integer userId) {
         if (nickname != null &&
             adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {
             throw DuplicationNicknameException.withDetail("nickname : " + nickname);
         }
     }
 
-    private void checkDepartmentValid(String department) {
+    private void validateDepartmentValid(String department) {
         if (department != null && !StudentDepartment.isValid(department)) {
             throw StudentDepartmentNotValidException.withDetail("학부(학과) : " + department);
         }
