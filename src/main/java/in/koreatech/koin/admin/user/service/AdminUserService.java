@@ -40,7 +40,7 @@ public class AdminUserService {
         return AdminStudentUpdateResponse.from(student);
     }
 
-    public void checkNicknameDuplication(String nickname, Integer userId) {
+    private void checkNicknameDuplication(String nickname, Integer userId) {
         User checkUser = adminUserRepository.getById(userId);
         if (nickname != null && !nickname.equals(checkUser.getNickname())
             && adminUserRepository.existsByNickname(nickname)) {
@@ -48,7 +48,7 @@ public class AdminUserService {
         }
     }
 
-    public void checkDepartmentValid(String department) {
+    private void checkDepartmentValid(String department) {
         if (department != null && !StudentDepartment.isValid(department)) {
             throw StudentDepartmentNotValidException.withDetail("학부(학과) : " + department);
         }
