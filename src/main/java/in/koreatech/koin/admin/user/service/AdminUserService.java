@@ -41,9 +41,8 @@ public class AdminUserService {
     }
 
     private void checkNicknameDuplication(String nickname, Integer userId) {
-        User checkUser = adminUserRepository.getById(userId);
-        if (nickname != null && !nickname.equals(checkUser.getNickname())
-            && adminUserRepository.existsByNickname(nickname)) {
+        if (nickname != null &&
+            adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {
             throw DuplicationNicknameException.withDetail("nickname : " + nickname);
         }
     }

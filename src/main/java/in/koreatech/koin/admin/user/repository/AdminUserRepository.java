@@ -18,5 +18,5 @@ public interface AdminUserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));
     }
 
-    boolean existsByNickname(String nickname);
+    boolean existsByNicknameAndIdNot(String nickname, Integer userId);
 }
