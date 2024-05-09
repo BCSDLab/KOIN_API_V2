@@ -7,6 +7,7 @@ public enum UserType {
     STUDENT("STUDENT", "학생"),
     OWNER("OWNER", "사장님"),
     COOP("COOP", "영양사"),
+    ADMIN("ADMIN", "어드민"),
     ;
 
     public static final int ANONYMOUS_ID = 0;
