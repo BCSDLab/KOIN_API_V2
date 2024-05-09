@@ -2,7 +2,7 @@ package in.koreatech.koin.acceptance;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalTime;
@@ -55,7 +55,7 @@ class BusApiTest extends AcceptanceTest {
     @BeforeEach
     void setup() {
         busFixture.버스_시간표_등록();
-        when(cityBusOpenApiClient.getOpenApiResponse(any())).thenReturn("""
+        when(cityBusOpenApiClient.getOpenApiResponse(anyString())).thenReturn("""
             {
               "response": {
                 "header": {

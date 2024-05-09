@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.bus.util;
 import static java.net.URLEncoder.encode;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
@@ -27,6 +26,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.model.city.CityBusArrival;
 import in.koreatech.koin.domain.bus.model.city.CityBusCache;
 import in.koreatech.koin.domain.bus.model.city.CityBusCacheInfo;
@@ -131,8 +131,8 @@ public class CityBusOpenApiClient {
             input.close();
             conn.disconnect();
             return response.toString();
-        } catch (IOException | NullPointerException e) {
-            return null;
+        } catch (Exception e) {
+            throw BusOpenApiException.withDetail("nodeId: " + nodeId);
         }
     }
 

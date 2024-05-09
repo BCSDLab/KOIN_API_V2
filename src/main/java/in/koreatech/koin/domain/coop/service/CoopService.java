@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.coop.service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -30,15 +29,14 @@ public class CoopService {
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
         Dining dining = diningRepository.getById(soldOutRequest.menuId());
         LocalDateTime now = LocalDateTime.now(clock);
-        LocalTime nowTime = now.toLocalTime();
 
         if (soldOutRequest.soldOut()) {
             dining.setSoldOut(now);
-            LocalTime startTime = dining.getType().getStartTime();
-            LocalTime endTime = dining.getType().getEndTime();
+            LocalDateTime startTime = dining.getType().getStartTime().atDate(now.toLocalDate());
+            LocalDateTime endTime = dining.getType().getEndTime().atDate(now.toLocalDate());
             if (diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty() &&
-                (!nowTime.isBefore(startTime) && !nowTime.isAfter(endTime))) {
-                eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getPlace()));
+                (!now.isBefore(startTime) && !now.isAfter(endTime))) {
+                eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getPlace(), dining.getType()));
             }
         } else {
             dining.cancelSoldOut();

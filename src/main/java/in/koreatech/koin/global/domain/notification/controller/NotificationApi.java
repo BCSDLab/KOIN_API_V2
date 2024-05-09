@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.domain.notification.dto.NotificationPermitRequest;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
+import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -66,11 +67,27 @@ public interface NotificationApi {
             @ApiResponse(responseCode = "404"),
         }
     )
-    @Operation(summary = "특정 푸쉬알림 구독")
+    @Operation(summary = "특정 알림 구독")
     @PostMapping("/notification/subscribe")
     ResponseEntity<Void> permitNotificationSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
         @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400"),
+            @ApiResponse(responseCode = "401"),
+            @ApiResponse(responseCode = "403"),
+            @ApiResponse(responseCode = "404"),
+        }
+    )
+    @Operation(summary = "특정 세부알림 구독")
+    @PostMapping("/notification/subscribe/detail")
+    ResponseEntity<Void> permitNotificationDetailSubscribe(
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
+        @RequestParam(value = "detail_type") NotificationDetailSubscribeType notificationSubscribeType
     );
 
     @ApiResponses(
@@ -97,10 +114,26 @@ public interface NotificationApi {
             @ApiResponse(responseCode = "404"),
         }
     )
-    @Operation(summary = "특정 푸쉬알림 구독 취소")
+    @Operation(summary = "특정 알림 구독 취소")
     @DeleteMapping("/notification/subscribe")
     ResponseEntity<Void> rejectNotificationSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
         @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "400"),
+            @ApiResponse(responseCode = "401"),
+            @ApiResponse(responseCode = "403"),
+            @ApiResponse(responseCode = "404"),
+        }
+    )
+    @Operation(summary = "특정 세부알림 구독 취소")
+    @DeleteMapping("/notification/subscribe/detail")
+    ResponseEntity<Void> rejectNotificationDetailSubscribe(
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
+        @RequestParam(value = "detail_type") NotificationDetailSubscribeType notificationSubscribeType
     );
 }

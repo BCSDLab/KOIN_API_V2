@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
+import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
@@ -27,13 +28,19 @@ public class CoopEventListener {
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onDiningSoldOutRequest(DiningSoldOutEvent event) {
-        var notifications = notificationSubscribeRepository.findAllBySubscribeType(DINING_SOLD_OUT).stream()
+        NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(event.diningType());
+        var notifications = notificationSubscribeRepository
+            .findAllBySubscribeTypeAndDetailType(DINING_SOLD_OUT, null).stream()
+            .filter(subscribe -> notificationSubscribeRepository.findByUserIdAndSubscribeTypeAndDetailType(
+                subscribe.getUser().getId(), DINING_SOLD_OUT, detailType).isPresent()
+            )
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .map(subscribe -> notificationFactory.generateSoldOutNotification(
                 DINING,
                 event.place(),
                 subscribe.getUser()
             )).toList();
+
         notificationService.push(notifications);
         diningSoldOutCacheRepository.save(DiningSoldOutCache.from(event.place()));
     }
