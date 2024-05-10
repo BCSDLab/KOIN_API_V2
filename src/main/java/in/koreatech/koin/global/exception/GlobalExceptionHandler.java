@@ -157,9 +157,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(UnsupportedOperationException.class)
     public ResponseEntity<Object> handleUnsupportedOperationException(
         HttpServletRequest request,
-        DateTimeParseException e
+        UnsupportedOperationException e
     ) {
-        log.warn(e.getMessage() + e.getParsedString());
+        log.warn(e.getMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "지원하지 않는 API 입니다.");
     }
