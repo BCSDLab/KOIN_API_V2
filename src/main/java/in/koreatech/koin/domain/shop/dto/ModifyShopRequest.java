@@ -28,6 +28,7 @@ public record ModifyShopRequest(
     @Schema(example = "[1, 2]", description = "상점 카테고리 고유 id 리스트", requiredMode = REQUIRED)
     @NotNull(message = "카테고리는 필수입니다.")
     @UniqueId(message = "카테고리 ID는 중복될 수 없습니다.")
+    @Size(min = 1, message = "최소 한 개의 카테고리가 필요합니다.")
     List<Integer> categoryIds,
 
     @Schema(example = "true", description = "배달 가능 여부", requiredMode = REQUIRED)
