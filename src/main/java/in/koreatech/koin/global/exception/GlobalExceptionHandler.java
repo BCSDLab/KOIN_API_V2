@@ -1,6 +1,6 @@
 package in.koreatech.koin.global.exception;
 
-import java.time.format.DateTimeParseException;
+import java.time.DateTimeException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -144,14 +144,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
     }
 
-    @ExceptionHandler(DateTimeParseException.class)
+    @ExceptionHandler(DateTimeException.class)
     public ResponseEntity<Object> handleDateTimeParseException(
         HttpServletRequest request,
-        DateTimeParseException e
+        DateTimeException e
     ) {
-        log.warn(e.getMessage() + e.getParsedString());
+        log.warn(e.getMessage());
         requestLogging(request);
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다. " + e.getParsedString());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "잘못된 날짜 형식입니다.");
     }
 
     @ExceptionHandler(UnsupportedOperationException.class)
@@ -215,7 +215,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     // 예외 메시지 구성 로직
-
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
         Exception ex,
