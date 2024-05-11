@@ -158,7 +158,7 @@ public class CityBusOpenApiClient {
             BusOpenApiResultCode.validateResponse(response);
             JsonObject body = response.get("body").getAsJsonObject();
 
-            if (body.get("totalCount").getAsLong() == 0) {
+            if (body.get("totalCount").getAsLong() == 0 || body.get("items").getAsString().isEmpty()) {
                 return result;
             }
 
