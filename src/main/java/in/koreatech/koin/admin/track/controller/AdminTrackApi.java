@@ -1,11 +1,14 @@
 package in.koreatech.koin.admin.track.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import in.koreatech.koin.admin.track.dto.AdminTrackResponse;
+import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,6 +29,9 @@ public interface AdminTrackApi {
         }
     )
     @Operation(summary = "트랙 목록 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/admin/tracks")
-    ResponseEntity<List<AdminTrackResponse>> getTracks();
+    ResponseEntity<List<AdminTrackResponse>> getTracks(
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
 }
