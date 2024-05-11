@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.track.respository;
+package in.koreatech.koin.admin.member.repository;
 
 import java.util.List;
 

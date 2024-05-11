@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.track.controller;
+package in.koreatech.koin.admin.member.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.admin.track.dto.AdminTrackResponse;
-import in.koreatech.koin.admin.track.service.AdminTrackService;
+import in.koreatech.koin.admin.member.dto.AdminTrackResponse;
+import in.koreatech.koin.admin.member.service.AdminTrackService;
 import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
 

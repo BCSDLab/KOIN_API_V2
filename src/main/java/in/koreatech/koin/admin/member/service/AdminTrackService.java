@@ -1,12 +1,12 @@
-package in.koreatech.koin.admin.track.service;
+package in.koreatech.koin.admin.member.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.admin.track.dto.AdminTrackResponse;
-import in.koreatech.koin.admin.track.respository.AdminTrackRepository;
+import in.koreatech.koin.admin.member.dto.AdminTrackResponse;
+import in.koreatech.koin.admin.member.repository.AdminTrackRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
