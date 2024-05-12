@@ -9,8 +9,10 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.domain.member.repository.TrackRepository;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.MemberFixture;
 import in.koreatech.koin.fixture.TrackFixture;
+import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
@@ -23,13 +25,20 @@ public class AdminMemberApiTest extends AcceptanceTest {
     @Autowired
     private TrackFixture trackFixture;
 
+    @Autowired
+    private UserFixture userFixture;
+
     @Test
     @DisplayName("BCSDLab 회원들의 정보를 조회한다")
     void getMembers() {
         memberFixture.최준호(trackFixture.backend());
 
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
         var response = RestAssured
             .given()
+            .header("Authorization", "Bearer " + token)
             .when()
             .param("page", 1)
             .param("track", "BACKEND")
