@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.land.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
 
+import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,7 +35,8 @@ public interface AdminLandApi {
     ResponseEntity<AdminLandsResponse> getLands(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
-        @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted
+        @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(
@@ -46,7 +50,8 @@ public interface AdminLandApi {
     @Operation(summary = "복덕방 생성")
     @PostMapping("/admin/lands")
     ResponseEntity<AdminLandsResponse> postLands(
-        @RequestBody @Valid AdminLandsRequest adminLandsRequest
+        @RequestBody @Valid AdminLandsRequest adminLandsRequest,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
 }

@@ -1,11 +1,14 @@
 package in.koreatech.koin.admin.member.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.member.dto.AdminMembersResponse;
 import in.koreatech.koin.admin.member.enums.TrackTag;
+import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,6 +31,7 @@ public interface AdminMemberApi {
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "50", required = false) Integer limit,
         @RequestParam(name = "track") TrackTag track,
-        @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted
+        @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 }
