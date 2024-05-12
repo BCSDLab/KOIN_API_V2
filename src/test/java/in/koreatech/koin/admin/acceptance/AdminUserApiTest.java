@@ -30,34 +30,62 @@ public class AdminUserApiTest extends AcceptanceTest {
     private UserFixture userFixture;
 
     @Test
-    @DisplayName("관리자가 특정 학생 정보를 수정한다. - 관리자가 아니면 403 반환")
+    @DisplayName("관리자가 특정 학생 정보를 조회한다. - 관리자가 아니면 403 반환")
     void studentUpdateAdminNoAuth() {
         Student student = userFixture.준호_학생();
-
-        User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(student.getUser());
 
         var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
-            .body("""
-                  {
-                    "gender" : 1,
-                    "major" : "기계공학부",
-                    "name" : "서정빈",
-                    "password" : "0c4be6acaba1839d3433c1ccf04e1eec4d1fa841ee37cb019addc269e8bc1b77",
-                    "nickname" : "duehee",
-                    "phone_number" : "010-2345-6789",
-                    "student_number" : "2019136136"
-                  }
-                """)
             .when()
             .pathParam("id", student.getUser().getId())
-            .put("/admin/users/student/{id}")
+            .get("/admin/users/student/{id}")
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("관리자가 특정 학생 정보를 조회한다.")
+    void studentGetAdmin() {
+        Student student = userFixture.준호_학생();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .when()
+            .pathParam("id", student.getUser().getId())
+            .get("/admin/users/student/{id}")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "anonymous_nickname": "익명",
+                    "created_at": "2024-01-15T12:00:00",
+                    "email": "juno@koreatech.ac.kr",
+                    "gender": 0,
+                    "id": 1,
+                    "is_authed": true,
+                    "is_graduated": false,
+                    "last_logged_at": null,
+                    "major": "컴퓨터공학부",
+                    "name": "테스트용_준호",
+                    "nickname": "준호",
+                    "phone_number": "010-1234-5678",
+                    "student_number": "2019136135",
+                    "updated_at": "2024-01-15T12:00:00",
+                    "user_type": "STUDENT"
+                }
+                """);
     }
 
     @Test
