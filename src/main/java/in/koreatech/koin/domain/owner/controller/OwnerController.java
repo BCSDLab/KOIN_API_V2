@@ -69,7 +69,7 @@ public class OwnerController implements OwnerApi {
     public ResponseEntity<OwnerVerifyResponse> codeVerification(
         @Valid @RequestBody OwnerEmailVerifyRequest request
     ) {
-        OwnerVerifyResponse response = ownerService.verifyCode(request);
+        OwnerVerifyResponse response = ownerService.verifyCodeByEmail(request);
         return ResponseEntity.ok().body(response);
     }
 
@@ -77,7 +77,7 @@ public class OwnerController implements OwnerApi {
     public ResponseEntity<OwnerVerifyResponse> codeVerification(
         @Valid @RequestBody OwnerPhoneVerifyRequest request
     ) {
-        OwnerVerifyResponse response = ownerService.verifyCode(request);
+        OwnerVerifyResponse response = ownerService.verifyCodeByPhone(request);
         return ResponseEntity.ok().body(response);
     }
 

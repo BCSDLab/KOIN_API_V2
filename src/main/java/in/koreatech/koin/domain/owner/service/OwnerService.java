@@ -97,7 +97,7 @@ public class OwnerService {
     private void sendCertificationPhone(String phoneNumber) {
         setVerificationCount(phoneNumber);
         String certificationCode = CertificateNumberGenerator.generate();
-        naverSmsService.sendVerificationCode(certificationCode, phoneNumber);
+        naverSmsService.sendVerificationCode(certificationCode, phoneNumber.replace("-",""));
         OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
             phoneNumber,
             certificationCode
@@ -131,14 +131,14 @@ public class OwnerService {
     }
 
     @Transactional
-    public OwnerVerifyResponse verifyCode(OwnerEmailVerifyRequest request) {
+    public OwnerVerifyResponse verifyCodeByEmail(OwnerEmailVerifyRequest request) {
         verifyCode(request.address(), request.certificationCode());
         String token = jwtProvider.createTemporaryToken();
         return new OwnerVerifyResponse(token);
     }
 
     @Transactional
-    public OwnerVerifyResponse verifyCode(OwnerPhoneVerifyRequest request) {
+    public OwnerVerifyResponse verifyCodeByPhone(OwnerPhoneVerifyRequest request) {
         verifyCode(request.phoneNumber(), request.certificationCode());
         String token = jwtProvider.createTemporaryToken();
         return new OwnerVerifyResponse(token);
@@ -192,17 +192,11 @@ public class OwnerService {
     public void updatePasswordByEmail(OwnerPasswordUpdateEmailRequest request) {
         User user = userRepository.getByEmail(request.address());
         user.updatePassword(passwordEncoder, request.password());
-        userRepository.save(user);
     }
 
     @Transactional
     public void updatePasswordByPhone(OwnerPasswordUpdatePhoneRequest request) {
-        StringBuilder phoneNumber = new StringBuilder();
-        phoneNumber.append(request.phoneNumber(), 0, 3).append('-');
-        phoneNumber.append(request.phoneNumber(), 3, 7).append('-');
-        phoneNumber.append(request.phoneNumber(), 7, 11);
-        User user = userRepository.getByPhoneNumber(phoneNumber.toString());
+        User user = userRepository.getByPhoneNumber(request.phoneNumber());
         user.updatePassword(passwordEncoder, request.password());
-        userRepository.save(user);
     }
 }
