@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.owner.service;
 
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -124,7 +126,7 @@ public class OwnerService {
 
     @Transactional
     public void requestSignUpPhoneVerification(VerifyPhoneRequest request) {
-        userRepository.findByPhoneNumber(request.phoneNumber()).ifPresent(user -> {
+        userRepository.findByPhoneNumberAndUserType(request.phoneNumber(), OWNER).ifPresent(user -> {
             throw DuplicationPhoneException.withDetail("phoneNumber: " + request.phoneNumber());
         });
         sendCertificationPhone(request.phoneNumber());
@@ -170,12 +172,14 @@ public class OwnerService {
 
     @Transactional
     public void sendResetPasswordByEmail(OwnerSendEmailRequest request) {
-        sendCertificationEmail(request.address());
+        User user = userRepository.getByEmail(request.address());
+        sendCertificationEmail(user.getEmail());
     }
 
     @Transactional
     public void sendResetPasswordByPhone(OwnerSendPhoneRequest request) {
-        sendCertificationPhone(request.phoneNumber());
+        User user = userRepository.getByPhoneNumber(request.phoneNumber(), OWNER);
+        sendCertificationPhone(user.getPhoneNumber());
     }
 
     @Transactional
@@ -196,7 +200,7 @@ public class OwnerService {
 
     @Transactional
     public void updatePasswordByPhone(OwnerPasswordUpdatePhoneRequest request) {
-        User user = userRepository.getByPhoneNumber(request.phoneNumber());
+        User user = userRepository.getByPhoneNumber(request.phoneNumber(), OWNER);
         user.updatePassword(passwordEncoder, request.password());
     }
 }
