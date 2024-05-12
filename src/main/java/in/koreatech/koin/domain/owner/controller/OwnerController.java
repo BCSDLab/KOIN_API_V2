@@ -9,12 +9,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdatePhoneRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPhoneVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSendPhoneRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
@@ -63,33 +67,65 @@ public class OwnerController implements OwnerApi {
 
     @PostMapping("/owners/verification/code")
     public ResponseEntity<OwnerVerifyResponse> codeVerification(
-        @Valid @RequestBody OwnerVerifyRequest request
+        @Valid @RequestBody OwnerEmailVerifyRequest request
+    ) {
+        OwnerVerifyResponse response = ownerService.verifyCode(request);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("/owners/verification/code/phone")
+    public ResponseEntity<OwnerVerifyResponse> codeVerification(
+        @Valid @RequestBody OwnerPhoneVerifyRequest request
     ) {
         OwnerVerifyResponse response = ownerService.verifyCode(request);
         return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("/owners/password/reset/verification")
-    public ResponseEntity<Void> sendResetPasswordEmail(
+    public ResponseEntity<Void> sendResetPasswordByEmail(
         @Valid @RequestBody OwnerSendEmailRequest request
     ) {
-        ownerService.sendResetPasswordEmail(request);
+        ownerService.sendResetPasswordByEmail(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/owners/password/reset/verification/phone")
+    public ResponseEntity<Void> sendResetPasswordByPhone(
+        @Valid @RequestBody OwnerSendPhoneRequest request
+    ) {
+        ownerService.sendResetPasswordByPhone(request);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/owners/password/reset/send")
     public ResponseEntity<Void> sendVerifyCode(
-        @Valid @RequestBody OwnerPasswordResetVerifyRequest request
+        @Valid @RequestBody OwnerPasswordResetVerifyEmailRequest request
     ) {
-        ownerService.verifyResetPasswordCode(request);
+        ownerService.verifyResetPasswordCodeByEmail(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/owners/password/reset/send/phone")
+    public ResponseEntity<Void> sendVerifyCodeByPhone(
+        @Valid @RequestBody OwnerPasswordResetVerifyPhoneRequest request
+    ) {
+        ownerService.verifyResetPasswordCodeByPhone(request);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/owners/password/reset")
-    public ResponseEntity<Void> updatePassword(
-        @Valid @RequestBody OwnerPasswordUpdateRequest request
+    public ResponseEntity<Void> updatePasswordByEmail(
+        @Valid @RequestBody OwnerPasswordUpdateEmailRequest request
     ) {
-        ownerService.updatePassword(request);
+        ownerService.updatePasswordByEmail(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/owners/password/reset/phone")
+    public ResponseEntity<Void> updatePasswordByPhone(
+        @Valid @RequestBody OwnerPasswordUpdatePhoneRequest request
+    ) {
+        ownerService.updatePasswordByPhone(request);
         return ResponseEntity.ok().build();
     }
 }

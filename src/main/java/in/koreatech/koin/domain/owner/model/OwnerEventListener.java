@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRedisRepository;
+import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.global.domain.slack.SlackClient;
@@ -24,7 +24,7 @@ public class OwnerEventListener {
     private final SlackClient slackClient;
     private final ShopRepository shopRepository;
     private final SlackNotificationFactory slackNotificationFactory;
-    private final OwnerInVerificationRedisRepository ownerInVerificationRedisRepository;
+    private final OwnerVerificationStatusRepository ownerInVerificationRedisRepository;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerEmailRequest(OwnerEmailRequestEvent event) {
