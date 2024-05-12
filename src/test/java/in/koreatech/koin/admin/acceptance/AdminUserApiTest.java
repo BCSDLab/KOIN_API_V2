@@ -70,7 +70,7 @@ public class AdminUserApiTest extends AcceptanceTest {
             .isEqualTo("""
                 {
                     "anonymous_nickname": "익명",
-                    "created_at": "2024-01-15T12:00:00",
+                    "created_at": "2024-01-15 12:00:00",
                     "email": "juno@koreatech.ac.kr",
                     "gender": 0,
                     "id": 1,
@@ -82,7 +82,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     "nickname": "준호",
                     "phone_number": "010-1234-5678",
                     "student_number": "2019136135",
-                    "updated_at": "2024-01-15T12:00:00",
+                    "updated_at": "2024-01-15 12:00:00",
                     "user_type": "STUDENT"
                 }
                 """);
