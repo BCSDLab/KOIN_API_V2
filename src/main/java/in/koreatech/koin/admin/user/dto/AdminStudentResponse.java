@@ -2,9 +2,13 @@ package in.koreatech.koin.admin.user.dto;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminStudentResponse (
     Integer id,
     String nickname,
