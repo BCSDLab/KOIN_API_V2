@@ -77,7 +77,13 @@ public record AdminStudentResponse (
     Boolean isGraduated
 ) {
     public static AdminStudentResponse from(Student student) {
+        Integer userGender = null;
+
         User user = student.getUser();
+        if (user.getGender() != null) {
+            userGender = user.getGender().ordinal();
+        }
+
         return new AdminStudentResponse(
             user.getId(),
             user.getNickname(),
@@ -85,7 +91,7 @@ public record AdminStudentResponse (
             user.getPhoneNumber(),
             user.getUserType().toString(),
             user.getEmail(),
-            user.getGender().ordinal(),
+            userGender,
             user.isAuthed(),
             user.getLastLoggedAt(),
             user.getCreatedAt(),
