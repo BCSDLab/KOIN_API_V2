@@ -14,6 +14,4 @@ public interface AdminOwnerRepository extends Repository<Owner, Integer> {
     default Owner getById(Integer ownerId) {
         return findById(ownerId).orElseThrow(() -> OwnerNotFoundException.withDetail("ownerId: " + ownerId));
     }
-
-    Owner save(Owner owner);
 }
