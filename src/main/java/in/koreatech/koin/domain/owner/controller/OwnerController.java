@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdatePhoneRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPhoneVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateSmsRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerSendPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSendSmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
-import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
 import in.koreatech.koin.domain.owner.service.OwnerService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -41,11 +41,11 @@ public class OwnerController implements OwnerApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/owners/verification/phone")
-    public ResponseEntity<Void> requestVerificationToRegisterByPhone(
-        @RequestBody @Valid VerifyPhoneRequest verifyPhoneRequest
+    @PostMapping("/owners/verification/sms")
+    public ResponseEntity<Void> requestVerificationToRegisterBySms(
+        @RequestBody @Valid VerifySmsRequest verifySmsRequest
     ) {
-        ownerService.requestSignUpPhoneVerification(verifyPhoneRequest);
+        ownerService.requestSignUpSmsVerification(verifySmsRequest);
         return ResponseEntity.ok().build();
     }
 
@@ -73,11 +73,11 @@ public class OwnerController implements OwnerApi {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("/owners/verification/code/phone")
+    @PostMapping("/owners/verification/code/sms")
     public ResponseEntity<OwnerVerifyResponse> codeVerification(
-        @Valid @RequestBody OwnerPhoneVerifyRequest request
+        @Valid @RequestBody OwnerSmsVerifyRequest request
     ) {
-        OwnerVerifyResponse response = ownerService.verifyCodeByPhone(request);
+        OwnerVerifyResponse response = ownerService.verifyCodeBySms(request);
         return ResponseEntity.ok().body(response);
     }
 
@@ -89,11 +89,11 @@ public class OwnerController implements OwnerApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/owners/password/reset/verification/phone")
-    public ResponseEntity<Void> sendResetPasswordByPhone(
-        @Valid @RequestBody OwnerSendPhoneRequest request
+    @PostMapping("/owners/password/reset/verification/sms")
+    public ResponseEntity<Void> sendResetPasswordBySms(
+        @Valid @RequestBody OwnerSendSmsRequest request
     ) {
-        ownerService.sendResetPasswordByPhone(request);
+        ownerService.sendResetPasswordBySms(request);
         return ResponseEntity.ok().build();
     }
 
@@ -105,11 +105,11 @@ public class OwnerController implements OwnerApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/owners/password/reset/send/phone")
-    public ResponseEntity<Void> sendVerifyCodeByPhone(
-        @Valid @RequestBody OwnerPasswordResetVerifyPhoneRequest request
+    @PostMapping("/owners/password/reset/send/sms")
+    public ResponseEntity<Void> sendVerifyCodeBySms(
+        @Valid @RequestBody OwnerPasswordResetVerifySmsRequest request
     ) {
-        ownerService.verifyResetPasswordCodeByPhone(request);
+        ownerService.verifyResetPasswordCodeBySms(request);
         return ResponseEntity.ok().build();
     }
 
@@ -121,11 +121,11 @@ public class OwnerController implements OwnerApi {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/owners/password/reset/phone")
-    public ResponseEntity<Void> updatePasswordByPhone(
-        @Valid @RequestBody OwnerPasswordUpdatePhoneRequest request
+    @PutMapping("/owners/password/reset/sms")
+    public ResponseEntity<Void> updatePasswordBySms(
+        @Valid @RequestBody OwnerPasswordUpdateSmsRequest request
     ) {
-        ownerService.updatePasswordByPhone(request);
+        ownerService.updatePasswordBySms(request);
         return ResponseEntity.ok().build();
     }
 }

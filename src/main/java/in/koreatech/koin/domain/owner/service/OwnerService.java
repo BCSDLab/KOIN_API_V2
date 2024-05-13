@@ -13,24 +13,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdatePhoneRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPhoneVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateSmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerSendPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSendSmsRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
-import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
 import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
-import in.koreatech.koin.domain.owner.exception.DuplicationPhoneException;
+import in.koreatech.koin.domain.owner.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
-import in.koreatech.koin.domain.owner.model.OwnerPhoneRequestEvent;
 import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
+import in.koreatech.koin.domain.owner.model.OwnerSmsRequestEvent;
 import in.koreatech.koin.domain.owner.model.redis.DailyVerificationLimit;
 import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
@@ -96,7 +96,7 @@ public class OwnerService {
         eventPublisher.publishEvent(new OwnerEmailRequestEvent(email));
     }
 
-    private void sendCertificationPhone(String phoneNumber) {
+    private void sendCertificationSms(String phoneNumber) {
         setVerificationCount(phoneNumber);
         String certificationCode = CertificateNumberGenerator.generate();
         naverSmsService.sendVerificationCode(certificationCode, phoneNumber.replace("-",""));
@@ -105,7 +105,7 @@ public class OwnerService {
             certificationCode
         );
         ownerVerificationStatusRepository.save(ownerVerificationStatus);
-        eventPublisher.publishEvent(new OwnerPhoneRequestEvent(phoneNumber));
+        eventPublisher.publishEvent(new OwnerSmsRequestEvent(phoneNumber));
     }
 
     private void verifyCode(String key, String code) {
@@ -125,11 +125,11 @@ public class OwnerService {
     }
 
     @Transactional
-    public void requestSignUpPhoneVerification(VerifyPhoneRequest request) {
+    public void requestSignUpSmsVerification(VerifySmsRequest request) {
         userRepository.findByPhoneNumberAndUserType(request.phoneNumber(), OWNER).ifPresent(user -> {
-            throw DuplicationPhoneException.withDetail("phoneNumber: " + request.phoneNumber());
+            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
         });
-        sendCertificationPhone(request.phoneNumber());
+        sendCertificationSms(request.phoneNumber());
     }
 
     @Transactional
@@ -140,7 +140,7 @@ public class OwnerService {
     }
 
     @Transactional
-    public OwnerVerifyResponse verifyCodeByPhone(OwnerPhoneVerifyRequest request) {
+    public OwnerVerifyResponse verifyCodeBySms(OwnerSmsVerifyRequest request) {
         verifyCode(request.phoneNumber(), request.certificationCode());
         String token = jwtProvider.createTemporaryToken();
         return new OwnerVerifyResponse(token);
@@ -177,9 +177,9 @@ public class OwnerService {
     }
 
     @Transactional
-    public void sendResetPasswordByPhone(OwnerSendPhoneRequest request) {
+    public void sendResetPasswordBySms(OwnerSendSmsRequest request) {
         User user = userRepository.getByPhoneNumber(request.phoneNumber(), OWNER);
-        sendCertificationPhone(user.getPhoneNumber());
+        sendCertificationSms(user.getPhoneNumber());
     }
 
     @Transactional
@@ -188,7 +188,7 @@ public class OwnerService {
     }
 
     @Transactional
-    public void verifyResetPasswordCodeByPhone(OwnerPasswordResetVerifyPhoneRequest request) {
+    public void verifyResetPasswordCodeBySms(OwnerPasswordResetVerifySmsRequest request) {
         verifyCode(request.phoneNumber(), request.certificationCode());
     }
 
@@ -199,7 +199,7 @@ public class OwnerService {
     }
 
     @Transactional
-    public void updatePasswordByPhone(OwnerPasswordUpdatePhoneRequest request) {
+    public void updatePasswordBySms(OwnerPasswordUpdateSmsRequest request) {
         User user = userRepository.getByPhoneNumber(request.phoneNumber(), OWNER);
         user.updatePassword(passwordEncoder, request.password());
     }

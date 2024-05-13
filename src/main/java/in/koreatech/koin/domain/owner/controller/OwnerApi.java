@@ -10,17 +10,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdatePhoneRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPhoneVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateSmsRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerSendPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSendSmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
-import in.koreatech.koin.domain.owner.dto.VerifyPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -68,9 +68,9 @@ public interface OwnerApi {
         }
     )
     @Operation(summary = "회원가입 문자 인증번호 전송 요청")
-    @PostMapping("/owners/verification/phone")
-    ResponseEntity<Void> requestVerificationToRegisterByPhone(
-        @RequestBody @Valid VerifyPhoneRequest verifyPhoneRequest
+    @PostMapping("/owners/verification/sms")
+    ResponseEntity<Void> requestVerificationToRegisterBySms(
+        @RequestBody @Valid VerifySmsRequest verifySmsRequest
     );
 
     @ApiResponses(
@@ -115,9 +115,9 @@ public interface OwnerApi {
     )
     @Operation(summary = "사장님 문자 인증번호 입력")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/owners/verification/code/phone")
+    @PostMapping("/owners/verification/code/sms")
     ResponseEntity<OwnerVerifyResponse> codeVerification(
-        @Valid @RequestBody OwnerPhoneVerifyRequest request
+        @Valid @RequestBody OwnerSmsVerifyRequest request
     );
 
     @ApiResponses(
@@ -141,9 +141,9 @@ public interface OwnerApi {
     )
     @Operation(summary = "사장님 비밀번호 변경 인증번호 문자 발송")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/owners/password/reset/verification/phone")
-    ResponseEntity<Void> sendResetPasswordByPhone(
-        @Valid @RequestBody OwnerSendPhoneRequest request
+    @PostMapping("/owners/password/reset/verification/sms")
+    ResponseEntity<Void> sendResetPasswordBySms(
+        @Valid @RequestBody OwnerSendSmsRequest request
     );
 
     @ApiResponses(
@@ -169,9 +169,9 @@ public interface OwnerApi {
     )
     @Operation(summary = "사장님 비밀번호 변경 인증번호 인증-휴대폰번호")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/owners/password/reset/send/phone")
-    ResponseEntity<Void> sendVerifyCodeByPhone(
-        @Valid @RequestBody OwnerPasswordResetVerifyPhoneRequest request
+    @PostMapping("/owners/password/reset/send/sms")
+    ResponseEntity<Void> sendVerifyCodeBySms(
+        @Valid @RequestBody OwnerPasswordResetVerifySmsRequest request
     );
 
     @ApiResponses(
@@ -195,8 +195,8 @@ public interface OwnerApi {
     )
     @Operation(summary = "문자 인증을 이용한 사장님 비밀번호 변경")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/owners/password/reset/phone")
-    ResponseEntity<Void> updatePasswordByPhone(
-        @Valid @RequestBody OwnerPasswordUpdatePhoneRequest request
+    @PutMapping("/owners/password/reset/sms")
+    ResponseEntity<Void> updatePasswordBySms(
+        @Valid @RequestBody OwnerPasswordUpdateSmsRequest request
     );
 }
