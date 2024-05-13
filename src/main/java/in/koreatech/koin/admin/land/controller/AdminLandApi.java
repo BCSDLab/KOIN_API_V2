@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -31,6 +32,7 @@ public interface AdminLandApi {
         }
     )
     @Operation(summary = "복덕방 목록 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/admin/lands")
     ResponseEntity<AdminLandsResponse> getLands(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -48,6 +50,7 @@ public interface AdminLandApi {
         }
     )
     @Operation(summary = "복덕방 생성")
+    @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/lands")
     ResponseEntity<AdminLandsResponse> postLands(
         @RequestBody @Valid AdminLandsRequest adminLandsRequest,

@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Admin) AdminLand: BCSDLab 회원", description = "관리자 권한으로 BCSDLab 회원 정보를 관리한다")
@@ -26,6 +27,7 @@ public interface AdminMemberApi {
         }
     )
     @Operation(summary = "페이지별 BCSDLab 회원 리스트 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/admin/members")
     ResponseEntity<AdminMembersResponse> getMembers(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
