@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.owner.model;
 
-public record OwnerPhoneRequestEvent(
+public record OwnerSmsRequestEvent(
     String phoneNumber
 ) {
 
