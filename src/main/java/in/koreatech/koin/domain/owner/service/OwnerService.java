@@ -75,7 +75,7 @@ public class OwnerService {
 
     private void setVerificationCount(String key) {
         Optional<DailyVerificationLimit> dailyVerificationLimit = dailyVerificationLimitRedisRepository.findById(key);
-        if (!dailyVerificationLimit.isPresent()) {
+        if (dailyVerificationLimit.isEmpty()) {
             dailyVerificationLimitRedisRepository.save(new DailyVerificationLimit(key));
         } else {
             DailyVerificationLimit dailyVerification = dailyVerificationLimit.get();

@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.owner.model.redis;
 
-import java.util.concurrent.TimeUnit;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
@@ -16,19 +14,19 @@ import lombok.Getter;
 @RedisHash(value = "dailyVerifyCount@")
 public class DailyVerificationLimit {
 
-    private static final long CACHE_EXPIRE_DAYS = 1L;
+    private static final long CACHE_EXPIRE_SECOND = 60 * 60 * 24L;
 
     @Id
     private String key;
 
     private Integer requestCount = 1;
 
-    @TimeToLive(unit = TimeUnit.DAYS)
+    @TimeToLive
     private Long expiration;
 
     public DailyVerificationLimit(String key) {
         this.key = key;
-        this.expiration = CACHE_EXPIRE_DAYS;
+        this.expiration = CACHE_EXPIRE_SECOND;
     }
 
     public void requestVerification() {
