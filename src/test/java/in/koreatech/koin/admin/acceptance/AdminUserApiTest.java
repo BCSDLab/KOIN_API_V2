@@ -145,8 +145,10 @@ public class AdminUserApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
                 {
+                    "id": 1,
                     "email": "hysoo@naver.com",
                     "name": "테스트용_현수",
+                    "nickname": "현수",
                     "company_registration_number": "123-45-67190",
                     "attachments_url": [
                         "https://test.com/현수_사장님_인증사진_1.jpg",
@@ -154,7 +156,14 @@ public class AdminUserApiTest extends AcceptanceTest {
                     ],
                     "shops_id": [
                         %d
-                    ]
+                    ],
+                    "phone_number": "010-9876-5432",
+                    "is_authed": true,
+                    "user_type": "OWNER",
+                    "gender": 0,
+                    "created_at" : "2024-01-15 12:00:00",
+                    "updated_at" : "2024-01-15 12:00:00",
+                    "last_logged_at" : null
                 }
                 """, shop.getId()
             ));
