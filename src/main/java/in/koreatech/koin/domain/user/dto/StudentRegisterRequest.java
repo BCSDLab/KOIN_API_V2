@@ -73,7 +73,7 @@ public record StudentRegisterRequest(
     @Size(min = 10, max = 10, message = "학번은 10자여야합니다.")
     String studentNumber,
 
-    @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = NOT_REQUIRED)
+    @Schema(description = "휴대폰 번호", example = "010-1234-5678 또는 01012345678", requiredMode = NOT_REQUIRED)
     @Pattern(regexp = "^(\\d{3}-\\d{4}-\\d{4}|\\d{11})$", message = "전화번호 형식이 올바르지 않습니다.")
     String phoneNumber
 ) {
