@@ -73,49 +73,6 @@ public class OwnerService {
         return OwnerResponse.of(foundOwner, foundOwner.getAttachments(), shops);
     }
 
-    private void setVerificationCount(String key) {
-        Optional<DailyVerificationLimit> dailyVerificationLimit = dailyVerificationLimitRedisRepository.findById(key);
-        if (dailyVerificationLimit.isEmpty()) {
-            dailyVerificationLimitRedisRepository.save(new DailyVerificationLimit(key));
-        } else {
-            DailyVerificationLimit dailyVerification = dailyVerificationLimit.get();
-            dailyVerification.requestVerification();
-            dailyVerificationLimitRedisRepository.save(dailyVerification);
-        }
-    }
-
-    private void sendCertificationEmail(String email) {
-        setVerificationCount(email);
-        String certificationCode = CertificateNumberGenerator.generate();
-        mailService.sendMail(email, new OwnerRegistrationData(certificationCode));
-        OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
-            email,
-            certificationCode
-        );
-        ownerVerificationStatusRepository.save(ownerVerificationStatus);
-        eventPublisher.publishEvent(new OwnerEmailRequestEvent(email));
-    }
-
-    private void sendCertificationSms(String phoneNumber) {
-        setVerificationCount(phoneNumber);
-        String certificationCode = CertificateNumberGenerator.generate();
-        naverSmsService.sendVerificationCode(certificationCode, phoneNumber.replace("-", ""));
-        OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
-            phoneNumber,
-            certificationCode
-        );
-        ownerVerificationStatusRepository.save(ownerVerificationStatus);
-        eventPublisher.publishEvent(new OwnerSmsRequestEvent(phoneNumber));
-    }
-
-    private void verifyCode(String key, String code) {
-        OwnerVerificationStatus verify = ownerVerificationStatusRepository.getByVerify(key);
-        if (!Objects.equals(verify.getCertificationCode(), code)) {
-            throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
-        }
-        ownerVerificationStatusRepository.deleteById(key);
-    }
-
     @Transactional
     public void requestSignUpEmailVerification(VerifyEmailRequest request) {
         userRepository.findByEmail(request.address()).ifPresent(user -> {
@@ -202,5 +159,48 @@ public class OwnerService {
     public void updatePasswordBySms(OwnerPasswordUpdateSmsRequest request) {
         User user = userRepository.getByPhoneNumber(request.phoneNumber(), OWNER);
         user.updatePassword(passwordEncoder, request.password());
+    }
+
+    private void setVerificationCount(String key) {
+        Optional<DailyVerificationLimit> dailyVerificationLimit = dailyVerificationLimitRedisRepository.findById(key);
+        if (dailyVerificationLimit.isEmpty()) {
+            dailyVerificationLimitRedisRepository.save(new DailyVerificationLimit(key));
+        } else {
+            DailyVerificationLimit dailyVerification = dailyVerificationLimit.get();
+            dailyVerification.requestVerification();
+            dailyVerificationLimitRedisRepository.save(dailyVerification);
+        }
+    }
+
+    private void sendCertificationEmail(String email) {
+        setVerificationCount(email);
+        String certificationCode = CertificateNumberGenerator.generate();
+        mailService.sendMail(email, new OwnerRegistrationData(certificationCode));
+        OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
+            email,
+            certificationCode
+        );
+        ownerVerificationStatusRepository.save(ownerVerificationStatus);
+        eventPublisher.publishEvent(new OwnerEmailRequestEvent(email));
+    }
+
+    private void sendCertificationSms(String phoneNumber) {
+        setVerificationCount(phoneNumber);
+        String certificationCode = CertificateNumberGenerator.generate();
+        naverSmsService.sendVerificationCode(certificationCode, phoneNumber.replace("-", ""));
+        OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
+            phoneNumber,
+            certificationCode
+        );
+        ownerVerificationStatusRepository.save(ownerVerificationStatus);
+        eventPublisher.publishEvent(new OwnerSmsRequestEvent(phoneNumber));
+    }
+
+    private void verifyCode(String key, String code) {
+        OwnerVerificationStatus verify = ownerVerificationStatusRepository.getByVerify(key);
+        if (!Objects.equals(verify.getCertificationCode(), code)) {
+            throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
+        }
+        ownerVerificationStatusRepository.deleteById(key);
     }
 }
