@@ -55,7 +55,21 @@ public interface OwnerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "회원가입 인증번호 전송 요청")
+    @Operation(
+        summary = "회원가입 이메일 인증번호 발송",
+        description = """
+            <h3>프로덕션</h3>
+            <ul>
+                <li>하루 최대 5회 인증번호를 발송 가능.</li>
+                <li>메일로 인증번호 발송.</li>
+            </ul>
+            <h3>스테이지</h3>
+            <ul>
+                <li>하루 최대 발송 횟수 제한 없음.</li>
+                <li>메일로 인증번호 발송.</li>
+            </ul>
+            """
+    )
     @PostMapping("/owners/verification/email")
     ResponseEntity<Void> requestVerificationToRegisterByEmail(
         @RequestBody @Valid VerifyEmailRequest request
@@ -67,7 +81,27 @@ public interface OwnerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "회원가입 문자 인증번호 전송 요청")
+    @Operation(
+        summary = "회원가입 문자 인증번호 발송",
+        description = """
+            <h3>프로덕션</h3>
+            <ul>
+                <li>하루 최대 5회 인증번호를 발송 가능.</li>
+                <li>문자로 인증번호 발송.</li>
+            </ul>
+            <h3>스테이지</h3>
+            <ul>
+                <li>하루 최대 발송 횟수 제한 없음.</li>
+                <li>슬랙으로 인증번호 발송.(발송채널: 코인_이벤트알림_stage)</li>
+                <li>배포 전 QA할 때 스테이지 환경에서도 최대 5회 인증번호를 발송할 수 있게 설정.</li>
+            </ul>
+            <h3>클라이언트 사용 설명</h3>
+            <ul>
+                <li>해당 api를 사용하면 위의 내용들이 자동으로 적용된다.</li>
+                <li>클라이언트는 해당 api를 사용하기만 하면 된다.</li>
+            </ul>
+            """
+    )
     @PostMapping("/owners/verification/sms")
     ResponseEntity<Void> requestVerificationToRegisterBySms(
         @RequestBody @Valid VerifySmsRequest verifySmsRequest
@@ -97,7 +131,7 @@ public interface OwnerApi {
             @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "사장님 인증번호 입력")
+    @Operation(summary = "사장님 회원가입 이메일 인증번호 입력")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/verification/code")
     ResponseEntity<OwnerVerifyResponse> codeVerification(
@@ -113,7 +147,7 @@ public interface OwnerApi {
             @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "사장님 문자 인증번호 입력")
+    @Operation(summary = "사장님 회원가입 문자 인증번호 입력")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/verification/code/sms")
     ResponseEntity<OwnerVerifyResponse> codeVerification(
@@ -126,7 +160,21 @@ public interface OwnerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "사장님 비밀번호 변경 인증번호 이메일 발송")
+    @Operation(
+        summary = "사장님 비밀번호 변경 인증번호 이메일 발송",
+        description = """
+            <h3>프로덕션</h3>
+            <ul>
+                <li>하루 최대 5회 인증번호를 발송 가능.</li>
+                <li>메일로 인증번호 발송.</li>
+            </ul>
+            <h3>스테이지</h3>
+            <ul>
+                <li>하루 최대 발송 횟수 제한 없음.</li>
+                <li>메일로 인증번호 발송.</li>
+            </ul>
+            """
+    )
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/password/reset/verification")
     ResponseEntity<Void> sendResetPasswordByEmail(
@@ -139,7 +187,27 @@ public interface OwnerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "사장님 비밀번호 변경 인증번호 문자 발송")
+    @Operation(
+        summary = "사장님 비밀번호 변경 인증번호 문자 발송",
+        description = """
+            <h3>프로덕션</h3>
+            <ul>
+                <li>하루 최대 5회 인증번호를 발송 가능.</li>
+                <li>문자로 인증번호 발송.</li>
+            </ul>
+            <h3>스테이지</h3>
+            <ul>
+                <li>하루 최대 발송 횟수 제한 없음.</li>
+                <li>슬랙으로 인증번호 발송.(발송채널: 코인_이벤트알림_stage)</li>
+                <li>배포 전 QA할 때 스테이지 환경에서도 최대 5회 인증번호를 발송할 수 있게 설정.</li>
+            </ul>
+            <h3>클라이언트 사용 설명</h3>
+            <ul>
+                <li>해당 api를 사용하면 위의 내용들이 자동으로 적용된다.</li>
+                <li>클라이언트는 해당 api를 사용하기만 하면 된다.</li>
+            </ul>
+            """
+    )
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/password/reset/verification/sms")
     ResponseEntity<Void> sendResetPasswordBySms(
@@ -153,7 +221,7 @@ public interface OwnerApi {
             @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "사장님 비밀번호 변경 인증번호 인증-이메일")
+    @Operation(summary = "사장님 비밀번호 변경 이메일 인증번호 입력")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/password/reset/send")
     ResponseEntity<Void> sendVerifyCode(
@@ -167,7 +235,7 @@ public interface OwnerApi {
             @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "사장님 비밀번호 변경 인증번호 인증-휴대폰번호")
+    @Operation(summary = "사장님 비밀번호 변경 문자 인증번호 입력")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/password/reset/send/sms")
     ResponseEntity<Void> sendVerifyCodeBySms(
