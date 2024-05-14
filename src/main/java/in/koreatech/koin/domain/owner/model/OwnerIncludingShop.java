@@ -23,12 +23,4 @@ public class OwnerIncludingShop {
             shop.getName()
         );
     }
-
-    public static OwnerIncludingShop of(Owner owner) {
-        return new OwnerIncludingShop(
-            owner,
-            null,
-            null
-        );
-    }
 }
