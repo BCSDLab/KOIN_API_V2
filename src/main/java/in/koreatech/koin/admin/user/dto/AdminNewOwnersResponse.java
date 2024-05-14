@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.model.Criteria;
@@ -74,16 +73,15 @@ public record AdminNewOwnersResponse(
         }
     }
 
-    public static AdminNewOwnersResponse of(Page<Owner> pagedResult, Criteria criteria,
-        List<OwnerIncludingShop> ownerIncludingShop) {
+    public static AdminNewOwnersResponse of(Page<OwnerIncludingShop> pagedResult, Criteria criteria) {
         return new AdminNewOwnersResponse(
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),
             pagedResult.getTotalPages(),
             criteria.getPage() + 1,
-            ownerIncludingShop.stream()
+            pagedResult.getContent().stream()
                 .map(InnerNewOwnerResponse::from)
                 .collect(Collectors.toList())
-            );
+        );
     }
 }

@@ -1,8 +1,5 @@
 package in.koreatech.koin.admin.user.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -15,12 +12,9 @@ import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
-import in.koreatech.koin.admin.user.repository.AdminShopRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
-import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
-import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.user.model.Student;
@@ -38,7 +32,6 @@ public class AdminUserService {
     private final AdminStudentRepository adminStudentRepository;
     private final AdminOwnerRepository adminOwnerRepository;
     private final AdminUserRepository adminUserRepository;
-    private final AdminShopRepository adminShopRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -65,7 +58,8 @@ public class AdminUserService {
 
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
             Sort.by(direction, "user.createdAt"));
-        Page<Owner> result;
+
+        Page<OwnerIncludingShop> result;
 
         if (newOwnersCondition.searchType() == NewOwnersCondition.SearchType.EMAIL) {
             result = adminOwnerRepository.findPageUnauthenticatedOwnersByEmail(newOwnersCondition.query(), pageRequest);
@@ -75,17 +69,7 @@ public class AdminUserService {
             result = adminOwnerRepository.findPageUnauthenticatedOwners(pageRequest);
         }
 
-        List<OwnerIncludingShop> ownerIncludingShop = new ArrayList<>();
-        for (Owner owner : result.getContent()) {
-            List<Shop> shops = adminShopRepository.findAllByOwnerId(owner.getId());
-            if (shops.isEmpty()) {
-                ownerIncludingShop.add(OwnerIncludingShop.of(owner));
-            } else {
-                shops.forEach(shop -> ownerIncludingShop.add(OwnerIncludingShop.of(owner, shop)));
-            }
-        }
-
-        return AdminNewOwnersResponse.of(result, criteria, ownerIncludingShop);
+        return AdminNewOwnersResponse.of(result, criteria);
     }
 
     private void validateNicknameDuplication(String nickname, Integer userId) {

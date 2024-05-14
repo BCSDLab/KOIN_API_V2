@@ -165,8 +165,8 @@ public class AdminUserApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
                 {
-                    "total_count": 1,
-                    "current_count": 1,
+                    "total_count": 2,
+                    "current_count": 2,
                     "total_page": 1,
                     "current_page": 1,
                     "owners": [
@@ -202,11 +202,11 @@ public class AdminUserApiTest extends AcceptanceTest {
                 .companyRegistrationNumber("118-80-567" + i)
                 .attachments(List.of(
                         OwnerAttachment.builder()
-                            .url("https://test.com/사장님_인증사진_1" + i +".jpg")
+                            .url("https://test.com/사장님_인증사진_1" + i + ".jpg")
                             .isDeleted(false)
                             .build(),
                         OwnerAttachment.builder()
-                            .url("https://test.com/사장님_인증사진_2" + i +".jpg")
+                            .url("https://test.com/사장님_인증사진_2" + i + ".jpg")
                             .isDeleted(false)
                             .build()
                     )
