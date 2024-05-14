@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class Criteria {
-    private static final Integer DEFAULT_PAGE = 1;
+    public static final Integer DEFAULT_PAGE = 1;
     private static final Integer MIN_PAGE = 1;
 
-    private static final Integer DEFAULT_LIMIT = 10;
+    public static final Integer DEFAULT_LIMIT = 10;
     private static final Integer MIN_LIMIT = 1;
     private static final Integer MAX_LIMIT = 50;
 
