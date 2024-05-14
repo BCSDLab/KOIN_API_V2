@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
@@ -52,6 +53,8 @@ public interface AdminUserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/admin/users/new-owners")
     ResponseEntity<AdminNewOwnersResponse> getNewOwners(
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 }

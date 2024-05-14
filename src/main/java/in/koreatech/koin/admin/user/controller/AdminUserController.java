@@ -3,13 +3,18 @@ package in.koreatech.koin.admin.user.controller;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
+import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
 import in.koreatech.koin.admin.user.service.AdminUserService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -29,5 +34,13 @@ public class AdminUserController {
     ) {
         AdminStudentUpdateResponse adminStudentUpdateResponse = adminUserService.updateStudent(id, adminRequest);
         return ResponseEntity.ok(adminStudentUpdateResponse);
+    }
+
+    @GetMapping("/admin/users/new-owners")
+    public ResponseEntity<AdminNewOwnersResponse> getNewOwners(
+        @ModelAttribute NewOwnersCondition newOwnersCondition,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        return ResponseEntity.ok().body(adminUserService.getNewOwners(newOwnersCondition));
     }
 }
