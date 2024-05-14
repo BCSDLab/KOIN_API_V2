@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.user.dto;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
@@ -43,16 +44,16 @@ public record AdminNewOwnersResponse(
         @Schema(description = "이메일", requiredMode = REQUIRED)
         String email,
 
-        @Schema(description = "이름")
+        @Schema(description = "이름", requiredMode = NOT_REQUIRED)
         String name,
 
-        @Schema(description = "전화번호")
+        @Schema(description = "전화번호", requiredMode = NOT_REQUIRED)
         String phoneNumber,
 
-        @Schema(description = "요청한 상점ID")
+        @Schema(description = "요청한 상점ID", requiredMode = NOT_REQUIRED)
         Integer shopId,
 
-        @Schema(description = "요청한 상점명")
+        @Schema(description = "요청한 상점명", requiredMode = NOT_REQUIRED)
         String shopName,
 
         @Schema(description = "가입 신청 일자", requiredMode = REQUIRED)
