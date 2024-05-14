@@ -4,17 +4,24 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminNewOwnersResponse(
     @Schema(description = "조건에 해당하는 총 사장님의 수", example = "57", requiredMode = REQUIRED)
-    Integer totalCount,
+    Long totalCount,
 
     @Schema(description = "조건에 해당하는 사장님중에 현재 페이지에서 조회된 수", example = "10", requiredMode = REQUIRED)
     Integer currentCount,
@@ -29,7 +36,7 @@ public record AdminNewOwnersResponse(
     List<InnerNewOwnerResponse> owners
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
-    private record InnerNewOwnerResponse(
+    public record InnerNewOwnerResponse(
         @Schema(description = "고유 id", requiredMode = REQUIRED)
         Integer id,
 
@@ -52,5 +59,30 @@ public record AdminNewOwnersResponse(
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt
     ) {
+        public static InnerNewOwnerResponse from(OwnerIncludingShop ownerIncludingShop) {
+            User user = ownerIncludingShop.getOwner().getUser();
+            return new InnerNewOwnerResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getName(),
+                user.getPhoneNumber(),
+                ownerIncludingShop.getShop_id(),
+                ownerIncludingShop.getShop_name(),
+                user.getCreatedAt()
+            );
+        }
+    }
+
+    public static AdminNewOwnersResponse of(Page<Owner> pagedResult, Criteria criteria,
+        List<OwnerIncludingShop> ownerIncludingShop) {
+        return new AdminNewOwnersResponse(
+            pagedResult.getTotalElements(),
+            pagedResult.getContent().size(),
+            pagedResult.getTotalPages(),
+            criteria.getPage() + 1,
+            ownerIncludingShop.stream()
+                .map(InnerNewOwnerResponse::from)
+                .collect(Collectors.toList())
+            );
     }
 }
