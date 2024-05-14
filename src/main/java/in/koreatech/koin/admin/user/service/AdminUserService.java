@@ -63,21 +63,20 @@ public class AdminUserService {
         Criteria criteria = Criteria.of(newOwnersCondition.page(), newOwnersCondition.limit(), totalOwners);
         Sort.Direction direction = newOwnersCondition.getDirection();
 
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), Sort.by(direction, "user.createdAt"));
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
+            Sort.by(direction, "user.createdAt"));
         Page<Owner> result;
 
         if (newOwnersCondition.searchType() == NewOwnersCondition.SearchType.EMAIL) {
-            result = adminOwnerRepository.findPageUnauthenticatedOwnersByEmail(newOwnersCondition.query(),
-                pageRequest);
+            result = adminOwnerRepository.findPageUnauthenticatedOwnersByEmail(newOwnersCondition.query(), pageRequest);
         } else if (newOwnersCondition.searchType() == NewOwnersCondition.SearchType.NAME) {
-            result = adminOwnerRepository.findPageUnauthenticatedOwnersByName(newOwnersCondition.query(),
-                pageRequest);
+            result = adminOwnerRepository.findPageUnauthenticatedOwnersByName(newOwnersCondition.query(), pageRequest);
         } else {
             result = adminOwnerRepository.findPageUnauthenticatedOwners(pageRequest);
         }
 
         List<OwnerIncludingShop> ownerIncludingShop = new ArrayList<>();
-        for(Owner owner : result.getContent()) {
+        for (Owner owner : result.getContent()) {
             List<Shop> shops = adminShopRepository.findAllByOwnerId(owner.getId());
             if (shops.isEmpty()) {
                 ownerIncludingShop.add(OwnerIncludingShop.of(owner));
