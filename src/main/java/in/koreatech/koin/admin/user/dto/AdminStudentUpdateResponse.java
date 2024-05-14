@@ -12,13 +12,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminStudentUpdateResponse(
-    @Schema(description = "익명 닉네임", example = "익명_1676688416361", requiredMode = REQUIRED)
+    @Schema(description = "익명 닉네임", example = "익명_1676688416361", requiredMode = NOT_REQUIRED)
     String anonymousNickname,
 
     @Schema(description = "이메일 주소", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
     String email,
 
-    @Schema(description = "성별(남:0, 여:1)", example = "1", requiredMode = REQUIRED)
+    @Schema(description = "성별(남:0, 여:1)", example = "1", requiredMode = NOT_REQUIRED)
     Integer gender,
 
     @Schema(description = """
@@ -33,28 +33,28 @@ public record AdminStudentUpdateResponse(
         - 에너지신소재공학부
         - 산업경영학부
         - 고용서비스정책학부
-        """, example = "컴퓨터공학부", requiredMode = REQUIRED)
+        """, example = "컴퓨터공학부", requiredMode = NOT_REQUIRED)
     String major,
 
-    @Schema(description = "이름", example = "최준호", requiredMode = REQUIRED)
+    @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
     String name,
 
-    @Schema(description = "닉네임", example = "juno", requiredMode = REQUIRED)
+    @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
     String nickname,
 
-    @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = REQUIRED)
+    @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = NOT_REQUIRED)
     String phoneNumber,
 
-    @Schema(description = "학번", example = "2029136012", requiredMode = REQUIRED)
+    @Schema(description = "학번", example = "2029136012", requiredMode = NOT_REQUIRED)
     String studentNumber
 ) {
     public static AdminStudentUpdateResponse from(Student student) {
         User user = student.getUser();
-        Integer userGender = user.getGender() != null ? user.getGender().ordinal() : null;
+
         return new AdminStudentUpdateResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
-            userGender,
+            user.getGender() != null ? user.getGender().ordinal() : null,
             student.getDepartment(),
             user.getName(),
             user.getNickname(),

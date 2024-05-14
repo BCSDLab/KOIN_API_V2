@@ -19,13 +19,13 @@ public record AdminStudentResponse (
     @Schema(description = "id", example = "1", requiredMode = REQUIRED)
     Integer id,
 
-    @Schema(description = "닉네임", example = "seongjae", requiredMode = REQUIRED)
+    @Schema(description = "닉네임", example = "seongjae", requiredMode = NOT_REQUIRED)
     String nickname,
 
-    @Schema(description = "이름", example = "김성재", requiredMode = REQUIRED)
+    @Schema(description = "이름", example = "김성재", requiredMode = NOT_REQUIRED)
     String name,
 
-    @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = REQUIRED)
+    @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = NOT_REQUIRED)
     String phoneNumber,
 
     @Schema(description = "유저 타입", example = "STUDENT", requiredMode = REQUIRED)
@@ -34,14 +34,14 @@ public record AdminStudentResponse (
     @Schema(description = "이메일 주소", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
     String email,
 
-    @Schema(description = "성별(남:0, 여:1)", example = "1", requiredMode = REQUIRED)
+    @Schema(description = "성별(남:0, 여:1)", example = "1", requiredMode = NOT_REQUIRED)
     Integer gender,
 
     @Schema(description = "인증 여부", example = "true", requiredMode = REQUIRED)
     Boolean isAuthed,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "마지막 로그인 시간", example = "2024-01-15 12:00:00", requiredMode = REQUIRED)
+    @Schema(description = "마지막 로그인 시간", example = "2024-01-15 12:00:00", requiredMode = NOT_REQUIRED)
     LocalDateTime lastLoggedAt,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -52,10 +52,10 @@ public record AdminStudentResponse (
     @Schema(description = "수정 일자", example = "2024-01-15 12:00:00", requiredMode = REQUIRED)
     LocalDateTime updatedAt,
 
-    @Schema(description = "익명 닉네임", example = "익명_1676688416361", requiredMode = REQUIRED)
+    @Schema(description = "익명 닉네임", example = "익명_1676688416361", requiredMode = NOT_REQUIRED)
     String anonymousNickname,
 
-    @Schema(description = "학번", example = "2020174015", requiredMode = REQUIRED)
+    @Schema(description = "학번", example = "2020174015", requiredMode = NOT_REQUIRED)
     String studentNumber,
 
     @Schema(description = """
@@ -70,19 +70,14 @@ public record AdminStudentResponse (
         - 에너지신소재공학부
         - 산업경영학부
         - 고용서비스정책학부
-        """, example = "컴퓨터공학부", requiredMode = REQUIRED)
+        """, example = "컴퓨터공학부", requiredMode = NOT_REQUIRED)
     String major,
 
-    @Schema(description = "졸업 여부", example = "false", requiredMode = REQUIRED)
+    @Schema(description = "졸업 여부", example = "false", requiredMode = NOT_REQUIRED)
     Boolean isGraduated
 ) {
     public static AdminStudentResponse from(Student student) {
-        Integer userGender = null;
-
         User user = student.getUser();
-        if (user.getGender() != null) {
-            userGender = user.getGender().ordinal();
-        }
 
         return new AdminStudentResponse(
             user.getId(),
@@ -91,7 +86,7 @@ public record AdminStudentResponse (
             user.getPhoneNumber(),
             user.getUserType().toString(),
             user.getEmail(),
-            userGender,
+            user.getGender() == null ? null : user.getGender().ordinal(),
             user.isAuthed(),
             user.getLastLoggedAt(),
             user.getCreatedAt(),

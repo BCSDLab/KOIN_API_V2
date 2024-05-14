@@ -39,7 +39,6 @@ public interface AdminUserApi {
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
-
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
