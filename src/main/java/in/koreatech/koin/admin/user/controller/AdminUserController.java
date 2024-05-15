@@ -33,8 +33,7 @@ public class AdminUserController {
     ) {
         AdminStudentResponse adminStudentResponse = adminUserService.getStudent(id);
         return ResponseEntity.ok(adminStudentResponse);
-    };
-
+    }
     @PutMapping("/admin/users/student/{id}")
     public ResponseEntity<AdminStudentUpdateResponse> updateStudent(
         @Valid @RequestBody AdminStudentUpdateRequest adminRequest,
