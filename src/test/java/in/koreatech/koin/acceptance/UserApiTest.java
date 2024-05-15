@@ -7,6 +7,8 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
+import java.util.Optional;
+
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,8 @@ import in.koreatech.koin.domain.dept.model.Dept;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.fixture.UserFixture;
@@ -28,12 +32,17 @@ import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 
 @SuppressWarnings("NonAsciiCharacters")
 class UserApiTest extends AcceptanceTest {
 
     @Autowired
     private StudentRepository studentRepository;
+
+    @Autowired
+    private StudentRedisRepository studentRedisRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -519,7 +528,7 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("학생 회원가입 후 학교 이메일요청 이벤트가 발생한다.")
     void studentRegister() {
-        RestAssured
+        var response = RestAssured
             .given()
             .body("""
                 {
@@ -538,26 +547,24 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
-            .statusCode(HttpStatus.OK.value());
+            .statusCode(HttpStatus.OK.value())
+            .extract();
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                User user = userRepository.getByEmail("koko123@koreatech.ac.kr");
-                Student student = studentRepository.getById(user.getId());
+                String authToken = response.jsonPath().getString("auth_token");
+                Optional<StudentTemporaryStatus> student = studentRedisRepository.findById(authToken);
 
                 assertSoftly(
                     softly -> {
                         softly.assertThat(student).isNotNull();
-                        softly.assertThat(student.getUser().getNickname()).isEqualTo("koko");
-                        softly.assertThat(student.getUser().getName()).isEqualTo("김철수");
-                        softly.assertThat(student.getUser().getPhoneNumber()).isEqualTo("010-0000-0000");
-                        softly.assertThat(student.getUser().getUserType()).isEqualTo(STUDENT);
-                        softly.assertThat(student.getUser().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
-                        softly.assertThat(student.getUser().isAuthed()).isEqualTo(false);
-                        softly.assertThat(student.getStudentNumber()).isEqualTo("2021136012");
-                        softly.assertThat(student.getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
-                        softly.assertThat(student.getAnonymousNickname()).isNotNull();
+                        softly.assertThat(student.get().getNickname()).isEqualTo("koko");
+                        softly.assertThat(student.get().getName()).isEqualTo("김철수");
+                        softly.assertThat(student.get().getPhoneNumber()).isEqualTo("010-0000-0000");
+                        softly.assertThat(student.get().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
+                        softly.assertThat(student.get().getStudentNumber()).isEqualTo("2021136012");
+                        softly.assertThat(student.get().getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
                         verify(studentEventListener).onStudentEmailRequest(any());
                     }
                 );
@@ -568,7 +575,7 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("이메일 요청을 확인 후 회원가입 이벤트가 발생한다.")
     void authenticate() {
-        RestAssured
+        var response = RestAssured
             .given()
             .body("""
                 {
@@ -587,19 +594,22 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/student/register")
             .then()
-            .statusCode(HttpStatus.OK.value());
+            .statusCode(HttpStatus.OK.value())
+            .extract();
 
-        User user = userRepository.getByEmail("koko123@koreatech.ac.kr");
+        String authToken = response.jsonPath().getString("auth_token");
+        Optional<StudentTemporaryStatus> student = studentRedisRepository.findById(authToken);
 
         RestAssured
             .given()
-            .param("auth_token", user.getAuthToken())
+            .param("auth_token", student.get().getKey())
             .when()
-            .get("/user/authenticate");
+            .get("/user/authenticate")
+            .then();
 
-        User user1 = userRepository.getByEmail("koko123@koreatech.ac.kr");
+        User user = userRepository.getByEmail("koko123@koreatech.ac.kr");
 
-        assertThat(user1.isAuthed()).isTrue();
+        assertThat(user.isAuthed()).isTrue();
         verify(studentEventListener).onStudentRegister(any());
     }
 
