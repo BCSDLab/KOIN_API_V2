@@ -45,8 +45,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final OwnerRepository ownerRepository;
-    private final ShopRepository shopRepository;
-    private final OwnerAttachmentRepository ownerAttachmentRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
     private final ApplicationEventPublisher eventPublisher;
