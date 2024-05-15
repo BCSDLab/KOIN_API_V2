@@ -42,15 +42,11 @@ public class SlackNotificationFactory {
     public SlackNotification generateOwnerPhoneVerificationRequestNotification(
         String content
     ) {
-        String phoneFormat = String.format("%s-%s-%s"
-            , content.substring(0, 3)
-            , content.substring(3, 7)
-            , content.substring(7, 11));
         return SlackNotification.builder()
             .slackUrl(ownerEventNotificationUrl)
             .text(String.format("""
                 `%s(사장님)님이 문자 인증을 요청하셨습니다.`
-                """, phoneFormat)
+                """, content)
             )
             .build();
     }

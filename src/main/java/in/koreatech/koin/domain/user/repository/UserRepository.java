@@ -7,6 +7,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserType;
 
 public interface UserRepository extends Repository<User, Integer> {
 
@@ -14,7 +15,7 @@ public interface UserRepository extends Repository<User, Integer> {
 
     Optional<User> findByEmail(String email);
 
-    Optional<User> findByPhoneNumber(String phoneNumber);
+    Optional<User> findByPhoneNumberAndUserType(String phoneNumber, UserType userType);
 
     Optional<User> findById(Integer id);
 
@@ -27,6 +28,11 @@ public interface UserRepository extends Repository<User, Integer> {
     default User getByEmail(String email) {
         return findByEmail(email)
             .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
+    }
+
+    default User getByPhoneNumber(String phoneNumber, UserType userType) {
+        return findByPhoneNumberAndUserType(phoneNumber, userType)
+            .orElseThrow(() -> UserNotFoundException.withDetail("phoneNumber: " + phoneNumber));
     }
 
     default User getById(Integer userId) {

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
+import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
@@ -34,6 +35,11 @@ public class AdminUserService {
     private final AdminOwnerRepository adminOwnerRepository;
     private final AdminShopRepository adminShopRepository;
     private final PasswordEncoder passwordEncoder;
+
+    public AdminStudentResponse getStudent(Integer userId) {
+        Student student = adminStudentRepository.getById(userId);
+        return AdminStudentResponse.from(student);
+    }
 
     @Transactional
     public AdminStudentUpdateResponse updateStudent(Integer id, AdminStudentUpdateRequest adminRequest) {

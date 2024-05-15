@@ -17,8 +17,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.owner.model.OwnerInVerification;
-import in.koreatech.koin.domain.owner.repository.OwnerInVerificationRedisRepository;
+import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
+import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
@@ -46,7 +46,7 @@ class OwnerApiTest extends AcceptanceTest {
     private OwnerShopRedisRepository ownerShopRedisRepository;
 
     @Autowired
-    private OwnerInVerificationRedisRepository ownerInVerificationRedisRepository;
+    private OwnerVerificationStatusRepository ownerVerificationStatusRepository;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -122,7 +122,7 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        var verifyCode = ownerInVerificationRedisRepository.getByVerify(ownerEmail);
+        var verifyCode = ownerVerificationStatusRepository.getByVerify(ownerEmail);
 
         RestAssured
             .given()
@@ -138,38 +138,8 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        var result = ownerInVerificationRedisRepository.findById(ownerEmail);
+        var result = ownerVerificationStatusRepository.findById(ownerEmail);
         Assertions.assertThat(result).isNotPresent();
-    }
-
-    @Test
-    @DisplayName("사장님이 회원가입 인증번호 전송 요청을 한다 - 1분 이내로 재요청시 오류가 발생한다.")
-    void requestDuplicateVerifySign() {
-        String ownerEmail = "junho5336@gmail.com";
-        RestAssured
-            .given()
-            .body(String.format("""
-                {
-                  "address": "%s"
-                }
-                """, ownerEmail))
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/verification/email")
-            .then()
-            .statusCode(HttpStatus.OK.value());
-        RestAssured
-            .given()
-            .body(String.format("""
-                {
-                  "address": "%s"
-                }
-                """, ownerEmail))
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/verification/email")
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value());
     }
 
     @Test
@@ -413,8 +383,8 @@ class OwnerApiTest extends AcceptanceTest {
     @DisplayName("사장님이 회원가입 인증번호를 확인한다")
     void ownerCodeVerification() {
         // given
-        OwnerInVerification verification = OwnerInVerification.of("junho5336@gmail.com", "123456");
-        ownerInVerificationRedisRepository.save(verification);
+        OwnerVerificationStatus verification = OwnerVerificationStatus.of("junho5336@gmail.com", "123456");
+        ownerVerificationStatusRepository.save(verification);
         RestAssured
             .given()
             .body("""
@@ -428,7 +398,7 @@ class OwnerApiTest extends AcceptanceTest {
             .post("/owners/verification/code")
             .then()
             .statusCode(HttpStatus.OK.value());
-        var result = ownerInVerificationRedisRepository.findById(verification.getKey());
+        var result = ownerVerificationStatusRepository.findById(verification.getKey());
         assertThat(result).isNotPresent();
     }
 
@@ -436,8 +406,8 @@ class OwnerApiTest extends AcceptanceTest {
     @DisplayName("사장님이 회원가입 인증번호를 확인한다 - 존재하지 않는 이메일로 요청을 보낸다")
     void ownerCodeVerificationNotExistEmail() {
         // given
-        OwnerInVerification verification = OwnerInVerification.of("junho5336@gmail.com", "123456");
-        ownerInVerificationRedisRepository.save(verification);
+        OwnerVerificationStatus verification = OwnerVerificationStatus.of("junho5336@gmail.com", "123456");
+        ownerVerificationStatusRepository.save(verification);
         RestAssured
             .given()
             .body("""
@@ -457,14 +427,15 @@ class OwnerApiTest extends AcceptanceTest {
     @DisplayName("사장님이 비밀번호 변경을 위한 인증번호 이메일을 전송을 요청한다")
     void sendResetPasswordEmail() {
         // given
-        String email = "test@test.com";
+        Owner owner = userFixture.현수_사장님();
+        ownerRepository.save(owner);
         RestAssured
             .given()
             .body(String.format("""
                     {
                       "address": "%s"
                     }
-                """, email)
+                """, owner.getUser().getEmail())
             )
             .contentType(ContentType.JSON)
             .when()
@@ -472,7 +443,45 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        assertThat(ownerInVerificationRedisRepository.findById(email)).isPresent();
+        assertThat(ownerVerificationStatusRepository.findById(owner.getUser().getEmail())).isPresent();
+    }
+
+    @Test
+    @DisplayName("사장님이 비밀번호 변경을 위한 인증번호 이메일을 전송을 하루 요청 횟수(5번)를 초과하여 요청한다 - 400에러를 반환한다.")
+    void sendResetPasswordEmailWithDailyLimit() {
+        // given
+        int DAILY_LIMIT = 5;
+        Owner owner = userFixture.현수_사장님();
+        ownerRepository.save(owner);
+        for (int i = 0; i < DAILY_LIMIT; ++i) {
+            RestAssured
+                .given()
+                .body(String.format("""
+                        {
+                          "address": "%s"
+                        }
+                    """, owner.getUser().getEmail())
+                )
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/owners/password/reset/verification")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+        }
+
+        RestAssured
+            .given()
+            .body(String.format("""
+                    {
+                      "address": "%s"
+                    }
+                """, owner.getUser().getEmail())
+            )
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/password/reset/verification")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -481,8 +490,9 @@ class OwnerApiTest extends AcceptanceTest {
         // given
         String email = "test@test.com";
         String code = "123123";
-        OwnerInVerification verification = OwnerInVerification.of(email, code);
-        ownerInVerificationRedisRepository.save(verification);
+        OwnerVerificationStatus verification = OwnerVerificationStatus.of(email, code);
+        ownerVerificationStatusRepository.save(verification);
+
         RestAssured
             .given()
             .body(String.format("""
@@ -497,24 +507,23 @@ class OwnerApiTest extends AcceptanceTest {
             .post("/owners/password/reset/send")
             .then()
             .statusCode(HttpStatus.OK.value());
-
-        var result = ownerInVerificationRedisRepository.getByVerify(email);
+        var result = ownerVerificationStatusRepository.findById(email);
         assertSoftly(
             softly -> {
                 softly.assertThat(result).isNotNull();
-                softly.assertThat(result.isAuthed()).isTrue();
+                softly.assertThat(result).isNotPresent();
             }
         );
     }
 
     @Test
-    @DisplayName("사장님이 인증번호를 확인한다. - 중복 시 409를 반환한다.")
+    @DisplayName("사장님이 인증번호를 확인한다. - 중복 시 404를 반환한다.")
     void ownerVerifyDuplicated() {
         // given
         String email = "test@test.com";
         String code = "123123";
-        OwnerInVerification verification = OwnerInVerification.of(email, code);
-        ownerInVerificationRedisRepository.save(verification);
+        OwnerVerificationStatus verification = OwnerVerificationStatus.of(email, code);
+        ownerVerificationStatusRepository.save(verification);
         // when
         RestAssured
             .given()
@@ -545,7 +554,7 @@ class OwnerApiTest extends AcceptanceTest {
             .when()
             .post("/owners/password/reset/send")
             .then()
-            .statusCode(HttpStatus.CONFLICT.value());
+            .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -554,10 +563,24 @@ class OwnerApiTest extends AcceptanceTest {
         // given
         User user = userFixture.현수_사장님().getUser();
         String code = "123123";
-        OwnerInVerification verification = OwnerInVerification.of(user.getEmail(), code);
-        verification.verify();
-        ownerInVerificationRedisRepository.save(verification);
+        OwnerVerificationStatus verification = OwnerVerificationStatus.of(user.getEmail(), code);
+        ownerVerificationStatusRepository.save(verification);
         String password = "asdf1234!";
+
+        RestAssured
+            .given()
+            .body(String.format("""
+                    {
+                      "address": "%s",
+                      "certification_code": "%s"
+                    }
+                """, user.getEmail(), code)
+            )
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/password/reset/send")
+            .then()
+            .statusCode(HttpStatus.OK.value());
 
         // when
         RestAssured
@@ -576,7 +599,7 @@ class OwnerApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value());
 
         // then
-        var result = ownerInVerificationRedisRepository.findById(user.getEmail());
+        var result = ownerVerificationStatusRepository.findById(user.getEmail());
         User userResult = userRepository.getByEmail(user.getEmail());
         SoftAssertions.assertSoftly(
             softly -> {
@@ -584,33 +607,6 @@ class OwnerApiTest extends AcceptanceTest {
                 passwordEncoder.matches(password, userResult.getPassword());
             }
         );
-    }
-
-    @Test
-    @DisplayName("사장님이 비밀번호를 변경한다. - 인증되지 않으면 400을 반환한다.")
-    void ownerChangePasswordNotAuthed() {
-        // given
-        String email = "test@test.com";
-        String code = "123123";
-        OwnerInVerification verification = OwnerInVerification.of(email, code);
-        ownerInVerificationRedisRepository.save(verification);
-        String password = "asdf1234!";
-
-        // when & then
-        RestAssured
-            .given()
-            .body(String.format("""
-                    {
-                       "address": "%s",
-                       "password": "%s"
-                     }
-                """, email, password)
-            )
-            .contentType(ContentType.JSON)
-            .when()
-            .put("/owners/password/reset")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
