@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.user.service;
 
 import java.time.Clock;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.joda.time.LocalDateTime;
 import org.springframework.context.ApplicationEventPublisher;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
+import in.koreatech.koin.domain.user.dto.AuthTokenResponse;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
@@ -20,14 +22,17 @@ import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.user.exception.StudentNumberNotValidException;
-import in.koreatech.koin.domain.user.model.AuthResult;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.StudentDepartment;
 import in.koreatech.koin.domain.user.model.StudentEmailRequestEvent;
+import in.koreatech.koin.domain.user.model.StudentRegisterEvent;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
@@ -40,6 +45,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class StudentService {
 
+    private final StudentRedisRepository studentRedisRepository;
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -83,42 +89,65 @@ public class StudentService {
 
     @Transactional
     public ModelAndView authenticate(AuthTokenRequest request) {
-        Optional<User> user = userRepository.findByAuthToken(request.authToken());
-        return new AuthResult(user, eventPublisher, clock).toModelAndViewForStudent();
-    }
+        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findById(request.authToken());
 
-    @Transactional
-    public void studentRegister(StudentRegisterRequest request, String serverURL) {
-        Student student = request.toStudent(passwordEncoder, clock);
+        if (studentTemporaryStatus.isEmpty()) {
+            ModelAndView modelAndView = new ModelAndView("error_config");
+            modelAndView.addObject("errorMessage", "토큰에 해당하는 사용자를 찾을 수 없습니다.");
+            return modelAndView;
+        }
 
-        validateStudentRegister(student);
+        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder);
+        Optional<User> foundUser = userRepository.findByEmail(student.getUser().getEmail());
+
+        if (foundUser.isPresent()) {
+            ModelAndView modelAndView = new ModelAndView("error_config");
+            modelAndView.addObject("errorMessage", "이미 인증된 사용자입니다.");
+            return modelAndView;
+        }
 
         studentRepository.save(student);
         userRepository.save(student.getUser());
 
-        mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, student.getUser().getAuthToken()));
-        eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
+        eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail()));
+
+        return new ModelAndView("success_register_config");
     }
 
-    private void validateStudentRegister(Student student) {
-        EmailAddress emailAddress = EmailAddress.from(student.getUser().getEmail());
+    @Transactional
+    public AuthTokenResponse studentRegister(StudentRegisterRequest request, String serverURL) {
+
+        validateStudentRegister(request);
+        String authToken = UUID.randomUUID().toString();
+
+        StudentTemporaryStatus studentTemporaryStatus = StudentTemporaryStatus.of(request, authToken);
+        studentRedisRepository.save(studentTemporaryStatus);
+
+        mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, authToken));
+        eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
+
+        return AuthTokenResponse.from(authToken);
+    }
+
+    private void validateStudentRegister(StudentRegisterRequest request) {
+        EmailAddress emailAddress = EmailAddress.from(request.email());
         emailAddress.validateKoreatechEmail();
 
-        validateDataExist(student);
-        validateStudentNumber(student.getStudentNumber());
-        checkDepartmentValid(student.getDepartment());
+        validateDataExist(request);
+        validateStudentNumber(request.studentNumber());
+        checkDepartmentValid(request.department());
     }
 
-    private void validateDataExist(Student student) {
-        userRepository.findByEmail(student.getUser().getEmail())
+    private void validateDataExist(StudentRegisterRequest request) {
+        userRepository.findByEmail(request.email())
             .ifPresent(user -> {
-                throw DuplicationEmailException.withDetail("email: " + student.getUser().getEmail());
+                throw DuplicationEmailException.withDetail("email: " + request.email());
             });
 
-        if (student.getUser().getNickname() != null) {
-            userRepository.findByNickname(student.getUser().getNickname())
+        if (request.nickname() != null) {
+            userRepository.findByNickname(request.nickname())
                 .ifPresent(user -> {
-                    throw DuplicationNicknameException.withDetail("nickname: " + student.getUser().getNickname());
+                    throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
                 });
         }
     }

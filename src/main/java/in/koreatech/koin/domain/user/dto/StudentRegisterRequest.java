@@ -4,20 +4,10 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.util.UUID;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.user.model.Student;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.model.UserIdentity;
-import in.koreatech.koin.domain.user.model.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -78,28 +68,4 @@ public record StudentRegisterRequest(
     String phoneNumber
 ) {
 
-    public Student toStudent(PasswordEncoder passwordEncoder, Clock clock) {
-        User user = User.builder()
-            .password(passwordEncoder.encode(password))
-            .email(email)
-            .name(name)
-            .nickname(nickname)
-            .gender(gender)
-            .phoneNumber(phoneNumber)
-            .isAuthed(false)
-            .isDeleted(false)
-            .userType(UserType.STUDENT)
-            .authToken(UUID.randomUUID().toString())
-            .authExpiredAt(LocalDateTime.now(clock).plusHours(10))
-            .build();
-
-        return Student.builder()
-            .user(user)
-            .anonymousNickname("익명_" + (System.currentTimeMillis()))
-            .isGraduated(isGraduated)
-            .userIdentity(UserIdentity.UNDERGRADUATE)
-            .department(department)
-            .studentNumber(studentNumber)
-            .build();
-    }
 }
