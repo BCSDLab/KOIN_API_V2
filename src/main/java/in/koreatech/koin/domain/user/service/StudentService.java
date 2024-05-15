@@ -32,7 +32,6 @@ import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
 import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
@@ -109,6 +108,7 @@ public class StudentService {
         studentRepository.save(student);
         userRepository.save(student.getUser());
 
+        studentRedisRepository.deleteById(request.authToken());
         eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail()));
 
         return new ModelAndView("success_register_config");
