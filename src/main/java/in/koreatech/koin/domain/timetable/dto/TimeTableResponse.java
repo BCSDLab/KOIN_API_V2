@@ -42,19 +42,19 @@ public record TimeTableResponse(
         @Schema(description = "설계 학점", example = "0", requiredMode = NOT_REQUIRED)
         String designScore,
 
-        @Schema(description = "강의 시간", example = "[204, 205, 206, 207, 302, 303]", requiredMode = REQUIRED)
+        @Schema(description = "강의(커스텀) 시간", example = "[204, 205, 206, 207, 302, 303]", requiredMode = REQUIRED)
         List<Integer> classTime,
 
-        @Schema(description = "강의 장소", example = "2 공학관", requiredMode = REQUIRED)
+        @Schema(description = "강의 장소", example = "2 공학관", requiredMode = NOT_REQUIRED)
         String classPlace,
 
         @Schema(description = "메모", example = "null", requiredMode = NOT_REQUIRED)
         String memo,
 
-        @Schema(name = "대상 학년", example = "3", requiredMode = REQUIRED)
+        @Schema(name = "대상 학년", example = "3", requiredMode = NOT_REQUIRED)
         String grades,
 
-        @Schema(name = "강의 이름", example = "한국사", requiredMode = REQUIRED)
+        @Schema(name = "강의(커스텀) 이름", example = "한국사", requiredMode = REQUIRED)
         String classTitle,
 
         @Schema(name = "분반", example = "01", requiredMode = NOT_REQUIRED)

@@ -35,11 +35,11 @@ public record TimeTableCreateRequest(
         @Schema(description = "과목 코드", example = "CPC490", requiredMode = NOT_REQUIRED)
         String code,
 
-        @Schema(description = "강의 이름", example = "운영체제", requiredMode = REQUIRED)
+        @Schema(description = "강의(커스텀) 이름", example = "운영체제", requiredMode = REQUIRED)
         @NotBlank(message = "강의 이름을 입력해주세요.")
         String classTitle,
 
-        @Schema(description = "강의 시간", example = "[210, 211]", requiredMode = REQUIRED)
+        @Schema(description = "강의(커스텀) 시간", example = "[210, 211]", requiredMode = REQUIRED)
         @NotNull(message = "강의 시간을 입력해주세요.")
         List<Integer> classTime,
 
@@ -49,11 +49,10 @@ public record TimeTableCreateRequest(
         @Schema(name = "강의 교수", example = "이돈우", requiredMode = NOT_REQUIRED)
         String professor,
 
-        @Schema(description = "대상 학년", example = "3", requiredMode = REQUIRED)
-        @NotBlank(message = "대상 학년을 입력해주세요.")
+        @Schema(description = "대상 학년", example = "3", requiredMode = NOT_REQUIRED)
         String grades,
 
-        @Schema(name = "분반", example = "01", requiredMode = REQUIRED)
+        @Schema(name = "분반", example = "01", requiredMode = NOT_REQUIRED)
         @Size(max = 3, message = "분반은 3자 이하로 입력해주세요.")
         String lectureClass,
 
