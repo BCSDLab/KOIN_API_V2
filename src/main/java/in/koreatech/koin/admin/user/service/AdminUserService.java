@@ -66,6 +66,7 @@ public class AdminUserService {
     public AdminNewOwnersResponse getNewOwners(NewOwnersCondition newOwnersCondition) {
         newOwnersCondition.checkDataConstraintViolation();
 
+        // page > totalPage인 경우 totalPage로 조회하기 위해
         Integer totalOwners = adminOwnerRepository.findUnauthenticatedOwnersCount();
         Criteria criteria = Criteria.of(newOwnersCondition.page(), newOwnersCondition.limit(), totalOwners);
         Sort.Direction direction = newOwnersCondition.getDirection();
