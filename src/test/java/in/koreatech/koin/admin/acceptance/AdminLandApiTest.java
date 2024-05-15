@@ -19,6 +19,8 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
 import in.koreatech.koin.domain.land.model.Land;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.UserFixture;
 import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -26,6 +28,9 @@ class AdminLandApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminLandRepository adminLandRepository;
+
+    @Autowired
+    private UserFixture userFixture;
 
     @Test
     @DisplayName("관리자 권한으로 복덕방 목록을 검색한다.")
@@ -44,8 +49,12 @@ class AdminLandApiTest extends AcceptanceTest {
             adminLandRepository.save(request);
         }
 
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
         var response = RestAssured
             .given()
+            .header("Authorization", "Bearer " + token)
             .when()
             .param("page", 1)
             .param("is_deleted", false)
@@ -96,8 +105,12 @@ class AdminLandApiTest extends AcceptanceTest {
     }
     """;
 
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
         RestAssured
             .given()
+            .header("Authorization", "Bearer " + token)
             .contentType("application/json")
             .body(jsonBody)
             .when()

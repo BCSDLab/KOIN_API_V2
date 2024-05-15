@@ -72,6 +72,56 @@ class TrackApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("BCSDLab 트랙 정보 단건 조회 - 삭제된 멤버는 조회하지 않는다.")
+    void findingTracksExcludingDeletedMember() {
+        Track track = trackFixture.backend();
+        memberFixture.배진호(track); // 삭제된 멤버
+        memberFixture.최준호(track);
+        techStackFixture.java(track);
+
+        var response = RestAssured
+            .given()
+            .when()
+            .get("/tracks/{id}", track.getId())
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                     "TrackName": "BackEnd",
+                     "TechStacks": [
+                         {
+                             "id": 1,
+                             "name": "Java",
+                             "description": "Language",
+                             "image_url": "https://testimageurl.com",
+                             "track_id": 1,
+                             "is_deleted": false,
+                             "created_at": "2024-01-15 12:00:00",
+                             "updated_at": "2024-01-15 12:00:00"
+                         }
+                     ],
+                     "Members": [
+                         {
+                             "id": 2,
+                             "name": "최준호",
+                             "student_number": "2019136135",
+                             "position": "Regular",
+                             "track": "BackEnd",
+                             "email": "testjuno@gmail.com",
+                             "image_url": "https://imagetest.com/juno.jpg",
+                             "is_deleted": false,
+                             "created_at": "2024-01-15 12:00:00",
+                             "updated_at": "2024-01-15 12:00:00"
+                         }
+                     ]
+                 }
+                """);
+    }
+
+    @Test
     @DisplayName("BCSDLab 트랙 정보 단건 조회")
     void findTrack() {
         Track track = trackFixture.backend();
