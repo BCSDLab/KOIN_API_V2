@@ -32,8 +32,6 @@ import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 
 @SuppressWarnings("NonAsciiCharacters")
 class UserApiTest extends AcceptanceTest {
@@ -553,8 +551,7 @@ class UserApiTest extends AcceptanceTest {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                String authToken = response.jsonPath().getString("auth_token");
-                Optional<StudentTemporaryStatus> student = studentRedisRepository.findById(authToken);
+                Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
 
                 assertSoftly(
                     softly -> {
@@ -562,7 +559,7 @@ class UserApiTest extends AcceptanceTest {
                         softly.assertThat(student.get().getNickname()).isEqualTo("koko");
                         softly.assertThat(student.get().getName()).isEqualTo("김철수");
                         softly.assertThat(student.get().getPhoneNumber()).isEqualTo("010-0000-0000");
-                        softly.assertThat(student.get().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
+                        softly.assertThat(student.get().getKey()).isEqualTo("koko123@koreatech.ac.kr");
                         softly.assertThat(student.get().getStudentNumber()).isEqualTo("2021136012");
                         softly.assertThat(student.get().getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
                         verify(studentEventListener).onStudentEmailRequest(any());
@@ -575,7 +572,7 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("이메일 요청을 확인 후 회원가입 이벤트가 발생한다.")
     void authenticate() {
-        var response = RestAssured
+        RestAssured
             .given()
             .body("""
                 {
@@ -597,12 +594,11 @@ class UserApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        String authToken = response.jsonPath().getString("auth_token");
-        Optional<StudentTemporaryStatus> student = studentRedisRepository.findById(authToken);
+        Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
 
         RestAssured
             .given()
-            .param("auth_token", student.get().getKey())
+            .param("auth_token", student.get().getAuthToken())
             .when()
             .get("/user/authenticate")
             .then();

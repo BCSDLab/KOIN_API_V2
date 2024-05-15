@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
-import in.koreatech.koin.domain.user.dto.AuthTokenResponse;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
@@ -88,34 +87,27 @@ public class StudentService {
 
     @Transactional
     public ModelAndView authenticate(AuthTokenRequest request) {
-        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findById(request.authToken());
+        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findByAuthToken(request.authToken());
 
         if (studentTemporaryStatus.isEmpty()) {
             ModelAndView modelAndView = new ModelAndView("error_config");
-            modelAndView.addObject("errorMessage", "토큰에 해당하는 사용자를 찾을 수 없습니다.");
+            modelAndView.addObject("errorMessage", "토큰이 유효하지 않습니다.");
             return modelAndView;
         }
 
         Student student = studentTemporaryStatus.get().toStudent(passwordEncoder);
-        Optional<User> foundUser = userRepository.findByEmail(student.getUser().getEmail());
-
-        if (foundUser.isPresent()) {
-            ModelAndView modelAndView = new ModelAndView("error_config");
-            modelAndView.addObject("errorMessage", "이미 인증된 사용자입니다.");
-            return modelAndView;
-        }
 
         studentRepository.save(student);
         userRepository.save(student.getUser());
 
-        studentRedisRepository.deleteById(request.authToken());
+        studentRedisRepository.deleteById(student.getUser().getEmail());
         eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail()));
 
         return new ModelAndView("success_register_config");
     }
 
     @Transactional
-    public AuthTokenResponse studentRegister(StudentRegisterRequest request, String serverURL) {
+    public void studentRegister(StudentRegisterRequest request, String serverURL) {
 
         validateStudentRegister(request);
         String authToken = UUID.randomUUID().toString();
@@ -125,8 +117,6 @@ public class StudentService {
 
         mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, authToken));
         eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
-
-        return AuthTokenResponse.from(authToken);
     }
 
     private void validateStudentRegister(StudentRegisterRequest request) {

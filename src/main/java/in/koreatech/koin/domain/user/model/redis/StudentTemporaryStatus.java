@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.user.model.redis;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
+import org.springframework.data.redis.core.index.Indexed;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
@@ -17,12 +18,13 @@ import lombok.Getter;
 @RedisHash(value = "StudentTemporaryStatus@")
 public class StudentTemporaryStatus {
 
-    private static final long CACHE_EXPIRE_SECOND = 60 * 60 * 1L;
+    private static final long CACHE_EXPIRE_SECOND = 60 * 60 * 10L;
 
     @Id
     private String key;
 
-    private String email;
+    @Indexed
+    private String authToken;
 
     private String name;
 
@@ -43,10 +45,10 @@ public class StudentTemporaryStatus {
     @TimeToLive
     private Long expiration;
 
-    public StudentTemporaryStatus(String key, String email, String name, String password, String nickname,
+    public StudentTemporaryStatus(String key, String authToken, String name, String password, String nickname,
         UserGender gender, boolean isGraduated, String department, String studentNumber, String phoneNumber) {
         this.key = key;
-        this.email = email;
+        this.authToken = authToken;
         this.name = name;
         this.password = password;
         this.nickname = nickname;
@@ -59,14 +61,14 @@ public class StudentTemporaryStatus {
     }
 
     public static StudentTemporaryStatus of(StudentRegisterRequest request, String authToken) {
-        return new StudentTemporaryStatus(authToken, request.email(), request.name(), request.password(), request.nickname(), request.gender(),
+        return new StudentTemporaryStatus(request.email(), authToken, request.name(), request.password(), request.nickname(), request.gender(),
             request.isGraduated(), request.department(), request.studentNumber(), request.phoneNumber());
     }
 
     public Student toStudent(PasswordEncoder passwordEncoder) {
         User user = User.builder()
             .password(passwordEncoder.encode(password))
-            .email(email)
+            .email(key)
             .name(name)
             .nickname(nickname)
             .gender(gender)
@@ -74,7 +76,7 @@ public class StudentTemporaryStatus {
             .isAuthed(true)
             .isDeleted(false)
             .userType(UserType.STUDENT)
-            .authToken(key)
+            .authToken(authToken)
             .build();
 
         return Student.builder()

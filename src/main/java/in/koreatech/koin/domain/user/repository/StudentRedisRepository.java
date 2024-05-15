@@ -12,5 +12,7 @@ public interface StudentRedisRepository extends Repository<StudentTemporaryStatu
 
     Optional<StudentTemporaryStatus> findById(String key);
 
+    Optional<StudentTemporaryStatus> findByAuthToken(String authToken);
+
     void deleteById(String key);
 }

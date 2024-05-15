@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.user.service;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -24,6 +25,8 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserDeleteEvent;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
+import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
@@ -43,6 +46,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final OwnerRepository ownerRepository;
+    private final StudentRedisRepository studentRedisRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -50,12 +54,13 @@ public class UserService {
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
         User user = userRepository.getByEmail(request.email());
+        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findById(request.email());
 
         if (!user.isSamePassword(passwordEncoder, request.password())) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
 
-        if (!user.isAuthed()) {
+        if (studentTemporaryStatus.isPresent()) {
             throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
         }
 

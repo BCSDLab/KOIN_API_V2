@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.user.dto.AuthResponse;
-import in.koreatech.koin.domain.user.dto.AuthTokenResponse;
 import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
@@ -142,7 +141,7 @@ public interface UserApi {
     )
     @Operation(summary = "회원가입")
     @PostMapping("/user/student/register")
-    ResponseEntity<AuthTokenResponse> studentRegister(
+    ResponseEntity<Void> studentRegister(
         @RequestBody @Valid StudentRegisterRequest studentRegisterRequest,
         @ServerURL String serverURL
     );
