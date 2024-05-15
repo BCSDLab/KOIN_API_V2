@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
@@ -40,5 +41,14 @@ public class AdminUserController {
     ) {
         AdminStudentUpdateResponse adminStudentUpdateResponse = adminUserService.updateStudent(id, adminRequest);
         return ResponseEntity.ok(adminStudentUpdateResponse);
+    }
+
+    @GetMapping("/admin/users/owner/{id}")
+    ResponseEntity<AdminOwnerResponse> getOwner(
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        AdminOwnerResponse adminOwnerResponse = adminUserService.getOwner(id);
+        return ResponseEntity.ok(adminOwnerResponse);
     }
 }
