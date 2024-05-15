@@ -167,6 +167,52 @@ public class AdminUserApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("관리자가 특정 사장을 조회한다.")
+    void getOwnerAdmin() {
+        Owner owner = userFixture.현수_사장님();
+        Shop shop = shopFixture.마슬랜(owner);
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .pathParam("id", owner.getUser().getId())
+            .get("/admin/users/owner/{id}")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "id": 1,
+                    "email": "hysoo@naver.com",
+                    "name": "테스트용_현수",
+                    "nickname": "현수",
+                    "company_registration_number": "123-45-67190",
+                    "attachments_url": [
+                        "https://test.com/현수_사장님_인증사진_1.jpg",
+                        "https://test.com/현수_사장님_인증사진_2.jpg"
+                    ],
+                    "shops_id": [
+                        %d
+                    ],
+                    "phone_number": "010-9876-5432",
+                    "is_authed": true,
+                    "user_type": "OWNER",
+                    "gender": 0,
+                    "created_at" : "2024-01-15 12:00:00",
+                    "updated_at" : "2024-01-15 12:00:00",
+                    "last_logged_at" : null
+                }
+                """, shop.getId()
+            ));
+    }
+
+    @Test
     @DisplayName("관리자가 가입 신청한 사장님 리스트 조회한다.")
     void getNewOwnersAdmin() {
         Owner unauthenticatedOwner = userFixture.철수_사장님();

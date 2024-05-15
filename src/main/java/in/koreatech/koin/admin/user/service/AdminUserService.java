@@ -3,19 +3,26 @@ package in.koreatech.koin.admin.user.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
+import in.koreatech.koin.admin.user.repository.AdminShopRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
+import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.user.model.Student;
@@ -33,6 +40,7 @@ public class AdminUserService {
     private final AdminStudentRepository adminStudentRepository;
     private final AdminOwnerRepository adminOwnerRepository;
     private final AdminUserRepository adminUserRepository;
+    private final AdminShopRepository adminShopRepository;
     private final PasswordEncoder passwordEncoder;
 
     public AdminStudentResponse getStudent(Integer userId) {
@@ -89,5 +97,16 @@ public class AdminUserService {
         if (department != null && !StudentDepartment.isValid(department)) {
             throw StudentDepartmentNotValidException.withDetail("학부(학과) : " + department);
         }
+    }
+
+    public AdminOwnerResponse getOwner(Integer ownerId) {
+        Owner owner = adminOwnerRepository.getById(ownerId);
+
+        List<Integer> shopsId = adminShopRepository.findAllByOwnerId(ownerId)
+            .stream()
+            .map(Shop::getId)
+            .collect(Collectors.toList());
+
+        return AdminOwnerResponse.of(owner, shopsId);
     }
 }
