@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.user.model.redis;
 
-import java.time.Clock;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
