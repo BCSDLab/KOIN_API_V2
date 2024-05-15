@@ -51,7 +51,7 @@ public record TimeTableResponse(
         @Schema(description = "메모", example = "null", requiredMode = NOT_REQUIRED)
         String memo,
 
-        @Schema(name = "대상 학년", example = "3", requiredMode = NOT_REQUIRED)
+        @Schema(name = "학점", example = "3", requiredMode = REQUIRED)
         String grades,
 
         @Schema(name = "강의(커스텀) 이름", example = "한국사", requiredMode = REQUIRED)
