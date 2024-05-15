@@ -6,9 +6,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.admin.member.dto.AdminMemberRequest;
 import in.koreatech.koin.admin.member.dto.AdminMembersResponse;
 import in.koreatech.koin.admin.member.enums.TrackTag;
 import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
+import in.koreatech.koin.admin.member.repository.AdminTrackRepository;
 import in.koreatech.koin.domain.member.model.Member;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
@@ -19,16 +21,25 @@ import lombok.RequiredArgsConstructor;
 public class AdminMemberService {
 
     private final AdminMemberRepository adminMemberRepository;
+    private final AdminTrackRepository adminTrackRepository;
 
     public AdminMembersResponse getMembers(Integer page, Integer limit, TrackTag track, Boolean isDeleted) {
         Integer total = adminMemberRepository.countAllByTrackAndIsDeleted(track.getTag(), isDeleted);
 
         Criteria criteria = Criteria.of(page, limit, total);
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), Sort.by(Sort.Direction.ASC, "id"));
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
+            Sort.by(Sort.Direction.ASC, "id"));
 
         Page<Member> result = adminMemberRepository.findAllByTrackAndIsDeleted(track.getTag(), isDeleted, pageRequest);
 
         return AdminMembersResponse.of(result, criteria);
     }
 
+    @Transactional
+    public void createMember(AdminMemberRequest request) {
+        Track track = adminTrackRepository.getByName(request.track());
+
+        Member member = request.toMember(track);
+        adminMemberRepository.save(member);
+    }
 }

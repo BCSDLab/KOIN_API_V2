@@ -4,8 +4,11 @@ import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.admin.member.dto.AdminMemberRequest;
 import in.koreatech.koin.admin.member.dto.AdminMembersResponse;
 import in.koreatech.koin.admin.member.enums.TrackTag;
 import in.koreatech.koin.global.auth.Auth;
@@ -16,6 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @Tag(name = "(Admin) AdminLand: BCSDLab 회원", description = "관리자 권한으로 BCSDLab 회원 정보를 관리한다")
 public interface AdminMemberApi {
@@ -35,5 +39,17 @@ public interface AdminMemberApi {
         @RequestParam(name = "track") TrackTag track,
         @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted,
         @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "BCSDLab 회원 생성")
+    @PostMapping("/admin/members")
+    ResponseEntity<Void> createMember(
+        @RequestBody @Valid AdminMemberRequest request
     );
 }
