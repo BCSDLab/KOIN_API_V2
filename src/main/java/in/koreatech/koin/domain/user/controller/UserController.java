@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
+import in.koreatech.koin.domain.user.dto.AuthTokenResponse;
 import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
@@ -118,12 +119,11 @@ public class UserController implements UserApi {
     }
 
     @PostMapping("/user/student/register")
-    public ResponseEntity<Void> studentRegister(
+    public ResponseEntity<AuthTokenResponse> studentRegister(
         @Valid @RequestBody StudentRegisterRequest request,
         @ServerURL String serverURL
     ) {
-        studentService.studentRegister(request, serverURL);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(studentService.studentRegister(request, serverURL));
     }
 
     @GetMapping(value = "/user/authenticate")
