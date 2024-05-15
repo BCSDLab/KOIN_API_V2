@@ -51,7 +51,7 @@ public record TimeTableCreateRequest(
         @Schema(name = "강의 교수", example = "이돈우", requiredMode = NOT_REQUIRED)
         String professor,
 
-        @Schema(description = "학점", example = "3", requiredMode = REQUIRED)
+        @Schema(description = "학점", example = "3", requiredMode = NOT_REQUIRED)
         String grades,
 
         @Schema(name = "분반", example = "01", requiredMode = NOT_REQUIRED)
