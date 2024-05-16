@@ -17,10 +17,10 @@ import lombok.Builder;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record NewOwnersCondition(
-    @Schema(description = "페이지", example = "1", defaultValue = "1")
+    @Schema(description = "페이지", example = "1", defaultValue = "1", requiredMode = NOT_REQUIRED)
     Integer page,
 
-    @Schema(description = "페이지당 조회할 최대 개수", example = "10", defaultValue = "10")
+    @Schema(description = "페이지당 조회할 최대 개수", example = "10", defaultValue = "10", requiredMode = NOT_REQUIRED)
     Integer limit,
 
     @Schema(description = "검색 대상[`EMAIL` (이메일 검색), NAME` (이름 검색)]", example = "EMAIL", requiredMode = NOT_REQUIRED)
@@ -29,7 +29,7 @@ public record NewOwnersCondition(
     @Schema(description = "검색 문자열", requiredMode = NOT_REQUIRED)
     String query,
 
-    @Schema(description = "정렬 기준['CREATED_AT_ASC` (오래된순), 'CREATED_AT_DESC` (최신순)]", example = "CREATED_AT_ASC", defaultValue = "CREATED_AT_ASC")
+    @Schema(description = "정렬 기준['CREATED_AT_ASC` (오래된순), 'CREATED_AT_DESC` (최신순)]", example = "CREATED_AT_ASC", defaultValue = "CREATED_AT_ASC", requiredMode = NOT_REQUIRED)
     Sort sort
 ) {
     public NewOwnersCondition {
