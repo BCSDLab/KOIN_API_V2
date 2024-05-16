@@ -77,6 +77,10 @@ public class ShopService {
     }
 
     public ShopsResponse getShops() {
+        if (shopsRedisRepository.isCacheAvailable()) {
+            return shopsRedisRepository.getShopsResponseByRedis();
+        }
+        refreshShopsCache();
         return shopsRedisRepository.getShopsResponseByRedis();
     }
 
