@@ -50,9 +50,11 @@ public interface AdminTrackApi {
         }
     )
     @Operation(summary = "기술스택 생성")
+    @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/techStacks")
     ResponseEntity<AdminTechStackResponse> createTechStack(
         @RequestBody @Valid AdminTechStackRequest techStackRequest,
-        @RequestParam(value = "trackName") String trackName
+        @RequestParam(value = "trackName") String trackName,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 }
