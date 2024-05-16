@@ -32,7 +32,6 @@ public record NewOwnersCondition(
     @Schema(description = "정렬 기준['CREATED_AT_ASC` (오래된순), 'CREATED_AT_DESC` (최신순)]", example = "CREATED_AT_ASC", defaultValue = "CREATED_AT_ASC")
     Sort sort
 ) {
-    @Builder
     public NewOwnersCondition {
         if (Objects.isNull(page)) {
             page = Criteria.DEFAULT_PAGE;

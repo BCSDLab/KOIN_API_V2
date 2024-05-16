@@ -18,24 +18,34 @@ public interface AdminOwnerRepository extends Repository<Owner, Integer> {
 
     Owner save(Owner owner);
 
-    @Query("SELECT COUNT(o) FROM Owner o WHERE o.user.userType = 'OWNER' AND o.user.isAuthed = false")
+    @Query("""
+        SELECT COUNT(o) FROM Owner o 
+        WHERE o.user.userType = 'OWNER' 
+        AND o.user.isAuthed = false
+        """)
     Integer findUnauthenticatedOwnersCount();
 
-    @Query("SELECT new in.koreatech.koin.domain.owner.model.OwnerIncludingShop(o, s.id, s.name)" +
-        "FROM Owner o " +
-        "LEFT JOIN Shop s ON s.owner = o")
+    @Query("""
+        SELECT new in.koreatech.koin.domain.owner.model.OwnerIncludingShop(o, s.id, s.name)
+        FROM Owner o
+        LEFT JOIN Shop s ON s.owner = o
+        """)
     Page<OwnerIncludingShop> findPageUnauthenticatedOwners(Pageable pageable);
 
-    @Query("SELECT new in.koreatech.koin.domain.owner.model.OwnerIncludingShop(o, s.id, s.name)" +
-        "FROM Owner o " +
-        "LEFT JOIN Shop s ON s.owner = o " +
-        "WHERE o.user.email LIKE CONCAT('%', :query, '%')")
+    @Query("""
+        SELECT new in.koreatech.koin.domain.owner.model.OwnerIncludingShop(o, s.id, s.name)
+        FROM Owner o
+        LEFT JOIN Shop s ON s.owner = o
+        WHERE o.user.email LIKE CONCAT('%', :query, '%')
+        """)
     Page<OwnerIncludingShop> findPageUnauthenticatedOwnersByEmail(@Param("query") String query, Pageable pageable);
 
-    @Query("SELECT new in.koreatech.koin.domain.owner.model.OwnerIncludingShop(o, s.id, s.name)" +
-        "FROM Owner o " +
-        "LEFT JOIN Shop s ON s.owner = o " +
-        "WHERE o.user.name LIKE CONCAT('%', :query, '%')")
+    @Query("""
+        SELECT new in.koreatech.koin.domain.owner.model.OwnerIncludingShop(o, s.id, s.name)
+        FROM Owner o
+        LEFT JOIN Shop s ON s.owner = o
+        WHERE o.user.name LIKE CONCAT('%', :query, '%')
+        """)
     Page<OwnerIncludingShop> findPageUnauthenticatedOwnersByName(@Param("query") String query, Pageable pageable);
 
     default Owner getById(Integer ownerId) {
