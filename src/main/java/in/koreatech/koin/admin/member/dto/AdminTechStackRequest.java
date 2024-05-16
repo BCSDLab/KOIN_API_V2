@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.member.model.TechStack;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AdminTechStackRequest(
@@ -19,7 +19,7 @@ public record AdminTechStackRequest(
     String image_url,
 
     @Schema(description = "기술 스택명", example = "Spring", requiredMode = REQUIRED)
-    @NotNull(message = "기술 스택명은 비워둘 수 없습니다.")
+    @NotBlank(message = "기술 스택명은 비워둘 수 없습니다.")
     String name,
 
     @Schema(description = "기술 스택 설명", example = "스프링은 웹 프레임워크이다", requiredMode = REQUIRED)
