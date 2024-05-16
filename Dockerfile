@@ -1,10 +1,12 @@
 FROM amazoncorretto:17
 
-RUN yum install -y tzdata
+RUN if ! rpm -q tzdata; then yum install -y tzdata; fi
 
-RUN ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+RUN if ! command -v wget >/dev/null 2>&1; then yum install -y wget; fi
 
-RUN wget -O /dd-java-agent.jar 'https://dtdg.co/latest-java-tracer'
+RUN if [ "$(readlink /etc/localtime)" != "/usr/share/zoneinfo/Asia/Seoul" ]; then ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime; fi
+
+RUN if [ ! -f /dd-java-agent.jar ]; then wget -O /dd-java-agent.jar 'https://dtdg.co/latest-java-tracer'; fi
 
 WORKDIR /app
 
