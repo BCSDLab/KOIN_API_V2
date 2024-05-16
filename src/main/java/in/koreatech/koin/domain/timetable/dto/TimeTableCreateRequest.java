@@ -78,7 +78,6 @@ public record TimeTableCreateRequest(
         @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
         String memo
     ) {
-        @Builder
         public InnerTimeTableRequest {
             if (Objects.isNull(grades)) {
                 grades = "0";
