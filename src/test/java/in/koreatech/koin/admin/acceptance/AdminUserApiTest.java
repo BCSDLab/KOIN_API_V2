@@ -9,9 +9,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
+import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.fixture.ShopFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
@@ -29,35 +32,66 @@ public class AdminUserApiTest extends AcceptanceTest {
     @Autowired
     private UserFixture userFixture;
 
+    @Autowired
+    private ShopFixture shopFixture;
+
     @Test
-    @DisplayName("관리자가 특정 학생 정보를 수정한다. - 관리자가 아니면 403 반환")
+    @DisplayName("관리자가 특정 학생 정보를 조회한다. - 관리자가 아니면 403 반환")
     void studentUpdateAdminNoAuth() {
         Student student = userFixture.준호_학생();
-
-        User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(student.getUser());
 
         var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
-            .body("""
-                  {
-                    "gender" : 1,
-                    "major" : "기계공학부",
-                    "name" : "서정빈",
-                    "password" : "0c4be6acaba1839d3433c1ccf04e1eec4d1fa841ee37cb019addc269e8bc1b77",
-                    "nickname" : "duehee",
-                    "phone_number" : "010-2345-6789",
-                    "student_number" : "2019136136"
-                  }
-                """)
             .when()
             .pathParam("id", student.getUser().getId())
-            .put("/admin/users/student/{id}")
+            .get("/admin/users/student/{id}")
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("관리자가 특정 학생 정보를 조회한다.")
+    void studentGetAdmin() {
+        Student student = userFixture.준호_학생();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .when()
+            .pathParam("id", student.getUser().getId())
+            .get("/admin/users/student/{id}")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "anonymous_nickname": "익명",
+                    "created_at": "2024-01-15 12:00:00",
+                    "email": "juno@koreatech.ac.kr",
+                    "gender": 0,
+                    "id": 1,
+                    "is_authed": true,
+                    "is_graduated": false,
+                    "last_logged_at": null,
+                    "major": "컴퓨터공학부",
+                    "name": "테스트용_준호",
+                    "nickname": "준호",
+                    "phone_number": "010-1234-5678",
+                    "student_number": "2019136135",
+                    "updated_at": "2024-01-15 12:00:00",
+                    "user_type": "STUDENT"
+                }
+                """);
     }
 
     @Test
@@ -115,5 +149,51 @@ public class AdminUserApiTest extends AcceptanceTest {
                     "student_number": "2019136136"
                 }
                 """);
+    }
+
+    @Test
+    @DisplayName("관리자가 특정 사장을 조회한다.")
+    void getOwnerAdmin() {
+        Owner owner = userFixture.현수_사장님();
+        Shop shop = shopFixture.마슬랜(owner);
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .pathParam("id", owner.getUser().getId())
+            .get("/admin/users/owner/{id}")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "id": 1,
+                    "email": "hysoo@naver.com",
+                    "name": "테스트용_현수",
+                    "nickname": "현수",
+                    "company_registration_number": "123-45-67190",
+                    "attachments_url": [
+                        "https://test.com/현수_사장님_인증사진_1.jpg",
+                        "https://test.com/현수_사장님_인증사진_2.jpg"
+                    ],
+                    "shops_id": [
+                        %d
+                    ],
+                    "phone_number": "010-9876-5432",
+                    "is_authed": true,
+                    "user_type": "OWNER",
+                    "gender": 0,
+                    "created_at" : "2024-01-15 12:00:00",
+                    "updated_at" : "2024-01-15 12:00:00",
+                    "last_logged_at" : null
+                }
+                """, shop.getId()
+            ));
     }
 }

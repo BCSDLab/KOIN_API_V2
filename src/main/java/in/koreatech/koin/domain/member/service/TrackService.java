@@ -30,7 +30,7 @@ public class TrackService {
 
     public TrackSingleResponse getTrack(Integer id) {
         Track track = trackRepository.getById(id);
-        List<Member> member = memberRepository.findAllByTrackId(id);
+        List<Member> member = memberRepository.findByTrackIdAndIsDeletedFalse(id);
         List<TechStack> techStacks = techStackRepository.findAllByTrackId(id);
 
         return TrackSingleResponse.of(track, member, techStacks);

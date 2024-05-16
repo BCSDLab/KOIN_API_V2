@@ -50,11 +50,11 @@ public record AdminStudentUpdateResponse(
 ) {
     public static AdminStudentUpdateResponse from(Student student) {
         User user = student.getUser();
-        Integer userGender = user.getGender() != null ? user.getGender().ordinal() : null;
+
         return new AdminStudentUpdateResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
-            userGender,
+            user.getGender() != null ? user.getGender().ordinal() : null,
             student.getDepartment(),
             user.getName(),
             user.getNickname(),
