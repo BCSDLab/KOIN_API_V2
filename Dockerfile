@@ -2,6 +2,8 @@ FROM amazoncorretto:17
 
 RUN yum install -y tzdata
 
+RUN yum install -y wget
+
 RUN ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
 RUN wget -O /dd-java-agent.jar 'https://dtdg.co/latest-java-tracer'
