@@ -33,6 +33,8 @@ public class AdminMemberApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @Autowired
     private AdminMemberRepository adminMemberRepository;
 
     @Test
@@ -84,6 +86,9 @@ public class AdminMemberApiTest extends AcceptanceTest {
     void postMember() {
         trackFixture.backend();
 
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
         String jsonBody = """
             {
                 "name": "최준호",
@@ -97,6 +102,7 @@ public class AdminMemberApiTest extends AcceptanceTest {
 
         RestAssured
             .given()
+            .header("Authorization", "Bearer " + token)
             .contentType("application/json")
             .body(jsonBody)
             .when()

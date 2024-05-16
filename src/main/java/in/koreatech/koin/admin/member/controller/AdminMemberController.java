@@ -36,7 +36,10 @@ public class AdminMemberController implements AdminMemberApi {
     }
 
     @PostMapping("/admin/members")
-    public ResponseEntity<Void> createMember(@RequestBody @Valid AdminMemberRequest request) {
+    public ResponseEntity<Void> createMember(
+        @RequestBody @Valid AdminMemberRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
         adminMemberService.createMember(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

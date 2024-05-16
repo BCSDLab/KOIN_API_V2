@@ -50,6 +50,7 @@ public interface AdminMemberApi {
     @Operation(summary = "BCSDLab 회원 생성")
     @PostMapping("/admin/members")
     ResponseEntity<Void> createMember(
-        @RequestBody @Valid AdminMemberRequest request
+        @RequestBody @Valid AdminMemberRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 }
