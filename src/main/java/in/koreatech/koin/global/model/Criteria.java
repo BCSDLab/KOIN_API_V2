@@ -24,6 +24,11 @@ public class Criteria {
         return new Criteria(validateAndCalculatePage(page, limit, total), validateAndCalculateLimit(limit));
     }
 
+    public enum Sort {
+        CREATED_AT_ASC,
+        CREATED_AT_DESC
+    }
+
     private static int validateAndCalculatePage(Integer page) {
         if (page == null) {
             page = DEFAULT_PAGE;

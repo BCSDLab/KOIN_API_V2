@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
+import in.koreatech.koin.global.model.Criteria.Sort;
 import io.micrometer.common.util.StringUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record NewOwnersCondition(
@@ -32,7 +32,6 @@ public record NewOwnersCondition(
     @Schema(description = "정렬 기준['CREATED_AT_ASC` (오래된순), 'CREATED_AT_DESC` (최신순)]", example = "CREATED_AT_ASC", defaultValue = "CREATED_AT_ASC", requiredMode = NOT_REQUIRED)
     Sort sort
 ) {
-    @Builder
     public NewOwnersCondition {
         if (Objects.isNull(page)) {
             page = Criteria.DEFAULT_PAGE;
@@ -48,11 +47,6 @@ public record NewOwnersCondition(
     public enum SearchType {
         EMAIL,
         NAME
-    }
-
-    public enum Sort {
-        CREATED_AT_ASC,
-        CREATED_AT_DESC
     }
 
     public void checkDataConstraintViolation() {
