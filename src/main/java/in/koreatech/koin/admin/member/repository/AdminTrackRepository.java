@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.admin.member.exception.AdminTrackNotFoundException;
+import in.koreatech.koin.domain.member.exception.TrackNotFoundException;
 import in.koreatech.koin.domain.member.model.Track;
 
 public interface AdminTrackRepository extends Repository<Track, Integer> {
@@ -18,6 +18,6 @@ public interface AdminTrackRepository extends Repository<Track, Integer> {
 
     default Track getByName(String name) {
         return findByName(name)
-            .orElseThrow(() -> AdminTrackNotFoundException.withDetail("trackName: " + name));
+            .orElseThrow(() -> TrackNotFoundException.withDetail("trackName: " + name));
     }
 }
