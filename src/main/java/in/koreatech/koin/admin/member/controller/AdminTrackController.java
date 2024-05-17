@@ -6,11 +6,17 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.member.dto.AdminTechStackRequest;
+import in.koreatech.koin.admin.member.dto.AdminTechStackResponse;
 import in.koreatech.koin.admin.member.dto.AdminTrackResponse;
 import in.koreatech.koin.admin.member.service.AdminTrackService;
 import in.koreatech.koin.global.auth.Auth;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -25,5 +31,15 @@ public class AdminTrackController implements AdminTrackApi {
     ) {
         List<AdminTrackResponse> adminTrackResponse = adminTrackService.getTracks();
         return ResponseEntity.ok(adminTrackResponse);
+    }
+
+    @PostMapping("/admin/techStacks")
+    public ResponseEntity<AdminTechStackResponse> createTechStack(
+        @RequestBody @Valid AdminTechStackRequest request,
+        @RequestParam String trackName,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        var response = adminTrackService.createTechStack(request, trackName);
+        return ResponseEntity.ok(response);
     }
 }

@@ -335,7 +335,7 @@ class TimetableApiTest extends AcceptanceTest {
                       ],
                       "class_place": null,
                       "professor": "이돈우",
-                      "grades": "3",
+                      "grades": null,
                       "lecture_class": "01",
                       "target": "디자 1 건축",
                       "regular_number": "25",
@@ -384,7 +384,7 @@ class TimetableApiTest extends AcceptanceTest {
                             ],
                             "class_place": null,
                             "memo": null,
-                            "grades": "3",
+                            "grades": "0",
                             "class_title": "운영체제",
                             "lecture_class": "01",
                             "target": "디자 1 건축",
@@ -409,8 +409,8 @@ class TimetableApiTest extends AcceptanceTest {
                             "department": "컴퓨터공학부"
                         }
                     ],
-                    "grades": 4,
-                    "total_grades": 4
+                    "grades": 1,
+                    "total_grades": 1
                 }
                 """);
     }

@@ -1,5 +1,8 @@
 package in.koreatech.koin.admin.user.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,14 +10,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
+import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.user.repository.AdminShopRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
+import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
@@ -23,6 +29,7 @@ import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.StudentDepartment;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -31,8 +38,8 @@ import lombok.RequiredArgsConstructor;
 public class AdminUserService {
 
     private final AdminStudentRepository adminStudentRepository;
-    private final AdminUserRepository adminUserRepository;
     private final AdminOwnerRepository adminOwnerRepository;
+    private final AdminUserRepository adminUserRepository;
     private final AdminShopRepository adminShopRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -54,6 +61,30 @@ public class AdminUserService {
         adminStudentRepository.save(student);
 
         return AdminStudentUpdateResponse.from(student);
+    }
+
+    public AdminNewOwnersResponse getNewOwners(NewOwnersCondition newOwnersCondition) {
+        newOwnersCondition.checkDataConstraintViolation();
+
+        // page > totalPage인 경우 totalPage로 조회하기 위해
+        Integer totalOwners = adminOwnerRepository.findUnauthenticatedOwnersCount();
+        Criteria criteria = Criteria.of(newOwnersCondition.page(), newOwnersCondition.limit(), totalOwners);
+        Sort.Direction direction = newOwnersCondition.getDirection();
+
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
+            Sort.by(direction, "user.createdAt"));
+
+        Page<OwnerIncludingShop> result;
+
+        if (newOwnersCondition.searchType() == NewOwnersCondition.SearchType.EMAIL) {
+            result = adminOwnerRepository.findPageUnauthenticatedOwnersByEmail(newOwnersCondition.query(), pageRequest);
+        } else if (newOwnersCondition.searchType() == NewOwnersCondition.SearchType.NAME) {
+            result = adminOwnerRepository.findPageUnauthenticatedOwnersByName(newOwnersCondition.query(), pageRequest);
+        } else {
+            result = adminOwnerRepository.findPageUnauthenticatedOwners(pageRequest);
+        }
+
+        return AdminNewOwnersResponse.of(result, criteria);
     }
 
     private void validateNicknameDuplication(String nickname, Integer userId) {
