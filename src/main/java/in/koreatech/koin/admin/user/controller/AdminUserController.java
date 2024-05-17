@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class AdminUserController {
+public class AdminUserController implements AdminUserApi{
 
     private final AdminUserService adminUserService;
 
@@ -47,7 +47,7 @@ public class AdminUserController {
     }
 
     @GetMapping("/admin/users/owner/{id}")
-    ResponseEntity<AdminOwnerResponse> getOwner(
+    public ResponseEntity<AdminOwnerResponse> getOwner(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
