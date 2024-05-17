@@ -50,7 +50,7 @@ public class Owner {
     @Column(name = "grant_event", columnDefinition = "TINYINT")
     private boolean grantEvent;
 
-    @OneToMany(cascade = {PERSIST, MERGE, REMOVE})
+    @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true)
     @JoinColumn(name = "owner_id")
     private List<OwnerAttachment> attachments = new ArrayList<>();
 

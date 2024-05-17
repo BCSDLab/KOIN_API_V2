@@ -5,10 +5,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.owner.exception.OwnerNotFoundException;
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
@@ -103,7 +105,12 @@ public class UserService {
         if (user.getUserType() == UserType.STUDENT) {
             studentRepository.deleteByUserId(userId);
         } else if (user.getUserType() == UserType.OWNER) {
-            ownerRepository.deleteByUserId(userId);
+            try{
+                ownerRepository.deleteByUserId(userId);
+            } catch (DataIntegrityViolationException e){
+                throw OwnerNotFoundException.withDetail("owner userId: " + userId);
+            }
+
         }
         userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
