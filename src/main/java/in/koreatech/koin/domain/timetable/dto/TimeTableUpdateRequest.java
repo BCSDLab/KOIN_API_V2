@@ -4,6 +4,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -13,6 +14,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimeTableUpdateRequest(
@@ -49,8 +51,7 @@ public record TimeTableUpdateRequest(
         @Schema(name = "강의 교수", example = "이돈우", requiredMode = NOT_REQUIRED)
         String professor,
 
-        @Schema(description = "대상 학년", example = "3", requiredMode = REQUIRED)
-        @NotBlank(message = "대상 학년을 입력해주세요.")
+        @Schema(description = "학점", example = "3", requiredMode = NOT_REQUIRED)
         String grades,
 
         @Schema(name = "분반", example = "01", requiredMode = NOT_REQUIRED)
@@ -77,6 +78,11 @@ public record TimeTableUpdateRequest(
         @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
         String memo
     ) {
-
+        @Builder
+        public InnerTimeTableRequest {
+            if (Objects.isNull(grades)) {
+                grades = "0";
+            }
+        }
     }
 }
