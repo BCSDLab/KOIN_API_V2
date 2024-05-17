@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.joda.time.LocalDateTime;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,8 +94,17 @@ public class StudentService {
 
         validateStudentRegister(student);
 
-        studentRepository.save(student);
-        userRepository.save(student.getUser());
+        try {
+            studentRepository.save(student);
+            userRepository.save(student.getUser());
+        } catch (DuplicateKeyException e) {
+            if (e.getMessage().contains("email_UNIQUE")) {
+                throw DuplicationEmailException.withDetail("email: " + student.getUser().getEmail());
+            }
+            if (e.getMessage().contains("nickname_UNIQUE")) {
+                throw DuplicationNicknameException.withDetail("nickname: " + student.getUser().getNickname());
+            }
+        }
 
         mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, student.getUser().getAuthToken()));
         eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
