@@ -34,6 +34,7 @@ import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
+import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
@@ -78,7 +79,25 @@ public class UserController implements UserApi {
     public ResponseEntity<UserLoginResponse> login(
         @RequestBody @Valid UserLoginRequest request
     ) {
-        UserLoginResponse response = userService.login(request);
+        UserLoginResponse response = userService.login(request, STUDENT);
+        return ResponseEntity.created(URI.create("/"))
+            .body(response);
+    }
+
+    @PostMapping("/user/owner/login")
+    public ResponseEntity<UserLoginResponse> loginOwner(
+        @RequestBody @Valid UserLoginRequest request
+    ) {
+        UserLoginResponse response = userService.login(request, OWNER);
+        return ResponseEntity.created(URI.create("/"))
+            .body(response);
+    }
+
+    @PostMapping("/user/coop/login")
+    public ResponseEntity<UserLoginResponse> loginCoop(
+        @RequestBody @Valid UserLoginRequest request
+    ) {
+        UserLoginResponse response = userService.login(request, COOP);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }

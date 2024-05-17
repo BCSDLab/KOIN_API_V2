@@ -52,7 +52,7 @@ public class UserService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public UserLoginResponse login(UserLoginRequest request) {
+    public UserLoginResponse login(UserLoginRequest request, UserType userType) {
         User user = userRepository.getByEmail(request.email());
 
         if (!user.isSamePassword(passwordEncoder, request.password())) {
@@ -61,6 +61,10 @@ public class UserService {
 
         if (!user.isAuthed()) {
             throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
+        }
+
+        if (user.getUserType() != userType) {
+            throw new AuthorizationException("잘못된 사용자 유형입니다. 확인해주세요.");
         }
 
         String accessToken = jwtProvider.createToken(user);
