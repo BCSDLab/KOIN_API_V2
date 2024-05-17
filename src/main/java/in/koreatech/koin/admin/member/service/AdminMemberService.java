@@ -39,7 +39,6 @@ public class AdminMemberService {
     @Transactional
     public void createMember(AdminMemberRequest request) {
         Track track = adminTrackRepository.getByName(request.track());
-
         Member member = request.toMember(track);
         adminMemberRepository.save(member);
     }
