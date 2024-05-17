@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.member.dto;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.member.model.Track;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = SnakeCaseStrategy.class)
+@JsonNaming(SnakeCaseStrategy.class)
 public record AdminTrackResponse(
     @Schema(description = "트랙 고유 ID", example = "1", requiredMode = REQUIRED)
     Integer id,

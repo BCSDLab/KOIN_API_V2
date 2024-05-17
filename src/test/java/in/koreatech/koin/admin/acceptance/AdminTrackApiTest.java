@@ -87,4 +87,47 @@ public class AdminTrackApiTest extends AcceptanceTest {
                 ]
                 """);
     }
+
+    @Test
+    @DisplayName("관리자가 BCSDLab 기술스택 정보를 생성한다")
+    void createTechStack() {
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        trackFixture.frontend();
+        String backEndName = trackFixture.backend().getName();
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType("application/json")
+            .body("""
+                {
+                    "id": 3,
+                    "image_url": "http://url.com",
+                    "name": "Spring",
+                    "description": "스프링은 웹 프레임워크이다"
+                }
+                """)
+            .when()
+            .queryParam("trackName", backEndName)
+            .post("/admin/techStacks")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "id": 1,
+                    "image_url": "http://url.com",
+                    "name": "Spring",
+                    "description": "스프링은 웹 프레임워크이다",
+                    "track_id": 2,
+                    "is_deleted": false,
+                    "created_at": "2024-01-15 12:00:00",
+                    "updated_at": "2024-01-15 12:00:00"
+                }
+                """);
+    }
 }
