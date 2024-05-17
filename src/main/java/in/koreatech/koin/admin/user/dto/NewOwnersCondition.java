@@ -13,6 +13,7 @@ import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import in.koreatech.koin.global.model.Criteria.Sort;
 import io.micrometer.common.util.StringUtils;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -57,6 +58,7 @@ public record NewOwnersCondition(
         }
     }
 
+    @Hidden
     public Direction getDirection() {
         if (this.sort == Sort.CREATED_AT_ASC) {
             return Direction.ASC;
