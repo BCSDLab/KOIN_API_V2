@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.joda.time.LocalDateTime;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,8 +34,11 @@ import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
 import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.domain.email.service.MailService;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -91,23 +94,15 @@ public class StudentService {
     @Transactional
     public void studentRegister(StudentRegisterRequest request, String serverURL) {
         Student student = request.toStudent(passwordEncoder, clock);
-
-        validateStudentRegister(student);
-
         try {
+            validateStudentRegister(student);
             studentRepository.save(student);
             userRepository.save(student.getUser());
-        } catch (DuplicateKeyException e) {
-            if (e.getMessage().contains("email_UNIQUE")) {
-                throw DuplicationEmailException.withDetail("email: " + student.getUser().getEmail());
-            }
-            if (e.getMessage().contains("nickname_UNIQUE")) {
-                throw DuplicationNicknameException.withDetail("nickname: " + student.getUser().getNickname());
-            }
+            mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, student.getUser().getAuthToken()));
+            eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
+        } catch (DataIntegrityViolationException e) {
+            throw KoinIllegalArgumentException.withDetail("회원 가입 데이터 중복 동시성 발생");
         }
-
-        mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, student.getUser().getAuthToken()));
-        eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
     }
 
     private void validateStudentRegister(Student student) {
