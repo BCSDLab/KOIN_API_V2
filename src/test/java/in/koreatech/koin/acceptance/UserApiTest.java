@@ -18,6 +18,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.dept.model.Dept;
+import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
@@ -46,6 +47,110 @@ class UserApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @Test
+    @DisplayName("학생이 로그인을 진행한다")
+    void studentLogin() {
+        Student student = userFixture.성빈_학생();
+        String email = student.getUser().getEmail();
+        String password = "1234";
+
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "email" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(email, password))
+            .when()
+            .post("/user/login")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract()
+            .jsonPath()
+            .getString("token");
+
+        System.out.println("발급된 AccessToken : " + response);
+    }
+
+    @Test
+    @DisplayName("사장님이 로그인을 진행한다")
+    void ownerLogin() {
+        Owner owner = userFixture.현수_사장님();
+        String email = owner.getUser().getEmail();
+        String password = "1234";
+
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "email" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(email, password))
+            .when()
+            .post("/user/owner/login")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract()
+            .jsonPath()
+            .getString("token");
+
+        System.out.println("발급된 AccessToken : " + response);
+    }
+
+    @Test
+    @DisplayName("영양사가 로그인을 진행한다")
+    void coopLogin() {
+        User user = userFixture.준기_영양사();
+        String email = user.getEmail();
+        String password = "1234";
+
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "email" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(email, password))
+            .when()
+            .post("/user/coop/login")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract()
+            .jsonPath()
+            .getString("token");
+
+        System.out.println("발급된 AccessToken : " + response);
+    }
+
+    @Test
+    @DisplayName("영양사가 학생 로그인을 진행한다 - 권한 미일치 시 403")
+    void coopTryStudentLogin() {
+        User user = userFixture.준기_영양사();
+        String email = user.getEmail();
+        String password = "1234";
+
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "email" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(email, password))
+            .when()
+            .post("/user/login")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .extract();
+    }
 
     @Test
     @DisplayName("올바른 영양사 계정인지 확인한다")
