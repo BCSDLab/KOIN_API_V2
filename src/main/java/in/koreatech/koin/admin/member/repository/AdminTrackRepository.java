@@ -14,10 +14,10 @@ public interface AdminTrackRepository extends Repository<Track, Integer> {
 
     List<Track> findAll();
 
-    Optional<Track> findByName(String name);
+    Optional<Track> findByName(String trackName);
 
-    default Track getByName(String name) {
-        return findByName(name)
-            .orElseThrow(() -> TrackNotFoundException.withDetail("trackName: " + name));
+    default Track getByName(String trackName) {
+        return findByName(trackName)
+            .orElseThrow(() -> TrackNotFoundException.withDetail("name: " + trackName));
     }
 }

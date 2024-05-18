@@ -1,5 +1,8 @@
 package in.koreatech.koin.admin.acceptance;
 
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -7,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
+import in.koreatech.koin.domain.land.model.Land;
+import in.koreatech.koin.domain.member.model.Member;
 import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.domain.member.repository.TrackRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -27,6 +33,9 @@ public class AdminMemberApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @Autowired
+    private AdminMemberRepository adminMemberRepository;
 
     @Test
     @DisplayName("BCSDLab 회원들의 정보를 조회한다")
@@ -70,5 +79,48 @@ public class AdminMemberApiTest extends AcceptanceTest {
                 }
                 """
             );
+    }
+
+    @Test
+    @DisplayName("관리자 권한으로 BCSDLab 회원을 추가한다.")
+    void postMember() {
+        trackFixture.backend();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        String jsonBody = """
+            {
+                "name": "최준호",
+                "student_number": "2019136135",
+                "track": "BackEnd",
+                "position": "Regular",
+                "email": "testjuno@gmail.com",
+                "image_url": "https://imagetest.com/juno.jpg"
+            }
+            """;
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType("application/json")
+            .body(jsonBody)
+            .when()
+            .post("/admin/members")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract().asString();
+
+        Member savedMember = adminMemberRepository.getByName("최준호");
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(savedMember.getName()).isEqualTo("최준호");
+            softly.assertThat(savedMember.getStudentNumber()).isEqualTo("2019136135");
+            softly.assertThat(savedMember.getTrack().getName()).isEqualTo("BackEnd");
+            softly.assertThat(savedMember.getPosition()).isEqualTo("Regular");
+            softly.assertThat(savedMember.getEmail()).isEqualTo("testjuno@gmail.com");
+            softly.assertThat(savedMember.getImageUrl()).isEqualTo("https://imagetest.com/juno.jpg");
+            softly.assertThat(savedMember.isDeleted()).isEqualTo(false);
+        });
     }
 }
