@@ -166,8 +166,8 @@ class OwnerApiTest extends AcceptanceTest {
     class ownerRegister {
 
         @Test
-        @DisplayName("사장님이 회원가입 요청을 한다.")
-        void register() {
+        @DisplayName("사장님이 이메일을 아이디로 회원가입 요청을 한다.")
+        void registerByEmail() {
             // when & then
             var response = RestAssured
                 .given()
@@ -202,6 +202,56 @@ class OwnerApiTest extends AcceptanceTest {
                             softly.assertThat(owner).isNotNull();
                             softly.assertThat(owner.getUser().getName()).isEqualTo("최준호");
                             softly.assertThat(owner.getUser().getEmail()).isEqualTo("helloworld@koreatech.ac.kr");
+                            softly.assertThat(owner.getCompanyRegistrationNumber()).isEqualTo("012-34-56789");
+                            softly.assertThat(owner.getAttachments().size()).isEqualTo(1);
+                            softly.assertThat(owner.getAttachments().get(0).getUrl())
+                                .isEqualTo("https://static.koreatech.in/testimage.png");
+                            softly.assertThat(owner.getUser().isAuthed()).isFalse();
+                            softly.assertThat(owner.getUser().isDeleted()).isFalse();
+                            verify(ownerEventListener).onOwnerRegister(any());
+                        }
+                    );
+                }
+            );
+        }
+
+        @Test
+        @DisplayName("사장님이 전화번호를 아이디로 회원가입 요청을 한다.")
+        void registerByPhoneNumber() {
+            // when & then
+            var response = RestAssured
+                .given()
+                .body("""
+                    {
+                       "attachment_urls": [
+                         {
+                           "file_url": "https://static.koreatech.in/testimage.png"
+                         }
+                       ],
+                       "company_number": "012-34-56789",
+                       "name": "최준호",
+                       "password": "a0240120305812krlakdsflsa;1235",
+                       "phone_number": "010-1234-1234",
+                       "shop_id": null,
+                       "shop_name": "기분좋은 뷔짱"
+                     }
+                    """)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/owners/register/phone")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+
+            // when
+            transactionTemplate.executeWithoutResult(status -> {
+                    Owner owner = ownerRepository.findByCompanyRegistrationNumber("012-34-56789").get();
+                    assertSoftly(
+                        softly -> {
+                            softly.assertThat(owner).isNotNull();
+                            softly.assertThat(owner.getUser().getName()).isEqualTo("최준호");
+                            softly.assertThat(owner.getUser().getEmail()).isEqualTo("010-1234-1234");
+                            softly.assertThat(owner.getUser().getPhoneNumber()).isEqualTo("010-1234-1234");
                             softly.assertThat(owner.getCompanyRegistrationNumber()).isEqualTo("012-34-56789");
                             softly.assertThat(owner.getAttachments().size()).isEqualTo(1);
                             softly.assertThat(owner.getAttachments().get(0).getUrl())
