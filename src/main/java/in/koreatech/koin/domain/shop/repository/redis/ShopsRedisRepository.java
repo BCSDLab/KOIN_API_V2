@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.shop.repository.redis;
 
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -10,8 +9,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 @Repository
 public class ShopsRedisRepository {
 
@@ -20,15 +21,6 @@ public class ShopsRedisRepository {
     private final RedisTemplate<String, Object> redisTemplate;
 
     private final ObjectMapper objectMapper;
-
-    @Autowired
-    public ShopsRedisRepository(
-        RedisTemplate<String, Object> redisTemplate,
-        ObjectMapper objectMapper
-    ) {
-        this.redisTemplate = redisTemplate;
-        this.objectMapper = objectMapper;
-    }
 
     public void save(ShopsResponse shopsResponse) {
         redisTemplate.opsForValue().set(KEY, shopsResponse, 30, TimeUnit.SECONDS);

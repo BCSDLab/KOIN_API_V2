@@ -84,7 +84,6 @@ public class ShopService {
         return shopsRedisRepository.getShopsResponseByRedis();
     }
 
-
     public ShopCategoriesResponse getShopsCategories() {
         List<ShopCategory> shopCategories = shopCategoryRepository.findAll();
         return ShopCategoriesResponse.from(shopCategories);
