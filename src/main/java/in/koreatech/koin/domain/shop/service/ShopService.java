@@ -77,10 +77,9 @@ public class ShopService {
     }
 
     public ShopsResponse getShops() {
-        if (shopsRedisRepository.isCacheAvailable()) {
-            return shopsRedisRepository.getShopsResponseByRedis();
+        if (!shopsRedisRepository.isCacheAvailable()) {
+            refreshShopsCache();
         }
-        refreshShopsCache();
         return shopsRedisRepository.getShopsResponseByRedis();
     }
 
@@ -106,7 +105,7 @@ public class ShopService {
                 boolean isDurationEvent = eventArticleRepository.isDurationEvent(shop.getId(), now.toLocalDate());
                 return InnerShopResponse.from(shop, isDurationEvent, shop.isOpen(now));
             })
-            .sorted(Comparator.comparing(InnerShopResponse::isOpen, Collections.reverseOrder())).toList();
+            .sorted(Comparator.comparing(InnerShopResponse::isOpen, Comparator.reverseOrder())).toList();
         ShopsResponse shopsResponse = ShopsResponse.from(innerShopResponses);
         shopsRedisRepository.save(shopsResponse);
     }
