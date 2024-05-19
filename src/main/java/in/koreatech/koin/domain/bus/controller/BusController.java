@@ -18,7 +18,9 @@ import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
+import in.koreatech.koin.domain.bus.model.express.TmoneyOpenApiExpressBusArrival;
 import in.koreatech.koin.domain.bus.service.BusService;
+import in.koreatech.koin.domain.bus.util.TmoneyExpressBusOpenApiClient;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -27,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class BusController implements BusApi {
 
     private final BusService busService;
+    private final TmoneyExpressBusOpenApiClient tmoneyExpressBusOpenApiClient;
 
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
@@ -71,5 +74,15 @@ public class BusController implements BusApi {
         List<SingleBusTimeResponse> singleBusTimeResponses = busService.searchTimetable(date, LocalTime.parse(time),
             depart, arrival);
         return ResponseEntity.ok().body(singleBusTimeResponses);
+    }
+
+    @GetMapping("/tmoney")
+    public ResponseEntity<List<TmoneyOpenApiExpressBusArrival>> getTmoney(
+        @RequestParam(value = "bus_type") BusType busType,
+        @RequestParam BusStation depart,
+        @RequestParam BusStation arrival
+    ) {
+        List<TmoneyOpenApiExpressBusArrival> list = busService.getTmoneyOpenApiResponse(busType, depart, arrival);
+        return ResponseEntity.ok().body(list);
     }
 }

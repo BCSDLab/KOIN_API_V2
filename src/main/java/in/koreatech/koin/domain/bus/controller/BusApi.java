@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
+import in.koreatech.koin.domain.bus.model.express.TmoneyOpenApiExpressBusArrival;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -81,4 +82,18 @@ public interface BusApi {
     @Operation(summary = "버스 노선 조회")
     @GetMapping("/courses")
     ResponseEntity<List<BusCourseResponse>> getBusCourses();
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "티머니 API 호출")
+    @GetMapping("/tmoney")
+    ResponseEntity<List<TmoneyOpenApiExpressBusArrival>> getTmoney(
+        @Parameter(description = "버스 종류(city, express, shuttle, commuting)") @RequestParam(value = "bus_type") BusType busType,
+        @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation depart,
+        @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation arrival
+    );
 }

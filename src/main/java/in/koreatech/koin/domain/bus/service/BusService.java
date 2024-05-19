@@ -30,11 +30,13 @@ import in.koreatech.koin.domain.bus.model.SchoolBusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
+import in.koreatech.koin.domain.bus.model.express.TmoneyOpenApiExpressBusArrival;
 import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
 import in.koreatech.koin.domain.bus.util.ExpressBusOpenApiClient;
+import in.koreatech.koin.domain.bus.util.TmoneyExpressBusOpenApiClient;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -49,6 +51,7 @@ public class BusService {
     private final BusRepository busRepository;
     private final CityBusOpenApiClient cityBusOpenApiClient;
     private final ExpressBusOpenApiClient expressBusOpenApiClient;
+    private final TmoneyExpressBusOpenApiClient tmoneyExpressBusOpenApiClient;
     private final VersionService versionService;
 
     @Transactional
@@ -201,5 +204,9 @@ public class BusService {
         return busRepository.findAll().stream()
             .map(BusCourseResponse::from)
             .toList();
+    }
+
+    public List<TmoneyOpenApiExpressBusArrival> getTmoneyOpenApiResponse(BusType busType, BusStation depart, BusStation arrival) {
+        return tmoneyExpressBusOpenApiClient.returnOpenApiResponse(depart, arrival);
     }
 }
