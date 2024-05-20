@@ -114,17 +114,12 @@ public class OwnerService {
         }
         Owner owner = request.toOwner(passwordEncoder);
         Owner saved = ownerRepository.save(owner);
+        OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(owner.getId());
         if (request.shopId() != null) {
-            var shop = shopRepository.getById(request.shopId());
-            ownerShopRedisRepository.save(OwnerShop.builder()
-                .ownerId(owner.getId())
-                .shopId(shop.getId())
-                .build());
-        } else {
-            ownerShopRedisRepository.save(OwnerShop.builder()
-                .ownerId(owner.getId())
-                .build());
+            Shop shop = shopRepository.getById(request.shopId());
+            ownerShopBuilder.shopId(shop.getId());
         }
+        ownerShopRedisRepository.save(ownerShopBuilder.build());
         eventPublisher.publishEvent(new OwnerRegisterEvent(saved));
     }
 
