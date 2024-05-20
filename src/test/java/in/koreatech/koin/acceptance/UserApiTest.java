@@ -740,7 +740,7 @@ class UserApiTest extends AcceptanceTest {
         doneSignal.await();
         executorService.shutdown();
 
-        assertThat(capturedOutput.toString()).contains("회원 가입 데이터 중복 동시성 발생");
+        assertThat(capturedOutput.toString()).contains("요청이 너무 빠릅니다.");
     }
 
     @Test
