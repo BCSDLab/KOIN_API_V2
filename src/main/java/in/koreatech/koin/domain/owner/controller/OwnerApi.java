@@ -13,6 +13,7 @@ import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateSmsRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerRegisterByPhoneRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
@@ -105,11 +106,26 @@ public interface OwnerApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "사장님 회원가입")
+    @Operation(summary = "이메일을 이용한 사장님 회원가입")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/owners/register")
     ResponseEntity<Void> register(
         @Valid @RequestBody OwnerRegisterRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "전화번호를 이용한 사장님 회원가입")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/owners/register/phone")
+    ResponseEntity<Void> registerByPhone(
+        @Valid @RequestBody OwnerRegisterByPhoneRequest request
     );
 
     @ApiResponses(
