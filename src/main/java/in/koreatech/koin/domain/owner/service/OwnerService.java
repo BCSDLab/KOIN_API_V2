@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateSmsRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerRegisterByPhoneRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
@@ -113,17 +114,31 @@ public class OwnerService {
         }
         Owner owner = request.toOwner(passwordEncoder);
         Owner saved = ownerRepository.save(owner);
+        OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(owner.getId());
         if (request.shopId() != null) {
-            var shop = shopRepository.getById(request.shopId());
-            ownerShopRedisRepository.save(OwnerShop.builder()
-                .ownerId(owner.getId())
-                .shopId(shop.getId())
-                .build());
-        } else {
-            ownerShopRedisRepository.save(OwnerShop.builder()
-                .ownerId(owner.getId())
-                .build());
+            Shop shop = shopRepository.getById(request.shopId());
+            ownerShopBuilder.shopId(shop.getId());
         }
+        ownerShopRedisRepository.save(ownerShopBuilder.build());
+        eventPublisher.publishEvent(new OwnerRegisterEvent(saved));
+    }
+
+    @Transactional
+    public void registerByPhone(OwnerRegisterByPhoneRequest request) {
+        if (userRepository.findByPhoneNumberAndUserType(request.phoneNumber(), OWNER).isPresent()) {
+            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
+        }
+        if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
+            throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
+        }
+        Owner owner = request.toOwner(passwordEncoder);
+        Owner saved = ownerRepository.save(owner);
+        OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(owner.getId());
+        if (request.shopId() != null) {
+            Shop shop = shopRepository.getById(request.shopId());
+            ownerShopBuilder.shopId(shop.getId());
+        }
+        ownerShopRedisRepository.save(ownerShopBuilder.build());
         eventPublisher.publishEvent(new OwnerRegisterEvent(saved));
     }
 
