@@ -52,11 +52,11 @@ public record OwnerRegisterByPhoneRequest(
     @Size(min = 1, max = 5, message = "이미지는 사업자등록증, 영업신고증, 통장사본을 포함하여 최소 1개 최대 5개까지 가능합니다.")
     @Schema(description = "첨부 이미지들", requiredMode = REQUIRED)
     @Valid
-    List<InnerAttachmentUrl> attachmentUrls
+    List<OwnerRegisterByPhoneInnerAttachmentUrl> attachmentUrls
 ) {
 
     public Owner toOwner(PasswordEncoder passwordEncoder) {
-        var user = User.builder()
+        User user = User.builder()
             .password(passwordEncoder.encode(password))
             .name(name)
             .email(phoneNumber)
@@ -72,8 +72,8 @@ public record OwnerRegisterByPhoneRequest(
             .grantShop(false)
             .grantEvent(false)
             .build();
-        var attachments = attachmentUrls.stream()
-            .map(InnerAttachmentUrl::fileUrl)
+        List<OwnerAttachment> attachments = attachmentUrls.stream()
+            .map(OwnerRegisterByPhoneInnerAttachmentUrl::fileUrl)
             .map(fileUrl -> OwnerAttachment.builder()
                 .url(fileUrl)
                 .owner(owner)
@@ -86,7 +86,7 @@ public record OwnerRegisterByPhoneRequest(
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
-    public record InnerAttachmentUrl(
+    public record OwnerRegisterByPhoneInnerAttachmentUrl(
         @NotBlank(message = "첨부 파일 URL은 필수입니다.")
         @URL(protocol = "https", regexp = ".*static\\.koreatech\\.in.*", message = "코인 파일 저장 형식이 아닙니다.")
         @Schema(description = "첨부 파일 URL (코인 파일 형식이어야 함)", example = "https://static.koreatech.in/1.png", requiredMode = REQUIRED)
