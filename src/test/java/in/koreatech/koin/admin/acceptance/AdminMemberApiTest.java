@@ -123,4 +123,37 @@ public class AdminMemberApiTest extends AcceptanceTest {
             softly.assertThat(savedMember.isDeleted()).isEqualTo(false);
         });
     }
+
+    @Test
+    @DisplayName("BCSDLab 회원 정보를 조회한다")
+    void getMember() {
+        memberFixture.최준호(trackFixture.backend());
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .get("/admin/members/{id}", 1)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "id": 1,
+                    "name": "최준호",
+                    "student_number": "2019136135",
+                    "track": "BackEnd",
+                    "position": "Regular",
+                    "email": "testjuno@gmail.com",
+                    "image_url": "https://imagetest.com/juno.jpg",
+                    "is_deleted": false
+                }
+                """
+            );
+    }
 }
