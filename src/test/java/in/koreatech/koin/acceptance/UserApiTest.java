@@ -709,7 +709,7 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("회원가입시 동시성 발생 예외를 적절하게 처리하는지 체크한다.")
-    void concurrencyStudentRegister(CapturedOutput capturedOutput) throws InterruptedException{
+    void concurrencyStudentRegister(CapturedOutput capturedOutput) throws InterruptedException {
         int threads = 2;
         CountDownLatch doneSignal = new CountDownLatch(threads);
         ExecutorService executorService = Executors.newFixedThreadPool(threads);
@@ -719,23 +719,22 @@ class UserApiTest extends AcceptanceTest {
                 RestAssured
                     .given()
                     .body("""
-                {
-                  "major": "컴퓨터공학부",
-                  "email": "koko123@koreatech.ac.kr",
-                  "name": "김철수",
-                  "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
-                  "nickname": "koko",
-                  "gender": "0",
-                  "is_graduated": false,
-                  "student_number": "2022136012",
-                  "phone_number": "010-0000-0000"
-                }
-                """)
+                        {
+                          "major": "컴퓨터공학부",
+                          "email": "koko123@koreatech.ac.kr",
+                          "name": "김철수",
+                          "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
+                          "nickname": "koko",
+                          "gender": "0",
+                          "is_graduated": false,
+                          "student_number": "2022136012",
+                          "phone_number": "010-0000-0000"
+                        }
+                        """)
                     .contentType(ContentType.JSON)
                     .when()
                     .post("/user/student/register");
                 doneSignal.countDown();
-
             });
         }
         doneSignal.await();

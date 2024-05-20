@@ -99,7 +99,8 @@ public class StudentService {
             mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, student.getUser().getAuthToken()));
             eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
         } catch (DataIntegrityViolationException e) {
-            throw KoinIllegalArgumentException.withDetail("회원 가입 데이터 중복 동시성 발생");
+            // 동시성 문제를 처리하기 위한 코드
+            throw KoinIllegalArgumentException.withDetail("요청이 너무 빠릅니다.");
         }
     }
 
