@@ -66,7 +66,7 @@ public class BusService {
         }
 
         if (busType == BusType.EXPRESS && depart != STATION && arrival != STATION) {
-            var remainTimes = expressBusOpenApiClient.getBusRemainTime(depart, arrival);
+            var remainTimes = tmoneyExpressBusOpenApiClient.getBusRemainTime(depart, arrival);
             return toResponse(busType, remainTimes);
         }
 
@@ -204,9 +204,5 @@ public class BusService {
         return busRepository.findAll().stream()
             .map(BusCourseResponse::from)
             .toList();
-    }
-
-    public List<TmoneyOpenApiExpressBusArrival> getTmoneyOpenApiResponse(BusType busType, BusStation depart, BusStation arrival) {
-        return tmoneyExpressBusOpenApiClient.returnOpenApiResponse(depart, arrival);
     }
 }

@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.bus.util;
 
+import static in.koreatech.koin.domain.bus.model.enums.BusType.EXPRESS;
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.format.DateTimeFormatter.ofPattern;
@@ -15,6 +16,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -27,6 +29,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
@@ -70,10 +73,27 @@ public class TmoneyExpressBusOpenApiClient {
         this.expressBusCacheRepository = expressBusCacheRepository;
     }
 
-    @Transactional
-    public List<TmoneyOpenApiExpressBusArrival> returnOpenApiResponse(BusStation depart, BusStation arrival){
-        JsonObject openApiResponse = getOpenApiResponse(depart, arrival);
-        return extractBusArrivalInfo(openApiResponse);
+    public List<ExpressBusRemainTime> getBusRemainTime(BusStation depart, BusStation arrival) {
+        String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute(depart.getName(), arrival.getName()));
+        Optional<ExpressBusCache> expressBusCache = expressBusCacheRepository.findById(busCacheId);
+        if (expressBusCache.isEmpty()) {
+            storeRemainTimeByOpenApi();
+        }
+        return getStoredRemainTime(busCacheId);
+    }
+
+    private List<ExpressBusRemainTime> getStoredRemainTime(String busCacheId) {
+        Optional<ExpressBusCache> expressBusCache = expressBusCacheRepository.findById(busCacheId);
+        List<ExpressBusCacheInfo> busArrivals = expressBusCache.get().getBusInfos();
+        return getExpressBusRemainTime(busArrivals);
+    }
+
+    private List<ExpressBusRemainTime> getExpressBusRemainTime(
+        List<ExpressBusCacheInfo> busArrivals
+    ) {
+        return busArrivals.stream()
+            .map(it -> new ExpressBusRemainTime(it.depart(), EXPRESS.getName()))
+            .toList();
     }
 
     @Transactional
@@ -96,15 +116,8 @@ public class TmoneyExpressBusOpenApiClient {
                     // API로 받은 HHmm 형태의 시간을 HH:mm 형태로 변환하여 Redis에 저장한다.
                     busArrivals.stream()
                         .map(it -> new ExpressBusCacheInfo(
-                            LocalTime.parse(
-                                LocalDateTime.parse(it.TIM_TIM_O(), ofPattern("HHmm"))
-                                    .format(ofPattern("HH:mm"))
-                            ),
-                            LocalTime.parse(
-                                LocalDateTime.parse(it.TIM_TIM_O(), ofPattern("HHmm"))
-                                    .plusMinutes(it.LIN_TIM())
-                                    .format(ofPattern("HH:mm"))
-                            ),
+                            LocalTime.parse(it.TIM_TIM_O(), ofPattern("HHmm")),
+                            LocalTime.parse(it.TIM_TIM_O(), ofPattern("HHmm")).plusMinutes(it.LIN_TIM()),
                             1900
                         ))
                         .toList()
