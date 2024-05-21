@@ -13,7 +13,7 @@ public record VerifyEmailRequest(
     @Email(message = "이메일 형식이 올바르지 않습니다. ${validatedValue}")
     @NotBlank(message = "이메일은 필수입니다.")
     @Schema(description = "이메일", example = "temp@gmail.com", requiredMode = REQUIRED)
-    String email
+    String address
 ) {
 
 }

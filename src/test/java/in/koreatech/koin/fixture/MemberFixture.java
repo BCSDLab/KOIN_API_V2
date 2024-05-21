@@ -49,4 +49,18 @@ public class MemberFixture {
                 .build()
         );
     }
+
+    public Member 배진호(Track track) {
+        return memberRepository.save(
+            Member.builder()
+                .isDeleted(true)
+                .studentNumber("2020136061")
+                .imageUrl("https://imagetest.com/jino.jpg")
+                .name("배진호")
+                .position("Regular")
+                .track(track)
+                .email("testjhb@gmail.com")
+                .build()
+        );
+    }
 }
