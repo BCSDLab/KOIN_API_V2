@@ -105,12 +105,7 @@ public class UserService {
         if (user.getUserType() == UserType.STUDENT) {
             studentRepository.deleteByUserId(userId);
         } else if (user.getUserType() == UserType.OWNER) {
-            try{
-                ownerRepository.deleteByUserId(userId);
-            } catch (DataIntegrityViolationException e){
-                throw OwnerNotFoundException.withDetail("owner userId: " + userId);
-            }
-
+            ownerRepository.deleteByUserId(userId);
         }
         userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
