@@ -20,8 +20,8 @@ public record SemesterCheckResponse
         List<String> semesters
     ) {
 
-    public static SemesterCheckResponse of(Integer userId, List<TimeTable> timeTables) {
-        List<String> semesters = timeTables.stream()
+    public static SemesterCheckResponse of(Integer userId, List<TimeTable> timetables) {
+        List<String> semesters = timetables.stream()
             .map(timeTable -> timeTable.getSemester().getSemester())
             .distinct()
             .toList();

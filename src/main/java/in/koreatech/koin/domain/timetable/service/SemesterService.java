@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetable.dto.SemesterCheckResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
-import in.koreatech.koin.domain.timetable.exception.StudentSemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.TimeTable;
 import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
 import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
@@ -29,9 +28,6 @@ public class SemesterService {
 
     public SemesterCheckResponse getStudentSemesters(Integer userId) {
         List<TimeTable> timeTables = timeTableRepository.findAllByUserId(userId);
-        if (timeTables.isEmpty()) {
-            throw StudentSemesterNotFoundException.withDetail("학생의 학기 정보가 없습니다.");
-        }
         return SemesterCheckResponse.of(userId, timeTables);
     }
 }
