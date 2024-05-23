@@ -66,7 +66,7 @@ public interface TimetableApi {
     @Operation(summary = "학생 학기 정보 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/semesters/check")
-    ResponseEntity<SemesterCheckResponse> getCheckSemesters(
+    ResponseEntity<SemesterCheckResponse> getStudentSemesters(
         @Auth(permit = {STUDENT}) Integer userId
     );
 

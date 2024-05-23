@@ -47,10 +47,10 @@ public class TimetableController implements TimetableApi {
     }
 
     @GetMapping("/semesters/check")
-    public ResponseEntity<SemesterCheckResponse> getCheckSemesters(
+    public ResponseEntity<SemesterCheckResponse> getStudentSemesters(
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        SemesterCheckResponse semesterCheckResponse = semesterService.getCheckSemesters(userId);
+        SemesterCheckResponse semesterCheckResponse = semesterService.getStudentSemesters(userId);
         return ResponseEntity.ok(semesterCheckResponse);
     }
 

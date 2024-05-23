@@ -27,7 +27,7 @@ public class SemesterService {
             .toList();
     }
 
-    public SemesterCheckResponse getCheckSemesters(Integer userId) {
+    public SemesterCheckResponse getStudentSemesters(Integer userId) {
         List<TimeTable> timeTables = timeTableRepository.findAllByUserId(userId);
         if (timeTables.isEmpty()) {
             throw StudentSemesterNotFoundException.withDetail("학생의 학기 정보가 없습니다.");
