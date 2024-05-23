@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
+import in.koreatech.koin.domain.timetable.dto.SemesterCheckResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
@@ -52,6 +53,15 @@ public class TimetableController implements TimetableApi {
     ) {
         TimeTableResponse timeTableResponse = timetableService.getTimeTables(userId, semester);
         return ResponseEntity.ok(timeTableResponse);
+    }
+
+    @GetMapping("/semesters/check")
+    public ResponseEntity<SemesterCheckResponse> getCheckSemesters(
+        @Auth(permit = {STUDENT}) Integer userId
+    )
+    {
+        SemesterCheckResponse semesterCheckResponse = timetableService.getCheckSemesters(userId);
+        return ResponseEntity.ok(semesterCheckResponse);
     }
 
     @PostMapping("/timetables")

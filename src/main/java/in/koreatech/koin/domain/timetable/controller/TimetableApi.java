@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
+import in.koreatech.koin.domain.timetable.dto.SemesterCheckResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
@@ -67,6 +68,21 @@ public interface TimetableApi {
     @GetMapping("/timetables")
     ResponseEntity<TimeTableResponse> getTimeTables(
         @RequestParam(value = "semester") String semester,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "학생 학기 정보 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/semesters/check")
+    ResponseEntity<SemesterCheckResponse> getCheckSemesters(
         @Auth(permit = {STUDENT}) Integer userId
     );
 
