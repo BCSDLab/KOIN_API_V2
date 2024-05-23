@@ -15,8 +15,8 @@ public interface TimeTableRepository extends Repository<TimeTable, Integer> {
     List<TimeTable> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
 
     List<TimeTable> findAllByUserId(Integer id);
-    Optional<TimeTable> findById(Integer id);
 
+    Optional<TimeTable> findById(Integer id);
 
     void deleteByUserIdAndSemesterId(Integer userId, Integer semesterId);
 

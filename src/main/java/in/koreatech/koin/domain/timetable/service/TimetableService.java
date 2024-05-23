@@ -1,19 +1,15 @@
 package in.koreatech.koin.domain.timetable.service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
-import in.koreatech.koin.domain.timetable.dto.SemesterCheckResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
-import in.koreatech.koin.domain.timetable.exception.StudentSemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.model.TimeTable;
