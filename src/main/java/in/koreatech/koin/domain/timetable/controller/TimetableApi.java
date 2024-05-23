@@ -63,11 +63,10 @@ public interface TimetableApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "시간표 정보 조회")
+    @Operation(summary = "학생 학기 정보 조회")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/timetables")
-    ResponseEntity<TimeTableResponse> getTimeTables(
-        @RequestParam(value = "semester") String semester,
+    @GetMapping("/semesters/check")
+    ResponseEntity<SemesterCheckResponse> getCheckSemesters(
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -79,10 +78,11 @@ public interface TimetableApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "학생 학기 정보 조회")
+    @Operation(summary = "시간표 정보 조회")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/semesters/check")
-    ResponseEntity<SemesterCheckResponse> getCheckSemesters(
+    @GetMapping("/timetables")
+    ResponseEntity<TimeTableResponse> getTimeTables(
+        @RequestParam(value = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     );
 

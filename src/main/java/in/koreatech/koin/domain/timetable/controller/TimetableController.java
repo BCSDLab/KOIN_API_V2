@@ -46,6 +46,15 @@ public class TimetableController implements TimetableApi {
         return ResponseEntity.ok(semesterResponse);
     }
 
+    @GetMapping("/semesters/check")
+    public ResponseEntity<SemesterCheckResponse> getCheckSemesters(
+        @Auth(permit = {STUDENT}) Integer userId
+    )
+    {
+        SemesterCheckResponse semesterCheckResponse = semesterService.getCheckSemesters(userId);
+        return ResponseEntity.ok(semesterCheckResponse);
+    }
+
     @GetMapping("/timetables")
     public ResponseEntity<TimeTableResponse> getTimeTables(
         @RequestParam(name = "semester") String semester,
@@ -53,15 +62,6 @@ public class TimetableController implements TimetableApi {
     ) {
         TimeTableResponse timeTableResponse = timetableService.getTimeTables(userId, semester);
         return ResponseEntity.ok(timeTableResponse);
-    }
-
-    @GetMapping("/semesters/check")
-    public ResponseEntity<SemesterCheckResponse> getCheckSemesters(
-        @Auth(permit = {STUDENT}) Integer userId
-    )
-    {
-        SemesterCheckResponse semesterCheckResponse = timetableService.getCheckSemesters(userId);
-        return ResponseEntity.ok(semesterCheckResponse);
     }
 
     @PostMapping("/timetables")

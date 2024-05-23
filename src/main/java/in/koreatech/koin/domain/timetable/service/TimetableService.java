@@ -76,14 +76,6 @@ public class TimetableService {
         timeTable.updateIsDeleted(true);
     }
 
-    public SemesterCheckResponse getCheckSemesters(Integer userId) {
-        List<TimeTable> timeTables = timeTableRepository.findAllByUserId(userId);
-        if (timeTables.isEmpty()) {
-            throw StudentSemesterNotFoundException.withDetail("학생의 학기 정보가 없습니다.");
-        }
-        return SemesterCheckResponse.of(userId, timeTables);
-    }
-
     private TimeTableResponse getTimeTableResponse(Integer userId, Semester semester) {
         List<TimeTable> timeTables = timeTableRepository.findAllByUserIdAndSemesterId(userId, semester.getId());
         Integer grades = timeTables.stream()
