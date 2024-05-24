@@ -10,16 +10,15 @@ import lombok.RequiredArgsConstructor;
 public class BusScheduler {
 
     private final CityBusOpenApiClient cityBusOpenApiClient;
-    private final ExpressBusOpenApiClient expressBusOpenApiClient;
+    private final TmoneyExpressBusOpenApiClient tmoneyExpressBusOpenApiClient;
 
     @Scheduled(cron = "0 */1 * * * *")
     public void cacheCityBusByOpenApi() {
         cityBusOpenApiClient.storeRemainTimeByOpenApi();
     }
 
-    // TODO: 시외버스 Open API 복구되면 주석 해제
-/*    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void cacheExpressBusByOpenApi() {
-        expressBusOpenApiClient.storeRemainTimeByOpenApi();
-    }*/
+        tmoneyExpressBusOpenApiClient.storeRemainTimeByOpenApi();
+    }
 }
