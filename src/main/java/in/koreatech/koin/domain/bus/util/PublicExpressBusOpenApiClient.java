@@ -28,32 +28,33 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
+import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusStationNode;
-import in.koreatech.koin.domain.bus.model.express.TmoneyOpenApiExpressBusArrival;
+import in.koreatech.koin.domain.bus.model.express.PublicOpenApiExpressBusArrival;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
 
 /**
- * OpenApi 상세: 티머니 Api
- * https://apiportal.tmoney.co.kr:18443/apiGallery/apiGalleryDetail.do?apiId=API201906241410183kp&apiPckgId=APK2024051316462950w&isTestYn=Y
+ * OpenApi 상세: 국토교통부_(TAGO)_버스도착정보
+ * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098541
  */
 @Component
-public class TmoneyExpressBusOpenApiClient extends ExpressBusOpenApiClient {
+public class PublicExpressBusOpenApiClient extends ExpressBusOpenApiClient {
 
-    private static final String OPEN_API_URL = "https://apigw.tmoney.co.kr:5556/gateway/xzzIbtListGet/v1/ibt_list";
-    private static final Type ARRIVAL_INFO_TYPE = new TypeToken<List<TmoneyOpenApiExpressBusArrival>>() {
+    private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo";
+    private static final Type ARRIVAL_INFO_TYPE = new TypeToken<List<PublicOpenApiExpressBusArrival>>() {
     }.getType();
 
     private final String openApiKey;
 
-    public TmoneyExpressBusOpenApiClient(
-        @Value("${OPEN_API_KEY_TMONEY}") String openApiKey,
+    public PublicExpressBusOpenApiClient(
+        @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
         VersionRepository versionRepository,
         Gson gson,
         Clock clock,
@@ -68,7 +69,7 @@ public class TmoneyExpressBusOpenApiClient extends ExpressBusOpenApiClient {
     public void storeRemainTimeByOpenApi() {
         for (BusStation depart : BusStation.values()) {
             for (BusStation arrival : BusStation.values()) {
-                if (depart == arrival || depart.equals(BusStation.STATION) || arrival.equals(BusStation.STATION)) {
+                if (depart == arrival) {
                     continue;
                 }
                 JsonObject openApiResponse;
@@ -77,16 +78,22 @@ public class TmoneyExpressBusOpenApiClient extends ExpressBusOpenApiClient {
                 } catch (BusOpenApiException e) {
                     continue;
                 }
-                List<TmoneyOpenApiExpressBusArrival> busArrivals = extractBusArrivalInfo(openApiResponse);
+                List<PublicOpenApiExpressBusArrival> busArrivals = extractBusArrivalInfo(openApiResponse);
 
                 ExpressBusCache expressBusCache = ExpressBusCache.of(
                     new ExpressBusRoute(depart.getName(), arrival.getName()),
-                    // API로 받은 HHmm 형태의 시간을 HH:mm 형태로 변환하여 Redis에 저장한다.
+                    // API로 받은 yyyyMMddHHmm 형태의 시간을 HH:mm 형태로 변환하여 Redis에 저장한다.
                     busArrivals.stream()
                         .map(it -> new ExpressBusCacheInfo(
-                            LocalTime.parse(it.TIM_TIM_O(), ofPattern("HHmm")),
-                            LocalTime.parse(it.TIM_TIM_O(), ofPattern("HHmm")).plusMinutes(it.LIN_TIM()),
-                            1900
+                            LocalTime.parse(
+                                LocalDateTime.parse(it.depPlandTime(), ofPattern("yyyyMMddHHmm"))
+                                    .format(ofPattern("HH:mm"))
+                            ),
+                            LocalTime.parse(
+                                LocalDateTime.parse(it.arrPlandTime(), ofPattern("yyyyMMddHHmm"))
+                                    .format(ofPattern("HH:mm"))
+                            ),
+                            it.charge()
                         ))
                         .toList()
                 );
@@ -99,36 +106,12 @@ public class TmoneyExpressBusOpenApiClient extends ExpressBusOpenApiClient {
     }
 
     @Override
-    protected List<TmoneyOpenApiExpressBusArrival> extractBusArrivalInfo(JsonObject jsonObject) {
-        try {
-            var code = jsonObject.get("code").getAsString();
-            if (!code.equals("00000")) {
-                return Collections.emptyList();
-            }
-            var response = jsonObject.get("response").getAsJsonObject();
-            JsonElement departTimeList = response.get("LINE_LIST");
-            List<TmoneyOpenApiExpressBusArrival> result = new ArrayList<>();
-            if (departTimeList.isJsonArray()) {
-                return gson.fromJson(departTimeList, ARRIVAL_INFO_TYPE);
-            }
-            if (departTimeList.isJsonObject()) {
-                result.add(gson.fromJson(departTimeList, TmoneyOpenApiExpressBusArrival.class));
-            }
-            return result;
-        } catch (JsonSyntaxException e) {
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
     protected JsonObject getOpenApiResponse(BusStation depart, BusStation arrival) {
         try {
             URL url = getBusApiURL(depart, arrival);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("x-Gateway-APIKey", openApiKey);
-            conn.setRequestProperty("Accept", "*/*");
+            conn.setRequestProperty("Content-type", "application/json");
             BufferedReader reader;
             if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
                 reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -153,18 +136,41 @@ public class TmoneyExpressBusOpenApiClient extends ExpressBusOpenApiClient {
     protected URL getBusApiURL(BusStation depart, BusStation arrival) {
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
-        LocalDateTime today = LocalDateTime.now(clock);
         StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL); /*URL*/
         try {
-            urlBuilder.append(String.format(
-                "/%s/0000/%s/%s/9/0",
-                encode(today.format(ofPattern("yyyyMMdd")), UTF_8),
-                encode(departNode.getTmoneyStationId(), UTF_8),
-                encode(arrivalNode.getTmoneyStationId(), UTF_8)
-            ));
+            urlBuilder.append("?" + encode("serviceKey", UTF_8) + "=" + encode(openApiKey, UTF_8));
+            urlBuilder.append("&" + encode("numOfRows", UTF_8) + "=" + encode("30", UTF_8));
+            urlBuilder.append("&" + encode("_type", UTF_8) + "=" + encode("json", UTF_8));
+            urlBuilder.append("&" + encode("depTerminalId", UTF_8) + "=" + encode(departNode.getStationId(), UTF_8));
+            urlBuilder.append("&" + encode("arrTerminalId", UTF_8) + "=" + encode(arrivalNode.getStationId(), UTF_8));
+            urlBuilder.append("&" + encode("depPlandTime", UTF_8) + "="
+                + encode(LocalDateTime.now(clock).format(ofPattern("yyyyMMdd")), UTF_8));
             return new URL(urlBuilder.toString());
         } catch (Exception e) {
             throw new KoinIllegalStateException("시외버스 API URL 생성중 문제가 발생했습니다.", "uri:" + urlBuilder);
+        }
+    }
+
+    @Override
+    protected List<PublicOpenApiExpressBusArrival> extractBusArrivalInfo(JsonObject jsonObject) {
+        try {
+            var response = jsonObject.get("response").getAsJsonObject();
+            BusOpenApiResultCode.validateResponse(response);
+            JsonObject body = response.get("body").getAsJsonObject();
+            if (body.get("totalCount").getAsLong() == 0) {
+                return Collections.emptyList();
+            }
+            JsonElement item = body.get("items").getAsJsonObject().get("item");
+            List<PublicOpenApiExpressBusArrival> result = new ArrayList<>();
+            if (item.isJsonArray()) {
+                return gson.fromJson(item, ARRIVAL_INFO_TYPE);
+            }
+            if (item.isJsonObject()) {
+                result.add(gson.fromJson(item, PublicOpenApiExpressBusArrival.class));
+            }
+            return result;
+        } catch (JsonSyntaxException e) {
+            return Collections.emptyList();
         }
     }
 }
