@@ -292,6 +292,40 @@ class TimetableApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("학생이 가진 시간표의 학기를 조회한다.")
+    void getStudentCheckSemester() {
+        // given
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester1 = semesterFixture.semester("20192");
+        Semester semester2 = semesterFixture.semester("20201");
+        TimeTable 이산수학 = timeTableFixture.이산수학(user, semester1);
+        TimeTable 알고리즘및실습 = timeTableFixture.알고리즘및실습(user, semester2);
+
+        // when & then
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .get("/semesters/check")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "user_id" : 1,
+                    "semesters" : [
+                     "20192",
+                     "20201"
+                    ]
+                }
+                """
+            );
+    }
+
+    @Test
     @DisplayName("조회된 시간표가 없으면 404에러를 반환한다.")
     void getTimeTablesNotFound() {
         User user = userFixture.준호_학생().getUser();
