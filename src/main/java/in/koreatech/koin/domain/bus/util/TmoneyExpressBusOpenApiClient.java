@@ -76,9 +76,6 @@ public class TmoneyExpressBusOpenApiClient {
     public List<ExpressBusRemainTime> getBusRemainTime(BusStation depart, BusStation arrival) {
         String busCacheId = ExpressBusCache.generateId(new ExpressBusRoute(depart.getName(), arrival.getName()));
         Optional<ExpressBusCache> expressBusCache = expressBusCacheRepository.findById(busCacheId);
-        if (expressBusCache.isEmpty()) {
-            storeRemainTimeByOpenApi();
-        }
         return getStoredRemainTime(busCacheId);
     }
 

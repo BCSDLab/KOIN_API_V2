@@ -20,6 +20,11 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      database: 2
 
 server:
   tomcat:
@@ -70,3 +75,5 @@ naver:
     apiUrl: http://localhost:8888
     serviceId: ncp:sms:kr:test
     fromNumber: "01012331234"
+
+OPEN_API_KEY_TMONEY: testck
