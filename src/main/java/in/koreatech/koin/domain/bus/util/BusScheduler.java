@@ -14,7 +14,7 @@ public class BusScheduler {
     private final CityBusOpenApiClient cityBusOpenApiClient;
     private final TmoneyExpressBusOpenApiClient tmoneyExpressBusOpenApiClient;
 
-    @Scheduled(cron = "0 */1 * * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void cacheCityBusByOpenApi() {
         try {
             cityBusOpenApiClient.storeRemainTimeByOpenApi();
@@ -23,7 +23,7 @@ public class BusScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void cacheExpressBusByOpenApi() {
         try {
             tmoneyExpressBusOpenApiClient.storeRemainTimeByOpenApi();
