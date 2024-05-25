@@ -12,16 +12,18 @@ import lombok.Getter;
  */
 @Getter
 public enum ExpressBusStationNode {
-    KOREATECH(BusStation.KOREATECH, "NAI3125301"), // 코리아텍
-    TERMINAL(BusStation.TERMINAL, "NAI3112001"), // 종합터미널
+    KOREATECH(BusStation.KOREATECH, "NAI3125301", "3125301"), // 코리아텍
+    TERMINAL(BusStation.TERMINAL, "NAI3112001", "3112001"), // 종합터미널
     ;
 
     private final BusStation busStation;
     private final String stationId;
+    private final String tmoneyStationId;
 
-    ExpressBusStationNode(BusStation busStation, String stationId) {
+    ExpressBusStationNode(BusStation busStation, String stationId, String tmoneyStationId) {
         this.busStation = busStation;
         this.stationId = stationId;
+        this.tmoneyStationId = tmoneyStationId;
     }
 
     public static ExpressBusStationNode from(BusStation busStation) {

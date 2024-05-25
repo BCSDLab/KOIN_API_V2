@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
+import in.koreatech.koin.domain.bus.model.express.TmoneyOpenApiExpressBusArrival;
 import in.koreatech.koin.domain.bus.service.BusService;
 import lombok.RequiredArgsConstructor;
 

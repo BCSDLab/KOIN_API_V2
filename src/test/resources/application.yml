@@ -57,8 +57,6 @@ koin:
   admin:
     url: https://admin-url-path.com
 
-OPEN_API_KEY: test
-
 cors:
   allowedOrigins:
     - http://localhost:3000
@@ -70,3 +68,8 @@ naver:
     apiUrl: http://localhost:8888
     serviceId: ncp:sms:kr:test
     fromNumber: "01012331234"
+
+
+OPEN_API_KEY_PUBLIC: testck
+
+OPEN_API_KEY_TMONEY: testck

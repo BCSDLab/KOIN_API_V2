@@ -34,7 +34,7 @@ import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
-import in.koreatech.koin.domain.bus.util.ExpressBusOpenApiClient;
+import in.koreatech.koin.domain.bus.util.TmoneyExpressBusOpenApiClient;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -48,7 +48,7 @@ public class BusService {
     private final Clock clock;
     private final BusRepository busRepository;
     private final CityBusOpenApiClient cityBusOpenApiClient;
-    private final ExpressBusOpenApiClient expressBusOpenApiClient;
+    private final TmoneyExpressBusOpenApiClient tmoneyExpressBusOpenApiClient;
     private final VersionService versionService;
 
     @Transactional
@@ -63,7 +63,7 @@ public class BusService {
         }
 
         if (busType == BusType.EXPRESS && depart != STATION && arrival != STATION) {
-            var remainTimes = expressBusOpenApiClient.getBusRemainTime(depart, arrival);
+            var remainTimes = tmoneyExpressBusOpenApiClient.getBusRemainTime(depart, arrival);
             return toResponse(busType, remainTimes);
         }
 
@@ -98,7 +98,7 @@ public class BusService {
             SingleBusTimeResponse busTimeResponse = null;
 
             if (busType == BusType.EXPRESS && depart != STATION && arrival != STATION) {
-                busTimeResponse = expressBusOpenApiClient.searchBusTime(
+                busTimeResponse = tmoneyExpressBusOpenApiClient.searchBusTime(
                     busType.getName(),
                     depart,
                     arrival,
@@ -167,7 +167,7 @@ public class BusService {
         }
 
         if (busType == BusType.EXPRESS) {
-            return expressBusOpenApiClient.getExpressBusTimetable(direction);
+            return tmoneyExpressBusOpenApiClient.getExpressBusTimetable(direction);
         }
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
