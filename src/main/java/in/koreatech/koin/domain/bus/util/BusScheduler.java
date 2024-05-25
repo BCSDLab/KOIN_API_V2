@@ -23,7 +23,7 @@ public class BusScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 30 0 * * *")
     public void cacheExpressBusByOpenApi() {
         try {
             tmoneyExpressBusOpenApiClient.storeRemainTimeByOpenApi();
