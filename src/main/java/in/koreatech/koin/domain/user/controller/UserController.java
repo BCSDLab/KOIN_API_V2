@@ -79,25 +79,7 @@ public class UserController implements UserApi {
     public ResponseEntity<UserLoginResponse> login(
         @RequestBody @Valid UserLoginRequest request
     ) {
-        UserLoginResponse response = userService.login(request, STUDENT);
-        return ResponseEntity.created(URI.create("/"))
-            .body(response);
-    }
-
-    @PostMapping("/user/owner/login")
-    public ResponseEntity<UserLoginResponse> loginOwner(
-        @RequestBody @Valid UserLoginRequest request
-    ) {
-        UserLoginResponse response = userService.login(request, OWNER);
-        return ResponseEntity.created(URI.create("/"))
-            .body(response);
-    }
-
-    @PostMapping("/user/coop/login")
-    public ResponseEntity<UserLoginResponse> loginCoop(
-        @RequestBody @Valid UserLoginRequest request
-    ) {
-        UserLoginResponse response = userService.login(request, COOP);
+        UserLoginResponse response = userService.login(request);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }

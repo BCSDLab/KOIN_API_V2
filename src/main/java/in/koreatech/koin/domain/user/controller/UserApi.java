@@ -104,34 +104,6 @@ public interface UserApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "사장님 로그인")
-    @PostMapping("/user/owner/login")
-    ResponseEntity<UserLoginResponse> loginOwner(
-        @RequestBody @Valid UserLoginRequest request
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "영양사 로그인")
-    @PostMapping("/user/coop/login")
-    ResponseEntity<UserLoginResponse> loginCoop(
-        @RequestBody @Valid UserLoginRequest request
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "201"),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),

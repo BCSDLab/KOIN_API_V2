@@ -16,6 +16,8 @@ import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.OwnerLoginRequest;
+import in.koreatech.koin.domain.user.dto.OwnerLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
@@ -52,7 +54,7 @@ public class UserService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public UserLoginResponse login(UserLoginRequest request, UserType userType) {
+    public UserLoginResponse login(UserLoginRequest request) {
         User user = userRepository.getByEmail(request.email());
 
         if (!user.isSamePassword(passwordEncoder, request.password())) {
@@ -63,8 +65,25 @@ public class UserService {
             throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
         }
 
-        if (user.getUserType() != userType) {
-            throw new AuthorizationException("잘못된 사용자 유형입니다. 확인해주세요.");
+        String accessToken = jwtProvider.createToken(user);
+        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
+        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        user.updateLastLoggedTime(LocalDateTime.now());
+        User saved = userRepository.save(user);
+
+        return UserLoginResponse.of(accessToken, savedToken.getRefreshToken(), saved.getUserType().getValue());
+    }
+
+    @Transactional
+    public OwnerLoginResponse loginOwner(OwnerLoginRequest request) {
+        User user = userRepository.getByPhoneNumber(request.phoneNumber(), UserType.OWNER);
+
+        if (!user.isSamePassword(passwordEncoder, request.password())) {
+            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+
+        if (!user.isAuthed()) {
+            throw new KoinIllegalArgumentException("미인증 상태입니다. 인증을 진행해주세요.");
         }
 
         String accessToken = jwtProvider.createToken(user);
@@ -73,7 +92,7 @@ public class UserService {
         user.updateLastLoggedTime(LocalDateTime.now());
         User saved = userRepository.save(user);
 
-        return UserLoginResponse.of(accessToken, savedToken.getRefreshToken(), saved.getUserType().getValue());
+        return OwnerLoginResponse.of(accessToken, savedToken.getRefreshToken(), saved.getUserType().getValue());
     }
 
     @Transactional
