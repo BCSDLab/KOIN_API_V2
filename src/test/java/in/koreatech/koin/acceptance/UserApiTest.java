@@ -7,10 +7,17 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -30,6 +37,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
+@ExtendWith(OutputCaptureExtension.class)
 class UserApiTest extends AcceptanceTest {
 
     @Autowired
@@ -697,6 +705,42 @@ class UserApiTest extends AcceptanceTest {
             .post("/user/student/register")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("회원가입시 동시성 발생 예외를 적절하게 처리하는지 체크한다.")
+    void concurrencyStudentRegister(CapturedOutput capturedOutput) throws InterruptedException {
+        int threads = 2;
+        CountDownLatch doneSignal = new CountDownLatch(threads);
+        ExecutorService executorService = Executors.newFixedThreadPool(threads);
+
+        for (int i = 0; i < threads; i++) {
+            executorService.execute(() -> {
+                RestAssured
+                    .given()
+                    .body("""
+                        {
+                          "major": "컴퓨터공학부",
+                          "email": "koko123@koreatech.ac.kr",
+                          "name": "김철수",
+                          "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
+                          "nickname": "koko",
+                          "gender": "0",
+                          "is_graduated": false,
+                          "student_number": "2022136012",
+                          "phone_number": "010-0000-0000"
+                        }
+                        """)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .post("/user/student/register");
+                doneSignal.countDown();
+            });
+        }
+        doneSignal.await();
+        executorService.shutdown();
+
+        assertThat(capturedOutput.toString()).contains("요청이 너무 빠릅니다.");
     }
 
     @Test
