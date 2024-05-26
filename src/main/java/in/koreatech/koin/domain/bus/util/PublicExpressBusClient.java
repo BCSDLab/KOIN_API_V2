@@ -108,7 +108,7 @@ public class PublicExpressBusClient extends ExpressBusClient {
     }
 
     @Override
-    public JsonObject getOpenApiResponse(BusStation depart, BusStation arrival) {
+    protected JsonObject getOpenApiResponse(BusStation depart, BusStation arrival) {
         try {
             URL url = getBusApiURL(depart, arrival);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
