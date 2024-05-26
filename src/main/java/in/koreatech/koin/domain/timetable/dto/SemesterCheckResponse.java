@@ -15,7 +15,9 @@ public record SemesterCheckResponse
         @Schema(description = "유저 id", example = "1", requiredMode = REQUIRED)
         Integer userId,
 
-        @Schema(description = "유저 학기", example = "[20191, 20192]", requiredMode = REQUIRED)
+        @Schema(description = "유저 학기", example = """
+            ["20192", "20201"]
+            """, requiredMode = REQUIRED)
         List<String> semesters
     ) {
 
