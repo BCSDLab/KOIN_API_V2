@@ -21,7 +21,9 @@ import org.testcontainers.utility.DockerImageName;
 
 import in.koreatech.koin.config.TestJpaConfiguration;
 import in.koreatech.koin.config.TestTimeConfig;
-import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
+import in.koreatech.koin.domain.bus.util.CityBusClient;
+import in.koreatech.koin.domain.bus.util.PublicExpressBusClient;
+import in.koreatech.koin.domain.bus.util.TmoneyExpressBusClient;
 import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.shop.model.ShopEventListener;
@@ -42,7 +44,7 @@ public abstract class AcceptanceTest {
     protected int port;
 
     @SpyBean
-    protected CityBusOpenApiClient cityBusOpenApiClient;
+    protected CityBusClient cityBusClient;
 
     @MockBean
     protected OwnerEventListener ownerEventListener;
@@ -55,6 +57,12 @@ public abstract class AcceptanceTest {
 
     @MockBean
     protected CoopEventListener coopEventListener;
+
+    @SpyBean
+    protected PublicExpressBusClient publicExpressBusClient;
+
+    @SpyBean
+    protected TmoneyExpressBusClient tmoneyExpressBusClient;
 
     @Autowired
     private DBInitializer dataInitializer;
