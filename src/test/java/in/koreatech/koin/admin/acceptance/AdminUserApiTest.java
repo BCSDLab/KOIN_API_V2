@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
@@ -271,38 +272,44 @@ public class AdminUserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("관리자가 가입 신청한 사장님 리스트 조회한다 - V2")
     void getNewOwnersAdminV2() {
+
         for (int i = 0; i < 11; i++) {
-            Owner request = Owner.builder()
-                .companyRegistrationNumber("118-80-567" + i)
-                .attachments(List.of(
-                        OwnerAttachment.builder()
-                            .url("https://test.com/사장님_인증사진_1" + i + ".jpg")
-                            .isDeleted(false)
-                            .build(),
-                        OwnerAttachment.builder()
-                            .url("https://test.com/사장님_인증사진_2" + i + ".jpg")
-                            .isDeleted(false)
-                            .build()
-                    )
-                )
-                .grantShop(true)
-                .grantEvent(true)
-                .user(
-                    User.builder()
-                        .password(passwordEncoder.encode("1234"))
-                        .nickname("사장님" + i)
-                        .name("테스트용(인증X)" + i)
-                        .phoneNumber("010-9776-511" + i)
-                        .userType(OWNER)
-                        .gender(MAN)
-                        .email("testchulsu@gmail.com" + i)
-                        .isAuthed(false)
-                        .isDeleted(false)
-                        .build()
-                )
+            User user = User.builder()
+                .password(passwordEncoder.encode("1234"))
+                .nickname("사장님" + i)
+                .name("테스트용(인증X)" + i)
+                .phoneNumber("010-9776-511" + i)
+                .userType(OWNER)
+                .gender(MAN)
+                .email("testchulsu@gmail.com" + i)
+                .isAuthed(false)
+                .isDeleted(false)
                 .build();
 
-            adminOwnerRepository.save(request);
+            Owner owner = Owner.builder()
+                .user(user)
+                .companyRegistrationNumber("118-80-567" + i)
+                .grantShop(true)
+                .grantEvent(true)
+                .attachments(new ArrayList<>())
+                .build();
+
+            OwnerAttachment attachment1 = OwnerAttachment.builder()
+                .url("https://test.com/사장님_인증사진_1" + i + ".jpg")
+                .isDeleted(false)
+                .owner(owner)
+                .build();
+
+            OwnerAttachment attachment2 = OwnerAttachment.builder()
+                .url("https://test.com/사장님_인증사진_2" + i + ".jpg")
+                .isDeleted(false)
+                .owner(owner)
+                .build();
+
+            owner.getAttachments().add(attachment1);
+            owner.getAttachments().add(attachment2);
+
+            adminOwnerRepository.save(owner);
         }
 
         User adminUser = userFixture.코인_운영자();
