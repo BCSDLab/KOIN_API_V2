@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.member.dto.AdminMemberRequest;
+import in.koreatech.koin.admin.member.dto.AdminMemberResponse;
 import in.koreatech.koin.admin.member.dto.AdminMembersResponse;
 import in.koreatech.koin.admin.member.enums.TrackTag;
 import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
@@ -41,5 +42,10 @@ public class AdminMemberService {
         Track track = adminTrackRepository.getByName(request.track());
         Member member = request.toMember(track);
         adminMemberRepository.save(member);
+    }
+
+    public AdminMemberResponse getMember(Integer id) {
+        Member member = adminMemberRepository.getById(id);
+        return AdminMemberResponse.from(member);
     }
 }
