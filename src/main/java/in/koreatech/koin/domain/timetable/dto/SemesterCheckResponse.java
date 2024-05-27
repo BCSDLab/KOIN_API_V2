@@ -10,16 +10,15 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record SemesterCheckResponse
-    (
-        @Schema(description = "유저 id", example = "1", requiredMode = REQUIRED)
-        Integer userId,
+public record SemesterCheckResponse(
+    @Schema(description = "유저 id", example = "1", requiredMode = REQUIRED)
+    Integer userId,
 
-        @Schema(description = "유저 학기", example = """
-            ["20192", "20201"]
-            """, requiredMode = REQUIRED)
-        List<String> semesters
-    ) {
+    @Schema(description = "유저 학기", example = """
+        ["20192", "20201"]
+        """, requiredMode = REQUIRED)
+    List<String> semesters
+) {
 
     public static SemesterCheckResponse of(Integer userId, List<String> semesters) {
         return new SemesterCheckResponse(

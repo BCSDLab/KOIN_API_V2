@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class SemesterService {
 
     private final SemesterRepository semesterRepository;
-    private final TimeTableRepository timeTableRepository;
+    private final TimeTableRepository timetableRepository;
 
     public List<SemesterResponse> getSemesters() {
         return semesterRepository.findAllByOrderBySemesterDesc().stream()
@@ -27,7 +27,7 @@ public class SemesterService {
     }
 
     public SemesterCheckResponse getStudentSemesters(Integer userId) {
-        List<TimeTable> timetables = timeTableRepository.findAllByUserId(userId);
+        List<TimeTable> timetables = timetableRepository.findAllByUserId(userId);
         List<String> semesters = timetables.stream()
             .map(timeTable -> timeTable.getSemester().getSemester())
             .distinct()

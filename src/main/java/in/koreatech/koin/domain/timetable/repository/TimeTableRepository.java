@@ -12,9 +12,9 @@ public interface TimeTableRepository extends Repository<TimeTable, Integer> {
 
     TimeTable save(TimeTable timeTable);
 
-    List<TimeTable> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
-
     List<TimeTable> findAllByUserId(Integer id);
+
+    List<TimeTable> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
 
     Optional<TimeTable> findById(Integer id);
 
