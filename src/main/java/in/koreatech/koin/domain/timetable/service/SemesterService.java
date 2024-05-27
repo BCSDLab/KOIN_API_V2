@@ -29,7 +29,7 @@ public class SemesterService {
     public SemesterCheckResponse getStudentSemesters(Integer userId) {
         List<TimeTable> timetables = timetableRepository.findAllByUserId(userId);
         List<String> semesters = timetables.stream()
-            .map(timeTable -> timeTable.getSemester().getSemester())
+            .map(timetable -> timetable.getSemester().getSemester())
             .distinct()
             .toList();
         return SemesterCheckResponse.of(userId, semesters);
