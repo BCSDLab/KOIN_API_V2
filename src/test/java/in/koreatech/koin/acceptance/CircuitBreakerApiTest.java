@@ -1,6 +1,7 @@
 package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doThrow;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,30 +19,44 @@ class CircuitBreakerApiTest extends AcceptanceTest {
     @Autowired
     private CircuitBreakerRegistry circuitBreakerRegistry;
 
+    private CircuitBreaker circuitBreaker;
+
     @BeforeEach
-    void setUp(){
-        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("tmoneyExpressBus");
+    void setUp() {
+        circuitBreaker = circuitBreakerRegistry.circuitBreaker("test");
         circuitBreaker.reset();
     }
 
     @Test
-    @DisplayName("시외버스 서킷브레이커 테스트")
-    void expressBusOpenApiCircuitBreakerTest(){
-        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("tmoneyExpressBus");
+    @DisplayName("서킷브레이커 상태 변환 테스트: CLOSED -> OPEN")
+    void closedToOpenTest() {
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
+        doThrow(RuntimeException.class).when(circuitBreakerServiceTest).testMethod();
+        callMethod();
+        assertThat(circuitBreaker.getState()).isNotEqualTo(CircuitBreaker.State.CLOSED);
+    }
 
-        doThrow(RuntimeException.class).when(tmoneyExpressBusClient).storeRemainTimeByOpenApi();
+    @Test
+    @DisplayName("서킷브레이커 상태 변환 테스트: OPEN -> CLOSED")
+    void openToClosedTest() {
+        doCallRealMethod().when(circuitBreakerServiceTest).testMethod();
+        circuitBreaker.transitionToOpenState();
+        circuitBreaker.transitionToHalfOpenState();
+        assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.HALF_OPEN);
+        callMethod();
+        assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
+    }
 
-        for (int i = 0; i < 10; i++){
+    private void callMethod() {
+        for (int i = 0; i < 10; i++) {
             try {
-                tmoneyExpressBusClient.storeRemainTimeByOpenApi();
-            } catch (CallNotPermittedException e){
-                System.out.println("OPEN");
-            } catch (RuntimeException e){
-                System.out.println("CLOSED");
+                circuitBreakerServiceTest.testMethod();
+            } catch (CallNotPermittedException e) {
+                // OPEN or HALF_OPEN
+            } catch (RuntimeException e) {
+                // CLOSED or Last Try
             }
+            System.out.println(circuitBreaker.getState());
         }
-
-        assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
     }
 }

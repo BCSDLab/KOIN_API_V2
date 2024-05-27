@@ -28,6 +28,7 @@ import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.shop.model.ShopEventListener;
 import in.koreatech.koin.domain.user.model.StudentEventListener;
+import in.koreatech.koin.service.CircuitBreakerServiceTest;
 import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
@@ -59,10 +60,7 @@ public abstract class AcceptanceTest {
     protected CoopEventListener coopEventListener;
 
     @SpyBean
-    protected PublicExpressBusClient publicExpressBusClient;
-
-    @SpyBean
-    protected TmoneyExpressBusClient tmoneyExpressBusClient;
+    protected CircuitBreakerServiceTest circuitBreakerServiceTest;
 
     @Autowired
     private DBInitializer dataInitializer;
