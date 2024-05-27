@@ -4,6 +4,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalTime;
+import java.util.Map;
 
 import org.hibernate.annotations.Where;
 
@@ -29,7 +30,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "shop_opens")
 @Where(clause = "is_deleted=0")
-public class ShopOpen extends BaseEntity {
+public class ShopOpen extends BaseEntity implements Comparable<ShopOpen> {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -61,6 +62,16 @@ public class ShopOpen extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
+    private static final Map<String, Integer> dayOfWeekOrder = Map.of(
+        "MONDAY", 1,
+        "TUESDAY", 2,
+        "WEDNESDAY", 3,
+        "THURSDAY", 4,
+        "FRIDAY", 5,
+        "SATURDAY", 6,
+        "SUNDAY", 7
+    );
+
     @Builder
     private ShopOpen(
         Shop shop,
@@ -74,5 +85,14 @@ public class ShopOpen extends BaseEntity {
         this.closed = closed;
         this.openTime = openTime;
         this.closeTime = closeTime;
+    }
+
+    @Override
+    public int compareTo(ShopOpen other) {
+        int dayComparison = dayOfWeekOrder.get(this.dayOfWeek).compareTo(dayOfWeekOrder.get(other.dayOfWeek));
+        if (dayComparison != 0) {
+            return dayComparison;
+        }
+        return this.openTime.compareTo(other.openTime);
     }
 }
