@@ -233,37 +233,42 @@ public final class UserFixture {
     }
 
     public Owner 원경_사장님() {
-        return ownerRepository.save(
-            Owner.builder()
-                .companyRegistrationNumber("123-45-67180")
-                .attachments(List.of(
-                        OwnerAttachment.builder()
-                            .url("https://test.com/원경_사장님_인증사진_1.jpg")
-                            .isDeleted(false)
-                            .build(),
-                        OwnerAttachment.builder()
-                            .url("https://test.com/원경_사장님_인증사진_2.jpg")
-                            .isDeleted(false)
-                            .build()
-                    )
-                )
-                .grantShop(true)
-                .grantEvent(true)
-                .user(
-                    User.builder()
-                        .password(passwordEncoder.encode("1234"))
-                        .nickname("원경")
-                        .name("테스트용_원경(전화번호 - 삭제)")
-                        .phoneNumber("01024607469")
-                        .userType(OWNER)
-                        .gender(MAN)
-                        .email("wongyeong@naver.com")
-                        .isAuthed(true)
-                        .isDeleted(false)
-                        .build()
-                )
-                .build()
-        );
+        User user = User.builder()
+            .password(passwordEncoder.encode("1234"))
+            .nickname("원경")
+            .name("테스트용_원경(전화번호 - 없음")
+            .phoneNumber("01024607469")
+            .userType(OWNER)
+            .gender(MAN)
+            .email("wongyeong@naver.com")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        Owner owner = Owner.builder()
+            .user(user)
+            .companyRegistrationNumber("123-45-67890")
+            .grantShop(true)
+            .grantEvent(true)
+            .attachments(new ArrayList<>())
+            .build();
+
+        OwnerAttachment attachment1 = OwnerAttachment.builder()
+            .url("https://test.com/원경_사장님_인증사진_1.jpg")
+            .isDeleted(false)
+            .owner(owner)
+            .build();
+
+        OwnerAttachment attachment2 = OwnerAttachment.builder()
+            .url("https://test.com/원경_사장님_인증사진_2.jpg")
+            .isDeleted(false)
+            .owner(owner)
+            .build();
+
+        owner.getAttachments().add(attachment1);
+        owner.getAttachments().add(attachment2);
+
+        return ownerRepository.save(owner);
     }
 
     public User 준기_영양사() {
