@@ -20,10 +20,16 @@ import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
+import in.koreatech.koin.domain.user.dto.CoopLoginRequest;
+import in.koreatech.koin.domain.user.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.OwnerLoginRequest;
+import in.koreatech.koin.domain.user.dto.OwnerLoginResponse;
+import in.koreatech.koin.domain.user.dto.StudentLoginRequest;
+import in.koreatech.koin.domain.user.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
@@ -80,6 +86,33 @@ public class UserController implements UserApi {
         @RequestBody @Valid UserLoginRequest request
     ) {
         UserLoginResponse response = userService.login(request);
+        return ResponseEntity.created(URI.create("/"))
+            .body(response);
+    }
+
+    @PostMapping("/student/login")
+    public ResponseEntity<StudentLoginResponse> studentLogin(
+        @RequestBody @Valid StudentLoginRequest request
+    ) {
+        StudentLoginResponse response = userService.studentLogin(request);
+        return ResponseEntity.created(URI.create("/"))
+            .body(response);
+    }
+
+    @PostMapping("/owner/login")
+    public ResponseEntity<OwnerLoginResponse> ownerLogin(
+        @RequestBody @Valid OwnerLoginRequest request
+    ) {
+        OwnerLoginResponse response = userService.ownerLogin(request);
+        return ResponseEntity.created(URI.create("/"))
+            .body(response);
+    }
+
+    @PostMapping("/coop/login")
+    public ResponseEntity<CoopLoginResponse> coopLogin(
+        @RequestBody @Valid CoopLoginRequest request
+    ) {
+        CoopLoginResponse response = userService.coopLogin(request);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }

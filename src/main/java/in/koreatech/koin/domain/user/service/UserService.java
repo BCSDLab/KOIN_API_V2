@@ -13,11 +13,15 @@ import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
+import in.koreatech.koin.domain.user.dto.CoopLoginRequest;
+import in.koreatech.koin.domain.user.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.OwnerLoginRequest;
 import in.koreatech.koin.domain.user.dto.OwnerLoginResponse;
+import in.koreatech.koin.domain.user.dto.StudentLoginRequest;
+import in.koreatech.koin.domain.user.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
@@ -75,7 +79,28 @@ public class UserService {
     }
 
     @Transactional
-    public OwnerLoginResponse loginOwner(OwnerLoginRequest request) {
+    public StudentLoginResponse studentLogin(StudentLoginRequest request) {
+        User user = userRepository.getByEmail(request.email());
+
+        if (!user.isSamePassword(passwordEncoder, request.password())) {
+            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+
+        if (!user.isAuthed()) {
+            throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
+        }
+
+        String accessToken = jwtProvider.createToken(user);
+        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
+        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        user.updateLastLoggedTime(LocalDateTime.now());
+        User saved = userRepository.save(user);
+
+        return StudentLoginResponse.of(accessToken, savedToken.getRefreshToken(), saved.getUserType().getValue());
+    }
+
+    @Transactional
+    public OwnerLoginResponse ownerLogin(OwnerLoginRequest request) {
         User user = userRepository.getByPhoneNumber(request.phoneNumber(), UserType.OWNER);
 
         if (!user.isSamePassword(passwordEncoder, request.password())) {
@@ -93,6 +118,23 @@ public class UserService {
         User saved = userRepository.save(user);
 
         return OwnerLoginResponse.of(accessToken, savedToken.getRefreshToken(), saved.getUserType().getValue());
+    }
+
+    @Transactional
+    public CoopLoginResponse coopLogin(CoopLoginRequest request) {
+        User user = userRepository.getById(request.id(), UserType.COOP);
+
+        if (!user.isSamePassword(passwordEncoder, request.password())) {
+            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+
+        String accessToken = jwtProvider.createToken(user);
+        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
+        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        user.updateLastLoggedTime(LocalDateTime.now());
+        User saved = userRepository.save(user);
+
+        return CoopLoginResponse.of(accessToken, savedToken.getRefreshToken(), saved.getUserType().getValue());
     }
 
     @Transactional
