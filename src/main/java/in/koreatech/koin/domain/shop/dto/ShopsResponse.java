@@ -66,7 +66,7 @@ public record ShopsResponse(
                 shop.isDelivery(),
                 shop.getId(),
                 shop.getName(),
-                shop.getShopOpens().stream().map(InnerShopOpen::from).toList(),
+                shop.getShopOpens().stream().sorted().map(InnerShopOpen::from).toList(),
                 shop.isPayBank(),
                 shop.isPayCard(),
                 shop.getPhone(),

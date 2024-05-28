@@ -58,7 +58,7 @@ public class CityBusOpenApiClient {
     private final CityBusCacheRepository cityBusCacheRepository;
 
     public CityBusOpenApiClient(
-        @Value("${OPEN_API_KEY}") String openApiKey,
+        @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
         Gson gson,
         Clock clock,
         VersionRepository versionRepository,

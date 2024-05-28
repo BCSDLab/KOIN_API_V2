@@ -15,7 +15,7 @@ import lombok.Getter;
 @RedisHash(value = "expressBus")
 public class ExpressBusCache {
 
-    private static final long CACHE_EXPIRE_HOUR = 2L;
+    private static final long CACHE_EXPIRE_HOUR = 48L;
 
     @Id
     private String id;

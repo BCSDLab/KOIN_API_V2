@@ -12,9 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 public class BusScheduler {
 
     private final CityBusOpenApiClient cityBusOpenApiClient;
-    private final ExpressBusOpenApiClient expressBusOpenApiClient;
+    private final TmoneyExpressBusOpenApiClient tmoneyExpressBusOpenApiClient;
 
-    @Scheduled(cron = "0 */1 * * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void cacheCityBusByOpenApi() {
         try {
             cityBusOpenApiClient.storeRemainTimeByOpenApi();
@@ -23,13 +23,12 @@ public class BusScheduler {
         }
     }
 
-    // TODO: 시외버스 Open API 복구되면 주석 해제
-/*    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 30 0 * * *")
     public void cacheExpressBusByOpenApi() {
         try {
-            expressBusOpenApiClient.storeRemainTimeByOpenApi();
+            tmoneyExpressBusOpenApiClient.storeRemainTimeByOpenApi();
         } catch (Exception e) {
             log.warn("시외버스 스케줄링 과정에서 오류가 발생했습니다.");
         }
-    }*/
+    }
 }

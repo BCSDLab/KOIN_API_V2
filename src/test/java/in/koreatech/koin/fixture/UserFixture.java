@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
 import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,71 +115,121 @@ public final class UserFixture {
     }
 
     public Owner 현수_사장님() {
-        return ownerRepository.save(
-            Owner.builder()
-                .companyRegistrationNumber("123-45-67190")
-                .attachments(List.of(
-                        OwnerAttachment.builder()
-                            .url("https://test.com/현수_사장님_인증사진_1.jpg")
-                            .isDeleted(false)
-                            .build(),
-                        OwnerAttachment.builder()
-                            .url("https://test.com/현수_사장님_인증사진_2.jpg")
-                            .isDeleted(false)
-                            .build()
-                    )
-                )
-                .grantShop(true)
-                .grantEvent(true)
-                .user(
-                    User.builder()
-                        .password(passwordEncoder.encode("1234"))
-                        .nickname("현수")
-                        .name("테스트용_현수")
-                        .phoneNumber("010-9876-5432")
-                        .userType(OWNER)
-                        .gender(MAN)
-                        .email("hysoo@naver.com")
-                        .isAuthed(true)
-                        .isDeleted(false)
-                        .build()
-                )
-                .build()
-        );
+        User user = User.builder()
+            .password(passwordEncoder.encode("1234"))
+            .nickname("현수")
+            .name("테스트용_현수")
+            .phoneNumber("010-9876-5432")
+            .userType(OWNER)
+            .gender(MAN)
+            .email("hysoo@naver.com")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        Owner owner = Owner.builder()
+            .user(user)
+            .companyRegistrationNumber("123-45-67190")
+            .grantShop(true)
+            .grantEvent(true)
+            .attachments(new ArrayList<>())
+            .build();
+
+        OwnerAttachment attachment1 = OwnerAttachment.builder()
+            .url("https://test.com/현수_사장님_인증사진_1.jpg")
+            .isDeleted(false)
+            .owner(owner)
+            .build();
+
+        OwnerAttachment attachment2 = OwnerAttachment.builder()
+            .url("https://test.com/현수_사장님_인증사진_2.jpg")
+            .isDeleted(false)
+            .owner(owner)
+            .build();
+
+        owner.getAttachments().add(attachment1);
+        owner.getAttachments().add(attachment2);
+
+        return ownerRepository.save(owner);
     }
 
     public Owner 준영_사장님() {
-        return ownerRepository.save(
-            Owner.builder()
-                .companyRegistrationNumber("112-80-56789")
-                .attachments(List.of(
-                        OwnerAttachment.builder()
-                            .url("https://test.com/준영_사장님_인증사진_1.jpg")
-                            .isDeleted(false)
-                            .build(),
-                        OwnerAttachment.builder()
-                            .url("https://test.com/준영_사장님_인증사진_2.jpg")
-                            .isDeleted(false)
-                            .build()
-                    )
-                )
-                .grantShop(true)
-                .grantEvent(true)
-                .user(
-                    User.builder()
-                        .password(passwordEncoder.encode("1234"))
-                        .nickname("준영")
-                        .name("테스트용_준영")
-                        .phoneNumber("010-9776-5112")
-                        .userType(OWNER)
-                        .gender(MAN)
-                        .email("testjoonyoung@gmail.com")
-                        .isAuthed(true)
-                        .isDeleted(false)
-                        .build()
-                )
-                .build()
-        );
+        User user = User.builder()
+            .password(passwordEncoder.encode("1234"))
+            .nickname("준영")
+            .name("테스트용_준영")
+            .phoneNumber("010-9776-5112")
+            .userType(OWNER)
+            .gender(MAN)
+            .email("testjoonyoung@gmail.com")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        Owner owner = Owner.builder()
+            .user(user)
+            .companyRegistrationNumber("112-80-56789")
+            .grantShop(true)
+            .grantEvent(true)
+            .attachments(new ArrayList<>())
+            .build();
+
+        OwnerAttachment attachment1 = OwnerAttachment.builder()
+            .url("https://test.com/준영_사장님_인증사진_1.jpg")
+            .isDeleted(false)
+            .owner(owner)
+            .build();
+
+        OwnerAttachment attachment2 = OwnerAttachment.builder()
+            .url("https://test.com/준영_사장님_인증사진_2.jpg")
+            .isDeleted(false)
+            .owner(owner)
+            .build();
+
+        owner.getAttachments().add(attachment1);
+        owner.getAttachments().add(attachment2);
+
+        return ownerRepository.save(owner);
+
+    }
+
+    public Owner 철수_사장님() {
+        User user = User.builder()
+            .password(passwordEncoder.encode("1234"))
+            .nickname("철수")
+            .name("테스트용_철수(인증X)")
+            .phoneNumber("010-9776-5112")
+            .userType(OWNER)
+            .gender(MAN)
+            .email("testchulsu@gmail.com")
+            .isAuthed(false)
+            .isDeleted(false)
+            .build();
+
+        Owner owner = Owner.builder()
+            .user(user)
+            .companyRegistrationNumber("118-80-56789")
+            .grantShop(true)
+            .grantEvent(true)
+            .attachments(new ArrayList<>())
+            .build();
+
+        OwnerAttachment attachment1 = OwnerAttachment.builder()
+            .url("https://test.com/철수_사장님_인증사진_1.jpg")
+            .isDeleted(false)
+            .owner(owner)
+            .build();
+
+        OwnerAttachment attachment2 = OwnerAttachment.builder()
+            .url("https://test.com/철수_사장님_인증사진_2.jpg")
+            .isDeleted(false)
+            .owner(owner)
+            .build();
+
+        owner.getAttachments().add(attachment1);
+        owner.getAttachments().add(attachment2);
+
+        return ownerRepository.save(owner);
     }
 
     public Owner 철수_사장님() {
