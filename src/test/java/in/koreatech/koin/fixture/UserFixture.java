@@ -269,7 +269,7 @@ public final class UserFixture {
     public Owner 원경_사장님() {
         return ownerRepository.save(
             Owner.builder()
-                .companyRegistrationNumber("123-45-67190")
+                .companyRegistrationNumber("123-45-67180")
                 .attachments(List.of(
                         OwnerAttachment.builder()
                             .url("https://test.com/원경_사장님_인증사진_1.jpg")
@@ -288,7 +288,7 @@ public final class UserFixture {
                         .password(passwordEncoder.encode("1234"))
                         .nickname("원경")
                         .name("테스트용_원경(전화번호 - 삭제)")
-                        .phoneNumber("01098765432")
+                        .phoneNumber("01024607469")
                         .userType(OWNER)
                         .gender(MAN)
                         .email("wongyeong@naver.com")
