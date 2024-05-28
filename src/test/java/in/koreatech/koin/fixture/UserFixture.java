@@ -232,40 +232,6 @@ public final class UserFixture {
         return ownerRepository.save(owner);
     }
 
-    public Owner 철수_사장님() {
-        return ownerRepository.save(
-            Owner.builder()
-                .companyRegistrationNumber("118-80-56789")
-                .attachments(List.of(
-                        OwnerAttachment.builder()
-                            .url("https://test.com/철수_사장님_인증사진_1.jpg")
-                            .isDeleted(false)
-                            .build(),
-                        OwnerAttachment.builder()
-                            .url("https://test.com/철수_사장님_인증사진_2.jpg")
-                            .isDeleted(false)
-                            .build()
-                    )
-                )
-                .grantShop(true)
-                .grantEvent(true)
-                .user(
-                    User.builder()
-                        .password(passwordEncoder.encode("1234"))
-                        .nickname("철수")
-                        .name("테스트용_철수(인증X)")
-                        .phoneNumber("010-9776-5112")
-                        .userType(OWNER)
-                        .gender(MAN)
-                        .email("testchulsu@gmail.com")
-                        .isAuthed(false)
-                        .isDeleted(false)
-                        .build()
-                )
-                .build()
-        );
-    }
-
     public Owner 원경_사장님() {
         return ownerRepository.save(
             Owner.builder()
