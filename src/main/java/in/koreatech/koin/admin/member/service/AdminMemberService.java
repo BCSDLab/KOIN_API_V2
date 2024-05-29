@@ -44,8 +44,14 @@ public class AdminMemberService {
         adminMemberRepository.save(member);
     }
 
-    public AdminMemberResponse getMember(Integer id) {
-        Member member = adminMemberRepository.getById(id);
+    public AdminMemberResponse getMember(Integer memberId) {
+        Member member = adminMemberRepository.getById(memberId);
         return AdminMemberResponse.from(member);
+    }
+
+    @Transactional
+    public void deleteMember(Integer memberId) {
+        Member member = adminMemberRepository.getById(memberId);
+        member.delete();
     }
 }
