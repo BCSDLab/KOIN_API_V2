@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
 public record OwnerLoginRequest(
-    @Schema(description = "전화번호", example = "01024607469", requiredMode = REQUIRED)
+    @Schema(description = "전화번호", example = "01012345678", requiredMode = REQUIRED)
     @NotBlank(message = "전화번호를 입력해주세요.")
     String phoneNumber,
 
