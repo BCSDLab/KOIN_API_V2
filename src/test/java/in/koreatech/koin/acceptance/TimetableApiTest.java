@@ -58,6 +58,7 @@ class TimetableApiTest extends AcceptanceTest {
             .isEqualTo("""
                 [
                     {
+                        "id" : 1,
                         "code": "BSM590",
                         "name": "컴퓨팅사고",
                         "grades": "3",
@@ -98,6 +99,7 @@ class TimetableApiTest extends AcceptanceTest {
             .isEqualTo("""
                 [
                     {
+                        "id" : 1,
                         "code": "BSM590",
                         "name": "컴퓨팅사고",
                         "grades": "3",
@@ -114,6 +116,7 @@ class TimetableApiTest extends AcceptanceTest {
                         ]
                     },
                     {
+                        "id" : 2,
                         "code": "ARB244",
                         "name": "건축구조의 이해 및 실습",
                         "grades": "3",
@@ -130,6 +133,7 @@ class TimetableApiTest extends AcceptanceTest {
                         ]
                     },
                     {
+                        "id" : 3,
                         "code": "MEB311",
                         "name": "재료역학",
                         "grades": "3",
