@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -53,8 +55,24 @@ public interface AdminTrackApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/techStacks")
     ResponseEntity<AdminTechStackResponse> createTechStack(
-        @RequestBody @Valid AdminTechStackRequest techStackRequest,
+        @RequestBody @Valid AdminTechStackRequest request,
         @RequestParam(value = "trackName") String trackName,
         @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "기술스택 수정")
+    @PutMapping("/admin/techStacks/{id}")
+    ResponseEntity<AdminTechStackResponse> updateTechStack(
+        @RequestBody @Valid AdminTechStackRequest request,
+        @RequestParam(value = "trackName") String trackName,
+        @PathVariable("id") Integer techStackId
     );
 }

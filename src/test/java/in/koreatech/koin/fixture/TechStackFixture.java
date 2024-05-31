@@ -22,6 +22,7 @@ public class TechStackFixture {
                 .trackId(track.getId())
                 .name("Java")
                 .description("Language")
+                .isDeleted(false)
                 .build()
         );
     }

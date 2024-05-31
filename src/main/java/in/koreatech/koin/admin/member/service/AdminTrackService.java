@@ -35,4 +35,19 @@ public class AdminTrackService {
         TechStack savedTechStack = adminTechStackRepository.save(techStack);
         return AdminTechStackResponse.from(savedTechStack);
     }
+
+    public AdminTechStackResponse updateTechStack(AdminTechStackRequest request, String trackName,
+        Integer techStackId) {
+        TechStack techStack = adminTechStackRepository.getById(techStackId);
+        Integer id = techStack.getTrackId();
+
+        if (trackName != null) {
+            Track track = adminTrackRepository.getByName(trackName);
+            id = track.getId();
+        }
+        techStack.update(id, request);
+
+        TechStack updatedTechStack = adminTechStackRepository.save(techStack);
+        return AdminTechStackResponse.from(updatedTechStack);
+    }
 }

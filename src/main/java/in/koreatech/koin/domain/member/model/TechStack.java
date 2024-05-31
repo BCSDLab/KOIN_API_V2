@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.member.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.admin.member.dto.AdminTechStackRequest;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,11 +50,21 @@ public class TechStack extends BaseEntity {
         String imageUrl,
         String name,
         String description,
-        Integer trackId
+        Integer trackId,
+        boolean isDeleted
     ) {
         this.imageUrl = imageUrl;
+        this.trackId = trackId;
         this.name = name;
         this.description = description;
+        this.isDeleted = isDeleted;
+    }
+
+    public void update(Integer trackId, AdminTechStackRequest request) {
+        this.imageUrl = request.imageUrl();
         this.trackId = trackId;
+        this.name = request.name();
+        this.description = request.description();
+        this.isDeleted = request.isDeleted();
     }
 }
