@@ -15,6 +15,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record LectureResponse(
 
+    @Schema(name = "과목 id", example = "1", requiredMode = REQUIRED)
+    Integer id,
+
     @Schema(name = "과목 코드", example = "ARB244", requiredMode = REQUIRED)
     String code,
 
@@ -54,6 +57,7 @@ public record LectureResponse(
 
     public static LectureResponse from(Lecture lecture) {
         return new LectureResponse(
+            lecture.getId(),
             lecture.getCode(),
             lecture.getName(),
             lecture.getGrades(),
