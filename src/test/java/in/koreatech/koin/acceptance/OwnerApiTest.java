@@ -231,7 +231,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "company_number": "012-34-56789",
                        "name": "최준호",
                        "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-1234-1234",
+                       "phone_number": "01012341234",
                        "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }
@@ -250,8 +250,8 @@ class OwnerApiTest extends AcceptanceTest {
                         softly -> {
                             softly.assertThat(owner).isNotNull();
                             softly.assertThat(owner.getUser().getName()).isEqualTo("최준호");
-                            softly.assertThat(owner.getUser().getEmail()).isEqualTo("010-1234-1234");
-                            softly.assertThat(owner.getUser().getPhoneNumber()).isEqualTo("010-1234-1234");
+                            softly.assertThat(owner.getUser().getEmail()).isEqualTo("01012341234");
+                            softly.assertThat(owner.getUser().getPhoneNumber()).isEqualTo("01012341234");
                             softly.assertThat(owner.getCompanyRegistrationNumber()).isEqualTo("012-34-56789");
                             softly.assertThat(owner.getAttachments().size()).isEqualTo(1);
                             softly.assertThat(owner.getAttachments().get(0).getUrl())
