@@ -48,14 +48,14 @@ public class TimeTableFrame extends BaseEntity {
     private String name;
 
     @NotNull
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "is_main", nullable = false)
+    private boolean isMain;
 
     @Builder
-    private TimeTableFrame(User user, Semester semester, String name, boolean isDeleted) {
+    private TimeTableFrame(User user, Semester semester, String name) {
         this.user = user;
         this.semester = semester;
         this.name = name;
-        this.isDeleted = isDeleted;
+        this.isMain = isMain();
     }
 }
