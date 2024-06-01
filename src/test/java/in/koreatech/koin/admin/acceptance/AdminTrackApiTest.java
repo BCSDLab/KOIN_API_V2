@@ -171,7 +171,7 @@ public class AdminTrackApiTest extends AcceptanceTest {
                     "id": 1,
                     "image_url": "http://java.com",
                     "name": "JAVA",
-                    "description": "자바는 BackEnd에서 주로 쓰는 언어이다.",
+                    "description": "java의 TrackID를 BackEnd로 수정한다.",
                     "track_id": 2,
                     "is_deleted": true,
                     "created_at": "2024-01-15 12:00:00",
