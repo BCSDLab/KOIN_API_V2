@@ -115,20 +115,4 @@ public interface TimetableApi {
         @RequestBody TimeTableUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "204", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "시간표 삭제")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/timetables")
-    ResponseEntity<Void> deleteTimeTableById(
-        @RequestParam(value = "id") Integer id,
-        @Auth(permit = {STUDENT}) Integer userId
-    );
 }

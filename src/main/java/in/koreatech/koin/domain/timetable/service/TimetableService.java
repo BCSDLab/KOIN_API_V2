@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.model.TimeTable;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
+import in.koreatech.koin.domain.timetable.repository.TimeTableLectureRepository;
 import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -64,12 +65,6 @@ public class TimetableService {
             timeTable.update(timeTableRequest);
         }
         return getTimeTableResponse(userId, semester);
-    }
-
-    @Transactional
-    public void deleteTimeTable(Integer id) {
-        TimeTable timeTable = timeTableRepository.getById(id);
-        timeTable.updateIsDeleted(true);
     }
 
     private TimeTableResponse getTimeTableResponse(Integer userId, Semester semester) {
