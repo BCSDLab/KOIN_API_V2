@@ -160,7 +160,8 @@ public class AdminMemberApiTest extends AcceptanceTest {
     @Test
     @DisplayName("BCSDLab 회원 정보를 삭제한다")
     void deleteMember() {
-        memberFixture.최준호(trackFixture.backend());
+        Member member = memberFixture.최준호(trackFixture.backend());
+        Integer memberId = member.getId();
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
@@ -169,13 +170,13 @@ public class AdminMemberApiTest extends AcceptanceTest {
             .given()
             .header("Authorization", "Bearer " + token)
             .when()
-            .delete("/admin/members/{id}", 1)
+            .delete("/admin/members/{id}", memberId)
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
 
-        Member savedMember = adminMemberRepository.getByName("최준호");
+        Member savedMember = adminMemberRepository.getById(memberId);
 
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(savedMember.getName()).isEqualTo("최준호");
