@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.member.model.TechStack;
+import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.TechStackFixture;
 import in.koreatech.koin.fixture.TrackFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
@@ -18,6 +21,9 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Autowired
     private TrackFixture trackFixture;
+
+    @Autowired
+    private TechStackFixture techStackFixture;
 
     @Autowired
     private UserFixture userFixture;
@@ -95,7 +101,7 @@ public class AdminTrackApiTest extends AcceptanceTest {
         String token = userFixture.getToken(adminUser);
 
         trackFixture.frontend();
-        String backEndName = trackFixture.backend().getName();
+        Track backEnd = trackFixture.backend();
 
         var response = RestAssured
             .given()
@@ -110,7 +116,7 @@ public class AdminTrackApiTest extends AcceptanceTest {
                 }
                 """)
             .when()
-            .queryParam("trackName", backEndName)
+            .queryParam("trackName", backEnd.getName())
             .post("/admin/techStacks")
             .then()
             .statusCode(HttpStatus.OK.value())
@@ -125,6 +131,49 @@ public class AdminTrackApiTest extends AcceptanceTest {
                     "description": "스프링은 웹 프레임워크이다",
                     "track_id": 2,
                     "is_deleted": false,
+                    "created_at": "2024-01-15 12:00:00",
+                    "updated_at": "2024-01-15 12:00:00"
+                }
+                """);
+    }
+
+    @Test
+    @DisplayName("관리자가 BCSDLab 기술스택 정보를 수정한다")
+    void updateTechStack() {
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        TechStack java = techStackFixture.java(trackFixture.frontend());
+        Track backEnd = trackFixture.backend();
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType("application/json")
+            .body("""
+                {
+                    "image_url": "http://java.com",
+                    "name": "JAVA",
+                    "description": "자바는 BackEnd에서 주로 쓰는 언어이다.",
+                    "is_deleted": true
+                }
+                """)
+            .when()
+            .queryParam("trackName", backEnd.getName())
+            .put("/admin/techStacks/{id}", java.getId())
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "id": 1,
+                    "image_url": "http://java.com",
+                    "name": "JAVA",
+                    "description": "자바는 BackEnd에서 주로 쓰는 언어이다.",
+                    "track_id": 2,
+                    "is_deleted": true,
                     "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
