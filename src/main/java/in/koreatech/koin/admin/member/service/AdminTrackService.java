@@ -39,14 +39,14 @@ public class AdminTrackService {
     public AdminTechStackResponse updateTechStack(AdminTechStackRequest request, String trackName,
         Integer techStackId) {
         TechStack techStack = adminTechStackRepository.getById(techStackId);
-        Integer id = techStack.getTrackId();
 
+        Integer id = techStack.getTrackId();
         if (trackName != null) {
             Track track = adminTrackRepository.getByName(trackName);
             id = track.getId();
         }
-        techStack.update(id, request);
 
+        techStack.update(id, request);
         TechStack updatedTechStack = adminTechStackRepository.save(techStack);
         return AdminTechStackResponse.from(updatedTechStack);
     }

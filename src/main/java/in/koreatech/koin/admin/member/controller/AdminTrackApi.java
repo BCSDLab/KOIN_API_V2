@@ -69,10 +69,12 @@ public interface AdminTrackApi {
         }
     )
     @Operation(summary = "기술스택 수정")
+    @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/admin/techStacks/{id}")
     ResponseEntity<AdminTechStackResponse> updateTechStack(
         @RequestBody @Valid AdminTechStackRequest request,
         @RequestParam(value = "trackName") String trackName,
-        @PathVariable("id") Integer techStackId
+        @PathVariable("id") Integer techStackId,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 }
