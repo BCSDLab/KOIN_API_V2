@@ -10,13 +10,15 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.timetable.model.TimeTable;
+import in.koreatech.koin.domain.timetable.model.Semester;
+import in.koreatech.koin.domain.timetable.model.TimetableFrame;
+import in.koreatech.koin.domain.timetable.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record TimeTableResponse(
+public record TimetableResponse(
     @Schema(name = "학기", example = "20241", requiredMode = REQUIRED)
-    String semester,
+    Semester semester,
 
     @Schema(name = "시간표 상세정보")
     List<InnerTimeTableResponse> timetable,
@@ -70,22 +72,22 @@ public record TimeTableResponse(
         String department
     ) {
 
-        public static List<InnerTimeTableResponse> from(List<TimeTable> timeTables) {
-            return timeTables.stream()
-                .map(it -> new InnerTimeTableResponse(
-                        it.getId(),
-                        it.getRegularNumber(),
-                        it.getCode(),
-                        it.getDesignScore(),
-                        parseIntegerClassTimesFromString(it.getClassTime()),
-                        it.getClassPlace(),
-                        it.getMemo(),
-                        it.getGrades(),
-                        it.getClassTitle(),
-                        it.getLectureClass(),
-                        it.getTarget(),
-                        it.getProfessor(),
-                        it.getDepartment()
+        public static List<InnerTimeTableResponse> from(List<TimetableLecture> timeTableLectures) {
+            return timeTableLectures.stream()
+                .map(timeTableLecture -> new InnerTimeTableResponse(
+                        timeTableLecture.getId(),
+                        timeTableLecture.getLecture().getRegularNumber(),
+                        timeTableLecture.getLecture().getCode(),
+                        timeTableLecture.getLecture().getDesignScore(),
+                        parseIntegerClassTimesFromString(timeTableLecture.getClassTime()),
+                        timeTableLecture.getClassPlace(),
+                        timeTableLecture.getMemo(),
+                        timeTableLecture.getLecture().getGrades(),
+                        timeTableLecture.getClassName(),
+                        timeTableLecture.getLecture().getLectureClass(),
+                        timeTableLecture.getLecture().getTarget(),
+                        timeTableLecture.getProfessor(),
+                        timeTableLecture.getLecture().getDepartment()
                     )
                 )
                 .toList();
@@ -93,11 +95,10 @@ public record TimeTableResponse(
 
     }
 
-    public static TimeTableResponse of(String semester, List<TimeTable> timeTables, Integer grades,
-        Integer totalGrades) {
-        return new TimeTableResponse(
-            semester,
-            InnerTimeTableResponse.from(timeTables),
+    public static TimetableResponse of(List<TimetableLecture> timeTableLectures, TimetableFrame timeTableFrame, Integer grades, Integer totalGrades) {
+        return new TimetableResponse(
+            timeTableFrame.getSemester(),
+            InnerTimeTableResponse.from(timeTableLectures),
             grades,
             totalGrades
         );

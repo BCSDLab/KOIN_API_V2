@@ -7,9 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetable.dto.SemesterCheckResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
-import in.koreatech.koin.domain.timetable.model.TimeTable;
+import in.koreatech.koin.domain.timetable.model.TimetableFrame;
 import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
-import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
+import in.koreatech.koin.domain.timetable.repository.TimetableFrameRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class SemesterService {
 
     private final SemesterRepository semesterRepository;
-    private final TimeTableRepository timetableRepository;
+    private final TimetableFrameRepository timetableFrameRepository;
 
     public List<SemesterResponse> getSemesters() {
         return semesterRepository.findAllByOrderBySemesterDesc().stream()
@@ -27,9 +27,9 @@ public class SemesterService {
     }
 
     public SemesterCheckResponse getStudentSemesters(Integer userId) {
-        List<TimeTable> timetables = timetableRepository.findAllByUserId(userId);
-        List<String> semesters = timetables.stream()
-            .map(timetable -> timetable.getSemester().getSemester())
+        List<TimetableFrame> timeTableFrames = timetableFrameRepository.findAllByUserId(userId);
+        List<String> semesters = timeTableFrames.stream()
+            .map(timeTableFrame -> timeTableFrame.getSemester().getSemester())
             .distinct()
             .toList();
         return SemesterCheckResponse.of(userId, semesters);

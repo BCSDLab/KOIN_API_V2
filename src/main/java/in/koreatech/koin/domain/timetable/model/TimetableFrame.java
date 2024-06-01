@@ -3,8 +3,6 @@ package in.koreatech.koin.domain.timetable.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import org.hibernate.annotations.Where;
-
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -24,9 +22,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "timetable_frame")
-@Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
-public class TimeTableFrame extends BaseEntity {
+public class TimetableFrame extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -52,7 +49,7 @@ public class TimeTableFrame extends BaseEntity {
     private boolean isMain;
 
     @Builder
-    private TimeTableFrame(User user, Semester semester, String name) {
+    private TimetableFrame(User user, Semester semester, String name) {
         this.user = user;
         this.semester = semester;
         this.name = name;
