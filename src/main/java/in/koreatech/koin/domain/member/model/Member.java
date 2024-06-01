@@ -4,7 +4,6 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.admin.member.exception.MemberAlreadyDeletedException;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -82,9 +81,6 @@ public class Member extends BaseEntity {
     }
 
     public void delete() {
-        if (this.isDeleted) {
-            throw new MemberAlreadyDeletedException("id: " + id);
-        }
         this.isDeleted = true;
     }
 }
