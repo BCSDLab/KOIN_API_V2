@@ -55,6 +55,8 @@ public record OwnerShopsRequest(
     String name,
 
     @Schema(description = "요일별 운영 시간과 휴무 여부", requiredMode = REQUIRED)
+    @Size(min = 7, max = 7, message = "The list must contain exactly 7 elements.")
+    @NotNull
     List<InnerOpenRequest> open,
 
     @Schema(description = "계좌 이체 가능 여부", example = "true", requiredMode = REQUIRED)
