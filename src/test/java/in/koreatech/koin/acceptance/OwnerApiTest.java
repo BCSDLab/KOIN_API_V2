@@ -58,6 +58,29 @@ class OwnerApiTest extends AcceptanceTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
+    @DisplayName("사장님이 로그인을 진행한다")
+    void ownerLogin() {
+        Owner owner = userFixture.원경_사장님();
+        String phoneNumber = owner.getUser().getPhoneNumber();
+        String password = "1234";
+
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "phoneNumber" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(phoneNumber, password))
+            .when()
+            .post("/owner/login")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+    }
+
+    @Test
     @DisplayName("로그인된 사장님 정보를 조회한다.")
     void getOwner() {
         // given
