@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.dto;
+package in.koreatech.koin.domain.owner.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -17,21 +17,10 @@ public record OwnerLoginResponse(
 
     @Schema(description = "Random UUID refresh token", example = "RANDOM-KEY-VALUE", requiredMode = REQUIRED)
     @JsonProperty("refresh_token")
-    String refreshToken,
-
-    @Schema(
-        description = """
-            로그인한 회원의 신원
-            - `STUDENT`: 학생
-            - `OWNER`: 사장님
-            - `COOP` : 영양사
-            """, example = "OWNER", requiredMode = REQUIRED
-    )
-    @JsonProperty("user_type")
-    String userType
+    String refreshToken
 ) {
 
-    public static OwnerLoginResponse of(String token, String refreshToken, String userType) {
-        return new OwnerLoginResponse(token, refreshToken, userType);
+    public static OwnerLoginResponse of(String token, String refreshToken) {
+        return new OwnerLoginResponse(token, refreshToken);
     }
 }

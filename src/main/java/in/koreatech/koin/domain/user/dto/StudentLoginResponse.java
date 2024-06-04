@@ -17,21 +17,10 @@ public record StudentLoginResponse(
 
     @Schema(description = "Random UUID refresh token", example = "RANDOM-KEY-VALUE", requiredMode = REQUIRED)
     @JsonProperty("refresh_token")
-    String refreshToken,
-
-    @Schema(
-        description = """
-            로그인한 회원의 신원
-            - `STUDENT`: 학생
-            - `OWNER`: 사장님
-            - `COOP` : 영양사
-            """, example = "STUDENT", requiredMode = REQUIRED
-    )
-    @JsonProperty("user_type")
-    String userType
+    String refreshToken
 ) {
 
-    public static StudentLoginResponse of(String token, String refreshToken, String userType) {
-        return new StudentLoginResponse(token, refreshToken, userType);
+    public static StudentLoginResponse of(String token, String refreshToken) {
+        return new StudentLoginResponse(token, refreshToken);
     }
 }
