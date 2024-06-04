@@ -105,7 +105,7 @@ class BusApiTest extends AcceptanceTest {
             }
             """);
 
-        when(cityBusRouteOpenApiClient.getOpenApiResponse("CAB285000686")).thenReturn("""
+        when(cityBusRouteClient.getOpenApiResponse("CAB285000686")).thenReturn("""
             {
               "response": {
                 "header": {
@@ -154,7 +154,7 @@ class BusApiTest extends AcceptanceTest {
             """
         );
 
-        when(cityBusRouteOpenApiClient.getOpenApiResponse("CAB285000406")).thenReturn("""
+        when(cityBusRouteClient.getOpenApiResponse("CAB285000406")).thenReturn("""
             {
               "response": {
                 "header": {

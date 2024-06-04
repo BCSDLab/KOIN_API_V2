@@ -35,7 +35,7 @@ import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
-import in.koreatech.koin.domain.bus.util.CityBusRouteOpenApiClient;
+import in.koreatech.koin.domain.bus.util.CityBusRouteClient;
 import in.koreatech.koin.domain.bus.util.TmoneyExpressBusOpenApiClient;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
@@ -49,7 +49,7 @@ public class BusService {
 
     private final Clock clock;
     private final BusRepository busRepository;
-    private final CityBusRouteOpenApiClient cityBusRouteOpenApiClient;
+    private final CityBusRouteClient cityBusRouteClient;
     private final CityBusOpenApiClient cityBusOpenApiClient;
     private final TmoneyExpressBusOpenApiClient tmoneyExpressBusOpenApiClient;
     private final VersionService versionService;
@@ -62,8 +62,8 @@ public class BusService {
             // 시내버스에서 상행, 하행 구분할때 사용하는 로직
             BusDirection direction = getDirection(depart, arrival);
 
-            Set<Long> departAvailableBusNumbers = cityBusRouteOpenApiClient.getAvailableCityBus(depart.getNodeId(direction));
-            Set<Long> arrivalAvailableBusNumbers = cityBusRouteOpenApiClient.getAvailableCityBus(arrival.getNodeId(direction));
+            Set<Long> departAvailableBusNumbers = cityBusRouteClient.getAvailableCityBus(depart.getNodeId(direction));
+            Set<Long> arrivalAvailableBusNumbers = cityBusRouteClient.getAvailableCityBus(arrival.getNodeId(direction));
 
             departAvailableBusNumbers.retainAll(arrivalAvailableBusNumbers);
 

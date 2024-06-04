@@ -22,7 +22,7 @@ import org.testcontainers.utility.DockerImageName;
 import in.koreatech.koin.config.TestJpaConfiguration;
 import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
-import in.koreatech.koin.domain.bus.util.CityBusRouteOpenApiClient;
+import in.koreatech.koin.domain.bus.util.CityBusRouteClient;
 import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.shop.model.ShopEventListener;
@@ -46,7 +46,7 @@ public abstract class AcceptanceTest {
     protected CityBusOpenApiClient cityBusOpenApiClient;
 
     @SpyBean
-    protected CityBusRouteOpenApiClient cityBusRouteOpenApiClient;
+    protected CityBusRouteClient cityBusRouteClient;
 
     @MockBean
     protected OwnerEventListener ownerEventListener;

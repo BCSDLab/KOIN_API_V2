@@ -34,7 +34,7 @@ import in.koreatech.koin.domain.bus.repository.CityBusRouteCacheRepository;
 
 @Component
 @Transactional(readOnly = true)
-public class CityBusRouteOpenApiClient {
+public class CityBusRouteClient {
 
     private static final Set<Long> AVAILABLE_CITY_BUS = Set.of(400L, 402L, 405L);
 
@@ -47,7 +47,7 @@ public class CityBusRouteOpenApiClient {
     private final Gson gson;
     private final CityBusRouteCacheRepository cityBusRouteCacheRepository;
 
-    public CityBusRouteOpenApiClient(
+    public CityBusRouteClient(
         @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
         Gson gson,
         CityBusRouteCacheRepository cityBusRouteCacheRepository
