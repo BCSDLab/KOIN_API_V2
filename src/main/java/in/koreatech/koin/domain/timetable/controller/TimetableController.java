@@ -20,7 +20,6 @@ import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
 import in.koreatech.koin.domain.timetable.service.SemesterService;
-import in.koreatech.koin.domain.timetable.service.TimetableLectureService;
 import in.koreatech.koin.domain.timetable.service.TimetableService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -32,7 +31,6 @@ public class TimetableController implements TimetableApi {
 
     private final TimetableService timetableService;
     private final SemesterService semesterService;
-    private final TimetableLectureService timetableLectureService;
 
     @GetMapping("/lectures")
     public ResponseEntity<List<LectureResponse>> getLecture(
@@ -88,7 +86,7 @@ public class TimetableController implements TimetableApi {
         @RequestParam(name = "id") Integer id,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        timetableLectureService.deleteTimetableLecture(id);
+        timetableService.deleteTimetableLecture(id);
         return ResponseEntity.ok().build();
     }
 }

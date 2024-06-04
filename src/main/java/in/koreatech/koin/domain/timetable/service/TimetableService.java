@@ -9,12 +9,15 @@ import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateRequest;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.model.TimeTable;
+import in.koreatech.koin.domain.timetable.model.TimeTableFrame;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
+import in.koreatech.koin.domain.timetable.repository.TimeTableFrameRepository;
 import in.koreatech.koin.domain.timetable.repository.TimeTableLectureRepository;
 import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -29,6 +32,8 @@ public class TimetableService {
     private final LectureRepository lectureRepository;
     private final SemesterRepository semesterRepository;
     private final TimeTableRepository timeTableRepository;
+    private final TimeTableLectureRepository timeTableLectureRepository;
+    private final TimeTableFrameRepository timeTableFrameRepository;
     private final UserRepository userRepository;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
@@ -88,5 +93,20 @@ public class TimetableService {
         }
 
         return totalGrades;
+    }
+
+    @Transactional
+    public void deleteTimetableLecture(Integer id) {
+        timeTableLectureRepository.getById(id);
+        timeTableLectureRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void updateTimeTableFrame(Integer timetableFrameId, TimetableFrameUpdateRequest timetableFrameUpdateRequest) {
+        TimeTableFrame timeTableFrame = timeTableFrameRepository.getById(timetableFrameId);
+        Semester semester = semesterRepository.getBySemester(timetableFrameUpdateRequest.semester());
+
+        timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.name(),
+            timetableFrameUpdateRequest.isMain());
     }
 }

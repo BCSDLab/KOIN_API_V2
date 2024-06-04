@@ -4,25 +4,39 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.timetable.service.TimetableLectureService;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateRequest;
+import in.koreatech.koin.domain.timetable.service.TimetableService;
 import in.koreatech.koin.global.auth.Auth;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 public class TimetableControllerV2 implements TimetableApiV2 {
 
-    private final TimetableLectureService timetableLectureService;
+    private final TimetableService timetableService;
 
-    @DeleteMapping("V2/timetable")
+    @DeleteMapping("V2/timetables/lecture/{id}")
     public ResponseEntity<Void> deleteTimetableLecture(
-        @RequestParam(name = "id") Integer id,
+        @PathVariable(value = "id") Integer timetableLectureId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        timetableLectureService.deleteTimetableLecture(id);
+        timetableService.deleteTimetableLecture(timetableLectureId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("V2/timetables/frame/{id}")
+    public ResponseEntity<Void> updateTimetableFrame(
+        @PathVariable(value = "id") Integer timetableFrameId,
+        @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        timetableService.updateTimeTableFrame(timetableFrameId, timetableFrameUpdateRequest);
         return ResponseEntity.ok().build();
     }
 }
