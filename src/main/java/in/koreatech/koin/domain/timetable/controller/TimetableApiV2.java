@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -50,7 +50,7 @@ public interface TimetableApiV2 {
     @Operation(summary = "시간표 프레임 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("V2/timetables/frame/{id}")
-    ResponseEntity<Void> updateTimetableFrame(
+    ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
         @PathVariable(value = "id") Integer timetableFrameId,
         @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,
         @Auth(permit = {STUDENT}) Integer userId

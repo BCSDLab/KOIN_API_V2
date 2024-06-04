@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetable.service.TimetableService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -31,12 +32,13 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     }
 
     @PutMapping("V2/timetables/frame/{id}")
-    public ResponseEntity<Void> updateTimetableFrame(
+    public ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
         @PathVariable(value = "id") Integer timetableFrameId,
         @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        timetableService.updateTimeTableFrame(timetableFrameId, timetableFrameUpdateRequest);
-        return ResponseEntity.ok().build();
+        TimetableFrameUpdateResponse timetableFrameUpdateResponse =
+            timetableService.updateTimeTableFrame(timetableFrameId, timetableFrameUpdateRequest);
+        return ResponseEntity.ok(timetableFrameUpdateResponse);
     }
 }

@@ -10,6 +10,7 @@ import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
@@ -102,11 +103,12 @@ public class TimetableService {
     }
 
     @Transactional
-    public void updateTimeTableFrame(Integer timetableFrameId, TimetableFrameUpdateRequest timetableFrameUpdateRequest) {
+    public TimetableFrameUpdateResponse updateTimeTableFrame(Integer timetableFrameId, TimetableFrameUpdateRequest timetableFrameUpdateRequest) {
         TimeTableFrame timeTableFrame = timeTableFrameRepository.getById(timetableFrameId);
         Semester semester = semesterRepository.getBySemester(timetableFrameUpdateRequest.semester());
 
         timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.name(),
             timetableFrameUpdateRequest.isMain());
+        return TimetableFrameUpdateResponse.from(timeTableFrame);
     }
 }
