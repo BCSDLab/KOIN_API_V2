@@ -22,13 +22,11 @@ import org.testcontainers.utility.DockerImageName;
 import in.koreatech.koin.config.TestJpaConfiguration;
 import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.bus.util.CityBusClient;
-import in.koreatech.koin.domain.bus.util.PublicExpressBusClient;
-import in.koreatech.koin.domain.bus.util.TmoneyExpressBusClient;
 import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.shop.model.ShopEventListener;
 import in.koreatech.koin.domain.user.model.StudentEventListener;
-import in.koreatech.koin.service.CircuitBreakerServiceTest;
+import in.koreatech.koin.util.TestCircuitBreakerClient;
 import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
@@ -60,7 +58,7 @@ public abstract class AcceptanceTest {
     protected CoopEventListener coopEventListener;
 
     @SpyBean
-    protected CircuitBreakerServiceTest circuitBreakerServiceTest;
+    protected TestCircuitBreakerClient testCircuitBreakerClient;
 
     @Autowired
     private DBInitializer dataInitializer;

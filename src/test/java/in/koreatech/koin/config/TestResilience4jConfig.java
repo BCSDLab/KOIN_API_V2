@@ -4,14 +4,14 @@ import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.Sliding
 
 import java.time.Duration;
 
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
-@Configuration
+@TestConfiguration
 public class TestResilience4jConfig {
 
     private final CircuitBreakerRegistry circuitBreakerRegistry;

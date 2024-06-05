@@ -31,7 +31,7 @@ class CircuitBreakerApiTest extends AcceptanceTest {
     @DisplayName("서킷브레이커 상태 변환 테스트: CLOSED -> OPEN")
     void closedToOpenTest() {
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
-        doThrow(RuntimeException.class).when(circuitBreakerServiceTest).testMethod();
+        doThrow(RuntimeException.class).when(testCircuitBreakerClient).testMethod();
         callMethod();
         assertThat(circuitBreaker.getState()).isNotEqualTo(CircuitBreaker.State.CLOSED);
     }
@@ -39,7 +39,7 @@ class CircuitBreakerApiTest extends AcceptanceTest {
     @Test
     @DisplayName("서킷브레이커 상태 변환 테스트: OPEN -> CLOSED")
     void openToClosedTest() {
-        doCallRealMethod().when(circuitBreakerServiceTest).testMethod();
+        doCallRealMethod().when(testCircuitBreakerClient).testMethod();
         circuitBreaker.transitionToOpenState();
         circuitBreaker.transitionToHalfOpenState();
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.HALF_OPEN);
@@ -50,7 +50,7 @@ class CircuitBreakerApiTest extends AcceptanceTest {
     private void callMethod() {
         for (int i = 0; i < 10; i++) {
             try {
-                circuitBreakerServiceTest.testMethod();
+                testCircuitBreakerClient.testMethod();
             } catch (CallNotPermittedException e) {
                 // OPEN or HALF_OPEN
             } catch (RuntimeException e) {
