@@ -19,6 +19,8 @@ import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetablesFrameRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetablesFrameResponse;
 import in.koreatech.koin.domain.timetable.service.SemesterService;
 import in.koreatech.koin.domain.timetable.service.TimetableService;
 import in.koreatech.koin.global.auth.Auth;
@@ -52,6 +54,33 @@ public class TimetableController implements TimetableApi {
     ) {
         SemesterCheckResponse semesterCheckResponse = semesterService.getStudentSemesters(userId);
         return ResponseEntity.ok(semesterCheckResponse);
+    }
+
+    @PostMapping("/timetalbes/frame")
+    public ResponseEntity<Void> createTimetablesFrame(
+        @Valid @RequestBody TimetablesFrameRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        timetableService.createTimetablesFrame(userId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/timetables/frame")
+    public ResponseEntity<List<TimetablesFrameResponse>> getTimetablesFrame(
+        @RequestParam(name = "semester") String semester,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        List<TimetablesFrameResponse> timetablesFrameResponses = timetableService.getTimetablesFrame(userId, semester);
+        return ResponseEntity.ok(timetablesFrameResponses);
+    }
+
+    @DeleteMapping("/timetalbes/frame")
+    public ResponseEntity<Void> deleteTimetablesFrame(
+        @RequestParam(name = "id") Integer id,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        timetableService.deleteTimetablesFrame(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/timetables")
