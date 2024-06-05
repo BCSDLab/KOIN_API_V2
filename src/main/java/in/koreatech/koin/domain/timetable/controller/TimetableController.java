@@ -19,8 +19,8 @@ import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetablesFrameRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetablesFrameResponse;
+import in.koreatech.koin.domain.timetable.dto.TimeTableFrameRequest;
+import in.koreatech.koin.domain.timetable.dto.TimeTableFrameResponse;
 import in.koreatech.koin.domain.timetable.service.SemesterService;
 import in.koreatech.koin.domain.timetable.service.TimetableService;
 import in.koreatech.koin.global.auth.Auth;
@@ -57,21 +57,21 @@ public class TimetableController implements TimetableApi {
     }
 
     @PostMapping("/timetalbes/frame")
-    public ResponseEntity<Void> createTimetablesFrame(
-        @Valid @RequestBody TimetablesFrameRequest request,
+    public ResponseEntity<TimeTableFrameResponse> createTimetablesFrame(
+        @Valid @RequestBody TimeTableFrameRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        timetableService.createTimetablesFrame(userId, request);
-        return ResponseEntity.ok().build();
+        TimeTableFrameResponse response = timetableService.createTimetablesFrame(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/timetables/frame")
-    public ResponseEntity<List<TimetablesFrameResponse>> getTimetablesFrame(
+    public ResponseEntity<List<TimeTableFrameResponse>> getTimetablesFrame(
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        List<TimetablesFrameResponse> timetablesFrameResponses = timetableService.getTimetablesFrame(userId, semester);
-        return ResponseEntity.ok(timetablesFrameResponses);
+        List<TimeTableFrameResponse> timeTableFrameRespons = timetableService.getTimetablesFrame(userId, semester);
+        return ResponseEntity.ok(timeTableFrameRespons);
     }
 
     @DeleteMapping("/timetalbes/frame")

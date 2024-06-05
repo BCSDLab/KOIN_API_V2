@@ -9,17 +9,17 @@ import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetablesFrameRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetablesFrameResponse;
+import in.koreatech.koin.domain.timetable.dto.TimeTableFrameRequest;
+import in.koreatech.koin.domain.timetable.dto.TimeTableFrameResponse;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.model.TimeTable;
-import in.koreatech.koin.domain.timetable.model.TimetablesFrame;
+import in.koreatech.koin.domain.timetable.model.TimeTableFrame;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
+import in.koreatech.koin.domain.timetable.repository.TimeTableFrameRepository;
 import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
-import in.koreatech.koin.domain.timetable.repository.TimetablesFrameRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class TimetableService {
     private final LectureRepository lectureRepository;
     private final SemesterRepository semesterRepository;
     private final TimeTableRepository timeTableRepository;
-    private final TimetablesFrameRepository timetablesFrameRepository;
+    private final TimeTableFrameRepository timetableFrameRepository;
     private final UserRepository userRepository;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
@@ -45,22 +45,26 @@ public class TimetableService {
             .toList();
     }
 
-    public void createTimetablesFrame(Integer userId, TimetablesFrameRequest request) {
-        int currentNumber = timetablesFrameRepository.countByUserIdAndSemesterId(userId, request.semester()) + 1;
-        User user = userRepository.getById(userId);
+    @Transactional
+    public TimeTableFrameResponse createTimetablesFrame(Integer userId, TimeTableFrameRequest request) {
         Semester semester = semesterRepository.getBySemester(request.semester());
-        request.toTimetablesFrame(user, semester, "시간표" + currentNumber);
+        int currentNumber = timetableFrameRepository.countByUserIdAndSemesterId(userId, semester.getId()) + 1;
+        boolean isMain = currentNumber == 1;
+        User user = userRepository.getById(userId);
+        TimeTableFrame timeTableFrame = request.toTimetablesFrame(user, semester, "시간표" + currentNumber, isMain);
+        return TimeTableFrameResponse.from(timetableFrameRepository.save(timeTableFrame));
     }
 
-    public List<TimetablesFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
+    public List<TimeTableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
         Semester semester = semesterRepository.getBySemester(semesterRequest);
-        return timetablesFrameRepository.findAllByUserIdAndSemesterId(userId, semester.getId()).stream()
-            .map(TimetablesFrameResponse::from)
+        return timetableFrameRepository.findAllByUserIdAndSemesterId(userId, semester.getId()).stream()
+            .map(TimeTableFrameResponse::from)
             .toList();
     }
 
+    @Transactional
     public void deleteTimetablesFrame(Integer id) {
-        timetablesFrameRepository.deleteById(id);
+        timetableFrameRepository.deleteById(id);
     }
 
     public TimeTableResponse getTimeTables(Integer userId, String semesterRequest) {

@@ -12,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -23,8 +24,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "timetable_frame")
-@Where(clause = "is_deleted=0")
+@Table(
+    name = "timetable_frame",
+    indexes = @Index(name = "timetable_frame_INDEX", columnList = "user_id, semester_id")
+)
 @NoArgsConstructor(access = PROTECTED)
 public class TimeTableFrame extends BaseEntity {
 
@@ -52,10 +55,10 @@ public class TimeTableFrame extends BaseEntity {
     private boolean isMain;
 
     @Builder
-    private TimeTableFrame(User user, Semester semester, String name) {
+    private TimeTableFrame(User user, Semester semester, String name, boolean isMain) {
         this.user = user;
         this.semester = semester;
         this.name = name;
-        this.isMain = isMain();
+        this.isMain = isMain;
     }
 }

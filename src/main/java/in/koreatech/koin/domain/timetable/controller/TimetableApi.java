@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,8 +18,8 @@ import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetablesFrameRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetablesFrameResponse;
+import in.koreatech.koin.domain.timetable.dto.TimeTableFrameRequest;
+import in.koreatech.koin.domain.timetable.dto.TimeTableFrameResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -81,8 +82,8 @@ public interface TimetableApi {
     )
     @Operation(summary = "timetableframe 생성")
     @PostMapping("/timetalbes/frame")
-    public ResponseEntity<Void> createTimetablesFrame(
-        @Valid @RequestBody TimetablesFrameRequest request,
+    public ResponseEntity<TimeTableFrameResponse> createTimetablesFrame(
+        @Valid @RequestBody TimeTableFrameRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -95,10 +96,24 @@ public interface TimetableApi {
         }
     )
     @Operation(summary = "timetableframe 조회")
-    @PostMapping("/timetalbes/frame")
     @GetMapping("/timetables/frame")
-    public ResponseEntity<List<TimetablesFrameResponse>> getTimetablesFrame(
+    public ResponseEntity<List<TimeTableFrameResponse>> getTimetablesFrame(
         @RequestParam(name = "semester") String semester,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "timetableframe 삭제")
+    @DeleteMapping("/timetalbes/frame")
+    public ResponseEntity<Void> deleteTimetablesFrame(
+        @RequestParam(name = "id") Integer id,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
