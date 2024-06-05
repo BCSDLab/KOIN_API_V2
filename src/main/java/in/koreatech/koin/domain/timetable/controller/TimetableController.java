@@ -56,7 +56,7 @@ public class TimetableController implements TimetableApi {
         return ResponseEntity.ok(semesterCheckResponse);
     }
 
-    @PostMapping("/timetalbes/frame")
+    @PostMapping("/timetables/frame")
     public ResponseEntity<TimeTableFrameResponse> createTimetablesFrame(
         @Valid @RequestBody TimeTableFrameRequest request,
         @Auth(permit = {STUDENT}) Integer userId
@@ -74,7 +74,7 @@ public class TimetableController implements TimetableApi {
         return ResponseEntity.ok(timeTableFrameRespons);
     }
 
-    @DeleteMapping("/timetalbes/frame")
+    @DeleteMapping("/timetables/frame")
     public ResponseEntity<Void> deleteTimetablesFrame(
         @RequestParam(name = "id") Integer frameId,
         @Auth(permit = {STUDENT}) Integer userId

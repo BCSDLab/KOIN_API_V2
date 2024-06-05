@@ -81,7 +81,7 @@ public interface TimetableApi {
         }
     )
     @Operation(summary = "timetableframe 생성")
-    @PostMapping("/timetalbes/frame")
+    @PostMapping("/timetables/frame")
     public ResponseEntity<TimeTableFrameResponse> createTimetablesFrame(
         @Valid @RequestBody TimeTableFrameRequest request,
         @Auth(permit = {STUDENT}) Integer userId
@@ -111,9 +111,9 @@ public interface TimetableApi {
         }
     )
     @Operation(summary = "timetableframe 삭제")
-    @DeleteMapping("/timetalbes/frame")
+    @DeleteMapping("/timetables/frame")
     public ResponseEntity<Void> deleteTimetablesFrame(
-        @RequestParam(name = "id") Integer id,
+        @RequestParam(name = "id") Integer frameId,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
