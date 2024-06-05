@@ -60,10 +60,17 @@ public class TimeTableFrame extends BaseEntity {
     private List<TimeTableLecture> timeTableLectures;
 
     @Builder
-    private TimeTableFrame(User user, Semester semester, String name, boolean isMain) {
+    private TimeTableFrame(
+        User user,
+        Semester semester,
+        String name,
+        boolean isMain,
+        List<TimeTableLecture> timeTableLectures
+    ) {
         this.user = user;
         this.semester = semester;
         this.name = name;
         this.isMain = isMain;
+        this.timeTableLectures = timeTableLectures;
     }
 }
