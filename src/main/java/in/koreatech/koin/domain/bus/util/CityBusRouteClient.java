@@ -32,6 +32,10 @@ import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.repository.CityBusRouteCacheRepository;
 
+/**
+ * OpenApi 상세: 국토교통부_(TAGO)_버스정류소정보 - 정류소별경유노선 목록조회
+ * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098534
+ */
 @Component
 @Transactional(readOnly = true)
 public class CityBusRouteClient {
