@@ -15,6 +15,13 @@ public interface TimeTableFrameRepository extends Repository<TimeTableFrame, Int
 
     TimeTableFrame save(TimeTableFrame timetablesFrame);
 
+    Optional<TimeTableFrame> findByUser(User user);
+
+    default TimeTableFrame getByUser(User user) {
+        return findByUser(user)
+            .orElseThrow(() -> TimetablesFrameNotFoundException.withDetail("userId: " + user.getId()));
+    }
+
     Optional<TimeTableFrame> findById(Integer frameId);
 
     default TimeTableFrame getById(Integer frameId) {

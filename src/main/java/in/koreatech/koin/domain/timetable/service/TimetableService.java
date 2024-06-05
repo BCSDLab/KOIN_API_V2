@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.timetable.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import in.koreatech.koin.domain.timetable.repository.TimeTableFrameRepository;
 import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -63,8 +65,12 @@ public class TimetableService {
     }
 
     @Transactional
-    public void deleteTimetablesFrame(Integer id) {
-        timetableFrameRepository.deleteById(id);
+    public void deleteTimetablesFrame(Integer userId, Integer frameId) {
+        TimeTableFrame frame = timetableFrameRepository.getById(frameId);
+        if (!Objects.equals(frame.getUser().getId(), userId)) {
+            throw AuthorizationException.withDetail("userId: " + userId);
+        }
+        timetableFrameRepository.deleteById(frameId);
     }
 
     public TimeTableResponse getTimeTables(Integer userId, String semesterRequest) {
