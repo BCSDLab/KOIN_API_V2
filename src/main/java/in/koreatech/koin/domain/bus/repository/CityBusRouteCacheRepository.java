@@ -12,6 +12,8 @@ public interface CityBusRouteCacheRepository extends Repository<CityBusRouteCach
 
     CityBusRouteCache save(CityBusRouteCache cityBusRouteCache);
 
+    List<CityBusRouteCache> saveAll(List<CityBusRouteCache> cityBusRouteCaches);
+
     List<CityBusRouteCache> findAll();
 
     Optional<CityBusRouteCache> findById(String nodeId);

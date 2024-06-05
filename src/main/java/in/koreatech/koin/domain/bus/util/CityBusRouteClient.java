@@ -72,14 +72,15 @@ public class CityBusRouteClient {
 
     @Transactional
     public void storeCityBusRoute() {
-        for (String node : BusStationNode.getNodeIds()) {
-            cityBusRouteCacheRepository.save(
-                CityBusRouteCache.of(
-                    node,
-                    Set.copyOf(extractBusRouteInfo(getOpenApiResponse(node)))
-                )
-            );
-        }
+        cityBusRouteCacheRepository.saveAll(
+            BusStationNode.getNodeIds().stream()
+                .map(node ->
+                    CityBusRouteCache.of(
+                        node,
+                        Set.copyOf(extractBusRouteInfo(getOpenApiResponse(node)))
+                    )
+                ).toList()
+        );
     }
 
     public String getOpenApiResponse(String nodeId) {
