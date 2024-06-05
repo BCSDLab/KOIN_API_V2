@@ -67,7 +67,7 @@ public class TimeTableV2Fixture {
             .build();
 
         TimeTableLecture timeTableLecture2 = TimeTableLecture.builder()
-            .className("커스텀1")
+            .className("커스텀2")
             .classTime("[933]")
             .isDeleted(false)
             .timetableFrame(frame)
