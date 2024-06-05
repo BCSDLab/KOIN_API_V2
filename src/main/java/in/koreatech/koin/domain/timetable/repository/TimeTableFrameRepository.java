@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.timetable.exception.TimetablesFrameNotFoundException;
 import in.koreatech.koin.domain.timetable.model.TimeTableFrame;
+import in.koreatech.koin.domain.user.model.User;
 
 public interface TimeTableFrameRepository extends Repository<TimeTableFrame, Integer> {
 
@@ -33,4 +34,6 @@ public interface TimeTableFrameRepository extends Repository<TimeTableFrame, Int
 
 
     void deleteById(Integer id);
+
+    void deleteAllByUser(User user);
 }
