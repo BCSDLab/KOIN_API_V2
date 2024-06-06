@@ -50,10 +50,11 @@ public class TimetableService {
     @Transactional
     public TimeTableFrameResponse createTimetablesFrame(Integer userId, TimeTableFrameRequest request) {
         Semester semester = semesterRepository.getBySemester(request.semester());
-        int currentNumber = timetableFrameRepository.countByUserIdAndSemesterId(userId, semester.getId()) + 1;
-        boolean isMain = currentNumber == 1;
         User user = userRepository.getById(userId);
-        TimeTableFrame timeTableFrame = request.toTimetablesFrame(user, semester, "시간표" + currentNumber, isMain);
+        int currentFrameCount = timetableFrameRepository.countByUserIdAndSemesterId(userId, semester.getId()) + 1;
+        boolean isMain = currentFrameCount == 1;
+
+        TimeTableFrame timeTableFrame = request.toTimetablesFrame(user, semester, "시간표" + currentFrameCount, isMain);
         return TimeTableFrameResponse.from(timetableFrameRepository.save(timeTableFrame));
     }
 
@@ -72,8 +73,8 @@ public class TimetableService {
         }
         if(frame.isMain()) {
             TimeTableFrame nextMainFrame =
-                timetableFrameRepository.findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc
-                    (userId, frame.getSemester().getId());
+                timetableFrameRepository.
+                    findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId, frame.getSemester().getId());
             if (nextMainFrame != null) {
                 nextMainFrame.updateStatusMain(true);
                 timetableFrameRepository.save(nextMainFrame);
