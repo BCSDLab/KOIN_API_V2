@@ -70,8 +70,8 @@ public class TimetableController implements TimetableApi {
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        List<TimeTableFrameResponse> timeTableFrameRespons = timetableService.getTimetablesFrame(userId, semester);
-        return ResponseEntity.ok(timeTableFrameRespons);
+        List<TimeTableFrameResponse> timeTableFrameResponse = timetableService.getTimetablesFrame(userId, semester);
+        return ResponseEntity.ok(timeTableFrameResponse);
     }
 
     @DeleteMapping("/timetables/frame")
