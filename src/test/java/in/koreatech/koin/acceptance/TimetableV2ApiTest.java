@@ -114,7 +114,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("시간표 정보를 갖고 있는 특정 시간표 frame을 삭제한다")
+    @DisplayName("강의를 담고 있는 특정 시간표 frame을 삭제한다")
     void deleteTimeTablesFrame() {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
