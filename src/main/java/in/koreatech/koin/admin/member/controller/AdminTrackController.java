@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,8 +31,8 @@ public class AdminTrackController implements AdminTrackApi {
     public ResponseEntity<List<AdminTrackResponse>> getTracks(
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        List<AdminTrackResponse> adminTrackResponse = adminTrackService.getTracks();
-        return ResponseEntity.ok(adminTrackResponse);
+        var response = adminTrackService.getTracks();
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/admin/techStacks")
@@ -40,6 +42,17 @@ public class AdminTrackController implements AdminTrackApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         var response = adminTrackService.createTechStack(request, trackName);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/admin/techStacks/{id}")
+    public ResponseEntity<AdminTechStackResponse> updateTechStack(
+        @RequestBody @Valid AdminTechStackRequest request,
+        @RequestParam String trackName,
+        @PathVariable("id") Integer techStackId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        var response = adminTrackService.updateTechStack(request, trackName, techStackId);
         return ResponseEntity.ok(response);
     }
 }
