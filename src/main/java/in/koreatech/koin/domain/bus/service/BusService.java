@@ -62,8 +62,6 @@ public class BusService {
         }
 
         if (busType == BusType.EXPRESS) {
-            var remainTimes = tmoneyExpressBusOpenApiClient.getBusRemainTime(depart, arrival);
-        if (busType == BusType.EXPRESS && depart != STATION && arrival != STATION) {
             var remainTimes = tmoneyExpressBusClient.getBusRemainTime(depart, arrival);
             return toResponse(busType, remainTimes);
         }
