@@ -70,6 +70,15 @@ public class TimetableService {
         if (!Objects.equals(frame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
+        if(frame.isMain()) {
+            TimeTableFrame nextMainFrame =
+                timetableFrameRepository.findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc
+                    (userId, frame.getSemester().getId());
+            if (nextMainFrame != null) {
+                nextMainFrame.updateStatusMain(true);
+                timetableFrameRepository.save(nextMainFrame);
+            }
+        }
         timetableFrameRepository.deleteById(frameId);
     }
 

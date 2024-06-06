@@ -59,6 +59,10 @@ public class TimeTableFrame extends BaseEntity {
     @OneToMany(mappedBy = "timetableFrame", orphanRemoval = true, cascade = ALL)
     private List<TimeTableLecture> timeTableLectures;
 
+    public void updateStatusMain(boolean isMain) {
+        this.isMain = isMain;
+    }
+
     @Builder
     private TimeTableFrame(
         User user,

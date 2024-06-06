@@ -31,6 +31,8 @@ public interface TimeTableFrameRepository extends Repository<TimeTableFrame, Int
 
     List<TimeTableFrame> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
 
+    TimeTableFrame findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(Integer userId, Integer semesterId);
+
     @Query(
         """
         SELECT COUNT(t) FROM TimeTableFrame t
