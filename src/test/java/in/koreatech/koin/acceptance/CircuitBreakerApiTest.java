@@ -8,12 +8,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.config.TestResilience4jConfig;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
+@Import(TestResilience4jConfig.class)
 class CircuitBreakerApiTest extends AcceptanceTest {
 
     @Autowired
@@ -53,8 +56,10 @@ class CircuitBreakerApiTest extends AcceptanceTest {
                 testCircuitBreakerClient.testMethod();
             } catch (CallNotPermittedException e) {
                 // OPEN or HALF_OPEN
+                System.out.println("엥");
             } catch (RuntimeException e) {
                 // CLOSED or Last Try
+                System.out.println("엥엥");
             }
             System.out.println(circuitBreaker.getState());
         }
