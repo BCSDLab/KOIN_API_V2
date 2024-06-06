@@ -69,4 +69,12 @@ public class TimeTableFrame extends BaseEntity {
         this.name = name;
         this.isMain = isMain;
     }
+
+    public boolean isMain() {
+        return isMain;
+    }
+
+    public void cancelMain() {
+        isMain = false;
+    }
 }

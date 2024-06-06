@@ -103,12 +103,26 @@ public class TimetableService {
     }
 
     @Transactional
-    public TimetableFrameUpdateResponse updateTimeTableFrame(Integer timetableFrameId, TimetableFrameUpdateRequest timetableFrameUpdateRequest) {
+    public TimetableFrameUpdateResponse updateTimeTableFrame(Integer timetableFrameId,
+        TimetableFrameUpdateRequest timetableFrameUpdateRequest, Integer userId) {
         TimeTableFrame timeTableFrame = timeTableFrameRepository.getById(timetableFrameId);
         Semester semester = semesterRepository.getBySemester(timetableFrameUpdateRequest.semester());
-
+        boolean isMain = timetableFrameUpdateRequest.isMain();
+        if (isMain) {
+            cancelMainTimetable(userId, semester.getSemester());
+        }
         timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.name(),
             timetableFrameUpdateRequest.isMain());
         return TimetableFrameUpdateResponse.from(timeTableFrame);
+    }
+
+    private void cancelMainTimetable(Integer userId, String semester) {
+        TimeTableFrame mainTimetableFrame = timeTableFrameRepository.findAllByUserIdAndSemester(userId, semester)
+            .stream()
+            .filter(TimeTableFrame::isMain)
+            .findFirst()
+            .orElseThrow(IllegalArgumentException::new);
+
+        mainTimetableFrame.cancelMain();
     }
 }
