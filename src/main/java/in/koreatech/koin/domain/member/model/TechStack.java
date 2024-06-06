@@ -60,11 +60,11 @@ public class TechStack extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
-    public void update(Integer trackId, AdminTechStackRequest request) {
-        this.imageUrl = request.imageUrl();
+    public void update(Integer trackId, String imageUrl, String name, String description, boolean isDeleted) {
+        this.imageUrl = imageUrl;
         this.trackId = trackId;
-        this.name = request.name();
-        this.description = request.description();
-        this.isDeleted = request.isDeleted();
+        this.name = name;
+        this.description = description;
+        this.isDeleted = isDeleted;
     }
 }

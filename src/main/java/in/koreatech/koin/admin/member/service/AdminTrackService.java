@@ -46,7 +46,7 @@ public class AdminTrackService {
             id = track.getId();
         }
 
-        techStack.update(id, request);
+        techStack.update(id, request.imageUrl(), request.name(), request.description(), request.isDeleted());
         TechStack updatedTechStack = adminTechStackRepository.save(techStack);
         return AdminTechStackResponse.from(updatedTechStack);
     }
