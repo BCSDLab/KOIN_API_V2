@@ -79,4 +79,8 @@ public class Member extends BaseEntity {
         this.imageUrl = imageUrl;
         this.isDeleted = isDeleted;
     }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
 }
