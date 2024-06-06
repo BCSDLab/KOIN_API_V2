@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.bus.service;
 
-import static in.koreatech.koin.domain.bus.model.enums.BusStation.STATION;
 import static in.koreatech.koin.domain.bus.model.enums.BusStation.getDirection;
 
 import java.time.Clock;
@@ -62,6 +61,8 @@ public class BusService {
             return toResponse(busType, remainTimes);
         }
 
+        if (busType == BusType.EXPRESS) {
+            var remainTimes = tmoneyExpressBusOpenApiClient.getBusRemainTime(depart, arrival);
         if (busType == BusType.EXPRESS && depart != STATION && arrival != STATION) {
             var remainTimes = tmoneyExpressBusClient.getBusRemainTime(depart, arrival);
             return toResponse(busType, remainTimes);
@@ -97,7 +98,7 @@ public class BusService {
         for (BusType busType : BusType.values()) {
             SingleBusTimeResponse busTimeResponse = null;
 
-            if (busType == BusType.EXPRESS && depart != STATION && arrival != STATION) {
+            if (busType == BusType.EXPRESS) {
                 busTimeResponse = tmoneyExpressBusClient.searchBusTime(
                     busType.getName(),
                     depart,

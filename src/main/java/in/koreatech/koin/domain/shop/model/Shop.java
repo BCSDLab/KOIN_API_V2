@@ -226,10 +226,7 @@ public class Shop extends BaseEntity {
     private boolean isBetweenDate(LocalDateTime now, ShopOpen shopOpen, LocalDate criteriaDate) {
         LocalDateTime start = LocalDateTime.of(criteriaDate, shopOpen.getOpenTime());
         LocalDateTime end = LocalDateTime.of(criteriaDate, shopOpen.getCloseTime());
-        if (start.isEqual(end)) {
-            return true;
-        }
-        if (shopOpen.getCloseTime().isBefore(shopOpen.getOpenTime())) {
+        if (!shopOpen.getCloseTime().isAfter(shopOpen.getOpenTime())) {
             end = end.plusDays(1);
         }
         return !start.isAfter(now) && !end.isBefore(now);

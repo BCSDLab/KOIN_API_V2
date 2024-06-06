@@ -51,7 +51,7 @@ public class Owner {
     private boolean grantEvent;
 
     @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true)
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", updatable = false)
     private List<OwnerAttachment> attachments = new ArrayList<>();
 
     @Builder

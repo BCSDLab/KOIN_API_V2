@@ -40,7 +40,7 @@ public class OwnerAttachment extends BaseEntity {
     private Integer id;
 
     @ManyToOne(cascade = {PERSIST, MERGE, REMOVE})
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", nullable = false)
     private Owner owner;
 
     @NotNull

@@ -18,7 +18,7 @@ public record AdminTechStackResponse(
     Integer id,
 
     @Schema(description = "이미지 링크", example = "http://url.com", requiredMode = REQUIRED)
-    String image_url,
+    String imageUrl,
 
     @Schema(description = "기술 스택명", example = "Spring", requiredMode = REQUIRED)
     String name,
@@ -27,10 +27,10 @@ public record AdminTechStackResponse(
     String description,
 
     @Schema(description = "트랙 고유 ID", example = "2", requiredMode = REQUIRED)
-    Integer track_id,
+    Integer trackId,
 
     @Schema(description = "삭제 여부", example = "false", requiredMode = REQUIRED)
-    Boolean is_deleted,
+    Boolean isDeleted,
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "생성 일자", example = "2024-01-15 12:00:00", requiredMode = REQUIRED)
