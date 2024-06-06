@@ -41,7 +41,6 @@ public interface TimeTableFrameRepository extends Repository<TimeTableFrame, Int
         """)
     int countByUserIdAndSemesterId(@Param("userId") Integer userId, @Param("semesterId") Integer semesterId);
 
-
     void deleteById(Integer id);
 
     void deleteAllByUser(User user);
