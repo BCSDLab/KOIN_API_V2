@@ -6,17 +6,16 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.domain.timetable.model.TimeTableLecture;
+import in.koreatech.koin.domain.timetable.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record TimeTableResponse(
+public record TimetableResponse(
     @Schema(name = "학기", example = "20241", requiredMode = REQUIRED)
     String semester,
 
@@ -32,11 +31,11 @@ public record TimeTableResponse(
 
     private static final int INITIAL_BRACE_INDEX = 1;
 
-    public static TimeTableResponse of(String semester, List<TimeTableLecture> timeTableLectures,
+    public static TimetableResponse of(String semester, List<TimetableLecture> timetableLectures,
         List<Lecture> lectures, Integer grades, Integer totalGrades) {
-        return new TimeTableResponse(
+        return new TimetableResponse(
             semester,
-            InnerTimeTableResponse.of(timeTableLectures, lectures),
+            InnerTimeTableResponse.of(timetableLectures, lectures),
             grades,
             totalGrades
         );
@@ -97,7 +96,7 @@ public record TimeTableResponse(
         String department
     ) {
 
-        public static List<InnerTimeTableResponse> of(List<TimeTableLecture> timetableLectures,
+        public static List<InnerTimeTableResponse> of(List<TimetableLecture> timetableLectures,
             List<Lecture> lectures) {
             return timetableLectures.stream().map(tl -> {
                 Lecture lecture = lectures.stream()
@@ -106,12 +105,12 @@ public record TimeTableResponse(
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
 
-                return new TimeTableResponse.InnerTimeTableResponse(
+                return new TimetableResponse.InnerTimeTableResponse(
                     lecture.getId(),
                     lecture.getRegularNumber(),
                     lecture.getCode(),
                     lecture.getDesignScore(),
-                    TimeTableResponse.parseIntegerClassTimesFromString(lecture.getClassTime()),
+                    TimetableResponse.parseIntegerClassTimesFromString(lecture.getClassTime()),
                     tl.getClassPlace(),
                     tl.getMemo(),
                     lecture.getGrades(),

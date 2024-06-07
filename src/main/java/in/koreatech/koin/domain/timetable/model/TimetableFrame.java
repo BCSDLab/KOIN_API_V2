@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "timetable_frame")
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
-public class TimeTableFrame extends BaseEntity {
+public class TimetableFrame extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -56,7 +56,7 @@ public class TimeTableFrame extends BaseEntity {
     private boolean isDeleted = false;
 
     @Builder
-    private TimeTableFrame(User user, Semester semester, String name, boolean isMain, boolean isDeleted) {
+    private TimetableFrame(User user, Semester semester, String name, boolean isMain, boolean isDeleted) {
         this.user = user;
         this.semester = semester;
         this.name = name;

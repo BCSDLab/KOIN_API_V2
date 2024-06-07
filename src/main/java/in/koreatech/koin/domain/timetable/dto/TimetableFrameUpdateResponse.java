@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.timetable.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import in.koreatech.koin.domain.timetable.model.TimeTableFrame;
+import in.koreatech.koin.domain.timetable.model.TimetableFrame;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record TimetableFrameUpdateResponse(
@@ -16,7 +16,7 @@ public record TimetableFrameUpdateResponse(
     boolean isMain
 ) {
 
-    public static TimetableFrameUpdateResponse from(TimeTableFrame timeTableFrame) {
+    public static TimetableFrameUpdateResponse from(TimetableFrame timeTableFrame) {
         return new TimetableFrameUpdateResponse(
             timeTableFrame.getSemester().getSemester(),
             timeTableFrame.getName(),

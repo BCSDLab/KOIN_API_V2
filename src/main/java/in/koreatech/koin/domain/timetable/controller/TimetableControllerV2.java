@@ -38,7 +38,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @Auth(permit = {STUDENT}) Integer userId
     ) {
         TimetableFrameUpdateResponse timetableFrameUpdateResponse =
-            timetableService.updateTimeTableFrame(timetableFrameId, timetableFrameUpdateRequest, userId);
+            timetableService.updateTimetableFrame(timetableFrameId, timetableFrameUpdateRequest, userId);
         return ResponseEntity.ok(timetableFrameUpdateResponse);
     }
 }
