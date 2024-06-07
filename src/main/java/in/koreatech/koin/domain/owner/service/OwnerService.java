@@ -84,7 +84,8 @@ public class OwnerService {
 
     @Transactional
     public OwnerLoginResponse ownerLogin(OwnerLoginRequest request) {
-        User user = userRepository.getByPhoneNumber(request.phoneNumber(), UserType.OWNER);
+        Owner owner = ownerRepository.getByAccount(request.account());
+        User user = owner.getUser();
 
         if (!user.isSamePassword(passwordEncoder, request.password())) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");

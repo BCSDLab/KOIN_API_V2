@@ -39,8 +39,8 @@ public record OwnerRegisterByPhoneRequest(
     String password,
 
     @NotBlank(message = "휴대폰 번호는 필수입니다.")
-    @Pattern(regexp = "^\\d{3}-\\d{3,4}-\\d{4}", message = "전화번호 형식이 올바르지 않습니다.")
-    @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = REQUIRED)
+    @Schema(description = "휴대폰 번호", example = "01000000000", requiredMode = REQUIRED)
+    @Pattern(regexp = "^\\d{11}$", message = "전화번호 형식이 올바르지 않습니다. 11자리 숫자로 입력해 주세요.")
     String phoneNumber,
 
     @Schema(description = "상점 고유 ID", requiredMode = NOT_REQUIRED)
@@ -71,6 +71,7 @@ public record OwnerRegisterByPhoneRequest(
             .attachments(new ArrayList<>())
             .grantShop(false)
             .grantEvent(false)
+            .account(phoneNumber)
             .build();
         List<OwnerAttachment> attachments = attachmentUrls.stream()
             .map(OwnerRegisterByPhoneInnerAttachmentUrl::fileUrl)
