@@ -13,7 +13,9 @@ import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
+import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
+import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
@@ -35,7 +37,7 @@ public class CoopService {
     private final ApplicationEventPublisher eventPublisher;
     private final DiningRepository diningRepository;
     private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
-    private final UserRepository userRepository;
+    private final CoopRepository coopRepository;
     private final UserTokenRepository userTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
@@ -66,7 +68,8 @@ public class CoopService {
 
     @Transactional
     public CoopLoginResponse coopLogin(CoopLoginRequest request) {
-        User user = userRepository.getById(request.id(), UserType.COOP);
+        Coop coop = coopRepository.getByCoopId(request.id());
+        User user = coop.getUser();
 
         if (!user.isSamePassword(passwordEncoder, request.password())) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
