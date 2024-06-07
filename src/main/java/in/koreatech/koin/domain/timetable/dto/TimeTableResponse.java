@@ -6,11 +6,13 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.timetable.model.TimeTable;
+import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetable.model.TimeTableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -27,6 +29,31 @@ public record TimeTableResponse(
     @Schema(name = "전체 학기 학점", example = "121")
     Integer totalGrades
 ) {
+
+    private static final int INITIAL_BRACE_INDEX = 1;
+
+    public static TimeTableResponse of(String semester, List<TimeTableLecture> timeTableLectures,
+        List<Lecture> lectures, Integer grades, Integer totalGrades) {
+        return new TimeTableResponse(
+            semester,
+            InnerTimeTableResponse.of(timeTableLectures, lectures),
+            grades,
+            totalGrades
+        );
+    }
+
+    private static List<Integer> parseIntegerClassTimesFromString(String classTime) {
+        String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
+
+        if (!classTimeWithoutBrackets.isEmpty()) {
+            return Arrays.stream(classTimeWithoutBrackets.split(","))
+                .map(String::strip)
+                .map(Integer::parseInt)
+                .toList();
+        } else {
+            return Collections.emptyList();
+        }
+    }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimeTableResponse(
@@ -70,51 +97,32 @@ public record TimeTableResponse(
         String department
     ) {
 
-        public static List<InnerTimeTableResponse> from(List<TimeTable> timeTables) {
-            return timeTables.stream()
-                .map(it -> new InnerTimeTableResponse(
-                        it.getId(),
-                        it.getRegularNumber(),
-                        it.getCode(),
-                        it.getDesignScore(),
-                        parseIntegerClassTimesFromString(it.getClassTime()),
-                        it.getClassPlace(),
-                        it.getMemo(),
-                        it.getGrades(),
-                        it.getClassTitle(),
-                        it.getLectureClass(),
-                        it.getTarget(),
-                        it.getProfessor(),
-                        it.getDepartment()
-                    )
-                )
-                .toList();
+        public static List<InnerTimeTableResponse> of(List<TimeTableLecture> timetableLectures,
+            List<Lecture> lectures) {
+            return timetableLectures.stream().map(tl -> {
+                Lecture lecture = lectures.stream()
+                    .filter(l -> l.getId()
+                        .equals(tl.getLecture().getId()))
+                    .findFirst()
+                    .orElseThrow(IllegalArgumentException::new);
+
+                return new TimeTableResponse.InnerTimeTableResponse(
+                    lecture.getId(),
+                    lecture.getRegularNumber(),
+                    lecture.getCode(),
+                    lecture.getDesignScore(),
+                    TimeTableResponse.parseIntegerClassTimesFromString(lecture.getClassTime()),
+                    tl.getClassPlace(),
+                    tl.getMemo(),
+                    lecture.getGrades(),
+                    lecture.getName(),
+                    lecture.getLectureClass(),
+                    lecture.getTarget(),
+                    lecture.getProfessor(),
+                    lecture.getDepartment()
+                );
+            }).toList();
         }
 
-    }
-
-    public static TimeTableResponse of(String semester, List<TimeTable> timeTables, Integer grades,
-        Integer totalGrades) {
-        return new TimeTableResponse(
-            semester,
-            InnerTimeTableResponse.from(timeTables),
-            grades,
-            totalGrades
-        );
-    }
-
-    private static final int INITIAL_BRACE_INDEX = 1;
-
-    private static List<Integer> parseIntegerClassTimesFromString(String classTime) {
-        String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
-
-        if (!classTimeWithoutBrackets.isEmpty()) {
-            return Arrays.stream(classTimeWithoutBrackets.split(","))
-                .map(String::strip)
-                .map(Integer::parseInt)
-                .toList();
-        } else {
-            return Collections.emptyList();
-        }
     }
 }

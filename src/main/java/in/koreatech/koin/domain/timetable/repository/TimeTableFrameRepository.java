@@ -18,5 +18,5 @@ public interface TimeTableFrameRepository extends Repository<TimeTableFrame, Int
             .orElseThrow(() -> TimeTableNotFoundException.withDetail("id: " + id));
     }
 
-    List<TimeTableFrame> findAllByUserIdAndSemester(Integer userId, String semester);
+    List<TimeTableFrame> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
 }
