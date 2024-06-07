@@ -30,26 +30,44 @@ public record TimetableLectureResponse(
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimetableLectureResponse(
-        @Schema(description = "강의시간표 식별 번호", example = "1", requiredMode = REQUIRED)
+        @Schema(name = "강의 시간표 ID", example = "1", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(description = "강의 이름", example = "기상분석", requiredMode = REQUIRED)
-        String className,
+        @Schema(name = "수강 정원", example = "38", requiredMode = NOT_REQUIRED)
+        String regularNumber,
 
-        @Schema(description = "강의 시간", example = "[210, 211]", requiredMode = REQUIRED)
+        @Schema(name = "과목 코드", example = "ARB244", requiredMode = NOT_REQUIRED)
+        String code,
+
+        @Schema(description = "설계 학점", example = "0", requiredMode = NOT_REQUIRED)
+        String designScore,
+
+        @Schema(description = "강의(커스텀) 시간", example = "[204, 205, 206, 207, 302, 303]", requiredMode = REQUIRED)
         List<Integer> classTime,
 
-        @Schema(description = "강의 장소", example = "도서관", requiredMode = NOT_REQUIRED)
+        @Schema(description = "강의 장소", example = "2 공학관", requiredMode = NOT_REQUIRED)
         String classPlace,
 
-        @Schema(description = "교수명", example = "이강환", requiredMode = NOT_REQUIRED)
-        String professor,
-
-        @Schema(description = "메모", example = "메모메모", requiredMode = NOT_REQUIRED)
+        @Schema(description = "메모", example = "null", requiredMode = NOT_REQUIRED)
         String memo,
 
-        @Schema(description = "강의 고유 번호", example = "1", requiredMode = NOT_REQUIRED)
-        Integer lectureId
+        @Schema(name = "학점", example = "3", requiredMode = REQUIRED)
+        String grades,
+
+        @Schema(name = "강의(커스텀) 이름", example = "한국사", requiredMode = REQUIRED)
+        String classTitle,
+
+        @Schema(name = "분반", example = "01", requiredMode = NOT_REQUIRED)
+        String lectureClass,
+
+        @Schema(name = "대상", example = "디자 1 건축", requiredMode = NOT_REQUIRED)
+        String target,
+
+        @Schema(name = "강의 교수", example = "이돈우", requiredMode = NOT_REQUIRED)
+        String professor,
+
+        @Schema(name = "학부", example = "디자인ㆍ건축공학부", requiredMode = NOT_REQUIRED)
+        String department
     ) {
         public static List<InnerTimetableLectureResponse> from(List<TimetableLecture> timetableLectures) {
             List<InnerTimetableLectureResponse> timetableLectureList = new ArrayList<>();
@@ -59,22 +77,34 @@ public record TimetableLectureResponse(
                 if (timetableLecture.getLecture() == null) {
                     response = new InnerTimetableLectureResponse(
                         timetableLecture.getId(),
-                        timetableLecture.getClassName(),
+                        null,
+                        null,
+                        null,
                         parseIntegerClassTimesFromString(timetableLecture.getClassTime()),
                         timetableLecture.getClassPlace(),
-                        timetableLecture.getProfessor(),
                         timetableLecture.getMemo(),
+                        "0",
+                        timetableLecture.getClassName(),
+                        null,
+                        null,
+                        timetableLecture.getProfessor(),
                         null
                     );
                 } else {
                     response = new InnerTimetableLectureResponse(
                         timetableLecture.getId(),
-                        timetableLecture.getLecture().getName(),
+                        timetableLecture.getLecture().getRegularNumber(),
+                        timetableLecture.getLecture().getCode(),
+                        timetableLecture.getLecture().getDesignScore(),
                         parseIntegerClassTimesFromString(timetableLecture.getLecture().getClassTime()),
                         timetableLecture.getClassPlace(),
-                        timetableLecture.getLecture().getProfessor(),
                         timetableLecture.getMemo(),
-                        timetableLecture.getLecture().getId()
+                        timetableLecture.getLecture().getGrades(),
+                        timetableLecture.getClassName(),
+                        timetableLecture.getLecture().getLectureClass(),
+                        timetableLecture.getLecture().getTarget(),
+                        timetableLecture.getLecture().getProfessor(),
+                        timetableLecture.getLecture().getDepartment()
                     );
                 }
                 timetableLectureList.add(response);
