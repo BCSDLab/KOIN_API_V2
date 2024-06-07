@@ -4,6 +4,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.admin.member.dto.AdminMemberRequest;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -82,5 +83,17 @@ public class Member extends BaseEntity {
 
     public void delete() {
         this.isDeleted = true;
+    }
+
+    public void update(AdminMemberRequest request, Track track) {
+        this.name = request.name();
+        this.studentNumber = request.studentNumber();
+        this.position = request.position();
+        this.email = request.email();
+        this.imageUrl = request.imageUrl();
+
+        if (track != null) {
+            this.track = track;
+        }
     }
 }

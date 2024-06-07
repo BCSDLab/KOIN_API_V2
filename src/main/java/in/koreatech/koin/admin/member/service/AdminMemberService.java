@@ -54,4 +54,16 @@ public class AdminMemberService {
         Member member = adminMemberRepository.getById(memberId);
         member.delete();
     }
+
+    @Transactional
+    public void updateMember(Integer memberId, AdminMemberRequest request) {
+        Member member = adminMemberRepository.getById(memberId);
+
+        Track track = null;
+        if (!member.getTrack().getName().equals(request.track())) {
+            track = adminTrackRepository.getByName(request.track());
+        }
+
+        member.update(request, track);
+    }
 }
