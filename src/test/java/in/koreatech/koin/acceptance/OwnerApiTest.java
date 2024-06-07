@@ -61,7 +61,7 @@ class OwnerApiTest extends AcceptanceTest {
     @DisplayName("사장님이 로그인을 진행한다")
     void ownerLogin() {
         Owner owner = userFixture.원경_사장님();
-        String phoneNumber = owner.getUser().getPhoneNumber();
+        String phoneNumber = owner.getAccount();
         String password = "1234";
 
         var response = RestAssured
@@ -69,7 +69,7 @@ class OwnerApiTest extends AcceptanceTest {
             .contentType(ContentType.JSON)
             .body("""
                 {
-                  "phoneNumber" : "%s",
+                  "account" : "%s",
                   "password" : "%s"
                 }
                 """.formatted(phoneNumber, password))
@@ -104,6 +104,7 @@ class OwnerApiTest extends AcceptanceTest {
                     "email": "hysoo@naver.com",
                     "name": "테스트용_현수",
                     "company_number": "123-45-67190",
+                    "account" : "010-9876-5432",
                     "attachments": [
                         {
                             "id": 1,
@@ -276,6 +277,7 @@ class OwnerApiTest extends AcceptanceTest {
                             softly.assertThat(owner.getUser().getEmail()).isEqualTo("010-1234-1234");
                             softly.assertThat(owner.getUser().getPhoneNumber()).isEqualTo("010-1234-1234");
                             softly.assertThat(owner.getCompanyRegistrationNumber()).isEqualTo("012-34-56789");
+                            softly.assertThat(owner.getAccount()).isEqualTo("010-1234-1234");
                             softly.assertThat(owner.getAttachments().size()).isEqualTo(1);
                             softly.assertThat(owner.getAttachments().get(0).getUrl())
                                 .isEqualTo("https://static.koreatech.in/testimage.png");

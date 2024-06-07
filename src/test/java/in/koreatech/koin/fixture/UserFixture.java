@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.domain.coop.model.Coop;
+import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
@@ -31,7 +33,9 @@ public final class UserFixture {
     private final UserRepository userRepository;
     private final OwnerRepository ownerRepository;
     private final StudentRepository studentRepository;
+    private final CoopRepository coopRepository;
     private final JwtProvider jwtProvider;
+
 
     @Autowired
     public UserFixture(
@@ -39,12 +43,14 @@ public final class UserFixture {
         UserRepository userRepository,
         OwnerRepository ownerRepository,
         StudentRepository studentRepository,
+        CoopRepository coopRepository,
         JwtProvider jwtProvider
     ) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.ownerRepository = ownerRepository;
         this.studentRepository = studentRepository;
+        this.coopRepository = coopRepository;
         this.jwtProvider = jwtProvider;
     }
 
@@ -132,6 +138,7 @@ public final class UserFixture {
             .companyRegistrationNumber("123-45-67190")
             .grantShop(true)
             .grantEvent(true)
+            .account("010-9876-5432")
             .attachments(new ArrayList<>())
             .build();
 
@@ -171,6 +178,7 @@ public final class UserFixture {
             .companyRegistrationNumber("112-80-56789")
             .grantShop(true)
             .grantEvent(true)
+            .account("010-9776-5112")
             .attachments(new ArrayList<>())
             .build();
 
@@ -211,6 +219,7 @@ public final class UserFixture {
             .companyRegistrationNumber("118-80-56789")
             .grantShop(true)
             .grantEvent(true)
+            .account("010-9776-5112")
             .attachments(new ArrayList<>())
             .build();
 
@@ -250,6 +259,7 @@ public final class UserFixture {
             .companyRegistrationNumber("123-45-67890")
             .grantShop(true)
             .grantEvent(true)
+            .account("01024607469")
             .attachments(new ArrayList<>())
             .build();
 
@@ -271,20 +281,25 @@ public final class UserFixture {
         return ownerRepository.save(owner);
     }
 
-    public User 준기_영양사() {
-        return userRepository.save(
-            User.builder()
-                .password(passwordEncoder.encode("1234"))
-                .nickname("준기")
-                .name("허준기")
-                .phoneNumber("010-1122-5678")
-                .userType(COOP)
-                .gender(MAN)
-                .email("coop@koreatech.ac.kr")
-                .isAuthed(true)
-                .isDeleted(false)
-                .build()
-        );
+    public Coop 준기_영양사() {
+        User user = User.builder()
+            .password(passwordEncoder.encode("1234"))
+            .nickname("준기")
+            .name("허준기")
+            .phoneNumber("010-1122-5678")
+            .userType(COOP)
+            .gender(MAN)
+            .email("coop@koreatech.ac.kr")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        Coop coop = Coop.builder()
+            .user(user)
+            .coopId("coop")
+            .build();
+
+        return coopRepository.save(coop);
     }
 
     public String getToken(User user) {

@@ -13,4 +13,6 @@ public interface CoopRepository extends Repository<Coop, Integer> {
     default Coop getByCoopId(String coopId){
         return findByCoopId(coopId).orElseThrow(() -> CoopNotFoundException.withDetail("CoopId : " + coopId));
     }
+
+    Coop save(Coop coop);
 }

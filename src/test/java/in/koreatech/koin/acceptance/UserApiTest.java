@@ -24,6 +24,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.dept.model.Dept;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.user.model.Student;
@@ -105,8 +106,8 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("영양사가 로그인을 진행한다")
     void coopLogin() {
-        User user = userFixture.준기_영양사();
-        String id = user.getEmail();
+        Coop coop = userFixture.준기_영양사();
+        String id = coop.getCoopId();
         String password = "1234";
 
         var response = RestAssured
@@ -128,8 +129,8 @@ class UserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("올바른 영양사 계정인지 확인한다")
     void coopCheckMe() {
-        User user = userFixture.준기_영양사();
-        String token = userFixture.getToken(user);
+        Coop coop = userFixture.준기_영양사();
+        String token = userFixture.getToken(coop.getUser());
 
         var response = RestAssured
             .given()
