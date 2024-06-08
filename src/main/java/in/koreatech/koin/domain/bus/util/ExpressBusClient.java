@@ -32,14 +32,14 @@ import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 
 @Transactional(readOnly = true)
-public abstract class ExpressBusOpenApiClient {
+public abstract class ExpressBusClient {
 
     protected final VersionRepository versionRepository;
     protected final ExpressBusCacheRepository expressBusCacheRepository;
     protected final Gson gson;
     protected final Clock clock;
 
-    public ExpressBusOpenApiClient(
+    public ExpressBusClient(
         VersionRepository versionRepository,
         Gson gson,
         Clock clock,

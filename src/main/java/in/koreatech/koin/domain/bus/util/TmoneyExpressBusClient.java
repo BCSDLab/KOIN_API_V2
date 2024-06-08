@@ -38,13 +38,14 @@ import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
  * OpenApi 상세: 티머니 Api
  * https://apiportal.tmoney.co.kr:18443/apiGallery/apiGalleryDetail.do?apiId=API201906241410183kp&apiPckgId=APK2024051316462950w&isTestYn=Y
  */
 @Component
-public class TmoneyExpressBusOpenApiClient extends ExpressBusOpenApiClient {
+public class TmoneyExpressBusClient extends ExpressBusClient {
 
     private static final String OPEN_API_URL = "https://apigw.tmoney.co.kr:5556/gateway/xzzIbtListGet/v1/ibt_list";
     private static final Type ARRIVAL_INFO_TYPE = new TypeToken<List<TmoneyOpenApiExpressBusArrival>>() {
@@ -52,7 +53,7 @@ public class TmoneyExpressBusOpenApiClient extends ExpressBusOpenApiClient {
 
     private final String openApiKey;
 
-    public TmoneyExpressBusOpenApiClient(
+    public TmoneyExpressBusClient(
         @Value("${OPEN_API_KEY_TMONEY}") String openApiKey,
         VersionRepository versionRepository,
         Gson gson,
@@ -65,6 +66,7 @@ public class TmoneyExpressBusOpenApiClient extends ExpressBusOpenApiClient {
 
     @Override
     @Transactional
+    @CircuitBreaker(name = "tmoneyExpressBus")
     public void storeRemainTimeByOpenApi() {
         for (BusStation depart : BusStation.values()) {
             for (BusStation arrival : BusStation.values()) {
