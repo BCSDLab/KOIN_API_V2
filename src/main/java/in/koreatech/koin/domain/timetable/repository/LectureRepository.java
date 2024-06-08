@@ -8,7 +8,6 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.timetable.exception.LectureNotFoundException;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.domain.timetable.model.Semester;
 
 public interface LectureRepository extends Repository<Lecture, Integer> {
 
@@ -27,6 +26,6 @@ public interface LectureRepository extends Repository<Lecture, Integer> {
 
     default Lecture getLectureById(Integer id) {
         return findById(id)
-            .orElseThrow(() -> LectureNotFoundException.withDetail("lecture_id: " + id)
+            .orElseThrow(() -> LectureNotFoundException.withDetail("lecture_id: " + id));
     }
 }
