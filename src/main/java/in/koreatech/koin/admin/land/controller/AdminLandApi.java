@@ -71,8 +71,8 @@ public interface AdminLandApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/admin/lands/{id}")
     ResponseEntity<Void> deleteLand(
-        @PathVariable("id") Integer id
-        //@Auth(permit = {ADMIN}) Integer adminId
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
 }

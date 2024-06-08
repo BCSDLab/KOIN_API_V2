@@ -46,8 +46,8 @@ public class AdminLandController implements AdminLandApi {
 
     @DeleteMapping("/admin/lands/{id}")
     public ResponseEntity<Void> deleteLand(
-        @PathVariable("id") Integer id
-        //@Auth(permit = {ADMIN}) Integer adminId
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminLandService.deleteLand(id);
         return null;
