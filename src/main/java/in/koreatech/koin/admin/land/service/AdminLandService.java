@@ -43,4 +43,10 @@ public class AdminLandService {
         Land land = adminLandsRequest.toLand();
         adminLandRepository.save(land);
     }
+
+    @Transactional
+    public void deleteLand(Integer id) {
+        Land land = adminLandRepository.getById(id);
+        land.delete();
+    }
 }
