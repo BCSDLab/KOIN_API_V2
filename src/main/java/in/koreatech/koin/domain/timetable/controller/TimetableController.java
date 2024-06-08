@@ -45,7 +45,7 @@ public class TimetableController implements TimetableApi {
         return ResponseEntity.ok(timeTableResponse);
     }
 
-    @PostMapping("/v2/timetables")
+    @PostMapping("/v2/timetables/lecture")
     public ResponseEntity<TimetableLectureResponse> createTimetableLecture(
         @Valid @RequestBody TimetableLectureCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId

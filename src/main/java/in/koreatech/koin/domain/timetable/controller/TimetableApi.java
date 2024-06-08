@@ -63,7 +63,7 @@ public interface TimetableApi {
     )
     @Operation(summary = "시간표 정보 생성")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/v2/timetables")
+    @PostMapping("/v2/timetables/lecture")
     ResponseEntity<TimetableLectureResponse> createTimetableLecture(
         @RequestBody TimetableLectureCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
