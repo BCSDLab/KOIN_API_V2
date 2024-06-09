@@ -121,12 +121,10 @@ public class Dining extends BaseEntity {
         }
         Pattern pattern = Pattern.compile("\"([^\"]*)\"");
         Matcher matcher = pattern.matcher(menu);
-
-        List<String> convertedMenus = new ArrayList<>();
-
+        List<String> parsedMenu = new ArrayList<>();
         while (matcher.find()) {
-            convertedMenus.add(matcher.group(1));
+            parsedMenu.add(matcher.group(1));
         }
-        return convertedMenus;
+        return parsedMenu;
     }
 }
