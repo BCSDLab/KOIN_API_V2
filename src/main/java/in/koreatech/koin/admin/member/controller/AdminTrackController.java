@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,5 +55,14 @@ public class AdminTrackController implements AdminTrackApi {
     ) {
         var response = adminTrackService.updateTechStack(request, trackName, techStackId);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/admin/techStacks/{id}")
+    public ResponseEntity<Void> deleteTechStack(
+        @PathVariable("id") Integer techStackId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminTrackService.deleteTechStack(techStackId);
+        return ResponseEntity.ok().build();
     }
 }

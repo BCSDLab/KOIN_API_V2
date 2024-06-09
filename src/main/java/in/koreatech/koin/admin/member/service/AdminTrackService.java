@@ -36,8 +36,12 @@ public class AdminTrackService {
         return AdminTechStackResponse.from(savedTechStack);
     }
 
-    public AdminTechStackResponse updateTechStack(AdminTechStackRequest request, String trackName,
-        Integer techStackId) {
+    @Transactional
+    public AdminTechStackResponse updateTechStack(
+        AdminTechStackRequest request,
+        String trackName,
+        Integer techStackId
+    ) {
         TechStack techStack = adminTechStackRepository.getById(techStackId);
 
         Integer id = techStack.getTrackId();
@@ -49,5 +53,11 @@ public class AdminTrackService {
         techStack.update(id, request.imageUrl(), request.name(), request.description(), request.isDeleted());
         TechStack updatedTechStack = adminTechStackRepository.save(techStack);
         return AdminTechStackResponse.from(updatedTechStack);
+    }
+
+    @Transactional
+    public void deleteTechStack(Integer techStackId) {
+        TechStack techStack = adminTechStackRepository.getById(techStackId);
+        techStack.delete();
     }
 }

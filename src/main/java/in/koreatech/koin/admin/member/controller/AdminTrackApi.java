@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -74,6 +75,22 @@ public interface AdminTrackApi {
     ResponseEntity<AdminTechStackResponse> updateTechStack(
         @RequestBody @Valid AdminTechStackRequest request,
         @RequestParam(value = "trackName") String trackName,
+        @PathVariable("id") Integer techStackId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "204", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "기술스택 삭제")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @DeleteMapping("/admin/techStacks/{id}")
+    ResponseEntity<Void> deleteTechStack(
         @PathVariable("id") Integer techStackId,
         @Auth(permit = {ADMIN}) Integer adminId
     );
