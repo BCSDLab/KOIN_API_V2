@@ -1,8 +1,5 @@
 package in.koreatech.koin.domain.bus.util;
 
-import static in.koreatech.koin.domain.bus.model.enums.BusStation.KOREATECH;
-import static in.koreatech.koin.domain.bus.model.enums.BusStation.TERMINAL;
-import static in.koreatech.koin.domain.bus.model.enums.BusType.EXPRESS;
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.format.DateTimeFormatter.ofPattern;
@@ -17,10 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -33,82 +27,47 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
-import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
-import in.koreatech.koin.domain.bus.model.BusRemainTime;
-import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusStationNode;
-import in.koreatech.koin.domain.bus.model.express.ExpressBusTimetable;
-import in.koreatech.koin.domain.bus.model.express.OpenApiExpressBusArrival;
+import in.koreatech.koin.domain.bus.model.express.PublicOpenApiExpressBusArrival;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
  * OpenApi 상세: 국토교통부_(TAGO)_버스도착정보
  * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098541
  */
 @Component
-@Transactional(readOnly = true)
-public class ExpressBusOpenApiClient {
+public class PublicExpressBusClient extends ExpressBusClient {
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo";
-    private static final Type ARRIVAL_INFO_TYPE = new TypeToken<List<OpenApiExpressBusArrival>>() {
+    private static final Type ARRIVAL_INFO_TYPE = new TypeToken<List<PublicOpenApiExpressBusArrival>>() {
     }.getType();
 
-    private final VersionRepository versionRepository;
-    private final ExpressBusCacheRepository expressBusCacheRepository;
     private final String openApiKey;
-    private final Gson gson;
-    private final Clock clock;
 
-    public ExpressBusOpenApiClient(
-        @Value("${OPEN_API_KEY}") String openApiKey,
+    public PublicExpressBusClient(
+        @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
         VersionRepository versionRepository,
         Gson gson,
         Clock clock,
         ExpressBusCacheRepository expressBusCacheRepository
     ) {
+        super(versionRepository, gson, clock, expressBusCacheRepository);
         this.openApiKey = openApiKey;
-        this.versionRepository = versionRepository;
-        this.gson = gson;
-        this.clock = clock;
-        this.expressBusCacheRepository = expressBusCacheRepository;
     }
 
-    public SingleBusTimeResponse searchBusTime(
-        String busType,
-        BusStation depart, BusStation arrival,
-        LocalDateTime targetTime
-    ) {
-        List<ExpressBusRemainTime> remainTimes = getBusRemainTime(depart, arrival);
-        if (remainTimes.isEmpty()) {
-            return null;
-        }
-
-        LocalTime arrivalTime = remainTimes.stream()
-            .filter(expressBusRemainTime -> targetTime.toLocalTime().isBefore(expressBusRemainTime.getBusArrivalTime()))
-            .min(Comparator.naturalOrder())
-            .map(BusRemainTime::getBusArrivalTime)
-            .orElse(null);
-
-        return new SingleBusTimeResponse(busType, arrivalTime);
-    }
-
-    public List<ExpressBusRemainTime> getBusRemainTime(BusStation depart, BusStation arrival) {
-        String busCacheId = ExpressBusCache.generateId(
-            new ExpressBusRoute(depart.getName(), arrival.getName()));
-        return getStoredRemainTime(busCacheId);
-    }
-
+    @Override
     @Transactional
+    @CircuitBreaker(name = "publicExpressBus")
     public void storeRemainTimeByOpenApi() {
         for (BusStation depart : BusStation.values()) {
             for (BusStation arrival : BusStation.values()) {
@@ -121,7 +80,7 @@ public class ExpressBusOpenApiClient {
                 } catch (BusOpenApiException e) {
                     continue;
                 }
-                List<OpenApiExpressBusArrival> busArrivals = extractBusArrivalInfo(openApiResponse);
+                List<PublicOpenApiExpressBusArrival> busArrivals = extractBusArrivalInfo(openApiResponse);
 
                 ExpressBusCache expressBusCache = ExpressBusCache.of(
                     new ExpressBusRoute(depart.getName(), arrival.getName()),
@@ -148,7 +107,8 @@ public class ExpressBusOpenApiClient {
         versionRepository.getByType(VersionType.EXPRESS).update(clock);
     }
 
-    private JsonObject getOpenApiResponse(BusStation depart, BusStation arrival) {
+    @Override
+    protected JsonObject getOpenApiResponse(BusStation depart, BusStation arrival) {
         try {
             URL url = getBusApiURL(depart, arrival);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
@@ -174,7 +134,8 @@ public class ExpressBusOpenApiClient {
         }
     }
 
-    private URL getBusApiURL(BusStation depart, BusStation arrival) {
+    @Override
+    protected URL getBusApiURL(BusStation depart, BusStation arrival) {
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
         StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL); /*URL*/
@@ -192,7 +153,8 @@ public class ExpressBusOpenApiClient {
         }
     }
 
-    private List<OpenApiExpressBusArrival> extractBusArrivalInfo(JsonObject jsonObject) {
+    @Override
+    protected List<PublicOpenApiExpressBusArrival> extractBusArrivalInfo(JsonObject jsonObject) {
         try {
             var response = jsonObject.get("response").getAsJsonObject();
             BusOpenApiResultCode.validateResponse(response);
@@ -201,65 +163,16 @@ public class ExpressBusOpenApiClient {
                 return Collections.emptyList();
             }
             JsonElement item = body.get("items").getAsJsonObject().get("item");
-            List<OpenApiExpressBusArrival> result = new ArrayList<>();
+            List<PublicOpenApiExpressBusArrival> result = new ArrayList<>();
             if (item.isJsonArray()) {
                 return gson.fromJson(item, ARRIVAL_INFO_TYPE);
             }
             if (item.isJsonObject()) {
-                result.add(gson.fromJson(item, OpenApiExpressBusArrival.class));
+                result.add(gson.fromJson(item, PublicOpenApiExpressBusArrival.class));
             }
             return result;
         } catch (JsonSyntaxException e) {
             return Collections.emptyList();
         }
-    }
-
-    private List<ExpressBusRemainTime> getStoredRemainTime(String busCacheId) {
-        Optional<ExpressBusCache> expressBusCache = expressBusCacheRepository.findById(busCacheId);
-        if (expressBusCache.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<ExpressBusCacheInfo> busArrivals = expressBusCache.get().getBusInfos();
-        return getExpressBusRemainTime(busArrivals);
-    }
-
-    private List<ExpressBusRemainTime> getExpressBusRemainTime(
-        List<ExpressBusCacheInfo> busArrivals
-    ) {
-        return busArrivals.stream()
-            .map(it -> new ExpressBusRemainTime(it.depart(), EXPRESS.getName()))
-            .toList();
-    }
-
-    public List<? extends BusTimetable> getExpressBusTimetable(String direction) {
-        BusStation depart = null;
-        BusStation arrival = null;
-
-        if ("from".equals(direction)) {
-            depart = KOREATECH;
-            arrival = TERMINAL;
-        }
-        if ("to".equals(direction)) {
-            depart = TERMINAL;
-            arrival = KOREATECH;
-        }
-
-        if (depart == null || arrival == null) {
-            throw new UnsupportedOperationException();
-        }
-
-        String busCacheId = ExpressBusCache.generateId(
-            new ExpressBusRoute(depart.getName(), arrival.getName()));
-
-        ExpressBusCache expressBusCache = expressBusCacheRepository.getById(busCacheId);
-        if (Objects.isNull(expressBusCache)) {
-            return Collections.emptyList();
-        }
-        List<ExpressBusCacheInfo> busArrivals = expressBusCache.getBusInfos();
-
-        return busArrivals
-            .stream()
-            .map(ExpressBusTimetable::from)
-            .toList();
     }
 }

@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.bus.service;
 
-import static in.koreatech.koin.domain.bus.model.enums.BusStation.STATION;
 import static in.koreatech.koin.domain.bus.model.enums.BusStation.getDirection;
 
 import java.time.Clock;
@@ -33,8 +32,8 @@ import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
-import in.koreatech.koin.domain.bus.util.CityBusOpenApiClient;
-import in.koreatech.koin.domain.bus.util.ExpressBusOpenApiClient;
+import in.koreatech.koin.domain.bus.util.CityBusClient;
+import in.koreatech.koin.domain.bus.util.TmoneyExpressBusClient;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -47,8 +46,8 @@ public class BusService {
 
     private final Clock clock;
     private final BusRepository busRepository;
-    private final CityBusOpenApiClient cityBusOpenApiClient;
-    private final ExpressBusOpenApiClient expressBusOpenApiClient;
+    private final CityBusClient cityBusClient;
+    private final TmoneyExpressBusClient tmoneyExpressBusClient;
     private final VersionService versionService;
 
     @Transactional
@@ -58,12 +57,12 @@ public class BusService {
         if (busType == BusType.CITY) {
             // 시내버스에서 상행, 하행 구분할때 사용하는 로직
             BusDirection direction = getDirection(depart, arrival);
-            var remainTimes = cityBusOpenApiClient.getBusRemainTime(depart.getNodeId(direction));
+            var remainTimes = cityBusClient.getBusRemainTime(depart.getNodeId(direction));
             return toResponse(busType, remainTimes);
         }
 
-        if (busType == BusType.EXPRESS && depart != STATION && arrival != STATION) {
-            var remainTimes = expressBusOpenApiClient.getBusRemainTime(depart, arrival);
+        if (busType == BusType.EXPRESS) {
+            var remainTimes = tmoneyExpressBusClient.getBusRemainTime(depart, arrival);
             return toResponse(busType, remainTimes);
         }
 
@@ -97,8 +96,8 @@ public class BusService {
         for (BusType busType : BusType.values()) {
             SingleBusTimeResponse busTimeResponse = null;
 
-            if (busType == BusType.EXPRESS && depart != STATION && arrival != STATION) {
-                busTimeResponse = expressBusOpenApiClient.searchBusTime(
+            if (busType == BusType.EXPRESS) {
+                busTimeResponse = tmoneyExpressBusClient.searchBusTime(
                     busType.getName(),
                     depart,
                     arrival,
@@ -167,7 +166,7 @@ public class BusService {
         }
 
         if (busType == BusType.EXPRESS) {
-            return expressBusOpenApiClient.getExpressBusTimetable(direction);
+            return tmoneyExpressBusClient.getExpressBusTimetable(direction);
         }
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {

@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.bus.model.express;
 import lombok.Builder;
 
 @Builder
-public record OpenApiExpressBusArrival(
+public record PublicOpenApiExpressBusArrival(
     String arrPlaceNm,      // 도착지
     String arrPlandTime,    // 도착 시간
     String depPlaceNm,      // 출발지

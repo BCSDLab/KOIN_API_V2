@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.joda.time.LocalDateTime;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
 import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.domain.email.service.MailService;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -90,14 +92,16 @@ public class StudentService {
     @Transactional
     public void studentRegister(StudentRegisterRequest request, String serverURL) {
         Student student = request.toStudent(passwordEncoder, clock);
-
-        validateStudentRegister(student);
-
-        studentRepository.save(student);
-        userRepository.save(student.getUser());
-
-        mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, student.getUser().getAuthToken()));
-        eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
+        try {
+            validateStudentRegister(student);
+            studentRepository.save(student);
+            userRepository.save(student.getUser());
+            mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, student.getUser().getAuthToken()));
+            eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
+        } catch (DataIntegrityViolationException e) {
+            // 동시성 문제를 처리하기 위한 코드
+            throw KoinIllegalArgumentException.withDetail("요청이 너무 빠릅니다.");
+        }
     }
 
     private void validateStudentRegister(Student student) {
