@@ -33,7 +33,7 @@ public class NotificationFactory {
         return new Notification(
             path,
             "%s 품절되었습니다.".formatted(getPostposition(place, "이", "가")),
-            "다른 식단 보러 가기.",
+            "다른 식단 보러 가기",
             null,
             NotificationType.MESSAGE,
             target
