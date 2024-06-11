@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
+import in.koreatech.koin.domain.coop.model.DiningImageUploadEvent;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.dining.model.Dining;
@@ -46,6 +47,13 @@ public class CoopService {
     @Transactional
     public void saveDiningImage(DiningImageRequest imageRequest) {
         Dining dining = diningRepository.getById(imageRequest.menuId());
+        boolean isImageExist = diningRepository.findAllByDateAndType(dining.getDate(), dining.getType()).stream()
+            .anyMatch(it -> it.getImageUrl() != null);
+
+        if(!isImageExist){
+            eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getImageUrl()));
+        }
+
         dining.setImageUrl(imageRequest.imageUrl());
     }
 }

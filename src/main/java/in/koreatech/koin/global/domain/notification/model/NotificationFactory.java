@@ -45,4 +45,19 @@ public class NotificationFactory {
         String result = (lastChar - 0xAC00) % 28 > 0 ? firstPost : secondPost;
         return place + result;
     }
+
+    public Notification generateDiningImageUploadNotification(
+        MobileAppPath path,
+        String imageUrl,
+        User target
+    ){
+        return new Notification(
+            path,
+            "학식 사진이 업로드되었습니다!",
+            "사진 보러가기",
+            imageUrl,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
 }
