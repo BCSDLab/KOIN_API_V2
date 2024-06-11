@@ -162,31 +162,50 @@ class OwnerShopApiTest extends AcceptanceTest {
                         "https://test.com/test2.jpg",
                         "https://test.com/test3.jpg"
                     ],
+                    
                     "name": "테스트 상점2",
                     "open": [
                         {
-                            "close_time": [
-                                21,
-                                0
-                            ],
+                            "close_time": "21:00",
                             "closed": false,
                             "day_of_week": "MONDAY",
-                            "open_time": [
-                                9,
-                                0
-                            ]
+                            "open_time": "09:00"
                         },
                         {
-                            "close_time": [
-                                21,
-                                0
-                            ],
+                            "close_time": "21:00",
+                            "closed": false,
+                            "day_of_week": "TUESDAY",
+                            "open_time": "09:00"
+                        },
+                        {
+                            "close_time": "21:00",
                             "closed": false,
                             "day_of_week": "WEDNESDAY",
-                            "open_time": [
-                                9,
-                                0
-                            ]
+                            "open_time": "09:00"
+                        },
+                        {
+                            "close_time": "21:00",
+                            "closed": false,
+                            "day_of_week": "THURSDAY",
+                            "open_time": "09:00"
+                        },
+                        {
+                            "close_time": "21:00",
+                            "closed": false,
+                            "day_of_week": "FRIDAY",
+                            "open_time": "09:00"
+                        },
+                        {
+                            "close_time": "21:00",
+                            "closed": false,
+                            "day_of_week": "SATURDAY",
+                            "open_time": "09:00"
+                        },
+                        {
+                            "close_time": "21:00",
+                            "closed": false,
+                            "day_of_week": "SUNDAY",
+                            "open_time": "09:00"
                         }
                     ],
                     "pay_bank": true,
@@ -198,6 +217,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             .when()
             .post("/owner/shops")
             .then()
+            .log().all()
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
@@ -211,7 +231,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                     softly.assertThat(result.getDescription()).isEqualTo("테스트 상점2입니다.");
                     softly.assertThat(result.getName()).isEqualTo("테스트 상점2");
                     softly.assertThat(result.getShopImages()).hasSize(3);
-                    softly.assertThat(result.getShopOpens()).hasSize(2);
+                    softly.assertThat(result.getShopOpens()).hasSize(7);
                     softly.assertThat(result.getShopCategories()).hasSize(1);
                 }
             );
