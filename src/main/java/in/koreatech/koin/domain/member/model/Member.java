@@ -85,15 +85,15 @@ public class Member extends BaseEntity {
         this.isDeleted = true;
     }
 
-    public void update(AdminMemberRequest request, Track track) {
-        this.name = request.name();
-        this.studentNumber = request.studentNumber();
-        this.position = request.position();
-        this.email = request.email();
-        this.imageUrl = request.imageUrl();
+    public void update(String name, String studentNumber, String position, String email, String imageUrl) {
+        this.name = name;
+        this.studentNumber = studentNumber;
+        this.position = position;
+        this.email = email;
+        this.imageUrl = imageUrl;
+    }
 
-        if (track != null) {
-            this.track = track;
-        }
+    public void updateTrack(Track track) {
+        this.track = track;
     }
 }

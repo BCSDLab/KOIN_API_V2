@@ -59,15 +59,12 @@ public class AdminMemberService {
     public void updateMember(Integer memberId, AdminMemberRequest request) {
         Member member = adminMemberRepository.getById(memberId);
 
-        Track track = null;
-        if (!isSameTrack(member.getTrack(), request.track())) {
-            track = adminTrackRepository.getByName(request.track());
+        String currentTrackName = member.getTrack().getName();
+        String changedTrackName = request.track();
+        if (!currentTrackName.equals(changedTrackName)) {
+            member.updateTrack(adminTrackRepository.getByName(request.track()));
         }
 
-        member.update(request, track);
-    }
-    
-    private boolean isSameTrack(Track track, String trackName) {
-        return track.getName().equals(trackName);
+        member.update(request.name(), request.studentNumber(), request.position(), request.email(), request.imageUrl());
     }
 }
