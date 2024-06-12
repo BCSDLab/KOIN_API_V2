@@ -74,4 +74,13 @@ public class AdminMemberController implements AdminMemberApi {
         adminMemberService.updateMember(memberId, request);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @PostMapping("/admin/members/{id}/undelete")
+    public ResponseEntity<Void> undeleteMember(
+        @PathVariable("id") Integer memberId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminMemberService.undeleteMember(memberId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
