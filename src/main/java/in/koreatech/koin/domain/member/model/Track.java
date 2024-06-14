@@ -32,16 +32,16 @@ public class Track extends BaseEntity {
 
     @NotNull
     @Column(name = "headcount", nullable = false)
-    private Integer headcount;
+    private Integer headcount = 0;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
     @Builder
-    private Track(String name, boolean isDeleted) {
+    private Track(String name, Integer headcount, boolean isDeleted) {
         this.name = name;
-        this.headcount = 0;
-        this.isDeleted = false;
+        this.headcount = headcount;
+        this.isDeleted = isDeleted;
     }
 }

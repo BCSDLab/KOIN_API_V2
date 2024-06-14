@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.member.model.TechStack;
 import in.koreatech.koin.domain.member.model.Track;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(SnakeCaseStrategy.class)
 public record AdminTrackSingleResponse(
     @JsonProperty("TrackName")
     @Schema(description = "트랙 명", example = "Backend", requiredMode = REQUIRED)

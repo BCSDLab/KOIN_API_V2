@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.member.dto.AdminTechStackRequest;
 import in.koreatech.koin.admin.member.dto.AdminTechStackResponse;
+import in.koreatech.koin.admin.member.dto.AdminTrackRequest;
 import in.koreatech.koin.admin.member.dto.AdminTrackResponse;
 import in.koreatech.koin.admin.member.dto.AdminTrackSingleResponse;
 import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
@@ -32,6 +33,14 @@ public class AdminTrackService {
             .toList();
     }
 
+    @Transactional
+    public AdminTrackResponse createTrack(AdminTrackRequest request) {
+        Track track = request.toEntity();
+        Track savedTrack = adminTrackRepository.save(track);
+
+        return AdminTrackResponse.from(savedTrack);
+    }
+
     public AdminTrackSingleResponse getTrack(Integer trackId) {
         Track track = adminTrackRepository.getById(trackId);
         List<Member> member = adminMemberRepository.findByTrackId(trackId);
@@ -45,6 +54,7 @@ public class AdminTrackService {
         Track track = adminTrackRepository.getByName(trackName);
         TechStack techStack = request.toEntity(track.getId());
         TechStack savedTechStack = adminTechStackRepository.save(techStack);
+
         return AdminTechStackResponse.from(savedTechStack);
     }
 

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.member.dto.AdminTechStackRequest;
 import in.koreatech.koin.admin.member.dto.AdminTechStackResponse;
+import in.koreatech.koin.admin.member.dto.AdminTrackRequest;
 import in.koreatech.koin.admin.member.dto.AdminTrackResponse;
 import in.koreatech.koin.admin.member.dto.AdminTrackSingleResponse;
 import in.koreatech.koin.global.auth.Auth;
@@ -53,10 +54,26 @@ public interface AdminTrackApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
+    @Operation(summary = "트랙 생성")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/admin/tracks")
+    ResponseEntity<AdminTrackResponse> createTrack(
+        @RequestBody @Valid AdminTrackRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
     @Operation(summary = "트랙 단건 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/admin/tracks/{id}")
-    ResponseEntity<AdminTrackSingleResponse> getTracks(
+    ResponseEntity<AdminTrackSingleResponse> getTrack(
         @PathVariable("id") Integer trackId,
         @Auth(permit = {ADMIN}) Integer adminId
     );

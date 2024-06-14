@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.member.dto.AdminTechStackRequest;
 import in.koreatech.koin.admin.member.dto.AdminTechStackResponse;
+import in.koreatech.koin.admin.member.dto.AdminTrackRequest;
 import in.koreatech.koin.admin.member.dto.AdminTrackResponse;
 import in.koreatech.koin.admin.member.dto.AdminTrackSingleResponse;
 import in.koreatech.koin.admin.member.service.AdminTrackService;
@@ -37,8 +38,17 @@ public class AdminTrackController implements AdminTrackApi {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/admin/tracks")
+    public ResponseEntity<AdminTrackResponse> createTrack(
+        @RequestBody @Valid AdminTrackRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        var response = adminTrackService.createTrack(request);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/admin/tracks/{id}")
-    public ResponseEntity<AdminTrackSingleResponse> getTracks(
+    public ResponseEntity<AdminTrackSingleResponse> getTrack(
         @PathVariable("id") Integer trackId,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
