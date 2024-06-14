@@ -23,6 +23,9 @@ public record OwnerResponse(
     @Schema(description = "사업자 등록 번호", example = "123-45-67890", requiredMode = REQUIRED)
     String company_number,
 
+    @Schema(description = "저장 된 사장님 전화번호", example = "01012345678", requiredMode = REQUIRED)
+    String account,
+
     @Schema(description = "첨부 파일 목록", requiredMode = NOT_REQUIRED)
     List<InnerAttachmentResponse> attachments,
 
@@ -35,6 +38,7 @@ public record OwnerResponse(
             owner.getUser().getEmail(),
             owner.getUser().getName(),
             owner.getCompanyRegistrationNumber(),
+            owner.getAccount(),
             attachments.stream()
                 .map(InnerAttachmentResponse::from)
                 .toList(),

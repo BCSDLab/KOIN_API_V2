@@ -24,7 +24,9 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.dept.model.Dept;
+import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
@@ -56,10 +58,79 @@ class UserApiTest extends AcceptanceTest {
     private UserFixture userFixture;
 
     @Test
+    @DisplayName("학생이 로그인을 진행한다(구 API(/user/login))")
+    void login() {
+        Student student = userFixture.성빈_학생();
+        String email = student.getUser().getEmail();
+        String password = "1234";
+
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "email" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(email, password))
+            .when()
+            .post("/user/login")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("학생이 로그인을 진행한다(신규 API(/student/login))")
+    void studentLogin() {
+        Student student = userFixture.성빈_학생();
+        String email = student.getUser().getEmail();
+        String password = "1234";
+
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "email" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(email, password))
+            .when()
+            .post("/student/login")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("영양사가 로그인을 진행한다")
+    void coopLogin() {
+        Coop coop = userFixture.준기_영양사();
+        String id = coop.getCoopId();
+        String password = "1234";
+
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "id" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(id, password))
+            .when()
+            .post("/coop/login")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+    }
+
+    @Test
     @DisplayName("올바른 영양사 계정인지 확인한다")
     void coopCheckMe() {
-        User user = userFixture.준기_영양사();
-        String token = userFixture.getToken(user);
+        Coop coop = userFixture.준기_영양사();
+        String token = userFixture.getToken(coop.getUser());
 
         var response = RestAssured
             .given()
@@ -95,7 +166,7 @@ class UserApiTest extends AcceptanceTest {
                     "major": "컴퓨터공학부",
                     "name": "테스트용_준호",
                     "nickname": "준호",
-                    "phone_number": "010-1234-5678",
+                    "phone_number": "01012345678",
                     "student_number": "2019136135"
                 }
                 """);
@@ -153,7 +224,7 @@ class UserApiTest extends AcceptanceTest {
                     "name" : "서정빈",
                     "password" : "0c4be6acaba1839d3433c1ccf04e1eec4d1fa841ee37cb019addc269e8bc1b77",
                     "nickname" : "duehee",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "2019136136"
                   }
                 """)
@@ -185,7 +256,7 @@ class UserApiTest extends AcceptanceTest {
                     "major": "기계공학부",
                     "name": "서정빈",
                     "nickname": "duehee",
-                    "phone_number": "010-2345-6789",
+                    "phone_number": "01023456789",
                     "student_number": "2019136136"
                 }
                 """);
@@ -207,7 +278,7 @@ class UserApiTest extends AcceptanceTest {
                     "major" : "메카트로닉스공학부",
                     "name" : "최주노",
                     "nickname" : "juno",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "201913613"
                   }
                 """)
@@ -234,7 +305,7 @@ class UserApiTest extends AcceptanceTest {
                     "major" : "경영학과",
                     "name" : "최주노",
                     "nickname" : "juno",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "2019136136"
                   }
                 """)
@@ -261,7 +332,7 @@ class UserApiTest extends AcceptanceTest {
                     "major" : "메카트로닉스공학부",
                     "name" : "최주노",
                     "nickname" : "juno",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "2019136136"
                   }
                 """)
@@ -291,7 +362,7 @@ class UserApiTest extends AcceptanceTest {
                     "major" : "메카트로닉스공학부",
                     "name" : "최주노",
                     "nickname" : "juno",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "2019136136"
                   }
                 """)
@@ -319,7 +390,7 @@ class UserApiTest extends AcceptanceTest {
                     "major" : "테스트학과",
                     "name" : "최주노",
                     "nickname" : "%s",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "2019136136"
                  }
                 """, 성빈.getUser().getNickname()))
@@ -539,7 +610,7 @@ class UserApiTest extends AcceptanceTest {
                   "gender": "0",
                   "is_graduated": false,
                   "student_number": "2021136012",
-                  "phone_number": "010-0000-0000"
+                  "phone_number": "01000000000"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -559,7 +630,7 @@ class UserApiTest extends AcceptanceTest {
                         softly.assertThat(student).isNotNull();
                         softly.assertThat(student.getUser().getNickname()).isEqualTo("koko");
                         softly.assertThat(student.getUser().getName()).isEqualTo("김철수");
-                        softly.assertThat(student.getUser().getPhoneNumber()).isEqualTo("010-0000-0000");
+                        softly.assertThat(student.getUser().getPhoneNumber()).isEqualTo("01000000000");
                         softly.assertThat(student.getUser().getUserType()).isEqualTo(STUDENT);
                         softly.assertThat(student.getUser().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
                         softly.assertThat(student.getUser().isAuthed()).isEqualTo(false);
@@ -588,7 +659,7 @@ class UserApiTest extends AcceptanceTest {
                   "gender": "0",
                   "is_graduated": false,
                   "student_number": "2021136012",
-                  "phone_number": "010-0000-0000"
+                  "phone_number": "01000000000"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -626,7 +697,7 @@ class UserApiTest extends AcceptanceTest {
                   "gender": "0",
                   "is_graduated": false,
                   "student_number": "2021136012",
-                  "phone_number": "010-0000-0000"
+                  "phone_number": "01000000000"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -651,7 +722,7 @@ class UserApiTest extends AcceptanceTest {
                   "gender": "0",
                   "is_graduated": false,
                   "student_number": "2021136012",
-                  "phone_number": "010-0000-0000"
+                  "phone_number": "01000000000"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -676,7 +747,7 @@ class UserApiTest extends AcceptanceTest {
                   "gender": "0",
                   "is_graduated": false,
                   "student_number": "20211360123324231",
-                  "phone_number": "010-0000-0000"
+                  "phone_number": "01000000000"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -697,7 +768,7 @@ class UserApiTest extends AcceptanceTest {
                   "gender": "0",
                   "is_graduated": false,
                   "student_number": "19911360123",
-                  "phone_number": "010-0000-0000"
+                  "phone_number": "01000000000"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -728,7 +799,7 @@ class UserApiTest extends AcceptanceTest {
                           "gender": "0",
                           "is_graduated": false,
                           "student_number": "2022136012",
-                          "phone_number": "010-0000-0000"
+                          "phone_number": "01000000000"
                         }
                         """)
                     .contentType(ContentType.JSON)
