@@ -42,7 +42,7 @@ import in.koreatech.koin.domain.version.repository.VersionRepository;
  */
 @Component
 @Transactional(readOnly = true)
-public class CityBusOpenApiClient {
+public class CityBusClient {
 
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
@@ -55,7 +55,7 @@ public class CityBusOpenApiClient {
     private final VersionRepository versionRepository;
     private final CityBusCacheRepository cityBusCacheRepository;
 
-    public CityBusOpenApiClient(
+    public CityBusClient(
         @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
         Gson gson,
         Clock clock,

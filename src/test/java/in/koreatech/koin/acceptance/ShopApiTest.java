@@ -359,7 +359,7 @@ class ShopApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        // 2024-01-15 월요일 기준
+        // 2024-01-15 12:00 월요일 기준
         boolean 마슬랜_영업여부 = true;
         boolean 신전_떡볶이_영업여부 = false;
 
@@ -404,16 +404,46 @@ class ShopApiTest extends AcceptanceTest {
                             "name": "신전 떡볶이",
                             "open": [
                                 {
-                                    "day_of_week": "SUNDAY",
+                                    "day_of_week": "MONDAY",
                                     "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
+                                    "open_time": "12:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "TUESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "WEDNESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "THURSDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
                                 },
                                 {
                                     "day_of_week": "FRIDAY",
                                     "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SATURDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SUNDAY",
+                                    "closed": false,
                                     "open_time": "00:00",
-                                    "close_time": "21:00"
+                                    "close_time": "00:00"
                                 }
                             ],
                             "pay_bank": true,

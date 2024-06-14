@@ -55,7 +55,7 @@ class BusApiTest extends AcceptanceTest {
     @BeforeEach
     void setup() {
         busFixture.버스_시간표_등록();
-        when(cityBusOpenApiClient.getOpenApiResponse(anyString())).thenReturn("""
+        when(cityBusClient.getOpenApiResponse(anyString())).thenReturn("""
             {
               "response": {
                 "header": {

@@ -30,4 +30,12 @@ public interface AdminMemberRepository extends Repository<Member, Integer> {
         return findByName(name)
             .orElseThrow(() -> MemberNotFoundException.withDetail("name: " + name));
     }
+
+    @EntityGraph(attributePaths = {"track"})
+    Optional<Member> findById(Integer id);
+
+    default Member getById(Integer id) {
+        return findById(id)
+            .orElseThrow(() -> MemberNotFoundException.withDetail("id: " + id));
+    }
 }
