@@ -13,11 +13,13 @@ public class BusScheduler {
 
     private final CityBusClient cityBusClient;
     private final TmoneyExpressBusClient tmoneyExpressBusClient;
+    private final CityBusRouteClient cityBusRouteClient;
 
     @Scheduled(cron = "0 * * * * *")
     public void cacheCityBusByOpenApi() {
         try {
             cityBusClient.storeRemainTimeByOpenApi();
+            cityBusRouteClient.storeCityBusRoute();
         } catch (Exception e) {
             log.warn("시내버스 스케줄링 과정에서 오류가 발생했습니다.");
         }
