@@ -166,7 +166,7 @@ class UserApiTest extends AcceptanceTest {
                     "major": "컴퓨터공학부",
                     "name": "테스트용_준호",
                     "nickname": "준호",
-                    "phone_number": "010-1234-5678",
+                    "phone_number": "01012345678",
                     "student_number": "2019136135"
                 }
                 """);
@@ -224,7 +224,7 @@ class UserApiTest extends AcceptanceTest {
                     "name" : "서정빈",
                     "password" : "0c4be6acaba1839d3433c1ccf04e1eec4d1fa841ee37cb019addc269e8bc1b77",
                     "nickname" : "duehee",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "2019136136"
                   }
                 """)
@@ -256,7 +256,7 @@ class UserApiTest extends AcceptanceTest {
                     "major": "기계공학부",
                     "name": "서정빈",
                     "nickname": "duehee",
-                    "phone_number": "010-2345-6789",
+                    "phone_number": "01023456789",
                     "student_number": "2019136136"
                 }
                 """);
@@ -278,7 +278,7 @@ class UserApiTest extends AcceptanceTest {
                     "major" : "메카트로닉스공학부",
                     "name" : "최주노",
                     "nickname" : "juno",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "201913613"
                   }
                 """)
@@ -305,7 +305,7 @@ class UserApiTest extends AcceptanceTest {
                     "major" : "경영학과",
                     "name" : "최주노",
                     "nickname" : "juno",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "2019136136"
                   }
                 """)
@@ -332,7 +332,7 @@ class UserApiTest extends AcceptanceTest {
                     "major" : "메카트로닉스공학부",
                     "name" : "최주노",
                     "nickname" : "juno",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "2019136136"
                   }
                 """)
@@ -362,7 +362,7 @@ class UserApiTest extends AcceptanceTest {
                     "major" : "메카트로닉스공학부",
                     "name" : "최주노",
                     "nickname" : "juno",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "2019136136"
                   }
                 """)
@@ -390,7 +390,7 @@ class UserApiTest extends AcceptanceTest {
                     "major" : "테스트학과",
                     "name" : "최주노",
                     "nickname" : "%s",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "2019136136"
                  }
                 """, 성빈.getUser().getNickname()))
@@ -610,7 +610,7 @@ class UserApiTest extends AcceptanceTest {
                   "gender": "0",
                   "is_graduated": false,
                   "student_number": "2021136012",
-                  "phone_number": "010-0000-0000"
+                  "phone_number": "01000000000"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -630,7 +630,7 @@ class UserApiTest extends AcceptanceTest {
                         softly.assertThat(student).isNotNull();
                         softly.assertThat(student.getUser().getNickname()).isEqualTo("koko");
                         softly.assertThat(student.getUser().getName()).isEqualTo("김철수");
-                        softly.assertThat(student.getUser().getPhoneNumber()).isEqualTo("010-0000-0000");
+                        softly.assertThat(student.getUser().getPhoneNumber()).isEqualTo("01000000000");
                         softly.assertThat(student.getUser().getUserType()).isEqualTo(STUDENT);
                         softly.assertThat(student.getUser().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
                         softly.assertThat(student.getUser().isAuthed()).isEqualTo(false);
@@ -659,7 +659,7 @@ class UserApiTest extends AcceptanceTest {
                   "gender": "0",
                   "is_graduated": false,
                   "student_number": "2021136012",
-                  "phone_number": "010-0000-0000"
+                  "phone_number": "01000000000"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -697,7 +697,7 @@ class UserApiTest extends AcceptanceTest {
                   "gender": "0",
                   "is_graduated": false,
                   "student_number": "2021136012",
-                  "phone_number": "010-0000-0000"
+                  "phone_number": "01000000000"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -722,7 +722,7 @@ class UserApiTest extends AcceptanceTest {
                   "gender": "0",
                   "is_graduated": false,
                   "student_number": "2021136012",
-                  "phone_number": "010-0000-0000"
+                  "phone_number": "01000000000"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -747,7 +747,7 @@ class UserApiTest extends AcceptanceTest {
                   "gender": "0",
                   "is_graduated": false,
                   "student_number": "20211360123324231",
-                  "phone_number": "010-0000-0000"
+                  "phone_number": "01000000000"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -768,7 +768,7 @@ class UserApiTest extends AcceptanceTest {
                   "gender": "0",
                   "is_graduated": false,
                   "student_number": "19911360123",
-                  "phone_number": "010-0000-0000"
+                  "phone_number": "01000000000"
                 }
                 """)
             .contentType(ContentType.JSON)
@@ -799,7 +799,7 @@ class UserApiTest extends AcceptanceTest {
                           "gender": "0",
                           "is_graduated": false,
                           "student_number": "2022136012",
-                          "phone_number": "010-0000-0000"
+                          "phone_number": "01000000000"
                         }
                         """)
                     .contentType(ContentType.JSON)

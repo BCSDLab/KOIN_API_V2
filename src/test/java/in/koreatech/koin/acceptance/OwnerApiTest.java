@@ -104,7 +104,7 @@ class OwnerApiTest extends AcceptanceTest {
                     "email": "hysoo@naver.com",
                     "name": "테스트용_현수",
                     "company_number": "123-45-67190",
-                    "account" : "010-9876-5432",
+                    "account" : "01098765432",
                     "attachments": [
                         {
                             "id": 1,
@@ -206,7 +206,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "email": "helloworld@koreatech.ac.kr",
                        "name": "최준호",
                        "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-0000-0000",
+                       "phone_number": "01000000000",
                        "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }
@@ -336,7 +336,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "email": "helloworld@koreatech.ac.kr",
                        "name": "최준호",
                        "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-0000-0000",
+                       "phone_number": "01000000000",
                        "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }
@@ -365,7 +365,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "email": "helloworld@koreatech.ac.kr",
                        "name": "",
                        "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-0000-0000",
+                       "phone_number": "01000000000",
                        "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }
@@ -395,7 +395,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "email": "helloworld@koreatech.ac.kr",
                        "name": "주노",
                        "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-0000-0000",
+                       "phone_number": "01000000000",
                        "shop_id": %d,
                        "shop_name": "기분좋은 뷔짱"
                      }
@@ -433,7 +433,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "email": "helloworld@koreatech.ac.kr",
                        "name": "주노",
                        "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-0000-0000",
+                       "phone_number": "01000000000",
                        "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }
