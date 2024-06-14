@@ -59,7 +59,7 @@ public record OwnerRegisterByPhoneRequest(
         User user = User.builder()
             .password(passwordEncoder.encode(password))
             .name(name)
-            .email(phoneNumber)
+            .email(null)
             .phoneNumber(phoneNumber)
             .userType(OWNER)
             .isAuthed(false)
@@ -71,6 +71,7 @@ public record OwnerRegisterByPhoneRequest(
             .attachments(new ArrayList<>())
             .grantShop(false)
             .grantEvent(false)
+            .account(phoneNumber)
             .build();
         List<OwnerAttachment> attachments = attachmentUrls.stream()
             .map(OwnerRegisterByPhoneInnerAttachmentUrl::fileUrl)

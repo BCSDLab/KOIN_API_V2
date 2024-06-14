@@ -50,6 +50,10 @@ public class Owner {
     @Column(name = "grant_event", columnDefinition = "TINYINT")
     private boolean grantEvent;
 
+    @Size(max = 255)
+    @Column(name = "account")
+    private String account;
+
     @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true)
     @JoinColumn(name = "owner_id", updatable = false)
     private List<OwnerAttachment> attachments = new ArrayList<>();
@@ -60,12 +64,14 @@ public class Owner {
         String companyRegistrationNumber,
         List<OwnerAttachment> attachments,
         Boolean grantShop,
-        Boolean grantEvent
+        Boolean grantEvent,
+        String account
     ) {
         this.user = user;
         this.companyRegistrationNumber = companyRegistrationNumber;
         this.attachments = attachments;
         this.grantShop = grantShop;
         this.grantEvent = grantEvent;
+        this.account = account;
     }
 }
