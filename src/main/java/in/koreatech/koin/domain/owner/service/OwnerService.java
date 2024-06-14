@@ -231,7 +231,7 @@ public class OwnerService {
     private void sendCertificationSms(String phoneNumber) {
         setVerificationCount(phoneNumber);
         String certificationCode = CertificateNumberGenerator.generate();
-        naverSmsService.sendVerificationCode(certificationCode, phoneNumber.replace("-", ""));
+        naverSmsService.sendVerificationCode(certificationCode, phoneNumber);
         OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
             phoneNumber,
             certificationCode
