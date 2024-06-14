@@ -59,7 +59,7 @@ public class User extends BaseEntity {
     private UserType userType;
 
     @Size(max = 100)
-    @Column(name = "email", nullable = false, length = 100)
+    @Column(name = "email", length = 100)
     private String email;
 
     @Column(name = "gender", columnDefinition = "INT")
