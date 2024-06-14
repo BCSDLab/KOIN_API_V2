@@ -25,4 +25,16 @@ public class TechStackFixture {
                 .build()
         );
     }
+
+    public TechStack adobeFlash(Track track) {
+        return techStackRepository.save(
+            TechStack.builder()
+                .imageUrl("https://testimageurl.com")
+                .trackId(track.getId())
+                .name("AdobeFlash")
+                .description("deleted")
+                .isDeleted(true)
+                .build()
+        );
+    }
 }
