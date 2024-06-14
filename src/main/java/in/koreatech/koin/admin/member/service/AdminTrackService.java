@@ -8,8 +8,11 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.admin.member.dto.AdminTechStackRequest;
 import in.koreatech.koin.admin.member.dto.AdminTechStackResponse;
 import in.koreatech.koin.admin.member.dto.AdminTrackResponse;
+import in.koreatech.koin.admin.member.dto.AdminTrackSingleResponse;
+import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
 import in.koreatech.koin.admin.member.repository.AdminTechStackRepository;
 import in.koreatech.koin.admin.member.repository.AdminTrackRepository;
+import in.koreatech.koin.domain.member.model.Member;
 import in.koreatech.koin.domain.member.model.TechStack;
 import in.koreatech.koin.domain.member.model.Track;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +23,21 @@ import lombok.RequiredArgsConstructor;
 public class AdminTrackService {
 
     private final AdminTrackRepository adminTrackRepository;
+    private final AdminMemberRepository adminMemberRepository;
     private final AdminTechStackRepository adminTechStackRepository;
 
     public List<AdminTrackResponse> getTracks() {
         return adminTrackRepository.findAll().stream()
             .map(AdminTrackResponse::from)
             .toList();
+    }
+
+    public AdminTrackSingleResponse getTrack(Integer trackId) {
+        Track track = adminTrackRepository.getById(trackId);
+        List<Member> member = adminMemberRepository.findByTrackId(trackId);
+        List<TechStack> techStacks = adminTechStackRepository.findAllByTrackId(trackId);
+
+        return AdminTrackSingleResponse.of(track, member, techStacks);
     }
 
     @Transactional
