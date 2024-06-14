@@ -59,7 +59,7 @@ public record OwnerRegisterByPhoneRequest(
         User user = User.builder()
             .password(passwordEncoder.encode(password))
             .name(name)
-            .email(phoneNumber)
+            .email(null)
             .phoneNumber(phoneNumber)
             .userType(OWNER)
             .isAuthed(false)
