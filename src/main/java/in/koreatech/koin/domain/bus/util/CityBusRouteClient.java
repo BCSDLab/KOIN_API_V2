@@ -61,13 +61,18 @@ public class CityBusRouteClient {
         this.cityBusRouteCacheRepository = cityBusRouteCacheRepository;
     }
 
-    public Set<Long> getAvailableCityBus(String nodeId) {
-        Optional<CityBusRouteCache> routeCache = cityBusRouteCacheRepository.findById(nodeId);
-        if (routeCache.isEmpty()) {
+    public Set<Long> getAvailableCityBus(List<String> nodeIds) {
+        Set<Long> busNumbers = new HashSet<>();
+        nodeIds.forEach(nodeId -> {
+            Optional<CityBusRouteCache> routeCache = cityBusRouteCacheRepository.findById(nodeId);
+            routeCache.ifPresent(cityBusRouteCache -> busNumbers.addAll(cityBusRouteCache.getBusNumbers()));
+        });
+
+        if (busNumbers.isEmpty()) {
             return new HashSet<>(AVAILABLE_CITY_BUS);
         }
 
-        return routeCache.get().getBusNumbers();
+        return busNumbers;
     }
 
     @Transactional
