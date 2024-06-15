@@ -12,9 +12,6 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AdminTrackRequest(
-    @Schema(description = "트랙 고유 ID", example = "1")
-    Integer id,
-
     @Schema(description = "트랙 명", example = "Backend", requiredMode = REQUIRED)
     @NotBlank(message = "트랙명은 비워둘 수 없습니다.")
     String name,

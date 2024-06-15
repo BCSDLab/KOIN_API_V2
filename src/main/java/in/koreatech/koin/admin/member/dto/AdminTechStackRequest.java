@@ -11,10 +11,6 @@ import jakarta.validation.constraints.NotBlank;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AdminTechStackRequest(
-
-    @Schema(description = "기술스택 고유 ID", example = "1")
-    Integer id,
-
     @Schema(description = "이미지 링크", example = "http://url.com")
     String imageUrl,
 

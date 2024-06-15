@@ -115,7 +115,6 @@ public class AdminTrackApiTest extends AcceptanceTest {
             .contentType("application/json")
             .body("""
                 {
-                  "id": 10,
                   "name": "BackEnd",
                   "headcount": 20
                 }
@@ -232,7 +231,6 @@ public class AdminTrackApiTest extends AcceptanceTest {
             .contentType("application/json")
             .body("""
                 {
-                    "id": 3,
                     "image_url": "https://url.com",
                     "name": "Spring",
                     "description": "스프링은 웹 프레임워크이다"
