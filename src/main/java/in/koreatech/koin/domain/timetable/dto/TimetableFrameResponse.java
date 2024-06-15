@@ -5,11 +5,11 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.timetable.model.TimeTableFrame;
+import in.koreatech.koin.domain.timetable.model.TimetableFrame;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record TimeTableFrameResponse(
+public record TimetableFrameResponse(
     @Schema(description = "id", example = "1", requiredMode = REQUIRED)
     Integer id,
 
@@ -19,8 +19,8 @@ public record TimeTableFrameResponse(
     @Schema(description = "메인 시간표 여부", example = "false", requiredMode = REQUIRED)
     boolean isMain
 ) {
-    public static TimeTableFrameResponse from(TimeTableFrame timetableFrame) {
-        return new TimeTableFrameResponse(
+    public static TimetableFrameResponse from(TimetableFrame timetableFrame) {
+        return new TimetableFrameResponse(
             timetableFrame.getId(),
             timetableFrame.getName(),
             timetableFrame.isMain()

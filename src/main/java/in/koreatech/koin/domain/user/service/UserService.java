@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
-import in.koreatech.koin.domain.timetable.repository.TimeTableFrameRepository;
+import in.koreatech.koin.domain.timetable.repository.TimetableFrameRepository;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
@@ -51,7 +51,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final TimeTableFrameRepository timeTableFrameRepository;
+    private final TimetableFrameRepository timeTableFrameRepository;
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {

@@ -31,7 +31,7 @@ import lombok.NoArgsConstructor;
     indexes = @Index(name = "timetable_frame_INDEX", columnList = "user_id, semester_id")
 )
 @NoArgsConstructor(access = PROTECTED)
-public class TimeTableFrame extends BaseEntity {
+public class TimetableFrame extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -57,24 +57,24 @@ public class TimeTableFrame extends BaseEntity {
     private boolean isMain;
 
     @OneToMany(mappedBy = "timetableFrame", orphanRemoval = true, cascade = ALL)
-    private List<TimeTableLecture> timeTableLectures;
+    private List<TimetableLecture> timetableLectures;
 
     public void updateStatusMain(boolean isMain) {
         this.isMain = isMain;
     }
 
     @Builder
-    private TimeTableFrame(
+    private TimetableFrame(
         User user,
         Semester semester,
         String name,
         boolean isMain,
-        List<TimeTableLecture> timeTableLectures
+        List<TimetableLecture> timetableLectures
     ) {
         this.user = user;
         this.semester = semester;
         this.name = name;
         this.isMain = isMain;
-        this.timeTableLectures = timeTableLectures;
+        this.timetableLectures = timetableLectures;
     }
 }

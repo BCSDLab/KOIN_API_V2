@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "timetable_lecture")
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
-public class TimeTableLecture extends BaseEntity {
+public class TimetableLecture extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -61,11 +61,11 @@ public class TimeTableLecture extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "timetable_id")
-    private TimeTableFrame timetableFrame;
+    private TimetableFrame timetableFrame;
 
     @Builder
-    private TimeTableLecture(String className, String classTime, String classPlace, String professor,
-        String memo, boolean isDeleted, Lecture lectures, TimeTableFrame timetableFrame) {
+    private TimetableLecture(String className, String classTime, String classPlace, String professor,
+        String memo, boolean isDeleted, Lecture lectures, TimetableFrame timetableFrame) {
         this.className = className;
         this.classTime = classTime;
         this.classPlace = classPlace;

@@ -10,8 +10,8 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.domain.timetable.model.TimeTableFrame;
-import in.koreatech.koin.domain.timetable.repository.TimeTableFrameRepository;
+import in.koreatech.koin.domain.timetable.model.TimetableFrame;
+import in.koreatech.koin.domain.timetable.repository.TimetableFrameRepository;
 import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.LectureFixture;
@@ -38,7 +38,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
     private LectureFixture lectureFixture;
 
     @Autowired
-    private TimeTableFrameRepository timeTableFrameRepository;
+    private TimetableFrameRepository timeTableFrameRepository;
 
     @Autowired
     private TimeTableRepository timeTableRepository;
@@ -91,7 +91,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token)
             .when()
             .param("semester", semester.getSemester())
-            .get("/timetables/frame")
+            .get("/timetables/frames")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -121,7 +121,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         Semester semester = semesterFixture.semester("20192");
         Lecture lecture = lectureFixture.HRD_개론(semester.getSemester());
 
-        TimeTableFrame frame1 = timeTableV2Fixture.시간표5(user, semester, lecture);
+        TimetableFrame frame1 = timeTableV2Fixture.시간표5(user, semester, lecture);
 
         RestAssured
             .given()
@@ -133,7 +133,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value());
 
         assertThat(timeTableFrameRepository.findById(frame1.getId())).isNotPresent();
-        assertThat(timeTableRepository.findById(frame1.getTimeTableLectures().get(1).getId())).isNotPresent();
+        assertThat(timeTableRepository.findById(frame1.getTimetableLectures().get(1).getId())).isNotPresent();
     }
 
     @Test
@@ -144,8 +144,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         String token = userFixture.getToken(user2);
         Semester semester = semesterFixture.semester("20192");
 
-        TimeTableFrame frame1 = timeTableV2Fixture.시간표1(user1, semester);
-        TimeTableFrame frame2 = timeTableV2Fixture.시간표2(user1, semester);
+        TimetableFrame frame1 = timeTableV2Fixture.시간표1(user1, semester);
+        TimetableFrame frame2 = timeTableV2Fixture.시간표2(user1, semester);
 
         var response = RestAssured
             .given()

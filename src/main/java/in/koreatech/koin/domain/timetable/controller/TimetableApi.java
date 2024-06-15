@@ -18,8 +18,8 @@ import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimeTableFrameRequest;
-import in.koreatech.koin.domain.timetable.dto.TimeTableFrameResponse;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameCreateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -82,8 +82,8 @@ public interface TimetableApi {
     )
     @Operation(summary = "timetableframe 생성")
     @PostMapping("/timetables/frame")
-    public ResponseEntity<TimeTableFrameResponse> createTimetablesFrame(
-        @Valid @RequestBody TimeTableFrameRequest request,
+    public ResponseEntity<TimetableFrameResponse> createTimetablesFrame(
+        @Valid @RequestBody TimetableFrameCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -97,7 +97,7 @@ public interface TimetableApi {
     )
     @Operation(summary = "timetableframe 조회")
     @GetMapping("/timetables/frame")
-    public ResponseEntity<List<TimeTableFrameResponse>> getTimetablesFrame(
+    public ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     );

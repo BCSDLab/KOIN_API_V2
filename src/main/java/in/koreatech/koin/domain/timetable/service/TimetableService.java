@@ -10,16 +10,16 @@ import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimeTableFrameRequest;
-import in.koreatech.koin.domain.timetable.dto.TimeTableFrameResponse;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameCreateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.model.TimeTable;
-import in.koreatech.koin.domain.timetable.model.TimeTableFrame;
+import in.koreatech.koin.domain.timetable.model.TimetableFrame;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
-import in.koreatech.koin.domain.timetable.repository.TimeTableFrameRepository;
+import in.koreatech.koin.domain.timetable.repository.TimetableFrameRepository;
 import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -34,7 +34,7 @@ public class TimetableService {
     private final LectureRepository lectureRepository;
     private final SemesterRepository semesterRepository;
     private final TimeTableRepository timeTableRepository;
-    private final TimeTableFrameRepository timetableFrameRepository;
+    private final TimetableFrameRepository timetableFrameRepository;
     private final UserRepository userRepository;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
@@ -48,31 +48,31 @@ public class TimetableService {
     }
 
     @Transactional
-    public TimeTableFrameResponse createTimetablesFrame(Integer userId, TimeTableFrameRequest request) {
+    public TimetableFrameResponse createTimetablesFrame(Integer userId, TimetableFrameCreateRequest request) {
         Semester semester = semesterRepository.getBySemester(request.semester());
         User user = userRepository.getById(userId);
         int currentFrameCount = timetableFrameRepository.countByUserIdAndSemesterId(userId, semester.getId()) + 1;
         boolean isMain = currentFrameCount == 1;
 
-        TimeTableFrame timeTableFrame = request.toTimetablesFrame(user, semester, "시간표" + currentFrameCount, isMain);
-        return TimeTableFrameResponse.from(timetableFrameRepository.save(timeTableFrame));
+        TimetableFrame timeTableFrame = request.toTimetablesFrame(user, semester, "시간표" + currentFrameCount, isMain);
+        return TimetableFrameResponse.from(timetableFrameRepository.save(timeTableFrame));
     }
 
-    public List<TimeTableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
+    public List<TimetableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
         Semester semester = semesterRepository.getBySemester(semesterRequest);
         return timetableFrameRepository.findAllByUserIdAndSemesterId(userId, semester.getId()).stream()
-            .map(TimeTableFrameResponse::from)
+            .map(TimetableFrameResponse::from)
             .toList();
     }
 
     @Transactional
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {
-        TimeTableFrame frame = timetableFrameRepository.getById(frameId);
+        TimetableFrame frame = timetableFrameRepository.getById(frameId);
         if (!Objects.equals(frame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
         if(frame.isMain()) {
-            TimeTableFrame nextMainFrame =
+            TimetableFrame nextMainFrame =
                 timetableFrameRepository.
                     findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId, frame.getSemester().getId());
             if (nextMainFrame != null) {
