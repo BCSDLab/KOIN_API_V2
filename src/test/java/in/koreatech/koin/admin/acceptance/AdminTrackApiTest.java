@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.member.repository.AdminTechStackRepository;
+import in.koreatech.koin.admin.member.repository.AdminTrackRepository;
 import in.koreatech.koin.domain.member.model.TechStack;
 import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.domain.user.model.Student;
@@ -35,10 +36,13 @@ public class AdminTrackApiTest extends AcceptanceTest {
     private UserFixture userFixture;
 
     @Autowired
+    private AdminTrackRepository adminTrackRepository;
+
+    @Autowired
     private AdminTechStackRepository adminTechStackRepository;
 
     @Test
-    @DisplayName("관리자가 BCSDLab 트랙 정보를 조회한다 - 관리자가 아니면 403 반환")
+    @DisplayName("관리자가 BCSDLab 트랙 정보를 조회한다. - 관리자가 아니면 403 반환")
     void findTracksAdminNoAuth() {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
@@ -54,7 +58,7 @@ public class AdminTrackApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("관리자가 BCSDLab 트랙 정보를 조회한다")
+    @DisplayName("관리자가 BCSDLab 트랙 정보를 조회한다.")
     void findTracks() {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
@@ -304,7 +308,33 @@ public class AdminTrackApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("관리자가 BCSDLab 기술스택 정보를 생성한다")
+    @DisplayName("관리자가 BCSDLab 트랙 정보를 삭제한다.")
+    void deleteTrack() {
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        Track backEnd = trackFixture.backend();
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .delete("/admin/tracks/{id}", backEnd.getId())
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Track updatedTrack = adminTrackRepository.getById(backEnd.getId());
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedTrack.getName()).isEqualTo(backEnd.getName());
+            softly.assertThat(updatedTrack.getHeadcount()).isEqualTo(backEnd.getHeadcount());
+            softly.assertThat(updatedTrack.isDeleted()).isEqualTo(true);
+        });
+    }
+
+    @Test
+    @DisplayName("관리자가 BCSDLab 기술스택 정보를 생성한다.")
     void createTechStack() {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
@@ -346,7 +376,7 @@ public class AdminTrackApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("관리자가 BCSDLab 기술스택 정보를 수정한다")
+    @DisplayName("관리자가 BCSDLab 기술스택 정보를 수정한다.")
     void updateTechStack() {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
@@ -389,7 +419,7 @@ public class AdminTrackApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("관리자가 기술스택 정보를 삭제한다")
+    @DisplayName("관리자가 기술스택 정보를 삭제한다.")
     void deleteTechStack() {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
@@ -406,14 +436,14 @@ public class AdminTrackApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        TechStack techStack = adminTechStackRepository.getById(java.getId());
+        TechStack updatedtechStack = adminTechStackRepository.getById(java.getId());
 
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(techStack.getImageUrl()).isEqualTo("https://testimageurl.com");
-            softly.assertThat(techStack.getName()).isEqualTo("Java");
-            softly.assertThat(techStack.getDescription()).isEqualTo("Language");
-            softly.assertThat(techStack.getTrackId()).isEqualTo(backEnd.getId());
-            softly.assertThat(techStack.isDeleted()).isEqualTo(true);
+            softly.assertThat(updatedtechStack.getImageUrl()).isEqualTo(java.getImageUrl());
+            softly.assertThat(updatedtechStack.getName()).isEqualTo(java.getName());
+            softly.assertThat(updatedtechStack.getDescription()).isEqualTo(java.getDescription());
+            softly.assertThat(updatedtechStack.getTrackId()).isEqualTo(backEnd.getId());
+            softly.assertThat(updatedtechStack.isDeleted()).isEqualTo(true);
         });
     }
 }
