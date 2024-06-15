@@ -139,6 +139,31 @@ public class AdminTrackApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("관리자가 BCSDLab 트랙 정보를 생성한다. - 이미 있는 트랙명이면 409반환")
+    void createTrackDuplication() {
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        trackFixture.backend();
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType("application/json")
+            .body("""
+                {
+                  "name": "BackEnd",
+                  "headcount": 20
+                }
+                """)
+            .when()
+            .post("/admin/tracks")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .extract();
+    }
+
+    @Test
     @DisplayName("관리자가 BCSDLab 트랙 단건 정보를 조회한다.")
     void findTrack() {
         User adminUser = userFixture.코인_운영자();
@@ -214,6 +239,31 @@ public class AdminTrackApiTest extends AcceptanceTest {
                      ]
                  }
                 """);
+    }
+
+    @Test
+    @DisplayName("관리자가 BCSDLab 트랙 정보를 수정한다. - 이미 있는 트랙명이면 409반환")
+    void updateTrackDuplication() {
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        Track backEnd = trackFixture.backend();
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType("application/json")
+            .body("""
+                {
+                  "name": "BackEnd",
+                  "headcount": 20
+                }
+                """)
+            .when()
+            .put("/admin/tracks/{id}", backEnd.getId())
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .extract();
     }
 
     @Test
