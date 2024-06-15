@@ -242,6 +242,43 @@ public class AdminTrackApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("관리자가 BCSDLab 트랙 정보를 수정한다.")
+    void updateTrack() {
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        Track backEnd = trackFixture.backend();
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType("application/json")
+            .body("""
+                {
+                  "name": "frontEnd",
+                  "headcount": 20
+                }
+                """)
+            .when()
+            .put("/admin/tracks/{id}", backEnd.getId())
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "id": 1,
+                    "name": "frontEnd",
+                    "headcount": 20,
+                    "is_deleted": false,
+                    "created_at": "2024-01-15 12:00:00",
+                    "updated_at": "2024-01-15 12:00:00"
+                }
+                """);
+    }
+
+    @Test
     @DisplayName("관리자가 BCSDLab 트랙 정보를 수정한다. - 이미 있는 트랙명이면 409반환")
     void updateTrackDuplication() {
         User adminUser = userFixture.코인_운영자();
