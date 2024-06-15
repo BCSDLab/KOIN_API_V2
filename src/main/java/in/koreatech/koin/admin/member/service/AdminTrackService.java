@@ -66,6 +66,12 @@ public class AdminTrackService {
     }
 
     @Transactional
+    public void deleteTrack(Integer trackId) {
+        Track track = adminTrackRepository.getById(trackId);
+        track.delete();
+    }
+
+    @Transactional
     public AdminTechStackResponse createTechStack(AdminTechStackRequest request, String trackName) {
         Track track = adminTrackRepository.getByName(trackName);
         TechStack techStack = request.toEntity(track.getId());

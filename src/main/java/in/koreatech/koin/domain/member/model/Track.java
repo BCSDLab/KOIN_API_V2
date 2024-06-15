@@ -50,4 +50,8 @@ public class Track extends BaseEntity {
         this.headcount = headcount;
         this.isDeleted = isDeleted;
     }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
 }

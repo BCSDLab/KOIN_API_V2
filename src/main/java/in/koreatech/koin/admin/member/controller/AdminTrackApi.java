@@ -52,6 +52,7 @@ public interface AdminTrackApi {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
         }
     )
     @Operation(summary = "트랙 생성")
@@ -84,6 +85,7 @@ public interface AdminTrackApi {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
         }
     )
     @Operation(summary = "트랙 수정")
@@ -92,6 +94,22 @@ public interface AdminTrackApi {
     ResponseEntity<AdminTrackResponse> updateTrack(
         @PathVariable("id") Integer trackId,
         @RequestBody @Valid AdminTrackRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "204", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "트랙 삭제")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @DeleteMapping("/admin/tracks/{id}")
+    ResponseEntity<Void> deleteTrack(
+        @PathVariable("id") Integer trackId,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 

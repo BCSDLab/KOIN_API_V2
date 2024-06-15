@@ -56,7 +56,7 @@ public class AdminTrackController implements AdminTrackApi {
         return ResponseEntity.ok(response);
     }
 
-    @Override
+    @PutMapping("/admin/tracks/{id}")
     public ResponseEntity<AdminTrackResponse> updateTrack(
         @PathVariable("id") Integer trackId,
         @RequestBody @Valid AdminTrackRequest request,
@@ -64,6 +64,15 @@ public class AdminTrackController implements AdminTrackApi {
     ) {
         var response = adminTrackService.updateTrack(trackId, request);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/admin/tracks/{id}")
+    public ResponseEntity<Void> deleteTrack(
+        @PathVariable("id") Integer trackId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminTrackService.deleteTrack(trackId);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/admin/techStacks")
