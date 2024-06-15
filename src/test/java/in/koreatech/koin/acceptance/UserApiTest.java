@@ -765,7 +765,7 @@ class UserApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사용자가 비밀번호를 통해 자신이 맞는지 인증한다. - 비밀번호가 다르면 401 반환")
+    @DisplayName("사용자가 비밀번호를 통해 자신이 맞는지 인증한다. - 비밀번호가 다르면 400 반환")
     void userCheckPasswordInvalid() {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
@@ -782,6 +782,6 @@ class UserApiTest extends AcceptanceTest {
             .when()
             .post("/user/check/password")
             .then()
-            .statusCode(HttpStatus.UNAUTHORIZED.value());
+            .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 }
