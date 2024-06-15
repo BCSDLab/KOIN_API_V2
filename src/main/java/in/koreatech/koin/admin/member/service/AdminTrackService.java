@@ -10,6 +10,7 @@ import in.koreatech.koin.admin.member.dto.AdminTechStackResponse;
 import in.koreatech.koin.admin.member.dto.AdminTrackRequest;
 import in.koreatech.koin.admin.member.dto.AdminTrackResponse;
 import in.koreatech.koin.admin.member.dto.AdminTrackSingleResponse;
+import in.koreatech.koin.admin.member.exception.TrackNameDuplicationException;
 import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
 import in.koreatech.koin.admin.member.repository.AdminTechStackRepository;
 import in.koreatech.koin.admin.member.repository.AdminTrackRepository;
@@ -35,6 +36,9 @@ public class AdminTrackService {
 
     @Transactional
     public AdminTrackResponse createTrack(AdminTrackRequest request) {
+        if (adminTrackRepository.findByName(request.name()).isPresent()) {
+            throw TrackNameDuplicationException.withDetail("name: " + request.name());
+        }
         Track track = request.toEntity();
         Track savedTrack = adminTrackRepository.save(track);
 
@@ -51,6 +55,9 @@ public class AdminTrackService {
 
     @Transactional
     public AdminTrackResponse updateTrack(Integer trackId, AdminTrackRequest request) {
+        if (adminTrackRepository.findByName(request.name()).isPresent()) {
+            throw TrackNameDuplicationException.withDetail("name: " + request.name());
+        }
         Track track = adminTrackRepository.getById(trackId);
         track.update(request.name(), request.headcount(), request.isDeleted());
         Track updatedTrack = adminTrackRepository.save(track);
