@@ -108,7 +108,7 @@ public class UserService {
     public void checkPassword(UserPasswordCheckRequest request, Integer userId) {
         User user = userRepository.getById(userId);
         if (!user.isSamePassword(passwordEncoder, request.password())) {
-            throw new AuthenticationException("올바르지 않은 비밀번호입니다.");
+            throw new KoinIllegalArgumentException("올바르지 않은 비밀번호입니다.");
         }
     }
 
