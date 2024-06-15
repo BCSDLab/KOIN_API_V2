@@ -86,6 +86,23 @@ public interface AdminTrackApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
+    @Operation(summary = "트랙 수정")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/admin/tracks/{id}")
+    ResponseEntity<AdminTrackResponse> updateTrack(
+        @PathVariable("id") Integer trackId,
+        @RequestBody @Valid AdminTrackRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
     @Operation(summary = "기술스택 생성")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/techStacks")

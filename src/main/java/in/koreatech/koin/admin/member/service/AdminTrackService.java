@@ -50,6 +50,15 @@ public class AdminTrackService {
     }
 
     @Transactional
+    public AdminTrackResponse updateTrack(Integer trackId, AdminTrackRequest request) {
+        Track track = adminTrackRepository.getById(trackId);
+        track.update(request.name(), request.headcount(), request.isDeleted());
+        Track updatedTrack = adminTrackRepository.save(track);
+
+        return AdminTrackResponse.from(updatedTrack);
+    }
+
+    @Transactional
     public AdminTechStackResponse createTechStack(AdminTechStackRequest request, String trackName) {
         Track track = adminTrackRepository.getByName(trackName);
         TechStack techStack = request.toEntity(track.getId());

@@ -56,6 +56,16 @@ public class AdminTrackController implements AdminTrackApi {
         return ResponseEntity.ok(response);
     }
 
+    @Override
+    public ResponseEntity<AdminTrackResponse> updateTrack(
+        @PathVariable("id") Integer trackId,
+        @RequestBody @Valid AdminTrackRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        var response = adminTrackService.updateTrack(trackId, request);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/admin/techStacks")
     public ResponseEntity<AdminTechStackResponse> createTechStack(
         @RequestBody @Valid AdminTechStackRequest request,

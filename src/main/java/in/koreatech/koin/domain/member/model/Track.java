@@ -44,4 +44,10 @@ public class Track extends BaseEntity {
         this.headcount = headcount != null ? headcount : 0;
         this.isDeleted = isDeleted;
     }
+
+    public void update(String name, Integer headcount, boolean idDeleted) {
+        this.name = name;
+        this.headcount = headcount;
+        this.isDeleted = isDeleted;
+    }
 }
