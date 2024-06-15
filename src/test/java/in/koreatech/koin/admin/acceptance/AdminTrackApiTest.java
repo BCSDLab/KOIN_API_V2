@@ -104,7 +104,43 @@ public class AdminTrackApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("BCSDLab 트랙 정보 단건 조회")
+    @DisplayName("관리자가 BCSDLab 트랙 정보를 생성한다.")
+    void createTrack() {
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType("application/json")
+            .body("""
+                {
+                  "id": 10,
+                  "name": "BackEnd",
+                  "headcount": 20
+                }
+                """)
+            .when()
+            .post("/admin/tracks")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "id": 1,
+                    "name": "BackEnd",
+                    "headcount": 20,
+                    "is_deleted": false,
+                    "created_at": "2024-01-15 12:00:00",
+                    "updated_at": "2024-01-15 12:00:00"
+                }
+                """);
+    }
+
+    @Test
+    @DisplayName("관리자가 BCSDLab 트랙 단건 정보를 조회한다.")
     void findTrack() {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
