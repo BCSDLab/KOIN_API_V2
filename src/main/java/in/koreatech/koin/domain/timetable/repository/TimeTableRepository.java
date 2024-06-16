@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.timetable.exception.TimeTableNotFoundException;
+import in.koreatech.koin.domain.timetable.exception.TimetableNotFoundException;
 import in.koreatech.koin.domain.timetable.model.TimeTable;
 
 public interface TimeTableRepository extends Repository<TimeTable, Integer> {
@@ -22,6 +22,6 @@ public interface TimeTableRepository extends Repository<TimeTable, Integer> {
 
     default TimeTable getById(Integer id) {
         return findById(id)
-            .orElseThrow(() -> TimeTableNotFoundException.withDetail("id: " + id));
+            .orElseThrow(() -> TimetableNotFoundException.withDetail("id: " + id));
     }
 }

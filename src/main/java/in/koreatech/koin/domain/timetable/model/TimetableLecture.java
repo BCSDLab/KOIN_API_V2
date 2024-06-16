@@ -5,12 +5,13 @@ import static lombok.AccessLevel.PROTECTED;
 
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin.domain.timetable.dto.TimetableLectureUpdateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -26,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "timetable_lecture")
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
-public class TimeTableLecture extends BaseEntity {
+public class TimetableLecture extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -62,11 +63,11 @@ public class TimeTableLecture extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "timetable_id")
-    private TimeTableFrame timetableFrame;
+    private TimetableFrame timetableFrame;
 
     @Builder
-    private TimeTableLecture(String className, String classTime, String classPlace, String professor,
-        String memo, boolean isDeleted, Lecture lectures, TimeTableFrame timetableFrame) {
+    private TimetableLecture(String className, String classTime, String classPlace, String professor,
+        String memo, boolean isDeleted, Lecture lectures, TimetableFrame timetableFrame) {
         this.className = className;
         this.classTime = classTime;
         this.classPlace = classPlace;
@@ -75,5 +76,21 @@ public class TimeTableLecture extends BaseEntity {
         this.isDeleted = isDeleted;
         this.lecture = lectures;
         this.timetableFrame = timetableFrame;
+    }
+
+    public void update(TimetableLectureUpdateRequest.InnerTimetableLectureRequest request) {
+        this.className = request.classTitle();
+        this.classTime = request.classTime().toString();
+        this.classPlace = request.classPlace();
+        this.professor = request.professor();
+        this.memo = request.memo();
+    }
+
+    public void update(TimetableUpdateRequest.InnerTimetableRequest request) {
+        this.className = request.classTitle();
+        this.classTime = request.classTime().toString();
+        this.classPlace = request.classPlace();
+        this.professor = request.professor();
+        this.memo = request.memo();
     }
 }
