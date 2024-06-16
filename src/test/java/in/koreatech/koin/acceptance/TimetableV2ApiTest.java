@@ -12,7 +12,7 @@ import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.model.TimetableFrame;
 import in.koreatech.koin.domain.timetable.repository.TimetableFrameRepository;
-import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
+import in.koreatech.koin.domain.timetable.repository.TimetableLectureRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
@@ -38,10 +38,10 @@ public class TimetableV2ApiTest extends AcceptanceTest {
     private LectureFixture lectureFixture;
 
     @Autowired
-    private TimetableFrameRepository timeTableFrameRepository;
+    private TimetableFrameRepository timetableFrameRepository;
 
     @Autowired
-    private TimeTableRepository timeTableRepository;
+    private TimetableLectureRepository timetableLectureRepository;
 
     @Test
     @DisplayName("특정 시간표 frame을 생성한다")
@@ -132,8 +132,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        assertThat(timeTableFrameRepository.findById(frame1.getId())).isNotPresent();
-        assertThat(timeTableRepository.findById(frame1.getTimetableLectures().get(1).getId())).isNotPresent();
+        assertThat(timetableFrameRepository.findById(frame1.getId())).isNotPresent();
+        assertThat(timetableLectureRepository.findById(frame1.getTimetableLectures().get(1).getId())).isNotPresent();
     }
 
     @Test
