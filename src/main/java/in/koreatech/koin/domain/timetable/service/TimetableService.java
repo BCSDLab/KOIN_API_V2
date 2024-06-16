@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.timetable.dto.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
 import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.model.TimetableFrame;
 import in.koreatech.koin.domain.timetable.model.TimetableLecture;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
@@ -32,9 +33,9 @@ public class TimetableService {
 
     @Transactional
     public TimetableResponse createTimeTables(Integer userId, TimeTableCreateRequest request) {
-        semesterRepository.getBySemester(request.semester());
+        Semester semester = semesterRepository.getBySemester(request.semester());
         List<TimetableLecture> timetableLectures = new ArrayList<>();
-        TimetableFrame TimetableFrame = timetableFrameRepository.getByUserIdAndSemester(userId, request.semester(), true);
+        TimetableFrame TimetableFrame = timetableFrameRepository.getByUserIdAndSemester(userId, semester.getId(), true);
 
         for(InnerTimeTableRequest timeTable : request.timetable()) {
             Lecture lecture = lectureRepository.getBySemesterAndNameAndLectureClass(request.semester(), timeTable.classTitle(), timeTable.lectureClass());

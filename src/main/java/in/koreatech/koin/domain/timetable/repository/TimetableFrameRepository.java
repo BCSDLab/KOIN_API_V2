@@ -16,15 +16,15 @@ public interface TimetableFrameRepository extends Repository<TimetableFrame, Int
 
     Optional<TimetableFrame> findById(Integer id);
 
-    Optional<TimetableFrame> findByUserIdAndSemesterAndIsMain(Integer userId, String semester, boolean isMain);
+    Optional<TimetableFrame> findByUserIdAndSemesterIdAndIsMain(Integer userId, Integer semesterId, boolean isMain);
 
     default TimetableFrame getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> TimeTableNotFoundException.withDetail("timetable_frame_id : " + id));
     }
 
-    default TimetableFrame getByUserIdAndSemester(Integer userId, String semester, boolean isMain) {
-        return findByUserIdAndSemesterAndIsMain(userId, semester, isMain)
+    default TimetableFrame getByUserIdAndSemester(Integer userId, Integer semesterId, boolean isMain) {
+        return findByUserIdAndSemesterIdAndIsMain(userId, semesterId, isMain)
             .orElseThrow(() -> TimeTableNotFoundException.withDetail("userId: " + userId));
     }
 }
