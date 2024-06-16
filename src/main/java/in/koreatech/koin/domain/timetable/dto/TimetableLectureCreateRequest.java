@@ -18,7 +18,7 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimetableLectureCreateRequest(
-    @Schema(description = "시간표 프레임 고유 번호", example = "1", requiredMode = REQUIRED)
+    @Schema(description = "id", example = "1", requiredMode = REQUIRED)
     Integer timetableFrameId,
 
     @Valid
@@ -46,6 +46,7 @@ public record TimetableLectureCreateRequest(
         @Schema(description = "강의 고유 번호", example = "1", requiredMode = NOT_REQUIRED)
         Integer lectureId
     ){
+
         public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame, Lecture lecture) {
             return new TimetableLecture(
                 className,

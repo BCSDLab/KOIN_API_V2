@@ -10,7 +10,6 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.model.TimetableFrame;
 import in.koreatech.koin.domain.timetable.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,7 +17,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimetableResponse(
     @Schema(name = "학기", example = "20241", requiredMode = REQUIRED)
-    Semester semester,
+    String semester,
 
     @Schema(name = "시간표 상세정보")
     List<InnerTimeTableResponse> timetable,
@@ -32,7 +31,7 @@ public record TimetableResponse(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimeTableResponse(
-        @Schema(name = "시간표 ID", example = "1", requiredMode = REQUIRED)
+        @Schema(name = "id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
         @Schema(name = "과목 코드", example = "ARB244", requiredMode = NOT_REQUIRED)
@@ -92,12 +91,12 @@ public record TimetableResponse(
                 )
                 .toList();
         }
-
     }
 
-    public static TimetableResponse of(List<TimetableLecture> timeTableLectures, TimetableFrame timeTableFrame, Integer grades, Integer totalGrades) {
+    public static TimetableResponse of(List<TimetableLecture> timeTableLectures, TimetableFrame timeTableFrame,
+        Integer grades, Integer totalGrades) {
         return new TimetableResponse(
-            timeTableFrame.getSemester(),
+            timeTableFrame.getSemester().getSemester(),
             InnerTimeTableResponse.from(timeTableLectures),
             grades,
             totalGrades

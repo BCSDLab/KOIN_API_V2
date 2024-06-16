@@ -14,7 +14,6 @@ import in.koreatech.koin.domain.timetable.dto.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetable.service.SemesterService;
-import in.koreatech.koin.domain.timetable.service.TimetableLectureService;
 import in.koreatech.koin.domain.timetable.service.TimetableService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -25,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 public class TimetableController implements TimetableApi {
 
     private final TimetableService timetableService;
-    private final TimetableLectureService timetableLectureService;
     private final SemesterService semesterService;
 
     @GetMapping("/semesters/check")
@@ -50,7 +48,7 @@ public class TimetableController implements TimetableApi {
         @Valid @RequestBody TimetableLectureCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableLectureResponse timeTableLectureResponse = timetableLectureService.createTimetableLectures(userId, request);
+        TimetableLectureResponse timeTableLectureResponse = timetableService.createTimetableLectures(userId, request);
         return ResponseEntity.ok(timeTableLectureResponse);
     }
 }

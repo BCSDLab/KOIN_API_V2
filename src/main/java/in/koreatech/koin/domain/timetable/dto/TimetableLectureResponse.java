@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimetableLectureResponse(
-    @Schema(description = "시간표 프레임 고유 번호", example = "1", requiredMode = REQUIRED)
+    @Schema(description = "id", example = "1", requiredMode = REQUIRED)
     Integer timetableFrameId,
 
     @Schema(description = "강의시간표 상세 정보", requiredMode = REQUIRED)
@@ -30,7 +30,7 @@ public record TimetableLectureResponse(
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimetableLectureResponse(
-        @Schema(name = "강의 시간표 ID", example = "1", requiredMode = REQUIRED)
+        @Schema(name = "id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
         @Schema(name = "수강 정원", example = "38", requiredMode = NOT_REQUIRED)
@@ -69,10 +69,11 @@ public record TimetableLectureResponse(
         @Schema(name = "학부", example = "디자인ㆍ건축공학부", requiredMode = NOT_REQUIRED)
         String department
     ) {
+
         public static List<InnerTimetableLectureResponse> from(List<TimetableLecture> timetableLectures) {
             List<InnerTimetableLectureResponse> timetableLectureList = new ArrayList<>();
 
-            for(TimetableLecture timetableLecture : timetableLectures) {
+            for (TimetableLecture timetableLecture : timetableLectures) {
                 InnerTimetableLectureResponse response;
                 if (timetableLecture.getLecture() == null) {
                     response = new InnerTimetableLectureResponse(
@@ -113,8 +114,10 @@ public record TimetableLectureResponse(
         }
     }
 
-    public static TimetableLectureResponse of(Integer timetableFrameId, List<TimetableLecture> timetableLectures, Integer grades, Integer totalGrades) {
-        return new TimetableLectureResponse(timetableFrameId, InnerTimetableLectureResponse.from(timetableLectures), grades, totalGrades);
+    public static TimetableLectureResponse of(Integer timetableFrameId, List<TimetableLecture> timetableLectures,
+        Integer grades, Integer totalGrades) {
+        return new TimetableLectureResponse(timetableFrameId, InnerTimetableLectureResponse.from(timetableLectures),
+            grades, totalGrades);
     }
 
     private static final int INITIAL_BRACE_INDEX = 1;
