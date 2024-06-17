@@ -9,7 +9,7 @@ public record TimetableFrameUpdateResponse(
     @Schema(description = "학기 정보", example = "20192", requiredMode = REQUIRED)
     String semester,
 
-    @Schema(description = "메인 시간표 여부", example = "false", requiredMode = REQUIRED)
+    @Schema(description = "시간표 이름", example = "시간표1", requiredMode = REQUIRED)
     String name,
 
     @Schema(description = "메인 시간표 여부", example = "false", requiredMode = REQUIRED)
