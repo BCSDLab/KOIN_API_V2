@@ -68,13 +68,12 @@ public class TimetableService {
     @Transactional
     public TimetableResponse updateTimetables(Integer userId, TimetableUpdateRequest request) {
         Semester semester = semesterRepository.getBySemester(request.semester());
-        TimetableFrame timetableFrame = timetableFrameRepository.getByUserIdAndSemesterId(userId,
-            semester.getId(), true);
-
+        TimetableFrame timetableFrame = timetableFrameRepository.getByUserIdAndSemesterId(userId, semester.getId(), true);
         for (TimetableUpdateRequest.InnerTimetableRequest timetableRequest : request.timetable()) {
             TimetableLecture timetableLecture;
             if (timetableRequest.id() != null) {
                 timetableLecture = timetableLectureRepository.getById(timetableRequest.id());
+                timetableLecture.update(timetableRequest);
             } else {
                 timetableLecture = TimetableLecture.builder()
                     .className(timetableRequest.classTitle())
@@ -86,8 +85,6 @@ public class TimetableService {
                     .isDeleted(false)
                     .build();
             }
-            timetableLecture.update(timetableRequest);
-
             timetableLectureRepository.save(timetableLecture);
         }
         return getTimetableResponse(userId, timetableFrame);
@@ -97,22 +94,11 @@ public class TimetableService {
     public TimetableLectureResponse updateTimetablesLectures(Integer userId, TimetableLectureUpdateRequest request) {
         TimetableFrame timetableFrame = timetableFrameRepository.getById(request.id());
         for (TimetableLectureUpdateRequest.InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
-            TimetableLecture timetableLecture;
-            if (timetableRequest.id() != null) {
-                timetableLecture = timetableLectureRepository.getById(timetableRequest.id());
-            } else {
-                timetableLecture = TimetableLecture.builder()
-                    .className(timetableRequest.classTitle())
-                    .classTime(timetableRequest.classTime().toString())
-                    .classPlace(timetableRequest.classPlace())
-                    .professor(timetableRequest.professor())
-                    .memo(timetableRequest.memo())
-                    .timetableFrame(timetableFrame)
-                    .isDeleted(false)
-                    .build();
+            TimetableLecture timetableLecture = timetableLectureRepository.getById(timetableRequest.id());
+            if (timetableRequest.id() == null) {
+                timetableLecture.update(timetableRequest);
+                timetableLectureRepository.save(timetableLecture);
             }
-            timetableLecture.update(timetableRequest);
-            timetableLectureRepository.save(timetableLecture);
         }
         return getTimetableLectureResponse(userId, timetableFrame);
     }
