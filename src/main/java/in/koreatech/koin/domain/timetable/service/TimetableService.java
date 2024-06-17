@@ -120,7 +120,7 @@ public class TimetableService {
     public TimetableFrameUpdateResponse updateTimetableFrame(Integer timetableFrameId,
         TimetableFrameUpdateRequest timetableFrameUpdateRequest, Integer userId) {
         TimetableFrame timeTableFrame = timetableFrameRepository.getById(timetableFrameId);
-        Semester semester = semesterRepository.getBySemester(timetableFrameUpdateRequest.semester());
+        Semester semester = timeTableFrame.getSemester();
         boolean isMain = timetableFrameUpdateRequest.isMain();
         if (isMain) {
             cancelMainTimetable(userId, semester.getId());
