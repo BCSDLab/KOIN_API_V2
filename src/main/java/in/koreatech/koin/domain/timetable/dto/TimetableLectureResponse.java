@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimetableLectureResponse(
-    @Schema(description = "id", example = "1", requiredMode = REQUIRED)
+    @Schema(description = "timetableFrame id", example = "1", requiredMode = REQUIRED)
     Integer timetableFrameId,
 
     @Schema(description = "강의시간표 상세 정보", requiredMode = REQUIRED)
@@ -30,7 +30,7 @@ public record TimetableLectureResponse(
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimetableLectureResponse(
-        @Schema(name = "id", example = "1", requiredMode = REQUIRED)
+        @Schema(name = "timetableFrame id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
         @Schema(name = "수강 정원", example = "38", requiredMode = NOT_REQUIRED)

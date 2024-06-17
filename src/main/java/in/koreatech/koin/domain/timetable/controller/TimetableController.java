@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.timetable.dto.SemesterCheckResponse;
-import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureResponse;
@@ -36,24 +36,24 @@ public class TimetableController implements TimetableApi {
     }
 
     @GetMapping("/timetables")
-    public ResponseEntity<TimetableResponse> getTimeTables(
+    public ResponseEntity<TimetableResponse> getTimetables(
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableResponse timeTableResponse = timetableService.getTimeTables(userId, semester);
+        TimetableResponse timeTableResponse = timetableService.getTimetables(userId, semester);
         return ResponseEntity.ok(timeTableResponse);
     }
 
     @PostMapping("/timetables")
-    public ResponseEntity<TimetableResponse> createTimeTables(
-        @Valid @RequestBody TimeTableCreateRequest request,
+    public ResponseEntity<TimetableResponse> createTimetables(
+        @Valid @RequestBody TimetableCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableResponse timeTableResponse = timetableService.createTimeTables(userId, request);
+        TimetableResponse timeTableResponse = timetableService.createTimetables(userId, request);
         return ResponseEntity.ok(timeTableResponse);
     }
 
-    @PostMapping("/v2/timetables/lecture")
+    @PostMapping("/V2/timetables/lecture")
     public ResponseEntity<TimetableLectureResponse> createTimetableLecture(
         @Valid @RequestBody TimetableLectureCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId

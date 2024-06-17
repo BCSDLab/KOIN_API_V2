@@ -23,7 +23,7 @@ public interface TimetableFrameRepository extends Repository<TimetableFrame, Int
             .orElseThrow(() -> TimeTableNotFoundException.withDetail("timetable_frame_id : " + id));
     }
 
-    default TimetableFrame getByUserIdAndSemester(Integer userId, Integer semesterId, boolean isMain) {
+    default TimetableFrame getByUserIdAndSemesterAndIsMain(Integer userId, Integer semesterId, boolean isMain) {
         return findByUserIdAndSemesterIdAndIsMain(userId, semesterId, isMain)
             .orElseThrow(() -> TimeTableNotFoundException.withDetail("userId: " + userId));
     }

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.timetable.dto.SemesterCheckResponse;
-import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
@@ -49,7 +49,7 @@ public interface TimetableApi {
     @Operation(summary = "시간표 정보 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/timetables")
-    ResponseEntity<TimetableResponse> getTimeTables(
+    ResponseEntity<TimetableResponse> getTimetables(
         @RequestParam(value = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     );
@@ -65,8 +65,8 @@ public interface TimetableApi {
     @Operation(summary = "시간표 정보 생성")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/timetables")
-    ResponseEntity<TimetableResponse> createTimeTables(
-        @RequestBody TimeTableCreateRequest timeTableCreateRequest,
+    ResponseEntity<TimetableResponse> createTimetables(
+        @RequestBody TimetableCreateRequest timetableCreateRequest,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -80,7 +80,7 @@ public interface TimetableApi {
     )
     @Operation(summary = "시간표 정보 생성")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/v2/timetables/lecture")
+    @PostMapping("/V2/timetables/lecture")
     ResponseEntity<TimetableLectureResponse> createTimetableLecture(
         @RequestBody TimetableLectureCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId

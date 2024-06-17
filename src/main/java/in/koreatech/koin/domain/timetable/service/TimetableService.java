@@ -6,8 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest.InnerTimeTableRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
@@ -31,19 +30,19 @@ public class TimetableService {
     private final TimetableFrameRepository timetableFrameRepository;
     private final SemesterRepository semesterRepository;
 
-    public TimetableResponse getTimeTables(Integer userId, String semesterRequest) {
+    public TimetableResponse getTimetables(Integer userId, String semesterRequest) {
         Semester semester = semesterRepository.getBySemester(semesterRequest);
-        TimetableFrame timetableFrame = timetableFrameRepository.getByUserIdAndSemester(userId, semester.getId(), true);
+        TimetableFrame timetableFrame = timetableFrameRepository.getByUserIdAndSemesterAndIsMain(userId, semester.getId(), true);
         return getTimetableResponse(userId, timetableFrame);
     }
 
     @Transactional
-    public TimetableResponse createTimeTables(Integer userId, TimeTableCreateRequest request) {
+    public TimetableResponse createTimetables(Integer userId, TimetableCreateRequest request) {
         Semester semester = semesterRepository.getBySemester(request.semester());
         List<TimetableLecture> timetableLectures = new ArrayList<>();
-        TimetableFrame TimetableFrame = timetableFrameRepository.getByUserIdAndSemester(userId, semester.getId(), true);
+        TimetableFrame timetableFrame = timetableFrameRepository.getByUserIdAndSemesterAndIsMain(userId, semester.getId(), true);
 
-        for(InnerTimeTableRequest timeTable : request.timetable()) {
+        for(TimetableCreateRequest.InnerTimetableRequest timeTable : request.timetable()) {
             Lecture lecture = lectureRepository.getBySemesterAndNameAndLectureClass(request.semester(), timeTable.classTitle(), timeTable.lectureClass());
             TimetableLecture timetableLecture = TimetableLecture.builder()
                 .className(timeTable.classTitle())
@@ -52,13 +51,13 @@ public class TimetableService {
                 .professor(timeTable.professor())
                 .memo(timeTable.memo())
                 .lecture(lecture)
-                .timetableFrame(TimetableFrame)
+                .timetableFrame(timetableFrame)
                 .build();
 
             timetableLectures.add(timetableLectureRepository.save(timetableLecture));
         }
 
-        return getTimetableResponse(userId, TimetableFrame, timetableLectures);
+        return getTimetableResponse(userId, timetableFrame, timetableLectures);
     }
 
     private TimetableResponse getTimetableResponse(Integer userId, TimetableFrame timetableFrame) {

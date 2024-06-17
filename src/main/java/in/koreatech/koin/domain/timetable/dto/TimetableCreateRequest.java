@@ -20,11 +20,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record TimeTableCreateRequest(
+public record TimetableCreateRequest(
     @Valid
     @Schema(description = "시간표 정보", requiredMode = REQUIRED)
     @NotNull(message = "시간표 정보를 입력해주세요.")
-    List<InnerTimeTableRequest> timetable,
+    List<InnerTimetableRequest> timetable,
 
     @Schema(description = "학기 정보", example = "20192", requiredMode = REQUIRED)
     @NotBlank(message = "학기 정보를 입력해주세요.")
@@ -32,7 +32,7 @@ public record TimeTableCreateRequest(
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerTimeTableRequest(
+    public record InnerTimetableRequest(
         @Schema(description = "과목 코드", example = "CPC490", requiredMode = NOT_REQUIRED)
         String code,
 
@@ -77,13 +77,13 @@ public record TimeTableCreateRequest(
         @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
         String memo
     ) {
-        public InnerTimeTableRequest {
+        public InnerTimetableRequest {
             if (Objects.isNull(grades)) {
                 grades = "0";
             }
         }
 
-        public TimeTable toTimeTable(User user, Semester semester) {
+        public TimeTable toTimetable(User user, Semester semester) {
             return TimeTable.builder()
                 .user(user)
                 .semester(semester)

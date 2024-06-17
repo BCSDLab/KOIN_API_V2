@@ -17,11 +17,11 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record TimeTableUpdateRequest(
+public record TimetableUpdateRequest(
     @Valid
     @Schema(description = "시간표 정보", requiredMode = NOT_REQUIRED)
     @NotNull(message = "시간표 정보를 입력해주세요.")
-    List<InnerTimeTableRequest> timetable,
+    List<InnerTimetableRequest> timetable,
 
     @Schema(description = "학기 정보", example = "20192", requiredMode = NOT_REQUIRED)
     @NotBlank(message = "학기 정보를 입력해주세요.")
@@ -29,7 +29,7 @@ public record TimeTableUpdateRequest(
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerTimeTableRequest(
+    public record InnerTimetableRequest(
         @Schema(description = "id", example = "1", requiredMode = REQUIRED)
         @NotNull(message = "시간표 식별 번호를 입력해주세요.")
         Integer id,
@@ -79,7 +79,7 @@ public record TimeTableUpdateRequest(
         String memo
     ) {
         @Builder
-        public InnerTimeTableRequest {
+        public InnerTimetableRequest {
             if (Objects.isNull(grades)) {
                 grades = "0";
             }
