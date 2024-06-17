@@ -31,6 +31,12 @@ public class TimetableService {
     private final TimetableFrameRepository timetableFrameRepository;
     private final SemesterRepository semesterRepository;
 
+    public TimetableResponse getTimeTables(Integer userId, String semesterRequest) {
+        Semester semester = semesterRepository.getBySemester(semesterRequest);
+        TimetableFrame timetableFrame = timetableFrameRepository.getByUserIdAndSemester(userId, semester.getId(), true);
+        return getTimetableResponse(userId, timetableFrame);
+    }
+
     @Transactional
     public TimetableResponse createTimeTables(Integer userId, TimeTableCreateRequest request) {
         Semester semester = semesterRepository.getBySemester(request.semester());
@@ -52,10 +58,29 @@ public class TimetableService {
             timetableLectures.add(timetableLectureRepository.save(timetableLecture));
         }
 
-        return getTimeTableResponse(userId, TimetableFrame, timetableLectures);
+        return getTimetableResponse(userId, TimetableFrame, timetableLectures);
     }
 
-    private TimetableResponse getTimeTableResponse(Integer userId, TimetableFrame timetableFrame, List<TimetableLecture> timetableLectures) {
+    private TimetableResponse getTimetableResponse(Integer userId, TimetableFrame timetableFrame) {
+        int grades = 0;
+        int totalGrades = 0;
+
+        List<TimetableLecture> timetableLectures = timetableLectureRepository.findAllByTimetableFrameId(timetableFrame.getId());
+        grades = timetableLectures.stream()
+            .mapToInt(lecture -> Integer.parseInt(lecture.getLecture().getGrades()))
+            .sum();
+
+        for (TimetableFrame timetableFrames : timetableFrameRepository.findAllByUserIdAndIsMain(userId, true)) {
+            totalGrades += timetableLectureRepository.findAllByTimetableFrameId(timetableFrames.getId()).stream()
+                .filter(lecture -> lecture.getLecture() != null)
+                .mapToInt(lecture -> Integer.parseInt(lecture.getLecture().getGrades()))
+                .sum();
+        }
+
+        return TimetableResponse.of(timetableLectures, timetableFrame, grades, totalGrades);
+    }
+
+    private TimetableResponse getTimetableResponse(Integer userId, TimetableFrame timetableFrame, List<TimetableLecture> timetableLectures) {
         int grades = 0;
         int totalGrades = 0;
 
