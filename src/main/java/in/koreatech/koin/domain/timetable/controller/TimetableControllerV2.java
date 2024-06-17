@@ -27,7 +27,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @PathVariable(value = "id") Integer timetableLectureId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        timetableService.deleteTimetableLecture(timetableLectureId);
+        timetableService.deleteTimetableLecture(userId, timetableLectureId);
         return ResponseEntity.ok().build();
     }
 
