@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,6 +18,8 @@ import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameCreateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,6 +28,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Lecture: 시간표", description = "시간표 정보를 관리한다")
 public interface TimetableApi {
@@ -65,6 +69,51 @@ public interface TimetableApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/semesters/check")
     ResponseEntity<SemesterCheckResponse> getStudentSemesters(
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "timetableframe 생성")
+    @PostMapping("/timetables/frame")
+    public ResponseEntity<TimetableFrameResponse> createTimetablesFrame(
+        @Valid @RequestBody TimetableFrameCreateRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "timetableframe 조회")
+    @GetMapping("/timetables/frame")
+    public ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
+        @RequestParam(name = "semester") String semester,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "timetableframe 삭제")
+    @DeleteMapping("/timetables/frame")
+    public ResponseEntity<Void> deleteTimetablesFrame(
+        @RequestParam(name = "id") Integer frameId,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
