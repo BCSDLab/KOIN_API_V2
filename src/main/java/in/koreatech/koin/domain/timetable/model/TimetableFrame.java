@@ -24,7 +24,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "timetable_frame")
-@Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
 public class TimetableFrame extends BaseEntity {
 
