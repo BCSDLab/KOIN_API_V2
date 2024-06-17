@@ -82,7 +82,7 @@ public class TimetableService {
         List<TimetableLecture> timetableLecture = timetableLectureRepository.findAllByTimetableFrameId(mainTimetableFrame.getId());
 
         List<Integer> lectureIds = timetableLecture.stream().map(tl -> tl.getLecture().getId()).toList();
-        List<Lecture> lectures = lectureRepository.findAllByIds(lectureIds);
+        List<Lecture> lectures = lectureRepository.findByIdIn(lectureIds);
 
         Integer grades = lectures.stream()
             .mapToInt(lecture -> Integer.parseInt(lecture.getGrades()))
