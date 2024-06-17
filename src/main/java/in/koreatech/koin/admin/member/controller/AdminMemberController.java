@@ -62,7 +62,7 @@ public class AdminMemberController implements AdminMemberApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminMemberService.deleteMember(memberId);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/admin/members/{id}")
@@ -72,7 +72,7 @@ public class AdminMemberController implements AdminMemberApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminMemberService.updateMember(memberId, request);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/admin/members/{id}/undelete")
@@ -81,6 +81,6 @@ public class AdminMemberController implements AdminMemberApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminMemberService.undeleteMember(memberId);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.ok().build();
     }
 }
