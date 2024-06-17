@@ -20,4 +20,5 @@ public interface TimetableLectureRepository extends Repository<TimetableLecture,
         return findById(id)
             .orElseThrow(() -> TimetableLectureNotFoundException.withDetail("id: " + id));
     }
+    TimetableLecture save(TimetableLecture lecture);
 }

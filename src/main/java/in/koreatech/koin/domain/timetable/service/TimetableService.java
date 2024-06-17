@@ -8,12 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameCreateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
-import in.koreatech.koin.domain.timetable.exception.TimetableLectureNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.model.Timetable;
@@ -49,6 +50,42 @@ public class TimetableService {
         return lectures.stream()
             .map(LectureResponse::from)
             .toList();
+    }
+
+    @Transactional
+    public TimetableFrameResponse createTimetablesFrame(Integer userId, TimetableFrameCreateRequest request) {
+        Semester semester = semesterRepository.getBySemester(request.semester());
+        User user = userRepository.getById(userId);
+        int currentFrameCount = timetableFrameRepository.countByUserIdAndSemesterId(userId, semester.getId()) + 1;
+        boolean isMain = currentFrameCount == 1;
+
+        TimetableFrame timeTableFrame = request.toTimetablesFrame(user, semester, "시간표" + currentFrameCount, isMain);
+        return TimetableFrameResponse.from(timetableFrameRepository.save(timeTableFrame));
+    }
+
+    public List<TimetableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
+        Semester semester = semesterRepository.getBySemester(semesterRequest);
+        return timetableFrameRepository.findAllByUserIdAndSemesterId(userId, semester.getId()).stream()
+            .map(TimetableFrameResponse::from)
+            .toList();
+    }
+
+    @Transactional
+    public void deleteTimetablesFrame(Integer userId, Integer frameId) {
+        TimetableFrame frame = timetableFrameRepository.getById(frameId);
+        if (!Objects.equals(frame.getUser().getId(), userId)) {
+            throw AuthorizationException.withDetail("userId: " + userId);
+        }
+        if(frame.isMain()) {
+            TimetableFrame nextMainFrame =
+                timetableFrameRepository.
+                    findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId, frame.getSemester().getId());
+            if (nextMainFrame != null) {
+                nextMainFrame.updateStatusMain(true);
+                timetableFrameRepository.save(nextMainFrame);
+            }
+        }
+        timetableFrameRepository.deleteById(frameId);
     }
 
     public TimetableResponse getTimetables(Integer userId, String semesterRequest) {
