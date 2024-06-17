@@ -70,10 +70,6 @@ public class TimetableFrame extends BaseEntity {
         this.isMain = isMain;
     }
 
-    public boolean isMain() {
-        return isMain;
-    }
-
     public void cancelMain() {
         isMain = false;
     }
