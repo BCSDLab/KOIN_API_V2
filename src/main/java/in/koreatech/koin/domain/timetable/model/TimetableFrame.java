@@ -54,7 +54,7 @@ public class TimetableFrame extends BaseEntity {
 
     @NotNull
     @Column(name = "is_main", nullable = false)
-    private boolean isMain = false;
+    private Boolean isMain = false;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)

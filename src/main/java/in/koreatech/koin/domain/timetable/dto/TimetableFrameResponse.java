@@ -17,13 +17,13 @@ public record TimetableFrameResponse(
     String timetableName,
 
     @Schema(description = "메인 시간표 여부", example = "false", requiredMode = REQUIRED)
-    boolean isMain
+    Boolean isMain
 ) {
     public static TimetableFrameResponse from(TimetableFrame timetableFrame) {
         return new TimetableFrameResponse(
             timetableFrame.getId(),
             timetableFrame.getName(),
-            timetableFrame.isMain()
+            timetableFrame.getIsMain()
         );
     }
 }

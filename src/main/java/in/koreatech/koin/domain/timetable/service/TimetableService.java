@@ -76,7 +76,7 @@ public class TimetableService {
         if (!Objects.equals(frame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
-        if(frame.isMain()) {
+        if(frame.getIsMain()) {
             TimetableFrame nextMainFrame =
                 timetableFrameRepository.
                     findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId, frame.getSemester().getId());
@@ -162,8 +162,7 @@ public class TimetableService {
         if (isMain) {
             cancelMainTimetable(userId, semester.getId());
         }
-        timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.name(),
-            timetableFrameUpdateRequest.isMain());
+        timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.name(), isMain);
         return TimetableFrameUpdateResponse.from(timeTableFrame);
     }
 
