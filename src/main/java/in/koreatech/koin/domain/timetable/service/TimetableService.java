@@ -78,7 +78,7 @@ public class TimetableService {
     }
 
     private TimetableResponse getTimetableResponse(Integer userId, Semester semester) {
-        TimetableFrame mainTimetableFrame = findMainTimetable(userId, semester.getId());
+        TimetableFrame mainTimetableFrame = timetableFrameRepository.getMainTimetable(userId, semester.getId());
         List<TimetableLecture> timetableLecture = timetableLectureRepository.findAllByTimetableFrameId(mainTimetableFrame.getId());
 
         List<Integer> lectureIds = timetableLecture.stream().map(tl -> tl.getLecture().getId()).toList();
@@ -131,15 +131,7 @@ public class TimetableService {
     }
 
     private void cancelMainTimetable(Integer userId, Integer semesterId) {
-        TimetableFrame mainTimetableFrame = findMainTimetable(userId, semesterId);
+        TimetableFrame mainTimetableFrame = timetableFrameRepository.getMainTimetable(userId, semesterId);
         mainTimetableFrame.cancelMain();
-    }
-
-    private TimetableFrame findMainTimetable(Integer userId, Integer semesterId) {
-        return timetableFrameRepository.findAllByUserIdAndSemesterId(userId, semesterId)
-            .stream()
-            .filter(TimetableFrame::isMain)
-            .findFirst()
-            .orElseThrow(() -> TimetableLectureNotFoundException.withDetail("못 찾음 userId: "+ userId + ", semesterId: " + semesterId));
     }
 }
