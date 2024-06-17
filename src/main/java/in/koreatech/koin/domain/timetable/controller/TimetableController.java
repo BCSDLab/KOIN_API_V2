@@ -59,8 +59,8 @@ public class TimetableController implements TimetableApi {
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableResponse timeTableResponse = timetableService.getTimetables(userId, semester);
-        return ResponseEntity.ok(timeTableResponse);
+        TimetableResponse timetableResponse = timetableService.getTimetables(userId, semester);
+        return ResponseEntity.ok(timetableResponse);
     }
 
     @PostMapping("/timetables")
@@ -68,8 +68,8 @@ public class TimetableController implements TimetableApi {
         @Valid @RequestBody TimetableCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableResponse timeTableResponse = timetableService.createTimetables(userId, request);
-        return ResponseEntity.ok(timeTableResponse);
+        TimetableResponse timetableResponse = timetableService.createTimetables(userId, request);
+        return ResponseEntity.ok(timetableResponse);
     }
 
     @PutMapping("/timetables")
@@ -77,8 +77,8 @@ public class TimetableController implements TimetableApi {
         @Valid @RequestBody TimetableUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableResponse timeTableResponse = timetableService.updateTimetables(userId, request);
-        return ResponseEntity.ok(timeTableResponse);
+        TimetableResponse timetableResponse = timetableService.updateTimetables(userId, request);
+        return ResponseEntity.ok(timetableResponse);
     }
 
     @DeleteMapping("/timetable")

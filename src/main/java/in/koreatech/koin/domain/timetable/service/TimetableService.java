@@ -61,8 +61,8 @@ public class TimetableService {
         User user = userRepository.getById(userId);
         Semester semester = semesterRepository.getBySemester(request.semester());
         for (TimetableCreateRequest.InnerTimetableRequest timetableRequest : request.timetable()) {
-            Timetable timeTable = timetableRequest.toTimetable(user, semester);
-            timetableRepository.save(timeTable);
+            Timetable timetable = timetableRequest.toTimetable(user, semester);
+            timetableRepository.save(timetable);
         }
         return getTimetableResponse(userId, semester);
     }
@@ -71,8 +71,8 @@ public class TimetableService {
     public TimetableResponse updateTimetables(Integer userId, TimetableUpdateRequest request) {
         Semester semester = semesterRepository.getBySemester(request.semester());
         for (TimetableUpdateRequest.InnerTimetableRequest timetableRequest : request.timetable()) {
-            Timetable timeTable = timetableRepository.getById(timetableRequest.id());
-            timeTable.update(timetableRequest);
+            Timetable timetable = timetableRepository.getById(timetableRequest.id());
+            timetable.update(timetableRequest);
         }
         return getTimetableResponse(userId, semester);
     }

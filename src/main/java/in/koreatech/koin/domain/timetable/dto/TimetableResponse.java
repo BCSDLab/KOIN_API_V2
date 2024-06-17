@@ -20,7 +20,7 @@ public record TimetableResponse(
     String semester,
 
     @Schema(name = "시간표 상세정보")
-    List<InnerTimeTableResponse> timetable,
+    List<InnerTimetableResponse> timetable,
 
     @Schema(name = "해당 학기 학점", example = "21")
     Integer grades,
@@ -35,7 +35,7 @@ public record TimetableResponse(
         List<Lecture> lectures, Integer grades, Integer totalGrades) {
         return new TimetableResponse(
             semester,
-            InnerTimeTableResponse.of(timetableLectures, lectures),
+            InnerTimetableResponse.of(timetableLectures, lectures),
             grades,
             totalGrades
         );
@@ -55,7 +55,7 @@ public record TimetableResponse(
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerTimeTableResponse(
+    public record InnerTimetableResponse(
         @Schema(name = "시간표 ID", example = "1", requiredMode = REQUIRED)
         Integer id,
 
@@ -96,7 +96,7 @@ public record TimetableResponse(
         String department
     ) {
 
-        public static List<InnerTimeTableResponse> of(List<TimetableLecture> timetableLectures,
+        public static List<InnerTimetableResponse> of(List<TimetableLecture> timetableLectures,
             List<Lecture> lectures) {
             return timetableLectures.stream().map(tl -> {
                 Lecture lecture = lectures.stream()
@@ -105,7 +105,7 @@ public record TimetableResponse(
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
 
-                return new TimetableResponse.InnerTimeTableResponse(
+                return new InnerTimetableResponse(
                     lecture.getId(),
                     lecture.getRegularNumber(),
                     lecture.getCode(),

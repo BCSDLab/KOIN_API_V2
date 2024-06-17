@@ -16,10 +16,10 @@ public record TimetableFrameUpdateResponse(
     boolean isMain
 ) {
 
-    public static TimetableFrameUpdateResponse from(TimetableFrame timeTableFrame) {
+    public static TimetableFrameUpdateResponse from(TimetableFrame timetableFrame) {
         return new TimetableFrameUpdateResponse(
-            timeTableFrame.getId(),
-            timeTableFrame.getName(),
-            timeTableFrame.isMain());
+            timetableFrame.getId(),
+            timetableFrame.getName(),
+            timetableFrame.isMain());
     }
 }
