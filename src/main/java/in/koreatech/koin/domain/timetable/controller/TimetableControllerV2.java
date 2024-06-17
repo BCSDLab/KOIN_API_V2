@@ -22,7 +22,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
 
     private final TimetableService timetableService;
 
-    @DeleteMapping("V2/timetables/lecture/{id}")
+    @DeleteMapping("/v2/timetables/lecture/{id}")
     public ResponseEntity<Void> deleteTimetableLecture(
         @PathVariable(value = "id") Integer timetableLectureId,
         @Auth(permit = {STUDENT}) Integer userId
@@ -31,7 +31,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("V2/timetables/frame/{id}")
+    @PutMapping("/timetables/frame/{id}")
     public ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
         @PathVariable(value = "id") Integer timetableFrameId,
         @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,

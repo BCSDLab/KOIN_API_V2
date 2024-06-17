@@ -33,7 +33,7 @@ public interface TimetableApiV2 {
     )
     @Operation(summary = "시간표 삭제")
     @SecurityRequirement(name = "Jwt Authentication")
-    @DeleteMapping("V2/timetables/lecture/{id}")
+    @DeleteMapping("/v2/timetables/lecture/{id}")
     ResponseEntity<Void> deleteTimetableLecture(
         @PathVariable(value = "id") Integer timetableLectureId,
         @Auth(permit = {STUDENT}) Integer userId
@@ -49,7 +49,7 @@ public interface TimetableApiV2 {
     )
     @Operation(summary = "시간표 프레임 수정")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("V2/timetables/frame/{id}")
+    @PutMapping("/timetables/frame/{id}")
     ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
         @PathVariable(value = "id") Integer timetableFrameId,
         @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,
