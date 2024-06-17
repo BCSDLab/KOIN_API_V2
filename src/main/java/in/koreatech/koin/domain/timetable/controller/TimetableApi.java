@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterCheckResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
-import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
-import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableFrameCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableFrameResponse;
+import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
+import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -128,7 +128,7 @@ public interface TimetableApi {
     @Operation(summary = "시간표 정보 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/timetables")
-    ResponseEntity<TimeTableResponse> getTimeTables(
+    ResponseEntity<TimetableResponse> getTimetables(
         @RequestParam(value = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     );
@@ -144,8 +144,8 @@ public interface TimetableApi {
     @Operation(summary = "시간표 정보 생성")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/timetables")
-    ResponseEntity<TimeTableResponse> createTimeTables(
-        @RequestBody TimeTableCreateRequest timeTableCreateRequest,
+    ResponseEntity<TimetableResponse> createTimetables(
+        @RequestBody TimetableCreateRequest timeTableCreateRequest,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -160,8 +160,8 @@ public interface TimetableApi {
     @Operation(summary = "시간표 정보 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/timetables")
-    ResponseEntity<TimeTableResponse> updateTimeTable(
-        @RequestBody TimeTableUpdateRequest request,
+    ResponseEntity<TimetableResponse> updateTimetable(
+        @RequestBody TimetableUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -173,11 +173,11 @@ public interface TimetableApi {
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "시간표 삭제")
+    @Operation(summary = "시간표 강의 삭제")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/timetables")
-    ResponseEntity<Void> deleteTimeTableById(
-        @RequestParam(value = "id") Integer id,
+    ResponseEntity<Void> deleteTimetableById(
+        @RequestParam(value = "id") Integer lectureId,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }

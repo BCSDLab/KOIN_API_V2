@@ -11,4 +11,6 @@ public interface LectureRepository extends Repository<Lecture, Integer> {
     List<Lecture> findBySemester(String semesterDate);
 
     Lecture save(Lecture lecture);
+
+    List<Lecture> findByIdIn(List<Integer> lectureIds);
 }

@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterCheckResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
-import in.koreatech.koin.domain.timetable.dto.TimeTableCreateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimeTableResponse;
-import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
+import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableFrameCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetable.service.SemesterService;
@@ -84,38 +84,38 @@ public class TimetableController implements TimetableApi {
     }
 
     @GetMapping("/timetables")
-    public ResponseEntity<TimeTableResponse> getTimeTables(
+    public ResponseEntity<TimetableResponse> getTimetables(
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimeTableResponse timeTableResponse = timetableService.getTimeTables(userId, semester);
-        return ResponseEntity.ok(timeTableResponse);
+        TimetableResponse timetableResponse = timetableService.getTimetables(userId, semester);
+        return ResponseEntity.ok(timetableResponse);
     }
 
     @PostMapping("/timetables")
-    public ResponseEntity<TimeTableResponse> createTimeTables(
-        @Valid @RequestBody TimeTableCreateRequest request,
+    public ResponseEntity<TimetableResponse> createTimetables(
+        @Valid @RequestBody TimetableCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimeTableResponse timeTableResponse = timetableService.createTimeTables(userId, request);
-        return ResponseEntity.ok(timeTableResponse);
+        TimetableResponse timetableResponse = timetableService.createTimetables(userId, request);
+        return ResponseEntity.ok(timetableResponse);
     }
 
     @PutMapping("/timetables")
-    public ResponseEntity<TimeTableResponse> updateTimeTable(
-        @Valid @RequestBody TimeTableUpdateRequest request,
+    public ResponseEntity<TimetableResponse> updateTimetable(
+        @Valid @RequestBody TimetableUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimeTableResponse timeTableResponse = timetableService.updateTimeTables(userId, request);
-        return ResponseEntity.ok(timeTableResponse);
+        TimetableResponse timetableResponse = timetableService.updateTimetables(userId, request);
+        return ResponseEntity.ok(timetableResponse);
     }
 
     @DeleteMapping("/timetable")
-    public ResponseEntity<Void> deleteTimeTableById(
-        @RequestParam(name = "id") Integer id,
+    public ResponseEntity<Void> deleteTimetableById(
+        @RequestParam(name = "id") Integer timetableId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        timetableService.deleteTimeTable(id);
+        timetableService.deleteTimetableLecture(userId, timetableId);
         return ResponseEntity.ok().build();
     }
 }

@@ -1,9 +1,9 @@
 package in.koreatech.koin.domain.timetable.model;
 
-import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import static jakarta.persistence.CascadeType.ALL;
 import java.util.List;
 
 import in.koreatech.koin.domain.user.model.User;
@@ -13,9 +13,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -54,7 +54,11 @@ public class TimetableFrame extends BaseEntity {
 
     @NotNull
     @Column(name = "is_main", nullable = false)
-    private boolean isMain;
+    private Boolean isMain = false;
+
+    @NotNull
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @OneToMany(mappedBy = "timetableFrame", orphanRemoval = true, cascade = ALL)
     private List<TimetableLecture> timetableLectures;
@@ -69,12 +73,24 @@ public class TimetableFrame extends BaseEntity {
         Semester semester,
         String name,
         boolean isMain,
-        List<TimetableLecture> timetableLectures
+        List<TimetableLecture> timetableLectures,
+        boolean isDeleted
     ) {
         this.user = user;
         this.semester = semester;
         this.name = name;
         this.isMain = isMain;
         this.timetableLectures = timetableLectures;
+        this.isDeleted = isDeleted;
+    }
+
+    public void updateTimetableFrame(Semester semester, String name, boolean isMain) {
+        this.semester = semester;
+        this.name = name;
+        this.isMain = isMain;
+    }
+
+    public void cancelMain() {
+        isMain = false;
     }
 }

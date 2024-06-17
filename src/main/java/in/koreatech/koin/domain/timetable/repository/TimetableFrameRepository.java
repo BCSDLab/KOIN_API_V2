@@ -8,10 +8,27 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.timetable.exception.TimetableFrameNotFoundException;
+import in.koreatech.koin.domain.timetable.exception.TimetableNotFoundException;
 import in.koreatech.koin.domain.timetable.model.TimetableFrame;
 import in.koreatech.koin.domain.user.model.User;
 
 public interface TimetableFrameRepository extends Repository<TimetableFrame, Integer> {
+
+    Optional<TimetableFrame> findById(Integer id);
+
+    Optional<TimetableFrame> findByUserIdAndSemesterIdAndIsMainTrue(Integer userId, Integer semesterId);
+
+    default TimetableFrame getById(Integer id) {
+        return findById(id)
+            .orElseThrow(() -> TimetableNotFoundException.withDetail("id: " + id));
+    }
+
+    default TimetableFrame getMainTimetable(Integer userId, Integer semesterId) {
+        return findByUserIdAndSemesterIdAndIsMainTrue(userId, semesterId)
+            .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("userId: " + userId + ", semesterId: " + semesterId));
+    }
+
+    List<TimetableFrame> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
 
     TimetableFrame save(TimetableFrame timetableFrame);
 
@@ -21,15 +38,6 @@ public interface TimetableFrameRepository extends Repository<TimetableFrame, Int
         return findByUser(user)
             .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("userId: " + user.getId()));
     }
-
-    Optional<TimetableFrame> findById(Integer frameId);
-
-    default TimetableFrame getById(Integer frameId) {
-        return findById(frameId)
-            .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("timetablesFrameId: " + frameId));
-    }
-
-    List<TimetableFrame> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
 
     TimetableFrame findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(Integer userId, Integer semesterId);
 

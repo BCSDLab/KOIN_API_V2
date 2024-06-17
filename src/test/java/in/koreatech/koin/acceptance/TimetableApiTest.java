@@ -9,12 +9,12 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.domain.timetable.model.TimeTable;
-import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
+import in.koreatech.koin.domain.timetable.model.Timetable;
+import in.koreatech.koin.domain.timetable.repository.TimetableRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
-import in.koreatech.koin.fixture.TimeTableFixture;
+import in.koreatech.koin.fixture.TimetableFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
@@ -24,7 +24,7 @@ import io.restassured.http.ContentType;
 class TimetableApiTest extends AcceptanceTest {
 
     @Autowired
-    private TimeTableRepository timeTableRepository;
+    private TimetableRepository timetableRepository;
 
     @Autowired
     private UserFixture userFixture;
@@ -36,7 +36,7 @@ class TimetableApiTest extends AcceptanceTest {
     private SemesterFixture semesterFixture;
 
     @Autowired
-    private TimeTableFixture timeTableFixture;
+    private TimetableFixture timetableFixture;
 
     @Test
     @DisplayName("특정 학기 강의를 조회한다")
@@ -212,9 +212,9 @@ class TimetableApiTest extends AcceptanceTest {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
-        TimeTable 이산수학 = timeTableFixture.이산수학(user, semester);
-        TimeTable 알고리즘및실습 = timeTableFixture.알고리즘및실습(user, semester);
-        TimeTable 컴퓨터구조 = timeTableFixture.컴퓨터구조(user, semester);
+        Timetable 이산수학 = timetableFixture.이산수학(user, semester);
+        Timetable 알고리즘및실습 = timetableFixture.알고리즘및실습(user, semester);
+        Timetable 컴퓨터구조 = timetableFixture.컴퓨터구조(user, semester);
 
         // when & then
         var response = RestAssured
@@ -298,8 +298,8 @@ class TimetableApiTest extends AcceptanceTest {
         String token = userFixture.getToken(user);
         Semester semester1 = semesterFixture.semester("20192");
         Semester semester2 = semesterFixture.semester("20201");
-        TimeTable 이산수학 = timeTableFixture.이산수학(user, semester1);
-        TimeTable 알고리즘및실습 = timeTableFixture.알고리즘및실습(user, semester2);
+        Timetable 이산수학 = timetableFixture.이산수학(user, semester1);
+        Timetable 알고리즘및실습 = timetableFixture.알고리즘및실습(user, semester2);
 
         var response = RestAssured
             .given()
@@ -329,9 +329,9 @@ class TimetableApiTest extends AcceptanceTest {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
-        timeTableFixture.이산수학(user, semester);
-        timeTableFixture.알고리즘및실습(user, semester);
-        timeTableFixture.컴퓨터구조(user, semester);
+        timetableFixture.이산수학(user, semester);
+        timetableFixture.알고리즘및실습(user, semester);
+        timetableFixture.컴퓨터구조(user, semester);
 
         RestAssured
             .given()
@@ -492,12 +492,12 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("시간표 수정한다.")
-    void updateTimeTables() {
+    void updateTimetables() {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
-        TimeTable timeTable1 = timeTableFixture.이산수학(user, semester);
-        TimeTable timeTable2 = timeTableFixture.알고리즘및실습(user, semester);
+        Timetable timetable1 = timetableFixture.이산수학(user, semester);
+        Timetable timetable2 = timetableFixture.알고리즘및실습(user, semester);
 
         var response = RestAssured
             .given()
@@ -542,7 +542,7 @@ class TimetableApiTest extends AcceptanceTest {
                   ],
                   "semester": "%s"
                 }
-                """, timeTable1.getId(), timeTable2.getId(), semester.getSemester()
+                """, timetable1.getId(), timetable2.getId(), semester.getSemester()
             ))
             .when()
             .put("/timetables")
@@ -598,11 +598,11 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("시간표를 삭제한다.")
-    void deleteTimeTable() {
+    void deleteTimetable() {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
-        TimeTable timeTable = timeTableFixture.이산수학(user, semester);
+        Timetable timeTable = timetableFixture.이산수학(user, semester);
 
         RestAssured
             .given()
@@ -613,18 +613,18 @@ class TimetableApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        assertThat(timeTableRepository.findById(timeTable.getId())).isNotPresent();
+        assertThat(timetableRepository.findById(timeTable.getId())).isNotPresent();
     }
 
     @Test
     @DisplayName("시간표 삭제 실패시(=조회 실패시) 404 에러코드를 반환한다.")
-    void deleteTimeTableNotFound() {
+    void deleteTimetableNotFound() {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
-        timeTableFixture.이산수학(user, semester);
-        timeTableFixture.알고리즘및실습(user, semester);
-        timeTableFixture.컴퓨터구조(user, semester);
+        timetableFixture.이산수학(user, semester);
+        timetableFixture.알고리즘및실습(user, semester);
+        timetableFixture.컴퓨터구조(user, semester);
 
         RestAssured
             .given()

@@ -5,7 +5,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.domain.timetable.dto.TimeTableUpdateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "timetables")
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
-public class TimeTable extends BaseEntity {
+public class Timetable extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -97,7 +97,7 @@ public class TimeTable extends BaseEntity {
     private boolean isDeleted = false;
 
     @Builder
-    private TimeTable(User user, Semester semester, String code, String classTitle, String classTime,
+    private Timetable(User user, Semester semester, String code, String classTitle, String classTime,
         String classPlace, String professor, String grades, String lectureClass, String target,
         String regularNumber,
         String designScore, String department, String memo, boolean isDeleted) {
@@ -118,7 +118,7 @@ public class TimeTable extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
-    public void update(TimeTableUpdateRequest.InnerTimeTableRequest timeTableRequest) {
+    public void update(TimetableUpdateRequest.InnerTimetableRequest timeTableRequest) {
         this.code = timeTableRequest.code();
         this.classTitle = timeTableRequest.classTitle();
         this.classTime = timeTableRequest.classTime().toString();
