@@ -243,4 +243,8 @@ public class Land extends BaseEntity {
             .map(url -> "\"" + url + "\"")
             .collect(Collectors.joining(",")));
     }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
 }
