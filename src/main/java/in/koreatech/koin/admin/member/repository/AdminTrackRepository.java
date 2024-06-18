@@ -14,7 +14,14 @@ public interface AdminTrackRepository extends Repository<Track, Integer> {
 
     List<Track> findAll();
 
+    Optional<Track> findById(Integer trackId);
+
     Optional<Track> findByName(String trackName);
+
+    default Track getById(Integer trackId) {
+        return findById(trackId)
+            .orElseThrow(() -> TrackNotFoundException.withDetail("trackId: " + trackId));
+    }
 
     default Track getByName(String trackName) {
         return findByName(trackName)
