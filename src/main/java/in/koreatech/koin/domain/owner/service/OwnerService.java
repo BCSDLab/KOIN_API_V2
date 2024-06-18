@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.dto.CompanyNumberCheckRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerAccountCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
@@ -28,7 +29,6 @@ import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSendSmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
-import in.koreatech.koin.domain.owner.dto.PhoneNumberCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
 import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
@@ -115,7 +115,7 @@ public class OwnerService {
     @Transactional
     public void requestSignUpSmsVerification(VerifySmsRequest request) {
         userRepository.findByPhoneNumberAndUserType(request.phoneNumber(), OWNER).ifPresent(user -> {
-            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
+            throw DuplicationPhoneNumberException.withDetail("account: " + request.phoneNumber());
         });
         sendCertificationSms(request.phoneNumber());
     }
@@ -143,7 +143,7 @@ public class OwnerService {
             throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
         }
         if (ownerRepository.findByAccount(request.phoneNumber()).isPresent()) {
-            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
+            throw DuplicationPhoneNumberException.withDetail("account: " + request.phoneNumber());
         }
         Owner owner = request.toOwner(passwordEncoder);
         Owner saved = ownerRepository.save(owner);
@@ -159,7 +159,7 @@ public class OwnerService {
     @Transactional
     public void registerByPhone(OwnerRegisterByPhoneRequest request) {
         if (userRepository.findByPhoneNumberAndUserType(request.phoneNumber(), OWNER).isPresent()) {
-            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
+            throw DuplicationPhoneNumberException.withDetail("account: " + request.phoneNumber());
         }
         if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
             throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
@@ -257,10 +257,10 @@ public class OwnerService {
             throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
         }
     }
-    
-    public void checkExistsAccount(PhoneNumberCheckExistsRequest request) {
-        ownerRepository.findByAccount(request.phoneNumber()).ifPresent(user -> {
-            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
+
+    public void checkExistsAccount(OwnerAccountCheckExistsRequest request) {
+        ownerRepository.findByAccount(request.account()).ifPresent(user -> {
+            throw DuplicationPhoneNumberException.withDetail("account: " + request.account());
         });
     }
 }

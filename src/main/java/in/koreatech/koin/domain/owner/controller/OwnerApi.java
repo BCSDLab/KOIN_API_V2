@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.owner.dto.CompanyNumberCheckRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerAccountCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
@@ -24,7 +25,6 @@ import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSendSmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
-import in.koreatech.koin.domain.owner.dto.PhoneNumberCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
 import in.koreatech.koin.global.auth.Auth;
@@ -306,9 +306,9 @@ public interface OwnerApi {
         }
     )
     @Operation(summary = "전화번호 중복 체크")
-    @GetMapping("/user/check/phone-number")
+    @GetMapping("/owners/check/account")
     ResponseEntity<Void> checkDuplicationOfPhoneNumber(
-        @ModelAttribute("phone_number")
-        @Valid PhoneNumberCheckExistsRequest request
+        @ModelAttribute("account")
+        @Valid OwnerAccountCheckExistsRequest request
     );
 }
