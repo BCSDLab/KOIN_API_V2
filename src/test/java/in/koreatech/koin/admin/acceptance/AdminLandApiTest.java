@@ -130,6 +130,7 @@ class AdminLandApiTest extends AcceptanceTest {
             softly.assertThat(savedLand.isOptRefrigerator()).as("opt_refrigerator가 누락될 경우 false 반환여부").isEqualTo(false);
         });
     }
+
     @Test
     @DisplayName("관리자 권한으로 복덕방을 삭제한다.")
     void deleteLand() {
