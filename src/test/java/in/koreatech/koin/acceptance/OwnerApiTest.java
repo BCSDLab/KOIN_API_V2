@@ -761,4 +761,59 @@ class OwnerApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
+
+    @Test
+    @DisplayName("사용자 전화번호 중복 검증 - 존재하지 않으면 200")
+    void checkExistsPhoneNumber() {
+        RestAssured
+            .given()
+            .param("phone_number", "01012345678")
+            .when()
+            .get("/owners/check/phone-number")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("사용자 전화번호 중복 검증 - 이미 존재하면 409")
+    void checkExistsPhoneNumberConflict() {
+        User user = userFixture.성빈_학생().getUser();
+        var response = RestAssured
+            .given()
+            .param("phone_number", user.getPhoneNumber())
+            .when()
+            .get("/owners/check/phone-number")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .extract();
+
+        assertThat(response.body().jsonPath().getString("message"))
+            .contains("이미 존재하는 휴대폰번호입니다.");
+    }
+
+    @Test
+    @DisplayName("사용자 전화번호 중복 검증 - 파라미터에 전화번호를 포함하지 않으면 400")
+    void checkExistsPhoneNumberNull() {
+        RestAssured
+            .when()
+            .get("/owners/check/phone-number")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("사용자 전화번호 중복 검증 - 잘못된 전화번호 형식이면 400")
+    void checkExistsPhoneNumberWrongFormat() {
+        String phoneNumber = "123123123123";
+        RestAssured
+            .given()
+            .param("phone_number", phoneNumber)
+            .when()
+            .get("/owners/check/phone-number")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
 }

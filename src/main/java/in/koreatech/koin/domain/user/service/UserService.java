@@ -9,13 +9,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.owner.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.PhoneNumberCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginRequest;
 import in.koreatech.koin.domain.user.dto.UserLoginResponse;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
@@ -133,11 +131,5 @@ public class UserService {
     public CoopResponse getCoop(Integer userId) {
         User user = userRepository.getById(userId);
         return CoopResponse.from(user);
-    }
-
-    public void checkExistsPhoneNumber(PhoneNumberCheckExistsRequest request) {
-        userRepository.findByPhoneNumber(request.phoneNumber()).ifPresent(user -> {
-            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
-        });
     }
 }

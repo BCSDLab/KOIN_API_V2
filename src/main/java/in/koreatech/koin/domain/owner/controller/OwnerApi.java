@@ -24,6 +24,7 @@ import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSendSmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
+import in.koreatech.koin.domain.owner.dto.PhoneNumberCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
 import in.koreatech.koin.global.auth.Auth;
@@ -285,6 +286,7 @@ public interface OwnerApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
         }
     )
@@ -294,5 +296,19 @@ public interface OwnerApi {
     ResponseEntity<Void> checkCompanyNumber(
         @ModelAttribute("company_number")
         @Valid CompanyNumberCheckRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "전화번호 중복 체크")
+    @GetMapping("/user/check/phone-number")
+    ResponseEntity<Void> checkDuplicationOfPhoneNumber(
+        @ModelAttribute("phone_number")
+        @Valid PhoneNumberCheckExistsRequest request
     );
 }

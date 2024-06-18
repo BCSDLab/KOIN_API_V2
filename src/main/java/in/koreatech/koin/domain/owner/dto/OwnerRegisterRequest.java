@@ -45,7 +45,7 @@ public record OwnerRegisterRequest(
     String password,
 
     @Pattern(regexp = "^\\d{11}$", message = "전화번호 형식이 올바르지 않습니다.")
-    @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = REQUIRED)
+    @Schema(description = "휴대폰 번호", example = "01012345678", requiredMode = REQUIRED)
     String phoneNumber,
 
     @Schema(description = "상점 고유 ID", requiredMode = NOT_REQUIRED)
@@ -72,6 +72,7 @@ public record OwnerRegisterRequest(
             .build();
         Owner owner = Owner.builder()
             .user(user)
+            .account(phoneNumber)
             .companyRegistrationNumber(companyNumber)
             .attachments(new ArrayList<>())
             .grantShop(false)

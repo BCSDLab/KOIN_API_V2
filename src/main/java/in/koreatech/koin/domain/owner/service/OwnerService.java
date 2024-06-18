@@ -28,6 +28,7 @@ import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSendSmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
+import in.koreatech.koin.domain.owner.dto.PhoneNumberCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
 import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
@@ -141,6 +142,9 @@ public class OwnerService {
         if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
             throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
         }
+        if (ownerRepository.findByAccount(request.phoneNumber()).isPresent()) {
+            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
+        }
         Owner owner = request.toOwner(passwordEncoder);
         Owner saved = ownerRepository.save(owner);
         OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(owner.getId());
@@ -252,5 +256,11 @@ public class OwnerService {
         if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
             throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
         }
+    }
+    
+    public void checkExistsAccount(PhoneNumberCheckExistsRequest request) {
+        ownerRepository.findByAccount(request.phoneNumber()).ifPresent(user -> {
+            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
+        });
     }
 }

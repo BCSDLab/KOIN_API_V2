@@ -17,7 +17,6 @@ import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.PhoneNumberCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.user.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
@@ -207,20 +206,6 @@ public interface UserApi {
     ResponseEntity<Void> checkDuplicationOfNickname(
         @ModelAttribute("nickname")
         @Valid NicknameCheckExistsRequest request
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "전화번호 중복 체크")
-    @GetMapping("/user/check/phone-number")
-    ResponseEntity<Void> checkDuplicationOfPhoneNumber(
-        @ModelAttribute("phone_number")
-        @Valid PhoneNumberCheckExistsRequest request
     );
 
     @ApiResponses(
