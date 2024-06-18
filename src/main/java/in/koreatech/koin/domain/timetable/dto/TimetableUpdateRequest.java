@@ -30,7 +30,7 @@ public record TimetableUpdateRequest(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimetableRequest(
-        @Schema(description = "id", example = "1", requiredMode = REQUIRED)
+        @Schema(description = "시간표 식별 번호", example = "1", requiredMode = REQUIRED)
         @NotNull(message = "시간표 식별 번호를 입력해주세요.")
         Integer id,
 

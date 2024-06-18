@@ -3,6 +3,9 @@ package in.koreatech.koin.domain.timetable.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import static jakarta.persistence.CascadeType.ALL;
+import java.util.List;
+
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -12,6 +15,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -21,7 +26,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "timetable_frame")
+@Table(
+    name = "timetable_frame",
+    indexes = @Index(name = "timetable_frame_INDEX", columnList = "user_id, semester_id")
+)
 @NoArgsConstructor(access = PROTECTED)
 public class TimetableFrame extends BaseEntity {
 
@@ -46,13 +54,43 @@ public class TimetableFrame extends BaseEntity {
 
     @NotNull
     @Column(name = "is_main", nullable = false)
-    private boolean isMain;
+    private Boolean isMain = false;
+
+    @NotNull
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "timetableFrame", orphanRemoval = true, cascade = ALL)
+    private List<TimetableLecture> timetableLectures;
+
+    public void updateStatusMain(boolean isMain) {
+        this.isMain = isMain;
+    }
 
     @Builder
-    private TimetableFrame(User user, Semester semester, String name) {
+    private TimetableFrame(
+        User user,
+        Semester semester,
+        String name,
+        boolean isMain,
+        List<TimetableLecture> timetableLectures,
+        boolean isDeleted
+    ) {
         this.user = user;
         this.semester = semester;
         this.name = name;
-        this.isMain = isMain();
+        this.isMain = isMain;
+        this.timetableLectures = timetableLectures;
+        this.isDeleted = isDeleted;
+    }
+
+    public void updateTimetableFrame(Semester semester, String name, boolean isMain) {
+        this.semester = semester;
+        this.name = name;
+        this.isMain = isMain;
+    }
+
+    public void cancelMain() {
+        isMain = false;
     }
 }

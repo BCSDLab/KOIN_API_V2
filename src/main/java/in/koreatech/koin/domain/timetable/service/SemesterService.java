@@ -27,7 +27,7 @@ public class SemesterService {
     }
 
     public SemesterCheckResponse getStudentSemesters(Integer userId) {
-        List<TimetableFrame> timeTableFrames = timetableFrameRepository.findAllByUserId(userId);
+        List<TimetableFrame> timeTableFrames = timetableFrameRepository.findByUserIdAndIsMainTrue(userId);
         List<String> semesters = timeTableFrames.stream()
             .map(timeTableFrame -> timeTableFrame.getSemester().getSemester())
             .distinct()

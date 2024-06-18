@@ -28,4 +28,6 @@ public interface LectureRepository extends Repository<Lecture, Integer> {
         return findById(id)
             .orElseThrow(() -> LectureNotFoundException.withDetail("lecture_id: " + id));
     }
+
+    List<Lecture> findByIdIn(List<Integer> lectureIds);
 }

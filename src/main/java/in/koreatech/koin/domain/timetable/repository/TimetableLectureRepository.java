@@ -4,11 +4,24 @@ import java.util.List;
 
 import org.springframework.data.repository.Repository;
 
+import java.util.Optional;
+
+import org.springframework.data.repository.Repository;
+
+import in.koreatech.koin.domain.timetable.exception.TimetableLectureNotFoundException;
 import in.koreatech.koin.domain.timetable.model.TimetableLecture;
 
 public interface TimetableLectureRepository extends Repository<TimetableLecture, Integer> {
 
-    TimetableLecture save(TimetableLecture timetableLecture);
+    Optional<TimetableLecture> findById(Integer id);
 
-    List<TimetableLecture> findAllByTimetableFrameId(Integer timetableFrameId);
+    List<TimetableLecture> findAllByTimetableFrameId(Integer id);
+
+    void deleteById(Integer id);
+
+    default TimetableLecture getById(Integer id) {
+        return findById(id)
+            .orElseThrow(() -> TimetableLectureNotFoundException.withDetail("id: " + id));
+    }
+    TimetableLecture save(TimetableLecture timetableLecture);
 }

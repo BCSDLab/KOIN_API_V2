@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.domain.timetable.model.TimeTable;
+import in.koreatech.koin.domain.timetable.model.Timetable;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -83,8 +83,8 @@ public record TimetableCreateRequest(
             }
         }
 
-        public TimeTable toTimetable(User user, Semester semester) {
-            return TimeTable.builder()
+        public Timetable toTimetable(User user, Semester semester) {
+            return Timetable.builder()
                 .user(user)
                 .semester(semester)
                 .code(this.code)
