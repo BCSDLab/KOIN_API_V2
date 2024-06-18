@@ -41,16 +41,14 @@ public class AdminTrackService {
         }
         Track track = request.toEntity();
         Track savedTrack = adminTrackRepository.save(track);
-
         return AdminTrackResponse.from(savedTrack);
     }
 
     public AdminTrackSingleResponse getTrack(Integer trackId) {
         Track track = adminTrackRepository.getById(trackId);
-        List<Member> member = adminMemberRepository.findByTrackId(trackId);
+        List<Member> members = adminMemberRepository.findByTrackId(trackId);
         List<TechStack> techStacks = adminTechStackRepository.findAllByTrackId(trackId);
-
-        return AdminTrackSingleResponse.of(track, member, techStacks);
+        return AdminTrackSingleResponse.of(track, members, techStacks);
     }
 
     @Transactional
@@ -60,9 +58,7 @@ public class AdminTrackService {
         }
         Track track = adminTrackRepository.getById(trackId);
         track.update(request.name(), request.headcount(), request.isDeleted());
-        Track updatedTrack = adminTrackRepository.save(track);
-
-        return AdminTrackResponse.from(updatedTrack);
+        return AdminTrackResponse.from(track);
     }
 
     @Transactional
@@ -76,7 +72,6 @@ public class AdminTrackService {
         Track track = adminTrackRepository.getByName(trackName);
         TechStack techStack = request.toEntity(track.getId());
         TechStack savedTechStack = adminTechStackRepository.save(techStack);
-
         return AdminTechStackResponse.from(savedTechStack);
     }
 
@@ -87,16 +82,13 @@ public class AdminTrackService {
         Integer techStackId
     ) {
         TechStack techStack = adminTechStackRepository.getById(techStackId);
-
         Integer id = techStack.getTrackId();
         if (trackName != null) {
             Track track = adminTrackRepository.getByName(trackName);
             id = track.getId();
         }
-
         techStack.update(id, request.imageUrl(), request.name(), request.description(), request.isDeleted());
-        TechStack updatedTechStack = adminTechStackRepository.save(techStack);
-        return AdminTechStackResponse.from(updatedTechStack);
+        return AdminTechStackResponse.from(techStack);
     }
 
     @Transactional
