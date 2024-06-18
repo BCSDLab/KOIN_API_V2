@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.owner.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
+import java.net.URI;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
@@ -64,6 +68,15 @@ public class OwnerController implements OwnerApi {
     ) {
         ownerService.register(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/owner/login")
+    public ResponseEntity<OwnerLoginResponse> ownerLogin(
+        @RequestBody @Valid OwnerLoginRequest request
+    ) {
+        OwnerLoginResponse response = ownerService.ownerLogin(request);
+        return ResponseEntity.created(URI.create("/"))
+            .body(response);
     }
 
     @PostMapping("/owners/register/phone")

@@ -6,8 +6,10 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
@@ -117,8 +119,12 @@ public class Dining extends BaseEntity {
         if (menu == null || menu.isBlank()) {
             throw new KoinIllegalStateException("메뉴가 잘못된 형태로 저장되어있습니다.", menu);
         }
-        return Stream.of(menu.substring(1, menu.length() - 1).split(","))
-            .map(str -> str.strip().replace("\"", ""))
-            .toList();
+        Pattern pattern = Pattern.compile("\"([^\"]*)\"");
+        Matcher matcher = pattern.matcher(menu);
+        List<String> parsedMenu = new ArrayList<>();
+        while (matcher.find()) {
+            parsedMenu.add(matcher.group(1));
+        }
+        return parsedMenu;
     }
 }

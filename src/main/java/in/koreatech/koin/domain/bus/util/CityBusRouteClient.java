@@ -8,11 +8,11 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.Clock;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -26,80 +26,61 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
-import in.koreatech.koin.domain.bus.model.city.CityBusArrival;
-import in.koreatech.koin.domain.bus.model.city.CityBusCache;
-import in.koreatech.koin.domain.bus.model.city.CityBusCacheInfo;
-import in.koreatech.koin.domain.bus.model.city.CityBusRemainTime;
+import in.koreatech.koin.domain.bus.model.city.CityBusRoute;
+import in.koreatech.koin.domain.bus.model.city.CityBusRouteCache;
 import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
-import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
-import in.koreatech.koin.domain.version.model.VersionType;
-import in.koreatech.koin.domain.version.repository.VersionRepository;
+import in.koreatech.koin.domain.bus.repository.CityBusRouteCacheRepository;
 
 /**
- * OpenApi 상세: 국토교통부_(TAGO)_버스도착정보
- * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098530
+ * OpenApi 상세: 국토교통부_(TAGO)_버스정류소정보 - 정류소별경유노선 목록조회
+ * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098534
  */
 @Component
 @Transactional(readOnly = true)
-public class CityBusClient {
+public class CityBusRouteClient {
+
+    private static final Set<Long> AVAILABLE_CITY_BUS = Set.of(400L, 402L, 405L);
 
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
-    private static final Type arrivalInfoType = new TypeToken<List<CityBusArrival>>() {
+    private static final Type availableCityBusType = new TypeToken<List<CityBusRoute>>() {
     }.getType();
 
     private final String openApiKey;
     private final Gson gson;
-    private final Clock clock;
-    private final VersionRepository versionRepository;
-    private final CityBusCacheRepository cityBusCacheRepository;
+    private final CityBusRouteCacheRepository cityBusRouteCacheRepository;
 
-    public CityBusClient(
+    public CityBusRouteClient(
         @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
         Gson gson,
-        Clock clock,
-        VersionRepository versionRepository,
-        CityBusCacheRepository cityBusCacheRepository
+        CityBusRouteCacheRepository cityBusRouteCacheRepository
     ) {
         this.openApiKey = openApiKey;
         this.gson = gson;
-        this.clock = clock;
-        this.versionRepository = versionRepository;
-        this.cityBusCacheRepository = cityBusCacheRepository;
+        this.cityBusRouteCacheRepository = cityBusRouteCacheRepository;
     }
 
-    public List<CityBusRemainTime> getBusRemainTime(String nodeId) {
-        Optional<CityBusCache> cityBusCache = cityBusCacheRepository.findById(nodeId);
-        return cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBusRemainTime::from).toList())
-            .orElseGet(ArrayList::new);
+    public Set<Long> getAvailableCityBus(String nodeId) {
+        Optional<CityBusRouteCache> routeCache = cityBusRouteCacheRepository.findById(nodeId);
+        if (routeCache.isEmpty()) {
+            return new HashSet<>(AVAILABLE_CITY_BUS);
+        }
+
+        return routeCache.get().getBusNumbers();
     }
 
     @Transactional
-    public void storeRemainTimeByOpenApi() {
-        List<List<CityBusArrival>> arrivalInfosList = BusStationNode.getNodeIds().stream()
-            .map(this::getOpenApiResponse)
-            .map(this::extractBusArrivalInfo)
-            .toList();
-
-        LocalDateTime updatedAt = LocalDateTime.now(clock);
-
-        for (List<CityBusArrival> arrivalInfos : arrivalInfosList) {
-            if (arrivalInfos.isEmpty()) {
-                continue;
-            }
-
-            cityBusCacheRepository.save(
-                CityBusCache.of(
-                    arrivalInfos.get(0).nodeid(),
-                    arrivalInfos.stream()
-                        .map(busArrivalInfo -> CityBusCacheInfo.of(busArrivalInfo, updatedAt))
-                        .toList()
-                )
-            );
-        }
-
-        versionRepository.getByType(VersionType.CITY).update(clock);
+    public void storeCityBusRoute() {
+        cityBusRouteCacheRepository.saveAll(
+            BusStationNode.getNodeIds().stream()
+                .map(node ->
+                    CityBusRouteCache.of(
+                        node,
+                        Set.copyOf(extractBusRouteInfo(getOpenApiResponse(node)))
+                    )
+                ).toList()
+        );
     }
 
     public String getOpenApiResponse(String nodeId) {
@@ -130,19 +111,19 @@ public class CityBusClient {
     }
 
     private String getRequestURL(String cityCode, String nodeId) throws UnsupportedEncodingException {
-        String url = "https://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList";
-        String contentCount = "30";
+        String url = "https://apis.data.go.kr/1613000/BusSttnInfoInqireService/getSttnThrghRouteList";
+        String contentCount = "50";
         StringBuilder urlBuilder = new StringBuilder(url);
         urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));
         urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode(contentCount, ENCODE_TYPE));
         urlBuilder.append("&" + encode("cityCode", ENCODE_TYPE) + "=" + encode(cityCode, ENCODE_TYPE));
-        urlBuilder.append("&" + encode("nodeId", ENCODE_TYPE) + "=" + encode(nodeId, ENCODE_TYPE));
+        urlBuilder.append("&" + encode("nodeid", ENCODE_TYPE) + "=" + encode(nodeId, ENCODE_TYPE));
         urlBuilder.append("&_type=json");
         return urlBuilder.toString();
     }
 
-    private List<CityBusArrival> extractBusArrivalInfo(String jsonResponse) {
-        List<CityBusArrival> result = new ArrayList<>();
+    private List<CityBusRoute> extractBusRouteInfo(String jsonResponse) {
+        List<CityBusRoute> result = new ArrayList<>();
         try {
             JsonObject response = JsonParser.parseString(jsonResponse)
                 .getAsJsonObject()
@@ -157,10 +138,10 @@ public class CityBusClient {
 
             JsonElement item = body.get("items").getAsJsonObject().get("item");
             if (item.isJsonArray()) {
-                return gson.fromJson(item, arrivalInfoType);
+                return gson.fromJson(item, availableCityBusType);
             }
             if (item.isJsonObject()) {
-                result.add(gson.fromJson(item, CityBusArrival.class));
+                result.add(gson.fromJson(item, CityBusRoute.class));
             }
             return result;
         } catch (JsonSyntaxException e) {

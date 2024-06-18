@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.util.CityBusClient;
+import in.koreatech.koin.domain.bus.util.CityBusRouteClient;
 import in.koreatech.koin.domain.bus.util.TmoneyExpressBusClient;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
@@ -48,6 +50,7 @@ public class BusService {
     private final BusRepository busRepository;
     private final CityBusClient cityBusClient;
     private final TmoneyExpressBusClient tmoneyExpressBusClient;
+    private final CityBusRouteClient cityBusRouteClient;
     private final VersionService versionService;
 
     @Transactional
@@ -57,7 +60,20 @@ public class BusService {
         if (busType == BusType.CITY) {
             // 시내버스에서 상행, 하행 구분할때 사용하는 로직
             BusDirection direction = getDirection(depart, arrival);
+
+            Set<Long> departAvailableBusNumbers = cityBusRouteClient.getAvailableCityBus(depart.getNodeId(direction));
+            Set<Long> arrivalAvailableBusNumbers = cityBusRouteClient.getAvailableCityBus(arrival.getNodeId(direction));
+
+            departAvailableBusNumbers.retainAll(arrivalAvailableBusNumbers);
+
             var remainTimes = cityBusClient.getBusRemainTime(depart.getNodeId(direction));
+
+            remainTimes = remainTimes.stream()
+                .filter(remainTime ->
+                    departAvailableBusNumbers.contains(remainTime.getBusNumber())
+                )
+                .toList();
+
             return toResponse(busType, remainTimes);
         }
 

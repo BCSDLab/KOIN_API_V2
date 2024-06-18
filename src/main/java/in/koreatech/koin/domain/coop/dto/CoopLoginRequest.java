@@ -1,14 +1,15 @@
-package in.koreatech.koin.domain.user.dto;
+package in.koreatech.koin.domain.coop.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public record UserLoginRequest(
-    @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
-    @NotBlank(message = "이메일을 입력해주세요.")
-    String email,
+public record CoopLoginRequest(
+    @Schema(description = "아이디", example = "koin123", requiredMode = REQUIRED)
+    @NotBlank(message = "아이디를 입력해주세요.")
+    String id,
 
     @Schema(
         description = "SHA 256 해시 알고리즘으로 암호화된 비밀번호",

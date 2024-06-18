@@ -15,6 +15,12 @@ public interface OwnerRepository extends Repository<Owner, Integer> {
         return findById(ownerId).orElseThrow(() -> OwnerNotFoundException.withDetail("ownerId: " + ownerId));
     }
 
+    Optional<Owner> findByAccount(String account);
+
+    default Owner getByAccount(String account) {
+        return findByAccount(account).orElseThrow(() -> OwnerNotFoundException.withDetail("ownerAccount : " + account));
+    }
+
     Owner save(Owner owner);
 
     Optional<Owner> findByCompanyRegistrationNumber(String companyRegistrationNumber);
