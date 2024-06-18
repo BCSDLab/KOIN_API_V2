@@ -276,4 +276,35 @@ public class AdminMemberApiTest extends AcceptanceTest {
             softly.assertThat(updatedMember.isDeleted()).isEqualTo(false);
         });
     }
+
+    @Test
+    @DisplayName("BCSDLab 회원 정보를 삭제를 취소한다")
+    void undeleteMember() {
+        Member member = memberFixture.최준호_삭제(trackFixture.backend());
+        Integer memberId = member.getId();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .post("/admin/members/{id}/undelete", memberId)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Member savedMember = adminMemberRepository.getById(memberId);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(savedMember.getName()).isEqualTo("최준호");
+            softly.assertThat(savedMember.getStudentNumber()).isEqualTo("2019136135");
+            softly.assertThat(savedMember.getTrack().getName()).isEqualTo("BackEnd");
+            softly.assertThat(savedMember.getPosition()).isEqualTo("Regular");
+            softly.assertThat(savedMember.getEmail()).isEqualTo("testjuno@gmail.com");
+            softly.assertThat(savedMember.getImageUrl()).isEqualTo("https://imagetest.com/juno.jpg");
+            softly.assertThat(savedMember.isDeleted()).isEqualTo(false);
+        });
+    }
 }

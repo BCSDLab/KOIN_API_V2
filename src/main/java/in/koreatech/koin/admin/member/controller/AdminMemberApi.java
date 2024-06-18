@@ -107,4 +107,20 @@ public interface AdminMemberApi {
         @RequestBody @Valid AdminMemberRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "BCSDLab 회원 삭제 취소")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/admin/members/{id}/undelete")
+    ResponseEntity<Void> undeleteMember(
+        @PathVariable("id") Integer memberId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
 }
