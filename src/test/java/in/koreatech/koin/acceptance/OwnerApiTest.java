@@ -706,7 +706,7 @@ class OwnerApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사업자 등록번호 검증 - 존재하지 않으면 200")
+    @DisplayName("사업자 등록번호 중복 검증 - 존재하지 않으면 200")
     void checkDuplicateCompanyNumber() {
         // when & then
         RestAssured
@@ -719,26 +719,43 @@ class OwnerApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사업자 등록번호 검증 - 이미 존재하면 409")
+    @DisplayName("사업자 등록번호 중복 검증 - 이미 존재하면 409")
     void checkDuplicateCompanyNumberExists() {
         // given
         Owner owner = userFixture.현수_사장님();
         // when & then
-        RestAssured
+        var response = RestAssured
             .given()
             .queryParam("company_number", owner.getCompanyRegistrationNumber())
             .when()
             .get("/owners/check/company-number")
             .then()
-            .statusCode(HttpStatus.CONFLICT.value());
+            .statusCode(HttpStatus.CONFLICT.value())
+            .extract();
+
+        assertThat(response.body().jsonPath().getString("message"))
+            .isEqualTo("이미 존재하는 사업자 등록번호입니다.");
     }
 
     @Test
-    @DisplayName("사업자 등록번호 검증 - 값이 존재하지 않으면 400")
+    @DisplayName("사업자 등록번호 중복 검증 - 값이 존재하지 않으면 400")
     void checkDuplicateCompanyNumberNotAccept() {
         // when & then
         RestAssured
             .given()
+            .when()
+            .get("/owners/check/company-number")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("사업자 등록번호 중복 검증 - 값이 올바르지 않으면 400")
+    void checkDuplicateCompanyNumberNotMatchedPattern() {
+        // when & then
+        RestAssured
+            .given()
+            .queryParam("company_number", "1234567890")
             .when()
             .get("/owners/check/company-number")
             .then()

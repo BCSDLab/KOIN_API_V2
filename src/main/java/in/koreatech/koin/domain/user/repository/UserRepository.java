@@ -62,4 +62,6 @@ public interface UserRepository extends Repository<User, Integer> {
     void delete(User user);
 
     List<User> findAllByDeviceTokenIsNotNull();
+
+    Optional<User> findByPhoneNumber(String phoneNumber);
 }

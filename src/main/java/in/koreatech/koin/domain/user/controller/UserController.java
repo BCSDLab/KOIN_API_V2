@@ -24,8 +24,7 @@ import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
+import in.koreatech.koin.domain.user.dto.PhoneNumberCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.user.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
@@ -197,6 +196,15 @@ public class UserController implements UserApi {
         @RequestParam("reset_token") String resetToken
     ) {
         studentService.changePassword(request, resetToken);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/user/check/phone-number")
+    public ResponseEntity<Void> checkDuplicationOfPhoneNumber(
+        @ModelAttribute("phone_number")
+        @Valid PhoneNumberCheckExistsRequest request
+    ) {
+        userService.checkExistsPhoneNumber(request);
         return ResponseEntity.ok().build();
     }
 }
