@@ -18,9 +18,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
-import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
+import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -703,5 +703,45 @@ class OwnerApiTest extends AcceptanceTest {
 
         // then
         assertThat(userRepository.findById(owner.getId())).isNotPresent();
+    }
+
+    @Test
+    @DisplayName("사업자 등록번호 검증 - 존재하지 않으면 200")
+    void checkDuplicateCompanyNumber() {
+        // when & then
+        RestAssured
+            .given()
+            .queryParam("company_number", "123-45-67190")
+            .when()
+            .get("/owners/check/company-number")
+            .then()
+            .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    @DisplayName("사업자 등록번호 검증 - 이미 존재하면 409")
+    void checkDuplicateCompanyNumberExists() {
+        // given
+        Owner owner = userFixture.현수_사장님();
+        // when & then
+        RestAssured
+            .given()
+            .queryParam("company_number", owner.getCompanyRegistrationNumber())
+            .when()
+            .get("/owners/check/company-number")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value());
+    }
+
+    @Test
+    @DisplayName("사업자 등록번호 검증 - 값이 존재하지 않으면 400")
+    void checkDuplicateCompanyNumberNotAccept() {
+        // when & then
+        RestAssured
+            .given()
+            .when()
+            .get("/owners/check/company-number")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 }

@@ -4,10 +4,12 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin.domain.owner.dto.CompanyNumberCheckRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
@@ -16,11 +18,11 @@ import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateSmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterByPhoneRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSendSmsRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
@@ -278,5 +280,19 @@ public interface OwnerApi {
     @PutMapping("/owners/password/reset/sms")
     ResponseEntity<Void> updatePasswordBySms(
         @Valid @RequestBody OwnerPasswordUpdateSmsRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "사업자 등록번호 중복 검증")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/owners/check/company-number")
+    ResponseEntity<Void> checkCompanyNumber(
+        @ModelAttribute("company_number")
+        @Valid CompanyNumberCheckRequest request
     );
 }

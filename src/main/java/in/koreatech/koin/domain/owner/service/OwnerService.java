@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.owner.dto.CompanyNumberCheckRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
@@ -46,7 +47,6 @@ import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
@@ -246,5 +246,11 @@ public class OwnerService {
             throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
         ownerVerificationStatusRepository.deleteById(key);
+    }
+
+    public void checkCompanyNumber(CompanyNumberCheckRequest request) {
+        if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
+            throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
+        }
     }
 }
