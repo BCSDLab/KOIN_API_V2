@@ -767,7 +767,7 @@ class OwnerApiTest extends AcceptanceTest {
     void checkExistsPhoneNumber() {
         RestAssured
             .given()
-            .param("phone_number", "01012345678")
+            .param("account", "01012345678")
             .when()
             .get("/owners/check/account")
             .then()
@@ -781,7 +781,7 @@ class OwnerApiTest extends AcceptanceTest {
         Owner owner = userFixture.현수_사장님();
         var response = RestAssured
             .given()
-            .param("phone_number", owner.getAccount())
+            .param("account", owner.getAccount())
             .when()
             .get("/owners/check/account")
             .then()
