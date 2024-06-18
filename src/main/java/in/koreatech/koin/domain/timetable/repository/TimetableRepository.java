@@ -6,21 +6,21 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.timetable.exception.TimetableNotFoundException;
-import in.koreatech.koin.domain.timetable.model.TimeTable;
+import in.koreatech.koin.domain.timetable.model.Timetable;
 
-public interface TimeTableRepository extends Repository<TimeTable, Integer> {
+public interface TimetableRepository extends Repository<Timetable, Integer> {
 
-    TimeTable save(TimeTable timeTable);
+    Timetable save(Timetable timeTable);
 
-    List<TimeTable> findAllByUserId(Integer id);
+    List<Timetable> findAllByUserId(Integer id);
 
-    List<TimeTable> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
+    List<Timetable> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
 
-    Optional<TimeTable> findById(Integer id);
+    Optional<Timetable> findById(Integer id);
 
     void deleteByUserIdAndSemesterId(Integer userId, Integer semesterId);
 
-    default TimeTable getById(Integer id) {
+    default Timetable getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> TimetableNotFoundException.withDetail("id: " + id));
     }

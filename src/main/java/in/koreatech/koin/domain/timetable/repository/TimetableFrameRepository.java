@@ -10,7 +10,7 @@ import in.koreatech.koin.domain.timetable.exception.TimetableNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.model.TimetableFrame;
 
-public interface TimeTableFrameRepository extends Repository<TimetableFrame, Integer> {
+public interface TimetableFrameRepository extends Repository<TimetableFrame, Integer> {
 
     Optional<TimetableFrame> findById(Integer id);
 

@@ -14,14 +14,14 @@ import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.domain.timetable.model.TimeTable;
+import in.koreatech.koin.domain.timetable.model.Timetable;
 import in.koreatech.koin.domain.timetable.model.TimetableFrame;
 import in.koreatech.koin.domain.timetable.model.TimetableLecture;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
-import in.koreatech.koin.domain.timetable.repository.TimeTableFrameRepository;
-import in.koreatech.koin.domain.timetable.repository.TimeTableLectureRepository;
-import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
+import in.koreatech.koin.domain.timetable.repository.TimetableFrameRepository;
+import in.koreatech.koin.domain.timetable.repository.TimetableLectureRepository;
+import in.koreatech.koin.domain.timetable.repository.TimetableRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +33,9 @@ public class TimetableService {
 
     private final LectureRepository lectureRepository;
     private final SemesterRepository semesterRepository;
-    private final TimeTableRepository timeTableRepository;
-    private final TimeTableFrameRepository timetableFrameRepository;
-    private final TimeTableLectureRepository timetableLectureRepository;
+    private final TimetableRepository timetableRepository;
+    private final TimetableFrameRepository timetableFrameRepository;
+    private final TimetableLectureRepository timetableLectureRepository;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
         List<Lecture> lectures = lectureRepository.findBySemester(semester);
@@ -105,7 +105,7 @@ public class TimetableService {
 
     @Transactional
     public void deleteTimeTable(Integer id) {
-        TimeTable timeTable = timeTableRepository.getById(id);
+        Timetable timeTable = timetableRepository.getById(id);
         timeTable.updateIsDeleted(true);
     }
 
