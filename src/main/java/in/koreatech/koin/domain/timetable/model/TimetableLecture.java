@@ -5,6 +5,8 @@ import static lombok.AccessLevel.PROTECTED;
 
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin.domain.timetable.dto.TimetableLectureUpdateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -74,5 +76,21 @@ public class TimetableLecture extends BaseEntity {
         this.isDeleted = isDeleted;
         this.lecture = lecture;
         this.timetableFrame = timetableFrame;
+    }
+
+    public void update(TimetableLectureUpdateRequest.InnerTimetableLectureRequest request) {
+        this.className = request.classTitle();
+        this.classTime = request.classTime().toString();
+        this.classPlace = request.classPlace();
+        this.professor = request.professor();
+        this.memo = request.memo();
+    }
+
+    public void update(TimetableUpdateRequest.InnerTimetableRequest request) {
+        this.className = request.classTitle();
+        this.classTime = request.classTime().toString();
+        this.classPlace = request.classPlace();
+        this.professor = request.professor();
+        this.memo = request.memo();
     }
 }

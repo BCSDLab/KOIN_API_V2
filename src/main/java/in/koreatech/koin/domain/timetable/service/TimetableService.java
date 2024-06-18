@@ -1,5 +1,3 @@
-package in.koreatech.koin.domain.timetable.service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +14,7 @@ import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
+import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
@@ -114,6 +113,19 @@ public class TimetableService {
     }
 
     @Transactional
+    public TimetableLectureResponse updateTimetablesLectures(Integer userId, TimetableLectureUpdateRequest request) {
+        TimetableFrame timetableFrame = timetableFrameRepository.getById(request.id());
+        for (TimetableLectureUpdateRequest.InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
+            TimetableLecture timetableLecture = timetableLectureRepository.getById(timetableRequest.id());
+            if (timetableRequest.id() == null) {
+                timetableLecture.update(timetableRequest);
+                timetableLectureRepository.save(timetableLecture);
+            }
+        }
+        return getTimetableLectureResponse(userId, timetableFrame);
+    }
+
+    @Transactional
     public void deleteTimetableLecture(Integer userId, Integer timetableLectureId) {
         timetableLectureRepository.getById(timetableLectureId);
         TimetableFrame frame = timetableFrameRepository.getById(timetableLectureId);
@@ -146,6 +158,31 @@ public class TimetableService {
         }
 
         return getTimetableResponse(userId, timetableFrame, timetableLectures);
+    }
+
+    @Transactional
+    public TimetableResponse updateTimetables(Integer userId, TimetableUpdateRequest request) {
+        Semester semester = semesterRepository.getBySemester(request.semester());
+        TimetableFrame timetableFrame = timetableFrameRepository.getByUserIdAndSemesterId(userId, semester.getId(), true);
+        for (TimetableUpdateRequest.InnerTimetableRequest timetableRequest : request.timetable()) {
+            TimetableLecture timetableLecture;
+            if (timetableRequest.id() != null) {
+                timetableLecture = timetableLectureRepository.getById(timetableRequest.id());
+                timetableLecture.update(timetableRequest);
+            } else {
+                timetableLecture = TimetableLecture.builder()
+                    .className(timetableRequest.classTitle())
+                    .classTime(timetableRequest.classTime().toString())
+                    .classPlace(timetableRequest.classPlace())
+                    .professor(timetableRequest.professor())
+                    .memo(timetableRequest.memo())
+                    .timetableFrame(timetableFrame)
+                    .isDeleted(false)
+                    .build();
+            }
+            timetableLectureRepository.save(timetableLecture);
+        }
+        return getTimetableResponse(userId, timetableFrame);
     }
 
     public TimetableResponse getTimetables(Integer userId, String semesterRequest) {

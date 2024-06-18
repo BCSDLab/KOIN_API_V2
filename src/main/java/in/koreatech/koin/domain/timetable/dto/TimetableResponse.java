@@ -34,7 +34,7 @@ public record TimetableResponse(
         @Schema(name = "시간표 ID", example = "1", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(name = "과목 코드", example = "ARB244", requiredMode = NOT_REQUIRED)
+        @Schema(name = "수강 정원", example = "40", requiredMode = NOT_REQUIRED)
         String regularNumber,
 
         @Schema(name = "과목 코드", example = "ARB244", requiredMode = NOT_REQUIRED)
@@ -92,6 +92,7 @@ public record TimetableResponse(
                 .toList();
         }
     }
+
     public static TimetableResponse of(List<TimetableLecture> timeTableLectures, TimetableFrame timeTableFrame,
         Integer grades, Integer totalGrades) {
         return new TimetableResponse(

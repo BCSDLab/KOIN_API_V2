@@ -16,11 +16,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimetableLectureResponse(
-    @Schema(description = "timetableFrame id", example = "1", requiredMode = REQUIRED)
+    @Schema(name = "시간표 프레임 고유 번호", example = "1")
     Integer timetableFrameId,
 
-    @Schema(description = "강의시간표 상세 정보", requiredMode = REQUIRED)
-    List<InnerTimetableLectureResponse> TimetableLecture,
+    @Schema(name = "시간표 상세정보")
+    List<InnerTimetableLectureResponse> timetable,
 
     @Schema(name = "해당 학기 학점", example = "21")
     Integer grades,
@@ -30,7 +30,7 @@ public record TimetableLectureResponse(
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimetableLectureResponse(
-        @Schema(name = "timetableFrame id", example = "1", requiredMode = REQUIRED)
+        @Schema(name = "시간표 ID", example = "1", requiredMode = REQUIRED)
         Integer id,
 
         @Schema(name = "수강 정원", example = "38", requiredMode = NOT_REQUIRED)
@@ -135,3 +135,4 @@ public record TimetableLectureResponse(
         }
     }
 }
+
