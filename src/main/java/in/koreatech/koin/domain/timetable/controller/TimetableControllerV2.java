@@ -20,6 +20,7 @@ import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureResponse;
+import in.koreatech.koin.domain.timetable.dto.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetable.service.TimetableService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -38,6 +39,17 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     ) {
         TimetableFrameResponse response = timetableService.createTimetablesFrame(userId, request);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/timetables/frame/{id}")
+    public ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
+        @PathVariable(value = "id") Integer timetableFrameId,
+        @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        TimetableFrameUpdateResponse timetableFrameUpdateResponse =
+            timetableService.updateTimetableFrame(timetableFrameId, timetableFrameUpdateRequest, userId);
+        return ResponseEntity.ok(timetableFrameUpdateResponse);
     }
 
     @GetMapping("/timetables/frames")
@@ -67,18 +79,16 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         return ResponseEntity.ok(timeTableLectureResponse);
     }
 
-    @PutMapping("/timetables/frame/{id}")
-    public ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
-        @PathVariable(value = "id") Integer timetableFrameId,
-        @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,
+    @PutMapping("/V2/timetables/lecture")
+    public ResponseEntity<TimetableLectureResponse> updateTimetableLecture(
+        @Valid @RequestBody TimetableLectureUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableFrameUpdateResponse timetableFrameUpdateResponse =
-            timetableService.updateTimetableFrame(timetableFrameId, timetableFrameUpdateRequest, userId);
-        return ResponseEntity.ok(timetableFrameUpdateResponse);
+        TimetableLectureResponse timetableLectureResponse = timetableService.updateTimetablesLectures(userId, request);
+        return ResponseEntity.ok(timetableLectureResponse);
     }
 
-    @DeleteMapping("/v2/timetables/lecture/{id}")
+    @DeleteMapping("/V2/timetables/lecture/{id}")
     public ResponseEntity<Void> deleteTimetableLecture(
         @PathVariable(value = "id") Integer timetableLectureId,
         @Auth(permit = {STUDENT}) Integer userId

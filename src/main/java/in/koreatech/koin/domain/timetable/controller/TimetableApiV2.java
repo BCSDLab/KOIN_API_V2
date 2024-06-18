@@ -19,6 +19,7 @@ import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureResponse;
+import in.koreatech.koin.domain.timetable.dto.TimetableLectureUpdateRequest;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -107,6 +108,22 @@ public interface TimetableApiV2 {
     @PostMapping("/V2/timetables/lecture")
     ResponseEntity<TimetableLectureResponse> createTimetableLecture(
         @RequestBody TimetableLectureCreateRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "시간표 정보 수정(TimeTableLecture)")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/V2/timetables")
+    ResponseEntity<TimetableLectureResponse> updateTimetableLecture(
+        @RequestBody TimetableLectureUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     );
 

@@ -1,3 +1,5 @@
+package in.koreatech.koin.domain.timetable.service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -13,6 +15,7 @@ import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureResponse;
+import in.koreatech.koin.domain.timetable.dto.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
@@ -117,12 +120,11 @@ public class TimetableService {
         TimetableFrame timetableFrame = timetableFrameRepository.getById(request.id());
         for (TimetableLectureUpdateRequest.InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
             TimetableLecture timetableLecture = timetableLectureRepository.getById(timetableRequest.id());
-            if (timetableRequest.id() == null) {
-                timetableLecture.update(timetableRequest);
-                timetableLectureRepository.save(timetableLecture);
-            }
+            timetableLecture.update(timetableRequest);
+            timetableLectureRepository.save(timetableLecture);
         }
-        return getTimetableLectureResponse(userId, timetableFrame);
+        List<TimetableLecture> timetableLectures = timetableLectureRepository.findAllByTimetableFrameId(timetableFrame.getId());
+        return getTimetableLectureResponse(userId, timetableFrame, timetableLectures);
     }
 
     @Transactional
@@ -163,7 +165,7 @@ public class TimetableService {
     @Transactional
     public TimetableResponse updateTimetables(Integer userId, TimetableUpdateRequest request) {
         Semester semester = semesterRepository.getBySemester(request.semester());
-        TimetableFrame timetableFrame = timetableFrameRepository.getByUserIdAndSemesterId(userId, semester.getId(), true);
+        TimetableFrame timetableFrame = timetableFrameRepository.getMainTimetableByUserIdAndSemesterId(userId, semester.getId());
         for (TimetableUpdateRequest.InnerTimetableRequest timetableRequest : request.timetable()) {
             TimetableLecture timetableLecture;
             if (timetableRequest.id() != null) {

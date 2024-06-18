@@ -90,13 +90,13 @@ public class TimeTableV2Fixture {
 
         TimetableLecture timetableLecture1 = TimetableLecture.builder()
             .isDeleted(false)
-            .lectures(lecture1)
+            .lecture(lecture1)
             .timetableFrame(frame)
             .build();
 
         TimetableLecture timetableLecture2 = TimetableLecture.builder()
             .isDeleted(false)
-            .lectures(lecture2)
+            .lecture(lecture2)
             .timetableFrame(frame)
             .build();
 
@@ -117,7 +117,7 @@ public class TimeTableV2Fixture {
 
         TimetableLecture timetableLecture1 = TimetableLecture.builder()
             .isDeleted(false)
-            .lectures(lecture1)
+            .lecture(lecture1)
             .timetableFrame(frame)
             .build();
 
