@@ -16,8 +16,6 @@ import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterCheckResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetableFrameCreateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.global.auth.Auth;
@@ -28,7 +26,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Lecture: 시간표", description = "시간표 정보를 관리한다")
 public interface TimetableApi {
@@ -80,51 +77,6 @@ public interface TimetableApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "timetableframe 생성")
-    @PostMapping("/timetables/frame")
-    public ResponseEntity<TimetableFrameResponse> createTimetablesFrame(
-        @Valid @RequestBody TimetableFrameCreateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "timetableframe 조회")
-    @GetMapping("/timetables/frame")
-    public ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
-        @RequestParam(name = "semester") String semester,
-        @Auth(permit = {STUDENT}) Integer userId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "timetableframe 삭제")
-    @DeleteMapping("/timetables/frame")
-    public ResponseEntity<Void> deleteTimetablesFrame(
-        @RequestParam(name = "id") Integer frameId,
-        @Auth(permit = {STUDENT}) Integer userId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
     @Operation(summary = "시간표 정보 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/timetables")
@@ -145,7 +97,7 @@ public interface TimetableApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/timetables")
     ResponseEntity<TimetableResponse> createTimetables(
-        @RequestBody TimetableCreateRequest timeTableCreateRequest,
+        @RequestBody TimetableCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -173,11 +125,11 @@ public interface TimetableApi {
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "시간표 강의 삭제")
+    @Operation(summary = "시간표 삭제")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/timetables")
+    @DeleteMapping("/timetable")
     ResponseEntity<Void> deleteTimetableById(
-        @RequestParam(value = "id") Integer lectureId,
+        @RequestParam(value = "id") Integer id,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }

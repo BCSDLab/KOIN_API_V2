@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.timetable.dto;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -10,17 +11,16 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.timetable.model.TimetableFrame;
 import in.koreatech.koin.domain.timetable.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record TimetableResponse(
-    @Schema(name = "학기", example = "20241", requiredMode = REQUIRED)
-    String semester,
+public record TimetableLectureResponse(
+    @Schema(name = "시간표 프레임 id", example = "1")
+    Integer timetableFrameId,
 
     @Schema(name = "시간표 상세정보")
-    List<InnerTimetableResponse> timetable,
+    List<InnerTimetableLectureResponse> timetable,
 
     @Schema(name = "해당 학기 학점", example = "21")
     Integer grades,
@@ -28,13 +28,12 @@ public record TimetableResponse(
     @Schema(name = "전체 학기 학점", example = "121")
     Integer totalGrades
 ) {
-
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerTimetableResponse(
+    public record InnerTimetableLectureResponse(
         @Schema(name = "시간표 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(name = "수강 정원", example = "40", requiredMode = NOT_REQUIRED)
+        @Schema(name = "수강 정원", example = "38", requiredMode = NOT_REQUIRED)
         String regularNumber,
 
         @Schema(name = "과목 코드", example = "ARB244", requiredMode = NOT_REQUIRED)
@@ -71,36 +70,54 @@ public record TimetableResponse(
         String department
     ) {
 
-        public static List<InnerTimetableResponse> from(List<TimetableLecture> timetableLectures) {
-            return timetableLectures.stream()
-                .map(timeTableLecture -> new InnerTimetableResponse(
-                        timeTableLecture.getId(),
-                        timeTableLecture.getLecture().getRegularNumber(),
-                        timeTableLecture.getLecture().getCode(),
-                        timeTableLecture.getLecture().getDesignScore(),
-                        parseIntegerClassTimesFromString(timeTableLecture.getLecture().getClassTime()),
-                        timeTableLecture.getClassPlace(),
-                        timeTableLecture.getMemo(),
-                        timeTableLecture.getLecture().getGrades(),
-                        timeTableLecture.getLecture().getName(),
-                        timeTableLecture.getLecture().getLectureClass(),
-                        timeTableLecture.getLecture().getTarget(),
-                        timeTableLecture.getLecture().getProfessor(),
-                        timeTableLecture.getLecture().getDepartment()
-                    )
-                )
-                .toList();
+        public static List<InnerTimetableLectureResponse> from(List<TimetableLecture> timetableLectures) {
+            List<InnerTimetableLectureResponse> timetableLectureList = new ArrayList<>();
+
+            for (TimetableLecture timetableLecture : timetableLectures) {
+                InnerTimetableLectureResponse response;
+                if (timetableLecture.getLecture() == null) {
+                    response = new InnerTimetableLectureResponse(
+                        timetableLecture.getId(),
+                        null,
+                        null,
+                        null,
+                        parseIntegerClassTimesFromString(timetableLecture.getClassTime()),
+                        timetableLecture.getClassPlace(),
+                        timetableLecture.getMemo(),
+                        timetableLecture.getGrades(),
+                        timetableLecture.getClassTitle(),
+                        null,
+                        null,
+                        timetableLecture.getProfessor(),
+                        null
+                    );
+                } else {
+                    response = new InnerTimetableLectureResponse(
+                        timetableLecture.getId(),
+                        timetableLecture.getLecture().getRegularNumber(),
+                        timetableLecture.getLecture().getCode(),
+                        timetableLecture.getLecture().getDesignScore(),
+                        parseIntegerClassTimesFromString(timetableLecture.getLecture().getClassTime()),
+                        timetableLecture.getClassPlace(),
+                        timetableLecture.getMemo(),
+                        timetableLecture.getLecture().getGrades(),
+                        timetableLecture.getLecture().getName(),
+                        timetableLecture.getLecture().getLectureClass(),
+                        timetableLecture.getLecture().getTarget(),
+                        timetableLecture.getLecture().getProfessor(),
+                        timetableLecture.getLecture().getDepartment()
+                    );
+                }
+                timetableLectureList.add(response);
+            }
+            return timetableLectureList;
         }
     }
 
-    public static TimetableResponse of(List<TimetableLecture> timetableLectures, TimetableFrame timetableFrame,
+    public static TimetableLectureResponse of(Integer timetableFrameId, List<TimetableLecture> timetableLectures,
         Integer grades, Integer totalGrades) {
-        return new TimetableResponse(
-            timetableFrame.getSemester().getSemester(),
-            InnerTimetableResponse.from(timetableLectures),
-            grades,
-            totalGrades
-        );
+        return new TimetableLectureResponse(timetableFrameId, InnerTimetableLectureResponse.from(timetableLectures),
+            grades, totalGrades);
     }
 
     private static final int INITIAL_BRACE_INDEX = 1;
@@ -118,3 +135,4 @@ public record TimetableResponse(
         }
     }
 }
+

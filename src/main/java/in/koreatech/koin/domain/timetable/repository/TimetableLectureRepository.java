@@ -1,6 +1,9 @@
 package in.koreatech.koin.domain.timetable.repository;
 
 import java.util.List;
+
+import org.springframework.data.repository.Repository;
+
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
@@ -20,5 +23,5 @@ public interface TimetableLectureRepository extends Repository<TimetableLecture,
         return findById(id)
             .orElseThrow(() -> TimetableLectureNotFoundException.withDetail("id: " + id));
     }
-    TimetableLecture save(TimetableLecture lecture);
+    TimetableLecture save(TimetableLecture timetableLecture);
 }

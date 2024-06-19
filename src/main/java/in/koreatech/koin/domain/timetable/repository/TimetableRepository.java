@@ -10,7 +10,7 @@ import in.koreatech.koin.domain.timetable.model.Timetable;
 
 public interface TimetableRepository extends Repository<Timetable, Integer> {
 
-    Timetable save(Timetable timetable);
+    Timetable save(Timetable timeTable);
 
     List<Timetable> findAllByUserId(Integer id);
 

@@ -4,7 +4,7 @@ import in.koreatech.koin.global.exception.DataNotFoundException;
 
 public class TimetableLectureNotFoundException extends DataNotFoundException {
 
-    private static final String DEFAULT_MESSAGE = "시간표에서 해당 강의를 찾지 못했습니다.";
+    private static final String DEFAULT_MESSAGE = "존재하지 않는 수업입니다.";
 
     public TimetableLectureNotFoundException(String message) {
         super(message);

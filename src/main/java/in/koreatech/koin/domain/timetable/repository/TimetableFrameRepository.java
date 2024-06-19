@@ -16,6 +16,8 @@ public interface TimetableFrameRepository extends Repository<TimetableFrame, Int
 
     Optional<TimetableFrame> findById(Integer id);
 
+    List<TimetableFrame> findByUserIdAndIsMainTrue(Integer userId);
+
     Optional<TimetableFrame> findByUserIdAndSemesterIdAndIsMainTrue(Integer userId, Integer semesterId);
 
     default TimetableFrame getById(Integer id) {
@@ -23,7 +25,7 @@ public interface TimetableFrameRepository extends Repository<TimetableFrame, Int
             .orElseThrow(() -> TimetableNotFoundException.withDetail("id: " + id));
     }
 
-    default TimetableFrame getMainTimetable(Integer userId, Integer semesterId) {
+    default TimetableFrame getMainTimetableByUserIdAndSemesterId(Integer userId, Integer semesterId) {
         return findByUserIdAndSemesterIdAndIsMainTrue(userId, semesterId)
             .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("userId: " + userId + ", semesterId: " + semesterId));
     }

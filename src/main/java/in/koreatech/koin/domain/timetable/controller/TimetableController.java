@@ -19,8 +19,6 @@ import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetableFrameCreateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetable.service.SemesterService;
 import in.koreatech.koin.domain.timetable.service.TimetableService;
 import in.koreatech.koin.global.auth.Auth;
@@ -56,33 +54,6 @@ public class TimetableController implements TimetableApi {
         return ResponseEntity.ok(semesterCheckResponse);
     }
 
-    @PostMapping("/timetables/frame")
-    public ResponseEntity<TimetableFrameResponse> createTimetablesFrame(
-        @Valid @RequestBody TimetableFrameCreateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
-    ) {
-        TimetableFrameResponse response = timetableService.createTimetablesFrame(userId, request);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/timetables/frames")
-    public ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
-        @RequestParam(name = "semester") String semester,
-        @Auth(permit = {STUDENT}) Integer userId
-    ) {
-        List<TimetableFrameResponse> timeTableFrameResponse = timetableService.getTimetablesFrame(userId, semester);
-        return ResponseEntity.ok(timeTableFrameResponse);
-    }
-
-    @DeleteMapping("/timetables/frame")
-    public ResponseEntity<Void> deleteTimetablesFrame(
-        @RequestParam(name = "id") Integer frameId,
-        @Auth(permit = {STUDENT}) Integer userId
-    ) {
-        timetableService.deleteTimetablesFrame(userId, frameId);
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/timetables")
     public ResponseEntity<TimetableResponse> getTimetables(
         @RequestParam(name = "semester") String semester,
@@ -97,8 +68,8 @@ public class TimetableController implements TimetableApi {
         @Valid @RequestBody TimetableCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableResponse timetableResponse = timetableService.createTimetables(userId, request);
-        return ResponseEntity.ok(timetableResponse);
+        TimetableResponse timeTableResponse = timetableService.createTimetables(userId, request);
+        return ResponseEntity.ok(timeTableResponse);
     }
 
     @PutMapping("/timetables")
@@ -118,4 +89,5 @@ public class TimetableController implements TimetableApi {
         timetableService.deleteTimetableLecture(userId, timetableId);
         return ResponseEntity.ok().build();
     }
+
 }
