@@ -20,6 +20,7 @@ import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableLectureUpdateRequest;
+import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -105,7 +106,7 @@ public interface TimetableApiV2 {
     )
     @Operation(summary = "시간표 정보 생성")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PostMapping("/V2/timetables/lecture")
+    @PostMapping("/v2/timetables/lecture")
     ResponseEntity<TimetableLectureResponse> createTimetableLecture(
         @RequestBody TimetableLectureCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
@@ -121,9 +122,25 @@ public interface TimetableApiV2 {
     )
     @Operation(summary = "시간표 정보 수정(TimeTableLecture)")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/V2/timetables")
+    @PutMapping("/v2/timetables/lecture")
     ResponseEntity<TimetableLectureResponse> updateTimetableLecture(
         @RequestBody TimetableLectureUpdateRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "시간표 정보 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/v2/timetables/lecture")
+    ResponseEntity<TimetableLectureResponse> getTimetableLecture(
+        @RequestParam(value = "timetable_frame_id") Integer timetableFrameId,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -135,7 +152,7 @@ public interface TimetableApiV2 {
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "시간표 삭제")
+    @Operation(summary = "시간표 정보 삭제")
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/v2/timetables/lecture/{id}")
     ResponseEntity<Void> deleteTimetableLecture(

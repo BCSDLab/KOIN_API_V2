@@ -34,8 +34,8 @@ public class TimetableLecture extends BaseEntity {
     private Integer id;
 
     @Size(max = 100)
-    @Column(name = "class_name", length = 100)
-    private String className;
+    @Column(name = "class_title", length = 100)
+    private String classTitle;
 
     @Size(max = 100)
     @Column(name = "class_time", length = 100)
@@ -48,6 +48,11 @@ public class TimetableLecture extends BaseEntity {
     @Size(max = 30)
     @Column(name = "professor", length = 30)
     private String professor;
+
+    @Size(max = 255)
+    @NotNull
+    @Column(name = "grades", nullable = false)
+    private String grades = "0";
 
     @Size(max = 200)
     @Column(name = "memo", length = 200)
@@ -66,12 +71,13 @@ public class TimetableLecture extends BaseEntity {
     private TimetableFrame timetableFrame;
 
     @Builder
-    public TimetableLecture(String className, String classTime, String classPlace, String professor,
-        String memo, boolean isDeleted, Lecture lecture, TimetableFrame timetableFrame) {
-        this.className = className;
+    public TimetableLecture(String classTitle, String classTime, String classPlace, String professor,
+        String grades, String memo, boolean isDeleted, Lecture lecture, TimetableFrame timetableFrame) {
+        this.classTitle = classTitle;
         this.classTime = classTime;
         this.classPlace = classPlace;
         this.professor = professor;
+        this.grades = grades;
         this.memo = memo;
         this.isDeleted = isDeleted;
         this.lecture = lecture;
@@ -79,18 +85,20 @@ public class TimetableLecture extends BaseEntity {
     }
 
     public void update(TimetableLectureUpdateRequest.InnerTimetableLectureRequest request) {
-        this.className = request.classTitle();
+        this.classTitle = request.classTitle();
         this.classTime = request.classTime().toString();
         this.classPlace = request.classPlace();
         this.professor = request.professor();
+        this.grades = grades;
         this.memo = request.memo();
     }
 
     public void update(TimetableUpdateRequest.InnerTimetableRequest request) {
-        this.className = request.classTitle();
+        this.classTitle = request.classTitle();
         this.classTime = request.classTime().toString();
         this.classPlace = request.classPlace();
         this.professor = request.professor();
+        this.grades = grades;
         this.memo = request.memo();
     }
 }

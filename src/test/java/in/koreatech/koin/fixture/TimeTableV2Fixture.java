@@ -60,14 +60,16 @@ public class TimeTableV2Fixture {
             .build();
 
         TimetableLecture timetableLecture1 = TimetableLecture.builder()
-            .className("커스텀1")
+            .grades("0")
+            .classTitle("커스텀1")
             .classTime("[932]")
             .isDeleted(false)
             .timetableFrame(frame)
             .build();
 
         TimetableLecture timetableLecture2 = TimetableLecture.builder()
-            .className("커스텀2")
+            .grades("0")
+            .classTitle("커스텀2")
             .classTime("[933]")
             .isDeleted(false)
             .timetableFrame(frame)
@@ -89,12 +91,14 @@ public class TimeTableV2Fixture {
             .build();
 
         TimetableLecture timetableLecture1 = TimetableLecture.builder()
+            .grades("0")
             .isDeleted(false)
             .lecture(lecture1)
             .timetableFrame(frame)
             .build();
 
         TimetableLecture timetableLecture2 = TimetableLecture.builder()
+            .grades("0")
             .isDeleted(false)
             .lecture(lecture2)
             .timetableFrame(frame)
@@ -116,18 +120,49 @@ public class TimeTableV2Fixture {
             .build();
 
         TimetableLecture timetableLecture1 = TimetableLecture.builder()
+            .grades("0")
             .isDeleted(false)
             .lecture(lecture1)
             .timetableFrame(frame)
             .build();
 
         TimetableLecture timetableLecture2 = TimetableLecture.builder()
-            .className("커스텀1")
+            .classTitle("커스텀1")
             .classTime("[933]")
             .classPlace("2공")
             .professor("김성재")
+            .grades("0")
             .memo("공부 하기 싫다")
             .isDeleted(false)
+            .timetableFrame(frame)
+            .build();
+
+        frame.getTimetableLectures().add(timetableLecture1);
+        frame.getTimetableLectures().add(timetableLecture2);
+
+        return timetableFrameRepository.save(frame);
+    }
+
+    public TimetableFrame 시간표6(User user, Semester semester, Lecture lecture1, Lecture lecture2) {
+        TimetableFrame frame = TimetableFrame.builder()
+            .user(user)
+            .semester(semester)
+            .name("시간표6")
+            .isMain(true)
+            .timetableLectures(new ArrayList<>())
+            .build();
+
+        TimetableLecture timetableLecture1 = TimetableLecture.builder()
+            .grades("0")
+            .isDeleted(false)
+            .lecture(lecture1)
+            .timetableFrame(frame)
+            .build();
+
+        TimetableLecture timetableLecture2 = TimetableLecture.builder()
+            .grades("0")
+            .isDeleted(false)
+            .lecture(lecture2)
             .timetableFrame(frame)
             .build();
 

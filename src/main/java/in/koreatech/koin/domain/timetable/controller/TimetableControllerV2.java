@@ -70,7 +70,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/V2/timetables/lecture")
+    @PostMapping("/v2/timetables/lecture")
     public ResponseEntity<TimetableLectureResponse> createTimetableLecture(
         @Valid @RequestBody TimetableLectureCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
@@ -79,7 +79,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         return ResponseEntity.ok(timeTableLectureResponse);
     }
 
-    @PutMapping("/V2/timetables/lecture")
+    @PutMapping("/v2/timetables/lecture")
     public ResponseEntity<TimetableLectureResponse> updateTimetableLecture(
         @Valid @RequestBody TimetableLectureUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
@@ -88,7 +88,17 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         return ResponseEntity.ok(timetableLectureResponse);
     }
 
-    @DeleteMapping("/V2/timetables/lecture/{id}")
+    @GetMapping("/v2/timetables/lecture")
+    public ResponseEntity<TimetableLectureResponse> getTimetableLecture(
+        @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        TimetableLectureResponse timetableLectureResponse = timetableService.getTimetableLectures(userId,
+            timetableFrameId);
+        return ResponseEntity.ok(timetableLectureResponse);
+    }
+
+    @DeleteMapping("/v2/timetables/lecture/{id}")
     public ResponseEntity<Void> deleteTimetableLecture(
         @PathVariable(value = "id") Integer timetableLectureId,
         @Auth(permit = {STUDENT}) Integer userId

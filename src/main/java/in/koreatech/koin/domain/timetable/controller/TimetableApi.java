@@ -127,7 +127,7 @@ public interface TimetableApi {
     )
     @Operation(summary = "시간표 삭제")
     @SecurityRequirement(name = "Jwt Authentication")
-    @DeleteMapping("/timetables")
+    @DeleteMapping("/timetable")
     ResponseEntity<Void> deleteTimetableById(
         @RequestParam(value = "id") Integer id,
         @Auth(permit = {STUDENT}) Integer userId

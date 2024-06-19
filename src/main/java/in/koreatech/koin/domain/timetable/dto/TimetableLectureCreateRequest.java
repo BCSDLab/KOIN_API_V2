@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.timetable.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimetableLectureCreateRequest(
@@ -29,7 +30,7 @@ public record TimetableLectureCreateRequest(
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimeTableLectureRequest(
         @Schema(description = "강의 이름", example = "기상분석", requiredMode = REQUIRED)
-        String className,
+        String classTitle,
 
         @Schema(description = "강의 시간", example = "[210, 211]", requiredMode = REQUIRED)
         List<Integer> classTime,
@@ -40,19 +41,42 @@ public record TimetableLectureCreateRequest(
         @Schema(description = "교수명", example = "이강환", requiredMode = NOT_REQUIRED)
         String professor,
 
+        @Schema(description = "학점", example = "3", requiredMode = NOT_REQUIRED)
+        String grades,
+
         @Schema(description = "메모", example = "메모메모", requiredMode = NOT_REQUIRED)
+        @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
         String memo,
 
         @Schema(description = "강의 고유 번호", example = "1", requiredMode = NOT_REQUIRED)
         Integer lectureId
     ){
-
-        public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame, Lecture lecture) {
+        public InnerTimeTableLectureRequest {
+            if (grades == null) {
+                grades = "0";
+            }
+        }
+        public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame) {
             return new TimetableLecture(
-                className,
+                classTitle,
                 Arrays.toString(classTime().stream().toArray()),
                 classPlace,
                 professor,
+                grades,
+                memo,
+                false,
+                null,
+                timetableFrame
+            );
+        }
+
+        public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame, Lecture lecture) {
+            return new TimetableLecture(
+                classTitle,
+                Arrays.toString(classTime().stream().toArray()),
+                classPlace,
+                professor,
+                grades,
                 memo,
                 false,
                 lecture,

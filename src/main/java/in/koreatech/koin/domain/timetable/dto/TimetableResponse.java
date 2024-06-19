@@ -31,7 +31,7 @@ public record TimetableResponse(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimetableResponse(
-        @Schema(name = "시간표 ID", example = "1", requiredMode = REQUIRED)
+        @Schema(name = "시간표 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
         @Schema(name = "수강 정원", example = "40", requiredMode = NOT_REQUIRED)
@@ -71,21 +71,21 @@ public record TimetableResponse(
         String department
     ) {
 
-        public static List<InnerTimetableResponse> from(List<TimetableLecture> timeTableLectures) {
-            return timeTableLectures.stream()
+        public static List<InnerTimetableResponse> from(List<TimetableLecture> timetableLectures) {
+            return timetableLectures.stream()
                 .map(timeTableLecture -> new InnerTimetableResponse(
                         timeTableLecture.getId(),
                         timeTableLecture.getLecture().getRegularNumber(),
                         timeTableLecture.getLecture().getCode(),
                         timeTableLecture.getLecture().getDesignScore(),
-                        parseIntegerClassTimesFromString(timeTableLecture.getClassTime()),
+                        parseIntegerClassTimesFromString(timeTableLecture.getLecture().getClassTime()),
                         timeTableLecture.getClassPlace(),
                         timeTableLecture.getMemo(),
                         timeTableLecture.getLecture().getGrades(),
-                        timeTableLecture.getClassName(),
+                        timeTableLecture.getLecture().getName(),
                         timeTableLecture.getLecture().getLectureClass(),
                         timeTableLecture.getLecture().getTarget(),
-                        timeTableLecture.getProfessor(),
+                        timeTableLecture.getLecture().getProfessor(),
                         timeTableLecture.getLecture().getDepartment()
                     )
                 )
@@ -93,11 +93,11 @@ public record TimetableResponse(
         }
     }
 
-    public static TimetableResponse of(List<TimetableLecture> timeTableLectures, TimetableFrame timeTableFrame,
+    public static TimetableResponse of(List<TimetableLecture> timetableLectures, TimetableFrame timetableFrame,
         Integer grades, Integer totalGrades) {
         return new TimetableResponse(
-            timeTableFrame.getSemester().getSemester(),
-            InnerTimetableResponse.from(timeTableLectures),
+            timetableFrame.getSemester().getSemester(),
+            InnerTimetableResponse.from(timetableLectures),
             grades,
             totalGrades
         );
