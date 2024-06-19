@@ -210,6 +210,7 @@ public class TimetableService {
                 timeTable.classTitle(), timeTable.lectureClass());
             TimetableLecture timetableLecture = TimetableLecture.builder()
                 .classPlace(timeTable.classPlace())
+                .grades("0")
                 .memo(timeTable.memo())
                 .lecture(lecture)
                 .timetableFrame(timetableFrame)
@@ -237,6 +238,7 @@ public class TimetableService {
                     .classTime(timetableRequest.classTime().toString())
                     .classPlace(timetableRequest.classPlace())
                     .professor(timetableRequest.professor())
+                    .grades("0")
                     .memo(timetableRequest.memo())
                     .timetableFrame(timetableFrame)
                     .isDeleted(false)

@@ -82,25 +82,5 @@ public record TimetableCreateRequest(
                 grades = "0";
             }
         }
-
-        public Timetable toTimetable(User user, Semester semester) {
-            return Timetable.builder()
-                .user(user)
-                .semester(semester)
-                .code(this.code)
-                .classTitle(this.classTitle())
-                .classTime(Arrays.toString(this.classTime().stream().toArray()))
-                .classPlace(this.classPlace())
-                .professor(this.professor())
-                .grades(this.grades())
-                .lectureClass(this.lectureClass())
-                .target(this.target())
-                .regularNumber(this.regularNumber())
-                .designScore(this.designScore())
-                .department(this.department())
-                .memo(this.memo())
-                .isDeleted(false)
-                .build();
-        }
     }
 }
