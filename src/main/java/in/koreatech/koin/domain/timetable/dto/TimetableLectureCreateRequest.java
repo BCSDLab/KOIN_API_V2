@@ -19,7 +19,7 @@ import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimetableLectureCreateRequest(
-    @Schema(description = "id", example = "1", requiredMode = REQUIRED)
+    @Schema(description = "시간표 프레임 id", example = "1", requiredMode = REQUIRED)
     Integer timetableFrameId,
 
     @Valid
