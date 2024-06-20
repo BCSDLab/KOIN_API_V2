@@ -11,8 +11,8 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
-import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepository;
-import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepository;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
@@ -38,10 +38,10 @@ public class TimetableV2ApiTest extends AcceptanceTest {
     private LectureFixture lectureFixture;
 
     @Autowired
-    private TimetableFrameRepository timetableFrameRepository;
+    private TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
 
     @Autowired
-    private TimetableLectureRepository timetableLectureRepository;
+    private TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
 
     @Test
     @DisplayName("특정 시간표 frame을 생성한다")
@@ -61,7 +61,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                 """, semester.getSemester()
             ))
             .when()
-            .post("/timetables/frame")
+            .post("/v2/timetables/frame")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -97,7 +97,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                 """
             ))
             .when()
-            .put("/timetables/frame/{id}", frameId)
+            .put("/v2/timetables/frame/{id}", frameId)
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -127,7 +127,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token)
             .when()
             .param("semester", semester.getSemester())
-            .get("/timetables/frames")
+            .get("/v2/timetables/frames")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -164,12 +164,12 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token)
             .when()
             .param("id", frame1.getId())
-            .delete("/timetables/frame")
+            .delete("/v2/timetables/frame")
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        assertThat(timetableFrameRepository.findById(frame1.getId())).isNotPresent();
-        assertThat(timetableLectureRepository.findById(frame1.getTimetableLectures().get(1).getId())).isNotPresent();
+        assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isNotPresent();
+        assertThat(timetableLectureRepositoryV2.findById(frame1.getTimetableLectures().get(1).getId())).isNotPresent();
     }
 
     @Test
@@ -187,7 +187,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token)
             .when()
             .param("id", frame1.getId())
-            .delete("/timetables/frame")
+            .delete("/v2/timetables/frame")
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value());
     }

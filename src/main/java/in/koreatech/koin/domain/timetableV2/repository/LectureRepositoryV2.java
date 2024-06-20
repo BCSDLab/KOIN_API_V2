@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.timetable.exception.LectureNotFoundException;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 
-public interface LectureRepository extends Repository<Lecture, Integer> {
+public interface LectureRepositoryV2 extends Repository<Lecture, Integer> {
 
     List<Lecture> findBySemester(String semesterDate);
 

@@ -8,28 +8,28 @@ import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
-import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepository;
-import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepository;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.user.model.User;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
 public class TimeTableV2Fixture {
 
-    private final TimetableFrameRepository timetableFrameRepository;
+    private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
 
-    private final TimetableLectureRepository timetableLectureRepository;
+    private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
 
     public TimeTableV2Fixture(
-        TimetableFrameRepository timetableFrameRepository,
-        TimetableLectureRepository timetableLectureRepository
+        TimetableFrameRepositoryV2 timetableFrameRepositoryV2,
+        TimetableLectureRepositoryV2 timetableLectureRepositoryV2
     ) {
-        this.timetableFrameRepository = timetableFrameRepository;
-        this.timetableLectureRepository = timetableLectureRepository;
+        this.timetableFrameRepositoryV2 = timetableFrameRepositoryV2;
+        this.timetableLectureRepositoryV2 = timetableLectureRepositoryV2;
     }
 
     public TimetableFrame 시간표1(User user, Semester semester) {
-        return timetableFrameRepository.save(
+        return timetableFrameRepositoryV2.save(
             TimetableFrame.builder()
                 .user(user)
                 .semester(semester)
@@ -40,7 +40,7 @@ public class TimeTableV2Fixture {
     }
 
     public TimetableFrame 시간표2(User user, Semester semester) {
-        return timetableFrameRepository.save(
+        return timetableFrameRepositoryV2.save(
             TimetableFrame.builder()
                 .user(user)
                 .semester(semester)
@@ -78,7 +78,7 @@ public class TimeTableV2Fixture {
         frame.getTimetableLectures().add(timetableLecture1);
         frame.getTimetableLectures().add(timetableLecture2);
 
-        return timetableFrameRepository.save(frame);
+        return timetableFrameRepositoryV2.save(frame);
     }
 
     public TimetableFrame 시간표4(User user, Semester semester, Lecture lecture1, Lecture lecture2) {
@@ -107,7 +107,7 @@ public class TimeTableV2Fixture {
         frame.getTimetableLectures().add(timetableLecture1);
         frame.getTimetableLectures().add(timetableLecture2);
 
-        return timetableFrameRepository.save(frame);
+        return timetableFrameRepositoryV2.save(frame);
     }
 
     public TimetableFrame 시간표5(User user, Semester semester, Lecture lecture1) {
@@ -140,7 +140,7 @@ public class TimeTableV2Fixture {
         frame.getTimetableLectures().add(timetableLecture1);
         frame.getTimetableLectures().add(timetableLecture2);
 
-        return timetableFrameRepository.save(frame);
+        return timetableFrameRepositoryV2.save(frame);
     }
 
     public TimetableFrame 시간표6(User user, Semester semester, Lecture lecture1, Lecture lecture2) {
@@ -169,6 +169,6 @@ public class TimeTableV2Fixture {
         frame.getTimetableLectures().add(timetableLecture1);
         frame.getTimetableLectures().add(timetableLecture2);
 
-        return timetableFrameRepository.save(frame);
+        return timetableFrameRepositoryV2.save(frame);
     }
 }

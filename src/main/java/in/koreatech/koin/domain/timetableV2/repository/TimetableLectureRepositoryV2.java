@@ -8,7 +8,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.timetableV2.exception.TimetableLectureNotFoundException;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 
-public interface TimetableLectureRepository extends Repository<TimetableLecture, Integer> {
+public interface TimetableLectureRepositoryV2 extends Repository<TimetableLecture, Integer> {
 
     Optional<TimetableLecture> findById(Integer id);
 

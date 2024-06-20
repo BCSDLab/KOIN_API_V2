@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.timetable.dto.SemesterCheckResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
 import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
-import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepository;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class SemesterService {
 
     private final SemesterRepository semesterRepository;
-    private final TimetableFrameRepository timetableFrameRepository;
+    private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
 
     public List<SemesterResponse> getSemesters() {
         return semesterRepository.findAllByOrderBySemesterDesc().stream()
@@ -27,7 +27,7 @@ public class SemesterService {
     }
 
     public SemesterCheckResponse getStudentSemesters(Integer userId) {
-        List<TimetableFrame> timeTableFrames = timetableFrameRepository.findByUserIdAndIsMainTrue(userId);
+        List<TimetableFrame> timeTableFrames = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId);
         List<String> semesters = timeTableFrames.stream()
             .map(timeTableFrame -> timeTableFrame.getSemester().getSemester())
             .distinct()

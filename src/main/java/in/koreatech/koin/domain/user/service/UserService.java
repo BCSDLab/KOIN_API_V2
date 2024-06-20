@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
-import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepository;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
@@ -46,7 +46,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final TimetableFrameRepository timetableFrameRepository;
+    private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
@@ -98,7 +98,7 @@ public class UserService {
     public void withdraw(Integer userId) {
         User user = userRepository.getById(userId);
         if (user.getUserType() == UserType.STUDENT) {
-            timetableFrameRepository.deleteAllByUser(user);
+            timetableFrameRepositoryV2.deleteAllByUser(user);
             studentRepository.deleteByUserId(userId);
         } else if (user.getUserType() == UserType.OWNER) {
             ownerRepository.deleteByUserId(userId);
