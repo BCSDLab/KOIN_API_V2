@@ -19,11 +19,11 @@ import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateSmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterByPhoneRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSendSmsRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
@@ -69,6 +69,7 @@ public class OwnerController implements OwnerApi {
         ownerService.register(request);
         return ResponseEntity.ok().build();
     }
+
 
     @PostMapping("/owner/login")
     public ResponseEntity<OwnerLoginResponse> ownerLogin(
