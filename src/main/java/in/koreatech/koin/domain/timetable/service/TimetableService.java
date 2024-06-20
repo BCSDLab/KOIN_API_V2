@@ -236,22 +236,8 @@ public class TimetableService {
         TimetableFrame timetableFrame = timetableFrameRepository.getMainTimetableByUserIdAndSemesterId(userId,
             semester.getId());
         for (TimetableUpdateRequest.InnerTimetableRequest timetableRequest : request.timetable()) {
-            TimetableLecture timetableLecture;
-            if (timetableRequest.id() != null) {
-                timetableLecture = timetableLectureRepository.getById(timetableRequest.id());
-                timetableLecture.update(timetableRequest);
-            } else {
-                timetableLecture = TimetableLecture.builder()
-                    .classTitle(timetableRequest.classTitle())
-                    .classTime(timetableRequest.classTime().toString())
-                    .classPlace(timetableRequest.classPlace())
-                    .professor(timetableRequest.professor())
-                    .grades("0")
-                    .memo(timetableRequest.memo())
-                    .timetableFrame(timetableFrame)
-                    .isDeleted(false)
-                    .build();
-            }
+            TimetableLecture timetableLecture = timetableLectureRepository.getById(timetableRequest.id());
+            timetableLecture.update(timetableRequest);
             timetableLectureRepository.save(timetableLecture);
         }
         return getTimetableResponse(userId, timetableFrame);
