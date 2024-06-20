@@ -46,7 +46,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final TimetableFrameRepository timeTableFrameRepository;
+    private final TimetableFrameRepository timetableFrameRepository;
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
@@ -98,7 +98,7 @@ public class UserService {
     public void withdraw(Integer userId) {
         User user = userRepository.getById(userId);
         if (user.getUserType() == UserType.STUDENT) {
-            timeTableFrameRepository.deleteAllByUser(user);
+            timetableFrameRepository.deleteAllByUser(user);
             studentRepository.deleteByUserId(userId);
         } else if (user.getUserType() == UserType.OWNER) {
             ownerRepository.deleteByUserId(userId);

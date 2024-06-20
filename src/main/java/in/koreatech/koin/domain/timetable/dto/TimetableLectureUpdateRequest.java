@@ -26,10 +26,10 @@ public record TimetableLectureUpdateRequest(
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimetableLectureRequest(
-        @Schema(description = "시간표 강의 Id", example = "1", requiredMode = REQUIRED)
+        @Schema(description = "시간표 강의 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(description = "강의 ID", example = "1", requiredMode = NOT_REQUIRED)
+        @Schema(description = "강의 id", example = "1", requiredMode = NOT_REQUIRED)
         Integer lectureId,
 
         @Schema(description = "강의 이름", example = "운영체제", requiredMode = NOT_REQUIRED)

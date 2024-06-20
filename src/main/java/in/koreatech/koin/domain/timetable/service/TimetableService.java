@@ -106,6 +106,10 @@ public class TimetableService {
     @Transactional
     public TimetableLectureResponse createTimetableLectures(Integer userId, TimetableLectureCreateRequest request) {
         TimetableFrame timetableFrame = timetableFrameRepository.getById(request.timetableFrameId());
+        if (!Objects.equals(timetableFrame.getUser().getId(), userId)) {
+            throw AuthorizationException.withDetail("userId: " + userId);
+        }
+
         for (TimetableLectureCreateRequest.InnerTimeTableLectureRequest timetableLectureRequest : request.timetableLecture()) {
             if (timetableLectureRequest.lectureId() == null) {
                 TimetableLecture timetableLecture = timetableLectureRequest.toTimetableLecture(timetableFrame);
@@ -125,6 +129,10 @@ public class TimetableService {
     @Transactional
     public TimetableLectureResponse updateTimetablesLectures(Integer userId, TimetableLectureUpdateRequest request) {
         TimetableFrame timetableFrame = timetableFrameRepository.getById(request.timetableFrameId());
+        if (!Objects.equals(timetableFrame.getUser().getId(), userId)) {
+            throw AuthorizationException.withDetail("userId: " + userId);
+        }
+
         for (TimetableLectureUpdateRequest.InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
             TimetableLecture timetableLecture = timetableLectureRepository.getById(timetableRequest.id());
             if (timetableRequest.lectureId() == null) {
