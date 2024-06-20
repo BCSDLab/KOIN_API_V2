@@ -70,7 +70,6 @@ public class OwnerController implements OwnerApi {
         return ResponseEntity.ok().build();
     }
 
-
     @PostMapping("/owner/login")
     public ResponseEntity<OwnerLoginResponse> ownerLogin(
         @RequestBody @Valid OwnerLoginRequest request
