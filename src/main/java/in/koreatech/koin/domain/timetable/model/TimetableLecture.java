@@ -67,7 +67,7 @@ public class TimetableLecture extends BaseEntity {
     private Lecture lecture;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "timetable_id")
+    @JoinColumn(name = "frame_id")
     private TimetableFrame timetableFrame;
 
     @Builder

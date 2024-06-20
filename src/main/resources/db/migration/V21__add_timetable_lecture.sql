@@ -10,8 +10,8 @@ CREATE TABLE `timetable_lecture` (
     created_at   timestamp  default CURRENT_TIMESTAMP not null comment '생성 일자',
     updated_at   timestamp  default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '업데이트 일자',
     lectures_id INT UNSIGNED NULL comment '강의_id',
-    timetable_id INT UNSIGNED NULL comment '그룹시간표_id',
+    frame_id INT UNSIGNED NULL comment '시간표 프레임 id',
     user_id INT UNSIGNED NULL comment '유저 id',
     semester_id INT UNSIGNED NULL comment '학기 id',
-    CONSTRAINT FK_TIMETABLE_FRAME_ON_TIMETABLE_LECTURE FOREIGN KEY (timetable_id) references `koin`.`timetable_frame`(id) on delete cascade
+    CONSTRAINT FK_TIMETABLE_FRAME_ON_TIMETABLE_LECTURE FOREIGN KEY (frame_id) references `koin`.`timetable_frame`(id) on delete cascade
 );
