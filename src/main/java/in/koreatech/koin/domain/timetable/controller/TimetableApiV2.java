@@ -43,6 +43,7 @@ public interface TimetableApiV2 {
         }
     )
     @Operation(summary = "시간표 프레임 생성")
+    @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/timetables/frame")
     ResponseEntity<TimetableFrameResponse> createTimetablesFrame(
         @Valid @RequestBody TimetableFrameCreateRequest request,
@@ -75,6 +76,7 @@ public interface TimetableApiV2 {
         }
     )
     @Operation(summary = "시간표 프레임 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/v2/timetables/frame")
     ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
         @RequestParam(name = "semester") String semester,
@@ -90,6 +92,7 @@ public interface TimetableApiV2 {
         }
     )
     @Operation(summary = "시간표 프레임 삭제")
+    @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/v2/timetables/frame")
     ResponseEntity<Void> deleteTimetablesFrame(
         @RequestParam(name = "id") Integer frameId,
@@ -104,7 +107,7 @@ public interface TimetableApiV2 {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "시간표 정보 생성")
+    @Operation(summary = "시간표에 강의 정보 추가")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/timetables/lecture")
     ResponseEntity<TimetableLectureResponse> createTimetableLecture(
@@ -120,7 +123,7 @@ public interface TimetableApiV2 {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "시간표 정보 수정(TimeTableLecture)")
+    @Operation(summary = "시간표에서 강의 정보 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/v2/timetables/lecture")
     ResponseEntity<TimetableLectureResponse> updateTimetableLecture(
@@ -136,7 +139,7 @@ public interface TimetableApiV2 {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "시간표 정보 조회")
+    @Operation(summary = "시간표에서 강의 정보 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/v2/timetables/lecture")
     ResponseEntity<TimetableLectureResponse> getTimetableLecture(
@@ -152,7 +155,7 @@ public interface TimetableApiV2 {
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "시간표 정보 삭제")
+    @Operation(summary = "시간표에서 강의 정보 삭제")
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/v2/timetables/lecture/{id}")
     ResponseEntity<Void> deleteTimetableLecture(
