@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.timetable.controller;
+package in.koreatech.koin.domain.timetableV2.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
@@ -13,14 +13,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.timetable.dto.TimetableFrameCreateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetableFrameResponse;
-import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateResponse;
-import in.koreatech.koin.domain.timetable.dto.TimetableLectureCreateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetableLectureResponse;
-import in.koreatech.koin.domain.timetable.dto.TimetableLectureUpdateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameCreateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameResponse;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateResponse;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureCreateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureResponse;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,7 +31,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Timetable: V2-시간표", description = "시간표 정보를 관리한다")
-public interface TimetableApiV2 {
+public interface TimetableApi {
 
     @ApiResponses(
         value = {

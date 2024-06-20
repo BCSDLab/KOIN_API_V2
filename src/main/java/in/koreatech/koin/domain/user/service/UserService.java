@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
-import in.koreatech.koin.domain.timetable.repository.TimetableFrameRepository;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepository;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;

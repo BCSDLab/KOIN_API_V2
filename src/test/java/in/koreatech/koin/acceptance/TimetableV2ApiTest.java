@@ -10,9 +10,9 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.domain.timetable.model.TimetableFrame;
-import in.koreatech.koin.domain.timetable.repository.TimetableFrameRepository;
-import in.koreatech.koin.domain.timetable.repository.TimetableLectureRepository;
+import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepository;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
@@ -181,7 +181,6 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         Semester semester = semesterFixture.semester("20192");
 
         TimetableFrame frame1 = timetableV2Fixture.시간표1(user1, semester);
-        TimetableFrame frame2 = timetableV2Fixture.시간표2(user1, semester);
 
         var response = RestAssured
             .given()

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.timetable.controller;
+package in.koreatech.koin.domain.timetableV2.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
@@ -14,21 +14,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.timetable.dto.TimetableFrameCreateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetableFrameResponse;
-import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetableFrameUpdateResponse;
-import in.koreatech.koin.domain.timetable.dto.TimetableLectureCreateRequest;
-import in.koreatech.koin.domain.timetable.dto.TimetableLectureResponse;
-import in.koreatech.koin.domain.timetable.dto.TimetableLectureUpdateRequest;
-import in.koreatech.koin.domain.timetable.service.TimetableService;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameCreateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameResponse;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateResponse;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureCreateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureResponse;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.service.TimetableService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class TimetableControllerV2 implements TimetableApiV2 {
+public class TimetableController implements TimetableApi {
 
     private final TimetableService timetableService;
 

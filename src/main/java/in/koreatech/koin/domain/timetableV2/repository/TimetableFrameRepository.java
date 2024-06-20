@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.timetable.repository;
+package in.koreatech.koin.domain.timetableV2.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin.domain.timetable.exception.TimetableFrameNotFoundException;
 import in.koreatech.koin.domain.timetable.exception.TimetableNotFoundException;
-import in.koreatech.koin.domain.timetable.model.TimetableFrame;
+import in.koreatech.koin.domain.timetableV2.exception.TimetableFrameNotFoundException;
+import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.user.model.User;
 
 public interface TimetableFrameRepository extends Repository<TimetableFrame, Integer> {

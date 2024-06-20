@@ -10,8 +10,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.timetable.model.TimetableFrame;
-import in.koreatech.koin.domain.timetable.model.TimetableLecture;
+import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
+import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)

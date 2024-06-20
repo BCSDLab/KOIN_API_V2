@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.domain.timetable.model.TimetableFrame;
-import in.koreatech.koin.domain.timetable.model.TimetableLecture;
-import in.koreatech.koin.domain.timetable.repository.TimetableFrameRepository;
-import in.koreatech.koin.domain.timetable.repository.TimetableLectureRepository;
+import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
+import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepository;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepository;
 import in.koreatech.koin.domain.user.model.User;
 
 @Component

@@ -1,12 +1,13 @@
-package in.koreatech.koin.domain.timetable.model;
+package in.koreatech.koin.domain.timetableV2.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.domain.timetable.dto.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
+import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

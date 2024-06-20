@@ -1,15 +1,12 @@
-package in.koreatech.koin.domain.timetable.repository;
+package in.koreatech.koin.domain.timetableV2.repository;
 
 import java.util.List;
-
-import org.springframework.data.repository.Repository;
-
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.timetable.exception.TimetableLectureNotFoundException;
-import in.koreatech.koin.domain.timetable.model.TimetableLecture;
+import in.koreatech.koin.domain.timetableV2.exception.TimetableLectureNotFoundException;
+import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 
 public interface TimetableLectureRepository extends Repository<TimetableLecture, Integer> {
 

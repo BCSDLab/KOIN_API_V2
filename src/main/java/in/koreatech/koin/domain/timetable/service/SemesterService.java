@@ -7,9 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetable.dto.SemesterCheckResponse;
 import in.koreatech.koin.domain.timetable.dto.SemesterResponse;
-import in.koreatech.koin.domain.timetable.model.TimetableFrame;
 import in.koreatech.koin.domain.timetable.repository.SemesterRepository;
-import in.koreatech.koin.domain.timetable.repository.TimetableFrameRepository;
+import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
