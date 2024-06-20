@@ -32,7 +32,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
 
     private final TimetableService timetableService;
 
-    @PostMapping("/timetables/frame")
+    @PostMapping("/v2/timetables/frame")
     public ResponseEntity<TimetableFrameResponse> createTimetablesFrame(
         @Valid @RequestBody TimetableFrameCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
@@ -41,7 +41,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/timetables/frame/{id}")
+    @PutMapping("/v2/timetables/frame/{id}")
     public ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
         @PathVariable(value = "id") Integer timetableFrameId,
         @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,
@@ -52,7 +52,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         return ResponseEntity.ok(timetableFrameUpdateResponse);
     }
 
-    @GetMapping("/timetables/frames")
+    @GetMapping("/v2/timetables/frames")
     public ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
@@ -61,7 +61,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         return ResponseEntity.ok(timeTableFrameResponse);
     }
 
-    @DeleteMapping("/timetables/frame")
+    @DeleteMapping("/v2/timetables/frame")
     public ResponseEntity<Void> deleteTimetablesFrame(
         @RequestParam(name = "id") Integer frameId,
         @Auth(permit = {STUDENT}) Integer userId

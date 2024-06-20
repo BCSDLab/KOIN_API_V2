@@ -43,7 +43,7 @@ public interface TimetableApiV2 {
         }
     )
     @Operation(summary = "시간표 프레임 생성")
-    @PostMapping("/timetables/frame")
+    @PostMapping("/v2/timetables/frame")
     ResponseEntity<TimetableFrameResponse> createTimetablesFrame(
         @Valid @RequestBody TimetableFrameCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
@@ -59,7 +59,7 @@ public interface TimetableApiV2 {
     )
     @Operation(summary = "시간표 프레임 수정")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/timetables/frame/{id}")
+    @PutMapping("/v2/timetables/frame/{id}")
     ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
         @PathVariable(value = "id") Integer timetableFrameId,
         @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,
@@ -75,7 +75,7 @@ public interface TimetableApiV2 {
         }
     )
     @Operation(summary = "시간표 프레임 조회")
-    @GetMapping("/timetables/frame")
+    @GetMapping("/v2/timetables/frame")
     ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
@@ -90,7 +90,7 @@ public interface TimetableApiV2 {
         }
     )
     @Operation(summary = "시간표 프레임 삭제")
-    @DeleteMapping("/timetables/frame")
+    @DeleteMapping("/v2/timetables/frame")
     ResponseEntity<Void> deleteTimetablesFrame(
         @RequestParam(name = "id") Integer frameId,
         @Auth(permit = {STUDENT}) Integer userId
