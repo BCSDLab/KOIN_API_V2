@@ -6,6 +6,8 @@ import static lombok.AccessLevel.PROTECTED;
 import static jakarta.persistence.CascadeType.ALL;
 import java.util.List;
 
+import org.hibernate.annotations.Where;
+
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -30,6 +32,7 @@ import lombok.NoArgsConstructor;
     name = "timetable_frame",
     indexes = @Index(name = "timetable_frame_INDEX", columnList = "user_id, semester_id")
 )
+@Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
 public class TimetableFrame extends BaseEntity {
 
