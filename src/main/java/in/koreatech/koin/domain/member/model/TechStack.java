@@ -67,4 +67,8 @@ public class TechStack extends BaseEntity {
         this.description = description;
         this.isDeleted = isDeleted;
     }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
 }
