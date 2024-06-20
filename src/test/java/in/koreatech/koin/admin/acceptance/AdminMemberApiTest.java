@@ -156,4 +156,155 @@ public class AdminMemberApiTest extends AcceptanceTest {
                 """
             );
     }
+
+    @Test
+    @DisplayName("BCSDLab 회원 정보를 삭제한다")
+    void deleteMember() {
+        Member member = memberFixture.최준호(trackFixture.backend());
+        Integer memberId = member.getId();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .delete("/admin/members/{id}", memberId)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Member savedMember = adminMemberRepository.getById(memberId);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(savedMember.getName()).isEqualTo("최준호");
+            softly.assertThat(savedMember.getStudentNumber()).isEqualTo("2019136135");
+            softly.assertThat(savedMember.getTrack().getName()).isEqualTo("BackEnd");
+            softly.assertThat(savedMember.getPosition()).isEqualTo("Regular");
+            softly.assertThat(savedMember.getEmail()).isEqualTo("testjuno@gmail.com");
+            softly.assertThat(savedMember.getImageUrl()).isEqualTo("https://imagetest.com/juno.jpg");
+            softly.assertThat(savedMember.isDeleted()).isEqualTo(true);
+        });
+    }
+
+    @Test
+    @DisplayName("BCSDLab 회원 정보를 수정한다")
+    void updateMember() {
+        Member member = memberFixture.최준호(trackFixture.backend());
+        Integer memberId = member.getId();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        String jsonBody = """
+            {
+                "name": "최준호",
+                "student_number": "2019136135",
+                "track": "BackEnd",
+                "position": "Mentor",
+                "email": "testjuno@gmail.com",
+                "image_url": "https://imagetest.com/juno.jpg"
+            }
+            """;
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType("application/json")
+            .body(jsonBody)
+            .when()
+            .put("/admin/members/{id}", memberId)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Member updatedMember = adminMemberRepository.getById(memberId);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedMember.getName()).isEqualTo("최준호");
+            softly.assertThat(updatedMember.getStudentNumber()).isEqualTo("2019136135");
+            softly.assertThat(updatedMember.getTrack().getName()).isEqualTo("BackEnd");
+            softly.assertThat(updatedMember.getPosition()).isEqualTo("Mentor");
+            softly.assertThat(updatedMember.getEmail()).isEqualTo("testjuno@gmail.com");
+            softly.assertThat(updatedMember.getImageUrl()).isEqualTo("https://imagetest.com/juno.jpg");
+            softly.assertThat(updatedMember.isDeleted()).isEqualTo(false);
+        });
+    }
+
+    @Test
+    @DisplayName("BCSDLab 회원 정보를 트랙과 함께 수정한다")
+    void updateMemberWithTrack() {
+        Member member = memberFixture.최준호(trackFixture.backend());
+        trackFixture.frontend();
+        Integer memberId = member.getId();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        String jsonBody = """
+            {
+                "name": "최준호",
+                "student_number": "2019136135",
+                "track": "FrontEnd",
+                "position": "Mentor",
+                "email": "testjuno@gmail.com",
+                "image_url": "https://imagetest.com/juno.jpg"
+            }
+            """;
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType("application/json")
+            .body(jsonBody)
+            .when()
+            .put("/admin/members/{id}", memberId)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Member updatedMember = adminMemberRepository.getById(memberId);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(updatedMember.getName()).isEqualTo("최준호");
+            softly.assertThat(updatedMember.getStudentNumber()).isEqualTo("2019136135");
+            softly.assertThat(updatedMember.getTrack().getName()).isEqualTo("FrontEnd");
+            softly.assertThat(updatedMember.getPosition()).isEqualTo("Mentor");
+            softly.assertThat(updatedMember.getEmail()).isEqualTo("testjuno@gmail.com");
+            softly.assertThat(updatedMember.getImageUrl()).isEqualTo("https://imagetest.com/juno.jpg");
+            softly.assertThat(updatedMember.isDeleted()).isEqualTo(false);
+        });
+    }
+
+    @Test
+    @DisplayName("BCSDLab 회원 정보를 삭제를 취소한다")
+    void undeleteMember() {
+        Member member = memberFixture.최준호_삭제(trackFixture.backend());
+        Integer memberId = member.getId();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .post("/admin/members/{id}/undelete", memberId)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Member savedMember = adminMemberRepository.getById(memberId);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(savedMember.getName()).isEqualTo("최준호");
+            softly.assertThat(savedMember.getStudentNumber()).isEqualTo("2019136135");
+            softly.assertThat(savedMember.getTrack().getName()).isEqualTo("BackEnd");
+            softly.assertThat(savedMember.getPosition()).isEqualTo("Regular");
+            softly.assertThat(savedMember.getEmail()).isEqualTo("testjuno@gmail.com");
+            softly.assertThat(savedMember.getImageUrl()).isEqualTo("https://imagetest.com/juno.jpg");
+            softly.assertThat(savedMember.isDeleted()).isEqualTo(false);
+        });
+    }
 }

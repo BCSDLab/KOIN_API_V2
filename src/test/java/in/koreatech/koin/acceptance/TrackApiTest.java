@@ -73,7 +73,7 @@ class TrackApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("BCSDLab 트랙 정보 단건 조회 - 삭제된 멤버는 조회하지 않는다.")
-    void findingTracksExcludingDeletedMember() {
+    void findTrackWithoutDeletedMember() {
         Track track = trackFixture.backend();
         memberFixture.배진호(track); // 삭제된 멤버
         memberFixture.최준호(track);

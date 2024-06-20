@@ -2,9 +2,11 @@ package in.koreatech.koin.domain.owner.service;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
@@ -41,7 +45,10 @@ import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRe
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserToken;
+import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.domain.email.form.OwnerRegistrationData;
@@ -67,11 +74,33 @@ public class OwnerService {
     private final OwnerVerificationStatusRepository ownerVerificationStatusRepository;
     private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
     private final NaverSmsService naverSmsService;
+    private final UserTokenRepository userTokenRepository;
 
     public OwnerResponse getOwner(Integer ownerId) {
         Owner foundOwner = ownerRepository.getById(ownerId);
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
         return OwnerResponse.of(foundOwner, foundOwner.getAttachments(), shops);
+    }
+
+    @Transactional
+    public OwnerLoginResponse ownerLogin(OwnerLoginRequest request) {
+        Owner owner = ownerRepository.getByAccount(request.account());
+        User user = owner.getUser();
+
+        if (!user.isSamePassword(passwordEncoder, request.password())) {
+            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+
+        if (!user.isAuthed()) {
+            throw new KoinIllegalArgumentException("미인증 상태입니다. 인증을 진행해주세요.");
+        }
+
+        String accessToken = jwtProvider.createToken(user);
+        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
+        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        user.updateLastLoggedTime(LocalDateTime.now());
+
+        return OwnerLoginResponse.of(accessToken, savedToken.getRefreshToken());
     }
 
     @Transactional
@@ -202,7 +231,7 @@ public class OwnerService {
     private void sendCertificationSms(String phoneNumber) {
         setVerificationCount(phoneNumber);
         String certificationCode = CertificateNumberGenerator.generate();
-        naverSmsService.sendVerificationCode(certificationCode, phoneNumber.replace("-", ""));
+        naverSmsService.sendVerificationCode(certificationCode, phoneNumber);
         OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
             phoneNumber,
             certificationCode

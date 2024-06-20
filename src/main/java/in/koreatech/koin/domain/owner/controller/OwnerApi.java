@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
@@ -48,6 +50,20 @@ public interface OwnerApi {
     @GetMapping("/owner")
     ResponseEntity<OwnerResponse> getOwner(
         @Auth(permit = {OWNER}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "사장님 로그인")
+    @PostMapping("/owner/login")
+    ResponseEntity<OwnerLoginResponse> ownerLogin(
+        @RequestBody @Valid OwnerLoginRequest request
     );
 
     @ApiResponses(

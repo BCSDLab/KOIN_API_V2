@@ -58,6 +58,29 @@ class OwnerApiTest extends AcceptanceTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
+    @DisplayName("사장님이 로그인을 진행한다")
+    void ownerLogin() {
+        Owner owner = userFixture.원경_사장님();
+        String phoneNumber = owner.getAccount();
+        String password = "1234";
+
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "account" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(phoneNumber, password))
+            .when()
+            .post("/owner/login")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+    }
+
+    @Test
     @DisplayName("로그인된 사장님 정보를 조회한다.")
     void getOwner() {
         // given
@@ -81,6 +104,7 @@ class OwnerApiTest extends AcceptanceTest {
                     "email": "hysoo@naver.com",
                     "name": "테스트용_현수",
                     "company_number": "123-45-67190",
+                    "account" : "01098765432",
                     "attachments": [
                         {
                             "id": 1,
@@ -231,7 +255,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "company_number": "012-34-56789",
                        "name": "최준호",
                        "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-1234-1234",
+                       "phone_number": "01012341234",
                        "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }
@@ -250,9 +274,10 @@ class OwnerApiTest extends AcceptanceTest {
                         softly -> {
                             softly.assertThat(owner).isNotNull();
                             softly.assertThat(owner.getUser().getName()).isEqualTo("최준호");
-                            softly.assertThat(owner.getUser().getEmail()).isEqualTo("010-1234-1234");
-                            softly.assertThat(owner.getUser().getPhoneNumber()).isEqualTo("010-1234-1234");
+                            softly.assertThat(owner.getUser().getEmail()).isEqualTo(null);
+                            softly.assertThat(owner.getUser().getPhoneNumber()).isEqualTo("01012341234");
                             softly.assertThat(owner.getCompanyRegistrationNumber()).isEqualTo("012-34-56789");
+                            softly.assertThat(owner.getAccount()).isEqualTo("01012341234");
                             softly.assertThat(owner.getAttachments().size()).isEqualTo(1);
                             softly.assertThat(owner.getAttachments().get(0).getUrl())
                                 .isEqualTo("https://static.koreatech.in/testimage.png");
@@ -311,7 +336,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "email": "helloworld@koreatech.ac.kr",
                        "name": "최준호",
                        "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-0000-0000",
+                       "phone_number": "01000000000",
                        "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }
@@ -340,7 +365,7 @@ class OwnerApiTest extends AcceptanceTest {
                        "email": "helloworld@koreatech.ac.kr",
                        "name": "",
                        "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-0000-0000",
+                       "phone_number": "01000000000",
                        "shop_id": null,
                        "shop_name": "기분좋은 뷔짱"
                      }

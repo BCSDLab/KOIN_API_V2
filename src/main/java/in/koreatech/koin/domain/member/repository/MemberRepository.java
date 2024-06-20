@@ -16,7 +16,7 @@ public interface MemberRepository extends Repository<Member, Integer> {
 
     Member save(Member member);
 
-    List<Member> findByTrackIdAndIsDeletedFalse(Integer id);
+    List<Member> findAllByTrackIdAndIsDeletedFalse(Integer id);
 
     List<Member> findAll();
 

@@ -102,7 +102,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     "major": "컴퓨터공학부",
                     "name": "테스트용_준호",
                     "nickname": "준호",
-                    "phone_number": "010-1234-5678",
+                    "phone_number": "01012345678",
                     "student_number": "2019136135",
                     "updated_at": "2024-01-15 12:00:00",
                     "user_type": "STUDENT"
@@ -129,7 +129,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     "name" : "서정빈",
                     "password" : "0c4be6acaba1839d3433c1ccf04e1eec4d1fa841ee37cb019addc269e8bc1b77",
                     "nickname" : "duehee",
-                    "phone_number" : "010-2345-6789",
+                    "phone_number" : "01023456789",
                     "student_number" : "2019136136"
                   }
                 """)
@@ -161,7 +161,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     "major": "기계공학부",
                     "name": "서정빈",
                     "nickname": "duehee",
-                    "phone_number": "010-2345-6789",
+                    "phone_number": "01023456789",
                     "student_number": "2019136136"
                 }
                 """);
@@ -201,7 +201,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     "shops_id": [
                         %d
                     ],
-                    "phone_number": "010-9876-5432",
+                    "phone_number": "01098765432",
                     "is_authed": true,
                     "user_type": "OWNER",
                     "gender": 0,
@@ -249,7 +249,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                             "id": 1,
                             "email": "testchulsu@gmail.com",
                             "name": "테스트용_철수(인증X)",
-                            "phone_number": "010-9776-5112",
+                            "phone_number": "01097765112",
                             "shop_id": 1,
                             "shop_name": "마슬랜 치킨",
                             "created_at" : "2024-01-15 12:00:00"
@@ -258,7 +258,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                             "id": 1,
                             "email": "testchulsu@gmail.com",
                             "name": "테스트용_철수(인증X)",
-                            "phone_number": "010-9776-5112",
+                            "phone_number": "01097765112",
                             "shop_id": 2,
                             "shop_name": "신전 떡볶이",
                             "created_at" : "2024-01-15 12:00:00"
@@ -278,7 +278,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                 .password(passwordEncoder.encode("1234"))
                 .nickname("사장님" + i)
                 .name("테스트용(인증X)" + i)
-                .phoneNumber("010-9776-511" + i)
+                .phoneNumber("0109776511" + i)
                 .userType(OWNER)
                 .gender(MAN)
                 .email("testchulsu@gmail.com" + i)

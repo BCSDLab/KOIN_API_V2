@@ -47,7 +47,7 @@ public record StudentUpdateRequest
         @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
         String nickname,
 
-        @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = NOT_REQUIRED)
+        @Schema(description = "휴대폰 번호", example = "01000000000", requiredMode = NOT_REQUIRED)
         String phoneNumber,
 
         @Size(min = 10, max = 10, message = "학번은 10자여야 합니다.")

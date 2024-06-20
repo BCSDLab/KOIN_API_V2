@@ -63,4 +63,18 @@ public class MemberFixture {
                 .build()
         );
     }
+
+    public Member 최준호_삭제(Track track) {
+        return memberRepository.save(
+            Member.builder()
+                .isDeleted(true)
+                .studentNumber("2019136135")
+                .imageUrl("https://imagetest.com/juno.jpg")
+                .name("최준호")
+                .position("Regular")
+                .track(track)
+                .email("testjuno@gmail.com")
+                .build()
+        );
+    }
 }

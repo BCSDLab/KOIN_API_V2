@@ -42,7 +42,7 @@ public record StudentUpdateResponse(
     @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
     String nickname,
 
-    @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = NOT_REQUIRED)
+    @Schema(description = "휴대폰 번호", example = "01000000000", requiredMode = NOT_REQUIRED)
     String phoneNumber,
 
     @Schema(description = "학번", example = "2029136012", requiredMode = NOT_REQUIRED)
@@ -51,11 +51,10 @@ public record StudentUpdateResponse(
 
     public static StudentUpdateResponse from(Student student) {
         User user = student.getUser();
-        Integer userGender = user.getGender() != null ? user.getGender().ordinal() : null;
         return new StudentUpdateResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
-            userGender,
+            user.getGender() != null ? user.getGender().ordinal() : null,
             student.getDepartment(),
             user.getName(),
             user.getNickname(),

@@ -39,13 +39,14 @@ import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
  * OpenApi 상세: 국토교통부_(TAGO)_버스도착정보
  * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098541
  */
 @Component
-public class PublicExpressBusOpenApiClient extends ExpressBusOpenApiClient {
+public class PublicExpressBusClient extends ExpressBusClient {
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo";
     private static final Type ARRIVAL_INFO_TYPE = new TypeToken<List<PublicOpenApiExpressBusArrival>>() {
@@ -53,7 +54,7 @@ public class PublicExpressBusOpenApiClient extends ExpressBusOpenApiClient {
 
     private final String openApiKey;
 
-    public PublicExpressBusOpenApiClient(
+    public PublicExpressBusClient(
         @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
         VersionRepository versionRepository,
         Gson gson,
@@ -66,6 +67,7 @@ public class PublicExpressBusOpenApiClient extends ExpressBusOpenApiClient {
 
     @Override
     @Transactional
+    @CircuitBreaker(name = "publicExpressBus")
     public void storeRemainTimeByOpenApi() {
         for (BusStation depart : BusStation.values()) {
             for (BusStation arrival : BusStation.values()) {

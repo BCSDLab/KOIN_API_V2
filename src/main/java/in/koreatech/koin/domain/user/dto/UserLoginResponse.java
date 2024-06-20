@@ -24,6 +24,7 @@ public record UserLoginResponse(
             로그인한 회원의 신원
             - `STUDENT`: 학생
             - `OWNER`: 사장님
+            - `COOP` : 영양사
             """, example = "STUDENT", requiredMode = REQUIRED
     )
     @JsonProperty("user_type")
