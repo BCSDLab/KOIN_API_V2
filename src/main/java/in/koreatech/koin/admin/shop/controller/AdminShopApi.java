@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.admin.shop.dto.AdminMenuCategoriesResponse;
+import in.koreatech.koin.admin.shop.dto.AdminMenuDetailResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopMenuResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,7 +32,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "특정 상점의 모든 메뉴 조회")
     @GetMapping("/admin/shops/{id}/menus")
-    ResponseEntity<MenuDetailResponse> getAllMenus(
+    ResponseEntity<AdminShopMenuResponse> getAllMenus(
         @Parameter(in = PATH) @PathVariable("id") Integer shopId,
         @Auth(permit = {ADMIN}) Integer adminId
     );
@@ -45,7 +47,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "특정 상점의 모든 메뉴 카테고리 조회")
     @GetMapping("/admin/shops/{id}/menus/categories")
-    ResponseEntity<MenuDetailResponse> getAllMenuCategories(
+    ResponseEntity<AdminMenuCategoriesResponse> getAllMenuCategories(
         @Parameter(in = PATH) @PathVariable("id") Integer shopId,
         @Auth(permit = {ADMIN}) Integer adminId
     );
@@ -60,7 +62,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "특정 상점의 메뉴 조회")
     @GetMapping("/admin/shops/{shopId}/menus/{menuId}")
-    ResponseEntity<MenuDetailResponse> getMenu(
+    ResponseEntity<AdminMenuDetailResponse> getMenu(
         @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
         @Parameter(in = PATH) @PathVariable("menuId") Integer menuId,
         @Auth(permit = {ADMIN}) Integer adminId
