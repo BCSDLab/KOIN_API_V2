@@ -15,6 +15,7 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
+import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.user.repository.AdminShopRepository;
@@ -42,6 +43,9 @@ public class AdminUserService {
     private final AdminUserRepository adminUserRepository;
     private final AdminShopRepository adminShopRepository;
     private final PasswordEncoder passwordEncoder;
+
+    public AdminStudentsResponse getStudents() {
+    }
 
     public AdminStudentResponse getStudent(Integer userId) {
         Student student = adminStudentRepository.getById(userId);
