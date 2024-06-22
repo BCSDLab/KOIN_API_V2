@@ -6,9 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
+import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
@@ -43,6 +46,20 @@ public interface AdminUserApi {
     ResponseEntity<AdminStudentsResponse> getStudents(
         @ModelAttribute StudentsCondition studentsCondition,
         @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 로그인")
+    @PostMapping("/admin/user/login")
+    ResponseEntity<AdminLoginResponse> adminLogin(
+        @RequestBody @Valid AdminLoginRequest request
     );
 
     @ApiResponses(

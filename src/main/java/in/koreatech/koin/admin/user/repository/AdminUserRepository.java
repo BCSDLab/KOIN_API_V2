@@ -11,8 +11,14 @@ public interface AdminUserRepository extends Repository<User, Integer> {
 
     User save(User user);
 
+    Optional<User> findByEmail(String Email);
+
     Optional<User> findById(Integer id);
 
+    default User getByEmail(String email) {
+        return findByEmail(email)
+            .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
+    }
     default User getById(Integer userId) {
         return findById(userId)
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));

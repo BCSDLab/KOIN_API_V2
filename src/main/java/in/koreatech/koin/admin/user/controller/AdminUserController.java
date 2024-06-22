@@ -2,14 +2,19 @@ package in.koreatech.koin.admin.user.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
+import java.net.URI;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
+import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
 import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
@@ -36,6 +41,15 @@ public class AdminUserController implements AdminUserApi{
     ) {
         AdminStudentsResponse adminStudentsResponse = adminUserService.getStudents(studentsCondition);
         return ResponseEntity.ok(adminStudentsResponse);
+    }
+
+    @PostMapping("/admin/user/login")
+    public ResponseEntity<AdminLoginResponse> adminLogin(
+        @RequestBody @Valid AdminLoginRequest request
+    ) {
+        AdminLoginResponse response = adminUserService.adminLogin(request);
+        return ResponseEntity.created(URI.create("/"))
+            .body(response);
     }
 
     @GetMapping("/admin/users/student/{id}")
