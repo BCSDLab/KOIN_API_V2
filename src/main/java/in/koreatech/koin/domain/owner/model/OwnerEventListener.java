@@ -56,4 +56,17 @@ public class OwnerEventListener {
         );
         slackClient.sendMessage(notification);
     }
+
+    @TransactionalEventListener(phase = AFTER_COMMIT)
+    public void onOwnerRegister(OwnerRegisterBySmsEvent event) {
+        Owner owner = event.owner();
+        ownerInVerificationRedisRepository.deleteByVerify(owner.getAccount());
+        String shopsName = shopRepository.findAllByOwnerId(owner.getId())
+            .stream().map(Shop::getName).collect(Collectors.joining(", "));
+        var notification = slackNotificationFactory.generateOwnerRegisterRequestNotification(
+            owner.getUser().getName(),
+            shopsName
+        );
+        slackClient.sendMessage(notification);
+    }
 }
