@@ -52,6 +52,81 @@ public class AdminUserApiTest extends AcceptanceTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
+    @DisplayName("관리자가 특정 학생 리스트를 파라미터가 없이 조회한다.(페이지네이션)")
+    void getStudentsWithoutParameterAdmin() {
+        User adminUser = userFixture.코인_운영자();
+
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .when()
+            .get("/admin/students")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                     "current_count": 0,
+                     "current_page": 1,
+                     "students": [
+                         {
+                             "email": "juno@koreatech.ac.kr",
+                             "id": 1,
+                             "major": "컴퓨터공학부",
+                             "name": "테스트용_준호",
+                             "nickname": "준호",
+                             "studentNumber": 2019136135
+                         }
+                     ],
+                     "total_count": 1,
+                     "total_page": 1
+                 }
+                """);
+    }
+
+    @Test
+    @DisplayName("관리자가 특정 학생 리스트를 페이지 수와 limit으로 조회한다.(페이지네이션)")
+    void getStudentsWithPageAndLimitAdmin() {
+
+    }
+
+    @Test
+    @DisplayName("관리자가 특정 학생 리스트를 닉네임으로 조회한다.(페이지네이션)")
+    void getStudentsWithNicknameAdmin() {
+
+    }
+
+    @Test
+    @DisplayName("관리자가 로그인 한다.")
+    void adminLogin() {
+
+    }
+
+    @Test
+    @DisplayName("관리자가 로그인 한다. - 관리자가 아니면 404 반환")
+    void adminLoginNoAuth() {
+
+    }
+
+    @Test
+    @DisplayName("관리자가 로그아웃한다")
+    void adminLogout() {
+
+    }
+
+    @Test
+    @DisplayName("관리자 액세스 토큰 재발급")
+    void adminRefresh() {
+
+    }
+
+
+    @Test
     @DisplayName("관리자가 특정 학생 정보를 조회한다. - 관리자가 아니면 403 반환")
     void studentUpdateAdminNoAuth() {
         Student student = userFixture.준호_학생();
