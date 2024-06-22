@@ -16,6 +16,7 @@ public interface ShopRepository extends Repository<Shop, Integer> {
 
     Optional<Shop> findById(Integer shopId);
 
+
     Optional<Shop> findByOwnerId(Integer ownerId);
 
     default Shop getById(Integer shopId) {

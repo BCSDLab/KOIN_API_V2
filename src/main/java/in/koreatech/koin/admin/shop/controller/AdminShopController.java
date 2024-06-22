@@ -86,7 +86,7 @@ public class AdminShopController implements AdminShopApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminShopService.cancelShopDelete(shopId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PutMapping("/admin/shops/{shopId}/menus/categories")
