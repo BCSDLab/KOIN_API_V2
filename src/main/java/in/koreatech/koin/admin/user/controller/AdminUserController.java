@@ -14,10 +14,11 @@ import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
+import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
-import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
+import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.service.AdminUserService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -77,9 +78,17 @@ public class AdminUserController implements AdminUserApi{
 
     @GetMapping("/admin/users/new-owners")
     public ResponseEntity<AdminNewOwnersResponse> getNewOwners(
-        @ModelAttribute NewOwnersCondition newOwnersCondition,
+        @ModelAttribute OwnersCondition ownersCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return ResponseEntity.ok().body(adminUserService.getNewOwners(newOwnersCondition));
+        return ResponseEntity.ok().body(adminUserService.getNewOwners(ownersCondition));
+    }
+
+    @GetMapping("/admin/users/owners")
+    public ResponseEntity<AdminOwnersResponse> getOwners(
+        @ModelAttribute OwnersCondition ownersCondition,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        return ResponseEntity.ok().body(adminUserService.getOwners(ownersCondition));
     }
 }

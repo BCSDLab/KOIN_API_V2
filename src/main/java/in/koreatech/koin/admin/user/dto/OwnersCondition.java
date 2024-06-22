@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record NewOwnersCondition(
+public record OwnersCondition(
     @Schema(description = "페이지", example = "1", defaultValue = "1", requiredMode = NOT_REQUIRED)
     Integer page,
 
@@ -33,7 +33,7 @@ public record NewOwnersCondition(
     @Schema(description = "정렬 기준['CREATED_AT_ASC` (오래된순), 'CREATED_AT_DESC` (최신순)]", example = "CREATED_AT_ASC", defaultValue = "CREATED_AT_ASC", requiredMode = NOT_REQUIRED)
     Sort sort
 ) {
-    public NewOwnersCondition {
+    public OwnersCondition {
         if (Objects.isNull(page)) {
             page = Criteria.DEFAULT_PAGE;
         }
