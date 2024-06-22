@@ -27,8 +27,10 @@ public class AdminUserController implements AdminUserApi{
 
     private final AdminUserService adminUserService;
 
-    @Override
-    public ResponseEntity<Void> allowOwnerPermission(Integer id, Integer adminId) {
+    @PutMapping("/admin/owner/{id}/authed")
+    public ResponseEntity<Void> allowOwnerPermission(
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId) {
         adminUserService.allowOwnerPermission(id);
         return ResponseEntity.ok().build();
     }
