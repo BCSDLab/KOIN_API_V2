@@ -7,6 +7,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,32 @@ public class AdminUserApiTest extends AcceptanceTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Test
+    @DisplayName("관리자가 사장님 권한 요청을 허용한다.")
+    void allowOwnerPermission() {
+        Owner owner = userFixture.철수_사장님();
+        Shop shop = shopFixture.마슬랜(owner);
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .pathParam("id", owner.getUser().getId())
+            .put("/admin/owner/{id}/authed")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        //영속성 컨테스트 동기화
+        Owner updatedOwner = adminOwnerRepository.getById(owner.getId());
+
+        Assertions.assertThat(updatedOwner.getUser().isAuthed()).isEqualTo(true);
+        Assertions.assertThat(updatedOwner.isGrantShop()).isEqualTo(true);
+    }
 
     @Test
     @DisplayName("관리자가 특정 학생 정보를 조회한다. - 관리자가 아니면 403 반환")

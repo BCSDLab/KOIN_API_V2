@@ -217,8 +217,8 @@ public final class UserFixture {
         Owner owner = Owner.builder()
             .user(user)
             .companyRegistrationNumber("118-80-56789")
-            .grantShop(true)
-            .grantEvent(true)
+            .grantShop(false)
+            .grantEvent(false)
             .account("01097765112")
             .attachments(new ArrayList<>())
             .build();
