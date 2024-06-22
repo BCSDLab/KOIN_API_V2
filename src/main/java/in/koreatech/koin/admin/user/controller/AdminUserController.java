@@ -17,6 +17,7 @@ import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
+import in.koreatech.koin.admin.user.dto.StudentsCondition;
 import in.koreatech.koin.admin.user.service.AdminUserService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -30,9 +31,10 @@ public class AdminUserController implements AdminUserApi{
 
     @GetMapping("/admin/students")
     public ResponseEntity<AdminStudentsResponse> getStudents(
+        @ModelAttribute StudentsCondition studentsCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminStudentsResponse adminStudentsResponse = adminUserService.getStudents();
+        AdminStudentsResponse adminStudentsResponse = adminUserService.getStudents(studentsCondition);
         return ResponseEntity.ok(adminStudentsResponse);
     }
 

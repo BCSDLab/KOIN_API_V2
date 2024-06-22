@@ -14,7 +14,9 @@ import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
+import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
+import in.koreatech.koin.admin.user.dto.StudentsCondition;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,6 +29,22 @@ import jakarta.validation.Valid;
 
 @Tag(name = "(Admin) User: 회원", description = "관리자 권한으로 회원 정보를 관리한다")
 public interface AdminUserApi {
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "학생 리스트 조회(페이지네이션)")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/admin/students")
+    ResponseEntity<AdminStudentsResponse> getStudents(
+        @ModelAttribute StudentsCondition studentsCondition,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
