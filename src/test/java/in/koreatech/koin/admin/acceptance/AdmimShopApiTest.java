@@ -100,7 +100,7 @@ public class AdmimShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("특정 상점의 모든 메뉴를 조회한다.")
+    @DisplayName("어드민이 특정 상점의 모든 메뉴를 조회한다.")
     void findShopMenus() {
         // given
         menuFixture.짜장면_옵션메뉴(shop_마슬랜, menuCategory_메인);
@@ -111,7 +111,6 @@ public class AdmimShopApiTest extends AcceptanceTest {
             .when()
             .get("/admin/shops/{id}/menus")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -155,11 +154,10 @@ public class AdmimShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("특정 상점의 메뉴 카테고리들을 조회한다.")
+    @DisplayName("어드민이 특정 상점의 메뉴 카테고리들을 조회한다.")
     void findShopMenuCategories() {
         // given
         menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
-
         var response = RestAssured
             .given()
             .pathParam("id", shop_마슬랜.getId())
@@ -188,11 +186,10 @@ public class AdmimShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("특정 상점의 특정 메뉴를 조회한다.")
+    @DisplayName("어드민이 특정 상점의 특정 메뉴를 조회한다.")
     void findShopMenu() {
         // given
         Menu menu = menuFixture.짜장면_옵션메뉴(shop_마슬랜, menuCategory_메인);
-
         var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + token_admin)
@@ -234,7 +231,7 @@ public class AdmimShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("옵션이 여러개인 메뉴를 추가한다.")
+    @DisplayName("어드민이 옵션이 여러개인 메뉴를 추가한다.")
     void createManyOptionMenu() {
         // given
         MenuCategory menuCategory = menuCategory_메인;
@@ -289,7 +286,7 @@ public class AdmimShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님이 옵션이 한개인 메뉴를 추가한다.")
+    @DisplayName("어드민이 옵션이 한개인 메뉴를 추가한다.")
     void createOneOptionMenu() {
         // given
         MenuCategory menuCategory = menuCategory_메인;
@@ -366,6 +363,7 @@ public class AdmimShopApiTest extends AcceptanceTest {
     @DisplayName("어드민이 상점 삭제를 해제한다.")
     void cancelShopDeleted() {
         // given
+        System.out.println("qwe");
         shopRepository.deleteById(shop_마슬랜.getId());
         RestAssured
             .given()
@@ -382,7 +380,33 @@ public class AdmimShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("어드민이 단일 메뉴로 수정한다.")
+    @DisplayName("어드민이 특점 상점의 메뉴 카테고리를 수정한다.")
+    void modifyMenuCategory() {
+        // given
+        Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token_admin)
+            .contentType(ContentType.JSON)
+            .pathParam("shopId", shop_마슬랜.getId())
+            .body(String.format("""
+                {
+                   "id": %s,
+                   "name": "사이드 메뉴"
+                }
+                """, menuCategory_메인.getId()))
+            .when()
+            .put("/admin/shops/{shopId}/menus/categories")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        MenuCategory menuCategory = menuCategoryRepository.getById(menuCategory_메인.getId());
+        assertSoftly(softly -> softly.assertThat(menuCategory.getName()).isEqualTo("사이드 메뉴"));
+    }
+
+    @Test
+    @DisplayName("어드민이 특정 삼점의 메뉴를 단일 메뉴로 수정한다.")
     void modifyOneMenu() {
         // given
         Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
@@ -434,7 +458,7 @@ public class AdmimShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님이 여러옵션을 가진 메뉴로 수정한다.")
+    @DisplayName("어드민이 특정 상점의 메뉴를 여러옵션을 가진 메뉴로 수정한다.")
     void modifyManyOptionMenu() {
         // given
         Menu menu = menuFixture.짜장면_옵션메뉴(shop_마슬랜, menuCategory_메인);

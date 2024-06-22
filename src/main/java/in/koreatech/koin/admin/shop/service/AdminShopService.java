@@ -2,6 +2,8 @@ package in.koreatech.koin.admin.shop.service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +20,6 @@ import in.koreatech.koin.admin.shop.repository.AdminMenuCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.AdminMenuDetailRepository;
 import in.koreatech.koin.admin.shop.repository.AdminMenuImageRepository;
 import in.koreatech.koin.admin.shop.repository.AdminMenuRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopCategoryMapRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopCategoryRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopImageRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopOpenRepository;
 import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
@@ -29,7 +27,7 @@ import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.MenuImage;
 import in.koreatech.koin.domain.shop.model.MenuOption;
 import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.repository.ShopRepository;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
@@ -42,14 +40,9 @@ public class AdminShopService {
     private final AdminShopRepository adminShopRepository;
     private final AdminMenuRepository adminMenuRepository;
     private final AdminMenuCategoryRepository adminMenuCategoryRepository;
-    private final AdminShopImageRepository adminShopImageRepository;
-    private final AdminShopOpenRepository adminShopOpenRepository;
     private final AdminMenuCategoryMapRepository adminMenuCategoryMapRepository;
-    private final AdminShopCategoryRepository adminShopCategoryRepository;
-    private final AdminShopCategoryMapRepository adminShopCategoryMapRepository;
     private final AdminMenuImageRepository adminMenuImageRepository;
     private final AdminMenuDetailRepository adminMenuDetailRepository;
-    private final ShopRepository shopRepository;
 
     public AdminShopMenuResponse getAllMenus(Integer shopId) {
         Shop shop = adminShopRepository.getById(shopId);
@@ -77,7 +70,7 @@ public class AdminShopService {
 
     @Transactional
     public void createMenu(Integer shopId, AdminCreateMenuRequest adminCreateMenuRequest) {
-        shopRepository.getById(shopId);
+        adminShopRepository.getById(shopId);
         Menu menu = adminCreateMenuRequest.toEntity(shopId);
         Menu savedMenu = adminMenuRepository.save(menu);
         for (Integer categoryId : adminCreateMenuRequest.categoryIds()) {
@@ -116,7 +109,7 @@ public class AdminShopService {
 
     @Transactional
     public void createMenuCategory(Integer shopId, AdminCreateMenuCategoryRequest adminCreateMenuCategoryRequest) {
-        Shop shop = shopRepository.getById(shopId);
+        Shop shop = adminShopRepository.getById(shopId);
         MenuCategory menuCategory = MenuCategory.builder()
             .shop(shop)
             .name(adminCreateMenuCategoryRequest.name())
@@ -126,13 +119,15 @@ public class AdminShopService {
 
     @Transactional
     public void cancelShopDelete(Integer shopId) {
-        Shop shop = shopRepository.getById(shopId);
-        shop.cancelDelete();
+        Optional<Shop> shop = adminShopRepository.findDeletedShopById(shopId);
+        if(shop.isPresent()) {
+            shop.get().cancelDelete();
+        }
     }
 
     @Transactional
     public void modifyMenuCategory(Integer shopId, AdminModifyMenuCategoryRequest adminModifyMenuCategoryRequest) {
-        shopRepository.getById(shopId);
+        adminShopRepository.getById(shopId);
         MenuCategory menuCategory = adminMenuCategoryRepository.getById(adminModifyMenuCategoryRequest.id());
         menuCategory.modifyName(adminModifyMenuCategoryRequest.name());
     }
@@ -140,7 +135,7 @@ public class AdminShopService {
     @Transactional
     public void modifyMenu(Integer shopId, Integer menuId, AdminModifyMenuRequest adminModifyMenuRequest) {
         Menu menu = adminMenuRepository.getById(menuId);
-        shopRepository.getById(shopId);
+        adminShopRepository.getById(shopId);
         menu.modifyMenu(
             adminModifyMenuRequest.name(),
             adminModifyMenuRequest.description()
@@ -156,15 +151,19 @@ public class AdminShopService {
 
     @Transactional
     public void deleteMenuCategory(Integer shopId, Integer categoryId) {
-        shopRepository.getById(shopId);
-        adminMenuCategoryRepository.getById(categoryId);
+        MenuCategory menuCategory = adminMenuCategoryRepository.getById(categoryId);
+        if (!Objects.equals(menuCategory.getShop().getId(), shopId)) {
+            throw new KoinIllegalArgumentException("해당 상점의 카테고리가 아닙니다.");
+        }
         adminMenuCategoryRepository.deleteById(categoryId);
     }
 
     @Transactional
     public void deleteMenu(Integer shopId, Integer menuId) {
-        shopRepository.getById(shopId);
-        adminMenuRepository.getById(menuId);
+        Menu menu = adminMenuRepository.getById(menuId);
+        if (!Objects.equals(menu.getShopId(), shopId)) {
+            throw new KoinIllegalArgumentException("해당 상점의 카테고리가 아닙니다.");
+        }
         adminMenuRepository.deleteById(menuId);
     }
 }
