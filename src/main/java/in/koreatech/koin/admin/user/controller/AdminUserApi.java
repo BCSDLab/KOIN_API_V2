@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
 import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
@@ -45,8 +46,12 @@ public interface AdminUserApi {
     @Operation(summary = "학생 리스트 조회(페이지네이션)")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/admin/students")
-    ResponseEntity<AdminStudentsResponse> getStudents(
-        @ModelAttribute StudentsCondition studentsCondition,
+    public ResponseEntity<AdminStudentsResponse> getStudents(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit,
+        @RequestParam(required = false) Boolean isAuthed,
+        @RequestParam(required = false) String nickname,
+        @RequestParam(required = false) String email,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -72,7 +77,7 @@ public interface AdminUserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "로그아웃")
+    @Operation(summary = "어드민 로그아웃")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("admin/user/logout")
     ResponseEntity<Void> logout(

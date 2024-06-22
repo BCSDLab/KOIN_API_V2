@@ -4,9 +4,13 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record StudentsCondition (
     @Schema(description = "페이지", example = "1", defaultValue = "1", requiredMode = NOT_REQUIRED)
     Integer page,

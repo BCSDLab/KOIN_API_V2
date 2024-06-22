@@ -26,12 +26,9 @@ public interface AdminStudentRepository extends Repository<Student, Integer> {
     @Query(" SELECT COUNT(s) FROM Student s ")
     Integer findAllStudentCount();
 
-    @Query(
-        """
-        SELECT s FROM Student s WHERE
-        (:#{#condition.isAuthed} IS NULL OR s.user.isAuthed = :#{#condition.isAuthed})
-        AND (:#{#condition.nickname} IS NULL OR s.user.nickname LIKE %:#{#condition.nickname}%)
-        AND (:#{#condition.email} IS NULL OR s.user.email LIKE %:#{#condition.email}%)
-        """)
+    @Query("SELECT s FROM Student s WHERE " +
+        "(:#{#condition.isAuthed} IS NULL OR s.user.isAuthed = :#{#condition.isAuthed}) AND " +
+        "(:#{#condition.nickname} IS NULL OR s.user.nickname LIKE CONCAT('%', :#{#condition.nickname}, '%')) AND " +
+        "(:#{#condition.email} IS NULL OR s.user.email LIKE CONCAT('%', :#{#condition.email}, '%'))")
     Page<Student> findByConditions(@Param("condition") StudentsCondition condition, Pageable pageable);
 }
