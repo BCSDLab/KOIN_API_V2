@@ -21,6 +21,8 @@ import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
+import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
+import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
 import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
 import in.koreatech.koin.admin.user.service.AdminUserService;
@@ -56,9 +58,19 @@ public class AdminUserController implements AdminUserApi{
     public ResponseEntity<Void> logout(
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminUserService.logout(adminId);
+        adminUserService.adminLogout(adminId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/admin/user/refresh")
+    public ResponseEntity<AdminTokenRefreshResponse> refresh(
+        @RequestBody @Valid AdminTokenRefreshRequest request
+    ) {
+        AdminTokenRefreshResponse tokenGroupResponse = adminUserService.adminRefresh(request);
+        return ResponseEntity.created(URI.create("/"))
+            .body(tokenGroupResponse);
+    }
+
 
     @GetMapping("/admin/users/student/{id}")
     public ResponseEntity<AdminStudentResponse> getStudent(

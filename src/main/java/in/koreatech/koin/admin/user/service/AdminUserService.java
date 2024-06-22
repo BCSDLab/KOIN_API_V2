@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,8 @@ import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
+import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
+import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
 import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
@@ -42,6 +45,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
@@ -92,9 +96,30 @@ public class AdminUserService {
     }
 
     @Transactional
-    public void logout(Integer adminId) {
-        adminUserRepository.deleteById(adminId);
+    public void adminLogout(Integer adminId) {
+        adminTokenRepository.deleteById(adminId);
     }
+
+    public AdminTokenRefreshResponse adminRefresh(AdminTokenRefreshRequest request) {
+        String adminId = getAdminId(request.refreshToken());
+        UserToken userToken = adminTokenRepository.getById(Integer.parseInt(adminId));
+        if (!Objects.equals(userToken.getRefreshToken(), request.refreshToken())) {
+            throw new KoinIllegalArgumentException("refresh token이 일치하지 않습니다.", "request: " + request);
+        }
+        User user = adminUserRepository.getById(userToken.getId());
+
+        String accessToken = jwtProvider.createToken(user);
+        return AdminTokenRefreshResponse.of(accessToken, userToken.getRefreshToken());
+    }
+
+    private String getAdminId(String refreshToken) {
+        String[] split = refreshToken.split("-");
+        if (split.length == 0) {
+            throw new AuthorizationException("올바르지 않은 인증 토큰입니다. refreshToken: " + refreshToken);
+        }
+        return split[split.length - 1];
+    }
+
     public AdminStudentResponse getStudent(Integer userId) {
         Student student = adminStudentRepository.getById(userId);
         return AdminStudentResponse.from(student);

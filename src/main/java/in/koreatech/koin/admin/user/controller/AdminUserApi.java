@@ -18,6 +18,8 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
+import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
+import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
 import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
 import in.koreatech.koin.global.auth.Auth;
@@ -60,6 +62,35 @@ public interface AdminUserApi {
     @PostMapping("/admin/user/login")
     ResponseEntity<AdminLoginResponse> adminLogin(
         @RequestBody @Valid AdminLoginRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "로그아웃")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("admin/user/logout")
+    ResponseEntity<Void> logout(
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 액세스 토큰 재발급")
+    @PostMapping("/admin/user/refresh")
+    public ResponseEntity<AdminTokenRefreshResponse> refresh(
+        @RequestBody @Valid AdminTokenRefreshRequest request
     );
 
     @ApiResponses(
