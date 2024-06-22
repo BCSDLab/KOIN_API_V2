@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
+import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
+import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
@@ -116,5 +118,11 @@ public class AdminUserService {
             .collect(Collectors.toList());
 
         return AdminOwnerResponse.of(owner, shopsId);
+    }
+
+    public AdminOwnerUpdateResponse updateOwner(Integer ownerId, AdminOwnerUpdateRequest request) {
+        Owner owner = adminOwnerRepository.getById(ownerId);
+        owner.update(request);
+        return AdminOwnerUpdateResponse.from(owner);
     }
 }

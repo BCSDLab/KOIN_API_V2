@@ -240,6 +240,44 @@ public class AdminUserApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("관리자가 특정 사장을 수정한다.")
+    void updateOwner() {
+        Owner owner = userFixture.현수_사장님();
+        Shop shop = shopFixture.마슬랜(owner);
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                  {
+                    "company_registration_number" : "123-45-67190",
+                    "grant_shop" : "false",
+                    "grant_event" : "false"
+                  }
+                """)
+            .when()
+            .pathParam("id", owner.getUser().getId())
+            .put("/admin/users/owner/{id}")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "company_registration_number" : "123-45-67190",
+                    "grant_shop" : false,
+                    "grant_event" : false,
+                    "phone_number" : "01098765432"
+                }
+                """);
+    }
+
+    @Test
     @DisplayName("관리자가 가입 신청한 사장님 리스트 조회한다.")
     void getNewOwnersAdmin() {
         Owner unauthenticatedOwner = userFixture.철수_사장님();

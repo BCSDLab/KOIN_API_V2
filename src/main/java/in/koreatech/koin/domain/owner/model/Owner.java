@@ -9,6 +9,7 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
+import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -77,5 +78,11 @@ public class Owner {
 
     public void setGrantShop(boolean grantShop) {
         this.grantShop = grantShop;
+    }
+
+    public void update(AdminOwnerUpdateRequest request) {
+        this.companyRegistrationNumber = request.companyRegistrationNumber();
+        this.grantShop = request.grantShop();
+        this.grantEvent = request.grantEvent();
     }
 }

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
+import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
@@ -89,6 +91,23 @@ public interface AdminUserApi {
     @GetMapping("/admin/users/owner/{id}")
     ResponseEntity<AdminOwnerResponse> getOwner(
         @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 사장님 수정")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/admin/users/owner/{id}")
+    ResponseEntity<AdminOwnerUpdateResponse> updateOwner(
+        @PathVariable Integer id,
+        @RequestBody @Valid AdminOwnerUpdateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 

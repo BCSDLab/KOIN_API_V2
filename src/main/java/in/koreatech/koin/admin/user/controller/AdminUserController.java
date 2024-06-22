@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
+import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
+import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
@@ -61,6 +63,16 @@ public class AdminUserController implements AdminUserApi{
     ) {
         AdminOwnerResponse adminOwnerResponse = adminUserService.getOwner(id);
         return ResponseEntity.ok(adminOwnerResponse);
+    }
+
+    @PutMapping("/admin/users/owner/{id}")
+    public ResponseEntity<AdminOwnerUpdateResponse> updateOwner(
+        @PathVariable Integer id,
+        @RequestBody @Valid AdminOwnerUpdateRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        AdminOwnerUpdateResponse adminOwnerUpdateResponse = adminUserService.updateOwner(id, request);
+        return ResponseEntity.ok(adminOwnerUpdateResponse);
     }
 
     @GetMapping("/admin/users/new-owners")
