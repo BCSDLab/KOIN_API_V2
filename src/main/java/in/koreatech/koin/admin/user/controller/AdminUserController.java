@@ -52,6 +52,14 @@ public class AdminUserController implements AdminUserApi{
             .body(response);
     }
 
+    @PostMapping("admin/user/logout")
+    public ResponseEntity<Void> logout(
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminUserService.logout(adminId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/admin/users/student/{id}")
     public ResponseEntity<AdminStudentResponse> getStudent(
         @PathVariable Integer id,

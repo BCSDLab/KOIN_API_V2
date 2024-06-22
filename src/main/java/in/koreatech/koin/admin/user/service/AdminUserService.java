@@ -91,6 +91,10 @@ public class AdminUserService {
         return AdminLoginResponse.of(accessToken, savedtoken.getRefreshToken());
     }
 
+    @Transactional
+    public void logout(Integer adminId) {
+        adminUserRepository.deleteById(adminId);
+    }
     public AdminStudentResponse getStudent(Integer userId) {
         Student student = adminStudentRepository.getById(userId);
         return AdminStudentResponse.from(student);
