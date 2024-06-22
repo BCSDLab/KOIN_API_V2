@@ -58,7 +58,7 @@ public class OwnerEventListener {
     }
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onOwnerRegister(OwnerRegisterBySmsEvent event) {
+    public void onOwnerRegisterBySms(OwnerRegisterBySmsEvent event) {
         Owner owner = event.owner();
         ownerInVerificationRedisRepository.deleteByVerify(owner.getAccount());
         String shopsName = shopRepository.findAllByOwnerId(owner.getId())
