@@ -14,6 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.SerializationFeature;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
@@ -464,6 +469,34 @@ public class AdminUserApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getInt("total_page")).isEqualTo(2);
                 softly.assertThat(response.body().jsonPath().getInt("current_page")).isEqualTo(1);
                 softly.assertThat(response.body().jsonPath().getList("owners").size()).isEqualTo(10);
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("관리자가 회원을 조회한다.")
+    void getUser() {
+        Student student = userFixture.준호_학생();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .pathParam("id", student.getUser().getId())
+            .get("/admin/users/{id}")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertSoftly(
+            softly -> {
+                softly.assertThat(response.body().jsonPath().getString("nickname")).isEqualTo("준호");
+                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo("테스트용_준호");
+                softly.assertThat(response.body().jsonPath().getString("phoneNumber")).isEqualTo("01012345678");
+                softly.assertThat(response.body().jsonPath().getString("email")).isEqualTo("juno@koreatech.ac.kr");
             }
         );
     }

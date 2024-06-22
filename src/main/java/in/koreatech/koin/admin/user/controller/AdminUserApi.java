@@ -19,6 +19,7 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -142,6 +143,22 @@ public interface AdminUserApi {
     @GetMapping("/admin/users/owners")
     ResponseEntity<AdminOwnersResponse> getOwners(
         @ModelAttribute OwnersCondition ownersCondition,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "회원 정보 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/admin/users/{id}")
+    ResponseEntity<User> getUser(
+        @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 

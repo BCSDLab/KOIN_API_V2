@@ -21,6 +21,7 @@ import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.service.AdminUserService;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -91,6 +92,14 @@ public class AdminUserController implements AdminUserApi{
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         return ResponseEntity.ok().body(adminUserService.getOwners(ownersCondition));
+    }
+
+    @GetMapping("/admin/users/{id}")
+    public ResponseEntity<User> getUser(
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        return ResponseEntity.ok().body(adminUserService.getUser(id));
     }
 
     @DeleteMapping("/admin/users/{id}")

@@ -148,6 +148,11 @@ public class AdminUserService {
     }
 
     @Transactional
+    public User getUser(Integer userId) {
+        return adminUserRepository.getById(userId);
+    }
+
+    @Transactional
     public void deleteUser(Integer userId) {
         User user = adminUserRepository.getById(userId);
         if (user.getUserType() == UserType.STUDENT) {
