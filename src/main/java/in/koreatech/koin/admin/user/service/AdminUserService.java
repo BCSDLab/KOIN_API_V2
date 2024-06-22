@@ -43,6 +43,13 @@ public class AdminUserService {
     private final AdminShopRepository adminShopRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
+    public void allowOwnerPermission(Integer id) {
+        Owner owner = adminOwnerRepository.getById(id);
+        owner.getUser().auth();
+        owner.setGrantShop(true);
+    }
+
     public AdminStudentResponse getStudent(Integer userId) {
         Student student = adminStudentRepository.getById(userId);
         return AdminStudentResponse.from(student);

@@ -35,6 +35,22 @@ public interface AdminUserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
+    @Operation(summary = "사장님 권한 요청 허용")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/admin/owner/{id}/authed")
+    ResponseEntity<Void> allowOwnerPermission(
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
     @Operation(summary = "회원 정보 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/admin/users/student/{id}")

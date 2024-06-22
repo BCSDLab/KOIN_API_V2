@@ -74,4 +74,8 @@ public class Owner {
         this.grantEvent = grantEvent;
         this.account = account;
     }
+
+    public void setGrantShop(boolean grantShop) {
+        this.grantShop = grantShop;
+    }
 }
