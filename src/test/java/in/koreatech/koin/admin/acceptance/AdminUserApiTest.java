@@ -2,12 +2,11 @@ package in.koreatech.koin.admin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -74,8 +73,8 @@ public class AdminUserApiTest extends AcceptanceTest {
         //영속성 컨테스트 동기화
         Owner updatedOwner = adminOwnerRepository.getById(owner.getId());
 
-        Assertions.assertThat(updatedOwner.getUser().isAuthed()).isEqualTo(true);
-        Assertions.assertThat(updatedOwner.isGrantShop()).isEqualTo(true);
+        assertThat(updatedOwner.getUser().isAuthed()).isEqualTo(true);
+        assertThat(updatedOwner.isGrantShop()).isEqualTo(true);
     }
 
     @Test
