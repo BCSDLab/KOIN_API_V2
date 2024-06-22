@@ -3,6 +3,7 @@ package in.koreatech.koin.admin.user.controller;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -90,5 +91,14 @@ public class AdminUserController implements AdminUserApi{
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         return ResponseEntity.ok().body(adminUserService.getOwners(ownersCondition));
+    }
+
+    @DeleteMapping("/admin/users/{id}")
+    public ResponseEntity<Void> deleteUser(
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminUserService.deleteUser(id);
+        return ResponseEntity.ok().build();
     }
 }

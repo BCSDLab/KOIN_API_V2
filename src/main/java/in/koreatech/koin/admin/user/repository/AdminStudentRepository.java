@@ -11,6 +11,8 @@ public interface AdminStudentRepository extends Repository<Student, Integer> {
 
     Student save(Student student);
 
+    void deleteById(Integer userId);
+
     Optional<Student> findById(Integer userId);
 
     default Student getById(Integer userId) {

@@ -140,9 +140,21 @@ public class AdminUserService {
         return AdminOwnerResponse.of(owner, shopsId);
     }
 
+    @Transactional
     public AdminOwnerUpdateResponse updateOwner(Integer ownerId, AdminOwnerUpdateRequest request) {
         Owner owner = adminOwnerRepository.getById(ownerId);
         owner.update(request);
         return AdminOwnerUpdateResponse.from(owner);
+    }
+
+    @Transactional
+    public void deleteUser(Integer userId) {
+        User user = adminUserRepository.getById(userId);
+        if (user.getUserType() == UserType.STUDENT) {
+            adminStudentRepository.deleteById(userId);
+        } else if (user.getUserType() == UserType.OWNER) {
+            adminOwnerRepository.deleteById(userId);
+        }
+        adminUserRepository.delete(user);
     }
 }

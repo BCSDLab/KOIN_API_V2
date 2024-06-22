@@ -18,6 +18,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
+import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.shop.model.Shop;
@@ -38,6 +39,9 @@ public class AdminUserApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminOwnerRepository adminOwnerRepository;
+
+    @Autowired
+    private AdminUserRepository adminUserRepository;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -462,5 +466,27 @@ public class AdminUserApiTest extends AcceptanceTest {
                 softly.assertThat(response.body().jsonPath().getList("owners").size()).isEqualTo(10);
             }
         );
+    }
+
+    @Test
+    @DisplayName("관리자가 회원을 삭제한다.")
+    void deleteUser() {
+        Student student = userFixture.준호_학생();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .when()
+            .pathParam("id", student.getUser().getId())
+            .delete("/admin/users/{id}")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        assertThat(adminUserRepository.findById(student.getId())).isNotPresent();
     }
 }

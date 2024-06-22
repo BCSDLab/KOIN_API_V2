@@ -13,6 +13,8 @@ public interface AdminUserRepository extends Repository<User, Integer> {
 
     Optional<User> findById(Integer id);
 
+    void delete(User user);
+
     default User getById(Integer userId) {
         return findById(userId)
             .orElseThrow(() -> UserNotFoundException.withDetail("userId: " + userId));

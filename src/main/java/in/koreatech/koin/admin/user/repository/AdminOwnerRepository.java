@@ -19,6 +19,8 @@ public interface AdminOwnerRepository extends Repository<Owner, Integer> {
 
     Owner save(Owner owner);
 
+    void deleteById(Integer ownerId);
+
     @Query("""
         SELECT COUNT(o) FROM Owner o 
         WHERE o.user.userType = 'OWNER' 
