@@ -2,6 +2,7 @@ package in.koreatech.koin.admin.user.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -80,7 +81,7 @@ public class AdminUserController implements AdminUserApi{
 
     @GetMapping("/admin/users/new-owners")
     public ResponseEntity<AdminNewOwnersResponse> getNewOwners(
-        @ModelAttribute OwnersCondition ownersCondition,
+        @ParameterObject @ModelAttribute OwnersCondition ownersCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         return ResponseEntity.ok().body(adminUserService.getNewOwners(ownersCondition));
@@ -88,7 +89,7 @@ public class AdminUserController implements AdminUserApi{
 
     @GetMapping("/admin/users/owners")
     public ResponseEntity<AdminOwnersResponse> getOwners(
-        @ModelAttribute OwnersCondition ownersCondition,
+        @ParameterObject @ModelAttribute OwnersCondition ownersCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         return ResponseEntity.ok().body(adminUserService.getOwners(ownersCondition));
