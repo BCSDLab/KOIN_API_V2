@@ -27,6 +27,7 @@ public record StudentsCondition (
     @Schema(description = "이메일", requiredMode = NOT_REQUIRED)
     String email
 ) {
+
     public StudentsCondition {
         if (Objects.isNull(page)) {
             page = Criteria.DEFAULT_PAGE;

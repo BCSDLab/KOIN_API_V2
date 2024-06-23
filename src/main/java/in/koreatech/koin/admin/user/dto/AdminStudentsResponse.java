@@ -18,6 +18,7 @@ public record AdminStudentsResponse(
     Long totalCount,
     Integer totalPage
 ) {
+
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record StudentInfo(
         String email,
@@ -27,6 +28,7 @@ public record AdminStudentsResponse(
         String nickname,
         String studentNumber
     ) {
+
         public static StudentInfo fromStudent(Student student) {
             return new StudentInfo(
                 student.getUser().getEmail(),
