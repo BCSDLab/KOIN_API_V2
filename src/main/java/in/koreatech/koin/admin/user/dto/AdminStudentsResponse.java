@@ -18,6 +18,7 @@ public record AdminStudentsResponse(
     Long totalCount,
     Integer totalPage
 ) {
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record StudentInfo(
         String email,
         Integer id,

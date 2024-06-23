@@ -1,7 +1,9 @@
 package in.koreatech.koin.admin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
+import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
+import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.shop.model.Shop;
@@ -54,6 +57,7 @@ public class AdminUserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("관리자가 특정 학생 리스트를 파라미터가 없이 조회한다.(페이지네이션)")
     void getStudentsWithoutParameterAdmin() {
+        Student student = userFixture.준호_학생();
         User adminUser = userFixture.코인_운영자();
 
         String token = userFixture.getToken(adminUser);
@@ -71,7 +75,7 @@ public class AdminUserApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 {
-                     "current_count": 0,
+                     "current_count": 1,
                      "current_page": 1,
                      "students": [
                          {
@@ -80,7 +84,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                              "major": "컴퓨터공학부",
                              "name": "테스트용_준호",
                              "nickname": "준호",
-                             "studentNumber": 2019136135
+                             "student_number": "2019136135"
                          }
                      ],
                      "total_count": 1,
@@ -92,37 +96,214 @@ public class AdminUserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("관리자가 특정 학생 리스트를 페이지 수와 limit으로 조회한다.(페이지네이션)")
     void getStudentsWithPageAndLimitAdmin() {
+        for (int i = 0; i < 11; i++) {
+            Student student = Student.builder()
+                .studentNumber("2019136135")
+                .anonymousNickname("익명" + i)
+                .department("컴퓨터공학부")
+                .userIdentity(UNDERGRADUATE)
+                .isGraduated(false)
+                .user(
+                    User.builder()
+                        .password(passwordEncoder.encode("1234"))
+                        .nickname("성재" + i)
+                        .name("테스트용_성재" + i)
+                        .phoneNumber("01012345670")
+                        .userType(STUDENT)
+                        .gender(MAN)
+                        .email("seongjae@koreatech.ac.kr")
+                        .isAuthed(true)
+                        .isDeleted(false)
+                        .build()
+                )
+                .build();
 
+            adminStudentRepository.save(student);
+        }
+
+        User adminUser = userFixture.코인_운영자();
+
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .queryParam("page", 2)
+            .queryParam("limit", 10)
+            .when()
+            .get("/admin/students")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                     "current_count": 1,
+                     "current_page": 2,
+                     "students": [
+                         {
+                             "email": "seongjae@koreatech.ac.kr",
+                             "id": 11,
+                             "major": "컴퓨터공학부",
+                             "name": "테스트용_성재10",
+                             "nickname": "성재10",
+                             "student_number": "2019136135"
+                         }
+                     ],
+                     "total_count": 11,
+                     "total_page": 2
+                 }
+                """);
     }
 
     @Test
     @DisplayName("관리자가 특정 학생 리스트를 닉네임으로 조회한다.(페이지네이션)")
     void getStudentsWithNicknameAdmin() {
+        Student student1 = userFixture.성빈_학생();
+        Student student2 = userFixture.준호_학생();
+        User adminUser = userFixture.코인_운영자();
 
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .when()
+            .queryParam("nickname", "준호")
+            .get("/admin/students")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                     "current_count": 1,
+                     "current_page": 1,
+                     "students": [
+                         {
+                             "email": "juno@koreatech.ac.kr",
+                             "id": 2,
+                             "major": "컴퓨터공학부",
+                             "name": "테스트용_준호",
+                             "nickname": "준호",
+                             "student_number": "2019136135"
+                         }
+                     ],
+                     "total_count": 1,
+                     "total_page": 1
+                 }
+                """);
     }
 
     @Test
     @DisplayName("관리자가 로그인 한다.")
     void adminLogin() {
+        User adminUser = userFixture.코인_운영자();
+        String email = adminUser.getEmail();
+        String password = "1234";
 
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "email" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(email, password))
+            .when()
+            .post("/admin/user/login")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
     }
 
     @Test
     @DisplayName("관리자가 로그인 한다. - 관리자가 아니면 404 반환")
     void adminLoginNoAuth() {
+        Student student = userFixture.준호_학생();
+        String email = student.getUser().getEmail();
+        String password = "1234";
 
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "email" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(email, password))
+            .when()
+            .post("/admin/user/login")
+            .then()
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .extract();
     }
 
     @Test
     @DisplayName("관리자가 로그아웃한다")
     void adminLogout() {
+        User adminUser = userFixture.코인_운영자();
 
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/admin/user/logout")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
     }
 
     @Test
     @DisplayName("관리자 액세스 토큰 재발급")
     void adminRefresh() {
+        User adminUser = userFixture.코인_운영자();
+        String email = adminUser.getEmail();
+        String password = "1234";
 
+        String token = userFixture.getToken(adminUser);
+
+        var loginResponse = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "email" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(email, password))
+            .when()
+            .post("/admin/user/login")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract()
+            .response();
+
+        String refreshToken = loginResponse.jsonPath().getString("refresh_token");
+
+        var refreshResponse = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "refresh_token" : "%s"
+                }
+                """.formatted(refreshToken))
+            .when()
+            .post("/admin/user/refresh")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
     }
 
 
