@@ -283,7 +283,7 @@ class OwnerApiTest extends AcceptanceTest {
                                 .isEqualTo("https://static.koreatech.in/testimage.png");
                             softly.assertThat(owner.getUser().isAuthed()).isFalse();
                             softly.assertThat(owner.getUser().isDeleted()).isFalse();
-                            verify(ownerEventListener).onOwnerRegister(any());
+                            verify(ownerEventListener).onOwnerRegisterBySms(any());
                         }
                     );
                 }

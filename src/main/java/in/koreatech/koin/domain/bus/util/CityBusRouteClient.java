@@ -61,26 +61,32 @@ public class CityBusRouteClient {
         this.cityBusRouteCacheRepository = cityBusRouteCacheRepository;
     }
 
-    public Set<Long> getAvailableCityBus(String nodeId) {
-        Optional<CityBusRouteCache> routeCache = cityBusRouteCacheRepository.findById(nodeId);
-        if (routeCache.isEmpty()) {
+    public Set<Long> getAvailableCityBus(List<String> nodeIds) {
+        Set<Long> busNumbers = new HashSet<>();
+        nodeIds.forEach(nodeId -> {
+            Optional<CityBusRouteCache> routeCache = cityBusRouteCacheRepository.findById(nodeId);
+            routeCache.ifPresent(cityBusRouteCache -> busNumbers.addAll(cityBusRouteCache.getBusNumbers()));
+        });
+
+        if (busNumbers.isEmpty()) {
             return new HashSet<>(AVAILABLE_CITY_BUS);
         }
 
-        return routeCache.get().getBusNumbers();
+        return busNumbers;
     }
 
     @Transactional
     public void storeCityBusRoute() {
-        cityBusRouteCacheRepository.saveAll(
-            BusStationNode.getNodeIds().stream()
-                .map(node ->
-                    CityBusRouteCache.of(
-                        node,
-                        Set.copyOf(extractBusRouteInfo(getOpenApiResponse(node)))
-                    )
-                ).toList()
-        );
+        List<String> nodeIds = BusStationNode.getNodeIds();
+
+        for (String node : nodeIds) {
+            cityBusRouteCacheRepository.save(
+                CityBusRouteCache.of(
+                    node,
+                    Set.copyOf(extractBusRouteInfo(getOpenApiResponse(node)))
+                )
+            );
+        }
     }
 
     public String getOpenApiResponse(String nodeId) {
