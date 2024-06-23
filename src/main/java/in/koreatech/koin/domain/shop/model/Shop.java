@@ -231,4 +231,8 @@ public class Shop extends BaseEntity {
         }
         return !start.isAfter(now) && !end.isBefore(now);
     }
+
+    public void updateOwner(Owner owner) {
+        this.owner = owner;
+    }
 }

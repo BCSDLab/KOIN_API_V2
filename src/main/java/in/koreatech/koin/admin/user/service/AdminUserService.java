@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,11 +21,13 @@ import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
+import in.koreatech.koin.admin.user.repository.AdminOwnerShopRedisRepository;
 import in.koreatech.koin.admin.user.repository.AdminShopRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
 import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
@@ -43,6 +46,7 @@ public class AdminUserService {
 
     private final AdminStudentRepository adminStudentRepository;
     private final AdminOwnerRepository adminOwnerRepository;
+    private final AdminOwnerShopRedisRepository adminOwnerShopRedisRepository;
     private final AdminUserRepository adminUserRepository;
     private final AdminShopRepository adminShopRepository;
     private final PasswordEncoder passwordEncoder;
@@ -50,6 +54,12 @@ public class AdminUserService {
     @Transactional
     public void allowOwnerPermission(Integer id) {
         Owner owner = adminOwnerRepository.getById(id);
+        Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(id);
+        if (ownerShop.isPresent()) {
+            Integer shopId = ownerShop.get().getShopId();
+            Shop shop = adminShopRepository.getById(shopId);
+            shop.updateOwner(owner);
+        }
         owner.getUser().auth();
         owner.setGrantShop(true);
     }
