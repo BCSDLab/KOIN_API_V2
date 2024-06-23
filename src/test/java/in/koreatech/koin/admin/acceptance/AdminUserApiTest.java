@@ -55,7 +55,7 @@ public class AdminUserApiTest extends AcceptanceTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
-    @DisplayName("관리자가 특정 학생 리스트를 파라미터가 없이 조회한다.(페이지네이션)")
+    @DisplayName("관리자가 학생 리스트를 파라미터가 없이 조회한다.(페이지네이션)")
     void getStudentsWithoutParameterAdmin() {
         Student student = userFixture.준호_학생();
         User adminUser = userFixture.코인_운영자();
@@ -94,7 +94,7 @@ public class AdminUserApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("관리자가 특정 학생 리스트를 페이지 수와 limit으로 조회한다.(페이지네이션)")
+    @DisplayName("관리자가 학생 리스트를 페이지 수와 limit으로 조회한다.(페이지네이션)")
     void getStudentsWithPageAndLimitAdmin() {
         for (int i = 0; i < 11; i++) {
             Student student = Student.builder()
@@ -159,7 +159,7 @@ public class AdminUserApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("관리자가 특정 학생 리스트를 닉네임으로 조회한다.(페이지네이션)")
+    @DisplayName("관리자가 학생 리스트를 닉네임으로 조회한다.(페이지네이션)")
     void getStudentsWithNicknameAdmin() {
         Student student1 = userFixture.성빈_학생();
         Student student2 = userFixture.준호_학생();
@@ -264,7 +264,7 @@ public class AdminUserApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("관리자 액세스 토큰 재발급")
+    @DisplayName("관리자가 액세스 토큰 재발급 한다")
     void adminRefresh() {
         User adminUser = userFixture.코인_운영자();
         String email = adminUser.getEmail();
