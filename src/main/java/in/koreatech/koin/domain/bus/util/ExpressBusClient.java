@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -32,20 +33,23 @@ import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 
 @Transactional(readOnly = true)
-public abstract class ExpressBusClient {
+public abstract class ExpressBusClient<T> {
 
     protected final VersionRepository versionRepository;
     protected final ExpressBusCacheRepository expressBusCacheRepository;
+    protected final RestTemplate restTemplate;
     protected final Gson gson;
     protected final Clock clock;
 
     public ExpressBusClient(
         VersionRepository versionRepository,
+        RestTemplate restTemplate,
         Gson gson,
         Clock clock,
         ExpressBusCacheRepository expressBusCacheRepository
     ) {
         this.versionRepository = versionRepository;
+        this.restTemplate = restTemplate;
         this.gson = gson;
         this.clock = clock;
         this.expressBusCacheRepository = expressBusCacheRepository;
@@ -127,9 +131,9 @@ public abstract class ExpressBusClient {
 
     public abstract void storeRemainTimeByOpenApi();
 
-    protected abstract JsonObject getOpenApiResponse(BusStation depart, BusStation arrival);
+    protected abstract T getOpenApiResponse(BusStation depart, BusStation arrival);
 
-    protected abstract URL getBusApiURL(BusStation depart, BusStation arrival);
+    protected abstract String getBusApiURL(BusStation depart, BusStation arrival);
 
-    protected abstract List<?> extractBusArrivalInfo(JsonObject jsonObject);
+    protected abstract List<?> extractBusArrivalInfo(T ExpressBusResponse);
 }
