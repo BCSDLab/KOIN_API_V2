@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -45,6 +46,7 @@ public record CreateMenuRequest(
     String name,
 
     @Schema(description = "단일 메뉴가 아닐때의 옵션에 따른 가격 리스트 / 단일 메뉴일 경우 null", requiredMode = NOT_REQUIRED)
+    @Valid
     List<InnerOptionPrice> optionPrices,
 
     @Schema(description = "단일 메뉴일때의 가격 / 단일 메뉴가 아닐 경우 null", requiredMode = NOT_REQUIRED)

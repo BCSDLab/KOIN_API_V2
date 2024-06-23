@@ -14,6 +14,7 @@ import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
 import in.koreatech.koin.global.validation.ValidDayOfWeek;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -58,6 +59,7 @@ public record OwnerShopsRequest(
     @Schema(description = "요일별 운영 시간과 휴무 여부", requiredMode = REQUIRED)
     @Size(min = 7, max = 7, message = "The list must contain exactly 7 elements.")
     @NotNull
+    @Valid
     List<InnerOpenRequest> open,
 
     @Schema(description = "계좌 이체 가능 여부", example = "true", requiredMode = REQUIRED)

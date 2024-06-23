@@ -1,11 +1,14 @@
 package in.koreatech.koin.global.validation;
 
-import java.util.List;
+import java.util.Set;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 public class DayOfWeekValidator implements ConstraintValidator<ValidDayOfWeek, String> {
+    private final Set<String> validDays = Set.of(
+        "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"
+    );
 
     @Override
     public void initialize(ValidDayOfWeek constraintAnnotation) {
@@ -13,21 +16,10 @@ public class DayOfWeekValidator implements ConstraintValidator<ValidDayOfWeek, S
     }
 
     @Override
-    public boolean isValid(String inputDayOfWeek, ConstraintValidatorContext context) {
-        List<String> dayOfWeeks = List.of(
-            "MONDAY",
-            "TUESDAY",
-            "WEDNESDAY",
-            "THURSDAY",
-            "FRIDAY",
-            "SATURDAY",
-            "SUNDAY"
-        );
-        for (String dayOfWeek: dayOfWeeks) {
-            if (dayOfWeek.equals(inputDayOfWeek)) {
-                return true;
-            }
+    public boolean isValid(String dayOfWeek, ConstraintValidatorContext context) {
+        if (dayOfWeek == null) {
+            return false;
         }
-        return false;
+        return validDays.contains(dayOfWeek.toUpperCase());
     }
 }

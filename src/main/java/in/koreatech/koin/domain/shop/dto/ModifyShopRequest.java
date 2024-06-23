@@ -16,6 +16,7 @@ import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
 import in.koreatech.koin.global.validation.ValidDayOfWeek;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -56,6 +57,7 @@ public record ModifyShopRequest(
     String name,
 
     @Schema(description = "요일별 휴무 여부 및 장사 시간", requiredMode = NOT_REQUIRED)
+    @Valid
     List<InnerShopOpen> open,
 
     @Schema(example = "true", description = "계좌 이체 가능 여부", requiredMode = REQUIRED)

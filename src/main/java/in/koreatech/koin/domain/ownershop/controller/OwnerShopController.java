@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
+@Validated
 public class OwnerShopController implements OwnerShopApi {
 
     private final OwnerShopService ownerShopService;
@@ -153,7 +155,7 @@ public class OwnerShopController implements OwnerShopApi {
     public ResponseEntity<Void> modifyOwnerShop(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable("id") Integer shopId,
-        @RequestBody @Valid ModifyShopRequest modifyShopRequest
+        @Valid @RequestBody ModifyShopRequest modifyShopRequest
     ) {
         ownerShopService.modifyShop(ownerId, shopId, modifyShopRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
