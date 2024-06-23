@@ -14,6 +14,7 @@ import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
 import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
+import in.koreatech.koin.global.validation.ValidDayOfWeek;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -75,6 +76,7 @@ public record ModifyShopRequest(
         @Schema(example = "MONDAY", description = """
             요일 = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
             """, requiredMode = REQUIRED)
+        @ValidDayOfWeek
         String dayOfWeek,
 
         @Schema(example = "false", description = "휴무 여부", requiredMode = REQUIRED)
