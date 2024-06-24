@@ -70,10 +70,6 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
                 if (depart == arrival || depart.equals(BusStation.STATION) || arrival.equals(BusStation.STATION)) {
                     continue;
                 }
-                if (depart.equals(BusStation.KOREATECH)) {
-                    continue;
-                }
-
                 PublicOpenApiResponse openApiResponse;
                 try {
                     openApiResponse = getOpenApiResponse(depart, arrival);
@@ -109,42 +105,44 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
 
     @Override
     protected PublicOpenApiResponse getOpenApiResponse(BusStation depart, BusStation arrival) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Accept", "*/*");
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Accept", "*/*");
 
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        UriComponents uri = UriComponentsBuilder.fromHttpUrl(getBusApiURL(depart, arrival)).build();
-        ResponseEntity<PublicOpenApiResponse> response = restTemplate.exchange(
-            uri.toString(),
-            HttpMethod.GET,
-            entity,
-            PublicOpenApiResponse.class
-        );
-        System.out.println(uri);
-        System.out.println("버스 응답 결과(DTO)!!: ");
-        System.out.println(response.getBody());
-        return response.getBody();
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            UriComponents uri = getBusApiURL(depart, arrival);
+            ResponseEntity<PublicOpenApiResponse> response = restTemplate.exchange(
+                uri.toString(),
+                HttpMethod.GET,
+                entity,
+                PublicOpenApiResponse.class
+            );
+            return response.getBody();
+        } catch (Exception ignore) {
+            throw BusOpenApiException.withDetail("depart: " + depart + " arrival: " + arrival);
+        }
     }
 
     @Override
-    protected String getBusApiURL(BusStation depart, BusStation arrival) {
+    protected UriComponents getBusApiURL(BusStation depart, BusStation arrival) {
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
-        StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL); /*URL*/
+        LocalDateTime yesterday = LocalDateTime.now(clock).minusDays(1);
+        UriComponents uri = null;
         try {
-            urlBuilder.append("?" + encode("serviceKey", UTF_8) + "=" + encode(openApiKey, UTF_8));
-            urlBuilder.append("&" + encode("numOfRows", UTF_8) + "=" + encode("30", UTF_8));
-            urlBuilder.append("&" + encode("_type", UTF_8) + "=" + encode("json", UTF_8));
-            urlBuilder.append("&" + encode("depTerminalId", UTF_8) + "=" + encode(departNode.getStationId(), UTF_8));
-            urlBuilder.append("&" + encode("arrTerminalId", UTF_8) + "=" + encode(arrivalNode.getStationId(), UTF_8));
-            urlBuilder.append("&" + encode("depPlandTime", UTF_8) + "="
-                    + "20240623"
-                //encode(LocalDateTime.now(clock).format(ofPattern("yyyyMMdd")), UTF_8)
-            );
-            return urlBuilder.toString();
+            uri = UriComponentsBuilder
+                .fromHttpUrl(OPEN_API_URL)
+                .queryParam("serviceKey", encode(openApiKey, UTF_8))
+                .queryParam("numOfRows", 30)
+                .queryParam("_type", "json")
+                .queryParam("depTerminalId", departNode.getStationId())
+                .queryParam("arrTerminalId", arrivalNode.getStationId())
+                .queryParam("depPlandTime", yesterday.format(ofPattern("yyyyMMdd")))
+                .build();
+            return uri;
         } catch (Exception e) {
-            throw new KoinIllegalStateException("시외버스 API URL 생성중 문제가 발생했습니다.", "uri:" + urlBuilder);
+            throw new KoinIllegalStateException("시외버스 API URL 생성중 문제가 발생했습니다.");
         }
     }
 

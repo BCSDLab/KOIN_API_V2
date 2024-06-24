@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.bus.util;
 
-import static java.net.URLEncoder.encode;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
 import java.time.Clock;
@@ -107,39 +105,45 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
 
     @Override
     protected TmoneyOpenApiResponse getOpenApiResponse(BusStation depart, BusStation arrival) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("x-Gateway-APIKey", openApiKey);
-        headers.set("Accept", "*/*");
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("x-Gateway-APIKey", openApiKey);
+            headers.set("Accept", "*/*");
 
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        UriComponents uri = UriComponentsBuilder.fromHttpUrl(getBusApiURL(depart, arrival)).build();
-
-        ResponseEntity<TmoneyOpenApiResponse> response = restTemplate.exchange(
-            uri.toString(),
-            HttpMethod.GET,
-            entity,
-            TmoneyOpenApiResponse.class
-        );
-        return response.getBody();
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            UriComponents uri = getBusApiURL(depart, arrival);
+            ResponseEntity<TmoneyOpenApiResponse> response = restTemplate.exchange(
+                uri.toString(),
+                HttpMethod.GET,
+                entity,
+                TmoneyOpenApiResponse.class
+            );
+            return response.getBody();
+        } catch (Exception ignore) {
+            throw BusOpenApiException.withDetail("depart: " + depart + " arrival: " + arrival);
+        }
     }
 
     @Override
-    protected String getBusApiURL(BusStation depart, BusStation arrival) {
+    protected UriComponents getBusApiURL(BusStation depart, BusStation arrival) {
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
         LocalDateTime today = LocalDateTime.now(clock);
-        StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL); /*URL*/
+        UriComponents uri = null;
         try {
-            urlBuilder.append(String.format(
-                "/%s/0000/%s/%s/9/0",
-                encode(today.format(ofPattern("yyyyMMdd")), UTF_8),
-                encode(departNode.getTmoneyStationId(), UTF_8),
-                encode(arrivalNode.getTmoneyStationId(), UTF_8)
-            ));
-            return urlBuilder.toString();
+            uri = UriComponentsBuilder
+                .fromHttpUrl(OPEN_API_URL)
+                .pathSegment(today.format(ofPattern("yyyyMMdd")))
+                .pathSegment("0000")
+                .pathSegment(departNode.getTmoneyStationId())
+                .pathSegment(arrivalNode.getTmoneyStationId())
+                .pathSegment("9")
+                .pathSegment("0")
+                .build();
+            return uri;
         } catch (Exception e) {
-            throw new KoinIllegalStateException("시외버스 API URL 생성중 문제가 발생했습니다.", "uri:" + urlBuilder);
+            throw new KoinIllegalStateException("시외버스 API URL 생성중 문제가 발생했습니다.");
         }
     }
 }
