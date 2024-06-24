@@ -71,6 +71,7 @@ public record OwnerRegisterRequest(
             .build();
         Owner owner = Owner.builder()
             .user(user)
+            .account(phoneNumber)
             .companyRegistrationNumber(companyNumber)
             .attachments(new ArrayList<>())
             .grantShop(false)

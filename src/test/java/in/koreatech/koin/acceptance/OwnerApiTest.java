@@ -18,9 +18,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
-import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
+import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -703,5 +703,117 @@ class OwnerApiTest extends AcceptanceTest {
 
         // then
         assertThat(userRepository.findById(owner.getId())).isNotPresent();
+    }
+
+    @Test
+    @DisplayName("사업자 등록번호 중복 검증 - 존재하지 않으면 200")
+    void checkDuplicateCompanyNumber() {
+        // when & then
+        RestAssured
+            .given()
+            .queryParam("company_number", "123-45-67190")
+            .when()
+            .get("/owners/exists/company-number")
+            .then()
+            .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    @DisplayName("사업자 등록번호 중복 검증 - 이미 존재하면 409")
+    void checkDuplicateCompanyNumberExists() {
+        // given
+        Owner owner = userFixture.현수_사장님();
+        // when & then
+        var response = RestAssured
+            .given()
+            .queryParam("company_number", owner.getCompanyRegistrationNumber())
+            .when()
+            .get("/owners/exists/company-number")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .extract();
+
+        assertThat(response.body().jsonPath().getString("message"))
+            .isEqualTo("이미 존재하는 사업자 등록번호입니다.");
+    }
+
+    @Test
+    @DisplayName("사업자 등록번호 중복 검증 - 값이 존재하지 않으면 400")
+    void checkDuplicateCompanyNumberNotAccept() {
+        // when & then
+        RestAssured
+            .given()
+            .when()
+            .get("/owners/exists/company-number")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("사업자 등록번호 중복 검증 - 값이 올바르지 않으면 400")
+    void checkDuplicateCompanyNumberNotMatchedPattern() {
+        // when & then
+        RestAssured
+            .given()
+            .queryParam("company_number", "1234567890")
+            .when()
+            .get("/owners/exists/company-number")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("사장님 아이디(전화번호) 중복 검증 - 존재하지 않으면 200")
+    void checkExistsPhoneNumber() {
+        RestAssured
+            .given()
+            .param("account", "01012345678")
+            .when()
+            .get("/owners/exists/account")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("사장님 아이디(전화번호) 중복 검증 - 이미 존재하면 409")
+    void checkExistsPhoneNumberConflict() {
+        Owner owner = userFixture.현수_사장님();
+        var response = RestAssured
+            .given()
+            .param("account", owner.getAccount())
+            .when()
+            .get("/owners/exists/account")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .extract();
+
+        assertThat(response.body().jsonPath().getString("message"))
+            .contains("이미 존재하는 휴대폰번호입니다.");
+    }
+
+    @Test
+    @DisplayName("사장님 아이디(전화번호) 중복 검증 - 파라미터에 전화번호를 포함하지 않으면 400")
+    void checkExistsPhoneNumberNull() {
+        RestAssured
+            .when()
+            .get("/owners/exists/account")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("사장님 아이디(전화번호) 중복 검증 - 잘못된 전화번호 형식이면 400")
+    void checkExistsPhoneNumberWrongFormat() {
+        String phoneNumber = "123123123123";
+        RestAssured
+            .given()
+            .param("phone_number", phoneNumber)
+            .when()
+            .get("/owners/exists/account")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
     }
 }

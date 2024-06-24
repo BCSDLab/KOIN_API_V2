@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.owner.dto.CompanyNumberCheckRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerAccountCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
@@ -114,7 +116,7 @@ public class OwnerService {
     @Transactional
     public void requestSignUpSmsVerification(VerifySmsRequest request) {
         userRepository.findByPhoneNumberAndUserType(request.phoneNumber(), OWNER).ifPresent(user -> {
-            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
+            throw DuplicationPhoneNumberException.withDetail("account: " + request.phoneNumber());
         });
         sendCertificationSms(request.phoneNumber());
     }
@@ -141,6 +143,9 @@ public class OwnerService {
         if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
             throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
         }
+        if (ownerRepository.findByAccount(request.phoneNumber()).isPresent()) {
+            throw DuplicationPhoneNumberException.withDetail("account: " + request.phoneNumber());
+        }
         Owner owner = request.toOwner(passwordEncoder);
         Owner saved = ownerRepository.save(owner);
         OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(owner.getId());
@@ -155,7 +160,7 @@ public class OwnerService {
     @Transactional
     public void registerByPhone(OwnerRegisterByPhoneRequest request) {
         if (userRepository.findByPhoneNumberAndUserType(request.phoneNumber(), OWNER).isPresent()) {
-            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
+            throw DuplicationPhoneNumberException.withDetail("account: " + request.phoneNumber());
         }
         if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
             throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
@@ -246,5 +251,17 @@ public class OwnerService {
             throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
         ownerVerificationStatusRepository.deleteById(key);
+    }
+
+    public void checkCompanyNumber(CompanyNumberCheckRequest request) {
+        if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
+            throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
+        }
+    }
+
+    public void checkExistsAccount(OwnerAccountCheckExistsRequest request) {
+        ownerRepository.findByAccount(request.account()).ifPresent(user -> {
+            throw DuplicationPhoneNumberException.withDetail("account: " + request.account());
+        });
     }
 }

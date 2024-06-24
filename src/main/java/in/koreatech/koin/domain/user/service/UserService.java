@@ -28,7 +28,6 @@ import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
