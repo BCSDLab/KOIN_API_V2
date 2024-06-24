@@ -41,7 +41,7 @@ public enum BusStation {
         return BusDirection.NORTH;
     }
 
-    public String getNodeId(BusDirection direction) {
+    public List<String> getNodeId(BusDirection direction) {
         return node.getId(direction);
     }
 

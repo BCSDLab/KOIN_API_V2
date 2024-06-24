@@ -130,4 +130,41 @@ class AdminLandApiTest extends AcceptanceTest {
             softly.assertThat(savedLand.isOptRefrigerator()).as("opt_refrigerator가 누락될 경우 false 반환여부").isEqualTo(false);
         });
     }
+
+    @Test
+    @DisplayName("관리자 권한으로 복덕방을 삭제한다.")
+    void deleteLand() {
+        // 복덕방 생성
+        Land request = Land.builder()
+            .internalName("금실타운")
+            .name("금실타운")
+            .roomType("원룸")
+            .latitude("37.555")
+            .longitude("126.555")
+            .monthlyFee("100")
+            .charterFee("1000")
+            .build();
+
+        Land savedLand = adminLandRepository.save(request);
+        Integer landId = savedLand.getId();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .delete("/admin/lands/{id}", landId)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Land deletedLand = adminLandRepository.getById(landId);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(deletedLand.getName()).isEqualTo("금실타운");
+            softly.assertThat(deletedLand.isDeleted()).isEqualTo(true);
+        });
+    }
 }

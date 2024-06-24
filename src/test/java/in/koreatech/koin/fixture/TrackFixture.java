@@ -37,4 +37,13 @@ public class TrackFixture {
                 .build()
         );
     }
+
+    public Track ai() {
+        return trackRepository.save(
+            Track.builder()
+                .name("AI")
+                .isDeleted(true)
+                .build()
+        );
+    }
 }

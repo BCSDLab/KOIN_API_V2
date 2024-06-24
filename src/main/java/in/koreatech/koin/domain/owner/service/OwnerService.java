@@ -35,6 +35,7 @@ import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberExceptio
 import in.koreatech.koin.domain.owner.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
+import in.koreatech.koin.domain.owner.model.OwnerRegisterBySmsEvent;
 import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.owner.model.OwnerSmsRequestEvent;
@@ -172,7 +173,7 @@ public class OwnerService {
             ownerShopBuilder.shopId(shop.getId());
         }
         ownerShopRedisRepository.save(ownerShopBuilder.build());
-        eventPublisher.publishEvent(new OwnerRegisterEvent(saved));
+        eventPublisher.publishEvent(new OwnerRegisterBySmsEvent(saved));
     }
 
     @Transactional

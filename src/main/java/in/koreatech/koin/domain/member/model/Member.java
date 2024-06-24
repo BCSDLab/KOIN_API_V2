@@ -85,6 +85,10 @@ public class Member extends BaseEntity {
         this.isDeleted = true;
     }
 
+    public void undelete() {
+        this.isDeleted = false;
+    }
+
     public void update(String name, String studentNumber, String position, String email, String imageUrl) {
         this.name = name;
         this.studentNumber = studentNumber;

@@ -23,4 +23,11 @@ public interface AdminLandRepository extends Repository<Land, Integer> {
         return findByName(name).orElseThrow(() -> LandNotFoundException.withDetail("name: " + name));
     }
 
+    Optional<Land> findById(Integer id);
+
+    default Land getById(Integer id) {
+        return findById(id)
+            .orElseThrow(() -> LandNotFoundException.withDetail("id: " + id));
+    }
+
 }
