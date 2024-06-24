@@ -9,15 +9,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.shop.dto.AdminCreateShopCategoryRequest;
 import in.koreatech.koin.admin.shop.dto.AdminCreateShopRequest;
-import in.koreatech.koin.admin.shop.dto.AdminCreateShopsCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyShopCategoryRequest;
 import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
-import in.koreatech.koin.admin.shop.dto.AdminModifyShopsCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.AdminShopCategoriesResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopCategoryResponse;
 import in.koreatech.koin.admin.shop.dto.AdminShopResponse;
-import in.koreatech.koin.admin.shop.dto.AdminShopsCategoriesResponse;
-import in.koreatech.koin.admin.shop.dto.AdminShopsCategoryResponse;
 import in.koreatech.koin.admin.shop.dto.AdminShopsResponse;
 import in.koreatech.koin.admin.shop.service.AdminShopService;
 import in.koreatech.koin.global.auth.Auth;
@@ -30,83 +32,99 @@ public class AdminShopController implements AdminShopApi {
 
     private final AdminShopService adminShopService;
 
-    @GetMapping("/shops")
+    @GetMapping("/admin/shops")
     public ResponseEntity<AdminShopsResponse> getShops(
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
+        @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return null;
+        AdminShopsResponse response = adminShopService.getShops(page, limit, isDeleted);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/shops/{id}")
+    @GetMapping("/admin/shops/{id}")
     public ResponseEntity<AdminShopResponse> getShop(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return null;
+        AdminShopResponse response = adminShopService.getShop(id);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/shops/categories")
-    public ResponseEntity<AdminShopsCategoriesResponse> getShopsCategories(
+    @GetMapping("/admin/shops/categories")
+    public ResponseEntity<AdminShopCategoriesResponse> getShopCategories(
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
+        @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return null;
+        AdminShopCategoriesResponse response = adminShopService.getShopCategories(page, limit, isDeleted);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/shops/categories/{id}")
-    public ResponseEntity<AdminShopsCategoryResponse> getShopsCategory(
+    @GetMapping("/admin/shops/categories/{id}")
+    public ResponseEntity<AdminShopCategoryResponse> getShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return null;
+        AdminShopCategoryResponse response = adminShopService.getShopCategory(id);
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/shops")
+    @PostMapping("/admin/shops")
     public ResponseEntity<Void> createShop(
-        AdminCreateShopRequest adminCreateShopRequest,
+        @RequestBody AdminCreateShopRequest adminCreateShopRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return null;
+        adminShopService.createShop(adminCreateShopRequest);
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/shops/categories")
-    public ResponseEntity<Void> createShopsCategory(
-        AdminCreateShopsCategoryRequest adminCreateShopsCategoryRequest,
+    @PostMapping("/admin/shops/categories")
+    public ResponseEntity<Void> createShopCategory(
+        @RequestBody AdminCreateShopCategoryRequest adminCreateShopCategoryRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return null;
+        adminShopService.createShopCategory(adminCreateShopCategoryRequest);
+        return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/shops/{id}")
+    @PutMapping("/admin/shops/{id}")
     public ResponseEntity<Void> modifyShop(
         @Parameter(in = PATH) @PathVariable Integer id,
-        AdminModifyShopRequest adminModifyShopRequest,
+        @RequestBody AdminModifyShopRequest adminModifyShopRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return null;
+        adminShopService.modifyShop(id, adminModifyShopRequest);
+        return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/shops/categories/{id}")
-    public ResponseEntity<Void> modifyShopsCategory(
+    @PutMapping("/admin/shops/categories/{id}")
+    public ResponseEntity<Void> modifyShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
-        AdminModifyShopsCategoryRequest adminModifyShopsCategoryRequest,
+        @RequestBody AdminModifyShopCategoryRequest adminModifyShopCategoryRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return null;
+        adminShopService.modifyShopCategory(id, adminModifyShopCategoryRequest);
+        return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/shops/{id}")
+    @DeleteMapping("/admin/shops/{id}")
     public ResponseEntity<Void> deleteShop(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return null;
+        adminShopService.deleteShop(id);
+        return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/shops/categories/{id}")
-    public ResponseEntity<Void> deleteShopsCategory(
+    @DeleteMapping("/admin/shops/categories/{id}")
+    public ResponseEntity<Void> deleteShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        return null;
+        adminShopService.deleteShopCategory(id);
+        return ResponseEntity.ok().build();
     }
 }

@@ -12,7 +12,7 @@ import in.koreatech.koin.domain.shop.model.ShopCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record AdminShopsCategoriesResponse(
+public record AdminShopCategoriesResponse(
     @Schema(description = "총 상점 카테고리 수", example = "57", requiredMode = REQUIRED)
     Integer totalCount,
 
@@ -29,8 +29,8 @@ public record AdminShopsCategoriesResponse(
     List<InnerShopCategory> categories
 ) {
 
-    public static AdminShopsCategoriesResponse from(List<ShopCategory> shopCategories, int currentPage, int totalPage) {
-        return new AdminShopsCategoriesResponse(
+    public static AdminShopCategoriesResponse of(List<ShopCategory> shopCategories, int currentPage, int totalPage) {
+        return new AdminShopCategoriesResponse(
             shopCategories.size(),
             shopCategories.size(),
             totalPage,

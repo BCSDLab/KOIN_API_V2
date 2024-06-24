@@ -2,12 +2,14 @@ package in.koreatech.koin.admin.shop.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.constraints.NotBlank;
 
-public record AdminModifyShopsCategoryRequest(
+public record AdminModifyShopCategoryRequest(
     @Schema(description = "이미지 URL", example = "https://static.koreatech.in/test.png", requiredMode = RequiredMode.REQUIRED)
     String imageUrl,
 
     @Schema(description = "이름", example = "햄버거", requiredMode = RequiredMode.REQUIRED)
+    @NotBlank(message = "카테고리명은 필수입니다.")
     String name
 ) {
 

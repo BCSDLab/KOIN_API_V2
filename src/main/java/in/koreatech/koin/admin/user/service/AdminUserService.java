@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
 import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
@@ -17,7 +18,6 @@ import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
-import in.koreatech.koin.admin.user.repository.AdminShopRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;

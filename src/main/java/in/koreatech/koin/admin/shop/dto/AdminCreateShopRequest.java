@@ -70,6 +70,19 @@ public record AdminCreateShopRequest(
     String phone
 ) {
 
+    public Shop toShop() {
+        return Shop.builder()
+            .address(address)
+            .delivery(delivery)
+            .deliveryPrice(deliveryPrice)
+            .description(description)
+            .name(name)
+            .payBank(payBank)
+            .payCard(payCard)
+            .phone(phone)
+            .build();
+    }
+
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerShopOpen(
         @Schema(description = """

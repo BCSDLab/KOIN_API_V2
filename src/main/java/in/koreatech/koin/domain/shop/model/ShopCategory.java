@@ -55,4 +55,13 @@ public class ShopCategory extends BaseEntity {
         this.imageUrl = imageUrl;
         this.isDeleted = isDeleted;
     }
+
+    public void modifyShopCategory(String name, String imageUrl) {
+        this.name = name;
+        this.imageUrl = imageUrl;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
 }
