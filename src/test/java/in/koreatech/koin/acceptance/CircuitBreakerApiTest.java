@@ -56,10 +56,8 @@ class CircuitBreakerApiTest extends AcceptanceTest {
                 testCircuitBreakerClient.testMethod();
             } catch (CallNotPermittedException e) {
                 // OPEN or HALF_OPEN
-                System.out.println("엥");
             } catch (RuntimeException e) {
                 // CLOSED or Last Try
-                System.out.println("엥엥");
             }
             System.out.println(circuitBreaker.getState());
         }
