@@ -292,7 +292,7 @@ public interface OwnerApi {
     )
     @Operation(summary = "사업자 등록번호 중복 검증")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/owners/check/company-number")
+    @GetMapping("/owners/exists/company-number")
     ResponseEntity<Void> checkCompanyNumber(
         @ModelAttribute("company_number")
         @Valid CompanyNumberCheckRequest request
@@ -306,7 +306,7 @@ public interface OwnerApi {
         }
     )
     @Operation(summary = "전화번호 중복 체크")
-    @GetMapping("/owners/check/account")
+    @GetMapping("/owners/exists/account")
     ResponseEntity<Void> checkDuplicationOfPhoneNumber(
         @ModelAttribute("account")
         @Valid OwnerAccountCheckExistsRequest request

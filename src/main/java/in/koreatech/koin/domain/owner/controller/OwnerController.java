@@ -154,7 +154,7 @@ public class OwnerController implements OwnerApi {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/owners/check/company-number")
+    @GetMapping("/owners/exists/company-number")
     public ResponseEntity<Void> checkCompanyNumber(
         @ModelAttribute("company_number")
         @Valid CompanyNumberCheckRequest request
@@ -163,7 +163,7 @@ public class OwnerController implements OwnerApi {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/owners/check/account")
+    @GetMapping("/owners/exists/account")
     public ResponseEntity<Void> checkDuplicationOfPhoneNumber(
         @ModelAttribute("account")
         @Valid OwnerAccountCheckExistsRequest request

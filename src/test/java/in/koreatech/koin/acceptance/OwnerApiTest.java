@@ -713,7 +713,7 @@ class OwnerApiTest extends AcceptanceTest {
             .given()
             .queryParam("company_number", "123-45-67190")
             .when()
-            .get("/owners/check/company-number")
+            .get("/owners/exists/company-number")
             .then()
             .statusCode(HttpStatus.OK.value());
     }
@@ -728,7 +728,7 @@ class OwnerApiTest extends AcceptanceTest {
             .given()
             .queryParam("company_number", owner.getCompanyRegistrationNumber())
             .when()
-            .get("/owners/check/company-number")
+            .get("/owners/exists/company-number")
             .then()
             .statusCode(HttpStatus.CONFLICT.value())
             .extract();
@@ -744,7 +744,7 @@ class OwnerApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .when()
-            .get("/owners/check/company-number")
+            .get("/owners/exists/company-number")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
@@ -757,7 +757,7 @@ class OwnerApiTest extends AcceptanceTest {
             .given()
             .queryParam("company_number", "1234567890")
             .when()
-            .get("/owners/check/company-number")
+            .get("/owners/exists/company-number")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
@@ -769,7 +769,7 @@ class OwnerApiTest extends AcceptanceTest {
             .given()
             .param("account", "01012345678")
             .when()
-            .get("/owners/check/account")
+            .get("/owners/exists/account")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -783,7 +783,7 @@ class OwnerApiTest extends AcceptanceTest {
             .given()
             .param("account", owner.getAccount())
             .when()
-            .get("/owners/check/account")
+            .get("/owners/exists/account")
             .then()
             .statusCode(HttpStatus.CONFLICT.value())
             .extract();
@@ -797,7 +797,7 @@ class OwnerApiTest extends AcceptanceTest {
     void checkExistsPhoneNumberNull() {
         RestAssured
             .when()
-            .get("/owners/check/account")
+            .get("/owners/exists/account")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
@@ -811,7 +811,7 @@ class OwnerApiTest extends AcceptanceTest {
             .given()
             .param("phone_number", phoneNumber)
             .when()
-            .get("/owners/check/account")
+            .get("/owners/exists/account")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .extract();
