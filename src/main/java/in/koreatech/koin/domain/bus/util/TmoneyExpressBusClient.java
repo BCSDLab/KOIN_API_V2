@@ -130,7 +130,7 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
         LocalDateTime today = LocalDateTime.now(clock);
-        UriComponents uri = null;
+        UriComponents uri;
         try {
             uri = UriComponentsBuilder
                 .fromHttpUrl(OPEN_API_URL)

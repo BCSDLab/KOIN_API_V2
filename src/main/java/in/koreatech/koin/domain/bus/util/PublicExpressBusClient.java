@@ -129,7 +129,7 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
         LocalDateTime yesterday = LocalDateTime.now(clock).minusDays(1);
-        UriComponents uri = null;
+        UriComponents uri;
         try {
             uri = UriComponentsBuilder
                 .fromHttpUrl(OPEN_API_URL)
