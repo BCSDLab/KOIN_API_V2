@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.admin.land.dto.AdminLandResponse;
 import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
 
+import in.koreatech.koin.admin.member.dto.AdminMemberResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -73,6 +75,22 @@ public interface AdminLandApi {
     ResponseEntity<Void> deleteLand(
         @PathVariable("id") Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "복덕방 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/admin/lands/{id}")
+    ResponseEntity<AdminLandResponse> getLand(
+        @PathVariable("id") Integer id
+        //@Auth(permit = {ADMIN}) Integer adminId
     );
 
 }

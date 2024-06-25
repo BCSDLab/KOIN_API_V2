@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.land.dto.AdminLandResponse;
 import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
 import in.koreatech.koin.admin.land.service.AdminLandService;
+import in.koreatech.koin.admin.member.dto.AdminMemberResponse;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +53,14 @@ public class AdminLandController implements AdminLandApi {
     ) {
         adminLandService.deleteLand(id);
         return null;
+    }
+
+    @GetMapping("/admin/lands/{id}")
+    public ResponseEntity<AdminLandResponse> getLand(
+        @PathVariable("id") Integer id
+        //@Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        return ResponseEntity.ok().body(adminLandService.getLand(id));
     }
 
 }
