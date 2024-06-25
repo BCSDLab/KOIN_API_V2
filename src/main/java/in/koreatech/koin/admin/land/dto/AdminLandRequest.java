@@ -17,7 +17,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record AdminLandsRequest(
+public record AdminLandRequest(
     @Schema(description = "이름 - not null - 최대 255자", example = "금실타운", requiredMode = REQUIRED)
     @NotNull(message = "방이름은 필수입니다.")
     @Size(max = 255, message = "방이름의 최대 길이는 255자입니다.")
@@ -101,7 +101,28 @@ public record AdminLandsRequest(
     boolean optAirConditioner,
 
     @Schema(description = "샤워기 보유 여부 - null일경우 false로 요청됨", example = "true")
-    boolean optWasher
+    boolean optWasher,
+
+    @Schema(description = "침대 보유 여부", example = "false")
+    boolean optBed,
+
+    @Schema(description = "책상 보유 여부", example = "true")
+    boolean optDesk,
+
+    @Schema(description = "신발장 보유 여부", example = "true")
+    boolean optShoeCloset,
+
+    @Schema(description = "전자 도어락 보유 여부", example = "true")
+    boolean optElectronicDoorLocks,
+
+    @Schema(description = "비데 보유 여부", example = "false")
+    boolean optBidet,
+
+    @Schema(description = "베란다 보유 여부", example = "false")
+    boolean optVeranda,
+
+    @Schema(description = "엘리베이터 보유 여부", example = "true")
+    boolean optElevator
 ) {
     public Land toLand() {
         return Land.builder()
@@ -129,6 +150,13 @@ public record AdminLandsRequest(
             .optWaterPurifier(optWaterPurifier)
             .optAirConditioner(optAirConditioner)
             .optWasher(optWasher)
+            .optBed(optBed)
+            .optDesk(optDesk)
+            .optShoeCloset(optShoeCloset)
+            .optElectronicDoorLocks(optElectronicDoorLocks)
+            .optBidet(optBidet)
+            .optVeranda(optVeranda)
+            .optElevator(optElevator)
             .build();
     }
 }
