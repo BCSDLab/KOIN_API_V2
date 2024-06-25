@@ -21,6 +21,7 @@ import in.koreatech.koin.admin.land.repository.AdminLandRepository;
 import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.UserFixture;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -167,4 +168,68 @@ class AdminLandApiTest extends AcceptanceTest {
             softly.assertThat(deletedLand.isDeleted()).isEqualTo(true);
         });
     }
+
+    @Test
+    @DisplayName("특정 복덕방 정보를 조회한다.")
+    void getLand() {
+        // 복덕방 생성
+        Land request = Land.builder()
+            .internalName("금실타운")
+            .name("금실타운")
+            .roomType("원룸")
+            .latitude("37.555")
+            .longitude("126.555")
+            .monthlyFee("100")
+            .charterFee("1000")
+            .address("가전리 123")
+            .description("테스트용 복덕방")
+            .build();
+
+        Land savedLand = adminLandRepository.save(request);
+        Integer landId = savedLand.getId();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .get("/admin/lands/{id}", landId)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+            {
+                "id": %d,
+                "name": "금실타운",
+                "internal_name": "금실타운",
+                "size": null,
+                "room_type": "원룸",
+                "latitude": "37.555",
+                "longitude": "126.555",
+                "phone": null,
+                "image_urls": [],
+                "address": "가전리 123",
+                "description": "테스트용 복덕방",
+                "floor": null,
+                "deposit": null,
+                "monthly_fee": "100",
+                "charter_fee": "1000",
+                "management_fee": null,
+                "opt_closet": false,
+                "opt_tv": false,
+                "opt_microwave": false,
+                "opt_gas_range": false,
+                "opt_induction": false,
+                "opt_water_purifier": false,
+                "opt_air_conditioner": false,
+                "opt_washer": false,
+                "is_deleted": false
+            }
+            """, landId));
+    }
+
 }
