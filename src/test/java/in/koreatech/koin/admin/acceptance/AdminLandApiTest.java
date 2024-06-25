@@ -1,13 +1,9 @@
 package in.koreatech.koin.admin.acceptance;
 
-import static in.koreatech.koin.support.JsonAssertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
-
-import java.util.List;
-import java.util.Optional;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
@@ -16,10 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
 import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.LandFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
@@ -29,6 +25,9 @@ class AdminLandApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminLandRepository adminLandRepository;
+
+    @Autowired
+    private LandFixture landFixture;
 
     @Autowired
     private UserFixture userFixture;
@@ -231,5 +230,111 @@ class AdminLandApiTest extends AcceptanceTest {
             }
             """, landId));
     }
+
+    @Test
+    @DisplayName("관리자 권한으로 복덕방 정보를 수정한다.")
+    void updateLand() {
+        Land land = landFixture.신안빌();
+        Integer landId = land.getId();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        String jsonBody = """
+            {
+                "name": "신안빌 수정",
+                "internal_name": "신안빌",
+                "size": "110.0",
+                "room_type": "투룸",
+                "latitude": "37.556",
+                "longitude": "126.556",
+                "phone": "010-1234-5679",
+                "image_urls": ["http://newimage1.com", "http://newimage2.com"],
+                "address": "서울시 강남구 신사동",
+                "description": "신안빌 수정 설명",
+                "floor": 5,
+                "deposit": "50",
+                "monthly_fee": "150만원",
+                "charter_fee": "5000",
+                "management_fee": "150",
+                "opt_closet": true,
+                "opt_tv": false,
+                "opt_microwave": true,
+                "opt_gas_range": false,
+                "opt_induction": true,
+                "opt_water_purifier": false,
+                "opt_air_conditioner": true,
+                "opt_washer": true
+            }
+            """;
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType("application/json")
+            .body(jsonBody)
+            .when()
+            .put("/admin/lands/{id}", landId)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Land updatedLand = adminLandRepository.getById(landId);
+
+        assertSoftly(softly -> {
+            softly.assertThat(updatedLand.getName()).isEqualTo("신안빌 수정");
+            softly.assertThat(updatedLand.getInternalName()).isEqualTo("신안빌");
+            softly.assertThat(updatedLand.getSize()).isEqualTo("110.0");
+            softly.assertThat(updatedLand.getRoomType()).isEqualTo("투룸");
+            softly.assertThat(updatedLand.getLatitude()).isEqualTo(37.556);
+            softly.assertThat(updatedLand.getLongitude()).isEqualTo(126.556);
+            softly.assertThat(updatedLand.getPhone()).isEqualTo("010-1234-5679");
+            softly.assertThat(updatedLand.getImageUrls()).containsAnyOf("http://newimage1.com", "http://newimage2.com");
+            softly.assertThat(updatedLand.getAddress()).isEqualTo("서울시 강남구 신사동");
+            softly.assertThat(updatedLand.getDescription()).isEqualTo("신안빌 수정 설명");
+            softly.assertThat(updatedLand.getFloor()).isEqualTo(5);
+            softly.assertThat(updatedLand.getDeposit()).isEqualTo("50");
+            softly.assertThat(updatedLand.getMonthlyFee()).isEqualTo("150만원");
+            softly.assertThat(updatedLand.getCharterFee()).isEqualTo("5000");
+            softly.assertThat(updatedLand.getManagementFee()).isEqualTo("150");
+            softly.assertThat(updatedLand.isOptCloset()).isTrue();
+            softly.assertThat(updatedLand.isOptTv()).isFalse();
+            softly.assertThat(updatedLand.isOptMicrowave()).isTrue();
+            softly.assertThat(updatedLand.isOptGasRange()).isFalse();
+            softly.assertThat(updatedLand.isOptInduction()).isTrue();
+            softly.assertThat(updatedLand.isOptWaterPurifier()).isFalse();
+            softly.assertThat(updatedLand.isOptAirConditioner()).isTrue();
+            softly.assertThat(updatedLand.isOptWasher()).isTrue();
+            softly.assertThat(updatedLand.isDeleted()).isEqualTo(false);
+        });
+    }
+
+    @Test
+    @DisplayName("관리자 권한으로 복덕방 삭제를 취소한다.")
+    void undeleteLand() {
+        Land deletedLand = landFixture.삭제된_복덕방();
+        Integer landId = deletedLand.getId();
+
+        User adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .post("/admin/lands/{id}/undelete", landId)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        Land undeletedLand = adminLandRepository.getById(landId);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(undeletedLand).isNotNull();
+            softly.assertThat(undeletedLand.getName()).isEqualTo("삭제된 복덕방");
+            softly.assertThat(undeletedLand.isDeleted()).isFalse();
+        });
+    }
+
 
 }
