@@ -247,4 +247,49 @@ public class Land extends BaseEntity {
     public void delete() {
         this.isDeleted = true;
     }
+
+    public void undelete() {
+        this.isDeleted = false;
+    }
+
+    public void update(String internalName, String name, String size, String roomType, String latitude,
+        String longitude,
+        String phone, List<String> imageUrls, String address, String description, Integer floor,
+        String deposit, String monthlyFee, String charterFee, String managementFee, boolean optRefrigerator,
+        boolean optCloset, boolean optTv, boolean optMicrowave, boolean optGasRange, boolean optInduction,
+        boolean optWaterPurifier, boolean optAirConditioner, boolean optWasher, boolean optBed, boolean optDesk,
+        boolean optShoeCloset, boolean optElectronicDoorLocks, boolean optBidet, boolean optVeranda,
+        boolean optElevator) {
+        this.internalName = internalName;
+        this.name = name;
+        this.size = size;
+        this.roomType = roomType;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.phone = phone;
+        this.imageUrls = convertToSting(imageUrls);
+        this.address = address;
+        this.description = description;
+        this.floor = floor;
+        this.deposit = deposit;
+        this.monthlyFee = monthlyFee;
+        this.charterFee = charterFee;
+        this.managementFee = managementFee;
+        this.optRefrigerator = optRefrigerator;
+        this.optCloset = optCloset;
+        this.optTv = optTv;
+        this.optMicrowave = optMicrowave;
+        this.optGasRange = optGasRange;
+        this.optInduction = optInduction;
+        this.optWaterPurifier = optWaterPurifier;
+        this.optAirConditioner = optAirConditioner;
+        this.optWasher = optWasher;
+        this.optBed = optBed;
+        this.optDesk = optDesk;
+        this.optShoeCloset = optShoeCloset;
+        this.optElectronicDoorLocks = optElectronicDoorLocks;
+        this.optBidet = optBidet;
+        this.optVeranda = optVeranda;
+        this.optElevator = optElevator;
+    }
 }
