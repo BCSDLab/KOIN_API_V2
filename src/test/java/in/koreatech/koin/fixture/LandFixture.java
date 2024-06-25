@@ -66,4 +66,24 @@ public class LandFixture {
                 .build()
         );
     }
+
+    public Land 삭제된_복덕방() {
+        List<String> imageUrls = List.of(
+            "https://example1.test.com/image.jpeg",
+            "https://example2.test.com/image.jpeg"
+        );
+        return landRepository.save(
+            Land.builder()
+                .internalName("삭제된 복덕방")
+                .name("삭제된 복덕방")
+                .roomType("원룸")
+                .latitude("37.555")
+                .longitude("126.555")
+                .monthlyFee("100")
+                .charterFee("1000")
+                .isDeleted(true)
+                .imageUrls(imageUrls)
+                .build()
+        );
+    }
 }
