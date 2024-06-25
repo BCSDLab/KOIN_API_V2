@@ -57,8 +57,8 @@ public class AdminLandController implements AdminLandApi {
 
     @GetMapping("/admin/lands/{id}")
     public ResponseEntity<AdminLandResponse> getLand(
-        @PathVariable("id") Integer id
-        //@Auth(permit = {ADMIN}) Integer adminId
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
         return ResponseEntity.ok().body(adminLandService.getLand(id));
     }
@@ -66,8 +66,8 @@ public class AdminLandController implements AdminLandApi {
     @PutMapping("/admin/lands/{id}")
     public ResponseEntity<Void> updateLand(
         @PathVariable("id") Integer id,
-        @RequestBody @Valid AdminLandRequest request
-        //@Auth(permit = {ADMIN}) Integer adminId
+        @RequestBody @Valid AdminLandRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminLandService.updateLand(id, request);
         return ResponseEntity.ok().build();
@@ -75,8 +75,8 @@ public class AdminLandController implements AdminLandApi {
 
     @PostMapping("/admin/lands/{id}/undelete")
     public ResponseEntity<Void> undeleteLand(
-        @PathVariable("id") Integer id
-        //@Auth(permit = {ADMIN}) Integer adminId
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminLandService.undeleteLand(id);
         return ResponseEntity.ok().build();

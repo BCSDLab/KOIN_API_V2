@@ -78,32 +78,32 @@ class AdminLandApiTest extends AcceptanceTest {
     @DisplayName("관리자 권한으로 복덕방을 추가한다.")
     void postLands() {
         String jsonBody = """
-    {
-        "name": "금실타운",
-        "internal_name": "금실타운",
-        "size": "9.0",
-        "room_type": "원룸",
-        "latitude": "37.555",
-        "longitude": "126.555",
-        "phone": "041-111-1111",
-        "image_urls": ["http://image1.com", "http://image2.com"],
-        "address": "충청남도 천안시 동남구 병천면",
-        "description": "1년 계약시 20만원 할인",
-        "floor": 4,
-        "deposit": "30",
-        "monthly_fee": "200만원 (6개월)",
-        "charter_fee": "3500",
-        "management_fee": "21(1인 기준)",
-        "opt_closet": true,
-        "opt_tv": true,
-        "opt_microwave": true,
-        "opt_gas_range": false,
-        "opt_induction": true,
-        "opt_water_purifier": true,
-        "opt_air_conditioner": true,
-        "opt_washer": true
-    }
-    """;
+            {
+                "name": "금실타운",
+                "internal_name": "금실타운",
+                "size": "9.0",
+                "room_type": "원룸",
+                "latitude": "37.555",
+                "longitude": "126.555",
+                "phone": "041-111-1111",
+                "image_urls": ["http://image1.com", "http://image2.com"],
+                "address": "충청남도 천안시 동남구 병천면",
+                "description": "1년 계약시 20만원 할인",
+                "floor": 4,
+                "deposit": "30",
+                "monthly_fee": "200만원 (6개월)",
+                "charter_fee": "3500",
+                "management_fee": "21(1인 기준)",
+                "opt_closet": true,
+                "opt_tv": true,
+                "opt_microwave": true,
+                "opt_gas_range": false,
+                "opt_induction": true,
+                "opt_water_purifier": true,
+                "opt_air_conditioner": true,
+                "opt_washer": true
+            }
+            """;
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
@@ -201,34 +201,34 @@ class AdminLandApiTest extends AcceptanceTest {
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
-            {
-                "id": %d,
-                "name": "금실타운",
-                "internal_name": "금실타운",
-                "size": null,
-                "room_type": "원룸",
-                "latitude": "37.555",
-                "longitude": "126.555",
-                "phone": null,
-                "image_urls": [],
-                "address": "가전리 123",
-                "description": "테스트용 복덕방",
-                "floor": null,
-                "deposit": null,
-                "monthly_fee": "100",
-                "charter_fee": "1000",
-                "management_fee": null,
-                "opt_closet": false,
-                "opt_tv": false,
-                "opt_microwave": false,
-                "opt_gas_range": false,
-                "opt_induction": false,
-                "opt_water_purifier": false,
-                "opt_air_conditioner": false,
-                "opt_washer": false,
-                "is_deleted": false
-            }
-            """, landId));
+                {
+                    "id": %d,
+                    "name": "금실타운",
+                    "internal_name": "금실타운",
+                    "size": null,
+                    "room_type": "원룸",
+                    "latitude": "37.555",
+                    "longitude": "126.555",
+                    "phone": null,
+                    "image_urls": [],
+                    "address": "가전리 123",
+                    "description": "테스트용 복덕방",
+                    "floor": null,
+                    "deposit": null,
+                    "monthly_fee": "100",
+                    "charter_fee": "1000",
+                    "management_fee": null,
+                    "opt_closet": false,
+                    "opt_tv": false,
+                    "opt_microwave": false,
+                    "opt_gas_range": false,
+                    "opt_induction": false,
+                    "opt_water_purifier": false,
+                    "opt_air_conditioner": false,
+                    "opt_washer": false,
+                    "is_deleted": false
+                }
+                """, landId));
     }
 
     @Test
@@ -335,6 +335,5 @@ class AdminLandApiTest extends AcceptanceTest {
             softly.assertThat(undeletedLand.isDeleted()).isFalse();
         });
     }
-
 
 }

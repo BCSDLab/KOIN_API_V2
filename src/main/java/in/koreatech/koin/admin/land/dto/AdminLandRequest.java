@@ -1,6 +1,5 @@
 package in.koreatech.koin.admin.land.dto;
 
-
 import java.util.List;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;

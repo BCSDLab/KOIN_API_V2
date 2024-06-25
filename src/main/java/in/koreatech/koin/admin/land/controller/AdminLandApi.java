@@ -89,8 +89,8 @@ public interface AdminLandApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/admin/lands/{id}")
     ResponseEntity<AdminLandResponse> getLand(
-        @PathVariable("id") Integer id
-        //@Auth(permit = {ADMIN}) Integer adminId
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(
@@ -106,8 +106,8 @@ public interface AdminLandApi {
     @PutMapping("/admin/lands/{id}")
     ResponseEntity<Void> updateLand(
         @PathVariable("id") Integer id,
-        @RequestBody @Valid AdminLandRequest request
-        //@Auth(permit = {ADMIN}) Integer adminId
+        @RequestBody @Valid AdminLandRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(
@@ -122,7 +122,7 @@ public interface AdminLandApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/lands/{id}/undelete")
     ResponseEntity<Void> undeleteLand(
-        @PathVariable("id") Integer id
-        //@Auth(permit = {ADMIN}) Integer adminId
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 }
