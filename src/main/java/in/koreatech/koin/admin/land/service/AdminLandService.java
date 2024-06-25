@@ -6,11 +6,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.admin.land.dto.AdminLandResponse;
 import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
 import in.koreatech.koin.admin.land.execption.LandNameDuplicationException;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
+import in.koreatech.koin.admin.member.dto.AdminMemberResponse;
 import in.koreatech.koin.domain.land.model.Land;
+import in.koreatech.koin.domain.member.model.Member;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
@@ -48,5 +51,10 @@ public class AdminLandService {
     public void deleteLand(Integer id) {
         Land land = adminLandRepository.getById(id);
         land.delete();
+    }
+
+    public AdminLandResponse getLand(Integer id) {
+        Land land = adminLandRepository.getById(id);
+        return AdminLandResponse.from(land);
     }
 }
