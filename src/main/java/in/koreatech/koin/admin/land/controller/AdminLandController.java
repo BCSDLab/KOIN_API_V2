@@ -8,15 +8,15 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.land.dto.AdminLandResponse;
-import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
+import in.koreatech.koin.admin.land.dto.AdminLandRequest;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
 import in.koreatech.koin.admin.land.service.AdminLandService;
-import in.koreatech.koin.admin.member.dto.AdminMemberResponse;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,10 +39,10 @@ public class AdminLandController implements AdminLandApi {
 
     @PostMapping("/admin/lands")
     public ResponseEntity<AdminLandsResponse> postLands(
-        @RequestBody @Valid AdminLandsRequest adminLandsRequest,
+        @RequestBody @Valid AdminLandRequest adminLandRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminLandService.createLands(adminLandsRequest);
+        adminLandService.createLands(adminLandRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -61,6 +61,25 @@ public class AdminLandController implements AdminLandApi {
         //@Auth(permit = {ADMIN}) Integer adminId
     ) {
         return ResponseEntity.ok().body(adminLandService.getLand(id));
+    }
+
+    @PutMapping("/admin/lands/{id}")
+    public ResponseEntity<Void> updateLand(
+        @PathVariable("id") Integer id,
+        @RequestBody @Valid AdminLandRequest request
+        //@Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminLandService.updateLand(id, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/admin/lands/{id}/undelete")
+    public ResponseEntity<Void> undeleteLand(
+        @PathVariable("id") Integer id
+        //@Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminLandService.undeleteLand(id);
+        return ResponseEntity.ok().build();
     }
 
 }
