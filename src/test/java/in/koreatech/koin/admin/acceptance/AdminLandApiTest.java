@@ -201,34 +201,42 @@ class AdminLandApiTest extends AcceptanceTest {
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
-                {
-                    "id": %d,
-                    "name": "금실타운",
-                    "internal_name": "금실타운",
-                    "size": null,
-                    "room_type": "원룸",
-                    "latitude": "37.555",
-                    "longitude": "126.555",
-                    "phone": null,
-                    "image_urls": [],
-                    "address": "가전리 123",
-                    "description": "테스트용 복덕방",
-                    "floor": null,
-                    "deposit": null,
-                    "monthly_fee": "100",
-                    "charter_fee": "1000",
-                    "management_fee": null,
-                    "opt_closet": false,
-                    "opt_tv": false,
-                    "opt_microwave": false,
-                    "opt_gas_range": false,
-                    "opt_induction": false,
-                    "opt_water_purifier": false,
-                    "opt_air_conditioner": false,
-                    "opt_washer": false,
-                    "is_deleted": false
-                }
-                """, landId));
+            {
+                "id": %d,
+                "name": "금실타운",
+                "internal_name": "금실타운",
+                "size": null,
+                "room_type": "원룸",
+                "latitude": "37.555",
+                "longitude": "126.555",
+                "phone": null,
+                "image_urls": [],
+                "address": "가전리 123",
+                "description": "테스트용 복덕방",
+                "floor": null,
+                "deposit": null,
+                "monthly_fee": "100",
+                "charter_fee": "1000",
+                "management_fee": null,
+                "opt_closet": false,
+                "opt_tv": false,
+                "opt_microwave": false,
+                "opt_gas_range": false,
+                "opt_induction": false,
+                "opt_water_purifier": false,
+                "opt_air_conditioner": false,
+                "opt_washer": false,
+                "opt_bed": false,
+                "opt_bidet": false,
+                "opt_desk": false,
+                "opt_electronic_door_locks": false,
+                "opt_elevator": false,
+                "opt_refrigerator": false,
+                "opt_shoe_closet": false,
+                "opt_veranda": false,
+                "is_deleted": false
+            }
+            """, landId));
     }
 
     @Test
