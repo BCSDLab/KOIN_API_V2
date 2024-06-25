@@ -42,15 +42,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminShopService {
 
-    private final EntityManager entityManager;
     private final Clock clock;
-    private final AdminShopRepository adminShopRepository;
-    private final AdminShopCategoryRepository adminShopCategoryRepository;
+    private final EntityManager entityManager;
     private final AdminEventArticleRepository adminEventArticleRepository;
     private final AdminMenuCategoryRepository adminMenuCategoryRepository;
+    private final AdminShopCategoryMapRepository adminShopCategoryMapRepository;
+    private final AdminShopCategoryRepository adminShopCategoryRepository;
     private final AdminShopImageRepository adminShopImageRepository;
     private final AdminShopOpenRepository adminShopOpenRepository;
-    private final AdminShopCategoryMapRepository adminShopCategoryMapRepository;
+    private final AdminShopRepository adminShopRepository;
 
     public AdminShopsResponse getShops(Integer page, Integer limit, Boolean isDeleted) {
         Integer total = adminShopRepository.countAllByIsDeleted(isDeleted);
@@ -58,7 +58,7 @@ public class AdminShopService {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
             Sort.by(Sort.Direction.ASC, "id"));
         Page<Shop> result = adminShopRepository.findAllByIsDeleted(isDeleted, pageRequest);
-        return AdminShopsResponse.from(result, criteria);
+        return AdminShopsResponse.of(result, criteria);
     }
 
     public AdminShopResponse getShop(Integer shopId) {
@@ -73,7 +73,7 @@ public class AdminShopService {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
             Sort.by(Sort.Direction.ASC, "id"));
         Page<ShopCategory> result = adminShopCategoryRepository.findAllByIsDeleted(isDeleted, pageRequest);
-        return AdminShopCategoriesResponse.of(result.getContent(), criteria.getPage() + 1, result.getTotalPages());
+        return AdminShopCategoriesResponse.of(result, criteria);
     }
 
     public AdminShopCategoryResponse getShopCategory(Integer categoryId) {

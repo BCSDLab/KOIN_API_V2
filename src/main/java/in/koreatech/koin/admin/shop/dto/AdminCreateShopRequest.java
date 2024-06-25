@@ -80,6 +80,12 @@ public record AdminCreateShopRequest(
             .payBank(payBank)
             .payCard(payCard)
             .phone(phone)
+            .internalName(name)
+            .chosung(name.substring(0, 1))
+            .isDeleted(false)
+            .isEvent(false)
+            .remarks("")
+            .hit(0)
             .build();
     }
 

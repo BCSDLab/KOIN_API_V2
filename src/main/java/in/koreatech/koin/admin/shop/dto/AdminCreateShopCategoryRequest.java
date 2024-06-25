@@ -22,6 +22,7 @@ public record AdminCreateShopCategoryRequest(
         return ShopCategory.builder()
             .imageUrl(imageUrl)
             .name(name)
+            .isDeleted(false)
             .build();
     }
 }

@@ -84,7 +84,7 @@ public class ShopService {
     }
 
     public ShopCategoriesResponse getShopsCategories() {
-        List<ShopCategory> shopCategories = shopCategoryRepository.findAll();
+        List<ShopCategory> shopCategories = shopCategoryRepository.findAllByIsDeletedFalse();
         return ShopCategoriesResponse.from(shopCategories);
     }
 
@@ -101,7 +101,9 @@ public class ShopService {
     public void refreshShopsCache() {
         List<Shop> shops = shopRepository.findAll();
         LocalDateTime now = LocalDateTime.now(clock);
-        List<InnerShopResponse> innerShopResponses = shops.stream().map(shop -> {
+        List<InnerShopResponse> innerShopResponses = shops.stream()
+            .filter(shop -> !shop.isDeleted())
+            .map(shop -> {
                 boolean isDurationEvent = eventArticleRepository.isDurationEvent(shop.getId(), now.toLocalDate());
                 return InnerShopResponse.from(shop, isDurationEvent, shop.isOpen(now));
             })

@@ -21,5 +21,5 @@ public interface ShopCategoryRepository extends Repository<ShopCategory, Integer
             .orElseThrow(() -> ShopCategoryNotFoundException.withDetail("shopCategoryId: " + shopCategoryId));
     }
 
-    List<ShopCategory> findAll();
+    List<ShopCategory> findAllByIsDeletedFalse();
 }

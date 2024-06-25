@@ -3,6 +3,7 @@ package in.koreatech.koin.admin.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -78,7 +79,7 @@ public class AdminShopController implements AdminShopApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminShopService.createShop(adminCreateShopRequest);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/admin/shops/categories")
@@ -87,7 +88,7 @@ public class AdminShopController implements AdminShopApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminShopService.createShopCategory(adminCreateShopCategoryRequest);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/admin/shops/{id}")

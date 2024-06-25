@@ -32,7 +32,7 @@ public record AdminShopsResponse(
     List<InnerShopResponse> shops
 ) {
 
-    public static AdminShopsResponse from(Page<Shop> pagedResult, Criteria criteria) {
+    public static AdminShopsResponse of(Page<Shop> pagedResult, Criteria criteria) {
         return new AdminShopsResponse(
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),

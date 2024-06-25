@@ -7,8 +7,6 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.Where;
-
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,7 +25,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "shop_categories")
-@Where(clause = "is_deleted=0")
 public class ShopCategory extends BaseEntity {
 
     @Id
