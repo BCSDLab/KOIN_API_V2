@@ -15,20 +15,20 @@ import in.koreatech.koin.domain.shop.model.Shop;
 
 public interface AdminShopRepository extends Repository<Shop, Integer> {
 
-    @Query(value = "SELECT * FROM shop WHERE is_deleted = :isDeleted",
-        countQuery = "SELECT count(*) FROM shop WHERE is_deleted = :isDeleted",
+    @Query(value = "SELECT * FROM shops WHERE is_deleted = :isDeleted",
+        countQuery = "SELECT count(*) FROM shops WHERE is_deleted = :isDeleted",
         nativeQuery = true)
     Page<Shop> findAllByIsDeleted(@Param("isDeleted") boolean isDeleted, Pageable pageable);
 
-    @Query(value = "SELECT COUNT(*) FROM shop WHERE is_deleted = :isDeleted", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM shops WHERE is_deleted = :isDeleted", nativeQuery = true)
     Integer countAllByIsDeleted(@Param("isDeleted") boolean isDeleted);
 
     Shop save(Shop shop);
 
-    @Query(value = "SELECT * FROM shop WHERE id = :shopId AND is_deleted = false", nativeQuery = true)
+    @Query(value = "SELECT * FROM shops WHERE id = :shopId", nativeQuery = true)
     Optional<Shop> findById(@Param("shopId") Integer shopId);
 
-    @Query(value = "SELECT * FROM shop WHERE owner_id = :ownerId AND is_deleted = false", nativeQuery = true)
+    @Query(value = "SELECT * FROM shops WHERE owner_id = :ownerId AND is_deleted = false", nativeQuery = true)
     List<Shop> findAllByOwnerId(@Param("ownerId") Integer ownerId);
 
     default Shop getById(Integer shopId) {

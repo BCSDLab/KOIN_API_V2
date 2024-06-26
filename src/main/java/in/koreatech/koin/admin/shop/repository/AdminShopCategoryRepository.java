@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.shop.exception.ShopCategoryNotFoundException;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
@@ -16,7 +18,8 @@ public interface AdminShopCategoryRepository extends Repository<ShopCategory, In
 
     Integer countAllByIsDeleted(boolean isDeleted);
 
-    Optional<ShopCategory> findById(Integer shopCategoryId);
+    @Query(value = "SELECT * FROM shop_categories WHERE id = :shopCategoryId", nativeQuery = true)
+    Optional<ShopCategory> findById(@Param("shopCategoryId") Integer shopCategoryId);
 
     ShopCategory save(ShopCategory shopCategory);
 
