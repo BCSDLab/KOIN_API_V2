@@ -183,4 +183,8 @@ public class User extends BaseEntity {
             throw UserResetTokenExpiredException.withDetail("resetToken: " + resetToken);
         }
     }
+
+    public void undelete() {
+        this.isDeleted = false;
+    }
 }

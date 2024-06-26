@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -175,6 +176,22 @@ public interface AdminUserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/admin/users/{id}")
     ResponseEntity<Void> deleteUser(
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "회원 삭제 해제 (탈퇴 상태를 해제 처리)")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/admin/users/{id}/undelete")
+    ResponseEntity<Void> undeleteUser(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     );

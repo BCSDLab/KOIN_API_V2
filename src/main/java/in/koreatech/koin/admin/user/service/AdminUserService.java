@@ -172,4 +172,10 @@ public class AdminUserService {
         }
         adminUserRepository.delete(user);
     }
+
+    @Transactional
+    public void undeleteUser(Integer id) {
+        User user = adminUserRepository.getById(id);
+        user.undelete();
+    }
 }
