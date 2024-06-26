@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
+import in.koreatech.koin.admin.land.dto.AdminLandResponse;
+import in.koreatech.koin.admin.land.dto.AdminLandRequest;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
 
 import in.koreatech.koin.global.auth.Auth;
@@ -55,7 +57,7 @@ public interface AdminLandApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/lands")
     ResponseEntity<AdminLandsResponse> postLands(
-        @RequestBody @Valid AdminLandsRequest adminLandsRequest,
+        @RequestBody @Valid AdminLandRequest adminLandRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -75,4 +77,52 @@ public interface AdminLandApi {
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "복덕방 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/admin/lands/{id}")
+    ResponseEntity<AdminLandResponse> getLand(
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "복덕방 수정")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/admin/lands/{id}")
+    ResponseEntity<Void> updateLand(
+        @PathVariable("id") Integer id,
+        @RequestBody @Valid AdminLandRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "복덕방 삭제 취소")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/admin/lands/{id}/undelete")
+    ResponseEntity<Void> undeleteLand(
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
 }

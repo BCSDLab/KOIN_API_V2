@@ -6,7 +6,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.admin.land.dto.AdminLandsRequest;
+import in.koreatech.koin.admin.land.dto.AdminLandResponse;
+import in.koreatech.koin.admin.land.dto.AdminLandRequest;
 import in.koreatech.koin.admin.land.dto.AdminLandsResponse;
 import in.koreatech.koin.admin.land.execption.LandNameDuplicationException;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
@@ -36,11 +37,11 @@ public class AdminLandService {
     }
 
     @Transactional
-    public void createLands(AdminLandsRequest adminLandsRequest) {
-        if (adminLandRepository.findByName(adminLandsRequest.name()).isPresent()) {
-            throw LandNameDuplicationException.withDetail("name: " + adminLandsRequest.name());
+    public void createLands(AdminLandRequest adminLandRequest) {
+        if (adminLandRepository.findByName(adminLandRequest.name()).isPresent()) {
+            throw LandNameDuplicationException.withDetail("name: " + adminLandRequest.name());
         }
-        Land land = adminLandsRequest.toLand();
+        Land land = adminLandRequest.toLand();
         adminLandRepository.save(land);
     }
 
@@ -48,5 +49,55 @@ public class AdminLandService {
     public void deleteLand(Integer id) {
         Land land = adminLandRepository.getById(id);
         land.delete();
+    }
+
+    public AdminLandResponse getLand(Integer id) {
+        Land land = adminLandRepository.getById(id);
+        return AdminLandResponse.from(land);
+    }
+
+    @Transactional
+    public void updateLand(Integer id, AdminLandRequest request) {
+        Land land = adminLandRepository.getById(id);
+        land.update(
+            request.internalName(),
+            request.name(),
+            request.size(),
+            request.roomType(),
+            request.latitude(),
+            request.longitude(),
+            request.phone(),
+            request.imageUrls(),
+            request.address(),
+            request.description(),
+            request.floor(),
+            request.deposit(),
+            request.monthlyFee(),
+            request.charterFee(),
+            request.managementFee(),
+            request.optRefrigerator(),
+            request.optCloset(),
+            request.optTv(),
+            request.optMicrowave(),
+            request.optGasRange(),
+            request.optInduction(),
+            request.optWaterPurifier(),
+            request.optAirConditioner(),
+            request.optWasher(),
+            request.optBed(),
+            request.optDesk(),
+            request.optShoeCloset(),
+            request.optElectronicDoorLocks(),
+            request.optBidet(),
+            request.optVeranda(),
+            request.optElevator()
+        );
+
+    }
+
+    @Transactional
+    public void undeleteLand(Integer id) {
+        Land land = adminLandRepository.getById(id);
+        land.undelete();
     }
 }
