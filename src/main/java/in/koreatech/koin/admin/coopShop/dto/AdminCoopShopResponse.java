@@ -21,7 +21,7 @@ public record AdminCoopShopResponse(
     String name,
 
     @Schema(description = "요일별 생협 매장 운영시간")
-    List<CoopShopResponse.InnerCoopOpens> opens,
+    List<InnerCoopOpens> opens,
 
     @Schema(example = "041-560-1234", description = "생협 매장 연락처", requiredMode = REQUIRED)
     String phone,
@@ -38,7 +38,7 @@ public record AdminCoopShopResponse(
             coopShop.getId(),
             coopShop.getName(),
             coopShop.getCoopOpens().stream()
-                .map(CoopShopResponse.InnerCoopOpens::from)
+                .map(InnerCoopOpens::from)
                 .toList(),
             coopShop.getPhone(),
             coopShop.getLocation(),
@@ -62,8 +62,8 @@ public record AdminCoopShopResponse(
         String closeTime
     ) {
 
-        public static CoopShopResponse.InnerCoopOpens from(CoopOpen coopOpen) {
-            return new CoopShopResponse.InnerCoopOpens(
+        public static InnerCoopOpens from(CoopOpen coopOpen) {
+            return new InnerCoopOpens(
                 coopOpen.getDayOfWeek(),
                 coopOpen.getType(),
                 coopOpen.getOpenTime(),
