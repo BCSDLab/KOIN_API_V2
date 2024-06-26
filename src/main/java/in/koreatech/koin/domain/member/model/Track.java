@@ -39,8 +39,19 @@ public class Track extends BaseEntity {
     private boolean isDeleted = false;
 
     @Builder
-    private Track(String name) {
+    private Track(String name, Integer headcount, boolean isDeleted) {
         this.name = name;
-        this.headcount = 0;
+        this.headcount = headcount != null ? headcount : 0;
+        this.isDeleted = isDeleted;
+    }
+
+    public void update(String name, Integer headcount, boolean isDeleted) {
+        this.name = name;
+        this.headcount = headcount;
+        this.isDeleted = isDeleted;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
     }
 }

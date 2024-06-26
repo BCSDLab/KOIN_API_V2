@@ -12,7 +12,6 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +46,6 @@ public class CityBusClient {
 
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
-    private static final List<Long> AVAILABLE_CITY_BUS = List.of(400L, 402L, 405L);
     private static final Type arrivalInfoType = new TypeToken<List<CityBusArrival>>() {
     }.getType();
 
@@ -71,10 +69,15 @@ public class CityBusClient {
         this.cityBusCacheRepository = cityBusCacheRepository;
     }
 
-    public List<CityBusRemainTime> getBusRemainTime(String nodeId) {
-        Optional<CityBusCache> cityBusCache = cityBusCacheRepository.findById(nodeId);
-        return cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBusRemainTime::from).toList())
-            .orElseGet(ArrayList::new);
+    public List<CityBusRemainTime> getBusRemainTime(List<String> nodeIds) {
+        List<CityBusRemainTime> result = new ArrayList<>();
+        nodeIds.forEach(nodeId -> {
+            Optional<CityBusCache> cityBusCache = cityBusCacheRepository.findById(nodeId);
+            if (cityBusCache.isPresent()) {
+                result.addAll(cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBusRemainTime::from).toList()).get());
+            }
+        });
+        return result;
     }
 
     @Transactional
@@ -82,12 +85,7 @@ public class CityBusClient {
         List<List<CityBusArrival>> arrivalInfosList = BusStationNode.getNodeIds().stream()
             .map(this::getOpenApiResponse)
             .map(this::extractBusArrivalInfo)
-            .map(cityBusArrivals -> cityBusArrivals.stream()
-                .filter(cityBusArrival ->
-                    AVAILABLE_CITY_BUS.stream().anyMatch(busNumber ->
-                        Objects.equals(busNumber, cityBusArrival.routeno()))
-                ).toList()
-            ).toList();
+            .toList();
 
         LocalDateTime updatedAt = LocalDateTime.now(clock);
 

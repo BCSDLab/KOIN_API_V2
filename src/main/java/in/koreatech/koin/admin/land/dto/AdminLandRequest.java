@@ -1,6 +1,5 @@
 package in.koreatech.koin.admin.land.dto;
 
-
 import java.util.List;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
@@ -17,7 +16,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record AdminLandsRequest(
+public record AdminLandRequest(
     @Schema(description = "이름 - not null - 최대 255자", example = "금실타운", requiredMode = REQUIRED)
     @NotNull(message = "방이름은 필수입니다.")
     @Size(max = 255, message = "방이름의 최대 길이는 255자입니다.")
@@ -29,17 +28,17 @@ public record AdminLandsRequest(
     String internalName,
 
     @Schema(description = "크기", example = "9.0")
-    String size,
+    double size,
 
     @Schema(description = "종류 - 최대 20자", example = "원룸")
     @Size(max = 20, message = "방종류의 최대 길이는 20자입니다.")
     String roomType,
 
     @Schema(description = "위도", example = "36.766205")
-    String latitude,
+    double latitude,
 
     @Schema(description = "경도", example = "127.284638")
-    String longitude,
+    double longitude,
 
     @Schema(description = "전화번호 - 정규식 `^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$` 을 만족해야함", example = "041-111-1111")
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "전화번호의 형식이 올바르지 않습니다.")
@@ -101,16 +100,37 @@ public record AdminLandsRequest(
     boolean optAirConditioner,
 
     @Schema(description = "샤워기 보유 여부 - null일경우 false로 요청됨", example = "true")
-    boolean optWasher
+    boolean optWasher,
+
+    @Schema(description = "침대 보유 여부", example = "false")
+    boolean optBed,
+
+    @Schema(description = "책상 보유 여부", example = "true")
+    boolean optDesk,
+
+    @Schema(description = "신발장 보유 여부", example = "true")
+    boolean optShoeCloset,
+
+    @Schema(description = "전자 도어락 보유 여부", example = "true")
+    boolean optElectronicDoorLocks,
+
+    @Schema(description = "비데 보유 여부", example = "false")
+    boolean optBidet,
+
+    @Schema(description = "베란다 보유 여부", example = "false")
+    boolean optVeranda,
+
+    @Schema(description = "엘리베이터 보유 여부", example = "true")
+    boolean optElevator
 ) {
     public Land toLand() {
         return Land.builder()
             .name(name)
             .internalName(internalName)
-            .size(size)
+            .size(String.valueOf(size))
             .roomType(roomType)
-            .latitude(latitude)
-            .longitude(longitude)
+            .latitude(String.valueOf(latitude))
+            .longitude(String.valueOf(longitude))
             .phone(phone)
             .imageUrls(imageUrls)
             .address(address)
@@ -129,6 +149,13 @@ public record AdminLandsRequest(
             .optWaterPurifier(optWaterPurifier)
             .optAirConditioner(optAirConditioner)
             .optWasher(optWasher)
+            .optBed(optBed)
+            .optDesk(optDesk)
+            .optShoeCloset(optShoeCloset)
+            .optElectronicDoorLocks(optElectronicDoorLocks)
+            .optBidet(optBidet)
+            .optVeranda(optVeranda)
+            .optElevator(optElevator)
             .build();
     }
 }

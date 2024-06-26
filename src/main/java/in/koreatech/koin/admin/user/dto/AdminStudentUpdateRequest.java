@@ -14,7 +14,7 @@ public record AdminStudentUpdateRequest(
     Integer gender,
 
     @Schema(description = "[NOT UPDATE]신원(학생, 사장님)", example = "학생", requiredMode = NOT_REQUIRED)
-    Integer userIdentity,
+    Integer identity,
 
     @Schema(description = "[NOT UPDATE]졸업 여부(true, false)", example = "false", requiredMode = NOT_REQUIRED)
     Boolean isGraduated,
@@ -47,6 +47,7 @@ public record AdminStudentUpdateRequest(
     String nickname,
 
     @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = NOT_REQUIRED)
+    @Size(max = 20, message = "휴대전화의 길이는 최대 20자 입니다")
     String phoneNumber,
 
     @Size(min = 10, max = 10, message = "학번은 10자여야 합니다.")

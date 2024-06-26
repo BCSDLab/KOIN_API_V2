@@ -15,24 +15,24 @@ import lombok.Getter;
  */
 @Getter
 public enum BusStationNode {
-    TERMINAL(Map.of(NORTH, "CAB285000686", SOUTH, "CAB285000685")), // 종합터미널
-    KOREATECH(Map.of(NORTH, "CAB285000406", SOUTH, "CAB285000405")), // 코리아텍
-    STATION(Map.of(NORTH, "CAB285000655", SOUTH, "CAB285000656")), // 천안역 동부광장
+    TERMINAL(Map.of(NORTH, List.of("CAB285000686"), SOUTH, List.of("CAB285000685", "CAB285010125"))), // 종합터미널
+    KOREATECH(Map.of(NORTH, List.of("CAB285000406"), SOUTH, List.of("CAB285000405"))), // 코리아텍
+    STATION(Map.of(NORTH, List.of("CAB285000655"), SOUTH, List.of("CAB285000656"))), // 천안역 동부광장
     ;
 
-    private final Map<BusDirection, String> node;
+    private final Map<BusDirection, List<String>> node;
 
-    BusStationNode(Map<BusDirection, String> node) {
+    BusStationNode(Map<BusDirection, List<String>> node) {
         this.node = node;
     }
 
-    public String getId(BusDirection direction) {
+    public List<String> getId(BusDirection direction) {
         return node.get(direction);
     }
 
     public static List<String> getNodeIds() {
         return Arrays.stream(values())
-            .flatMap(station -> station.node.values().stream())
+            .flatMap(station -> station.node.values().stream().flatMap(List::stream))
             .toList();
     }
 }

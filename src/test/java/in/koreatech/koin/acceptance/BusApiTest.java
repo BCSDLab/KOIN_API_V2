@@ -104,6 +104,104 @@ class BusApiTest extends AcceptanceTest {
               }
             }
             """);
+
+        when(cityBusRouteClient.getOpenApiResponse("CAB285000686")).thenReturn("""
+            {
+              "response": {
+                "header": {
+                  "resultCode": "00",
+                  "resultMsg": "NORMAL SERVICE."
+                },
+                "body": {
+                  "items": {
+                    "item": [
+                      {
+                        "endnodenm": "황사동",
+                        "routeid": "CAB285000146",
+                        "routeno": 402,
+                        "routetp": "일반버스",
+                        "startnodenm": "종합터미널"
+                      },
+                      {
+                        "endnodenm": "방아다리공원",
+                        "routeid": "CAB285000331",
+                        "routeno": 9,
+                        "routetp": "일반버스",
+                        "startnodenm": "종합터미널"
+                      },
+                      {
+                        "endnodenm": "유관순열사유적지",
+                        "routeid": "CAB285000407",
+                        "routeno": 405,
+                        "routetp": "일반버스",
+                        "startnodenm": "종합터미널"
+                      },
+                      {
+                        "endnodenm": "병천3리",
+                        "routeid": "CAB285000142",
+                        "routeno": 400,
+                        "routetp": "일반버스",
+                        "startnodenm": "종합터미널"
+                      }
+                    ]
+                  },
+                  "numOfRows": 50,
+                  "pageNo": 1,
+                  "totalCount": 4
+                }
+              }
+            }
+            """
+        );
+
+        when(cityBusRouteClient.getOpenApiResponse("CAB285000406")).thenReturn("""
+            {
+              "response": {
+                "header": {
+                  "resultCode": "00",
+                  "resultMsg": "NORMAL SERVICE."
+                },
+                "body": {
+                  "items": {
+                    "item": [
+                      {
+                        "endnodenm": "황사동",
+                        "routeid": "CAB285000146",
+                        "routeno": 402,
+                        "routetp": "일반버스",
+                        "startnodenm": "종합터미널"
+                      },
+                      {
+                        "endnodenm": "병천중고등학교",
+                        "routeid": "CAB285000049",
+                        "routeno": 95,
+                        "routetp": "일반버스",
+                        "startnodenm": "월봉청솔아파트"
+                      },
+                      {
+                        "endnodenm": "유관순열사유적지",
+                        "routeid": "CAB285000407",
+                        "routeno": 405,
+                        "routetp": "일반버스",
+                        "startnodenm": "종합터미널"
+                      },
+                      {
+                        "endnodenm": "병천3리",
+                        "routeid": "CAB285000142",
+                        "routeno": 400,
+                        "routetp": "일반버스",
+                        "startnodenm": "종합터미널"
+                      }
+                    ]
+                  },
+                  "numOfRows": 50,
+                  "pageNo": 1,
+                  "totalCount": 4
+                }
+              }
+            }
+            """
+        );
     }
 
     @Test
@@ -152,7 +250,7 @@ class BusApiTest extends AcceptanceTest {
 
         cityBusCacheRepository.save(
             CityBusCache.of(
-                depart.getNodeId(direction),
+                depart.getNodeId(direction).get(0),
                 List.of(CityBusCacheInfo.of(
                     CityBusArrival.builder()
                         .routeno(busNumber)

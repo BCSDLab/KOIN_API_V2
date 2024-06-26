@@ -7,6 +7,7 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
+import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest.InnerOptionPrice;
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -127,7 +128,32 @@ public class Menu extends BaseEntity {
         this.menuOptions.add(menuOption);
     }
 
+    public void adminModifyMenuSingleOptions(AdminModifyMenuRequest adminModifyMenuRequest,
+        EntityManager entityManager) {
+        this.menuOptions.clear();
+        entityManager.flush();
+        MenuOption menuOption = MenuOption.builder()
+            .price(adminModifyMenuRequest.singlePrice())
+            .menu(this)
+            .build();
+        this.menuOptions.add(menuOption);
+    }
+
     public void modifyMenuMultipleOptions(List<InnerOptionPrice> innerOptionPrice, EntityManager entityManager) {
+        this.menuOptions.clear();
+        entityManager.flush();
+        for (var option : innerOptionPrice) {
+            MenuOption menuOption = MenuOption.builder()
+                .option(option.option())
+                .price(option.price())
+                .menu(this)
+                .build();
+            this.menuOptions.add(menuOption);
+        }
+    }
+
+    public void adminModifyMenuMultipleOptions(List<AdminModifyMenuRequest.InnerOptionPrice> innerOptionPrice,
+        EntityManager entityManager) {
         this.menuOptions.clear();
         entityManager.flush();
         for (var option : innerOptionPrice) {

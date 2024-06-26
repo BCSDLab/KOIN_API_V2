@@ -4,9 +4,12 @@ import static in.koreatech.koin.domain.user.model.UserType.COOP;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
+import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.global.auth.Auth;
@@ -52,5 +55,19 @@ public interface CoopApi {
     ResponseEntity<Void> saveDiningImage(
         @Auth(permit = {COOP}) Integer userId,
         @RequestBody @Valid DiningImageRequest imageRequest
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "영양사 로그인")
+    @PostMapping("/coop/login")
+    ResponseEntity<CoopLoginResponse> coopLogin(
+        @RequestBody @Valid CoopLoginRequest request
     );
 }
