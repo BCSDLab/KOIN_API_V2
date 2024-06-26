@@ -56,13 +56,11 @@ public class CoopShop extends BaseEntity {
         String name,
         String phone,
         String location,
-        String remarks,
-        List<CoopOpen> coopOpens
+        String remarks
     ) {
         this.name = name;
         this.phone = phone;
         this.location = location;
         this.remarks = remarks;
-        this.coopOpens = coopOpens;
     }
 }

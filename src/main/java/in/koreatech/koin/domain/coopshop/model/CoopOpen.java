@@ -30,8 +30,7 @@ public class CoopOpen {
     @JoinColumn(name = "coop_id", referencedColumnName = "id", nullable = false)
     private CoopShop coopShop;
 
-    @NotNull
-    @Column(name = "type", nullable = false)
+    @Column(name = "type")
     private String type;
 
     @NotNull
