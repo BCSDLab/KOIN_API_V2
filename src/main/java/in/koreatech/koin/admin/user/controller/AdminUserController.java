@@ -62,7 +62,7 @@ public class AdminUserController implements AdminUserApi{
     ) {
         StudentsCondition studentsCondition = new StudentsCondition(page, limit, isAuthed, nickname, email);
         AdminStudentsResponse adminStudentsResponse = adminUserService.getStudents(studentsCondition);
-        return ResponseEntity.ok(adminStudentsResponse);
+        return ResponseEntity.ok().body(adminStudentsResponse);
     }
 
     @PostMapping("/admin/user/login")
@@ -98,7 +98,7 @@ public class AdminUserController implements AdminUserApi{
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminStudentResponse adminStudentResponse = adminUserService.getStudent(id);
-        return ResponseEntity.ok(adminStudentResponse);
+        return ResponseEntity.ok().body(adminStudentResponse);
     }
 
     @PutMapping("/admin/users/student/{id}")
@@ -108,7 +108,7 @@ public class AdminUserController implements AdminUserApi{
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminStudentUpdateResponse adminStudentUpdateResponse = adminUserService.updateStudent(id, adminRequest);
-        return ResponseEntity.ok(adminStudentUpdateResponse);
+        return ResponseEntity.ok().body(adminStudentUpdateResponse);
     }
 
     @GetMapping("/admin/users/owner/{id}")
@@ -117,7 +117,7 @@ public class AdminUserController implements AdminUserApi{
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminOwnerResponse adminOwnerResponse = adminUserService.getOwner(id);
-        return ResponseEntity.ok(adminOwnerResponse);
+        return ResponseEntity.ok().body(adminOwnerResponse);
     }
 
     @PutMapping("/admin/users/owner/{id}")
@@ -127,7 +127,7 @@ public class AdminUserController implements AdminUserApi{
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminOwnerUpdateResponse adminOwnerUpdateResponse = adminUserService.updateOwner(id, request);
-        return ResponseEntity.ok(adminOwnerUpdateResponse);
+        return ResponseEntity.ok().body(adminOwnerUpdateResponse);
     }
 
     @GetMapping("/admin/users/new-owners")
