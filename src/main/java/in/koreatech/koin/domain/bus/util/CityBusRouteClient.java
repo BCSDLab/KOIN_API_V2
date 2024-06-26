@@ -80,12 +80,10 @@ public class CityBusRouteClient {
         List<String> nodeIds = BusStationNode.getNodeIds();
 
         for (String node : nodeIds) {
-            cityBusRouteCacheRepository.save(
-                CityBusRouteCache.of(
-                    node,
-                    Set.copyOf(extractBusRouteInfo(getOpenApiResponse(node)))
-                )
-            );
+            Set<CityBusRoute> routes = Set.copyOf(extractBusRouteInfo(getOpenApiResponse(node)));
+            if (routes.isEmpty()) { continue; }
+
+            cityBusRouteCacheRepository.save(CityBusRouteCache.of(node, routes));
         }
     }
 
