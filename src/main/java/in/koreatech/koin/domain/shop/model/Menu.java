@@ -128,7 +128,8 @@ public class Menu extends BaseEntity {
         this.menuOptions.add(menuOption);
     }
 
-    public void adminModifyMenuSingleOptions(AdminModifyMenuRequest adminModifyMenuRequest, EntityManager entityManager) {
+    public void adminModifyMenuSingleOptions(AdminModifyMenuRequest adminModifyMenuRequest,
+        EntityManager entityManager) {
         this.menuOptions.clear();
         entityManager.flush();
         MenuOption menuOption = MenuOption.builder()
@@ -151,7 +152,8 @@ public class Menu extends BaseEntity {
         }
     }
 
-    public void adminModifyMenuMultipleOptions(List<AdminModifyMenuRequest.InnerOptionPrice> innerOptionPrice, EntityManager entityManager) {
+    public void adminModifyMenuMultipleOptions(List<AdminModifyMenuRequest.InnerOptionPrice> innerOptionPrice,
+        EntityManager entityManager) {
         this.menuOptions.clear();
         entityManager.flush();
         for (var option : innerOptionPrice) {

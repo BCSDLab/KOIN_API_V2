@@ -10,17 +10,17 @@ import in.koreatech.koin.domain.shop.model.MenuCategory;
 
 public interface AdminMenuCategoryRepository extends Repository<MenuCategory, Integer> {
 
-    List<MenuCategory> findAllByShopId(Integer shopId);
-
     MenuCategory save(MenuCategory menuCategory);
+
+    List<MenuCategory> findAllByShopId(Integer shopId);
 
     Optional<MenuCategory> findById(Integer id);
 
     List<MenuCategory> findAllByIdIn(List<Integer> ids);
 
+    Void deleteById(Integer id);
+
     default MenuCategory getById(Integer id) {
         return findById(id).orElseThrow(() -> MenuCategoryNotFoundException.withDetail("categoryId: " + id));
     }
-
-    Void deleteById(Integer id);
 }

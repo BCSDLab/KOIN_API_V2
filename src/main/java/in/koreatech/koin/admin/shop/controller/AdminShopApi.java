@@ -10,14 +10,23 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.shop.dto.AdminCreateMenuCategoryRequest;
 import in.koreatech.koin.admin.shop.dto.AdminCreateMenuRequest;
+import in.koreatech.koin.admin.shop.dto.AdminCreateShopCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.AdminCreateShopRequest;
 import in.koreatech.koin.admin.shop.dto.AdminMenuCategoriesResponse;
 import in.koreatech.koin.admin.shop.dto.AdminMenuDetailResponse;
 import in.koreatech.koin.admin.shop.dto.AdminModifyMenuCategoryRequest;
 import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyShopCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
+import in.koreatech.koin.admin.shop.dto.AdminShopCategoriesResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopCategoryResponse;
 import in.koreatech.koin.admin.shop.dto.AdminShopMenuResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopsResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,8 +37,72 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "(Admin) Shop: 상점", description = "상점 정보를 관리한다")
+@Tag(name = "(Admin) Shop: 상점", description = "관리자 권한으로 상점 정보를 관리한다")
 public interface AdminShopApi {
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "모든 상점 조회")
+    @GetMapping("/admin/shops")
+    ResponseEntity<AdminShopsResponse> getShops(
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
+        @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 상점 조회")
+    @GetMapping("/admin/shops/{id}")
+    ResponseEntity<AdminShopResponse> getShop(
+        @Parameter(in = PATH) @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "모든 상점 카테고리 조회")
+    @GetMapping("/admin/shops/categories")
+    ResponseEntity<AdminShopCategoriesResponse> getShopCategories(
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
+        @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 카테고리 조회")
+    @GetMapping("/admin/shops/categories/{id}")
+    ResponseEntity<AdminShopCategoryResponse> getShopCategory(
+        @Parameter(in = PATH) @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
 
     @ApiResponses(
         value = {
@@ -92,6 +165,7 @@ public interface AdminShopApi {
         @RequestBody @Valid AdminCreateMenuRequest adminCreateMenuRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     );
+
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "201"),
@@ -110,6 +184,36 @@ public interface AdminShopApi {
 
     @ApiResponses(
         value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 생성")
+    @PostMapping("/admin/shops")
+    ResponseEntity<Void> createShop(
+        @RequestBody @Valid AdminCreateShopRequest adminCreateShopRequest,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 카테고리 생성")
+    @PostMapping("/admin/shops/categories")
+    ResponseEntity<Void> createShopCategory(
+        @RequestBody @Valid AdminCreateShopCategoryRequest adminCreateShopCategoryRequest,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
             @ApiResponse(responseCode = "201"),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
@@ -120,6 +224,38 @@ public interface AdminShopApi {
     @PostMapping("/admin/shops/{id}/undelete")
     ResponseEntity<Void> cancelShopDelete(
         @Parameter(in = PATH) @PathVariable("id") Integer shopId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 수정")
+    @PutMapping("/admin/shops/{id}")
+    ResponseEntity<Void> modifyShop(
+        @Parameter(in = PATH) @PathVariable Integer id,
+        @RequestBody @Valid AdminModifyShopRequest adminModifyShopRequest,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 카테고리 수정")
+    @PutMapping("/admin/shops/categories/{id}")
+    ResponseEntity<Void> modifyShopCategory(
+        @Parameter(in = PATH) @PathVariable Integer id,
+        @RequestBody @Valid AdminModifyShopCategoryRequest adminModifyShopCategoryRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -153,6 +289,36 @@ public interface AdminShopApi {
         @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
         @Parameter(in = PATH) @PathVariable("menuId") Integer menuId,
         @RequestBody @Valid AdminModifyMenuRequest adminModifyMenuRequest,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 삭제")
+    @DeleteMapping("/admin/shops/{id}")
+    ResponseEntity<Void> deleteShop(
+        @Parameter(in = PATH) @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점 카테고리 삭제")
+    @DeleteMapping("/admin/shops/categories/{id}")
+    ResponseEntity<Void> deleteShopCategory(
+        @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 

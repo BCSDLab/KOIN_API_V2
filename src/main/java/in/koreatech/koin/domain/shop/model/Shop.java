@@ -1,9 +1,6 @@
 package in.koreatech.koin.domain.shop.model;
 
-import static jakarta.persistence.CascadeType.MERGE;
-import static jakarta.persistence.CascadeType.PERSIST;
-import static jakarta.persistence.CascadeType.REFRESH;
-import static jakarta.persistence.CascadeType.REMOVE;
+import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
@@ -16,6 +13,7 @@ import java.util.Locale;
 
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.dto.ModifyShopRequest.InnerShopOpen;
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -195,6 +193,18 @@ public class Shop extends BaseEntity {
         }
     }
 
+    public void modifyAdminShopOpens(
+        List<AdminModifyShopRequest.InnerShopOpen> innerShopOpens,
+        EntityManager entityManager
+    ) {
+        this.shopOpens.clear();
+        entityManager.flush();
+        for (var open : innerShopOpens) {
+            ShopOpen shopOpen = open.toEntity(this);
+            this.shopOpens.add(shopOpen);
+        }
+    }
+
     public void modifyShopCategories(List<ShopCategory> shopCategories, EntityManager entityManager) {
         this.shopCategories.clear();
         entityManager.flush();
@@ -215,7 +225,8 @@ public class Shop extends BaseEntity {
                 return true;
             }
             if (
-                shopOpen.getDayOfWeek().equals(prevDayOfWeek) && isBetweenDate(now, shopOpen, now.minusDays(1).toLocalDate())
+                shopOpen.getDayOfWeek().equals(prevDayOfWeek) && isBetweenDate(now, shopOpen,
+                    now.minusDays(1).toLocalDate())
             ) {
                 return true;
             }
@@ -234,6 +245,10 @@ public class Shop extends BaseEntity {
 
     public void updateOwner(Owner owner) {
         this.owner = owner;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
     }
 
     public void cancelDelete() {

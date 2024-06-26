@@ -3,6 +3,8 @@ package in.koreatech.koin.admin.shop.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -13,22 +15,25 @@ import in.koreatech.koin.domain.shop.model.Shop;
 
 public interface AdminShopRepository extends Repository<Shop, Integer> {
 
+    @Query(value = "SELECT * FROM shops WHERE is_deleted = :isDeleted",
+        countQuery = "SELECT count(*) FROM shops WHERE is_deleted = :isDeleted",
+        nativeQuery = true)
+    Page<Shop> findAllByIsDeleted(@Param("isDeleted") boolean isDeleted, Pageable pageable);
+
+    @Query(value = "SELECT COUNT(*) FROM shops WHERE is_deleted = :isDeleted", nativeQuery = true)
+    Integer countAllByIsDeleted(@Param("isDeleted") boolean isDeleted);
+
     Shop save(Shop shop);
 
-    List<Shop> findAllByOwnerId(Integer ownerId);
+    @Query(value = "SELECT * FROM shops WHERE id = :shopId", nativeQuery = true)
+    Optional<Shop> findById(@Param("shopId") Integer shopId);
 
-    Optional<Shop> findById(Integer shopId);
-
-    Optional<Shop> findByOwnerId(Integer ownerId);
+    @Query(value = "SELECT * FROM shops WHERE owner_id = :ownerId AND is_deleted = false", nativeQuery = true)
+    List<Shop> findAllByOwnerId(@Param("ownerId") Integer ownerId);
 
     default Shop getById(Integer shopId) {
         return findById(shopId)
             .orElseThrow(() -> ShopNotFoundException.withDetail("shopId: " + shopId));
-    }
-
-    default Shop getByOwnerId(Integer ownerId) {
-        return findByOwnerId(ownerId)
-            .orElseThrow(() -> ShopNotFoundException.withDetail("ownerId: " + ownerId));
     }
 
     List<Shop> findAll();
