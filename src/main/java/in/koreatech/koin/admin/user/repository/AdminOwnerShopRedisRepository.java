@@ -9,4 +9,6 @@ import in.koreatech.koin.domain.owner.model.OwnerShop;
 public interface AdminOwnerShopRedisRepository extends Repository<OwnerShop, Integer> {
 
     Optional<OwnerShop> findById(Integer ownerId);
+
+    void deleteById(Integer ownerId);
 }

@@ -136,6 +136,7 @@ public class AdminUserService {
             Integer shopId = ownerShop.get().getShopId();
             Shop shop = adminShopRepository.getById(shopId);
             shop.updateOwner(owner);
+            adminOwnerShopRedisRepository.deleteById(id);
         }
         owner.getUser().auth();
         owner.setGrantShop(true);
