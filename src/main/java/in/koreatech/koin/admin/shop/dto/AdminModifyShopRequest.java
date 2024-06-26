@@ -74,7 +74,15 @@ public record AdminModifyShopRequest(
     @Schema(description = "전화번호", example = "041-000-0000", requiredMode = NOT_REQUIRED)
     @NotBlank(message = "전화번호는 필수입니다.")
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "전화번호 형식이 유효하지 않습니다.")
-    String phone
+    String phone,
+
+    @Schema(example = "국민은행", description = "은행", requiredMode = NOT_REQUIRED)
+    @Size(max = 10, message = "은행명은 10자 이내로 입력해주세요")
+    String bank,
+
+    @Schema(example = "110-439-1234567", description = "계좌번호", requiredMode = NOT_REQUIRED)
+    @Size(max = 20, message = "계좌번호는 20자 이내로 입력해주세요")
+    String accountNumber
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
