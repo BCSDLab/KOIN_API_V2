@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.hibernate.annotations.Where;
+
 import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.dto.ModifyShopRequest.InnerShopOpen;
@@ -36,6 +38,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "shops")
+@Where(clause = "is_deleted=0")
 public class Shop extends BaseEntity {
 
     @Id

@@ -110,8 +110,8 @@ public class AdminShopService {
                 .build();
             adminShopOpenRepository.save(shopOpen);
         }
-        List<ShopCategory> Categories = adminShopCategoryRepository.findAllByIdIn(adminCreateShopRequest.categoryIds());
-        for (ShopCategory shopCategory : Categories) {
+        List<ShopCategory> categories = adminShopCategoryRepository.findAllByIdIn(adminCreateShopRequest.categoryIds());
+        for (ShopCategory shopCategory : categories) {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
                 .shopCategory(shopCategory)
                 .shop(savedShop)

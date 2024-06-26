@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.shop.dto.AdminCreateShopCategoryRequest;
@@ -27,6 +28,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @Tag(name = "(Admin) Shop: 상점", description = "관리자 권한으로 상점 정보를 관리한다")
 public interface AdminShopApi {
@@ -106,7 +108,7 @@ public interface AdminShopApi {
     @Operation(summary = "상점 생성")
     @PostMapping("/admin/shops")
     ResponseEntity<Void> createShop(
-        AdminCreateShopRequest adminCreateShopRequest,
+        @RequestBody @Valid AdminCreateShopRequest adminCreateShopRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -121,7 +123,7 @@ public interface AdminShopApi {
     @Operation(summary = "상점 카테고리 생성")
     @PostMapping("/admin/shops/categories")
     ResponseEntity<Void> createShopCategory(
-        AdminCreateShopCategoryRequest adminCreateShopCategoryRequest,
+        @RequestBody @Valid AdminCreateShopCategoryRequest adminCreateShopCategoryRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -137,7 +139,7 @@ public interface AdminShopApi {
     @PutMapping("/admin/shops/{id}")
     ResponseEntity<Void> modifyShop(
         @Parameter(in = PATH) @PathVariable Integer id,
-        AdminModifyShopRequest adminModifyShopRequest,
+        @RequestBody @Valid AdminModifyShopRequest adminModifyShopRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -153,7 +155,7 @@ public interface AdminShopApi {
     @PutMapping("/admin/shops/categories/{id}")
     ResponseEntity<Void> modifyShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
-        AdminModifyShopCategoryRequest adminModifyShopCategoryRequest,
+        @RequestBody @Valid AdminModifyShopCategoryRequest adminModifyShopCategoryRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 

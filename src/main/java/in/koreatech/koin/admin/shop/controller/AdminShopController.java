@@ -25,6 +25,7 @@ import in.koreatech.koin.admin.shop.dto.AdminShopsResponse;
 import in.koreatech.koin.admin.shop.service.AdminShopService;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -75,7 +76,7 @@ public class AdminShopController implements AdminShopApi {
 
     @PostMapping("/admin/shops")
     public ResponseEntity<Void> createShop(
-        @RequestBody AdminCreateShopRequest adminCreateShopRequest,
+        @RequestBody @Valid AdminCreateShopRequest adminCreateShopRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminShopService.createShop(adminCreateShopRequest);
@@ -84,7 +85,7 @@ public class AdminShopController implements AdminShopApi {
 
     @PostMapping("/admin/shops/categories")
     public ResponseEntity<Void> createShopCategory(
-        @RequestBody AdminCreateShopCategoryRequest adminCreateShopCategoryRequest,
+        @RequestBody @Valid AdminCreateShopCategoryRequest adminCreateShopCategoryRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminShopService.createShopCategory(adminCreateShopCategoryRequest);
@@ -94,7 +95,7 @@ public class AdminShopController implements AdminShopApi {
     @PutMapping("/admin/shops/{id}")
     public ResponseEntity<Void> modifyShop(
         @Parameter(in = PATH) @PathVariable Integer id,
-        @RequestBody AdminModifyShopRequest adminModifyShopRequest,
+        @RequestBody @Valid AdminModifyShopRequest adminModifyShopRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminShopService.modifyShop(id, adminModifyShopRequest);
@@ -104,7 +105,7 @@ public class AdminShopController implements AdminShopApi {
     @PutMapping("/admin/shops/categories/{id}")
     public ResponseEntity<Void> modifyShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
-        @RequestBody AdminModifyShopCategoryRequest adminModifyShopCategoryRequest,
+        @RequestBody @Valid AdminModifyShopCategoryRequest adminModifyShopCategoryRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminShopService.modifyShopCategory(id, adminModifyShopCategoryRequest);
