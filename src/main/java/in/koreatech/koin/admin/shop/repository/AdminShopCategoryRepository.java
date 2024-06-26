@@ -7,8 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.Repository;
 
-import com.amazonaws.services.dynamodbv2.document.Item;
-
 import in.koreatech.koin.domain.shop.exception.ShopCategoryNotFoundException;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
 
@@ -24,10 +22,12 @@ public interface AdminShopCategoryRepository extends Repository<ShopCategory, In
 
     List<ShopCategory> findAllByIdIn(List<Integer> ids);
 
+    Optional<ShopCategory> findByName(String name);
+
+    List<ShopCategory> findAll();
+
     default ShopCategory getById(Integer shopCategoryId) {
         return findById(shopCategoryId)
             .orElseThrow(() -> ShopCategoryNotFoundException.withDetail("shopCategoryId: " + shopCategoryId));
     }
-
-    Optional<ShopCategory> findByName(String name);
 }

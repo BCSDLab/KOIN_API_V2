@@ -246,4 +246,8 @@ public class Shop extends BaseEntity {
     public void delete() {
         this.isDeleted = true;
     }
+
+    public void cancelDelete() {
+        this.isDeleted = false;
+    }
 }

@@ -1,11 +1,10 @@
 package in.koreatech.koin.admin.user.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +19,8 @@ import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
-import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
 import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
@@ -106,7 +105,7 @@ public class AdminUserService {
         List<Integer> shopsId = adminShopRepository.findAllByOwnerId(ownerId)
             .stream()
             .map(Shop::getId)
-            .collect(Collectors.toList());
+            .toList();
 
         return AdminOwnerResponse.of(owner, shopsId);
     }

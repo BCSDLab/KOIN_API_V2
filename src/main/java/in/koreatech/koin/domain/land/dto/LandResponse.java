@@ -158,7 +158,7 @@ public record LandResponse(
             land.getLongitude(),
             land.getAddress(),
             land.isOptBed(),
-            land.getSize(),
+            String.valueOf(land.getSize()),
             land.getPhone(),
             land.isOptAirConditioner(),
             land.getName(),

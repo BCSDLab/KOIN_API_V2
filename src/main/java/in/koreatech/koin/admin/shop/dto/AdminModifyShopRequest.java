@@ -61,7 +61,7 @@ public record AdminModifyShopRequest(
     String name,
 
     @Schema(description = "요일별 휴무 여부 및 장사 시간", requiredMode = NOT_REQUIRED)
-    List<AdminCreateShopRequest.InnerShopOpen> open,
+    List<InnerShopOpen> open,
 
     @Schema(description = "계좌 이체 가능 여부", example = "true", requiredMode = REQUIRED)
     @NotNull(message = "계좌 이체 가능 여부는 필수입니다.")
