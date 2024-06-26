@@ -2,6 +2,8 @@ package in.koreatech.koin.admin.user.service;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
 import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
 import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
@@ -38,8 +41,8 @@ import in.koreatech.koin.admin.user.repository.AdminShopRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminTokenRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
-import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
 import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
@@ -224,7 +227,7 @@ public class AdminUserService {
         List<Integer> shopsId = adminShopRepository.findAllByOwnerId(ownerId)
             .stream()
             .map(Shop::getId)
-            .collect(Collectors.toList());
+            .toList();
 
         return AdminOwnerResponse.of(owner, shopsId);
     }

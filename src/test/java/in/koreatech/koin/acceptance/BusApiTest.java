@@ -250,7 +250,7 @@ class BusApiTest extends AcceptanceTest {
 
         cityBusCacheRepository.save(
             CityBusCache.of(
-                depart.getNodeId(direction),
+                depart.getNodeId(direction).get(0),
                 List.of(CityBusCacheInfo.of(
                     CityBusArrival.builder()
                         .routeno(busNumber)

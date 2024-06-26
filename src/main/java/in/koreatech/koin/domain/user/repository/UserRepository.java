@@ -34,7 +34,7 @@ public interface UserRepository extends Repository<User, Integer> {
 
     default User getByPhoneNumber(String phoneNumber, UserType userType) {
         return findByPhoneNumberAndUserType(phoneNumber, userType)
-            .orElseThrow(() -> UserNotFoundException.withDetail("phoneNumber: " + phoneNumber));
+            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + phoneNumber));
     }
 
     default User getById(Integer userId) {
@@ -62,4 +62,6 @@ public interface UserRepository extends Repository<User, Integer> {
     void delete(User user);
 
     List<User> findAllByDeviceTokenIsNotNull();
+
+    Optional<User> findByPhoneNumber(String phoneNumber);
 }

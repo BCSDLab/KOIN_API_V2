@@ -235,4 +235,8 @@ public class Shop extends BaseEntity {
     public void updateOwner(Owner owner) {
         this.owner = owner;
     }
+
+    public void cancelDelete() {
+        this.isDeleted = false;
+    }
 }

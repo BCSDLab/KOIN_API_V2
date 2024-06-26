@@ -69,10 +69,15 @@ public class CityBusClient {
         this.cityBusCacheRepository = cityBusCacheRepository;
     }
 
-    public List<CityBusRemainTime> getBusRemainTime(String nodeId) {
-        Optional<CityBusCache> cityBusCache = cityBusCacheRepository.findById(nodeId);
-        return cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBusRemainTime::from).toList())
-            .orElseGet(ArrayList::new);
+    public List<CityBusRemainTime> getBusRemainTime(List<String> nodeIds) {
+        List<CityBusRemainTime> result = new ArrayList<>();
+        nodeIds.forEach(nodeId -> {
+            Optional<CityBusCache> cityBusCache = cityBusCacheRepository.findById(nodeId);
+            if (cityBusCache.isPresent()) {
+                result.addAll(cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBusRemainTime::from).toList()).get());
+            }
+        });
+        return result;
     }
 
     @Transactional
