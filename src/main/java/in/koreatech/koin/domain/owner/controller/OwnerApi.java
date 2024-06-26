@@ -4,21 +4,26 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin.domain.owner.dto.CompanyNumberCheckRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerAccountCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateSmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterByPhoneRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSendSmsRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
@@ -48,6 +53,20 @@ public interface OwnerApi {
     @GetMapping("/owner")
     ResponseEntity<OwnerResponse> getOwner(
         @Auth(permit = {OWNER}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "사장님 로그인")
+    @PostMapping("/owner/login")
+    ResponseEntity<OwnerLoginResponse> ownerLogin(
+        @RequestBody @Valid OwnerLoginRequest request
     );
 
     @ApiResponses(
@@ -262,5 +281,34 @@ public interface OwnerApi {
     @PutMapping("/owners/password/reset/sms")
     ResponseEntity<Void> updatePasswordBySms(
         @Valid @RequestBody OwnerPasswordUpdateSmsRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "사업자 등록번호 중복 검증")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/owners/exists/company-number")
+    ResponseEntity<Void> checkCompanyNumber(
+        @ModelAttribute("company_number")
+        @Valid CompanyNumberCheckRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "전화번호 중복 체크")
+    @GetMapping("/owners/exists/account")
+    ResponseEntity<Void> checkDuplicationOfPhoneNumber(
+        @ModelAttribute("account")
+        @Valid OwnerAccountCheckExistsRequest request
     );
 }

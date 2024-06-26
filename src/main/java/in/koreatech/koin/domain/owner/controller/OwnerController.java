@@ -2,24 +2,31 @@ package in.koreatech.koin.domain.owner.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
+import java.net.URI;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.owner.dto.CompanyNumberCheckRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerAccountCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateSmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterByPhoneRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerSendSmsRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
@@ -64,6 +71,15 @@ public class OwnerController implements OwnerApi {
     ) {
         ownerService.register(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/owner/login")
+    public ResponseEntity<OwnerLoginResponse> ownerLogin(
+        @RequestBody @Valid OwnerLoginRequest request
+    ) {
+        OwnerLoginResponse response = ownerService.ownerLogin(request);
+        return ResponseEntity.created(URI.create("/"))
+            .body(response);
     }
 
     @PostMapping("/owners/register/phone")
@@ -135,6 +151,24 @@ public class OwnerController implements OwnerApi {
         @Valid @RequestBody OwnerPasswordUpdateSmsRequest request
     ) {
         ownerService.updatePasswordBySms(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/owners/exists/company-number")
+    public ResponseEntity<Void> checkCompanyNumber(
+        @ModelAttribute("company_number")
+        @Valid CompanyNumberCheckRequest request
+    ) {
+        ownerService.checkCompanyNumber(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/owners/exists/account")
+    public ResponseEntity<Void> checkDuplicationOfPhoneNumber(
+        @ModelAttribute("account")
+        @Valid OwnerAccountCheckExistsRequest request
+    ) {
+        ownerService.checkExistsAccount(request);
         return ResponseEntity.ok().build();
     }
 }

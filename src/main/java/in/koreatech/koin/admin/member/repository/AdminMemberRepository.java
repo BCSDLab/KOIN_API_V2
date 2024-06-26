@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.member.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -22,6 +23,8 @@ public interface AdminMemberRepository extends Repository<Member, Integer> {
     Integer countAllByTrackAndIsDeleted(String trackName, Boolean isDeleted);
 
     Member save(Member member);
+
+    List<Member> findByTrackId(Integer id);
 
     @EntityGraph(attributePaths = {"track"})
     Optional<Member> findByName(String name);

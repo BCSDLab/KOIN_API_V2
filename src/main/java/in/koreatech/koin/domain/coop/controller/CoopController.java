@@ -2,12 +2,17 @@ package in.koreatech.koin.domain.coop.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.COOP;
 
+import java.net.URI;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
+import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.service.CoopService;
@@ -38,5 +43,14 @@ public class CoopController implements CoopApi {
     ) {
         coopService.saveDiningImage(imageRequest);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<CoopLoginResponse> coopLogin(
+        @RequestBody @Valid CoopLoginRequest request
+    ) {
+        CoopLoginResponse response = coopService.coopLogin(request);
+        return ResponseEntity.created(URI.create("/"))
+            .body(response);
     }
 }

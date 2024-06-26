@@ -231,4 +231,8 @@ public class Shop extends BaseEntity {
         }
         return !start.isAfter(now) && !end.isBefore(now);
     }
+
+    public void cancelDelete() {
+        this.isDeleted = false;
+    }
 }

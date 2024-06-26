@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.member.dto.AdminTechStackRequest;
 import in.koreatech.koin.admin.member.dto.AdminTechStackResponse;
+import in.koreatech.koin.admin.member.dto.AdminTrackRequest;
 import in.koreatech.koin.admin.member.dto.AdminTrackResponse;
+import in.koreatech.koin.admin.member.dto.AdminTrackSingleResponse;
 import in.koreatech.koin.admin.member.service.AdminTrackService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -33,6 +36,43 @@ public class AdminTrackController implements AdminTrackApi {
     ) {
         var response = adminTrackService.getTracks();
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/admin/tracks")
+    public ResponseEntity<AdminTrackResponse> createTrack(
+        @RequestBody @Valid AdminTrackRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        var response = adminTrackService.createTrack(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/admin/tracks/{id}")
+    public ResponseEntity<AdminTrackSingleResponse> getTrack(
+        @PathVariable("id") Integer trackId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        var response = adminTrackService.getTrack(trackId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/admin/tracks/{id}")
+    public ResponseEntity<AdminTrackResponse> updateTrack(
+        @PathVariable("id") Integer trackId,
+        @RequestBody @Valid AdminTrackRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        var response = adminTrackService.updateTrack(trackId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/admin/tracks/{id}")
+    public ResponseEntity<Void> deleteTrack(
+        @PathVariable("id") Integer trackId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminTrackService.deleteTrack(trackId);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/admin/techStacks")
@@ -54,5 +94,14 @@ public class AdminTrackController implements AdminTrackApi {
     ) {
         var response = adminTrackService.updateTechStack(request, trackName, techStackId);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/admin/techStacks/{id}")
+    public ResponseEntity<Void> deleteTechStack(
+        @PathVariable("id") Integer techStackId,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminTrackService.deleteTechStack(techStackId);
+        return ResponseEntity.ok().build();
     }
 }
