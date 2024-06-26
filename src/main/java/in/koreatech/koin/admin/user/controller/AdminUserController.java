@@ -30,7 +30,6 @@ import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
-import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
 import in.koreatech.koin.admin.user.service.AdminUserService;
 import in.koreatech.koin.domain.user.model.User;

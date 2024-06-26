@@ -28,8 +28,6 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
-import in.koreatech.koin.admin.user.dto.NewOwnersCondition;
-import in.koreatech.koin.admin.user.dto.StudentsCondition;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

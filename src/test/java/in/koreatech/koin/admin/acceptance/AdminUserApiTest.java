@@ -16,16 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.SerializationFeature;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
-import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
