@@ -98,7 +98,6 @@ public class AdminUserService {
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
         UserToken savedtoken = adminTokenRepository.save(UserToken.create(user.getId(), refreshToken));
         user.updateLastLoggedTime(LocalDateTime.now());
-        adminUserRepository.save(user);
 
         return AdminLoginResponse.of(accessToken, savedtoken.getRefreshToken());
     }
@@ -131,17 +130,17 @@ public class AdminUserService {
     @Transactional
     public void allowOwnerPermission(Integer id) {
         Owner owner = adminOwnerRepository.getById(id);
+        owner.getUser().auth();
         Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(id);
         if (ownerShop.isPresent()) {
             Integer shopId = ownerShop.get().getShopId();
             if (shopId != null) {
                 Shop shop = adminShopRepository.getById(shopId);
                 shop.updateOwner(owner);
+                owner.setGrantShop(true);
             }
             adminOwnerShopRedisRepository.deleteById(id);
         }
-        owner.getUser().auth();
-        owner.setGrantShop(true);
     }
 
     public AdminStudentResponse getStudent(Integer userId) {
