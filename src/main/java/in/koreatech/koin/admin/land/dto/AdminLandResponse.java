@@ -21,16 +21,16 @@ public record AdminLandResponse(
     String internalName,
 
     @Schema(description = "크기", example = "9.0")
-    String size,
+    double size,
 
     @Schema(description = "종류", example = "원룸")
     String roomType,
 
     @Schema(description = "위도", example = "36.766205")
-    String latitude,
+    double latitude,
 
     @Schema(description = "경도", example = "127.284638")
-    String longitude,
+    double longitude,
 
     @Schema(description = "전화번호", example = "041-111-1111")
     String phone,
@@ -115,10 +115,10 @@ public record AdminLandResponse(
             land.getId(),
             land.getName(),
             land.getInternalName(),
-            land.getSize(),
+            land.getSize() == null ? null : land.getSize(),
             land.getRoomType(),
-            land.getLatitude() != null ? land.getLatitude().toString() : null,
-            land.getLongitude() != null ? land.getLongitude().toString() : null,
+            land.getLatitude() == null ? null : land.getLatitude(),
+            land.getLongitude() == null ? null : land.getLongitude(),
             land.getPhone(),
             convertToList(land.getImageUrls()),
             land.getAddress(),

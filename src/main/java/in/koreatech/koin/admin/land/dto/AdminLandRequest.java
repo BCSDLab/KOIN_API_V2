@@ -28,17 +28,17 @@ public record AdminLandRequest(
     String internalName,
 
     @Schema(description = "크기", example = "9.0")
-    String size,
+    double size,
 
     @Schema(description = "종류 - 최대 20자", example = "원룸")
     @Size(max = 20, message = "방종류의 최대 길이는 20자입니다.")
     String roomType,
 
     @Schema(description = "위도", example = "36.766205")
-    String latitude,
+    double latitude,
 
     @Schema(description = "경도", example = "127.284638")
-    String longitude,
+    double longitude,
 
     @Schema(description = "전화번호 - 정규식 `^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$` 을 만족해야함", example = "041-111-1111")
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "전화번호의 형식이 올바르지 않습니다.")
@@ -127,10 +127,10 @@ public record AdminLandRequest(
         return Land.builder()
             .name(name)
             .internalName(internalName)
-            .size(size)
+            .size(String.valueOf(size))
             .roomType(roomType)
-            .latitude(latitude)
-            .longitude(longitude)
+            .latitude(String.valueOf(latitude))
+            .longitude(String.valueOf(longitude))
             .phone(phone)
             .imageUrls(imageUrls)
             .address(address)

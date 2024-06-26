@@ -235,6 +235,13 @@ public class Land extends BaseEntity {
         return Double.parseDouble(longitude);
     }
 
+    public Double getSize(){
+        if(this.size == null){
+            return null;
+        }
+        return Double.parseDouble(size);
+    }
+
     private String convertToSting(List<String> imageUrls) {
         if (imageUrls == null || imageUrls.isEmpty()) {
             return null;
@@ -252,8 +259,8 @@ public class Land extends BaseEntity {
         this.isDeleted = false;
     }
 
-    public void update(String internalName, String name, String size, String roomType, String latitude,
-        String longitude,
+    public void update(String internalName, String name, double size, String roomType, double latitude,
+        double longitude,
         String phone, List<String> imageUrls, String address, String description, Integer floor,
         String deposit, String monthlyFee, String charterFee, String managementFee, boolean optRefrigerator,
         boolean optCloset, boolean optTv, boolean optMicrowave, boolean optGasRange, boolean optInduction,
@@ -262,10 +269,10 @@ public class Land extends BaseEntity {
         boolean optElevator) {
         this.internalName = internalName;
         this.name = name;
-        this.size = size;
+        this.size = String.valueOf(size);
         this.roomType = roomType;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.latitude = String.valueOf(latitude);
+        this.longitude = String.valueOf(longitude);
         this.phone = phone;
         this.imageUrls = convertToSting(imageUrls);
         this.address = address;

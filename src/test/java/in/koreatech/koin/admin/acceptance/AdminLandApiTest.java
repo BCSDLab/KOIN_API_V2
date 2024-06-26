@@ -169,7 +169,7 @@ class AdminLandApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("특정 복덕방 정보를 조회한다.")
+    @DisplayName("관리자의 권한으로 특정 복덕방 정보를 조회한다.")
     void getLand() {
         // 복덕방 생성
         Land request = Land.builder()
@@ -178,6 +178,7 @@ class AdminLandApiTest extends AcceptanceTest {
             .roomType("원룸")
             .latitude("37.555")
             .longitude("126.555")
+            .size("9.0")
             .monthlyFee("100")
             .charterFee("1000")
             .address("가전리 123")
@@ -205,10 +206,10 @@ class AdminLandApiTest extends AcceptanceTest {
                 "id": %d,
                 "name": "금실타운",
                 "internal_name": "금실타운",
-                "size": null,
+                "size": 9.0,
                 "room_type": "원룸",
-                "latitude": "37.555",
-                "longitude": "126.555",
+                "latitude": 37.555,
+                "longitude": 126.555,
                 "phone": null,
                 "image_urls": [],
                 "address": "가전리 123",
@@ -292,7 +293,7 @@ class AdminLandApiTest extends AcceptanceTest {
         assertSoftly(softly -> {
             softly.assertThat(updatedLand.getName()).isEqualTo("신안빌 수정");
             softly.assertThat(updatedLand.getInternalName()).isEqualTo("신안빌");
-            softly.assertThat(updatedLand.getSize()).isEqualTo("110.0");
+            softly.assertThat(updatedLand.getSize()).isEqualTo(110.0);
             softly.assertThat(updatedLand.getRoomType()).isEqualTo("투룸");
             softly.assertThat(updatedLand.getLatitude()).isEqualTo(37.556);
             softly.assertThat(updatedLand.getLongitude()).isEqualTo(126.556);
