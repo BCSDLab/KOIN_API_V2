@@ -19,6 +19,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
+import in.koreatech.koin.admin.user.repository.AdminOwnerShopRedisRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
@@ -44,6 +45,9 @@ public class AdminUserApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminUserRepository adminUserRepository;
+
+    @Autowired
+    private AdminOwnerShopRedisRepository adminOwnerShopRedisRepository;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -314,10 +318,34 @@ public class AdminUserApiTest extends AcceptanceTest {
     @DisplayName("관리자가 사장님 권한 요청을 허용한다.")
     void allowOwnerPermission() {
         Owner owner = userFixture.철수_사장님();
-        Shop shop = shopFixture.마슬랜(owner);
+        Shop shop = shopFixture.마슬랜(null);
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
+
+        RestAssured
+            .given()
+            .body(String.format("""
+                    {
+                       "attachment_urls": [
+                         {
+                           "file_url": "https://static.koreatech.in/testimage.png"
+                         }
+                       ],
+                       "company_number": "011-34-12312",
+                       "email": "helloworld@koreatech.ac.kr",
+                       "name": "주노",
+                       "password": "a0240120305812krlakdsflsa;1235",
+                       "phone_number": "010-0000-0000",
+                       "shop_id": %d,
+                       "shop_name": "기분좋은 뷔짱"
+                     }
+                    """, shop.getId()))
+            .contentType(ContentType.JSON)
+            .when()
+            .post("/owners/register")
+            .then()
+            .statusCode(HttpStatus.OK.value());
 
         var response = RestAssured
             .given()
@@ -331,9 +359,15 @@ public class AdminUserApiTest extends AcceptanceTest {
 
         //영속성 컨테스트 동기화
         Owner updatedOwner = adminOwnerRepository.getById(owner.getId());
+        var ownerShop = adminOwnerShopRedisRepository.findById(owner.getId());
 
-        assertThat(updatedOwner.getUser().isAuthed()).isEqualTo(true);
-        assertThat(updatedOwner.isGrantShop()).isEqualTo(true);
+        assertSoftly(
+            softly -> {
+                softly.assertThat(updatedOwner.getUser().isAuthed()).isEqualTo(true);
+                softly.assertThat(updatedOwner.isGrantShop()).isEqualTo(true);
+                softly.assertThat(ownerShop).isEmpty();
+            }
+        );
     }
 
     @Test
