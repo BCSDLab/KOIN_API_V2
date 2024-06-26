@@ -14,6 +14,7 @@ import in.koreatech.koin.admin.shop.dto.AdminMenuCategoriesResponse;
 import in.koreatech.koin.admin.shop.dto.AdminMenuDetailResponse;
 import in.koreatech.koin.admin.shop.dto.AdminModifyMenuCategoryRequest;
 import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest.InnerOptionPrice;
 import in.koreatech.koin.admin.shop.dto.AdminShopMenuResponse;
 import in.koreatech.koin.admin.shop.repository.AdminMenuCategoryMapRepository;
 import in.koreatech.koin.admin.shop.repository.AdminMenuCategoryRepository;
@@ -145,7 +146,8 @@ public class AdminShopService {
         if (adminModifyMenuRequest.isSingle()) {
             menu.adminModifyMenuSingleOptions(adminModifyMenuRequest, entityManager);
         } else {
-            menu.adminModifyMenuMultipleOptions(adminModifyMenuRequest.optionPrices(), entityManager);
+            List<InnerOptionPrice> optionPrices = adminModifyMenuRequest.optionPrices();
+            menu.adminModifyMenuMultipleOptions(optionPrices, entityManager);
         }
     }
 
