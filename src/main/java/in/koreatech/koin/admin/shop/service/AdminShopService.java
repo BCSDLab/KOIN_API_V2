@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +76,7 @@ public class AdminShopService {
     private final AdminMenuCategoryMapRepository adminMenuCategoryMapRepository;
     private final AdminMenuImageRepository adminMenuImageRepository;
     private final AdminMenuDetailRepository adminMenuDetailRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public AdminShopsResponse getShops(Integer page, Integer limit, Boolean isDeleted) {
         Integer total = adminShopRepository.countAllByIsDeleted(isDeleted);
@@ -237,6 +239,7 @@ public class AdminShopService {
     @Transactional
     public void modifyShop(Integer shopId, AdminModifyShopRequest adminModifyShopRequest) {
         Shop shop = adminShopRepository.getById(shopId);
+        String encodedAccountNumber = passwordEncoder.encode(adminModifyShopRequest.accountNumber());
         shop.modifyShop(
             adminModifyShopRequest.name(),
             adminModifyShopRequest.phone(),
@@ -245,7 +248,9 @@ public class AdminShopService {
             adminModifyShopRequest.delivery(),
             adminModifyShopRequest.deliveryPrice(),
             adminModifyShopRequest.payCard(),
-            adminModifyShopRequest.payBank()
+            adminModifyShopRequest.payBank(),
+            adminModifyShopRequest.bank(),
+            encodedAccountNumber
         );
         shop.modifyShopCategories(
             adminShopCategoryRepository.findAllByIdIn(adminModifyShopRequest.categoryIds()),
