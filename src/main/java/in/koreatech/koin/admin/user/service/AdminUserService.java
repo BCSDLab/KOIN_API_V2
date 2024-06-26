@@ -134,8 +134,10 @@ public class AdminUserService {
         Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(id);
         if (ownerShop.isPresent()) {
             Integer shopId = ownerShop.get().getShopId();
-            Shop shop = adminShopRepository.getById(shopId);
-            shop.updateOwner(owner);
+            if (shopId != null) {
+                Shop shop = adminShopRepository.getById(shopId);
+                shop.updateOwner(owner);
+            }
             adminOwnerShopRedisRepository.deleteById(id);
         }
         owner.getUser().auth();
