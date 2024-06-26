@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.bus.util;
 
+import static java.net.URLEncoder.encode;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
 import java.time.Clock;
@@ -134,10 +136,10 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
         try {
             uri = UriComponentsBuilder
                 .fromHttpUrl(OPEN_API_URL)
-                .pathSegment(today.format(ofPattern("yyyyMMdd")))
+                .pathSegment(encode(today.format(ofPattern("yyyyMMdd")), UTF_8))
                 .pathSegment("0000")
-                .pathSegment(departNode.getTmoneyStationId())
-                .pathSegment(arrivalNode.getTmoneyStationId())
+                .pathSegment(encode(departNode.getTmoneyStationId(), UTF_8))
+                .pathSegment(encode(arrivalNode.getTmoneyStationId(), UTF_8))
                 .pathSegment("9")
                 .pathSegment("0")
                 .build();

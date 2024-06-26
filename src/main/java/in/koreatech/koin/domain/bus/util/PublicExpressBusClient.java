@@ -136,9 +136,9 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
                 .queryParam("serviceKey", encode(openApiKey, UTF_8))
                 .queryParam("numOfRows", 30)
                 .queryParam("_type", "json")
-                .queryParam("depTerminalId", departNode.getStationId())
-                .queryParam("arrTerminalId", arrivalNode.getStationId())
-                .queryParam("depPlandTime", yesterday.format(ofPattern("yyyyMMdd")))
+                .queryParam("depTerminalId", encode(departNode.getStationId(), UTF_8))
+                .queryParam("arrTerminalId", encode(arrivalNode.getStationId(), UTF_8))
+                .queryParam("depPlandTime", encode(yesterday.format(ofPattern("yyyyMMdd")), UTF_8))
                 .build();
             return uri;
         } catch (Exception e) {
