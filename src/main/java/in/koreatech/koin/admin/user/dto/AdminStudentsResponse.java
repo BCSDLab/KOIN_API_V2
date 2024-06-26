@@ -41,7 +41,7 @@ public record AdminStudentsResponse(
         }
     }
 
-    public static AdminStudentsResponse of(Page<Student> studentsPage) {
+    public static AdminStudentsResponse from(Page<Student> studentsPage) {
         return new AdminStudentsResponse(
             studentsPage.getNumberOfElements(),
             studentsPage.getNumber() + 1,

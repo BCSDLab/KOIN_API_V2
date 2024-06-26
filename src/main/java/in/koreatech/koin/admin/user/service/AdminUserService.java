@@ -78,7 +78,7 @@ public class AdminUserService {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
         Page<Student> studentsPage = adminStudentRepository.findByConditions(studentsCondition, pageRequest);
 
-        return AdminStudentsResponse.of(studentsPage);
+        return AdminStudentsResponse.from(studentsPage);
     }
 
     @Transactional
