@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopsResponse;
 import in.koreatech.koin.admin.coopShop.service.AdminCoopShopService;
-import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
 import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
 
@@ -32,11 +32,11 @@ public class AdminCoopShopController implements AdminCoopShopApi {
     }
 
     @GetMapping("/admin/coop/{coopId}")
-    public ResponseEntity<CoopShopResponse> getCoopShop(
+    public ResponseEntity<AdminCoopShopResponse> getCoopShop(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable Integer coopId
     ) {
-        CoopShopResponse coopShop = adminCoopShopService.getCoopShop(coopId);
+        AdminCoopShopResponse coopShop = adminCoopShopService.getCoopShop(coopId);
         return ResponseEntity.ok(coopShop);
     }
 

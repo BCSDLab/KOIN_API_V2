@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopsResponse;
 import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
 import in.koreatech.koin.global.auth.Auth;
@@ -49,7 +50,7 @@ public interface AdminCoopShopApi {
     )
     @Operation(summary = "특정 생협 매장 정보 조회")
     @GetMapping("/admin/coop/{coopId}")
-    ResponseEntity<CoopShopResponse> getCoopShop(
+    ResponseEntity<AdminCoopShopResponse> getCoopShop(
         @Auth(permit = {ADMIN}) Integer adminId,
         @Parameter(in = PATH) @PathVariable Integer coopId
     );

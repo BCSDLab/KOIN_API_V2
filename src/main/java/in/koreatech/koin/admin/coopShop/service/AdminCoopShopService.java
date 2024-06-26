@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopResponse;
 import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopsResponse;
 import in.koreatech.koin.admin.coopShop.repository.AdminCoopShopRepository;
 import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
@@ -30,8 +31,8 @@ public class AdminCoopShopService {
         return AdminCoopShopsResponse.of(result, criteria);
     }
 
-    public CoopShopResponse getCoopShop(Integer id) {
+    public AdminCoopShopResponse getCoopShop(Integer id) {
         CoopShop coopShop = adminCoopShopRepository.getById(id);
-        return CoopShopResponse.from(coopShop);
+        return AdminCoopShopResponse.from(coopShop);
     }
 }
