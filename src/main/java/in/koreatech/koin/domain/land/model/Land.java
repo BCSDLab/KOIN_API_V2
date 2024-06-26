@@ -235,8 +235,8 @@ public class Land extends BaseEntity {
         return Double.parseDouble(longitude);
     }
 
-    public Double getSize(){
-        if(this.size == null){
+    public Double getSize() {
+        if (this.size == null) {
             return null;
         }
         return Double.parseDouble(size);
