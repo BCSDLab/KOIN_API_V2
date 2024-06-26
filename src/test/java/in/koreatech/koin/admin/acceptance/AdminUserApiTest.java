@@ -563,8 +563,12 @@ public class AdminUserApiTest extends AcceptanceTest {
             .isEqualTo("""
                 {
                     "company_registration_number" : "123-45-67190",
+                    "email" : "hysoo@naver.com",
+                    "gender" : 0,
                     "grant_shop" : false,
                     "grant_event" : false,
+                    "name" : "테스트용_현수",
+                    "nickname" : "현수",
                     "phone_number" : "01098765432"
                 }
                 """);
