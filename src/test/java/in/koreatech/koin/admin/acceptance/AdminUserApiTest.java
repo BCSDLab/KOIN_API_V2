@@ -24,6 +24,8 @@ import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
+import in.koreatech.koin.domain.owner.model.OwnerShop;
+import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
@@ -48,6 +50,9 @@ public class AdminUserApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminOwnerShopRedisRepository adminOwnerShopRedisRepository;
+
+    @Autowired
+    private OwnerShopRedisRepository ownerShopRedisRepository;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -323,29 +328,12 @@ public class AdminUserApiTest extends AcceptanceTest {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        RestAssured
-            .given()
-            .body(String.format("""
-                    {
-                       "attachment_urls": [
-                         {
-                           "file_url": "https://static.koreatech.in/testimage.png"
-                         }
-                       ],
-                       "company_number": "011-34-12312",
-                       "email": "helloworld@koreatech.ac.kr",
-                       "name": "주노",
-                       "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-0000-0000",
-                       "shop_id": %d,
-                       "shop_name": "기분좋은 뷔짱"
-                     }
-                    """, shop.getId()))
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/register")
-            .then()
-            .statusCode(HttpStatus.OK.value());
+        OwnerShop ownerShop = OwnerShop.builder()
+            .ownerId(owner.getId())
+            .shopId(shop.getId())
+            .build();
+
+        ownerShopRedisRepository.save(ownerShop);
 
         var response = RestAssured
             .given()
@@ -359,13 +347,13 @@ public class AdminUserApiTest extends AcceptanceTest {
 
         //영속성 컨테스트 동기화
         Owner updatedOwner = adminOwnerRepository.getById(owner.getId());
-        var ownerShop = adminOwnerShopRedisRepository.findById(owner.getId());
+        var resultOwnerShop = adminOwnerShopRedisRepository.findById(owner.getId());
 
         assertSoftly(
             softly -> {
                 softly.assertThat(updatedOwner.getUser().isAuthed()).isEqualTo(true);
                 softly.assertThat(updatedOwner.isGrantShop()).isEqualTo(true);
-                softly.assertThat(ownerShop).isEmpty();
+                softly.assertThat(resultOwnerShop).isEmpty();
             }
         );
     }
