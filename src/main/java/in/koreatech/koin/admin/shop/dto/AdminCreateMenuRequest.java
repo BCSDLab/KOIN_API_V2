@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -61,6 +62,7 @@ public record AdminCreateMenuRequest(
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
+    @Valid
     public record InnerOptionPrice(
         @Schema(example = "대", description = "옵션명", requiredMode = REQUIRED)
         @NotNull @Size(min = 1, max = 50) String option,
