@@ -62,7 +62,6 @@ public record AdminModifyShopRequest(
 
     @Schema(description = "요일별 휴무 여부 및 장사 시간", requiredMode = NOT_REQUIRED)
     @NotNull
-    @Size(min = 7, max = 7, message = "7개의 요일의 운영시간을 모두 입력해주세요.")
     List<InnerShopOpen> open,
 
     @Schema(description = "계좌 이체 가능 여부", example = "true", requiredMode = REQUIRED)
