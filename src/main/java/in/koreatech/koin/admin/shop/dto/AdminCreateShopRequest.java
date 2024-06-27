@@ -78,6 +78,11 @@ public record AdminCreateShopRequest(
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "전화번호 형식이 유효하지 않습니다.")
     String phone
 ) {
+    public AdminCreateShopRequest {
+        if (imageUrls == null) {
+            imageUrls = List.of();
+        }
+    }
 
     public Shop toShop() {
         return Shop.builder()
