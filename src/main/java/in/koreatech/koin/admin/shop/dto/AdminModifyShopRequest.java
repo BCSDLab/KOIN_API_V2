@@ -61,6 +61,7 @@ public record AdminModifyShopRequest(
     String name,
 
     @Schema(description = "요일별 휴무 여부 및 장사 시간", requiredMode = NOT_REQUIRED)
+    @NotNull
     List<InnerShopOpen> open,
 
     @Schema(description = "계좌 이체 가능 여부", example = "true", requiredMode = REQUIRED)
@@ -76,7 +77,11 @@ public record AdminModifyShopRequest(
     @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "전화번호 형식이 유효하지 않습니다.")
     String phone
 ) {
-
+    public AdminModifyShopRequest {
+        if (imageUrls == null) {
+            imageUrls = List.of();
+        }
+    }
     @JsonNaming(value = SnakeCaseStrategy.class)
     @Valid
     public record InnerShopOpen(

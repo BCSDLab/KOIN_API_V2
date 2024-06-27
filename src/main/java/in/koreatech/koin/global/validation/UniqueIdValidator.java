@@ -14,6 +14,9 @@ public class UniqueIdValidator implements ConstraintValidator<UniqueId, List<Int
 
     @Override
     public boolean isValid(List<Integer> elements, ConstraintValidatorContext context) {
+        if (elements == null) {
+            elements = List.of();
+        }
         return elements.stream().distinct().count() == elements.size();
     }
 }

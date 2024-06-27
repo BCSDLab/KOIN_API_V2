@@ -14,6 +14,9 @@ public class UniqueUrlsValidator implements ConstraintValidator<UniqueUrl, List<
 
     @Override
     public boolean isValid(List<String> elements, ConstraintValidatorContext context) {
+        if (elements == null) {
+            elements = List.of();
+        }
         return elements.stream().distinct().count() == elements.size();
     }
 }
