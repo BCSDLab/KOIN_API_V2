@@ -44,8 +44,9 @@ public class TimetableServiceV2 {
         int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId, semester.getId()) + 1;
         boolean isMain = (currentFrameCount == 1);
 
-        TimetableFrame timeTableFrame = request.toTimetablesFrame(user, semester, "시간표" + currentFrameCount, isMain);
-        return TimetableFrameResponse.from(timetableFrameRepositoryV2.save(timeTableFrame));
+        TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, "시간표" + currentFrameCount, isMain);
+        TimetableFrame savedTimetableFrame = timetableFrameRepositoryV2.save(timetableFrame);
+        return TimetableFrameResponse.from(savedTimetableFrame);
     }
 
     @Transactional
@@ -74,7 +75,7 @@ public class TimetableServiceV2 {
         if (!Objects.equals(frame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
-        if (frame.getIsMain()) {
+        if (frame.isMain()) {
             TimetableFrame nextMainFrame =
                 timetableFrameRepositoryV2.
                     findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId,
@@ -156,7 +157,7 @@ public class TimetableServiceV2 {
         int grades = 0;
         int totalGrades = 0;
 
-        if (timetableFrame.getIsMain()) {
+        if (timetableFrame.isMain()) {
             grades = calculateGrades(timetableLectures);
         }
 
