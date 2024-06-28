@@ -166,7 +166,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             .param("id", frame1.getId())
             .delete("/v2/timetables/frame")
             .then()
-            .statusCode(HttpStatus.OK.value());
+            .statusCode(HttpStatus.NO_CONTENT.value());
 
         assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isNotPresent();
         assertThat(timetableLectureRepositoryV2.findById(frame1.getTimetableLectures().get(1).getId())).isNotPresent();
@@ -298,6 +298,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                         "class_time" : [200, 201],
                         "class_place" : "한기대",
                         "professor" : "서정빈",
+                        "grades" : "0",
                         "memo" : "메모한당 히히"
                     },
                     {
@@ -306,6 +307,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                         "class_time" : [202, 203],
                         "class_place" : "참빛관 편의점",
                         "professor" : "알바 서정빈",
+                        "grades" : "0",
                         "memo" : "메모한당 히히"
                     }
                 ]
@@ -442,6 +444,6 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             .when()
             .delete("/v2/timetables/lecture/{id}", lectureId)
             .then()
-            .statusCode(HttpStatus.OK.value());
+            .statusCode(HttpStatus.NO_CONTENT.value());
     }
 }

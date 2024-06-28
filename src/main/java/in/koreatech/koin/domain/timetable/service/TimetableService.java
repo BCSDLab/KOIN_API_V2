@@ -123,7 +123,7 @@ public class TimetableService {
         int grades = 0;
         int totalGrades = 0;
 
-        if (timetableFrame.getIsMain()) {
+        if (timetableFrame.isMain()) {
             grades = timetableLectures.stream()
                 .filter(lecture -> lecture.getLecture() != null)
                 .mapToInt(lecture -> Integer.parseInt(lecture.getLecture().getGrades()))

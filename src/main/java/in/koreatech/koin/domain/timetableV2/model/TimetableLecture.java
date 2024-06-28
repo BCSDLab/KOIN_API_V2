@@ -85,13 +85,14 @@ public class TimetableLecture extends BaseEntity {
         this.timetableFrame = timetableFrame;
     }
 
-    public void update(TimetableLectureUpdateRequest.InnerTimetableLectureRequest request) {
-        this.classTitle = request.classTitle();
-        this.classTime = request.classTime().toString();
-        this.classPlace = request.classPlace();
-        this.professor = request.professor();
+    public void update(String classTitle, String classTime, String classPlace, String professor,
+        String grades, String memo) {
+        this.classTitle = classTitle;
+        this.classTime = classTime;
+        this.classPlace = classPlace;
+        this.professor = professor;
         this.grades = grades;
-        this.memo = request.memo();
+        this.memo = memo;
     }
 
     public void update(TimetableUpdateRequest.InnerTimetableRequest request) {

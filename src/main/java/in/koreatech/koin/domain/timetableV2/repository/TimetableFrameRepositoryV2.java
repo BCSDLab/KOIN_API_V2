@@ -27,7 +27,8 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
 
     default TimetableFrame getMainTimetableByUserIdAndSemesterId(Integer userId, Integer semesterId) {
         return findByUserIdAndSemesterIdAndIsMainTrue(userId, semesterId)
-            .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("userId: " + userId + ", semesterId: " + semesterId));
+            .orElseThrow(
+                () -> TimetableFrameNotFoundException.withDetail("userId: " + userId + ", semesterId: " + semesterId));
     }
 
     List<TimetableFrame> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
@@ -41,7 +42,14 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
             .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("userId: " + user.getId()));
     }
 
-    TimetableFrame findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(Integer userId, Integer semesterId);
+    @Query(
+        """
+        SELECT tf FROM TimetableFrame tf
+        WHERE tf.user.id = :userId
+        AND tf.semester.id = :semesterId 
+        AND tf.isMain = false ORDER BY tf.createdAt ASC
+        """)
+    TimetableFrame findFirstNonMainFrame(@Param("userId") Integer userId, @Param("semesterId") Integer semesterId);
 
     @Query(
         """

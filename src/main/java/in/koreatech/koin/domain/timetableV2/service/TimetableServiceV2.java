@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.timetableV2.service;
 
+import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureCreateRequest.*;
+import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest.*;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -77,9 +80,7 @@ public class TimetableServiceV2 {
         }
         if (frame.isMain()) {
             TimetableFrame nextMainFrame =
-                timetableFrameRepositoryV2.
-                    findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId,
-                        frame.getSemester().getId());
+                timetableFrameRepositoryV2.findFirstNonMainFrame(userId, frame.getSemester().getId());
             if (nextMainFrame != null) {
                 nextMainFrame.updateStatusMain(true);
                 timetableFrameRepositoryV2.save(nextMainFrame);
@@ -95,15 +96,11 @@ public class TimetableServiceV2 {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
 
-        for (TimetableLectureCreateRequest.InnerTimeTableLectureRequest timetableLectureRequest : request.timetableLecture()) {
-            if (timetableLectureRequest.lectureId() == null) {
-                TimetableLecture timetableLecture = timetableLectureRequest.toTimetableLecture(timetableFrame);
-                timetableLectureRepositoryV2.save(timetableLecture);
-            } else {
-                Lecture lecture = lectureRepositoryV2.getLectureById(timetableLectureRequest.lectureId());
-                TimetableLecture timetableLecture = timetableLectureRequest.toTimetableLecture(timetableFrame, lecture);
-                timetableLectureRepositoryV2.save(timetableLecture);
-            }
+        for (InnerTimeTableLectureRequest timetableLectureRequest : request.timetableLecture()) {
+            Lecture lecture = timetableLectureRequest.lectureId() == null ?
+                null : lectureRepositoryV2.getLectureById(timetableLectureRequest.lectureId());
+            TimetableLecture timetableLecture = timetableLectureRequest.toTimetableLecture(timetableFrame, lecture);
+            timetableLectureRepositoryV2.save(timetableLecture);
         }
 
         List<TimetableLecture> timetableLectures = timetableLectureRepositoryV2.findAllByTimetableFrameId(
@@ -118,23 +115,26 @@ public class TimetableServiceV2 {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
 
-        for (TimetableLectureUpdateRequest.InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
+        for (InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
             TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
             if (timetableRequest.lectureId() == null) {
-                timetableLecture.update(timetableRequest);
-                timetableLectureRepositoryV2.save(timetableLecture);
+                timetableLecture.update(
+                    timetableRequest.classTitle(),
+                    timetableRequest.classTime().toString(),
+                    timetableRequest.classPlace(),
+                    timetableRequest.professor(),
+                    timetableRequest.grades(),
+                    timetableRequest.memo());
             }
         }
-        List<TimetableLecture> timetableLectures = timetableLectureRepositoryV2.findAllByTimetableFrameId(
-            timetableFrame.getId());
+        List<TimetableLecture> timetableLectures = timetableFrame.getTimetableLectures();
         return getTimetableLectureResponse(userId, timetableFrame, timetableLectures);
     }
 
     @Transactional
     public TimetableLectureResponse getTimetableLectures(Integer userId, Integer timetableFrameId) {
-        List<TimetableLecture> timetableLectures = timetableLectureRepositoryV2.findAllByTimetableFrameId(
-            timetableFrameId);
         TimetableFrame frame = timetableFrameRepositoryV2.getById(timetableFrameId);
+        List<TimetableLecture> timetableLectures = frame.getTimetableLectures();
         if (!Objects.equals(frame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
@@ -144,11 +144,10 @@ public class TimetableServiceV2 {
     @Transactional
     public void deleteTimetableLecture(Integer userId, Integer timetableLectureId) {
         TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableLectureId);
-        TimetableFrame frame = timetableFrameRepositoryV2.getById(timetableLecture.getTimetableFrame().getId());
+        TimetableFrame frame = timetableLecture.getTimetableFrame();
         if (!Objects.equals(frame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
-
         timetableLectureRepositoryV2.deleteById(timetableLectureId);
     }
 

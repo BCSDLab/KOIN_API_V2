@@ -15,17 +15,8 @@ public interface LectureRepositoryV2 extends Repository<Lecture, Integer> {
 
     Optional<Lecture> findById(Integer id);
 
-    Optional<Lecture> findBySemesterAndNameAndLectureClass(String semesterDate, String name, String classLecture);
-
-    default Lecture getBySemesterAndNameAndLectureClass(String semesterDate, String name, String classLecture) {
-        return findBySemesterAndNameAndLectureClass(semesterDate, name, classLecture)
-            .orElseThrow(() -> SemesterNotFoundException.withDetail("semester: " + semesterDate + " name: " + name + " classLecture: " + classLecture));
-    }
-
     default Lecture getLectureById(Integer id) {
         return findById(id)
             .orElseThrow(() -> LectureNotFoundException.withDetail("lecture_id: " + id));
     }
-
-    List<Lecture> findByIdIn(List<Integer> lectureIds);
 }

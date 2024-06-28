@@ -24,6 +24,6 @@ public record TimetableFrameUpdateResponse(
         return new TimetableFrameUpdateResponse(
             timetableFrame.getId(),
             timetableFrame.getName(),
-            timetableFrame.getIsMain());
+            timetableFrame.isMain());
     }
 }

@@ -67,7 +67,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @Auth(permit = {STUDENT}) Integer userId
     ) {
         timetableServiceV2.deleteTimetablesFrame(userId, frameId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/v2/timetables/lecture")
@@ -104,6 +104,6 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @Auth(permit = {STUDENT}) Integer userId
     ) {
         timetableServiceV2.deleteTimetableLecture(userId, timetableLectureId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

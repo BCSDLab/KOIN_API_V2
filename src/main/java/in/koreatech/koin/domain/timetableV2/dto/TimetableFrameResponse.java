@@ -23,7 +23,7 @@ public record TimetableFrameResponse(
         return new TimetableFrameResponse(
             timetableFrame.getId(),
             timetableFrame.getName(),
-            timetableFrame.getIsMain()
+            timetableFrame.isMain()
         );
     }
 }
