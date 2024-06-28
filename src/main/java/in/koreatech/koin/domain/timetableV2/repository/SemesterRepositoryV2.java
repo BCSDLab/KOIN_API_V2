@@ -10,8 +10,6 @@ import in.koreatech.koin.domain.timetable.model.Semester;
 
 public interface SemesterRepositoryV2 extends Repository<Semester, Integer> {
 
-    List<Semester> findAllByOrderBySemesterDesc();
-
     Semester save(Semester semester);
 
     Optional<Semester> findBySemester(String semester);

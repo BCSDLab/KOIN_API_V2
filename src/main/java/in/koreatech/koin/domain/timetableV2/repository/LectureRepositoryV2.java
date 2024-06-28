@@ -11,8 +11,6 @@ import in.koreatech.koin.domain.timetable.model.Lecture;
 
 public interface LectureRepositoryV2 extends Repository<Lecture, Integer> {
 
-    List<Lecture> findBySemester(String semesterDate);
-
     Lecture save(Lecture lecture);
 
     Optional<Lecture> findById(Integer id);
