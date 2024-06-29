@@ -3,23 +3,23 @@ package in.koreatech.koin.fixture;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.domain.timetable.model.TimeTable;
-import in.koreatech.koin.domain.timetable.repository.TimeTableRepository;
+import in.koreatech.koin.domain.timetable.model.Timetable;
+import in.koreatech.koin.domain.timetable.repository.TimetableRepository;
 import in.koreatech.koin.domain.user.model.User;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
-public class TimeTableFixture {
+public class TimetableFixture {
 
-    private final TimeTableRepository timeTableRepository;
+    private final TimetableRepository timeTableRepository;
 
-    public TimeTableFixture(TimeTableRepository timeTableRepository) {
+    public TimetableFixture(TimetableRepository timeTableRepository) {
         this.timeTableRepository = timeTableRepository;
     }
 
-    public TimeTable 컴퓨터구조(User user, Semester semester) {
+    public Timetable 컴퓨터구조(User user, Semester semester) {
         return timeTableRepository.save(
-            TimeTable.builder()
+            Timetable.builder()
                 .user(user)
                 .semester(semester)
                 .code("CS101")
@@ -39,9 +39,9 @@ public class TimeTableFixture {
         );
     }
 
-    public TimeTable 운영체제(User user, Semester semester) {
+    public Timetable 운영체제(User user, Semester semester) {
         return timeTableRepository.save(
-            TimeTable.builder()
+            Timetable.builder()
                 .user(user)
                 .semester(semester)
                 .code("CS102")
@@ -61,9 +61,9 @@ public class TimeTableFixture {
         );
     }
 
-    public TimeTable 이산수학(User user, Semester semester) {
+    public Timetable 이산수학(User user, Semester semester) {
         return timeTableRepository.save(
-            TimeTable.builder()
+            Timetable.builder()
                 .user(user)
                 .semester(semester)
                 .code("CSE125")
@@ -83,9 +83,9 @@ public class TimeTableFixture {
         );
     }
 
-    public TimeTable 알고리즘및실습(User user, Semester semester) {
+    public Timetable 알고리즘및실습(User user, Semester semester) {
         return timeTableRepository.save(
-            TimeTable.builder()
+            Timetable.builder()
                 .user(user)
                 .semester(semester)
                 .code("CSE130")
