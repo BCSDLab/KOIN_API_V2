@@ -47,7 +47,7 @@ public class TimetableServiceV2 {
         int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId, semester.getId());
         boolean isMain = (currentFrameCount == 0);
 
-        TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, "시간표" + currentFrameCount, isMain);
+        TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, "시간표" + currentFrameCount+1, isMain);
         TimetableFrame savedTimetableFrame = timetableFrameRepositoryV2.save(timetableFrame);
         return TimetableFrameResponse.from(savedTimetableFrame);
     }
