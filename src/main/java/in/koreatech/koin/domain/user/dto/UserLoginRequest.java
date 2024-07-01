@@ -4,12 +4,13 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import in.koreatech.koin.global.validation.NotEmoji;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record UserLoginRequest(
     @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
     @NotBlank(message = "이메일을 입력해주세요.")
-    @NotEmoji
+    @Email(message = "이메일 형식을 지켜주세요. ${validatedValue}")
     String email,
 
     @Schema(

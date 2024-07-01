@@ -30,7 +30,6 @@ public record StudentRegisterRequest(
     @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
     @Email(message = "이메일 형식을 지켜주세요. ${validatedValue}")
     @NotBlank(message = "이메일을 입력해주세요.")
-    @NotEmoji
     String email,
 
     @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
