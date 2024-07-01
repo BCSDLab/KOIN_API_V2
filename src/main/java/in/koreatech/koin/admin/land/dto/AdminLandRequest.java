@@ -22,8 +22,7 @@ public record AdminLandRequest(
     @Size(max = 255, message = "방이름의 최대 길이는 255자입니다.")
     String name,
 
-    @Schema(description = "이름 - not null - 최대 50자", example = "금실타운", requiredMode = REQUIRED)
-    @NotNull(message = "방이름은 필수입니다.")
+    @Schema(description = "이름 - not null - 최대 50자", example = "금실타운")
     @Size(max = 50, message = "방이름의 최대 길이는 50자입니다.")
     String internalName,
 
