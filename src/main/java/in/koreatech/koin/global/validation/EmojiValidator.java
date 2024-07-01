@@ -26,8 +26,4 @@ public class EmojiValidator implements ConstraintValidator<NotEmoji, String> {
         }
         return true;
     }
-
-    private boolean isEmoji(int codePoint) {
-        return EMOJI_PATTERN.matcher(new String(Character.toChars(codePoint))).find();
-    }
 }
