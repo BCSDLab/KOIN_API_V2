@@ -67,7 +67,13 @@ public record AdminShopResponse(
     Boolean isDeleted,
 
     @Schema(description = "상점 이벤트 진행 여부", example = "true", requiredMode = REQUIRED)
-    Boolean isEvent
+    Boolean isEvent,
+
+    @Schema(description = "은행", example = "국민은행", requiredMode = NOT_REQUIRED)
+    String bank,
+
+    @Schema(description = "계좌번호", example = "110-439-1234567", requiredMode = NOT_REQUIRED)
+    String accountNumber
 ) {
 
     public static AdminShopResponse from(Shop shop, Boolean isEvent) {
@@ -108,7 +114,9 @@ public record AdminShopResponse(
             }).toList(),
             shop.getUpdatedAt(),
             shop.isDeleted(),
-            isEvent
+            isEvent,
+            shop.getBank(),
+            shop.getAccountNumber()
         );
     }
 
