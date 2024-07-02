@@ -9,9 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.owner.repository.OwnerAttachmentRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
-import in.koreatech.koin.domain.shop.repository.ShopRepository;
+import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.user.dto.AuthResponse;
 import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
@@ -30,7 +29,6 @@ import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -45,11 +43,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final OwnerRepository ownerRepository;
-    private final ShopRepository shopRepository;
-    private final OwnerAttachmentRepository ownerAttachmentRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
@@ -101,6 +98,7 @@ public class UserService {
     public void withdraw(Integer userId) {
         User user = userRepository.getById(userId);
         if (user.getUserType() == UserType.STUDENT) {
+            timetableFrameRepositoryV2.deleteAllByUser(user);
             studentRepository.deleteByUserId(userId);
         } else if (user.getUserType() == UserType.OWNER) {
             ownerRepository.deleteByUserId(userId);

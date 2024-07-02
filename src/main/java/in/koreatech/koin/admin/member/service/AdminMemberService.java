@@ -54,4 +54,23 @@ public class AdminMemberService {
         Member member = adminMemberRepository.getById(memberId);
         member.delete();
     }
+
+    @Transactional
+    public void updateMember(Integer memberId, AdminMemberRequest request) {
+        Member member = adminMemberRepository.getById(memberId);
+
+        String currentTrackName = member.getTrack().getName();
+        String changedTrackName = request.track();
+        if (!currentTrackName.equals(changedTrackName)) {
+            member.updateTrack(adminTrackRepository.getByName(request.track()));
+        }
+
+        member.update(request.name(), request.studentNumber(), request.position(), request.email(), request.imageUrl());
+    }
+
+    @Transactional
+    public void undeleteMember(Integer memberId) {
+        Member member = adminMemberRepository.getById(memberId);
+        member.undelete();
+    }
 }

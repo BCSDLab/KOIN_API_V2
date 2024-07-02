@@ -24,6 +24,8 @@ import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
+import in.koreatech.koin.domain.user.dto.StudentLoginRequest;
+import in.koreatech.koin.domain.user.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
@@ -79,6 +81,15 @@ public class UserController implements UserApi {
         @RequestBody @Valid UserLoginRequest request
     ) {
         UserLoginResponse response = userService.login(request);
+        return ResponseEntity.created(URI.create("/"))
+            .body(response);
+    }
+
+    @PostMapping("/student/login")
+    public ResponseEntity<StudentLoginResponse> studentLogin(
+        @RequestBody @Valid StudentLoginRequest request
+    ) {
+        StudentLoginResponse response = studentService.studentLogin(request);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }

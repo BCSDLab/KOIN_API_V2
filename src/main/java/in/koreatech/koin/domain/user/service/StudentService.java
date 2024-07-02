@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.user.service;
 
 import java.time.Clock;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.joda.time.LocalDateTime;
 import org.springframework.context.ApplicationEventPublisher;
@@ -13,6 +14,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
+import in.koreatech.koin.domain.user.dto.StudentLoginRequest;
+import in.koreatech.koin.domain.user.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
@@ -27,8 +30,12 @@ import in.koreatech.koin.domain.user.model.StudentDepartment;
 import in.koreatech.koin.domain.user.model.StudentEmailRequestEvent;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
@@ -48,10 +55,32 @@ public class StudentService {
     private final MailService mailService;
     private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
+    private final UserTokenRepository userTokenRepository;
+    private final JwtProvider jwtProvider;
 
     public StudentResponse getStudent(Integer userId) {
         Student student = studentRepository.getById(userId);
         return StudentResponse.from(student);
+    }
+
+    @Transactional
+    public StudentLoginResponse studentLogin(StudentLoginRequest request) {
+        User user = userRepository.getByEmail(request.email());
+
+        if (!user.isSamePassword(passwordEncoder, request.password())) {
+            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+
+        if (!user.isAuthed()) {
+            throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
+        }
+
+        String accessToken = jwtProvider.createToken(user);
+        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
+        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        user.updateLastLoggedTime(java.time.LocalDateTime.now());
+
+        return StudentLoginResponse.of(accessToken, savedToken.getRefreshToken());
     }
 
     @Transactional

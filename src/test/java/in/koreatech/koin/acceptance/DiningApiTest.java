@@ -49,7 +49,7 @@ class DiningApiTest extends AcceptanceTest {
 
     @BeforeEach
     void setUp() {
-        coop_준기 = userFixture.준기_영양사();
+        coop_준기 = userFixture.준기_영양사().getUser();
         token_준기 = userFixture.getToken(coop_준기);
         owner_현수 = userFixture.현수_사장님().getUser();
         token_현수 = userFixture.getToken(owner_현수);

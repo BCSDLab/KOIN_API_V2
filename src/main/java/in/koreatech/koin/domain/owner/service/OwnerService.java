@@ -2,16 +2,22 @@ package in.koreatech.koin.domain.owner.service;
 
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.owner.dto.CompanyNumberCheckRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerAccountCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
@@ -29,6 +35,7 @@ import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberExceptio
 import in.koreatech.koin.domain.owner.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerEmailRequestEvent;
+import in.koreatech.koin.domain.owner.model.OwnerRegisterBySmsEvent;
 import in.koreatech.koin.domain.owner.model.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.owner.model.OwnerSmsRequestEvent;
@@ -41,7 +48,9 @@ import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRe
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.domain.email.form.OwnerRegistrationData;
@@ -67,11 +76,33 @@ public class OwnerService {
     private final OwnerVerificationStatusRepository ownerVerificationStatusRepository;
     private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
     private final NaverSmsService naverSmsService;
+    private final UserTokenRepository userTokenRepository;
 
     public OwnerResponse getOwner(Integer ownerId) {
         Owner foundOwner = ownerRepository.getById(ownerId);
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
         return OwnerResponse.of(foundOwner, foundOwner.getAttachments(), shops);
+    }
+
+    @Transactional
+    public OwnerLoginResponse ownerLogin(OwnerLoginRequest request) {
+        Owner owner = ownerRepository.getByAccount(request.account());
+        User user = owner.getUser();
+
+        if (!user.isSamePassword(passwordEncoder, request.password())) {
+            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+
+        if (!user.isAuthed()) {
+            throw new KoinIllegalArgumentException("미인증 상태입니다. 인증을 진행해주세요.");
+        }
+
+        String accessToken = jwtProvider.createToken(user);
+        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
+        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        user.updateLastLoggedTime(LocalDateTime.now());
+
+        return OwnerLoginResponse.of(accessToken, savedToken.getRefreshToken());
     }
 
     @Transactional
@@ -85,7 +116,7 @@ public class OwnerService {
     @Transactional
     public void requestSignUpSmsVerification(VerifySmsRequest request) {
         userRepository.findByPhoneNumberAndUserType(request.phoneNumber(), OWNER).ifPresent(user -> {
-            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
+            throw DuplicationPhoneNumberException.withDetail("account: " + request.phoneNumber());
         });
         sendCertificationSms(request.phoneNumber());
     }
@@ -112,6 +143,9 @@ public class OwnerService {
         if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
             throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
         }
+        if (ownerRepository.findByAccount(request.phoneNumber()).isPresent()) {
+            throw DuplicationPhoneNumberException.withDetail("account: " + request.phoneNumber());
+        }
         Owner owner = request.toOwner(passwordEncoder);
         Owner saved = ownerRepository.save(owner);
         OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(owner.getId());
@@ -126,7 +160,7 @@ public class OwnerService {
     @Transactional
     public void registerByPhone(OwnerRegisterByPhoneRequest request) {
         if (userRepository.findByPhoneNumberAndUserType(request.phoneNumber(), OWNER).isPresent()) {
-            throw DuplicationPhoneNumberException.withDetail("phoneNumber: " + request.phoneNumber());
+            throw DuplicationPhoneNumberException.withDetail("account: " + request.phoneNumber());
         }
         if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
             throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
@@ -139,7 +173,7 @@ public class OwnerService {
             ownerShopBuilder.shopId(shop.getId());
         }
         ownerShopRedisRepository.save(ownerShopBuilder.build());
-        eventPublisher.publishEvent(new OwnerRegisterEvent(saved));
+        eventPublisher.publishEvent(new OwnerRegisterBySmsEvent(saved));
     }
 
     @Transactional
@@ -217,5 +251,17 @@ public class OwnerService {
             throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
         }
         ownerVerificationStatusRepository.deleteById(key);
+    }
+
+    public void checkCompanyNumber(CompanyNumberCheckRequest request) {
+        if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
+            throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
+        }
+    }
+
+    public void checkExistsAccount(OwnerAccountCheckExistsRequest request) {
+        ownerRepository.findByAccount(request.account()).ifPresent(user -> {
+            throw DuplicationPhoneNumberException.withDetail("account: " + request.account());
+        });
     }
 }
