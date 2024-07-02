@@ -124,8 +124,8 @@ public class Shop extends BaseEntity {
     @Column(name = "bank", length = 10)
     private String bank;
 
-    @Size(max = 100)
-    @Column(name = "accountNumber", length = 100)
+    @Size(max = 20)
+    @Column(name = "accountNumber", length = 20)
     private String accountNumber;
 
     @Builder
@@ -144,7 +144,9 @@ public class Shop extends BaseEntity {
         boolean isDeleted,
         boolean isEvent,
         String remarks,
-        Integer hit
+        Integer hit,
+        String bank,
+        String accountNumber
     ) {
         this.owner = owner;
         this.name = name;
@@ -161,6 +163,8 @@ public class Shop extends BaseEntity {
         this.isEvent = isEvent;
         this.remarks = remarks;
         this.hit = hit;
+        this.bank = bank;
+        this.accountNumber = accountNumber;
     }
 
     public void modifyShop(
