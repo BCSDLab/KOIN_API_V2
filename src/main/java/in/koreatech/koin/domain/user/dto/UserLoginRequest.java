@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 public record UserLoginRequest(
     @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
     @NotBlank(message = "이메일을 입력해주세요.")
-    @Email(message = "이메일 형식을 지켜주세요. ${validatedValue}")
+    @NotEmoji
     String email,
 
     @Schema(
