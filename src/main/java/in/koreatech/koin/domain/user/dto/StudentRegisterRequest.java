@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserIdentity;
 import in.koreatech.koin.domain.user.model.UserType;
+import in.koreatech.koin.global.validation.NotEmoji;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -33,6 +34,7 @@ public record StudentRegisterRequest(
 
     @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
     @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
+    @NotEmoji
     String name,
 
     @Schema(description = " SHA 256 해시 알고리즘으로 암호화된 비밀번호", example = "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268", requiredMode = REQUIRED)
@@ -41,6 +43,7 @@ public record StudentRegisterRequest(
 
     @Schema(description = "닉네임", example = "bbo", requiredMode = NOT_REQUIRED)
     @Size(max = 10, message = "닉네임은 최대 10자입니다.")
+    @NotEmoji
     String nickname,
 
     @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
