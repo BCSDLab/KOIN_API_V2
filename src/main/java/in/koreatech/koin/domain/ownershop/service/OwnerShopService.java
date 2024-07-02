@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,7 +75,6 @@ public class OwnerShopService {
     private final MenuDetailRepository menuDetailRepository;
     private final EventArticleRepository eventArticleRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final PasswordEncoder passwordEncoder;
 
     public OwnerShopsResponse getOwnerShops(Integer ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
@@ -255,7 +253,6 @@ public class OwnerShopService {
     @Transactional
     public void modifyShop(Integer ownerId, Integer shopId, ModifyShopRequest modifyShopRequest) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        String encodedAccountNumber = passwordEncoder.encode(modifyShopRequest.accountNumber());
         shop.modifyShop(
             modifyShopRequest.name(),
             modifyShopRequest.phone(),
@@ -266,7 +263,7 @@ public class OwnerShopService {
             modifyShopRequest.payCard(),
             modifyShopRequest.payBank(),
             modifyShopRequest.bank(),
-            encodedAccountNumber
+            modifyShopRequest.accountNumber()
         );
         shop.modifyShopImages(modifyShopRequest.imageUrls(), entityManager);
         shop.modifyShopOpens(modifyShopRequest.open(), entityManager);
