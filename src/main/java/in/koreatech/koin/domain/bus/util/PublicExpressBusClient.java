@@ -4,31 +4,28 @@ import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 
+import in.koreatech.koin.domain.bus.dto.PublicOpenApiResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
-import in.koreatech.koin.domain.bus.model.enums.BusOpenApiResultCode;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
@@ -46,22 +43,21 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098541
  */
 @Component
-public class PublicExpressBusClient extends ExpressBusClient {
+public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiResponse> {
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo";
-    private static final Type ARRIVAL_INFO_TYPE = new TypeToken<List<PublicOpenApiExpressBusArrival>>() {
-    }.getType();
 
     private final String openApiKey;
 
     public PublicExpressBusClient(
         @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
         VersionRepository versionRepository,
+        RestTemplate restTemplate,
         Gson gson,
         Clock clock,
         ExpressBusCacheRepository expressBusCacheRepository
     ) {
-        super(versionRepository, gson, clock, expressBusCacheRepository);
+        super(versionRepository, restTemplate, gson, clock, expressBusCacheRepository);
         this.openApiKey = openApiKey;
     }
 
@@ -71,10 +67,10 @@ public class PublicExpressBusClient extends ExpressBusClient {
     public void storeRemainTimeByOpenApi() {
         for (BusStation depart : BusStation.values()) {
             for (BusStation arrival : BusStation.values()) {
-                if (depart == arrival) {
+                if (depart == arrival || depart.equals(BusStation.STATION) || arrival.equals(BusStation.STATION)) {
                     continue;
                 }
-                JsonObject openApiResponse;
+                PublicOpenApiResponse openApiResponse;
                 try {
                     openApiResponse = getOpenApiResponse(depart, arrival);
                 } catch (BusOpenApiException e) {
@@ -108,71 +104,54 @@ public class PublicExpressBusClient extends ExpressBusClient {
     }
 
     @Override
-    protected JsonObject getOpenApiResponse(BusStation depart, BusStation arrival) {
+    protected PublicOpenApiResponse getOpenApiResponse(BusStation depart, BusStation arrival) {
         try {
-            URL url = getBusApiURL(depart, arrival);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-type", "application/json");
-            BufferedReader reader;
-            if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-                reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            } else {
-                reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-            }
-            StringBuilder result = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                result.append(line);
-            }
-            reader.close();
-            conn.disconnect();
-            return JsonParser.parseString(result.toString())
-                .getAsJsonObject();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Accept", "*/*");
+
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            UriComponents uri = getBusApiURL(depart, arrival);
+            ResponseEntity<PublicOpenApiResponse> response = restTemplate.exchange(
+                uri.toString(),
+                HttpMethod.GET,
+                entity,
+                PublicOpenApiResponse.class
+            );
+            return response.getBody();
         } catch (Exception ignore) {
             throw BusOpenApiException.withDetail("depart: " + depart + " arrival: " + arrival);
         }
     }
 
     @Override
-    protected URL getBusApiURL(BusStation depart, BusStation arrival) {
+    protected UriComponents getBusApiURL(BusStation depart, BusStation arrival) {
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
-        StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL); /*URL*/
+        LocalDateTime yesterday = LocalDateTime.now(clock).minusDays(1);
+        UriComponents uri;
         try {
-            urlBuilder.append("?" + encode("serviceKey", UTF_8) + "=" + encode(openApiKey, UTF_8));
-            urlBuilder.append("&" + encode("numOfRows", UTF_8) + "=" + encode("30", UTF_8));
-            urlBuilder.append("&" + encode("_type", UTF_8) + "=" + encode("json", UTF_8));
-            urlBuilder.append("&" + encode("depTerminalId", UTF_8) + "=" + encode(departNode.getStationId(), UTF_8));
-            urlBuilder.append("&" + encode("arrTerminalId", UTF_8) + "=" + encode(arrivalNode.getStationId(), UTF_8));
-            urlBuilder.append("&" + encode("depPlandTime", UTF_8) + "="
-                + encode(LocalDateTime.now(clock).format(ofPattern("yyyyMMdd")), UTF_8));
-            return new URL(urlBuilder.toString());
+            uri = UriComponentsBuilder
+                .fromHttpUrl(OPEN_API_URL)
+                .queryParam("serviceKey", encode(openApiKey, UTF_8))
+                .queryParam("numOfRows", 30)
+                .queryParam("_type", "json")
+                .queryParam("depTerminalId", encode(departNode.getStationId(), UTF_8))
+                .queryParam("arrTerminalId", encode(arrivalNode.getStationId(), UTF_8))
+                .queryParam("depPlandTime", encode(yesterday.format(ofPattern("yyyyMMdd")), UTF_8))
+                .build();
+            return uri;
         } catch (Exception e) {
-            throw new KoinIllegalStateException("시외버스 API URL 생성중 문제가 발생했습니다.", "uri:" + urlBuilder);
+            throw new KoinIllegalStateException("시외버스 API URL 생성중 문제가 발생했습니다.");
         }
     }
 
     @Override
-    protected List<PublicOpenApiExpressBusArrival> extractBusArrivalInfo(JsonObject jsonObject) {
-        try {
-            var response = jsonObject.get("response").getAsJsonObject();
-            BusOpenApiResultCode.validateResponse(response);
-            JsonObject body = response.get("body").getAsJsonObject();
-            if (body.get("totalCount").getAsLong() == 0) {
-                return Collections.emptyList();
-            }
-            JsonElement item = body.get("items").getAsJsonObject().get("item");
-            List<PublicOpenApiExpressBusArrival> result = new ArrayList<>();
-            if (item.isJsonArray()) {
-                return gson.fromJson(item, ARRIVAL_INFO_TYPE);
-            }
-            if (item.isJsonObject()) {
-                result.add(gson.fromJson(item, PublicOpenApiExpressBusArrival.class));
-            }
-            return result;
-        } catch (JsonSyntaxException e) {
+    protected List<PublicOpenApiExpressBusArrival> extractBusArrivalInfo(PublicOpenApiResponse publicResponse) {
+        if (!publicResponse.response().header().resultCode().equals("00")
+            || publicResponse.response().body().totalCount() == 0) {
             return Collections.emptyList();
         }
+        return publicResponse.response().body().items().item();
     }
 }
