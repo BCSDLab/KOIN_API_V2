@@ -96,7 +96,14 @@ class NotificationApiTest extends AcceptanceTest {
                                     "is_permit": false
                                 }
                             ]
-                        }
+                        },
+                         {
+                             "type": "DINING_IMAGE_UPLOAD",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         }
                     ]
                 }
                 """);
@@ -193,6 +200,13 @@ class NotificationApiTest extends AcceptanceTest {
                                      "is_permit": false
                                  }
                              ]
+                         },
+                         {
+                             "type": "DINING_IMAGE_UPLOAD",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
                          }
                      ]
                  }
@@ -278,6 +292,13 @@ class NotificationApiTest extends AcceptanceTest {
                                      "detail_type": "DINNER",
                                      "is_permit": false
                                  }
+                             ]
+                         },
+                         {
+                             "type": "DINING_IMAGE_UPLOAD",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
                              ]
                          }
                      ]
@@ -382,6 +403,13 @@ class NotificationApiTest extends AcceptanceTest {
                                      "detail_type": "DINNER",
                                      "is_permit": false
                                  }
+                             ]
+                         },
+                         {
+                             "type": "DINING_IMAGE_UPLOAD",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
                              ]
                          }
                      ]
@@ -488,6 +516,13 @@ class NotificationApiTest extends AcceptanceTest {
                                      "detail_type": "DINNER",
                                      "is_permit": false
                                  }
+                             ]
+                         },
+                         {
+                             "type": "DINING_IMAGE_UPLOAD",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
                              ]
                          }
                      ]
