@@ -61,6 +61,7 @@ public record AdminModifyShopRequest(
     String name,
 
     @Schema(description = "요일별 휴무 여부 및 장사 시간", requiredMode = NOT_REQUIRED)
+    @NotNull
     List<InnerShopOpen> open,
 
     @Schema(description = "계좌 이체 가능 여부", example = "true", requiredMode = REQUIRED)
@@ -84,7 +85,11 @@ public record AdminModifyShopRequest(
     @Size(max = 20, message = "계좌번호는 20자 이내로 입력해주세요")
     String accountNumber
 ) {
-
+    public AdminModifyShopRequest {
+        if (imageUrls == null) {
+            imageUrls = List.of();
+        }
+    }
     @JsonNaming(value = SnakeCaseStrategy.class)
     @Valid
     public record InnerShopOpen(

@@ -17,7 +17,7 @@ public record AdminLandResponse(
     @Schema(description = "이름", example = "금실타운", requiredMode = Schema.RequiredMode.REQUIRED)
     String name,
 
-    @Schema(description = "내부 이름", example = "금실타운", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "내부 이름", example = "금실타운")
     String internalName,
 
     @Schema(description = "크기", example = "9.0")

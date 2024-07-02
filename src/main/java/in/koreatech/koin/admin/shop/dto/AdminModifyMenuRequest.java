@@ -50,7 +50,11 @@ public record AdminModifyMenuRequest(
     @PositiveOrZero(message = "가격은 0원 이상이어야 합니다.")
     Integer singlePrice
 ) {
-
+    public AdminModifyMenuRequest {
+        if (imageUrls == null) {
+            imageUrls = List.of();
+        }
+    }
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerOptionPrice(
         @Schema(example = "대", description = "옵션명", requiredMode = REQUIRED)
