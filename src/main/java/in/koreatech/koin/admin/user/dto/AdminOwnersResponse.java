@@ -13,8 +13,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
-import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -53,19 +52,18 @@ public record AdminOwnersResponse(
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt
     ) {
-        public static InnerOwnersResponse from(OwnerIncludingShop ownerIncludingShop) {
-            User user = ownerIncludingShop.getOwner().getUser();
+        public static InnerOwnersResponse from(Owner owner) {
             return new InnerOwnersResponse(
-                user.getId(),
-                user.getEmail(),
-                user.getName(),
-                user.getPhoneNumber(),
-                user.getCreatedAt()
+                owner.getUser().getId(),
+                owner.getUser().getEmail(),
+                owner.getUser().getName(),
+                owner.getUser().getPhoneNumber(),
+                owner.getUser().getCreatedAt()
             );
         }
     }
 
-    public static AdminOwnersResponse of(Page<OwnerIncludingShop> pagedResult, Criteria criteria) {
+    public static AdminOwnersResponse of(Page<Owner> pagedResult, Criteria criteria) {
         return new AdminOwnersResponse(
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),

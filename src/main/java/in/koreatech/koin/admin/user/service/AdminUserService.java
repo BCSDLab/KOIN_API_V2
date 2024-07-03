@@ -86,7 +86,7 @@ public class AdminUserService {
         User user = adminUserRepository.getByEmail(request.email());
 
         /* 어드민 권한이 없으면 없는 회원으로 간주 */
-        if(user.getUserType() != ADMIN) {
+        if (user.getUserType() != ADMIN) {
             throw UserNotFoundException.withDetail("email" + request.email());
         }
 
@@ -170,7 +170,7 @@ public class AdminUserService {
         Criteria criteria = Criteria.of(ownersCondition.page(), ownersCondition.limit(), totalOwners);
         Sort.Direction direction = ownersCondition.getDirection();
 
-        Page<OwnerIncludingShop> result = getResultPage(ownersCondition, criteria, direction);
+        Page<OwnerIncludingShop> result = getResultPage(ownersCondition, criteria, direction, false);
 
         return AdminNewOwnersResponse.of(result, criteria);
     }
@@ -182,28 +182,28 @@ public class AdminUserService {
         Criteria criteria = Criteria.of(ownersCondition.page(), ownersCondition.limit(), totalOwners);
         Sort.Direction direction = ownersCondition.getDirection();
 
-        Page<OwnerIncludingShop> result = getResultPage(ownersCondition, criteria, direction);
+        Page<Owner> result = getResultPage(ownersCondition, criteria, direction);
 
         return AdminOwnersResponse.of(result, criteria);
     }
 
-    private Page<OwnerIncludingShop> getResultPage(OwnersCondition ownersCondition, Criteria criteria, Sort.Direction direction) {
+    private Page<Owner> getResultPage(OwnersCondition ownersCondition, Criteria criteria,
+        Sort.Direction direction) {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
             Sort.by(direction, "user.createdAt"));
 
-        Page<OwnerIncludingShop> result;
+        Page<Owner> result;
 
         if (ownersCondition.searchType() == OwnersCondition.SearchType.EMAIL) {
-            result = adminOwnerRepository.findPageUnauthenticatedOwnersByEmail(ownersCondition.query(), pageRequest);
+            result = adminOwnerRepository.findPageOwnersByEmail(ownersCondition.query(), pageRequest);
         } else if (ownersCondition.searchType() == OwnersCondition.SearchType.NAME) {
-            result = adminOwnerRepository.findPageUnauthenticatedOwnersByName(ownersCondition.query(), pageRequest);
+            result = adminOwnerRepository.findPageOwnersByName(ownersCondition.query(), pageRequest);
         } else {
-            result = adminOwnerRepository.findPageUnauthenticatedOwners(pageRequest);
+            result = adminOwnerRepository.findPageOwners(pageRequest);
         }
 
         return result;
     }
-
 
     private void validateNicknameDuplication(String nickname, Integer userId) {
         if (nickname != null &&
