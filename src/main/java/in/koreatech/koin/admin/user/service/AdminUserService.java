@@ -2,6 +2,7 @@ package in.koreatech.koin.admin.user.service;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -166,13 +168,21 @@ public class AdminUserService {
     public AdminNewOwnersResponse getNewOwners(OwnersCondition ownersCondition) {
         ownersCondition.checkDataConstraintViolation();
 
-        Integer totalOwners = adminOwnerRepository.findUnauthenticatedOwnersCount();
+        Integer totalOwners = adminUserRepository.findUsersCountByUserTypeAndIsAuthed(UserType.OWNER, false);
         Criteria criteria = Criteria.of(ownersCondition.page(), ownersCondition.limit(), totalOwners);
         Sort.Direction direction = ownersCondition.getDirection();
 
-        Page<OwnerIncludingShop> result = getResultPage(ownersCondition, criteria, direction, false);
+        Page<Owner> result = getNewOwnersResultPage(ownersCondition, criteria, direction);
 
-        return AdminNewOwnersResponse.of(result, criteria);
+        List<OwnerIncludingShop> ownerIncludingShops = result.getContent().stream()
+            .map(owner -> {
+                Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(owner.getId());
+                return ownerShop.map(os -> OwnerIncludingShop.of(owner, adminShopRepository.getById(os.getShopId())))
+                    .orElseGet(() -> OwnerIncludingShop.of(owner, null));
+            })
+            .collect(Collectors.toList());
+
+        return AdminNewOwnersResponse.of(ownerIncludingShops, result, criteria);
     }
 
     public AdminOwnersResponse getOwners(OwnersCondition ownersCondition) {
@@ -182,12 +192,12 @@ public class AdminUserService {
         Criteria criteria = Criteria.of(ownersCondition.page(), ownersCondition.limit(), totalOwners);
         Sort.Direction direction = ownersCondition.getDirection();
 
-        Page<Owner> result = getResultPage(ownersCondition, criteria, direction);
+        Page<Owner> result = getOwnersResultPage(ownersCondition, criteria, direction);
 
         return AdminOwnersResponse.of(result, criteria);
     }
 
-    private Page<Owner> getResultPage(OwnersCondition ownersCondition, Criteria criteria,
+    private Page<Owner> getOwnersResultPage(OwnersCondition ownersCondition, Criteria criteria,
         Sort.Direction direction) {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
             Sort.by(direction, "user.createdAt"));
@@ -200,6 +210,24 @@ public class AdminUserService {
             result = adminOwnerRepository.findPageOwnersByName(ownersCondition.query(), pageRequest);
         } else {
             result = adminOwnerRepository.findPageOwners(pageRequest);
+        }
+
+        return result;
+    }
+
+    private Page<Owner> getNewOwnersResultPage(OwnersCondition ownersCondition, Criteria criteria,
+        Sort.Direction direction) {
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
+            Sort.by(direction, "user.createdAt"));
+
+        Page<Owner> result;
+
+        if (ownersCondition.searchType() == OwnersCondition.SearchType.EMAIL) {
+            result = adminOwnerRepository.findPageUnauthenticatedOwnersByEmail(ownersCondition.query(), pageRequest);
+        } else if (ownersCondition.searchType() == OwnersCondition.SearchType.NAME) {
+            result = adminOwnerRepository.findPageUnauthenticatedOwnersByName(ownersCondition.query(), pageRequest);
+        } else {
+            result = adminOwnerRepository.findPageUnauthenticatedOwners(pageRequest);
         }
 
         return result;
