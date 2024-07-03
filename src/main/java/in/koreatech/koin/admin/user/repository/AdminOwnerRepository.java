@@ -10,6 +10,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.owner.exception.OwnerNotFoundException;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
+import in.koreatech.koin.domain.user.model.UserType;
 import io.lettuce.core.dynamic.annotation.Param;
 
 public interface AdminOwnerRepository extends Repository<Owner, Integer> {
@@ -18,12 +19,16 @@ public interface AdminOwnerRepository extends Repository<Owner, Integer> {
 
     Owner save(Owner owner);
 
+    void deleteById(Integer ownerId);
+
     @Query("""
         SELECT COUNT(o) FROM Owner o 
         WHERE o.user.userType = 'OWNER' 
         AND o.user.isAuthed = false
         """)
     Integer findUnauthenticatedOwnersCount();
+
+    Integer countByUserUserType(UserType userType);
 
     @Query("""
         SELECT new in.koreatech.koin.domain.owner.model.OwnerIncludingShop(o, s.id, s.name)

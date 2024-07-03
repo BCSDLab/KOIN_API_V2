@@ -10,16 +10,17 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.timetable.model.TimeTable;
+import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
+import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record TimeTableResponse(
+public record TimetableResponse(
     @Schema(name = "학기", example = "20241", requiredMode = REQUIRED)
     String semester,
 
     @Schema(name = "시간표 상세정보")
-    List<InnerTimeTableResponse> timetable,
+    List<InnerTimetableResponse> timetable,
 
     @Schema(name = "해당 학기 학점", example = "21")
     Integer grades,
@@ -29,11 +30,11 @@ public record TimeTableResponse(
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerTimeTableResponse(
-        @Schema(name = "시간표 ID", example = "1", requiredMode = REQUIRED)
+    public record InnerTimetableResponse(
+        @Schema(name = "시간표 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(name = "과목 코드", example = "ARB244", requiredMode = NOT_REQUIRED)
+        @Schema(name = "수강 정원", example = "40", requiredMode = NOT_REQUIRED)
         String regularNumber,
 
         @Schema(name = "과목 코드", example = "ARB244", requiredMode = NOT_REQUIRED)
@@ -70,34 +71,33 @@ public record TimeTableResponse(
         String department
     ) {
 
-        public static List<InnerTimeTableResponse> from(List<TimeTable> timeTables) {
-            return timeTables.stream()
-                .map(it -> new InnerTimeTableResponse(
-                        it.getId(),
-                        it.getRegularNumber(),
-                        it.getCode(),
-                        it.getDesignScore(),
-                        parseIntegerClassTimesFromString(it.getClassTime()),
-                        it.getClassPlace(),
-                        it.getMemo(),
-                        it.getGrades(),
-                        it.getClassTitle(),
-                        it.getLectureClass(),
-                        it.getTarget(),
-                        it.getProfessor(),
-                        it.getDepartment()
+        public static List<InnerTimetableResponse> from(List<TimetableLecture> timetableLectures) {
+            return timetableLectures.stream()
+                .map(timeTableLecture -> new InnerTimetableResponse(
+                        timeTableLecture.getId(),
+                        timeTableLecture.getLecture().getRegularNumber(),
+                        timeTableLecture.getLecture().getCode(),
+                        timeTableLecture.getLecture().getDesignScore(),
+                        parseIntegerClassTimesFromString(timeTableLecture.getLecture().getClassTime()),
+                        timeTableLecture.getClassPlace(),
+                        timeTableLecture.getMemo(),
+                        timeTableLecture.getLecture().getGrades(),
+                        timeTableLecture.getLecture().getName(),
+                        timeTableLecture.getLecture().getLectureClass(),
+                        timeTableLecture.getLecture().getTarget(),
+                        timeTableLecture.getLecture().getProfessor(),
+                        timeTableLecture.getLecture().getDepartment()
                     )
                 )
                 .toList();
         }
-
     }
 
-    public static TimeTableResponse of(String semester, List<TimeTable> timeTables, Integer grades,
-        Integer totalGrades) {
-        return new TimeTableResponse(
-            semester,
-            InnerTimeTableResponse.from(timeTables),
+    public static TimetableResponse of(List<TimetableLecture> timetableLectures, TimetableFrame timetableFrame,
+        Integer grades, Integer totalGrades) {
+        return new TimetableResponse(
+            timetableFrame.getSemester().getSemester(),
+            InnerTimetableResponse.from(timetableLectures),
             grades,
             totalGrades
         );

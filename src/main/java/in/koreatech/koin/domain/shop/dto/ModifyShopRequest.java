@@ -14,7 +14,9 @@ import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
 import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
+import in.koreatech.koin.global.validation.ValidDayOfWeek;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -55,6 +57,7 @@ public record ModifyShopRequest(
     String name,
 
     @Schema(description = "요일별 휴무 여부 및 장사 시간", requiredMode = NOT_REQUIRED)
+    @Valid
     List<InnerShopOpen> open,
 
     @Schema(example = "true", description = "계좌 이체 가능 여부", requiredMode = REQUIRED)
@@ -67,7 +70,15 @@ public record ModifyShopRequest(
 
     @Schema(example = "041-000-0000", description = "전화번호", requiredMode = NOT_REQUIRED)
     @Size(max = 50, message = "전화번호는 50자 이하로 입력해주세요.")
-    String phone
+    String phone,
+
+    @Schema(example = "국민은행", description = "은행", requiredMode = NOT_REQUIRED)
+    @Size(max = 10, message = "은행명은 10자 이내로 입력해주세요")
+    String bank,
+
+    @Schema(example = "110-439-1234567", description = "계좌번호", requiredMode = NOT_REQUIRED)
+    @Size(max = 20, message = "계좌번호는 20자 이내로 입력해주세요")
+    String accountNumber
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
@@ -75,6 +86,7 @@ public record ModifyShopRequest(
         @Schema(example = "MONDAY", description = """
             요일 = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
             """, requiredMode = REQUIRED)
+        @ValidDayOfWeek
         String dayOfWeek,
 
         @Schema(example = "false", description = "휴무 여부", requiredMode = REQUIRED)

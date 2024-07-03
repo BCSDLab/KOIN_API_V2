@@ -48,6 +48,7 @@ public record AdminStudentUpdateResponse(
     @Schema(description = "학번", example = "2029136012", requiredMode = NOT_REQUIRED)
     String studentNumber
 ) {
+    
     public static AdminStudentUpdateResponse from(Student student) {
         User user = student.getUser();
 

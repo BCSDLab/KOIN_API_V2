@@ -72,7 +72,7 @@ public record DiningResponse(
             dining.getPlace(),
             dining.getPriceCard(),
             dining.getPriceCash(),
-            dining.getKcal(),
+            dining.getKcal() != null ? dining.getKcal() : 0,
             dining.getMenu(),
             dining.getImageUrl(),
             dining.getCreatedAt(),
