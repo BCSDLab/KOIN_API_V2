@@ -52,7 +52,7 @@ public class CoopShop extends BaseEntity {
     private List<CoopOpen> coopOpens = new ArrayList<>();
 
     @Builder
-    public CoopShop(
+    private CoopShop(
         String name,
         String phone,
         String location,

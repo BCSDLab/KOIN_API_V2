@@ -48,7 +48,7 @@ public class CoopOpen {
     private boolean isDeleted = false;
 
     @Builder
-    public CoopOpen(
+    private CoopOpen(
         CoopShop coopShop,
         String type,
         String dayOfWeek,
