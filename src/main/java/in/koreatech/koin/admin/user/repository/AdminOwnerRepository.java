@@ -26,7 +26,7 @@ public interface AdminOwnerRepository extends Repository<Owner, Integer> {
         SELECT o FROM Owner o
         JOIN o.user u
         WHERE u.isAuthed = true
-    """)
+        """)
     Page<Owner> findPageOwners(Pageable pageable);
 
     @Query("""
@@ -34,7 +34,7 @@ public interface AdminOwnerRepository extends Repository<Owner, Integer> {
         JOIN o.user u
         WHERE u.isAuthed = true
         AND u.email LIKE CONCAT('%', :query, '%')
-    """)
+        """)
     Page<Owner> findPageOwnersByEmail(@Param("query") String query, Pageable pageable);
 
     @Query("""
@@ -42,14 +42,14 @@ public interface AdminOwnerRepository extends Repository<Owner, Integer> {
         JOIN o.user u
         WHERE u.isAuthed = true
         AND u.name LIKE CONCAT('%', :query, '%')
-    """)
+        """)
     Page<Owner> findPageOwnersByName(@Param("query") String query, Pageable pageable);
 
     @Query("""
         SELECT o FROM Owner o
         JOIN o.user u
         WHERE u.isAuthed = false
-    """)
+        """)
     Page<Owner> findPageUnauthenticatedOwners(Pageable pageable);
 
     @Query("""
@@ -57,7 +57,7 @@ public interface AdminOwnerRepository extends Repository<Owner, Integer> {
         JOIN o.user u
         WHERE u.isAuthed = false
         AND u.email LIKE CONCAT('%', :query, '%')
-    """)
+        """)
     Page<Owner> findPageUnauthenticatedOwnersByEmail(@Param("query") String query, Pageable pageable);
 
     @Query("""
@@ -65,7 +65,7 @@ public interface AdminOwnerRepository extends Repository<Owner, Integer> {
         JOIN o.user u
         WHERE u.isAuthed = false
         AND u.name LIKE CONCAT('%', :query, '%')
-    """)
+        """)
     Page<Owner> findPageUnauthenticatedOwnersByName(@Param("query") String query, Pageable pageable);
 
     default Owner getById(Integer ownerId) {
