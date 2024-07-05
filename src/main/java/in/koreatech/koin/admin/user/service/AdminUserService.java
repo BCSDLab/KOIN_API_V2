@@ -188,7 +188,7 @@ public class AdminUserService {
     public AdminOwnersResponse getOwners(OwnersCondition ownersCondition) {
         ownersCondition.checkDataConstraintViolation();
 
-        Integer totalOwners = adminOwnerRepository.countByUserUserType(UserType.OWNER);
+        Integer totalOwners = adminUserRepository.findUsersCountByUserTypeAndIsAuthed(UserType.OWNER, true);
         Criteria criteria = Criteria.of(ownersCondition.page(), ownersCondition.limit(), totalOwners);
         Sort.Direction direction = ownersCondition.getDirection();
 

@@ -18,7 +18,7 @@ public interface AdminUserRepository extends Repository<User, Integer> {
     Optional<User> findById(Integer id);
 
     @Query("""
-        SELECT COUNT(u) FROM User u 
+        SELECT COUNT(u) FROM User u
         WHERE u.userType = :userType
         AND u.isAuthed = :isAuthed
         """)
