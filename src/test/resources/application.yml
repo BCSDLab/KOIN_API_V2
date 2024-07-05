@@ -12,7 +12,7 @@ spring:
         show_sql: true
         format_sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
   thymeleaf:
     prefix: "classpath:/mail/"
     suffix: ".html"
@@ -20,6 +20,21 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+
+  data:
+    redis:
+      port: 55887
+      host: localhost
+    mongodb:
+      host: localhost
+      port: 55890
+      database: test
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:55716/test?characterEncoding=utf8&useUnicode=true&mysqlEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
+    username: root
+    password: 1234
 
 server:
   tomcat:
