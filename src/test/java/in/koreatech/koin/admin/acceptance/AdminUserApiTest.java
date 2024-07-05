@@ -565,14 +565,18 @@ public class AdminUserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("관리자가 가입 신청한 사장님 리스트 조회한다.")
     void getNewOwnersAdmin() {
-        Owner unauthenticatedOwner = userFixture.철수_사장님();
-        Owner authenticatedOwner = userFixture.준영_사장님();
-
-        Shop shopA = shopFixture.마슬랜(unauthenticatedOwner);
-        Shop shopB = shopFixture.신전_떡볶이(authenticatedOwner);
+        Owner owner = userFixture.철수_사장님();
+        Shop shop = shopFixture.마슬랜(null);
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
+
+        OwnerShop ownerShop = OwnerShop.builder()
+                .ownerId(owner.getId())
+                .shopId(shop.getId())
+                .build();
+
+        ownerShopRedisRepository.save(ownerShop);
 
         var response = RestAssured
             .given()
