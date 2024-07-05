@@ -70,7 +70,15 @@ public record ModifyShopRequest(
 
     @Schema(example = "041-000-0000", description = "전화번호", requiredMode = NOT_REQUIRED)
     @Size(max = 50, message = "전화번호는 50자 이하로 입력해주세요.")
-    String phone
+    String phone,
+
+    @Schema(example = "국민은행", description = "은행", requiredMode = NOT_REQUIRED)
+    @Size(max = 10, message = "은행명은 10자 이내로 입력해주세요")
+    String bank,
+
+    @Schema(example = "110-439-1234567", description = "계좌번호", requiredMode = NOT_REQUIRED)
+    @Size(max = 20, message = "계좌번호는 20자 이내로 입력해주세요")
+    String accountNumber
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
