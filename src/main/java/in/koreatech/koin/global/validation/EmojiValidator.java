@@ -20,6 +20,9 @@ public class EmojiValidator implements ConstraintValidator<NotEmoji, String> {
 
     @Override
     public boolean isValid(String field, ConstraintValidatorContext constraintValidatorContext) {
+        if (field == null) {
+            return true;
+        }
         Matcher emojiMatcher = EMOJI_PATTERN.matcher(field);
         if (emojiMatcher.find()) {
             return false;
