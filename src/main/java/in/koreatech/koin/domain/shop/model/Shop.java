@@ -120,6 +120,14 @@ public class Shop extends BaseEntity {
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<EventArticle> eventArticles = new ArrayList<>();
 
+    @Size(max = 10)
+    @Column(name = "bank", length = 10)
+    private String bank;
+
+    @Size(max = 20)
+    @Column(name = "accountNumber", length = 20)
+    private String accountNumber;
+
     @Builder
     private Shop(
         Owner owner,
@@ -136,7 +144,9 @@ public class Shop extends BaseEntity {
         boolean isDeleted,
         boolean isEvent,
         String remarks,
-        Integer hit
+        Integer hit,
+        String bank,
+        String accountNumber
     ) {
         this.owner = owner;
         this.name = name;
@@ -153,6 +163,8 @@ public class Shop extends BaseEntity {
         this.isEvent = isEvent;
         this.remarks = remarks;
         this.hit = hit;
+        this.bank = bank;
+        this.accountNumber = accountNumber;
     }
 
     public void modifyShop(
@@ -163,7 +175,9 @@ public class Shop extends BaseEntity {
         boolean delivery,
         Integer deliveryPrice,
         Boolean payCard,
-        boolean payBank
+        boolean payBank,
+        String bank,
+        String accountNumber
     ) {
         this.address = address;
         this.delivery = delivery;
@@ -173,6 +187,8 @@ public class Shop extends BaseEntity {
         this.payBank = payBank;
         this.payCard = payCard;
         this.phone = phone;
+        this.bank = bank;
+        this.accountNumber = accountNumber;
     }
 
     public void modifyShopImages(List<String> imageUrls, EntityManager entityManager) {

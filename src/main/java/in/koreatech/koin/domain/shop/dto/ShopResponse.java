@@ -64,7 +64,13 @@ public record ShopResponse(
     LocalDateTime updatedAt,
 
     @Schema(example = "true", description = "상점 이벤트 진행 여부", requiredMode = REQUIRED)
-    Boolean isEvent
+    Boolean isEvent,
+
+    @Schema(example = "국민은행", description = "은행", requiredMode = NOT_REQUIRED)
+    String bank,
+
+    @Schema(example = "110-439-1234567", description = "계좌번호", requiredMode = NOT_REQUIRED)
+    String accountNumber
 ) {
 
     public static ShopResponse from(Shop shop, Boolean isEvent) {
@@ -104,7 +110,9 @@ public record ShopResponse(
                 );
             }).toList(),
             shop.getUpdatedAt(),
-            isEvent
+            isEvent,
+            shop.getBank(),
+            shop.getAccountNumber()
         );
     }
 

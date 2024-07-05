@@ -42,6 +42,8 @@ public final class ShopFixture {
                 .isEvent(false)
                 .remarks("비고")
                 .hit(0)
+                .bank("국민")
+                .accountNumber("01022595923")
                 .build()
         );
         shop.getShopImages().addAll(
