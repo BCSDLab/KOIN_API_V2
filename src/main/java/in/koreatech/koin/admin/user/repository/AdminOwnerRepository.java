@@ -9,7 +9,6 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.owner.exception.OwnerNotFoundException;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
 import in.koreatech.koin.domain.user.model.UserType;
 import io.lettuce.core.dynamic.annotation.Param;
 
@@ -21,37 +20,53 @@ public interface AdminOwnerRepository extends Repository<Owner, Integer> {
 
     void deleteById(Integer ownerId);
 
-    @Query("""
-        SELECT COUNT(o) FROM Owner o 
-        WHERE o.user.userType = 'OWNER' 
-        AND o.user.isAuthed = false
-        """)
-    Integer findUnauthenticatedOwnersCount();
-
     Integer countByUserUserType(UserType userType);
 
     @Query("""
-        SELECT new in.koreatech.koin.domain.owner.model.OwnerIncludingShop(o, s.id, s.name)
-        FROM Owner o
-        LEFT JOIN Shop s ON s.owner = o
-        """)
-    Page<OwnerIncludingShop> findPageUnauthenticatedOwners(Pageable pageable);
+        SELECT o FROM Owner o
+        JOIN o.user u
+        WHERE u.isAuthed = true
+    """)
+    Page<Owner> findPageOwners(Pageable pageable);
 
     @Query("""
-        SELECT new in.koreatech.koin.domain.owner.model.OwnerIncludingShop(o, s.id, s.name)
-        FROM Owner o
-        LEFT JOIN Shop s ON s.owner = o
-        WHERE o.user.email LIKE CONCAT('%', :query, '%')
-        """)
-    Page<OwnerIncludingShop> findPageUnauthenticatedOwnersByEmail(@Param("query") String query, Pageable pageable);
+        SELECT o FROM Owner o
+        JOIN o.user u
+        WHERE u.isAuthed = true
+        AND u.email LIKE CONCAT('%', :query, '%')
+    """)
+    Page<Owner> findPageOwnersByEmail(@Param("query") String query, Pageable pageable);
 
     @Query("""
-        SELECT new in.koreatech.koin.domain.owner.model.OwnerIncludingShop(o, s.id, s.name)
-        FROM Owner o
-        LEFT JOIN Shop s ON s.owner = o
-        WHERE o.user.name LIKE CONCAT('%', :query, '%')
-        """)
-    Page<OwnerIncludingShop> findPageUnauthenticatedOwnersByName(@Param("query") String query, Pageable pageable);
+        SELECT o FROM Owner o
+        JOIN o.user u
+        WHERE u.isAuthed = true
+        AND u.name LIKE CONCAT('%', :query, '%')
+    """)
+    Page<Owner> findPageOwnersByName(@Param("query") String query, Pageable pageable);
+
+    @Query("""
+        SELECT o FROM Owner o
+        JOIN o.user u
+        WHERE u.isAuthed = false
+    """)
+    Page<Owner> findPageUnauthenticatedOwners(Pageable pageable);
+
+    @Query("""
+        SELECT o FROM Owner o
+        JOIN o.user u
+        WHERE u.isAuthed = false
+        AND u.email LIKE CONCAT('%', :query, '%')
+    """)
+    Page<Owner> findPageUnauthenticatedOwnersByEmail(@Param("query") String query, Pageable pageable);
+
+    @Query("""
+        SELECT o FROM Owner o
+        JOIN o.user u
+        WHERE u.isAuthed = false
+        AND u.name LIKE CONCAT('%', :query, '%')
+    """)
+    Page<Owner> findPageUnauthenticatedOwnersByName(@Param("query") String query, Pageable pageable);
 
     default Owner getById(Integer ownerId) {
         return findById(ownerId).orElseThrow(() -> OwnerNotFoundException.withDetail("ownerId: " + ownerId));
