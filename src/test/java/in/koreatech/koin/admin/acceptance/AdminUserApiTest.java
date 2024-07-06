@@ -565,14 +565,18 @@ public class AdminUserApiTest extends AcceptanceTest {
     @Test
     @DisplayName("관리자가 가입 신청한 사장님 리스트 조회한다.")
     void getNewOwnersAdmin() {
-        Owner unauthenticatedOwner = userFixture.철수_사장님();
-        Owner authenticatedOwner = userFixture.준영_사장님();
-
-        Shop shopA = shopFixture.마슬랜(unauthenticatedOwner);
-        Shop shopB = shopFixture.신전_떡볶이(unauthenticatedOwner);
+        Owner owner = userFixture.철수_사장님();
+        Shop shop = shopFixture.마슬랜(null);
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
+
+        OwnerShop ownerShop = OwnerShop.builder()
+                .ownerId(owner.getId())
+                .shopId(shop.getId())
+                .build();
+
+        ownerShopRedisRepository.save(ownerShop);
 
         var response = RestAssured
             .given()
@@ -589,8 +593,8 @@ public class AdminUserApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
                 {
-                    "total_count": 2,
-                    "current_count": 2,
+                    "total_count": 1,
+                    "current_count": 1,
                     "total_page": 1,
                     "current_page": 1,
                     "owners": [
@@ -601,15 +605,6 @@ public class AdminUserApiTest extends AcceptanceTest {
                             "phone_number": "01097765112",
                             "shop_id": 1,
                             "shop_name": "마슬랜 치킨",
-                            "created_at" : "2024-01-15 12:00:00"
-                        },
-                        {
-                            "id": 1,
-                            "email": "testchulsu@gmail.com",
-                            "name": "테스트용_철수(인증X)",
-                            "phone_number": "01097765112",
-                            "shop_id": 2,
-                            "shop_name": "신전 떡볶이",
                             "created_at" : "2024-01-15 12:00:00"
                         }
                     ]
