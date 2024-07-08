@@ -62,12 +62,13 @@ public class StudentService {
     @Transactional
     public StudentLoginResponse studentLogin(StudentLoginRequest request) {
         User user = userRepository.getByEmail(request.email());
+        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findById(request.email());
 
         if (!user.isSamePassword(passwordEncoder, request.password())) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
 
-        if (!user.isAuthed()) {
+        if (studentTemporaryStatus.isPresent()) {
             throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
         }
 
