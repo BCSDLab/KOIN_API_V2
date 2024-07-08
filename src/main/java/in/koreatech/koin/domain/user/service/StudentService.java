@@ -110,8 +110,23 @@ public class StudentService {
 
     @Transactional
     public ModelAndView authenticate(AuthTokenRequest request) {
-        Optional<User> user = userRepository.findByAuthToken(request.authToken());
-        return new AuthResult(user, eventPublisher, clock).toModelAndViewForStudent();
+        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findByAuthToken(request.authToken());
+
+        if (studentTemporaryStatus.isEmpty()) {
+            ModelAndView modelAndView = new ModelAndView("error_config");
+            modelAndView.addObject("errorMessage", "토큰이 유효하지 않습니다.");
+            return modelAndView;
+        }
+
+        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder);
+
+        studentRepository.save(student);
+        userRepository.save(student.getUser());
+
+        studentRedisRepository.deleteById(student.getUser().getEmail());
+        eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail()));
+
+        return new ModelAndView("success_register_config");
     }
 
     @Transactional
