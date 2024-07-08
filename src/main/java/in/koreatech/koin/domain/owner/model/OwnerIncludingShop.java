@@ -19,8 +19,8 @@ public class OwnerIncludingShop {
     public static OwnerIncludingShop of(Owner owner, Shop shop) {
         return new OwnerIncludingShop(
             owner,
-            shop.getId(),
-            shop.getName()
+            shop != null ? shop.getId() : null,
+            shop != null ? shop.getName() : null
         );
     }
 }

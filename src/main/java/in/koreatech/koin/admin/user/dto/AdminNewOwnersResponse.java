@@ -73,13 +73,13 @@ public record AdminNewOwnersResponse(
         }
     }
 
-    public static AdminNewOwnersResponse of(Page<OwnerIncludingShop> pagedResult, Criteria criteria) {
+    public static AdminNewOwnersResponse of(List<OwnerIncludingShop> ownerIncludingShops, Page pagedResult, Criteria criteria) {
         return new AdminNewOwnersResponse(
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),
             pagedResult.getTotalPages(),
             criteria.getPage() + 1,
-            pagedResult.getContent().stream()
+            ownerIncludingShops.stream()
                 .map(InnerNewOwnerResponse::from)
                 .collect(Collectors.toList())
         );
