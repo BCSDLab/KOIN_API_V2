@@ -4,9 +4,11 @@ import java.time.Clock;
 import java.util.Optional;
 import java.util.UUID;
 
+import in.koreatech.koin.domain.user.model.*;
+import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import org.joda.time.LocalDateTime;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +26,6 @@ import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.user.exception.StudentNumberNotValidException;
-import in.koreatech.koin.domain.user.model.AuthResult;
-import in.koreatech.koin.domain.user.model.Student;
-import in.koreatech.koin.domain.user.model.StudentDepartment;
-import in.koreatech.koin.domain.user.model.StudentEmailRequestEvent;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
@@ -50,6 +45,7 @@ import lombok.RequiredArgsConstructor;
 public class StudentService {
 
     private final StudentRepository studentRepository;
+    private final StudentRedisRepository studentRedisRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
@@ -120,39 +116,45 @@ public class StudentService {
 
     @Transactional
     public void studentRegister(StudentRegisterRequest request, String serverURL) {
-        Student student = request.toStudent(passwordEncoder, clock);
-        try {
-            validateStudentRegister(student);
-            studentRepository.save(student);
-            userRepository.save(student.getUser());
-            mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, student.getUser().getAuthToken()));
-            eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
-        } catch (DataIntegrityViolationException e) {
-            // 동시성 문제를 처리하기 위한 코드
-            throw KoinIllegalArgumentException.withDetail("요청이 너무 빠릅니다.");
-        }
+
+        validateStudentRegister(request);
+        String authToken = UUID.randomUUID().toString();
+
+        StudentTemporaryStatus studentTemporaryStatus = StudentTemporaryStatus.of(request, authToken);
+        studentRedisRepository.save(studentTemporaryStatus);
+
+        mailService.sendMail(request.email(), new StudentRegistrationData(serverURL, authToken));
+        eventPublisher.publishEvent(new StudentEmailRequestEvent(request.email()));
     }
 
-    private void validateStudentRegister(Student student) {
-        EmailAddress emailAddress = EmailAddress.from(student.getUser().getEmail());
+    private void validateStudentRegister(StudentRegisterRequest request) {
+        EmailAddress emailAddress = EmailAddress.from(request.email());
         emailAddress.validateKoreatechEmail();
 
-        validateDataExist(student);
-        validateStudentNumber(student.getStudentNumber());
-        checkDepartmentValid(student.getDepartment());
+        validateDataExist(request);
+        validateStudentNumber(request.studentNumber());
+        checkDepartmentValid(request.department());
     }
 
-    private void validateDataExist(Student student) {
-        userRepository.findByEmail(student.getUser().getEmail())
-            .ifPresent(user -> {
-                throw DuplicationEmailException.withDetail("email: " + student.getUser().getEmail());
-            });
-
-        if (student.getUser().getNickname() != null) {
-            userRepository.findByNickname(student.getUser().getNickname())
+    private void validateDataExist(StudentRegisterRequest request) {
+        userRepository.findByEmail(request.email())
                 .ifPresent(user -> {
-                    throw DuplicationNicknameException.withDetail("nickname: " + student.getUser().getNickname());
+                    throw DuplicationEmailException.withDetail("email: " + request.email());
                 });
+        studentRedisRepository.findById(request.email())
+                .ifPresent(studentTemporaryStatus -> {
+                    throw DuplicationEmailException.withDetail("email: " + request.email());
+                });
+
+        if (request.nickname() != null) {
+            userRepository.findByNickname(request.nickname())
+                    .ifPresent(user -> {
+                        throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
+                    });
+            studentRedisRepository.findByNickname(request.nickname())
+                    .ifPresent(studentTemporaryStatus -> {
+                        throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
+                    });
         }
     }
 
