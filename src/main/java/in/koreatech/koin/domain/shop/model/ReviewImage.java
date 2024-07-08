@@ -2,8 +2,6 @@ package in.koreatech.koin.domain.shop.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.LocalDateTime;
-
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,7 +25,7 @@ public class ReviewImage extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "review_id", nullable = false)
-    private Review review;
+    private ShopReview review;
 
     @Column(name = "image_urls", nullable = false)
     private String imageUrls;

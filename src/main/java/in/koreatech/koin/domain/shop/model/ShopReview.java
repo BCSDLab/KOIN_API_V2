@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "shop_reviews")
 @NoArgsConstructor(access = PROTECTED)
-public class Review extends BaseEntity {
+public class ShopReview extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -39,6 +39,10 @@ public class Review extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "reviewer_id", nullable = false)
     private User reviewer;
+
+    @ManyToOne
+    @JoinColumn(name = "shop_id", nullable = false)
+    private Shop shop;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

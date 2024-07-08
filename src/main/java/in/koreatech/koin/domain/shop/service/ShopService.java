@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
@@ -24,11 +25,13 @@ import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopCategory;
+import in.koreatech.koin.domain.shop.model.ShopReview;
 import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
+import in.koreatech.koin.domain.shop.repository.ShopReviewRepository;
 import in.koreatech.koin.domain.shop.repository.redis.ShopsRedisRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -44,6 +47,7 @@ public class ShopService {
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
     private final ShopsRedisRepository shopsRedisRepository;
+    private final ShopReviewRepository shopReviewRepository;
 
     public MenuDetailResponse findMenu(Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
@@ -108,5 +112,10 @@ public class ShopService {
             .sorted(Comparator.comparing(InnerShopResponse::isOpen, Comparator.reverseOrder())).toList();
         ShopsResponse shopsResponse = ShopsResponse.from(innerShopResponses);
         shopsRedisRepository.save(shopsResponse);
+    }
+
+    public ShopReviewResponse getReviewsByShopId(Integer shopId) {
+        List<ShopReview> reviews = shopReviewRepository.findAllByShopId(shopId);
+        return ShopReviewResponse.from(reviews);
     }
 }

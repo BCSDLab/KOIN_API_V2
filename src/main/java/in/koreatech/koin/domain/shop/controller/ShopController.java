@@ -1,18 +1,28 @@
 package in.koreatech.koin.domain.shop.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
 import in.koreatech.koin.domain.shop.service.ShopService;
+import in.koreatech.koin.global.auth.Auth;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -78,5 +88,23 @@ public class ShopController implements ShopApi {
     public ResponseEntity<ShopEventsResponse> getShopAllEvent() {
         var response = shopService.getAllEvents();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/shops/{shopId}/reviews")
+    public ResponseEntity<ShopReviewResponse> getReviews(
+        @Parameter(in = PATH) @PathVariable Integer shopId
+    ) {
+        ShopReviewResponse reviewResponse = shopService.getReviewsByShopId(shopId);
+        return ResponseEntity.ok(reviewResponse);
+    }
+
+    @PostMapping("/shops/{shopId}/reviews")
+    public ResponseEntity<Void> createReview(
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @RequestBody @Valid CreateReviewRequest createReviewRequest,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        shopService.createReview()
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

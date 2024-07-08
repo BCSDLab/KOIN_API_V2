@@ -2,8 +2,6 @@ package in.koreatech.koin.domain.shop.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.LocalDateTime;
-
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -24,11 +22,11 @@ import lombok.NoArgsConstructor;
 public class ReviewReport extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "review_id", nullable = false)
-    private Review review;
+    private ShopReview review;
 
     @Column(name = "reason_title", nullable = false, length = 50)
     private String reasonTitle;
