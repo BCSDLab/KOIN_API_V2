@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "shop_review_images")
 @NoArgsConstructor(access = PROTECTED)
-public class ReviewImage extends BaseEntity {
+public class ShopReviewImage extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -29,4 +30,10 @@ public class ReviewImage extends BaseEntity {
 
     @Column(name = "image_urls", nullable = false)
     private String imageUrls;
+
+    @Builder
+    public ShopReviewImage(ShopReview review, String imageUrls) {
+        this.review = review;
+        this.imageUrls = imageUrls;
+    }
 }

@@ -5,14 +5,18 @@ import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.shop.dto.CreateReviewRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.ModifyReviewRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
@@ -104,7 +108,27 @@ public class ShopController implements ShopApi {
         @RequestBody @Valid CreateReviewRequest createReviewRequest,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        shopService.createReview()
+        shopService.createReview(createReviewRequest, userId, shopId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/shops/{shopId}/reviews/{reviewId}")
+    public ResponseEntity<Void> modifyReview(
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @Parameter(in = PATH) @PathVariable Integer reviewId,
+        @RequestBody @Valid ModifyReviewRequest modifyReviewRequest,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        shopService.modifyShop(modifyReviewRequest, reviewId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/shops/{shopId}/reviews")
+    public ResponseEntity<Void> deleteReview(
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        shopService.deleteReview(shopId, userId);
+        return ResponseEntity.noContent().build();
     }
 }

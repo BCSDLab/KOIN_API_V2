@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.shop.model;
 import static jakarta.persistence.CascadeType.ALL;
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +10,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -44,18 +45,49 @@ public class ShopReview extends BaseEntity {
     @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL)
+    private List<ShopReviewImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL)
-    private List<ReviewImage> images = new ArrayList<>();
+    private List<ShopReviewMenu> menus = new ArrayList<>();
 
     @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL)
-    private List<ReviewMenu> menus = new ArrayList<>();
+    private List<ShopReviewReport> reports = new ArrayList<>();
 
-    @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL)
-    private List<ReviewReport> reports = new ArrayList<>();
+    @Builder
+    public ShopReview(String content, Integer rating, User reviewer, Shop shop) {
+        this.content = content;
+        this.rating = rating;
+        this.reviewer = reviewer;
+        this.shop = shop;
+    }
+
+    public void modifyReview(String content, Integer rating) {
+        this.content = content;
+        this.rating = rating;
+    }
+
+    public void modifyReviewImage(List<String> imageUrls, EntityManager entityManager) {
+        this.images.clear();
+        entityManager.flush();
+        for (String imageUrl : imageUrls) {
+            ShopReviewImage shopReviewImage = ShopReviewImage.builder()
+                .imageUrls(imageUrl)
+                .review(this)
+                .build();
+            images.add(shopReviewImage);
+        }
+    }
+
+    public void modifyMenuName(List<String> menuNames, EntityManager entityManager) {
+        this.menus.clear();
+        entityManager.flush();
+        for (String menuName : menuNames) {
+            ShopReviewMenu shopReviewImage = ShopReviewMenu.builder()
+                    .menuName(menuName)
+                    .review(this)
+                    .build();
+            this.menus.add(shopReviewImage);
+        }
+    }
 }

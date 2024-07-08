@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "shop_review_reports")
 @NoArgsConstructor(access = PROTECTED)
-public class ReviewReport extends BaseEntity {
+public class ShopReviewReport extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

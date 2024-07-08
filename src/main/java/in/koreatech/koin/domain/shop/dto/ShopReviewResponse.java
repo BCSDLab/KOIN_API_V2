@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shop.dto;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,20 +9,20 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.ShopReview;
-import in.koreatech.koin.domain.shop.model.ReviewImage;
-import in.koreatech.koin.domain.shop.model.ReviewMenu;
+import in.koreatech.koin.domain.shop.model.ShopReviewImage;
+import in.koreatech.koin.domain.shop.model.ShopReviewMenu;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record ShopReviewResponse(
     int count,
-    List<InnerReviewResponse> innerReviewResponses,
-    InnerReviewStatisticsResponse innerReviewStatisticsResponse
+    InnerReviewStatisticsResponse reviewStatisticsResponse,
+    List<InnerReviewResponse> reviewResponses
 ) {
-    public static ShopReviewResponse from(List<ShopReview> review) {
+    public static ShopReviewResponse from(List<ShopReview> reviews) {
         return new ShopReviewResponse(
-            review.size(),
-            review.stream().map(InnerReviewResponse::from).toList(),
-            InnerReviewStatisticsResponse.from(review)
+            reviews.size(),
+            InnerReviewStatisticsResponse.from(reviews),
+            reviews.stream().map(InnerReviewResponse::from).toList()
         );
     }
 
@@ -41,8 +42,8 @@ public record ShopReviewResponse(
                 review.getRating(),
                 review.getReviewer().getNickname(),
                 review.getContent(),
-                review.getImages().stream().map(ReviewImage::getImageUrls).toList(),
-                review.getMenus().stream().map(ReviewMenu::getMenuName).toList(),
+                review.getImages().stream().map(ShopReviewImage::getImageUrls).toList(),
+                review.getMenus().stream().map(ShopReviewMenu::getMenuName).toList(),
                 review.getCreatedAt()
             );
         }
@@ -50,7 +51,7 @@ public record ShopReviewResponse(
 
     @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record InnerReviewStatisticsResponse(
-        Double averageRating,
+        double averageRating,
         Map<Integer, Integer> statistics
     ) {
         public static InnerReviewStatisticsResponse from(List<ShopReview> reviews) {
@@ -58,17 +59,17 @@ public record ShopReviewResponse(
                 .mapToInt(ShopReview::getRating)
                 .average()
                 .orElse(0.0);
-            Map<Integer, Integer> statistics = Map.of(
+            Map<Integer, Integer> statistics = new HashMap<>(Map.of(
                 1, 0,
                 2, 0,
                 3, 0,
                 4, 0,
                 5, 0
-            );
-            reviews.stream().forEach(review ->
+            ));
+            reviews.forEach(review ->
                 statistics.put(
                     review.getRating(),
-                    statistics.put(review.getRating(), statistics.get(review.getRating()) + 1)
+                    statistics.get(review.getRating()) + 1
                 )
             );
             return new InnerReviewStatisticsResponse(
@@ -77,4 +78,5 @@ public record ShopReviewResponse(
             );
         }
     }
+
 }

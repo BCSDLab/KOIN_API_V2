@@ -1,17 +1,20 @@
 package in.koreatech.koin.domain.shop.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import in.koreatech.koin.domain.shop.dto.CreateReviewRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.ModifyReviewRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
@@ -140,7 +143,7 @@ public interface ShopApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 상정 리뷰 조회")
+    @Operation(summary = "특정 상점 리뷰 조회")
     @GetMapping("/shops/{shopId}/reviews")
     ResponseEntity<ShopReviewResponse> getReviews(
         @Parameter(in = PATH) @PathVariable Integer shopId
@@ -155,11 +158,44 @@ public interface ShopApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "특정 상정 리뷰 작성")
+    @Operation(summary = "특정 상점 리뷰 작성")
     @PostMapping("/shops/{shopId}/reviews")
     ResponseEntity<Void> createReview(
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestBody @Valid CreateReviewRequest createReviewRequest,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 상점 리뷰 수정")
+    @PutMapping("/shops/{shopId}/reviews/{reviewId}")
+    ResponseEntity<Void> modifyReview(
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @Parameter(in = PATH) @PathVariable Integer reviewId,
+        @RequestBody @Valid ModifyReviewRequest modifyReviewRequest,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 상점 리뷰 삭제")
+    @DeleteMapping("/shops/{shopId}/reviews")
+    ResponseEntity<Void> deleteReview(
+        @Parameter(in = PATH) @PathVariable Integer shopId,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }
