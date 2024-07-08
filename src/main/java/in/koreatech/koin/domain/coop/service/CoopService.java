@@ -66,7 +66,7 @@ public class CoopService {
             .anyMatch(it -> it.getImageUrl() != null);
 
         if (!isImageExist) {
-            eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getImageUrl()));
+            eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getImageUrl(), dining.getType()));
         }
 
         dining.setImageUrl(imageRequest.imageUrl());

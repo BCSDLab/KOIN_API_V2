@@ -101,8 +101,19 @@ class NotificationApiTest extends AcceptanceTest {
                              "type": "DINING_IMAGE_UPLOAD",
                              "is_permit": false,
                              "detail_subscribes": [
-                                \s
-                             ]
+                                {
+                                    "detail_type": "BREAKFAST",
+                                    "is_permit": false
+                                },
+                                {
+                                    "detail_type": "LUNCH",
+                                    "is_permit": false
+                                },
+                                {
+                                    "detail_type": "DINNER",
+                                    "is_permit": false
+                                }
+                            ]
                          }
                     ]
                 }
@@ -205,7 +216,18 @@ class NotificationApiTest extends AcceptanceTest {
                              "type": "DINING_IMAGE_UPLOAD",
                              "is_permit": false,
                              "detail_subscribes": [
-                                \s
+                                 {
+                                     "detail_type": "BREAKFAST",
+                                     "is_permit": false
+                                 },
+                                 {
+                                     "detail_type": "LUNCH",
+                                     "is_permit": false
+                                 },
+                                 {
+                                     "detail_type": "DINNER",
+                                     "is_permit": false
+                                 }
                              ]
                          }
                      ]
@@ -298,7 +320,18 @@ class NotificationApiTest extends AcceptanceTest {
                              "type": "DINING_IMAGE_UPLOAD",
                              "is_permit": false,
                              "detail_subscribes": [
-                                \s
+                                 {
+                                     "detail_type": "BREAKFAST",
+                                     "is_permit": false
+                                 },
+                                 {
+                                     "detail_type": "LUNCH",
+                                     "is_permit": true
+                                 },
+                                 {
+                                     "detail_type": "DINNER",
+                                     "is_permit": false
+                                 }
                              ]
                          }
                      ]
@@ -409,7 +442,18 @@ class NotificationApiTest extends AcceptanceTest {
                              "type": "DINING_IMAGE_UPLOAD",
                              "is_permit": false,
                              "detail_subscribes": [
-                                \s
+                                 {
+                                     "detail_type": "BREAKFAST",
+                                     "is_permit": false
+                                 },
+                                 {
+                                     "detail_type": "LUNCH",
+                                     "is_permit": false
+                                 },
+                                 {
+                                     "detail_type": "DINNER",
+                                     "is_permit": false
+                                 }
                              ]
                          }
                      ]
@@ -522,7 +566,18 @@ class NotificationApiTest extends AcceptanceTest {
                              "type": "DINING_IMAGE_UPLOAD",
                              "is_permit": false,
                              "detail_subscribes": [
-                                \s
+                                 {
+                                     "detail_type": "BREAKFAST",
+                                     "is_permit": true
+                                 },
+                                 {
+                                     "detail_type": "LUNCH",
+                                     "is_permit": false
+                                 },
+                                 {
+                                     "detail_type": "DINNER",
+                                     "is_permit": false
+                                 }
                              ]
                          }
                      ]

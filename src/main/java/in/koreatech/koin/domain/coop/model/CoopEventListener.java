@@ -47,10 +47,11 @@ public class CoopEventListener {
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onDiningImageUploadRequest(DiningImageUploadEvent event) {
+        NotificationDetailSubscribeType detailType = NotificationDetailSubscribeType.from(event.diningType());
         var notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailType(DINING_IMAGE_UPLOAD, null).stream()
-            .filter(subscribe -> !notificationSubscribeRepository.findByUserIdAndSubscribeType(
-                subscribe.getUser().getId(), DINING_IMAGE_UPLOAD).isEmpty()
+            .filter(subscribe -> !notificationSubscribeRepository.findByUserIdAndSubscribeTypeAndDetailType(
+                subscribe.getUser().getId(), DINING_IMAGE_UPLOAD, detailType).isEmpty()
             )
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .map(subscribe -> notificationFactory.generateDiningImageUploadNotification(
