@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shop.model;
 
 import static jakarta.persistence.CascadeType.ALL;
+import static jakarta.persistence.FetchType.LAZY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
@@ -37,21 +38,21 @@ public class ShopReview extends BaseEntity {
     @Column(nullable = false)
     private Integer rating;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "reviewer_id", nullable = false)
     private User reviewer;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;
 
-    @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL)
+    @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL, fetch = LAZY)
     private List<ShopReviewImage> images = new ArrayList<>();
 
-    @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL)
+    @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL, fetch = LAZY)
     private List<ShopReviewMenu> menus = new ArrayList<>();
 
-    @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL)
+    @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL, fetch = LAZY)
     private List<ShopReviewReport> reports = new ArrayList<>();
 
     @Builder

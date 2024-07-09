@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop.model;
 
+import static jakarta.persistence.FetchType.LAZY;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -24,7 +25,7 @@ public class ShopReviewMenu extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "review_id", nullable = false)
     private ShopReview review;
 

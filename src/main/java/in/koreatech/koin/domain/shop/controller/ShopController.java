@@ -11,17 +11,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.shop.dto.CreateReviewRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ModifyReviewRequest;
-import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.ShopReviewReportCategoryResponse;
+import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
+import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
 import in.koreatech.koin.domain.shop.service.ShopService;
 import in.koreatech.koin.global.auth.Auth;
@@ -96,9 +100,12 @@ public class ShopController implements ShopApi {
 
     @GetMapping("/shops/{shopId}/reviews")
     public ResponseEntity<ShopReviewResponse> getReviews(
-        @Parameter(in = PATH) @PathVariable Integer shopId
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "50", required = false) Integer limit,
+        @RequestHeader(value = "Authorization", required = false) String token
     ) {
-        ShopReviewResponse reviewResponse = shopService.getReviewsByShopId(shopId);
+        ShopReviewResponse reviewResponse = shopService.getReviewsByShopId(shopId, token, page, limit);
         return ResponseEntity.ok(reviewResponse);
     }
 
@@ -114,8 +121,8 @@ public class ShopController implements ShopApi {
 
     @PutMapping("/shops/{shopId}/reviews/{reviewId}")
     public ResponseEntity<Void> modifyReview(
-        @Parameter(in = PATH) @PathVariable Integer shopId,
         @Parameter(in = PATH) @PathVariable Integer reviewId,
+        @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestBody @Valid ModifyReviewRequest modifyReviewRequest,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
@@ -123,12 +130,32 @@ public class ShopController implements ShopApi {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/shops/{shopId}/reviews")
+    @DeleteMapping("/shops/{shopId}/reviews/{reviewId}")
     public ResponseEntity<Void> deleteReview(
+        @Parameter(in = PATH) @PathVariable Integer reviewId,
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        shopService.deleteReview(shopId, userId);
+        shopService.deleteReview(reviewId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/shops/reviews/categories")
+    public ResponseEntity<ShopReviewReportCategoryResponse> getReportCategory(
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        var shopReviewReportCategoryResponse = shopService.getReviewReportCategories();
+        return ResponseEntity.ok(shopReviewReportCategoryResponse);
+    }
+
+    @PostMapping("/shops/{shopId}/reviews/{reviewId}/reports")
+    public ResponseEntity<Void> reportReview(
+        @Parameter(in = PATH) @PathVariable Integer reviewId,
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @RequestBody @Valid ShopReviewReportRequest shopReviewReportRequest,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        shopService.reportReview(shopId, reviewId, userId, shopReviewReportRequest);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop.model;
 
+import static jakarta.persistence.FetchType.LAZY;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.domain.user.model.User;
@@ -12,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,7 +26,7 @@ public class ShopReviewReport extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "review_id", nullable = false)
     private ShopReview review;
 
@@ -34,7 +36,15 @@ public class ShopReviewReport extends BaseEntity {
     @Column(name = "reason_detail", nullable = false, length = 255)
     private String reasonDetail;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "reported_by", nullable = false)
     private User reportedBy;
+
+    @Builder
+    public ShopReviewReport(ShopReview review, String reasonTitle, String reasonDetail, User reportedBy) {
+        this.review = review;
+        this.reasonTitle = reasonTitle;
+        this.reasonDetail = reasonDetail;
+        this.reportedBy = reportedBy;
+    }
 }

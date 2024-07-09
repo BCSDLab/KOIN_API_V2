@@ -40,3 +40,17 @@ CREATE TABLE IF NOT EXISTS `shop_review_reports` (
     FOREIGN KEY (`review_id`) REFERENCES `shop_reviews`(`id`),
     FOREIGN KEY (`reported_by`) references `users`(`id`)
 );
+
+CREATE TABLE IF NOT EXISTS `shop_review_reports_categories` (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    detail VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT INTO `shop_review_reports_categories` (name, detail) VALUES
+('주제에 맞지 않음', '해당 음식점과 관련 없는 리뷰입니다.'),
+('스팸', '광고가 포함된 리뷰입니다.'),
+('욕설', '욕설, 성적인 언어, 비방하는 글이 포함된 리뷰입니다.'),
+('기타', '');

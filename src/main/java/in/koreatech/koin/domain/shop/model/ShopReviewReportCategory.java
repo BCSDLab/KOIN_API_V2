@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.shop.model;
 
-import static jakarta.persistence.FetchType.LAZY;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -9,8 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,23 +15,22 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "shop_review_images")
+@Table(name = "shop_review_reports_categories")
 @NoArgsConstructor(access = PROTECTED)
-public class ShopReviewImage extends BaseEntity {
+public class ShopReviewReportCategory extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "review_id", nullable = false)
-    private ShopReview review;
+    @Column(name = "name", nullable = false, length = 50)
+    private String name;
 
-    @Column(name = "image_urls", nullable = false)
-    private String imageUrls;
+    @Column(name = "detail", nullable = false, length = 255)
+    private String detail;
 
     @Builder
-    public ShopReviewImage(ShopReview review, String imageUrls) {
-        this.review = review;
-        this.imageUrls = imageUrls;
+    public ShopReviewReportCategory(String name, String detail) {
+        this.name = name;
+        this.detail = detail;
     }
 }
