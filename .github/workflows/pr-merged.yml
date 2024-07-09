@@ -1,0 +1,27 @@
+on:
+  pull_request:
+    types: closed
+
+jobs:
+  check_pr_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Check PR Merged
+        id: check_pr_merged
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prUrl = context.payload.pull_request.html_url ?? context.payload.pull_request._links.html.href;
+            core.setOutput('pullRequestLink', JSON.stringify(prUrl));
+
+      - name: Send Slack Trigger
+        run: |
+          curl -X POST https://api-slack.internal.bcsdlab.com/api/pr-merged/frontend \
+          -H 'Content-Type: application/json' \
+          -d '{
+                "pullRequestLink": ${{ steps.check_pr_merged.outputs.pullRequestLink }}
+              }'
