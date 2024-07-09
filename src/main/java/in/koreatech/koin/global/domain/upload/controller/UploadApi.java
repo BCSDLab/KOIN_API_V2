@@ -1,5 +1,6 @@
 package in.koreatech.koin.global.domain.upload.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
@@ -58,7 +59,7 @@ public interface UploadApi {
     ResponseEntity<UploadUrlResponse> getPresignedUrl(
         @PathVariable ImageUploadDomain domain,
         @RequestBody @Valid UploadUrlRequest request,
-        @Auth(permit = {OWNER, STUDENT, COOP}, anonymous = true) Integer memberId
+        @Auth(permit = {OWNER, STUDENT, COOP, ADMIN}, anonymous = true) Integer memberId
     );
 
     @ApiResponses(
@@ -89,7 +90,7 @@ public interface UploadApi {
     ResponseEntity<UploadFileResponse> uploadFile(
         @Parameter(in = PATH) @PathVariable ImageUploadDomain domain,
         @RequestPart MultipartFile multipartFile,
-        @Auth(permit = {OWNER, STUDENT, COOP}, anonymous = true) Integer memberId
+        @Auth(permit = {OWNER, STUDENT, COOP, ADMIN}, anonymous = true) Integer memberId
     );
 
     @ApiResponses(
@@ -120,6 +121,6 @@ public interface UploadApi {
     ResponseEntity<UploadFilesResponse> uploadFiles(
         @Parameter(in = PATH) @PathVariable ImageUploadDomain domain,
         @RequestPart List<MultipartFile> files,
-        @Auth(permit = {OWNER, STUDENT, COOP}, anonymous = true) Integer memberId
+        @Auth(permit = {OWNER, STUDENT, COOP, ADMIN}, anonymous = true) Integer memberId
     );
 }

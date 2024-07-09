@@ -153,7 +153,7 @@ public class OwnerShopController implements OwnerShopApi {
     public ResponseEntity<Void> modifyOwnerShop(
         @Auth(permit = {OWNER}) Integer ownerId,
         @PathVariable("id") Integer shopId,
-        @RequestBody @Valid ModifyShopRequest modifyShopRequest
+        @Valid @RequestBody ModifyShopRequest modifyShopRequest
     ) {
         ownerShopService.modifyShop(ownerId, shopId, modifyShopRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();

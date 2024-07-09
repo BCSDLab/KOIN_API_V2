@@ -6,11 +6,14 @@ import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.owner.dto.CompanyNumberCheckRequest;
+import in.koreatech.koin.domain.owner.dto.OwnerAccountCheckExistsRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
@@ -148,6 +151,24 @@ public class OwnerController implements OwnerApi {
         @Valid @RequestBody OwnerPasswordUpdateSmsRequest request
     ) {
         ownerService.updatePasswordBySms(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/owners/exists/company-number")
+    public ResponseEntity<Void> checkCompanyNumber(
+        @ModelAttribute("company_number")
+        @Valid CompanyNumberCheckRequest request
+    ) {
+        ownerService.checkCompanyNumber(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/owners/exists/account")
+    public ResponseEntity<Void> checkDuplicationOfPhoneNumber(
+        @ModelAttribute("account")
+        @Valid OwnerAccountCheckExistsRequest request
+    ) {
+        ownerService.checkExistsAccount(request);
         return ResponseEntity.ok().build();
     }
 }

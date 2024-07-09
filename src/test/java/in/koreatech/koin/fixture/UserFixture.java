@@ -2,11 +2,13 @@ package in.koreatech.koin.fixture;
 
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
-import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -134,6 +136,7 @@ public final class UserFixture {
             .build();
 
         Owner owner = Owner.builder()
+            .account("01098987979")
             .user(user)
             .companyRegistrationNumber("123-45-67190")
             .grantShop(true)
@@ -217,8 +220,8 @@ public final class UserFixture {
         Owner owner = Owner.builder()
             .user(user)
             .companyRegistrationNumber("118-80-56789")
-            .grantShop(true)
-            .grantEvent(true)
+            .grantShop(false)
+            .grantEvent(false)
             .account("01097765112")
             .attachments(new ArrayList<>())
             .build();

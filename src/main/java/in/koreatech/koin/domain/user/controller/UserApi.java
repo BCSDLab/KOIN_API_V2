@@ -17,8 +17,6 @@ import in.koreatech.koin.domain.user.dto.CoopResponse;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
 import in.koreatech.koin.domain.user.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.user.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;

@@ -235,6 +235,13 @@ public class Land extends BaseEntity {
         return Double.parseDouble(longitude);
     }
 
+    public Double getSize() {
+        if (this.size == null) {
+            return null;
+        }
+        return Double.parseDouble(size);
+    }
+
     private String convertToSting(List<String> imageUrls) {
         if (imageUrls == null || imageUrls.isEmpty()) {
             return null;
@@ -246,5 +253,50 @@ public class Land extends BaseEntity {
 
     public void delete() {
         this.isDeleted = true;
+    }
+
+    public void undelete() {
+        this.isDeleted = false;
+    }
+
+    public void update(String internalName, String name, double size, String roomType, double latitude,
+        double longitude,
+        String phone, List<String> imageUrls, String address, String description, Integer floor,
+        String deposit, String monthlyFee, String charterFee, String managementFee, boolean optRefrigerator,
+        boolean optCloset, boolean optTv, boolean optMicrowave, boolean optGasRange, boolean optInduction,
+        boolean optWaterPurifier, boolean optAirConditioner, boolean optWasher, boolean optBed, boolean optDesk,
+        boolean optShoeCloset, boolean optElectronicDoorLocks, boolean optBidet, boolean optVeranda,
+        boolean optElevator) {
+        this.internalName = internalName;
+        this.name = name;
+        this.size = String.valueOf(size);
+        this.roomType = roomType;
+        this.latitude = String.valueOf(latitude);
+        this.longitude = String.valueOf(longitude);
+        this.phone = phone;
+        this.imageUrls = convertToSting(imageUrls);
+        this.address = address;
+        this.description = description;
+        this.floor = floor;
+        this.deposit = deposit;
+        this.monthlyFee = monthlyFee;
+        this.charterFee = charterFee;
+        this.managementFee = managementFee;
+        this.optRefrigerator = optRefrigerator;
+        this.optCloset = optCloset;
+        this.optTv = optTv;
+        this.optMicrowave = optMicrowave;
+        this.optGasRange = optGasRange;
+        this.optInduction = optInduction;
+        this.optWaterPurifier = optWaterPurifier;
+        this.optAirConditioner = optAirConditioner;
+        this.optWasher = optWasher;
+        this.optBed = optBed;
+        this.optDesk = optDesk;
+        this.optShoeCloset = optShoeCloset;
+        this.optElectronicDoorLocks = optElectronicDoorLocks;
+        this.optBidet = optBidet;
+        this.optVeranda = optVeranda;
+        this.optElevator = optElevator;
     }
 }

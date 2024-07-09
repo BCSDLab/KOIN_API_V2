@@ -26,7 +26,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.dept.model.Dept;
-import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
