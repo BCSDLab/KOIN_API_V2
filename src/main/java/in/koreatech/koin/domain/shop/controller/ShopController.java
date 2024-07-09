@@ -27,6 +27,7 @@ import in.koreatech.koin.domain.shop.dto.ShopReviewReportCategoryResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
+import in.koreatech.koin.domain.shop.service.ShopReviewService;
 import in.koreatech.koin.domain.shop.service.ShopService;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 public class ShopController implements ShopApi {
 
     private final ShopService shopService;
+    private final ShopReviewService shopReviewService;
 
     @GetMapping("/shops/{shopId}/menus/{menuId}")
     public ResponseEntity<MenuDetailResponse> findMenu(
@@ -105,7 +107,7 @@ public class ShopController implements ShopApi {
         @RequestParam(name = "limit", defaultValue = "50", required = false) Integer limit,
         @RequestHeader(value = "Authorization", required = false) String token
     ) {
-        ShopReviewResponse reviewResponse = shopService.getReviewsByShopId(shopId, token, page, limit);
+        ShopReviewResponse reviewResponse = shopReviewService.getReviewsByShopId(shopId, token, page, limit);
         return ResponseEntity.ok(reviewResponse);
     }
 
@@ -115,7 +117,7 @@ public class ShopController implements ShopApi {
         @RequestBody @Valid CreateReviewRequest createReviewRequest,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        shopService.createReview(createReviewRequest, userId, shopId);
+        shopReviewService.createReview(createReviewRequest, userId, shopId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -126,7 +128,7 @@ public class ShopController implements ShopApi {
         @RequestBody @Valid ModifyReviewRequest modifyReviewRequest,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        shopService.modifyShop(modifyReviewRequest, reviewId, userId);
+        shopReviewService.modifyShop(modifyReviewRequest, reviewId, userId);
         return ResponseEntity.noContent().build();
     }
 
@@ -136,7 +138,7 @@ public class ShopController implements ShopApi {
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        shopService.deleteReview(reviewId, userId);
+        shopReviewService.deleteReview(reviewId, userId);
         return ResponseEntity.noContent().build();
     }
 
@@ -144,7 +146,7 @@ public class ShopController implements ShopApi {
     public ResponseEntity<ShopReviewReportCategoryResponse> getReportCategory(
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        var shopReviewReportCategoryResponse = shopService.getReviewReportCategories();
+        var shopReviewReportCategoryResponse = shopReviewService.getReviewReportCategories();
         return ResponseEntity.ok(shopReviewReportCategoryResponse);
     }
 
@@ -155,7 +157,7 @@ public class ShopController implements ShopApi {
         @RequestBody @Valid ShopReviewReportRequest shopReviewReportRequest,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        shopService.reportReview(shopId, reviewId, userId, shopReviewReportRequest);
+        shopReviewService.reportReview(shopId, reviewId, userId, shopReviewReportRequest);
         return ResponseEntity.noContent().build();
     }
 }
