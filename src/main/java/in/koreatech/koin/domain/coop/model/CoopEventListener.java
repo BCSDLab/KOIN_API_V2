@@ -49,9 +49,6 @@ public class CoopEventListener {
     public void onDiningImageUploadRequest(DiningImageUploadEvent event) {
         var notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailType(DINING_IMAGE_UPLOAD, null).stream()
-            .filter(subscribe -> !notificationSubscribeRepository.findByUserIdAndSubscribeType(
-                subscribe.getUser().getId(), DINING_IMAGE_UPLOAD).isEmpty()
-            )
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .map(subscribe -> notificationFactory.generateDiningImageUploadNotification(
                 DINING,
