@@ -15,8 +15,8 @@ public class CoopShopService {
 
     private final CoopShopRepository coopShopRepository;
 
-    public List<CoopShopResponse> getCoopsShops() {
-        return coopShopRepository.findAll().stream()
+    public List<CoopShopResponse> getCoopShops() {
+        return coopShopRepository.findAllByIsDeletedFalse().stream()
             .map(CoopShopResponse::from)
             .toList();
     }

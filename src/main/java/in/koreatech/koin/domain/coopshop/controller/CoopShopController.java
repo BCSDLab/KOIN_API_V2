@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/coop")
+@RequestMapping("/coopshop")
 @RequiredArgsConstructor
 public class CoopShopController implements CoopShopApi {
 
@@ -21,15 +21,15 @@ public class CoopShopController implements CoopShopApi {
 
     @GetMapping
     public ResponseEntity<List<CoopShopResponse>> getCoopsShops() {
-        List<CoopShopResponse> coopShops = coopShopService.getCoopsShops();
+        List<CoopShopResponse> coopShops = coopShopService.getCoopShops();
         return ResponseEntity.ok(coopShops);
     }
 
-    @GetMapping("/{coopId}")
+    @GetMapping("/{coopShopId}")
     public ResponseEntity<CoopShopResponse> getCoopShop(
-        @PathVariable Integer coopId
+        @PathVariable Integer coopShopId
     ) {
-        CoopShopResponse coopShop = coopShopService.getCoopShop(coopId);
+        CoopShopResponse coopShop = coopShopService.getCoopShop(coopShopId);
         return ResponseEntity.ok(coopShop);
     }
 }

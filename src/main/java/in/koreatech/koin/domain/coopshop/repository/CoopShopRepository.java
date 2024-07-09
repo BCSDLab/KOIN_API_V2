@@ -14,6 +14,8 @@ public interface CoopShopRepository extends Repository<CoopShop, Integer> {
 
     List<CoopShop> findAll();
 
+    List<CoopShop> findAllByIsDeletedFalse();
+
     Optional<CoopShop> findById(Integer id);
 
     default CoopShop getById(Integer id) {
