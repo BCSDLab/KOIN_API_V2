@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@RequestMapping("/admin/coop")
+@RequestMapping("/admin/coopshop")
 @Tag(name = "(ADMIN) AdminCoopShop : 생협 매장 정보", description = "생협 매장 정보 조회 페이지")
 public interface AdminCoopShopApi {
 
@@ -51,9 +51,9 @@ public interface AdminCoopShopApi {
         }
     )
     @Operation(summary = "특정 생협 매장 정보 조회")
-    @GetMapping("/{coopId}")
+    @GetMapping("/{coopShopId}")
     ResponseEntity<AdminCoopShopResponse> getCoopShop(
         @Auth(permit = {ADMIN}) Integer adminId,
-        @Parameter(in = PATH) @PathVariable Integer coopId
+        @Parameter(in = PATH) @PathVariable Integer coopShopId
     );
 }

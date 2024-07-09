@@ -16,7 +16,7 @@ import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/admin/coop")
+@RequestMapping("/admin/coopshop")
 @RequiredArgsConstructor
 public class AdminCoopShopController implements AdminCoopShopApi {
 
@@ -33,12 +33,12 @@ public class AdminCoopShopController implements AdminCoopShopApi {
         return ResponseEntity.ok(coopShops);
     }
 
-    @GetMapping("/{coopId}")
+    @GetMapping("/{coopShopId}")
     public ResponseEntity<AdminCoopShopResponse> getCoopShop(
         @Auth(permit = {ADMIN}) Integer adminId,
-        @PathVariable Integer coopId
+        @PathVariable Integer coopShopId
     ) {
-        AdminCoopShopResponse coopShop = adminCoopShopService.getCoopShop(coopId);
+        AdminCoopShopResponse coopShop = adminCoopShopService.getCoopShop(coopShopId);
         return ResponseEntity.ok(coopShop);
     }
 
