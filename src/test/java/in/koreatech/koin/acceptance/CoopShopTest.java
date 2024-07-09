@@ -35,7 +35,7 @@ class CoopShopTest extends AcceptanceTest {
     public void getCoopShops() {
         var response = given()
             .when()
-            .get("/coop")
+            .get("/coopshop")
             .then()
             .log().all()
             .statusCode(HttpStatus.OK.value())
@@ -108,7 +108,7 @@ class CoopShopTest extends AcceptanceTest {
     public void getCoopShop() {
         var response = given()
             .when()
-            .get("/coop/1")
+            .get("/coopshop/1")
             .then()
             .log().all()
             .statusCode(HttpStatus.OK.value())
