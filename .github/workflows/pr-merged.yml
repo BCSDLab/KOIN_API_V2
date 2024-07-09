@@ -20,7 +20,7 @@ jobs:
 
       - name: Send Slack Trigger
         run: |
-          curl -X POST https://api-slack.internal.bcsdlab.com/api/pr-merged/frontend \
+          curl -X POST https://api-slack.internal.bcsdlab.com/api/pr-merged/backend \
           -H 'Content-Type: application/json' \
           -d '{
                 "pullRequestLink": ${{ steps.check_pr_merged.outputs.pullRequestLink }}
