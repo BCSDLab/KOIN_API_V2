@@ -11,6 +11,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisKeyValueAdapter;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -32,6 +34,7 @@ import in.koreatech.koin.support.DBInitializer;
 import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
 
+@EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class})
 @ActiveProfiles("test")
