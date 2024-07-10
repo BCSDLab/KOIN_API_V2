@@ -1,9 +1,7 @@
-package in.koreatech.koin.global.config;
+package in.koreatech.koin.config;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import java.time.Duration;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,13 +18,13 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.time.Duration;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Configuration
 @EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
-@Profile("!test")
-public class RedisConfig {
+public class TestRedisConfiguration {
 
     @Bean
     public RedisKeyValueTemplate redisKeyValueTemplate(RedisConnectionFactory connectionFactory) {
@@ -50,9 +48,9 @@ public class RedisConfig {
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
         return restTemplateBuilder.
-            requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory())).
-            setConnectTimeout(Duration.ofMillis(5000))
-            .setReadTimeout(Duration.ofMillis(5000))
-            .additionalMessageConverters(new StringHttpMessageConverter(UTF_8)).build();
+                requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory())).
+                setConnectTimeout(Duration.ofMillis(5000))
+                .setReadTimeout(Duration.ofMillis(5000))
+                .additionalMessageConverters(new StringHttpMessageConverter(UTF_8)).build();
     }
 }
