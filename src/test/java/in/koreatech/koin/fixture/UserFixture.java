@@ -75,7 +75,7 @@ public final class UserFixture {
     public Student 준호_학생() {
         return studentRepository.save(
             Student.builder()
-                .studentNumber("2020136111")
+                .studentNumber("2019136135")
                 .anonymousNickname("익명")
                 .department("컴퓨터공학부")
                 .userIdentity(UNDERGRADUATE)
@@ -88,7 +88,7 @@ public final class UserFixture {
                         .phoneNumber("01012345678")
                         .userType(STUDENT)
                         .gender(MAN)
-                        .email("jun22o@koreatech.ac.kr")
+                        .email("juno@koreatech.ac.kr")
                         .isAuthed(true)
                         .isDeleted(false)
                         .build()

@@ -127,12 +127,15 @@ public record ShopReviewResponse(
 
     ) {
         public static InnerReviewStatisticsResponse from(Map<Integer, Integer> ratings) {
-            double averageRating = ratings.entrySet()
+            double totalSum = ratings.entrySet()
                 .stream()
-                .filter(entry -> entry.getValue() != 0)
                 .mapToDouble(entry -> entry.getKey() * entry.getValue())
-                .average()
-                .orElse(0.0);
+                .sum();
+            int totalCount = ratings.values()
+                .stream()
+                .mapToInt(Integer::intValue)
+                .sum();
+            double averageRating = totalCount == 0? 0.0: totalSum / totalCount;
             return new InnerReviewStatisticsResponse(
                 averageRating,
                 ratings
