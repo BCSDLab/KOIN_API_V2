@@ -4,7 +4,6 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,14 +39,19 @@ public record ShopReviewResponse(
     @Schema(description = "해당 상점의 리뷰", requiredMode = REQUIRED)
     List<InnerReviewResponse> reviews
 ) {
-    public static ShopReviewResponse from(Page<ShopReview> pagedResult, Integer userId, Criteria criteria) {
+    public static ShopReviewResponse from(
+        Page<ShopReview> pagedResult,
+        Integer userId,
+        Criteria criteria,
+        Map<Integer, Integer> ratings
+    ) {
         List<ShopReview> reviews = pagedResult.getContent();
         return new ShopReviewResponse(
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),
             pagedResult.getTotalPages(),
             criteria.getPage() + 1,
-            InnerReviewStatisticsResponse.from(reviews),
+            InnerReviewStatisticsResponse.from(ratings),
             reviews.stream().map(review -> InnerReviewResponse.from(review, userId)).toList()
         );
     }
@@ -122,27 +126,16 @@ public record ShopReviewResponse(
         Map<Integer, Integer> ratings
 
     ) {
-        public static InnerReviewStatisticsResponse from(List<ShopReview> reviews) {
-            double averageRating = reviews.stream()
-                .mapToInt(ShopReview::getRating)
+        public static InnerReviewStatisticsResponse from(Map<Integer, Integer> ratings) {
+            double averageRating = ratings.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() != 0)
+                .mapToDouble(entry -> entry.getKey() * entry.getValue())
                 .average()
                 .orElse(0.0);
-            Map<Integer, Integer> statistics = new HashMap<>(Map.of(
-                1, 0,
-                2, 0,
-                3, 0,
-                4, 0,
-                5, 0
-            ));
-            reviews.forEach(review ->
-                statistics.put(
-                    review.getRating(),
-                    statistics.get(review.getRating()) + 1
-                )
-            );
             return new InnerReviewStatisticsResponse(
                 averageRating,
-                statistics
+                ratings
             );
         }
     }

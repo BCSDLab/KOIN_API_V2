@@ -55,4 +55,15 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
            )
            """)
     Integer countByShopIdExcludingReportedByUser(@Param("shopId") Integer shopId, @Param("userId") Integer userId);
+
+    @Query("""
+           SELECT COUNT(sr) FROM ShopReview sr 
+           WHERE sr.shop.id = :shopId 
+           AND NOT EXISTS (
+               SELECT r FROM ShopReviewReport r 
+               WHERE r.review.id = sr.id 
+               AND r.reportedBy.id = :userId)
+           AND sr.rating = :rating
+           """)
+    Integer countReviewRating(@Param("shopId") Integer shopId, @Param("userId") Integer userId, @Param("rating") Integer rating);
 }

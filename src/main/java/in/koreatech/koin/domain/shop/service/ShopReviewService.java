@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.shop.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.data.domain.Page;
@@ -85,7 +87,8 @@ public class ShopReviewService {
             studentId,
             pageRequest
         );
-        return ShopReviewResponse.from(result, studentId, criteria);
+        Map<Integer, Integer> ratings = getRating(shopId, studentId);
+        return ShopReviewResponse.from(result, studentId, criteria, ratings);
     }
 
     @Transactional
@@ -158,5 +161,20 @@ public class ShopReviewService {
     public ShopReviewReportCategoryResponse getReviewReportCategories() {
         List<ShopReviewReportCategory> shopReviewReportCategories = shopReviewReportCategoryRepository.findAll();
         return ShopReviewReportCategoryResponse.from(shopReviewReportCategories);
+    }
+
+    private Map<Integer, Integer> getRating(Integer shopId, Integer studentId) {
+        Map<Integer, Integer> ratings = new HashMap<>(Map.of(
+            1, 0,
+            2, 0,
+            3, 0,
+            4, 0,
+            5, 0
+        ));
+        for (Integer rating : ratings.keySet()) {
+            Integer count = shopReviewRepository.countReviewRating(shopId, studentId, rating);
+            ratings.put(rating, count);
+        }
+        return ratings;
     }
 }
