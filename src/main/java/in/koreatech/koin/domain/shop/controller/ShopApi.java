@@ -170,7 +170,7 @@ public interface ShopApi {
     ResponseEntity<Void> createReview(
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestBody @Valid CreateReviewRequest createReviewRequest,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT}) Integer studentId
     );
 
     @ApiResponses(
@@ -188,7 +188,7 @@ public interface ShopApi {
         @Parameter(in = PATH) @PathVariable Integer reviewId,
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestBody @Valid ModifyReviewRequest modifyReviewRequest,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT}) Integer studentId
     );
 
     @ApiResponses(
@@ -204,7 +204,7 @@ public interface ShopApi {
     ResponseEntity<Void> deleteReview(
         @Parameter(in = PATH) @PathVariable Integer reviewId,
         @Parameter(in = PATH) @PathVariable Integer shopId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT}) Integer studentId
     );
 
     @ApiResponses(
@@ -218,7 +218,6 @@ public interface ShopApi {
     @Operation(summary = "리뷰 신고 카테고리 조회")
     @GetMapping("/shops/reviews/categories")
     ResponseEntity<ShopReviewReportCategoryResponse> getReportCategory(
-        @Auth(permit = {STUDENT}) Integer userId
     );
 
     @ApiResponses(
@@ -235,6 +234,6 @@ public interface ShopApi {
         @Parameter(in = PATH) @PathVariable Integer reviewId,
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestBody @Valid ShopReviewReportRequest shopReviewReportRequest,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT}) Integer studentId
     );
 }

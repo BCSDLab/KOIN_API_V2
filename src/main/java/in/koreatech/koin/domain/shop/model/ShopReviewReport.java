@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.shop.model;
 import static jakarta.persistence.FetchType.LAZY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,10 +38,10 @@ public class ShopReviewReport extends BaseEntity {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "reported_by", nullable = false)
-    private User reportedBy;
+    private Student reportedBy;
 
     @Builder
-    public ShopReviewReport(ShopReview review, String reasonTitle, String reasonDetail, User reportedBy) {
+    public ShopReviewReport(ShopReview review, String reasonTitle, String reasonDetail, Student reportedBy) {
         this.review = review;
         this.reasonTitle = reasonTitle;
         this.reasonDetail = reasonDetail;

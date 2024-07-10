@@ -115,9 +115,9 @@ public class ShopController implements ShopApi {
     public ResponseEntity<Void> createReview(
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestBody @Valid CreateReviewRequest createReviewRequest,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT}) Integer studentId
     ) {
-        shopReviewService.createReview(createReviewRequest, userId, shopId);
+        shopReviewService.createReview(createReviewRequest, studentId, shopId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -126,9 +126,9 @@ public class ShopController implements ShopApi {
         @Parameter(in = PATH) @PathVariable Integer reviewId,
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestBody @Valid ModifyReviewRequest modifyReviewRequest,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT}) Integer studentId
     ) {
-        shopReviewService.modifyShop(modifyReviewRequest, reviewId, userId);
+        shopReviewService.modifyShop(modifyReviewRequest, reviewId, studentId);
         return ResponseEntity.noContent().build();
     }
 
@@ -136,15 +136,14 @@ public class ShopController implements ShopApi {
     public ResponseEntity<Void> deleteReview(
         @Parameter(in = PATH) @PathVariable Integer reviewId,
         @Parameter(in = PATH) @PathVariable Integer shopId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT}) Integer studentId
     ) {
-        shopReviewService.deleteReview(reviewId, userId);
+        shopReviewService.deleteReview(reviewId, studentId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/shops/reviews/categories")
     public ResponseEntity<ShopReviewReportCategoryResponse> getReportCategory(
-        @Auth(permit = {STUDENT}) Integer userId
     ) {
         var shopReviewReportCategoryResponse = shopReviewService.getReviewReportCategories();
         return ResponseEntity.ok(shopReviewReportCategoryResponse);
@@ -155,9 +154,9 @@ public class ShopController implements ShopApi {
         @Parameter(in = PATH) @PathVariable Integer reviewId,
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestBody @Valid ShopReviewReportRequest shopReviewReportRequest,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT}) Integer studentId
     ) {
-        shopReviewService.reportReview(shopId, reviewId, userId, shopReviewReportRequest);
+        shopReviewService.reportReview(shopId, reviewId, studentId, shopReviewReportRequest);
         return ResponseEntity.noContent().build();
     }
 }

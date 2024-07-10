@@ -25,8 +25,8 @@ import in.koreatech.koin.domain.shop.repository.ShopReviewMenuRepository;
 import in.koreatech.koin.domain.shop.repository.ShopReviewReportCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopReviewReportRepository;
 import in.koreatech.koin.domain.shop.repository.ShopReviewRepository;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.model.Criteria;
@@ -40,11 +40,11 @@ public class ShopReviewService {
 
     private final ShopRepository shopRepository;
     private final ShopReviewRepository shopReviewRepository;
-    private final UserRepository userRepository;
     private final ShopReviewImageRepository shopReviewImageRepository;
     private final ShopReviewMenuRepository shopReviewMenuRepository;
     private final ShopReviewReportRepository shopReviewReportRepository;
     private final ShopReviewReportCategoryRepository shopReviewReportCategoryRepository;
+    private final StudentRepository studentRepository;
 
     private final JwtProvider jwtProvider;
     private final EntityManager entityManager;
@@ -70,11 +70,11 @@ public class ShopReviewService {
      */
 
     public ShopReviewResponse getReviewsByShopId(Integer shopId, String token, Integer page, Integer limit) {
-        Integer userId = null;
+        Integer studentId = null;
         if (token != null) {
-            userId = jwtProvider.getUserId(token.replaceAll("Bearer ", ""));
+            studentId = jwtProvider.getUserId(token.replaceAll("Bearer ", ""));
         }
-        Integer total = shopReviewRepository.countByShopIdExcludingReportedByUser(shopId, userId);
+        Integer total = shopReviewRepository.countByShopIdExcludingReportedByUser(shopId, studentId);
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(
             criteria.getPage(),
@@ -82,18 +82,18 @@ public class ShopReviewService {
         );
         Page<ShopReview> result = shopReviewRepository.findAllByShopIdExcludingReportedByUser(
             shopId,
-            userId,
+            studentId,
             pageRequest
         );
-        return ShopReviewResponse.from(result, userId, criteria);
+        return ShopReviewResponse.from(result, studentId, criteria);
     }
 
     @Transactional
-    public void createReview(CreateReviewRequest createReviewRequest, Integer userId, Integer shopId) {
-        User user = userRepository.getById(userId);
+    public void createReview(CreateReviewRequest createReviewRequest, Integer studentId, Integer shopId) {
+        Student student = studentRepository.getById(studentId);
         Shop shop = shopRepository.getById(shopId);
         ShopReview shopReview = ShopReview.builder()
-            .reviewer(user)
+            .reviewer(student)
             .content(createReviewRequest.content())
             .rating(createReviewRequest.rating())
             .shop(shop)
@@ -114,18 +114,18 @@ public class ShopReviewService {
     }
 
     @Transactional
-    public void deleteReview(Integer reviewId, Integer userId) {
+    public void deleteReview(Integer reviewId, Integer studentId) {
         ShopReview shopReview = shopReviewRepository.getById(reviewId);
-        if (!Objects.equals(shopReview.getReviewer().getId(), userId)) {
+        if (!Objects.equals(shopReview.getReviewer().getId(), studentId)) {
             throw AuthenticationException.withDetail("해당 유저가 작성한 리뷰가 아닙니다.");
         }
         shopReviewRepository.deleteById(shopReview.getId());
     }
 
     @Transactional
-    public void modifyShop(ModifyReviewRequest modifyReviewRequest, Integer reviewId, Integer userId) {
+    public void modifyShop(ModifyReviewRequest modifyReviewRequest, Integer reviewId, Integer studentId) {
         ShopReview shopReview = shopReviewRepository.getById(reviewId);
-        if (!Objects.equals(shopReview.getReviewer().getId(), userId)) {
+        if (!Objects.equals(shopReview.getReviewer().getId(), studentId)) {
             throw AuthenticationException.withDetail("해당 유저가 작성한 리뷰가 아닙니다.");
         }
         shopReview.modifyReview(
@@ -140,14 +140,14 @@ public class ShopReviewService {
     public void reportReview(
         Integer shopId,
         Integer reviewId,
-        Integer userId,
+        Integer studentId,
         ShopReviewReportRequest shopReviewReportRequest
     ) {
-        User user = userRepository.getById(userId);
+        Student student = studentRepository.getById(studentId);
         ShopReview shopReview = shopReviewRepository.getAllByIdAndShopId(reviewId, shopId);
         shopReviewReportRepository.save(
             ShopReviewReport.builder()
-                .reportedBy(user)
+                .reportedBy(student)
                 .review(shopReview)
                 .reasonTitle(shopReviewReportRequest.title())
                 .reasonDetail(shopReviewReportRequest.content())

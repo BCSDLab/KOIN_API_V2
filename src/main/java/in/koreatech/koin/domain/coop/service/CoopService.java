@@ -21,8 +21,6 @@ import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;

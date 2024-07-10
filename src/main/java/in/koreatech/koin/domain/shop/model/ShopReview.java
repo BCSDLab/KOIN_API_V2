@@ -7,7 +7,7 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
-import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,7 +40,7 @@ public class ShopReview extends BaseEntity {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "reviewer_id", nullable = false)
-    private User reviewer;
+    private Student reviewer;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "shop_id", nullable = false)
@@ -56,7 +56,7 @@ public class ShopReview extends BaseEntity {
     private List<ShopReviewReport> reports = new ArrayList<>();
 
     @Builder
-    public ShopReview(String content, Integer rating, User reviewer, Shop shop) {
+    public ShopReview(String content, Integer rating, Student reviewer, Shop shop) {
         this.content = content;
         this.rating = rating;
         this.reviewer = reviewer;

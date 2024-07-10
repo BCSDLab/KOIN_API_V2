@@ -11,6 +11,7 @@ import java.util.Objects;
 
 import org.springframework.data.domain.Page;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.ShopReview;
@@ -81,14 +82,19 @@ public record ShopReviewResponse(
         @Schema(example = "false", description = "수정된 적 있는 리뷰인지", requiredMode = REQUIRED)
         boolean isModified,
 
-        @Schema(example = "2024-07-08 18:20", description = "리뷰 작성일", requiredMode = REQUIRED)
+        @JsonFormat(pattern = "yyyy-MM-dd")
+        @Schema(example = "2024-03-01", description = "리뷰 작성일", requiredMode = REQUIRED)
         LocalDateTime createdAt
     ) {
         public static InnerReviewResponse from(ShopReview review, Integer userId) {
+            String nickName = review.getReviewer().getUser().getNickname();
+            if (nickName == null) {
+                nickName = review.getReviewer().getAnonymousNickname();
+            }
             return new InnerReviewResponse(
                 review.getId(),
                 review.getRating(),
-                review.getReviewer().getNickname(),
+                nickName,
                 review.getContent(),
                 review.getImages().stream().map(ShopReviewImage::getImageUrls).toList(),
                 review.getMenus().stream().map(ShopReviewMenu::getMenuName).toList(),

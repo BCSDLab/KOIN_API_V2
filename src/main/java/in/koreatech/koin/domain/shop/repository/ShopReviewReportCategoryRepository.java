@@ -9,4 +9,6 @@ import in.koreatech.koin.domain.shop.model.ShopReviewReportCategory;
 public interface ShopReviewReportCategoryRepository extends Repository<ShopReviewReportCategory, Integer> {
 
     List<ShopReviewReportCategory> findAll();
+
+    ShopReviewReportCategory save(ShopReviewReportCategory shopReviewReportCategory);
 }
