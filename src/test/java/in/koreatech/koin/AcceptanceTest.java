@@ -4,7 +4,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import java.time.Clock;
 
-import in.koreatech.koin.global.config.RedisConfig;
+import in.koreatech.koin.config.TestRedisConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,7 +34,7 @@ import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class, RedisConfig.class})
+@Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class, TestRedisConfiguration.class})
 @ActiveProfiles("test")
 public abstract class AcceptanceTest {
 
