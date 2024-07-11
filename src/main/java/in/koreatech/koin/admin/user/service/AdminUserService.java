@@ -233,6 +233,7 @@ public class AdminUserService {
         return result;
     }
 
+
     private void validateNicknameDuplication(String nickname, Integer userId) {
         if (nickname != null &&
             adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {

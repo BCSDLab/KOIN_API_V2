@@ -20,6 +20,8 @@ public interface AdminOwnerRepository extends Repository<Owner, Integer> {
 
     void deleteById(Integer ownerId);
 
+    Integer countByUserUserType(UserType userType);
+
     @Query("""
         SELECT o FROM Owner o
         JOIN o.user u
