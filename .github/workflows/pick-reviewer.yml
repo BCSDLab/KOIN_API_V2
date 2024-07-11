@@ -1,0 +1,69 @@
+name: "Pick Reviewer"
+
+on:
+  pull_request:
+    types: opened
+
+jobs:
+  pick-random-reviewer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Pick random reviewer
+        id: pick_random_reviewer
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            const developers = JSON.parse(fs.readFileSync(`${{ github.workspace }}/.github/workflows/reviewer.json`));
+            const prCreator = context.payload.pull_request.user.login;
+            const prUrl = context.payload.pull_request.html_url;
+            const prCreatorJson = developers.reviewers.find(person => person.githubName === prCreator);
+
+            //PrCreator가 reviewer에 등록되지 않은 사람인 경우
+            if (!prCreatorJson) {
+              const reviewerArr = developers.reviewers;
+              const randomReviewer1 = getRandomReviewer(reviewerArr);
+              const randomReviewer2 = getRandomReviewer(reviewerArr.filter(reviewer => reviewer.name !== randomReviewer1.name));
+              setOutput(prCreator, prUrl, randomReviewer1, randomReviewer2);
+            } else {
+              const candidateInternalReviewers = developers.reviewers.filter(person => person.team === prCreatorJson.team && person.githubName !== prCreator);
+              const candidateExternalReviewers = developers.reviewers.filter(person => person.team !== prCreatorJson.team);
+              const randomReviewer1 = getRandomReviewer(candidateInternalReviewers);
+              const randomReviewer2 = getRandomReviewer(candidateExternalReviewers);
+              setOutput(prCreatorJson.name, prUrl, randomReviewer1, randomReviewer2);
+            }
+
+            function getRandomReviewer(reviewers) {
+              return reviewers[Math.floor(Math.random() * reviewers.length)];
+            }
+
+            function setOutput(prCreator, prUrl, reviewer1, reviewer2) {
+              core.setOutput('writer', JSON.stringify(prCreator));
+              core.setOutput('pullRequestLink', JSON.stringify(prUrl));
+              core.setOutput('reviewer1Name', JSON.stringify(reviewer1.name));
+              core.setOutput('reviewer2Name', JSON.stringify(reviewer2.name));
+              core.setOutput('reviewer1GithubName', reviewer1.githubName);
+              core.setOutput('reviewer2GithubName', reviewer2.githubName);
+            }
+
+      - name: Add Reviewers
+        uses: madrapps/add-reviewers@v1
+        with:
+          reviewers: ${{ steps.pick_random_reviewer.outputs.reviewer1GithubName }},${{ steps.pick_random_reviewer.outputs.reviewer2GithubName }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Send Slack Trigger
+        run: |
+          curl -X POST https://api-slack.internal.bcsdlab.com/api/review-request/backend \
+          -H 'Content-Type: application/json' \
+          -d '{
+                "pullRequestLink": ${{ steps.pick_random_reviewer.outputs.pullRequestLink }},
+                "writer": ${{ steps.pick_random_reviewer.outputs.writer }},
+                "reviewers": [${{ steps.pick_random_reviewer.outputs.reviewer1Name }}, ${{ steps.pick_random_reviewer.outputs.reviewer2Name }}]
+              }'
