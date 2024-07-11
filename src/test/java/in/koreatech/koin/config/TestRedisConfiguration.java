@@ -9,7 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisKeyValueAdapter;
+import org.springframework.data.redis.core.RedisKeyValueTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.mapping.RedisMappingContext;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
@@ -53,5 +55,17 @@ public class TestRedisConfiguration {
                 setConnectTimeout(Duration.ofMillis(5000))
                 .setReadTimeout(Duration.ofMillis(5000))
                 .additionalMessageConverters(new StringHttpMessageConverter(UTF_8)).build();
+    }
+
+    @Bean
+    public RedisKeyValueTemplate redisKeyValueTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.afterPropertiesSet();
+
+        RedisMappingContext mappingContext = new RedisMappingContext();
+        RedisKeyValueAdapter adapter = new RedisKeyValueAdapter(redisTemplate);
+
+        return new RedisKeyValueTemplate(adapter, mappingContext);
     }
 }
