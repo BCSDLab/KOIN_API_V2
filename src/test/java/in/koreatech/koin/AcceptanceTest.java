@@ -20,6 +20,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
 import in.koreatech.koin.config.TestJpaConfiguration;
+import in.koreatech.koin.config.TestRedisConfiguration;
 import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.bus.util.CityBusClient;
 import in.koreatech.koin.domain.bus.util.CityBusRouteClient;
@@ -33,7 +34,7 @@ import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class})
+@Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class, TestRedisConfiguration.class})
 @ActiveProfiles("test")
 public abstract class AcceptanceTest {
 
