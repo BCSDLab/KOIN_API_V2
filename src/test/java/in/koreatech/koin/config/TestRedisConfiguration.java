@@ -58,14 +58,9 @@ public class TestRedisConfiguration {
     }
 
     @Bean
-    public RedisKeyValueTemplate redisKeyValueTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
-        redisTemplate.afterPropertiesSet();
-
+    public RedisKeyValueTemplate redisKeyValueTemplate(RedisTemplate redisTemplate) {
         RedisMappingContext mappingContext = new RedisMappingContext();
         RedisKeyValueAdapter adapter = new RedisKeyValueAdapter(redisTemplate);
-
         return new RedisKeyValueTemplate(adapter, mappingContext);
     }
 }
