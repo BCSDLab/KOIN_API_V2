@@ -19,6 +19,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
@@ -26,6 +27,7 @@ import java.time.Duration;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @TestConfiguration
+@TestPropertySource("classpath:in.koreatech.koin.AcceptanceTest.class")
 @EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
 public class TestRedisConfiguration {
 
