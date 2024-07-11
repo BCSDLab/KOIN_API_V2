@@ -261,7 +261,9 @@ public class OwnerShopService {
             modifyShopRequest.delivery(),
             modifyShopRequest.deliveryPrice(),
             modifyShopRequest.payCard(),
-            modifyShopRequest.payBank()
+            modifyShopRequest.payBank(),
+            modifyShopRequest.bank(),
+            modifyShopRequest.accountNumber()
         );
         shop.modifyShopImages(modifyShopRequest.imageUrls(), entityManager);
         shop.modifyShopOpens(modifyShopRequest.open(), entityManager);

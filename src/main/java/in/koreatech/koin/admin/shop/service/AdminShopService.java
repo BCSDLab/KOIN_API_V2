@@ -229,7 +229,7 @@ public class AdminShopService {
     @Transactional
     public void cancelShopDelete(Integer shopId) {
         Optional<Shop> shop = adminShopRepository.findDeletedShopById(shopId);
-        if(shop.isPresent()) {
+        if (shop.isPresent()) {
             shop.get().cancelDelete();
         }
     }
@@ -245,7 +245,9 @@ public class AdminShopService {
             adminModifyShopRequest.delivery(),
             adminModifyShopRequest.deliveryPrice(),
             adminModifyShopRequest.payCard(),
-            adminModifyShopRequest.payBank()
+            adminModifyShopRequest.payBank(),
+            adminModifyShopRequest.bank(),
+            adminModifyShopRequest.accountNumber()
         );
         shop.modifyShopCategories(
             adminShopCategoryRepository.findAllByIdIn(adminModifyShopRequest.categoryIds()),
@@ -283,7 +285,8 @@ public class AdminShopService {
             adminModifyMenuRequest.description()
         );
         menu.modifyMenuImages(adminModifyMenuRequest.imageUrls(), entityManager);
-        menu.modifyMenuCategories(adminMenuCategoryRepository.findAllByIdIn(adminModifyMenuRequest.categoryIds()), entityManager);
+        menu.modifyMenuCategories(adminMenuCategoryRepository.findAllByIdIn(adminModifyMenuRequest.categoryIds()),
+            entityManager);
         if (adminModifyMenuRequest.isSingle()) {
             menu.adminModifyMenuSingleOptions(adminModifyMenuRequest, entityManager);
         } else {

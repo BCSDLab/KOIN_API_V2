@@ -17,11 +17,11 @@ public interface LectureRepository extends Repository<Lecture, Integer> {
 
     Optional<Lecture> findById(Integer id);
 
-    Optional<Lecture> findBySemesterAndNameAndLectureClass(String semesterDate, String name, String classLecture);
+    Optional<Lecture> findBySemesterAndCodeAndLectureClass(String semesterDate, String code, String classLecture);
 
-    default Lecture getBySemesterAndNameAndLectureClass(String semesterDate, String name, String classLecture) {
-        return findBySemesterAndNameAndLectureClass(semesterDate, name, classLecture)
-            .orElseThrow(() -> SemesterNotFoundException.withDetail("semester: " + semesterDate + " name: " + name + " classLecture: " + classLecture));
+    default Lecture getBySemesterAndCodeAndLectureClass(String semesterDate, String code, String classLecture) {
+        return findBySemesterAndCodeAndLectureClass(semesterDate, code, classLecture)
+            .orElseThrow(() -> SemesterNotFoundException.withDetail("semester: " + semesterDate + " code: " + code + " classLecture: " + classLecture));
     }
 
     default Lecture getLectureById(Integer id) {

@@ -295,7 +295,9 @@ class OwnerShopApiTest extends AcceptanceTest {
                        
                      ],
                      "updated_at": "2024-01-15",
-                     "is_event": false
+                     "is_event": false,
+                     "bank": "국민",
+                     "account_number": "01022595923"
                  }
                 """);
     }

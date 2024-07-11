@@ -51,8 +51,8 @@ public class TimetableService {
             semester.getId());
 
         for (TimetableCreateRequest.InnerTimetableRequest timeTable : request.timetable()) {
-            Lecture lecture = lectureRepository.getBySemesterAndNameAndLectureClass(request.semester(),
-                timeTable.classTitle(), timeTable.lectureClass());
+            Lecture lecture = lectureRepository.getBySemesterAndCodeAndLectureClass(request.semester(),
+                timeTable.code(), timeTable.lectureClass());
             TimetableLecture timetableLecture = TimetableLecture.builder()
                 .classPlace(timeTable.classPlace())
                 .grades("0")
