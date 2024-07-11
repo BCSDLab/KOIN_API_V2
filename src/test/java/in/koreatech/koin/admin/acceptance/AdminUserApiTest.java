@@ -606,18 +606,6 @@ public class AdminUserApiTest extends AcceptanceTest {
                             "shop_id": 1,
                             "shop_name": "마슬랜 치킨",
                             "created_at" : "2024-01-15 12:00:00"
-<<<<<<< HEAD
-=======
-                        },
-                        {
-                            "id": 1,
-                            "email": "testchulsu@gmail.com",
-                            "name": "테스트용_철수(인증X)",
-                            "phone_number": "01097765112",
-                            "shop_id": 2,
-                            "shop_name": "신전 떡볶이",
-                            "created_at" : "2024-01-15 12:00:00"
->>>>>>> d468f05d463169f17a39fb10ef42614261737fbd
                         }
                     ]
                 }
