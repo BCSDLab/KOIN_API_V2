@@ -525,54 +525,6 @@ public class AdminUserApiTest extends AcceptanceTest {
     void updateOwner() {
         Owner owner = userFixture.현수_사장님();
         Shop shop = shopFixture.마슬랜(owner);
-<<<<<<< HEAD
-=======
-
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
-
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
-                  {
-                    "company_registration_number" : "123-45-67190",
-                    "grant_shop" : "false",
-                    "grant_event" : "false"
-                  }
-                """)
-            .when()
-            .pathParam("id", owner.getUser().getId())
-            .put("/admin/users/owner/{id}")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                {
-                    "company_registration_number" : "123-45-67190",
-                    "email" : "hysoo@naver.com",
-                    "gender" : 0,
-                    "grant_shop" : false,
-                    "grant_event" : false,
-                    "name" : "테스트용_현수",
-                    "nickname" : "현수",
-                    "phone_number" : "01098765432"
-                }
-                """);
-    }
-
-    @Test
-    @DisplayName("관리자가 가입 신청한 사장님 리스트 조회한다.")
-    void getNewOwnersAdmin() {
-        Owner unauthenticatedOwner = userFixture.철수_사장님();
-        Owner authenticatedOwner = userFixture.준영_사장님();
-
-        Shop shopA = shopFixture.마슬랜(unauthenticatedOwner);
-        Shop shopB = shopFixture.신전_떡볶이(unauthenticatedOwner);
->>>>>>> d468f05d463169f17a39fb10ef42614261737fbd
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
@@ -654,18 +606,6 @@ public class AdminUserApiTest extends AcceptanceTest {
                             "shop_id": 1,
                             "shop_name": "마슬랜 치킨",
                             "created_at" : "2024-01-15 12:00:00"
-<<<<<<< HEAD
-=======
-                        },
-                        {
-                            "id": 1,
-                            "email": "testchulsu@gmail.com",
-                            "name": "테스트용_철수(인증X)",
-                            "phone_number": "01097765112",
-                            "shop_id": 2,
-                            "shop_name": "신전 떡볶이",
-                            "created_at" : "2024-01-15 12:00:00"
->>>>>>> d468f05d463169f17a39fb10ef42614261737fbd
                         }
                     ]
                 }
