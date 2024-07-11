@@ -196,9 +196,13 @@ class AdminShopApiTest extends AcceptanceTest {
                      ],
                      "updated_at": "2024-01-15",
                      "is_deleted": false,
+<<<<<<< HEAD
                      "is_event": false,
                      "bank": "국민",
                      "account_number": "01022595923" 
+=======
+                     "is_event": false
+>>>>>>> d468f05d463169f17a39fb10ef42614261737fbd
                  }
                 """);
     }
