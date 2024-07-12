@@ -43,6 +43,7 @@ public class ShopService {
     private final ShopRepository shopRepository;
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
+
     private final ShopsRedisRepository shopsRedisRepository;
 
     public MenuDetailResponse findMenu(Integer menuId) {
