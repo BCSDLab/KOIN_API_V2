@@ -31,10 +31,10 @@ public record TimetableResponse(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimetableResponse(
-        @Schema(name = "시간표 ID", example = "1", requiredMode = REQUIRED)
+        @Schema(name = "시간표 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(name = "과목 코드", example = "40", requiredMode = NOT_REQUIRED)
+        @Schema(name = "수강 정원", example = "40", requiredMode = NOT_REQUIRED)
         String regularNumber,
 
         @Schema(name = "과목 코드", example = "ARB244", requiredMode = NOT_REQUIRED)
