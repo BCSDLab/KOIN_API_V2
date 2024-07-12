@@ -11,7 +11,7 @@ public record ShopReviewReportCategoryResponse(
     @Schema(description = "리뷰 신고 카테고리 개수", example = "2", requiredMode = REQUIRED)
     int count,
 
-    @Schema(description = "리뷰 신고 카테고리", example = "2", requiredMode = REQUIRED)
+    @Schema(description = "리뷰 신고 카테고리", requiredMode = REQUIRED)
     List<InnerReportCategory> categories
 ) {
     public static ShopReviewReportCategoryResponse from(List<ShopReviewReportCategory> shopReviewReportCategories) {
