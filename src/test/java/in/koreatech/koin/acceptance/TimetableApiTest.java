@@ -277,6 +277,38 @@ class TimetableApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("시간표를 조회한다. - 시간표 프레임 없으면 생성")
+    void getTimeTablesAfterCreate() {
+        // given
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+
+        // when & then
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .param("semester", semester.getSemester())
+            .get("/timetables")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "semester": "20192",
+                    "timetable": [
+                    ],
+                    "grades": 0,
+                    "total_grades": 0
+                }
+                """
+            ));
+    }
+
+    @Test
     @DisplayName("학생이 가진 시간표의 학기를 조회한다.")
     void getStudentCheckSemester() {
         User user = userFixture.준호_학생().getUser();
