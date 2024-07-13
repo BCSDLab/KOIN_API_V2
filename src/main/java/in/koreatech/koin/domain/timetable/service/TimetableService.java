@@ -84,6 +84,7 @@ public class TimetableService {
         return getTimetableResponse(userId, timetableFrame);
     }
 
+    @Transactional
     public TimetableResponse getTimetables(Integer userId, String semesterRequest) {
         Semester semester = semesterRepository.getBySemester(semesterRequest);
         User user = userRepository.getById(userId);
@@ -98,6 +99,8 @@ public class TimetableService {
                     .isMain(true)
                     .isDeleted(false)
                     .build());
+
+        timetableFrameRepositoryV2.save(timetableFrame);
 
         return getTimetableResponse(userId, timetableFrame);
     }
