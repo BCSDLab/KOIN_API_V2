@@ -68,7 +68,7 @@ public class TimetableService {
             timetableLectures.add(timetableLectureRepositoryV2.save(timetableLecture));
         }
 
-        return getTimetableResponse(userId, timetableFrame, timetableLectures);
+        return getTimetableResponse(userId, timetableFrame);
     }
 
     @Transactional
