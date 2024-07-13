@@ -10,12 +10,12 @@ import jakarta.validation.constraints.NotBlank;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ShopReviewReportRequest (
-    @Schema(example = "기타", description = "이 글은 논란이 될수도 있겠는데요~?", requiredMode = REQUIRED)
+    @Schema(example = "기타", description = "신고 제목", requiredMode = REQUIRED)
     @NotBlank(message = "신고 제목은 필수입니다.")
     String title,
 
-    @Schema(example = "기타", description = "이 글은 논란이 될수도 있겠는데요~?", requiredMode = REQUIRED)
-    @NotBlank(message = "신고 제목은 필수입니다.")
+    @Schema(example = "이 글은 논란이 될수도 있겠는데요~?", description = "신고 내용", requiredMode = REQUIRED)
+    @NotBlank(message = "신고 내용은 필수입니다.")
     String content
 ){
 }

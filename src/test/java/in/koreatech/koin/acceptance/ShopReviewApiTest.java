@@ -83,10 +83,10 @@ class ShopReviewApiTest extends AcceptanceTest {
         token_준호 = userFixture.getToken(준호_학생.getUser());
         준호_학생_리뷰 = shopReviewFixture.리뷰(준호_학생, 신전_떡볶이);
         익명_학생_리뷰 = shopReviewFixture.리뷰(익명_학생, 신전_떡볶이);
-        신고_카테고리_1 = shopReviewReportCategoryFixture.리뷰_신고_카테고리_1();
-        신고_카테고리_2 = shopReviewReportCategoryFixture.리뷰_신고_카테고리_2();
-        신고_카테고리_3 = shopReviewReportCategoryFixture.리뷰_신고_카테고리_3();
-        신고_카테고리_4 = shopReviewReportCategoryFixture.리뷰_신고_카테고리_4();
+        신고_카테고리_1 = shopReviewReportCategoryFixture.리뷰_신고_주제에_맞지_않음();
+        신고_카테고리_2 = shopReviewReportCategoryFixture.리뷰_신고_스팸();
+        신고_카테고리_3 = shopReviewReportCategoryFixture.리뷰_신고_욕설();
+        신고_카테고리_4 = shopReviewReportCategoryFixture.리뷰_신고_기타();
     }
 
     @Test
@@ -255,9 +255,7 @@ class ShopReviewApiTest extends AcceptanceTest {
     @Test
     @DisplayName("로그인한 사용자가 자신이 신고한 리뷰를 제외한 모든 리뷰를 조회할 수 있다.")
     void getReviewWithoutReportedReviews() {
-
         ShopReviewReport shopReviewReport = shopReviewReportFixture.리뷰_신고(준호_학생, 익명_학생_리뷰);
-
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
@@ -400,7 +398,6 @@ class ShopReviewApiTest extends AcceptanceTest {
     @Test
     @DisplayName("리뷰 신고 카테고리를 조회할 수 있다.")
     void getReviewReportCategories() {
-
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
@@ -482,7 +479,6 @@ class ShopReviewApiTest extends AcceptanceTest {
     @Test
     @DisplayName("학생이 자신이 작성한 리뷰를 삭제한다.")
     void deleteMyReview() {
-
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)

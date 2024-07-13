@@ -214,7 +214,7 @@ public interface ShopApi {
         }
     )
     @Operation(summary = "리뷰 신고 카테고리 조회")
-    @GetMapping("/shops/reviews/categories")
+    @GetMapping("/shops/reviews/reports/categories")
     ResponseEntity<ShopReviewReportCategoryResponse> getReportCategory(
     );
 

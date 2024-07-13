@@ -52,23 +52,13 @@ public class ShopReviewService {
     private final EntityManager entityManager;
     /*
     TODO:
-        - 응답 구조 이름 변경 (o)
-            - rating으로 (o)
-        - url에 shopId추가 (o)
-        - 리뷰 조회시 헤더에 토큰이 있는 경우 (o)
-            - 자신이 신고한 리뷰는 제외하고 조회되도록 한다. (o)
-            - isMe = true or false (o)
-        - 리뷰 조회시 헤더에 토큰이 없는 경우 (o)
-            - isMe = false Only (o)
-        - 리뷰 조회 페이지네이션 (O)
-        - 리뷰 신고 기능 만들기
-            - 리뷰 신고 API작성 (o)
         - 어드민 페이지
             - 어드민이 신고된 리뷰를 확인할 수 있어야 한다.
             - 어드민이 신고된 리뷰를 삭제할 수 있어야 한다.
             - 어드민이 신고를 삭제할 수 있다.
                 - 신고된 리뷰 조회 api작성(어드민 권한)
                 - 신고된 리뷰 삭제 api작성(어드민 권한)
+        - 어떻게 할지 자세한건 팀에서 논의 필요
      */
 
     public ShopReviewResponse getReviewsByShopId(Integer shopId, String token, Integer page, Integer limit) {

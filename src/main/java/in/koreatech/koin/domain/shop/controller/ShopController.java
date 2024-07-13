@@ -142,7 +142,7 @@ public class ShopController implements ShopApi {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/shops/reviews/categories")
+    @GetMapping("/shops/reviews/reports/categories")
     public ResponseEntity<ShopReviewReportCategoryResponse> getReportCategory(
     ) {
         var shopReviewReportCategoryResponse = shopReviewService.getReviewReportCategories();

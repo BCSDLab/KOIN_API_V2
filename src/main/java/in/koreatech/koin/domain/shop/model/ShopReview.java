@@ -76,7 +76,7 @@ public class ShopReview extends BaseEntity {
                 .imageUrls(imageUrl)
                 .review(this)
                 .build();
-            images.add(shopReviewImage);
+            this.images.add(shopReviewImage);
         }
     }
 

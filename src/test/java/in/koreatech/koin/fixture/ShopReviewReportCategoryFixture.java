@@ -2,12 +2,8 @@ package in.koreatech.koin.fixture;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.shop.model.ShopReview;
-import in.koreatech.koin.domain.shop.model.ShopReviewReport;
 import in.koreatech.koin.domain.shop.model.ShopReviewReportCategory;
 import in.koreatech.koin.domain.shop.repository.ShopReviewReportCategoryRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewReportRepository;
-import in.koreatech.koin.domain.user.model.Student;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
@@ -20,7 +16,7 @@ public final class ShopReviewReportCategoryFixture {
         this.shopReviewReportCategoryRepository = shopReviewReportCategoryRepository;
     }
 
-    public ShopReviewReportCategory 리뷰_신고_카테고리_1() {
+    public ShopReviewReportCategory 리뷰_신고_주제에_맞지_않음() {
         return shopReviewReportCategoryRepository.save(
             ShopReviewReportCategory.builder()
                 .name("주제에 맞지 않음")
@@ -29,7 +25,7 @@ public final class ShopReviewReportCategoryFixture {
         );
     }
 
-    public ShopReviewReportCategory 리뷰_신고_카테고리_2() {
+    public ShopReviewReportCategory 리뷰_신고_스팸() {
         return shopReviewReportCategoryRepository.save(
             ShopReviewReportCategory.builder()
                 .name("스팸")
@@ -38,7 +34,7 @@ public final class ShopReviewReportCategoryFixture {
         );
     }
 
-    public ShopReviewReportCategory 리뷰_신고_카테고리_3() {
+    public ShopReviewReportCategory 리뷰_신고_욕설() {
         return shopReviewReportCategoryRepository.save(
             ShopReviewReportCategory.builder()
                 .name("욕설")
@@ -47,7 +43,7 @@ public final class ShopReviewReportCategoryFixture {
         );
     }
 
-    public ShopReviewReportCategory 리뷰_신고_카테고리_4() {
+    public ShopReviewReportCategory 리뷰_신고_기타() {
         return shopReviewReportCategoryRepository.save(
             ShopReviewReportCategory.builder()
                 .name("기타")

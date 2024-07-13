@@ -21,13 +21,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ShopReviewResponse(
-    @Schema(description = "조건에 해당하는 총 리뷰 수", example = "57", requiredMode = REQUIRED)
+    @Schema(description = "총 리뷰 수", example = "57", requiredMode = REQUIRED)
     Long totalCount,
 
-    @Schema(description = "조건에 해당하는 리뷰 중에 현재 페이지에서 조회된 수", example = "10", requiredMode = REQUIRED)
+    @Schema(description = "리뷰 중에 현재 페이지에서 조회된 수", example = "10", requiredMode = REQUIRED)
     Integer currentCount,
 
-    @Schema(description = "조건에 해당하는 리뷰를 조회할 수 있는 최대 페이지", example = "6", requiredMode = REQUIRED)
+    @Schema(description = "리뷰를 조회할 수 있는 최대 페이지", example = "6", requiredMode = REQUIRED)
     Integer totalPage,
 
     @Schema(description = "현재 페이지", example = "2", requiredMode = REQUIRED)
@@ -135,7 +135,10 @@ public record ShopReviewResponse(
                 .stream()
                 .mapToInt(Integer::intValue)
                 .sum();
-            double averageRating = totalCount == 0? 0.0: totalSum / totalCount;
+            double averageRating = 0.0;
+            if (totalCount > 0) {
+                averageRating = totalSum / totalCount;
+            }
             return new InnerReviewStatisticsResponse(
                 averageRating,
                 ratings

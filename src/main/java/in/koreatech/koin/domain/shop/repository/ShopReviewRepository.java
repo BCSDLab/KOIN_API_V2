@@ -62,7 +62,8 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
            AND NOT EXISTS (
                SELECT r FROM ShopReviewReport r 
                WHERE r.review.id = sr.id 
-               AND r.reportedBy.id = :userId)
+               AND r.reportedBy.id = :userId
+               )
            AND sr.rating = :rating
            """)
     Integer countReviewRating(@Param("shopId") Integer shopId, @Param("userId") Integer userId, @Param("rating") Integer rating);
