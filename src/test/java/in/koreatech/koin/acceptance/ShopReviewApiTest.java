@@ -402,7 +402,7 @@ class ShopReviewApiTest extends AcceptanceTest {
             .given()
             .contentType(ContentType.JSON)
             .when()
-            .get("/shops/reviews/categories")
+            .get("/shops/reviews/reports/categories")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
