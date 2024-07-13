@@ -14,6 +14,7 @@ import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.model.Coop;
+import in.koreatech.koin.domain.coop.model.DiningImageUploadEvent;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
@@ -61,6 +62,12 @@ public class CoopService {
     @Transactional
     public void saveDiningImage(DiningImageRequest imageRequest) {
         Dining dining = diningRepository.getById(imageRequest.menuId());
+        boolean isImageExist = diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(dining.getDate(), dining.getType());
+
+        if (!isImageExist) {
+            eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getImageUrl()));
+        }
+
         dining.setImageUrl(imageRequest.imageUrl());
     }
 
