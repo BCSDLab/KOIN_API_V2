@@ -62,7 +62,7 @@ public class CoopService {
     @Transactional
     public void saveDiningImage(DiningImageRequest imageRequest) {
         Dining dining = diningRepository.getById(imageRequest.menuId());
-        boolean isImageExist = diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(dining.getDate(), dining.getType(), dining.getImageUrl());
+        boolean isImageExist = diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(dining.getDate(), dining.getType());
 
         if (!isImageExist) {
             eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getImageUrl()));

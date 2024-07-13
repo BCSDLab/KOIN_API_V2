@@ -25,5 +25,5 @@ public interface DiningRepository extends Repository<Dining, Integer> {
 
     List<Dining> findAllByDateAndType(LocalDate date, DiningType type);
 
-    boolean existsByDateAndTypeAndImageUrlIsNotNull(LocalDate date, DiningType type, String ImageUrl);
+    boolean existsByDateAndTypeAndImageUrlIsNotNull(LocalDate date, DiningType type);
 }
