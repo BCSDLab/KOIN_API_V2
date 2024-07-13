@@ -31,4 +31,9 @@ public interface NotificationSubscribeRepository extends Repository<Notification
     );
 
     List<NotificationSubscribe> findAllByUserId(Integer userId);
+
+    List<NotificationSubscribe> findByUserIdAndSubscribeType(
+        Integer userId,
+        NotificationSubscribeType type
+    );
 }
