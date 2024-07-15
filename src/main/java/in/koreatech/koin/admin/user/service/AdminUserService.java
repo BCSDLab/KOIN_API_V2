@@ -2,7 +2,6 @@ package in.koreatech.koin.admin.user.service;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
