@@ -32,13 +32,13 @@ CREATE TABLE IF NOT EXISTS `shop_review_menus` (
 CREATE TABLE IF NOT EXISTS `shop_review_reports` (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     review_id INT UNSIGNED NOT NULL,
-    reason_title VARCHAR(50) NOT NULL,
-    reason_detail VARCHAR(255) NOT NULL,
-    reported_by INT UNSIGNED NOT NULL,
+    title VARCHAR(50) NOT NULL,
+    content VARCHAR(255) NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (`review_id`) REFERENCES `shop_reviews`(`id`),
-    FOREIGN KEY (`reported_by`) references `users`(`id`)
+    FOREIGN KEY (`user_id`) references `users`(`id`)
 );
 
 CREATE TABLE IF NOT EXISTS `shop_review_reports_categories` (

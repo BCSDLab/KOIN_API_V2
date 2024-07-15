@@ -40,7 +40,7 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
            AND NOT EXISTS (
                SELECT r FROM ShopReviewReport r 
                WHERE r.review.id = sr.id 
-               AND r.reportedBy.id = :userId
+               AND r.userId.id = :userId
            )
            """)
     Page<ShopReview> findAllByShopIdExcludingReportedByUser(@Param("shopId") Integer shopId, @Param("userId") Integer userId, Pageable pageable);
@@ -51,7 +51,7 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
            AND NOT EXISTS (
                SELECT r FROM ShopReviewReport r 
                WHERE r.review.id = sr.id 
-               AND r.reportedBy.id = :userId
+               AND r.userId.id = :userId
            )
            """)
     Integer countByShopIdExcludingReportedByUser(@Param("shopId") Integer shopId, @Param("userId") Integer userId);
@@ -62,7 +62,7 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
            AND NOT EXISTS (
                SELECT r FROM ShopReviewReport r 
                WHERE r.review.id = sr.id 
-               AND r.reportedBy.id = :userId
+               AND r.userId.id = :userId
                )
            AND sr.rating = :rating
            """)

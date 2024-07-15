@@ -469,8 +469,8 @@ class ShopReviewApiTest extends AcceptanceTest {
             assertSoftly(
                 softly -> {
                     softly.assertThat(shopReviewReport.isPresent()).isTrue();
-                    softly.assertThat(shopReviewReport.get().getReasonTitle()).isEqualTo("기타");
-                    softly.assertThat(shopReviewReport.get().getReasonDetail()).isEqualTo("적절치 못한 리뷰인 것 같습니다.");
+                    softly.assertThat(shopReviewReport.get().getTitle()).isEqualTo("기타");
+                    softly.assertThat(shopReviewReport.get().getContent()).isEqualTo("적절치 못한 리뷰인 것 같습니다.");
                 }
             );
         });

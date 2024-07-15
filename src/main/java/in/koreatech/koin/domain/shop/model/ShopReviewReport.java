@@ -30,21 +30,23 @@ public class ShopReviewReport extends BaseEntity {
     @JoinColumn(name = "review_id", nullable = false)
     private ShopReview review;
 
-    @Column(name = "reason_title", nullable = false, length = 50)
-    private String reasonTitle;
+    @Column(name = "title", nullable = false, length = 50)
+    private String title;
 
-    @Column(name = "reason_detail", nullable = false, length = 255)
-    private String reasonDetail;
+    @Column(name = "content", nullable = false, length = 255)
+    private String content;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "reported_by", nullable = false)
-    private Student reportedBy;
+    @JoinColumn(name = "user_id", nullable = false)
+    private Student userId;
+
+
 
     @Builder
-    public ShopReviewReport(ShopReview review, String reasonTitle, String reasonDetail, Student reportedBy) {
+    public ShopReviewReport(ShopReview review, String title, String detail, Student userId) {
         this.review = review;
-        this.reasonTitle = reasonTitle;
-        this.reasonDetail = reasonDetail;
-        this.reportedBy = reportedBy;
+        this.title = title;
+        this.content = detail;
+        this.userId = userId;
     }
 }

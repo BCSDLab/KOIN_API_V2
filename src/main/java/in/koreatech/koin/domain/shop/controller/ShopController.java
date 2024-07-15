@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,6 +29,7 @@ import in.koreatech.koin.domain.shop.dto.ShopsResponse;
 import in.koreatech.koin.domain.shop.service.ShopReviewService;
 import in.koreatech.koin.domain.shop.service.ShopService;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -105,9 +105,9 @@ public class ShopController implements ShopApi {
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "50", required = false) Integer limit,
-        @RequestHeader(value = "Authorization", required = false) String token
+        @UserId Integer userId
     ) {
-        ShopReviewResponse reviewResponse = shopReviewService.getReviewsByShopId(shopId, token, page, limit);
+        ShopReviewResponse reviewResponse = shopReviewService.getReviewsByShopId(shopId, userId, page, limit);
         return ResponseEntity.ok(reviewResponse);
     }
 

@@ -61,12 +61,8 @@ public class ShopReviewService {
         - 어떻게 할지 자세한건 팀에서 논의 필요
      */
 
-    public ShopReviewResponse getReviewsByShopId(Integer shopId, String token, Integer page, Integer limit) {
-        Integer studentId = null;
-        if (token != null) {
-            studentId = jwtProvider.getUserId(token.replaceAll("Bearer ", ""));
-        }
-        Integer total = shopReviewRepository.countByShopIdExcludingReportedByUser(shopId, studentId);
+    public ShopReviewResponse getReviewsByShopId(Integer shopId, Integer userId, Integer page, Integer limit) {
+        Integer total = shopReviewRepository.countByShopIdExcludingReportedByUser(shopId, userId);
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(
             criteria.getPage(),
@@ -74,11 +70,11 @@ public class ShopReviewService {
         );
         Page<ShopReview> result = shopReviewRepository.findAllByShopIdExcludingReportedByUser(
             shopId,
-            studentId,
+            userId,
             pageRequest
         );
-        Map<Integer, Integer> ratings = getRating(shopId, studentId);
-        return ShopReviewResponse.from(result, studentId, criteria, ratings);
+        Map<Integer, Integer> ratings = getRating(shopId, userId);
+        return ShopReviewResponse.from(result, userId, criteria, ratings);
     }
 
     @Transactional
@@ -140,10 +136,10 @@ public class ShopReviewService {
         ShopReview shopReview = shopReviewRepository.getAllByIdAndShopId(reviewId, shopId);
         shopReviewReportRepository.save(
             ShopReviewReport.builder()
-                .reportedBy(student)
+                .userId(student)
                 .review(shopReview)
-                .reasonTitle(shopReviewReportRequest.title())
-                .reasonDetail(shopReviewReportRequest.content())
+                .title(shopReviewReportRequest.title())
+                .detail(shopReviewReportRequest.content())
                 .build()
         );
     }
