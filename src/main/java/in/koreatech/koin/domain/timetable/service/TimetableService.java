@@ -20,6 +20,8 @@ import in.koreatech.koin.domain.timetableV2.repository.LectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +34,7 @@ public class TimetableService {
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final SemesterRepositoryV2 semesterRepositoryV2;
+    private final UserRepository userRepository;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
         List<Lecture> lectures = lectureRepositoryV2.findBySemester(semester);
@@ -82,8 +85,19 @@ public class TimetableService {
 
     public TimetableResponse getTimetables(Integer userId, String semesterRequest) {
         Semester semester = semesterRepositoryV2.getBySemester(semesterRequest);
-        TimetableFrame timetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
-            semester.getId());
+        User user = userRepository.getById(userId);
+
+        TimetableFrame timetableFrame = timetableFrameRepositoryV2.findByUserIdAndSemesterIdAndIsMainTrue(userId,
+            semester.getId()).orElse(
+                TimetableFrame
+                    .builder()
+                    .user(user)
+                    .semester(semester)
+                    .name("시간표1")
+                    .isMain(true)
+                    .isDeleted(false)
+                    .build());
+
         return getTimetableResponse(userId, timetableFrame);
     }
 
