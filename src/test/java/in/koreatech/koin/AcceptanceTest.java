@@ -20,6 +20,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
 import in.koreatech.koin.config.TestJpaConfiguration;
+import in.koreatech.koin.config.TestRedisConfiguration;
 import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.bus.util.CityBusClient;
 import in.koreatech.koin.domain.bus.util.CityBusRouteClient;
@@ -33,7 +34,7 @@ import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class})
+@Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class, TestRedisConfiguration.class})
 @ActiveProfiles("test")
 public abstract class AcceptanceTest {
 
@@ -96,18 +97,18 @@ public abstract class AcceptanceTest {
 
     static {
         mySqlContainer = (MySQLContainer)new MySQLContainer("mysql:8.0.29")
-            .withDatabaseName("test")
-            .withUsername(ROOT)
-            .withPassword(ROOT_PASSWORD)
-            .withCommand("--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci");
+                .withDatabaseName("test")
+                .withUsername(ROOT)
+                .withPassword(ROOT_PASSWORD)
+                .withCommand("--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci");
 
         redisContainer = new GenericContainer<>(
-            DockerImageName.parse("redis:7.0.9"))
-            .withExposedPorts(6379);
+                DockerImageName.parse("redis:7.0.9"))
+                .withExposedPorts(6379);
 
         mongoContainer = new GenericContainer<>(
-            DockerImageName.parse("mongo:6.0.14"))
-            .withExposedPorts(27017);
+                DockerImageName.parse("mongo:6.0.14"))
+                .withExposedPorts(27017);
 
         mySqlContainer.start();
         redisContainer.start();
