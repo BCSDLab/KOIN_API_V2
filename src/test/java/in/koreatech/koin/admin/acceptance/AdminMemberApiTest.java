@@ -3,7 +3,6 @@ package in.koreatech.koin.admin.acceptance;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +10,7 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
-import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.domain.member.model.Member;
-import in.koreatech.koin.domain.member.model.Track;
-import in.koreatech.koin.domain.member.repository.TrackRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.MemberFixture;
 import in.koreatech.koin.fixture.TrackFixture;

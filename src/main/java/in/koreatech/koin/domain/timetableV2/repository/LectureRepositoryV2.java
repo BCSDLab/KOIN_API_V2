@@ -11,9 +11,19 @@ import in.koreatech.koin.domain.timetable.model.Lecture;
 
 public interface LectureRepositoryV2 extends Repository<Lecture, Integer> {
 
+    List<Lecture> findBySemester(String semesterDate);
+
     Lecture save(Lecture lecture);
 
     Optional<Lecture> findById(Integer id);
+
+    Optional<Lecture> findBySemesterAndCodeAndLectureClass(String semesterDate, String code, String classLecture);
+
+    default Lecture getBySemesterAndCodeAndLectureClass(String semesterDate, String code, String classLecture) {
+        return findBySemesterAndCodeAndLectureClass(semesterDate, code, classLecture)
+            .orElseThrow(() -> SemesterNotFoundException.withDetail(
+                "semester: " + semesterDate + " code: " + code + " classLecture: " + classLecture));
+    }
 
     default Lecture getLectureById(Integer id) {
         return findById(id)

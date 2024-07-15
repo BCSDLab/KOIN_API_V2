@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RequestMapping("/coop")
-@Tag(name = "(OWNER) Coop Dining : 영양사 식단", description = "영양사 식단 페이지")
+@Tag(name = "(COOP) Coop Dining : 영양사 식단", description = "영양사 식단 페이지")
 public interface CoopApi {
 
     @ApiResponses(
