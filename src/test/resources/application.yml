@@ -21,6 +21,19 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  datasource:
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+  data:
+    redis:
+      host: ${spring.data.redis.host}
+      port: ${spring.data.redis.port}
+    mongodb:
+      host: ${spring.data.mongodb.host}
+      port: ${spring.data.mongodb.port}
+      database: ${spring.data.mongodb.database}
+
 server:
   tomcat:
     max-http-form-post-size: 10MB
