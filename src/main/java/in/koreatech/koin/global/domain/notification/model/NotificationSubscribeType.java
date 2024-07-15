@@ -1,8 +1,6 @@
 package in.koreatech.koin.global.domain.notification.model;
 
-import static in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType.BREAKFAST;
-import static in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType.DINNER;
-import static in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType.LUNCH;
+import static in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +14,7 @@ import lombok.Getter;
 public enum NotificationSubscribeType {
     SHOP_EVENT(List.of()),
     DINING_SOLD_OUT(List.of(BREAKFAST, LUNCH, DINNER)),
+    DINING_IMAGE_UPLOAD(List.of())
     ;
 
     private final List<NotificationDetailSubscribeType> detailTypes;
