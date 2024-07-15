@@ -34,7 +34,7 @@ public record StudentRegisterRequest(
 
     @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
     @Size(max = 50, message = "이름은 50자 이내여야 합니다.")
-    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
+    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z]+$", message = "이름은 한글, 영문만 사용할 수 있습니다.")
     String name,
 
     @Schema(description = " SHA 256 해시 알고리즘으로 암호화된 비밀번호", example = "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268", requiredMode = REQUIRED)
