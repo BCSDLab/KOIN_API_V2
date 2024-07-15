@@ -28,9 +28,9 @@ public final class ShopReviewReportFixture {
         return shopReviewReportRepository.save(
             ShopReviewReport.builder()
                 .review(shopReview)
-                .reasonTitle("기타")
-                .reasonDetail("부적절한 리뷰입니다.")
-                .reportedBy(student)
+                .title("기타")
+                .detail("부적절한 리뷰입니다.")
+                .userId(student)
                 .build()
         );
     }
