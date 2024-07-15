@@ -81,28 +81,4 @@ public record StudentRegisterRequest(
     String phoneNumber
 ) {
 
-    public Student toStudent(PasswordEncoder passwordEncoder, Clock clock) {
-        User user = User.builder()
-            .password(passwordEncoder.encode(password))
-            .email(email)
-            .name(name)
-            .nickname(nickname)
-            .gender(gender)
-            .phoneNumber(phoneNumber)
-            .isAuthed(false)
-            .isDeleted(false)
-            .userType(UserType.STUDENT)
-            .authToken(UUID.randomUUID().toString())
-            .authExpiredAt(LocalDateTime.now(clock).plusHours(10))
-            .build();
-
-        return Student.builder()
-            .user(user)
-            .anonymousNickname("익명_" + (System.currentTimeMillis()))
-            .isGraduated(isGraduated)
-            .userIdentity(UserIdentity.UNDERGRADUATE)
-            .department(department)
-            .studentNumber(studentNumber)
-            .build();
-    }
 }
