@@ -335,8 +335,8 @@ class TimetableApiTest extends AcceptanceTest {
                 {
                     "user_id": 1,
                     "semesters": [
-                      "20192",
-                      "20201"
+                      "20201",
+                      "20192"
                     ]
                 }
                 """
