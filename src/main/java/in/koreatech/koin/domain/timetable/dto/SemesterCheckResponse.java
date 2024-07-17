@@ -15,7 +15,7 @@ public record SemesterCheckResponse(
     Integer userId,
 
     @Schema(description = "유저 학기", example = """
-        ["20192", "20201"]
+        ["20202", "20201"]
         """, requiredMode = REQUIRED)
     List<String> semesters
 ) {
