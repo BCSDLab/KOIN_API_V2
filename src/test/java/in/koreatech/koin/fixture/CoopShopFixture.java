@@ -22,6 +22,7 @@ public class CoopShopFixture {
         var coopShop = coopShopRepository.save(
             CoopShop.builder()
                 .name("학생식당")
+                .semester("하계방학")
                 .location("학생회관 1층")
                 .phone("041-000-0000")
                 .remarks("공휴일 휴무")
@@ -66,6 +67,7 @@ public class CoopShopFixture {
         var coopShop = coopShopRepository.save(
             CoopShop.builder()
                 .name("세탁소")
+                .semester("학기")
                 .location("학생회관 2층")
                 .phone("041-000-0000")
                 .remarks("연중무휴")
