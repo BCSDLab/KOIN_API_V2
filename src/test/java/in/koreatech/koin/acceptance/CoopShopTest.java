@@ -48,6 +48,7 @@ class CoopShopTest extends AcceptanceTest {
                         {
                             "id": 1,
                             "name": "학생식당",
+                            "semester" : "하계방학",
                             "opens": [
                                 {
                                     "day_of_week": "평일",
@@ -81,6 +82,7 @@ class CoopShopTest extends AcceptanceTest {
                         {
                             "id": 2,
                             "name": "세탁소",
+                            "semester" : "학기",
                             "opens": [
                                 {
                                     "day_of_week": "평일",
@@ -120,6 +122,7 @@ class CoopShopTest extends AcceptanceTest {
                     {
                         "id": 1,
                         "name": "학생식당",
+                        "semester" : "하계방학",
                         "opens": [
                             {
                                 "day_of_week": "평일",
