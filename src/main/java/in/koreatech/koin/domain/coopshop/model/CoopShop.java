@@ -34,6 +34,10 @@ public class CoopShop extends BaseEntity {
     private String name;
 
     @NotNull
+    @Column(name = "semester", nullable = false)
+    private String semester;
+
+    @NotNull
     @Column(name = "phone", nullable = false)
     private String phone;
 
@@ -54,11 +58,13 @@ public class CoopShop extends BaseEntity {
     @Builder
     private CoopShop(
         String name,
+        String semester,
         String phone,
         String location,
         String remarks
     ) {
         this.name = name;
+        this.semester = semester;
         this.phone = phone;
         this.location = location;
         this.remarks = remarks;

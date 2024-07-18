@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetable.service;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -27,10 +28,11 @@ public class SemesterService {
     }
 
     public SemesterCheckResponse getStudentSemesters(Integer userId) {
-        List<TimetableFrame> timeTableFrames = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId);
-        List<String> semesters = timeTableFrames.stream()
-            .map(timeTableFrame -> timeTableFrame.getSemester().getSemester())
+        List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId);
+        List<String> semesters = timetableFrames.stream()
+            .map(timetableFrame -> timetableFrame.getSemester().getSemester())
             .distinct()
+            .sorted(Comparator.reverseOrder())
             .toList();
         return SemesterCheckResponse.of(userId, semesters);
     }
