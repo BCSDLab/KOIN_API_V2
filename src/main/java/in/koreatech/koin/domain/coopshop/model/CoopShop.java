@@ -10,6 +10,7 @@ import java.util.List;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -52,7 +53,8 @@ public class CoopShop extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "coopShop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
+    @OneToMany(mappedBy = "coopShop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE},
+        fetch = FetchType.EAGER)
     private List<CoopOpen> coopOpens = new ArrayList<>();
 
     @Builder
