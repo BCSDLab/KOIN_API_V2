@@ -26,7 +26,7 @@ public class CoopOpen {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coop_id", referencedColumnName = "id", nullable = false)
     private CoopShop coopShop;
 
