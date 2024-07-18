@@ -18,8 +18,15 @@ public interface CoopShopRepository extends Repository<CoopShop, Integer> {
 
     Optional<CoopShop> findById(Integer id);
 
+    Optional<CoopShop> findByName(String name);
+
     default CoopShop getById(Integer id) {
         return findById(id)
-            .orElseThrow(() -> CoopShopNotFoundException.withDetail("coop_id : " + id));
+            .orElseThrow(() -> CoopShopNotFoundException.withDetail("coopShopId : " + id));
+    }
+
+    default CoopShop getByName(String name) {
+        return findByName(name)
+            .orElseThrow(() -> CoopShopNotFoundException.withDetail("coopShopType : " + name));
     }
 }
