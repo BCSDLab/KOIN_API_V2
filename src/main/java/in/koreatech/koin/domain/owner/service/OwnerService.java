@@ -52,6 +52,7 @@ import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.domain.email.form.OwnerRegistrationData;
 import in.koreatech.koin.global.domain.email.service.MailService;
@@ -94,7 +95,7 @@ public class OwnerService {
         }
 
         if (!user.isAuthed()) {
-            throw new KoinIllegalArgumentException("미인증 상태입니다. 인증을 진행해주세요.");
+            throw new AuthorizationException("미인증 상태입니다. 인증을 진행해주세요.");
         }
 
         String accessToken = jwtProvider.createToken(user);
