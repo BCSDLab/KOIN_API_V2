@@ -1,13 +1,16 @@
 package in.koreatech.koin.fixture;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
+import in.koreatech.koin.domain.bus.model.mongo.CityBusTimetable;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
+import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
@@ -16,8 +19,12 @@ public final class BusFixture {
     @Autowired
     private final BusRepository busRepository;
 
-    public BusFixture(BusRepository busRepository) {
+    @Autowired
+    private final CityBusTimetableRepository cityBusTimetableRepository;
+
+    public BusFixture(BusRepository busRepository, CityBusTimetableRepository cityBusTimetableRepository) {
         this.busRepository = busRepository;
+        this.cityBusTimetableRepository = cityBusTimetableRepository;
     }
 
     public void 버스_시간표_등록() {
@@ -52,6 +59,31 @@ public final class BusFixture {
                                 )
                             )
                             .build()
+                    )
+                )
+                .build()
+        );
+    }
+
+    public void 시내버스_시간표_등록() {
+        cityBusTimetableRepository.save(
+            CityBusTimetable.builder()
+                .updatedAt(LocalDateTime.of(2024, 7, 19, 19, 0))
+                .busInfo(
+                    CityBusTimetable.BusInfo.builder()
+                        .number(400L)
+                        .depart("병천3리")
+                        .arrival("종합터미널")
+                        .build()
+                )
+                .busTimetables(
+                    List.of(
+                        CityBusTimetable.BusTimetable.builder()
+                            .dayOfWeek("평일")
+                            .departInfo(List.of("06:00", "07:00")).build(),
+                        CityBusTimetable.BusTimetable.builder()
+                            .dayOfWeek("주말")
+                            .departInfo(List.of("08:00", "09:00")).build()
                     )
                 )
                 .build()

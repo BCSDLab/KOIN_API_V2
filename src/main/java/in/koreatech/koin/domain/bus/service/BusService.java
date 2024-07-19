@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
+import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotFoundException;
@@ -30,9 +31,12 @@ import in.koreatech.koin.domain.bus.model.SchoolBusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
+import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
+import in.koreatech.koin.domain.bus.model.mongo.CityBusTimetable;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
+import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
 import in.koreatech.koin.domain.bus.util.CityBusClient;
 import in.koreatech.koin.domain.bus.util.CityBusRouteClient;
 import in.koreatech.koin.domain.bus.util.TmoneyExpressBusClient;
@@ -48,6 +52,7 @@ public class BusService {
 
     private final Clock clock;
     private final BusRepository busRepository;
+    private final CityBusTimetableRepository cityBusTimetableRepository;
     private final CityBusClient cityBusClient;
     private final TmoneyExpressBusClient tmoneyExpressBusClient;
     private final CityBusRouteClient cityBusRouteClient;
@@ -216,5 +221,12 @@ public class BusService {
         return busRepository.findAll().stream()
             .map(BusCourseResponse::from)
             .toList();
+    }
+
+    public CityBusTimetableResponse getCityBusTimetable(Long busNumber, CityBusDirection direction) {
+        CityBusTimetable timetable = cityBusTimetableRepository
+            .getByBusInfoNumberAndBusInfoArrival(busNumber, direction.getName());
+
+        return CityBusTimetableResponse.from(timetable);
     }
 }
