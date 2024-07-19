@@ -12,7 +12,7 @@ import lombok.Getter;
 @RedisHash("refreshToken")
 public class UserToken {
 
-    private static final long REFRESH_TOKEN_EXPIRE_DAY = 90L;
+    private static final long REFRESH_TOKEN_EXPIRE_DAY = 14L;
 
     @Id
     private Integer id;
