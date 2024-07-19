@@ -80,7 +80,8 @@ public class TimetableServiceV2 {
         }
         if (frame.isMain()) {
             TimetableFrame nextMainFrame =
-                timetableFrameRepositoryV2.findFirstNonMainFrame(userId, frame.getSemester().getId());
+                timetableFrameRepositoryV2.
+                    findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId, frame.getSemester().getId());
             if (nextMainFrame != null) {
                 nextMainFrame.updateStatusMain(true);
                 timetableFrameRepositoryV2.save(nextMainFrame);

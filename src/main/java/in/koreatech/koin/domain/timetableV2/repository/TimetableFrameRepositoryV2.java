@@ -42,14 +42,7 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
             .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("userId: " + user.getId()));
     }
 
-    @Query(
-        """
-        SELECT tf FROM TimetableFrame tf
-        WHERE tf.user.id = :userId
-        AND tf.semester.id = :semesterId 
-        AND tf.isMain = false ORDER BY tf.createdAt ASC
-        """)
-    TimetableFrame findFirstNonMainFrame(@Param("userId") Integer userId, @Param("semesterId") Integer semesterId);
+    TimetableFrame findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(Integer userId, Integer semesterId);
 
     @Query(
         """
