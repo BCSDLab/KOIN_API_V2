@@ -198,7 +198,7 @@ class AdminShopApiTest extends AcceptanceTest {
                      "is_deleted": false,
                      "is_event": false,
                      "bank": "국민",
-                     "account_number": "01022595923" 
+                     "account_number": "01022595923"
                  }
                 """);
     }

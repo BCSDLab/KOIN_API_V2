@@ -81,6 +81,29 @@ class OwnerApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("관리자가 승인하지 않은 사장님이 로그인을 진행한다")
+    void unAuthOwnerLogin() {
+        Owner owner = userFixture.철수_사장님();
+        String phoneNumber = owner.getAccount();
+        String password = "1234";
+
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                  "account" : "%s",
+                  "password" : "%s"
+                }
+                """.formatted(phoneNumber, password))
+            .when()
+            .post("/owner/login")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .extract();
+    }
+
+    @Test
     @DisplayName("로그인된 사장님 정보를 조회한다.")
     void getOwner() {
         // given

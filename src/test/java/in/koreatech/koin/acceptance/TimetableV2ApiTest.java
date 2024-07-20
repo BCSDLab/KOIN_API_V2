@@ -173,6 +173,32 @@ public class TimetableV2ApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("isMain인 frame을 삭제한다 - 다른 frame이 main으로 됨")
+    void deleteMainTimeTablesFrame() {
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+
+        TimetableFrame frame1 = timetableV2Fixture.시간표1(user, semester);
+        TimetableFrame frame2 = timetableV2Fixture.시간표2(user, semester);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .param("id", frame1.getId())
+            .delete("/v2/timetables/frame")
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract();
+
+        assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isNotPresent();
+
+        TimetableFrame reloadedFrame2 = timetableFrameRepositoryV2.findById(frame2.getId()).orElseThrow();
+        assertThat(reloadedFrame2.isMain()).isTrue();
+    }
+
+    @Test
     @DisplayName("특정 시간표 frame을 삭제한다 - 본인 삭제가 아니면 403 반환")
     void deleteTimeTablesFrameNoAuth() {
         User user1 = userFixture.준호_학생().getUser();

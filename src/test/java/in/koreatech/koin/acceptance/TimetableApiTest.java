@@ -58,7 +58,7 @@ class TimetableApiTest extends AcceptanceTest {
             .isEqualTo("""
                 [
                     {
-                        "id": 1,
+                        "id" : 1,
                         "code": "BSM590",
                         "name": "컴퓨팅사고",
                         "grades": "3",
@@ -99,7 +99,7 @@ class TimetableApiTest extends AcceptanceTest {
             .isEqualTo("""
                 [
                     {
-                        "id": 1,
+                        "id" : 1,
                         "code": "BSM590",
                         "name": "컴퓨팅사고",
                         "grades": "3",
@@ -116,7 +116,7 @@ class TimetableApiTest extends AcceptanceTest {
                         ]
                     },
                     {
-                        "id": 2,
+                        "id" : 2,
                         "code": "ARB244",
                         "name": "건축구조의 이해 및 실습",
                         "grades": "3",
@@ -133,7 +133,7 @@ class TimetableApiTest extends AcceptanceTest {
                         ]
                     },
                     {
-                        "id": 3,
+                        "id" : 3,
                         "code": "MEB311",
                         "name": "재료역학",
                         "grades": "3",
@@ -277,6 +277,38 @@ class TimetableApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("시간표를 조회한다. - 시간표 프레임 없으면 생성")
+    void getTimeTablesAfterCreate() {
+        // given
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+
+        // when & then
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .param("semester", semester.getSemester())
+            .get("/timetables")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "semester": "20192",
+                    "timetable": [
+                    ],
+                    "grades": 0,
+                    "total_grades": 0
+                }
+                """
+            ));
+    }
+
+    @Test
     @DisplayName("학생이 가진 시간표의 학기를 조회한다.")
     void getStudentCheckSemester() {
         User user = userFixture.준호_학생().getUser();
@@ -303,8 +335,8 @@ class TimetableApiTest extends AcceptanceTest {
                 {
                     "user_id": 1,
                     "semesters": [
-                      "20192",
-                      "20201"
+                      "20201",
+                      "20192"
                     ]
                 }
                 """
@@ -370,6 +402,124 @@ class TimetableApiTest extends AcceptanceTest {
             .response();
 
         JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+        {
+            "semester": "20192",
+            "timetable": [
+                {
+                    "id": 1,
+                    "regular_number": "25",
+                    "code": "ARB244",
+                    "design_score": "0",
+                    "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
+                    "class_place": null,
+                    "memo": null,
+                    "grades": "3",
+                    "class_title": "건축구조의 이해 및 실습",
+                    "lecture_class": "01",
+                    "target": "디자 1 건축",
+                    "professor": "황현식",
+                    "department": "디자인ㆍ건축공학부"
+                },
+                {
+                    "id": 2,
+                    "regular_number": "22",
+                    "code": "BSM590",
+                    "design_score": "0",
+                    "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
+                    "class_place": null,
+                    "memo": null,
+                    "grades": "3",
+                    "class_title": "컴퓨팅사고",
+                    "lecture_class": "06",
+                    "target": "기공1",
+                    "professor": "박한수,최준호",
+                    "department": "기계공학부"
+                }
+            ],
+            "grades": 6,
+            "total_grades": 6
+        }
+        """);
+    }
+
+    @Test
+    @DisplayName("시간표를 단일 생성한다. - 전체 반환")
+    void createTimeTablesReturnAll() {
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+
+        lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        lectureFixture.HRD_개론(semester.getSemester());
+
+        timetableV2Fixture.시간표1(user, semester);
+
+        var response1 = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+            {
+              "timetable": [
+               {
+                    "regular_number": "25",
+                    "code": "ARB244",
+                    "design_score": "0",
+                    "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
+                    "class_place": null,
+                    "memo": null,
+                    "grades": "3",
+                    "class_title": "건축구조의 이해 및 실습",
+                    "lecture_class": "01",
+                    "target": "디자 1 건축",
+                    "professor": "황현식",
+                    "department": "디자인ㆍ건축공학부"
+               }
+             ],
+              "semester": "20192"
+            }
+         """)
+            .when()
+            .post("/timetables")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract()
+            .response();
+
+        var response2 = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+            {
+              "timetable": [
+               {
+                    "regular_number": "22",
+                    "code": "BSM590",
+                    "design_score": "0",
+                    "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
+                    "class_place": null,
+                    "memo": null,
+                    "grades": "3",
+                    "class_title": "컴퓨팅사고",
+                    "lecture_class": "06",
+                    "target": "기공1",
+                    "professor": "박한수,최준호",
+                    "department": "기계공학부"
+               }
+             ],
+              "semester": "20192"
+            }
+         """)
+            .when()
+            .post("/timetables")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract()
+            .response();
+
+        JsonAssertions.assertThat(response2.asPrettyString())
             .isEqualTo("""
         {
             "semester": "20192",

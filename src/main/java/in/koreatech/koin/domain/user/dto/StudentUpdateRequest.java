@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.global.validation.NotEmoji;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -38,7 +39,7 @@ public record StudentUpdateRequest
 
         @Size(max = 50, message = "이름의 길이는 최대 50자 입니다.")
         @Schema(description = "이름", example = "최준호", requiredMode = NOT_REQUIRED)
-        @NotEmoji
+        @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z]+$", message = "이름은 한글, 영문만 사용할 수 있습니다.")
         String name,
 
         @Size(message = "SHA 256 해시 알고리즘으로 암호화 된 비밀번호")
@@ -47,7 +48,7 @@ public record StudentUpdateRequest
 
         @Size(max = 10, message = "닉네임은 10자 이내여야 합니다.")
         @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
-        @NotEmoji
+        @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
         String nickname,
 
         @Schema(description = "휴대폰 번호", example = "01000000000", requiredMode = NOT_REQUIRED)

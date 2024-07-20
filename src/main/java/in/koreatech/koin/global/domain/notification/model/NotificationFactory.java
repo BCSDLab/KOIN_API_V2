@@ -32,8 +32,8 @@ public class NotificationFactory {
     ) {
         return new Notification(
             path,
-            "%s 품절되었습니다".formatted(getPostposition(place, "이", "가")),
-            "다른 식단 보러 가기",
+            "%s 품절됐어요 \uD83D\uDE22".formatted(getPostposition(place, "이", "가")),
+            "다른 코너 메뉴도 확인해보세요",
             null,
             NotificationType.MESSAGE,
             target
@@ -44,5 +44,20 @@ public class NotificationFactory {
         char lastChar = place.charAt(place.length() - 1);
         String result = (lastChar - 0xAC00) % 28 > 0 ? firstPost : secondPost;
         return place + result;
+    }
+
+    public Notification generateDiningImageUploadNotification(
+        MobileAppPath path,
+        String imageUrl,
+        User target
+    ){
+        return new Notification(
+            path,
+            "식단 사진이 업로드 됐어요!",
+            "사진 보러 가기 \uD83D\uDE0B",
+            imageUrl,
+            NotificationType.MESSAGE,
+            target
+        );
     }
 }

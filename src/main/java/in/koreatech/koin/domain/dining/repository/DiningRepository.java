@@ -8,6 +8,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.coop.exception.MenuNotFoundException;
 import in.koreatech.koin.domain.dining.model.Dining;
+import in.koreatech.koin.domain.dining.model.DiningType;
 
 public interface DiningRepository extends Repository<Dining, Integer> {
 
@@ -21,4 +22,8 @@ public interface DiningRepository extends Repository<Dining, Integer> {
         return findById(id)
             .orElseThrow(() -> MenuNotFoundException.withDetail("menuId: " + id));
     }
+
+    List<Dining> findAllByDateAndType(LocalDate date, DiningType type);
+
+    boolean existsByDateAndTypeAndImageUrlIsNotNull(LocalDate date, DiningType type);
 }

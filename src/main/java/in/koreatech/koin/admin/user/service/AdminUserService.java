@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -86,7 +87,7 @@ public class AdminUserService {
         User user = adminUserRepository.getByEmail(request.email());
 
         /* 어드민 권한이 없으면 없는 회원으로 간주 */
-        if(user.getUserType() != ADMIN) {
+        if (user.getUserType() != ADMIN) {
             throw UserNotFoundException.withDetail("email" + request.email());
         }
 
@@ -155,7 +156,7 @@ public class AdminUserService {
         validateNicknameDuplication(adminRequest.nickname(), id);
         validateDepartmentValid(adminRequest.major());
         user.update(adminRequest.nickname(), adminRequest.name(),
-            adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
+                adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
         user.updateStudentPassword(passwordEncoder, adminRequest.password());
         student.update(adminRequest.studentNumber(), adminRequest.major());
         adminStudentRepository.save(student);
@@ -166,32 +167,64 @@ public class AdminUserService {
     public AdminNewOwnersResponse getNewOwners(OwnersCondition ownersCondition) {
         ownersCondition.checkDataConstraintViolation();
 
-        Integer totalOwners = adminOwnerRepository.findUnauthenticatedOwnersCount();
+        Integer totalOwners = adminUserRepository.findUsersCountByUserTypeAndIsAuthed(UserType.OWNER, false);
         Criteria criteria = Criteria.of(ownersCondition.page(), ownersCondition.limit(), totalOwners);
         Sort.Direction direction = ownersCondition.getDirection();
 
-        Page<OwnerIncludingShop> result = getResultPage(ownersCondition, criteria, direction);
+        Page<Owner> result = getNewOwnersResultPage(ownersCondition, criteria, direction);
 
-        return AdminNewOwnersResponse.of(result, criteria);
+        List<OwnerIncludingShop> ownerIncludingShops = result.getContent().stream()
+                .map(owner -> {
+                    Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(owner.getId());
+                    return ownerShop
+                            .map(os -> {
+                                Shop shop = adminShopRepository.findById(os.getShopId()).orElse(null);
+                                return OwnerIncludingShop.of(owner, shop);
+                            })
+                            .orElseGet(() -> OwnerIncludingShop.of(owner, null));
+                })
+                .collect(Collectors.toList());
+
+
+        return AdminNewOwnersResponse.of(ownerIncludingShops, result, criteria);
     }
 
     public AdminOwnersResponse getOwners(OwnersCondition ownersCondition) {
         ownersCondition.checkDataConstraintViolation();
 
-        Integer totalOwners = adminOwnerRepository.countByUserUserType(UserType.OWNER);
+        Integer totalOwners = adminUserRepository.findUsersCountByUserTypeAndIsAuthed(UserType.OWNER, true);
         Criteria criteria = Criteria.of(ownersCondition.page(), ownersCondition.limit(), totalOwners);
         Sort.Direction direction = ownersCondition.getDirection();
 
-        Page<OwnerIncludingShop> result = getResultPage(ownersCondition, criteria, direction);
+        Page<Owner> result = getOwnersResultPage(ownersCondition, criteria, direction);
 
         return AdminOwnersResponse.of(result, criteria);
     }
 
-    private Page<OwnerIncludingShop> getResultPage(OwnersCondition ownersCondition, Criteria criteria, Sort.Direction direction) {
+    private Page<Owner> getOwnersResultPage(OwnersCondition ownersCondition, Criteria criteria,
+                                            Sort.Direction direction) {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-            Sort.by(direction, "user.createdAt"));
+                Sort.by(direction, "user.createdAt"));
 
-        Page<OwnerIncludingShop> result;
+        Page<Owner> result;
+
+        if (ownersCondition.searchType() == OwnersCondition.SearchType.EMAIL) {
+            result = adminOwnerRepository.findPageOwnersByEmail(ownersCondition.query(), pageRequest);
+        } else if (ownersCondition.searchType() == OwnersCondition.SearchType.NAME) {
+            result = adminOwnerRepository.findPageOwnersByName(ownersCondition.query(), pageRequest);
+        } else {
+            result = adminOwnerRepository.findPageOwners(pageRequest);
+        }
+
+        return result;
+    }
+
+    private Page<Owner> getNewOwnersResultPage(OwnersCondition ownersCondition, Criteria criteria,
+                                               Sort.Direction direction) {
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
+                Sort.by(direction, "user.createdAt"));
+
+        Page<Owner> result;
 
         if (ownersCondition.searchType() == OwnersCondition.SearchType.EMAIL) {
             result = adminOwnerRepository.findPageUnauthenticatedOwnersByEmail(ownersCondition.query(), pageRequest);
@@ -207,7 +240,7 @@ public class AdminUserService {
 
     private void validateNicknameDuplication(String nickname, Integer userId) {
         if (nickname != null &&
-            adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {
+                adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {
             throw DuplicationNicknameException.withDetail("nickname : " + nickname);
         }
     }
@@ -222,9 +255,9 @@ public class AdminUserService {
         Owner owner = adminOwnerRepository.getById(ownerId);
 
         List<Integer> shopsId = adminShopRepository.findAllByOwnerId(ownerId)
-            .stream()
-            .map(Shop::getId)
-            .toList();
+                .stream()
+                .map(Shop::getId)
+                .toList();
 
         return AdminOwnerResponse.of(owner, shopsId);
     }

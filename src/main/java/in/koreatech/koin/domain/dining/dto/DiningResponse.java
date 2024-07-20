@@ -61,7 +61,10 @@ public record DiningResponse(
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "메뉴 변경 시각", example = "2024-04-04 23:01:52", requiredMode = NOT_REQUIRED)
-    LocalDateTime changedAt
+    LocalDateTime changedAt,
+
+    @Schema(description = "식단 좋아요 수", example = "1", requiredMode = REQUIRED)
+    Integer likes
 ) {
 
     public static DiningResponse from(Dining dining) {
@@ -78,7 +81,8 @@ public record DiningResponse(
             dining.getCreatedAt(),
             dining.getUpdatedAt(),
             dining.getSoldOut(),
-            dining.getIsChanged()
+            dining.getIsChanged(),
+            dining.getLikes()
         );
     }
 }
