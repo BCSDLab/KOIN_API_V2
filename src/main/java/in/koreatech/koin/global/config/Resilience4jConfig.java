@@ -20,17 +20,23 @@ public class Resilience4jConfig {
 
     @Bean
     public CircuitBreaker tmoneyExpressBusCircuitBreaker(){
-        CircuitBreakerConfig circuitBreakerConfig = getExpressBusConfig();
+        CircuitBreakerConfig circuitBreakerConfig = getBusConfig();
         return circuitBreakerRegistry.circuitBreaker("tmoneyExpressBus", circuitBreakerConfig);
     }
 
     @Bean
     public CircuitBreaker publicExpressBusCircuitBreaker(){
-        CircuitBreakerConfig circuitBreakerConfig = getExpressBusConfig();
+        CircuitBreakerConfig circuitBreakerConfig = getBusConfig();
         return circuitBreakerRegistry.circuitBreaker("publicExpressBus", circuitBreakerConfig);
     }
 
-    private static CircuitBreakerConfig getExpressBusConfig() {
+    @Bean
+    public CircuitBreaker cityBusCircuitBreaker(){
+        CircuitBreakerConfig circuitBreakerConfig = getBusConfig();
+        return circuitBreakerRegistry.circuitBreaker("cityBus", circuitBreakerConfig);
+    }
+
+    private static CircuitBreakerConfig getBusConfig() {
         return CircuitBreakerConfig.custom()
             // 최소 호출횟수
             .minimumNumberOfCalls(2)
