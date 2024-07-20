@@ -87,7 +87,8 @@ class DiningApiTest extends AcceptanceTest {
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
-                        "changed_at": null
+                        "changed_at": null,
+                        "likes": 0
                     }
                 ]
                 """);
@@ -135,7 +136,8 @@ class DiningApiTest extends AcceptanceTest {
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
-                        "changed_at": null
+                        "changed_at": null,
+                        "likes": 0
                     }
                 ]
                 """);
@@ -291,5 +293,58 @@ class DiningApiTest extends AcceptanceTest {
             .extract();
 
         verify(coopEventListener, never()).onDiningSoldOutRequest(any());
+    }
+
+    @Test
+    @DisplayName("특정 식단의 좋아요를 누른다")
+    void likeDining() {
+        RestAssured.given()
+            .contentType(ContentType.JSON)
+            .body(String.format("""
+                {
+                    "dining_id": "%s",
+                    "user_id": %s
+                }
+                """, A코너_점심.getId(), coop_준기.getId())
+            )
+            .when()
+            .patch("/dining/like")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("특정 식단의 좋아요 중복해서 누르면 에러")
+    void likeDiningDuplicate() {
+        RestAssured.given()
+            .contentType(ContentType.JSON)
+            .body(String.format("""
+                {
+                    "dining_id": "%s",
+                    "user_id": %s
+                }
+                """, A코너_점심.getId(), coop_준기.getId())
+            )
+            .when()
+            .patch("/dining/like")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        RestAssured.given()
+            .contentType(ContentType.JSON)
+            .body(String.format("""
+                {
+                    "dining_id": "%s",
+                    "user_id": %s
+                }
+                """, A코너_점심.getId(), coop_준기.getId())
+            )
+            .when()
+            .patch("/dining/like")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .extract();
     }
 }

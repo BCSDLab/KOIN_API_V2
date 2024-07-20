@@ -6,8 +6,11 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.dining.dto.DiningLikeRequest;
 import in.koreatech.koin.domain.dining.dto.DiningResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,5 +34,17 @@ public interface DiningApi {
     ResponseEntity<List<DiningResponse>> getDinings(
         @DateTimeFormat(pattern = "yyMMdd")
         @Parameter(description = "조회 날짜(yyMMdd)") @RequestParam(required = false) LocalDate date
+    );
+
+    @Operation(summary = "식단 좋아요")
+    @PatchMapping("/dining/like")
+    ResponseEntity<Void> likeDining(
+        @RequestBody DiningLikeRequest diningLikeRequest
+    );
+
+    @Operation(summary = "식단 좋아요 취소")
+    @PatchMapping("/dining/like/cancel")
+    ResponseEntity<Void> likeDiningCancel(
+        @RequestBody DiningLikeRequest diningLikeRequest
     );
 }
