@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.bus.model.enums.BusStation.KOREATECH;
 import static in.koreatech.koin.domain.bus.model.enums.BusStation.TERMINAL;
 import static in.koreatech.koin.domain.bus.model.enums.BusType.EXPRESS;
 
+import java.io.UnsupportedEncodingException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -15,9 +16,6 @@ import java.util.Optional;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
-
-import com.google.gson.Gson;
 
 import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
@@ -32,24 +30,21 @@ import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 
 @Transactional(readOnly = true)
-public abstract class ExpressBusClient<T> {
+public abstract class ExpressBusClient<T, U> {
 
     protected final VersionRepository versionRepository;
     protected final ExpressBusCacheRepository expressBusCacheRepository;
     protected final RestTemplate restTemplate;
-    protected final Gson gson;
     protected final Clock clock;
 
     public ExpressBusClient(
         VersionRepository versionRepository,
         RestTemplate restTemplate,
-        Gson gson,
         Clock clock,
         ExpressBusCacheRepository expressBusCacheRepository
     ) {
         this.versionRepository = versionRepository;
         this.restTemplate = restTemplate;
-        this.gson = gson;
         this.clock = clock;
         this.expressBusCacheRepository = expressBusCacheRepository;
     }
@@ -132,7 +127,7 @@ public abstract class ExpressBusClient<T> {
 
     protected abstract T getOpenApiResponse(BusStation depart, BusStation arrival);
 
-    protected abstract UriComponents getBusApiURL(BusStation depart, BusStation arrival);
+    protected abstract U getBusApiURL(BusStation depart, BusStation arrival) throws UnsupportedEncodingException;
 
     protected abstract List<?> extractBusArrivalInfo(T ExpressBusResponse);
 }

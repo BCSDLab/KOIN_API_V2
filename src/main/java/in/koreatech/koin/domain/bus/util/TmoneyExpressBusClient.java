@@ -4,6 +4,7 @@ import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
+import java.io.UnsupportedEncodingException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -21,8 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import com.google.gson.Gson;
 
 import in.koreatech.koin.domain.bus.dto.TmoneyOpenApiResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
@@ -43,7 +42,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  * https://apiportal.tmoney.co.kr:18443/apiGallery/apiGalleryDetail.do?apiId=API201906241410183kp&apiPckgId=APK2024051316462950w&isTestYn=Y
  */
 @Component
-public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiResponse> {
+public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiResponse, UriComponents> {
 
     private static final String OPEN_API_URL = "https://apigw.tmoney.co.kr:5556/gateway/xzzIbtListGet/v1/ibt_list";
 
@@ -53,11 +52,10 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
         RestTemplate restTemplate,
         @Value("${OPEN_API_KEY_TMONEY}") String openApiKey,
         VersionRepository versionRepository,
-        Gson gson,
         Clock clock,
         ExpressBusCacheRepository expressBusCacheRepository
     ) {
-        super(versionRepository, restTemplate, gson, clock, expressBusCacheRepository);
+        super(versionRepository, restTemplate, clock, expressBusCacheRepository);
         this.openApiKey = openApiKey;
     }
 
@@ -128,7 +126,7 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
     }
 
     @Override
-    protected UriComponents getBusApiURL(BusStation depart, BusStation arrival) {
+    protected UriComponents getBusApiURL(BusStation depart, BusStation arrival) throws UnsupportedEncodingException {
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
         LocalDateTime today = LocalDateTime.now(clock);

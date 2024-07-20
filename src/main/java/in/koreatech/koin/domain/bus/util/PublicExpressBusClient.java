@@ -1,9 +1,10 @@
 package in.koreatech.koin.domain.bus.util;
 
 import static java.net.URLEncoder.encode;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -19,10 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import com.google.gson.Gson;
 
 import in.koreatech.koin.domain.bus.dto.PublicOpenApiResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
@@ -35,7 +32,6 @@ import in.koreatech.koin.domain.bus.model.express.PublicOpenApiExpressBusArrival
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
@@ -43,9 +39,10 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098541
  */
 @Component
-public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiResponse> {
+public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiResponse, String> {
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo";
+    private static final String ENCODE_TYPE = "UTF-8";
 
     private final String openApiKey;
 
@@ -53,11 +50,10 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
         @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
         VersionRepository versionRepository,
         RestTemplate restTemplate,
-        Gson gson,
         Clock clock,
         ExpressBusCacheRepository expressBusCacheRepository
     ) {
-        super(versionRepository, restTemplate, gson, clock, expressBusCacheRepository);
+        super(versionRepository, restTemplate, clock, expressBusCacheRepository);
         this.openApiKey = openApiKey;
     }
 
@@ -111,9 +107,9 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
             headers.set("Accept", "*/*");
 
             HttpEntity<?> entity = new HttpEntity<>(headers);
-            UriComponents uri = getBusApiURL(depart, arrival);
+            URL uri = new URL(getBusApiURL(depart, arrival));
             ResponseEntity<PublicOpenApiResponse> response = restTemplate.exchange(
-                uri.toString(),
+                uri.toURI(),
                 HttpMethod.GET,
                 entity,
                 PublicOpenApiResponse.class
@@ -125,25 +121,22 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
     }
 
     @Override
-    protected UriComponents getBusApiURL(BusStation depart, BusStation arrival) {
+    protected String getBusApiURL(BusStation depart, BusStation arrival) throws UnsupportedEncodingException {
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
         LocalDateTime yesterday = LocalDateTime.now(clock).minusDays(1);
-        UriComponents uri;
-        try {
-            uri = UriComponentsBuilder
-                .fromHttpUrl(OPEN_API_URL)
-                .queryParam("serviceKey", encode(openApiKey, UTF_8))
-                .queryParam("numOfRows", 30)
-                .queryParam("_type", "json")
-                .queryParam("depTerminalId", encode(departNode.getStationId(), UTF_8))
-                .queryParam("arrTerminalId", encode(arrivalNode.getStationId(), UTF_8))
-                .queryParam("depPlandTime", encode(yesterday.format(ofPattern("yyyyMMdd")), UTF_8))
-                .build();
-            return uri;
-        } catch (Exception e) {
-            throw new KoinIllegalStateException("시외버스 API URL 생성중 문제가 발생했습니다.");
-        }
+        StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL);
+        urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));
+        urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode("30", ENCODE_TYPE));
+        urlBuilder.append(
+            "&" + encode("depTerminalId", ENCODE_TYPE) + "=" + encode(departNode.getStationId(), ENCODE_TYPE));
+        urlBuilder.append(
+            "&" + encode("arrTerminalId", ENCODE_TYPE) + "=" + encode(arrivalNode.getStationId(), ENCODE_TYPE));
+        urlBuilder.append(
+            "&" + encode("depPlandTime", ENCODE_TYPE) + "=" + encode(yesterday.format(ofPattern("yyyyMMdd")),
+                ENCODE_TYPE));
+        urlBuilder.append("&_type=json");
+        return urlBuilder.toString();
     }
 
     @Override
