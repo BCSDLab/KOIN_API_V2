@@ -47,12 +47,12 @@ public class CoopService {
     @Transactional
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
         Dining dining = diningRepository.getById(soldOutRequest.menuId());
-        LocalDateTime now = LocalDateTime.now(clock);
-        boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType().getDiningName());
 
         if (soldOutRequest.soldOut()) {
+            LocalDateTime now = LocalDateTime.now(clock);
             dining.setSoldOut(now);
-            if (diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty() && isOpened) {
+            boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType());
+            if (isOpened && diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty()) {
                 eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getPlace(), dining.getType()));
             }
         } else {

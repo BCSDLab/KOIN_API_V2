@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.repository.CoopOpenRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
+import in.koreatech.koin.domain.dining.model.DiningType;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -35,12 +36,13 @@ public class CoopShopService {
         return CoopShopResponse.from(coopShop);
     }
 
-    public boolean getIsOpened(LocalDateTime now, CoopShopType coopShopType, String type) {
+    public boolean getIsOpened(LocalDateTime now, CoopShopType coopShopType, DiningType type) {
         try {
             String todayType =
                 (now.getDayOfWeek() == DayOfWeek.SATURDAY || now.getDayOfWeek() == DayOfWeek.SUNDAY) ? "주말" : "평일";
             CoopShop coopShop = coopShopRepository.getByName(coopShopType.getName());
-            CoopOpen open = coopOpenRepository.getByCoopShopAndTypeAndDayOfWeek(coopShop, type, todayType);
+            CoopOpen open = coopOpenRepository
+                .getByCoopShopAndTypeAndDayOfWeek(coopShop, type.getDiningName(), todayType);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
             LocalDateTime openTime = LocalTime.parse(open.getOpenTime(), formatter).atDate(now.toLocalDate());
