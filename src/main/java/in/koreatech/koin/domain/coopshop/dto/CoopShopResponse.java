@@ -3,8 +3,10 @@ package in.koreatech.koin.domain.coopshop.dto;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.coopshop.model.CoopOpen;
@@ -32,7 +34,11 @@ public record CoopShopResponse(
     String location,
 
     @Schema(example = "공휴일 휴무", description = "생협 매장 특이사항")
-    String remarks
+    String remarks,
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Schema(example = "2024-06-26", description = "학식 운영시간 업데이트 날짜", requiredMode = REQUIRED)
+    LocalDateTime updatedAt
 ) {
 
     public static CoopShopResponse from(CoopShop coopShop) {
@@ -45,7 +51,8 @@ public record CoopShopResponse(
                 .toList(),
             coopShop.getPhone(),
             coopShop.getLocation(),
-            coopShop.getRemarks()
+            coopShop.getRemarks(),
+            coopShop.getUpdatedAt()
         );
     }
 
