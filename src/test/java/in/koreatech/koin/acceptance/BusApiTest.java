@@ -55,6 +55,7 @@ class BusApiTest extends AcceptanceTest {
     @BeforeEach
     void setup() {
         busFixture.버스_시간표_등록();
+        busFixture.시내버스_시간표_등록();
         when(cityBusClient.getOpenApiResponse(anyString())).thenReturn("""
             {
               "response": {
@@ -373,16 +374,46 @@ class BusApiTest extends AcceptanceTest {
     @Test
     @DisplayName("시내버스 시간표를 조회한다 - 지원하지 않음")
     void getCityBusTimetable() {
-        RestAssured
+        Version version = Version.builder()
+            .version("test_version")
+            .type(VersionType.CITY.getValue())
+            .build();
+        versionRepository.save(version);
+
+        Long busNumber = 400L;
+        String direction = "종합터미널";
+
+        var response = RestAssured
             .given()
             .when()
-            .param("bus_type", "city")
-            .param("direction", "to")
-            .param("region", "천안")
-            .get("/bus/timetable")
+            .param("bus_number", busNumber)
+            .param("direction", direction)
+            .get("/bus/timetable/city")
             .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .statusCode(HttpStatus.OK.value())
             .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "bus_info": {
+                        "arrival_node": "종합터미널",
+                        "depart_node": "병천3리",
+                        "number": 400
+                    },
+                    "bus_timetables": [
+                        {
+                            "day_of_week": "평일",
+                            "depart_info": ["06:00", "07:00"]
+                        },
+                        {
+                            "day_of_week": "주말",
+                            "depart_info": ["08:00", "09:00"]
+                        }
+                    ],
+                    "updated_at": "2024-07-19 19:00:00"
+                }
+                """);
     }
 
     @Test

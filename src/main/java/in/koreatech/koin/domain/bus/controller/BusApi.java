@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
+import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.model.express.TmoneyOpenApiExpressBusArrival;
+import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -56,6 +57,13 @@ public interface BusApi {
         @RequestParam(value = "bus_type") BusType busType,
         @RequestParam(value = "direction") String direction,
         @RequestParam(value = "region") String region
+    );
+
+    @Operation(summary = "시내버스 시간표 조회")
+    @GetMapping("/timetable/city")
+    ResponseEntity<CityBusTimetableResponse> getCityBusTimetable(
+        @RequestParam(value = "bus_number") Long bus_number,
+        @RequestParam(value = "direction") CityBusDirection direction
     );
 
     @ApiResponses(
