@@ -96,7 +96,8 @@ class AdminCoopShopTest extends AcceptanceTest {
                                  ],
                                  "phone": "041-000-0000",
                                  "location": "학생회관 1층",
-                                 "remarks": "공휴일 휴무"
+                                 "remarks": "공휴일 휴무",
+                                 "updated_at" : "2024-01-15"
                              },
                              {
                                  "id": 2,
@@ -118,7 +119,8 @@ class AdminCoopShopTest extends AcceptanceTest {
                                  ],
                                  "phone": "041-000-0000",
                                  "location": "학생회관 2층",
-                                 "remarks": "연중무휴"
+                                 "remarks": "연중무휴",
+                                 "updated_at" : "2024-01-15"
                              }
                          ]
                      }
@@ -160,7 +162,8 @@ class AdminCoopShopTest extends AcceptanceTest {
                         ],
                         "phone": "041-000-0000",
                         "location": "학생회관 2층",
-                        "remarks": "연중무휴"
+                        "remarks": "연중무휴",
+                        "updated_at" : "2024-01-15"
                     }
                     """
             );
