@@ -48,7 +48,7 @@ public class CoopShopService {
             LocalDateTime openTime = LocalTime.parse(open.getOpenTime(), formatter).atDate(now.toLocalDate());
             LocalDateTime closeTime = LocalTime.parse(open.getCloseTime(), formatter).atDate(now.toLocalDate());
 
-            return (!now.isBefore(openTime) && !now.isAfter(closeTime));
+            return !(now.isBefore(openTime) || now.isAfter(closeTime));
         } catch (DateTimeParseException e) {
             return false;
         }
