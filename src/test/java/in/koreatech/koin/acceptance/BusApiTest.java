@@ -2,8 +2,6 @@ package in.koreatech.koin.acceptance;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -18,13 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.bus.dto.CityBusApiResponse;
-import in.koreatech.koin.domain.bus.dto.CityBusRouteApiResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.city.CityBusArrival;
 import in.koreatech.koin.domain.bus.model.city.CityBusCache;
 import in.koreatech.koin.domain.bus.model.city.CityBusCacheInfo;
-import in.koreatech.koin.domain.bus.model.city.CityBusRoute;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
@@ -59,138 +54,6 @@ class BusApiTest extends AcceptanceTest {
     void setup() {
         busFixture.버스_시간표_등록();
         busFixture.시내버스_시간표_등록();
-        when(cityBusClient.getOpenApiResponse(anyString())).thenReturn(
-            CityBusApiResponse.builder()
-                .response(
-                    CityBusApiResponse.InnerResponse.builder()
-                        .header(
-                            CityBusApiResponse.InnerHeader.builder()
-                                .resultCode("00")
-                                .resultMsg("NORMAL SERVICE.").build()
-                        )
-                        .body(
-                            CityBusApiResponse.InnerBody.builder()
-                                .items(
-                                    CityBusApiResponse.InnerItems.builder()
-                                        .item(List.of(
-                                            CityBusArrival.builder()
-                                                .arrprevstationcnt(3L)
-                                                .arrtime(600L)
-                                                .nodeid("CAB285000686")
-                                                .nodenm("종합터미널")
-                                                .routeid("CAB285000003")
-                                                .routeno(400L)
-                                                .routetp("일반버스")
-                                                .vehicletp("저상버스").build(),
-                                            CityBusArrival.builder()
-                                                .arrprevstationcnt(10L)
-                                                .arrtime(800L)
-                                                .nodeid("CAB285000686")
-                                                .nodenm("종합터미널")
-                                                .routeid("CAB285000024")
-                                                .routeno(405L)
-                                                .routetp("일반버스")
-                                                .vehicletp("일반차량").build(),
-                                            CityBusArrival.builder()
-                                                .arrprevstationcnt(10L)
-                                                .arrtime(700L)
-                                                .nodeid("CAB285000686")
-                                                .nodenm("종합터미널")
-                                                .routeid("CAB285000024")
-                                                .routeno(200L)
-                                                .routetp("일반버스")
-                                                .vehicletp("일반차량").build()
-                                        )).build()
-                                )
-                                .totalCount(3).build()
-                        ).build()
-                ).build());
-
-        when(cityBusRouteClient.getOpenApiResponse("CAB285000686")).thenReturn(
-            CityBusRouteApiResponse.builder()
-                .response(
-                    CityBusRouteApiResponse.InnerResponse.builder()
-                        .header(
-                            CityBusRouteApiResponse.InnerHeader.builder()
-                                .resultCode("00")
-                                .resultMsg("NORMAL SERVICE.").build()
-                        )
-                        .body(
-                            CityBusRouteApiResponse.InnerBody.builder()
-                                .items(
-                                    CityBusRouteApiResponse.InnerItems.builder()
-                                        .item(List.of(
-                                            CityBusRoute.builder()
-                                                .endnodenm("황사동")
-                                                .routeid("CAB285000146")
-                                                .routeno(402L)
-                                                .routetp("일반버스")
-                                                .startnodenm("종합터미널").build(),
-                                            CityBusRoute.builder()
-                                                .endnodenm("방아다리공원")
-                                                .routeid("CAB285000331")
-                                                .routeno(9L)
-                                                .routetp("일반버스")
-                                                .startnodenm("종합터미널").build(),
-                                            CityBusRoute.builder()
-                                                .endnodenm("유관순열사유적지")
-                                                .routeid("CAB285000407")
-                                                .routeno(405L)
-                                                .routetp("일반버스")
-                                                .startnodenm("종합터미널").build(),
-                                            CityBusRoute.builder()
-                                                .endnodenm("병천3리")
-                                                .routeid("CAB285000142")
-                                                .routeno(400L)
-                                                .routetp("일반버스")
-                                                .startnodenm("종합터미널").build()
-                                        )).build()
-                                ).build()
-                        ).build()
-                ).build());
-
-        when(cityBusRouteClient.getOpenApiResponse("CAB285000406")).thenReturn(
-            CityBusRouteApiResponse.builder()
-                .response(
-                    CityBusRouteApiResponse.InnerResponse.builder()
-                        .header(
-                            CityBusRouteApiResponse.InnerHeader.builder()
-                                .resultCode("00")
-                                .resultMsg("NORMAL SERVICE.").build()
-                        )
-                        .body(
-                            CityBusRouteApiResponse.InnerBody.builder()
-                                .items(
-                                    CityBusRouteApiResponse.InnerItems.builder()
-                                        .item(List.of(
-                                            CityBusRoute.builder()
-                                                .endnodenm("황사동")
-                                                .routeid("CAB285000146")
-                                                .routeno((long)402)
-                                                .routetp("일반버스")
-                                                .startnodenm("종합터미널").build(),
-                                            CityBusRoute.builder()
-                                                .endnodenm("병천중고등학교")
-                                                .routeid("CAB285000049")
-                                                .routeno((long)95)
-                                                .routetp("일반버스")
-                                                .startnodenm("월봉청솔아파트").build(),
-                                            CityBusRoute.builder()
-                                                .endnodenm("유관순열사유적지")
-                                                .routeid("CAB285000407")
-                                                .routeno((long)405)
-                                                .routetp("일반버스")
-                                                .startnodenm("종합터미널").build(),
-                                            CityBusRoute.builder()
-                                                .endnodenm("병천3리")
-                                                .routeid("CAB285000142")
-                                                .routeno((long)400)
-                                                .routetp("일반버스")
-                                                .startnodenm("종합터미널").build()
-                                        )).build()
-                                ).build()
-                        ).build()
-                ).build());
     }
 
     @Test

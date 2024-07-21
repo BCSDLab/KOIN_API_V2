@@ -32,11 +32,15 @@ public record CityBusRouteApiResponse(
 
     public record InnerBody(
         InnerItems items,
+        Integer numOfRows,
+        Integer pageNo,
         Integer totalCount
     ) {
         @Builder
-        public InnerBody(InnerItems items, Integer totalCount) {
+        public InnerBody(InnerItems items, Integer numOfRows, Integer pageNo, Integer totalCount) {
             this.items = items;
+            this.numOfRows = numOfRows;
+            this.pageNo = pageNo;
             this.totalCount = totalCount;
         }
     }
