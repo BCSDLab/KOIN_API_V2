@@ -299,14 +299,8 @@ class DiningApiTest extends AcceptanceTest {
     @DisplayName("특정 식단의 좋아요를 누른다")
     void likeDining() {
         RestAssured.given()
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                    "dining_id": "%s",
-                    "user_id": %s
-                }
-                """, A코너_점심.getId(), coop_준기.getId())
-            )
+            .header("Authorization", "Bearer " + token_준기)
+            .param("diningId", 1)
             .when()
             .patch("/dining/like")
             .then()
@@ -319,13 +313,8 @@ class DiningApiTest extends AcceptanceTest {
     void likeDiningDuplicate() {
         RestAssured.given()
             .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                    "dining_id": "%s",
-                    "user_id": %s
-                }
-                """, A코너_점심.getId(), coop_준기.getId())
-            )
+            .header("Authorization", "Bearer " + token_준기)
+            .param("diningId", 1)
             .when()
             .patch("/dining/like")
             .then()
@@ -334,13 +323,8 @@ class DiningApiTest extends AcceptanceTest {
 
         RestAssured.given()
             .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                    "dining_id": "%s",
-                    "user_id": %s
-                }
-                """, A코너_점심.getId(), coop_준기.getId())
-            )
+            .header("Authorization", "Bearer " + token_준기)
+            .param("diningId", 1)
             .when()
             .patch("/dining/like")
             .then()

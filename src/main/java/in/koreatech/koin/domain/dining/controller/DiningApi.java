@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.dining.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -7,11 +10,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.dining.dto.DiningLikeRequest;
 import in.koreatech.koin.domain.dining.dto.DiningResponse;
+import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,12 +41,14 @@ public interface DiningApi {
     @Operation(summary = "식단 좋아요")
     @PatchMapping("/dining/like")
     ResponseEntity<Void> likeDining(
-        @RequestBody DiningLikeRequest diningLikeRequest
+        @Auth(permit = {STUDENT, COOP}) Integer userId,
+        @RequestParam Integer diningId
     );
 
     @Operation(summary = "식단 좋아요 취소")
     @PatchMapping("/dining/like/cancel")
     ResponseEntity<Void> likeDiningCancel(
-        @RequestBody DiningLikeRequest diningLikeRequest
+        @Auth (permit = {STUDENT, COOP}) Integer userId,
+        @RequestParam Integer diningId
     );
 }
