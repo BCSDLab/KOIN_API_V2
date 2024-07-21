@@ -41,6 +41,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 @Transactional(readOnly = true)
 public class CityBusClient {
 
+    private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList";
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
 
@@ -128,9 +129,8 @@ public class CityBusClient {
     }
 
     private String getRequestURL(String cityCode, String nodeId) throws UnsupportedEncodingException {
-        String url = "https://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList";
         String contentCount = "30";
-        StringBuilder urlBuilder = new StringBuilder(url);
+        StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL);
         urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));
         urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode(contentCount, ENCODE_TYPE));
         urlBuilder.append("&" + encode("cityCode", ENCODE_TYPE) + "=" + encode(cityCode, ENCODE_TYPE));

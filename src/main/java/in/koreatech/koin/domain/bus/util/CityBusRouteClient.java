@@ -37,6 +37,7 @@ public class CityBusRouteClient {
 
     private static final Set<Long> AVAILABLE_CITY_BUS = Set.of(400L, 402L, 405L);
 
+    private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/BusSttnInfoInqireService/getSttnThrghRouteList";
     private static final String ENCODE_TYPE = "UTF-8";
     private static final String CHEONAN_CITY_CODE = "34010";
 
@@ -103,9 +104,8 @@ public class CityBusRouteClient {
     }
 
     private String getRequestURL(String cityCode, String nodeId) throws UnsupportedEncodingException {
-        String url = "https://apis.data.go.kr/1613000/BusSttnInfoInqireService/getSttnThrghRouteList";
         String contentCount = "50";
-        StringBuilder urlBuilder = new StringBuilder(url);
+        StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL);
         urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));
         urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode(contentCount, ENCODE_TYPE));
         urlBuilder.append("&" + encode("cityCode", ENCODE_TYPE) + "=" + encode(cityCode, ENCODE_TYPE));
