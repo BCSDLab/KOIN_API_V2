@@ -134,7 +134,7 @@ public class CityBusClient {
         urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));
         urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode(contentCount, ENCODE_TYPE));
         urlBuilder.append("&" + encode("cityCode", ENCODE_TYPE) + "=" + encode(cityCode, ENCODE_TYPE));
-        urlBuilder.append("&" + encode("nodeid", ENCODE_TYPE) + "=" + encode(nodeId, ENCODE_TYPE));
+        urlBuilder.append("&" + encode("nodeId", ENCODE_TYPE) + "=" + encode(nodeId, ENCODE_TYPE));
         urlBuilder.append("&_type=json");
         return urlBuilder.toString();
     }
