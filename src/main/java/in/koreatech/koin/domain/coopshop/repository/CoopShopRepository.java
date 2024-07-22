@@ -27,6 +27,6 @@ public interface CoopShopRepository extends Repository<CoopShop, Integer> {
 
     default CoopShop getByName(String name) {
         return findByName(name)
-            .orElseThrow(() -> CoopShopNotFoundException.withDetail("coopShopType : " + name));
+            .orElseThrow(() -> CoopShopNotFoundException.withDetail("coopShopName : " + name));
     }
 }
