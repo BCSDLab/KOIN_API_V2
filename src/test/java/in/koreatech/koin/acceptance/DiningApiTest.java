@@ -95,7 +95,8 @@ class DiningApiTest extends AcceptanceTest {
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
                         "changed_at": null,
-                        "likes": 0
+                        "likes": 0,
+                        "is_liked" : false
                     }
                 ]
                 """);
@@ -144,7 +145,8 @@ class DiningApiTest extends AcceptanceTest {
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
                         "changed_at": null,
-                        "likes": 0
+                        "likes": 0,
+                        "is_liked" : false
                     }
                 ]
                 """);
@@ -306,14 +308,8 @@ class DiningApiTest extends AcceptanceTest {
     @DisplayName("특정 식단의 좋아요를 누른다")
     void likeDining() {
         RestAssured.given()
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                    "dining_id": "%s",
-                    "user_id": %s
-                }
-                """, A코너_점심.getId(), coop_준기.getId())
-            )
+            .header("Authorization", "Bearer " + token_준기)
+            .param("diningId", 1)
             .when()
             .patch("/dining/like")
             .then()
@@ -326,13 +322,8 @@ class DiningApiTest extends AcceptanceTest {
     void likeDiningDuplicate() {
         RestAssured.given()
             .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                    "dining_id": "%s",
-                    "user_id": %s
-                }
-                """, A코너_점심.getId(), coop_준기.getId())
-            )
+            .header("Authorization", "Bearer " + token_준기)
+            .param("diningId", 1)
             .when()
             .patch("/dining/like")
             .then()
@@ -341,17 +332,102 @@ class DiningApiTest extends AcceptanceTest {
 
         RestAssured.given()
             .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                    "dining_id": "%s",
-                    "user_id": %s
-                }
-                """, A코너_점심.getId(), coop_준기.getId())
-            )
+            .header("Authorization", "Bearer " + token_준기)
+            .param("diningId", 1)
             .when()
             .patch("/dining/like")
             .then()
             .statusCode(HttpStatus.CONFLICT.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("좋아요 누른 식단은 isLiked가 true로 반환")
+    void checkIsLikedTrue() {
+        RestAssured.given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_준기)
+            .param("diningId", 1)
+            .when()
+            .patch("/dining/like")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        var response = given()
+            .header("Authorization", "Bearer " + token_준기)
+            .when()
+            .get("/dinings?date=240115")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                [
+                    {
+                        "id": 1,
+                        "date": "2024-01-15",
+                        "type": "LUNCH",
+                        "place": "A코스",
+                        "price_card": 6000,
+                        "price_cash": 6000,
+                        "kcal": 881,
+                        "menu": [
+                            "병아리콩밥",
+                            "(탕)소고기육개장",
+                            "땡초부추전",
+                            "누룽지탕"
+                        ],
+                        "image_url": null,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00",
+                        "soldout_at": null,
+                        "changed_at": null,
+                        "likes": 1,
+                        "is_liked" : true
+                    }
+                ]
+                """);
+    }
+
+    @Test
+    @DisplayName("좋아요 안누른 식단은 isLiked가 false로 반환")
+    void checkIsLikedFalse() {
+        var response = given()
+            .header("Authorization", "Bearer " + token_준기)
+            .when()
+            .get("/dinings?date=240115")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                [
+                    {
+                        "id": 1,
+                        "date": "2024-01-15",
+                        "type": "LUNCH",
+                        "place": "A코스",
+                        "price_card": 6000,
+                        "price_cash": 6000,
+                        "kcal": 881,
+                        "menu": [
+                            "병아리콩밥",
+                            "(탕)소고기육개장",
+                            "땡초부추전",
+                            "누룽지탕"
+                        ],
+                        "image_url": null,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00",
+                        "soldout_at": null,
+                        "changed_at": null,
+                        "likes": 0,
+                        "is_liked" : false
+                    }
+                ]
+                """);
     }
 }

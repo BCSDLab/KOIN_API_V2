@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.dining.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -7,13 +10,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.dining.dto.DiningLikeRequest;
 import in.koreatech.koin.domain.dining.dto.DiningResponse;
 import in.koreatech.koin.domain.dining.service.DiningService;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -25,25 +28,28 @@ public class DiningController implements DiningApi {
     @GetMapping("/dinings")
     public ResponseEntity<List<DiningResponse>> getDinings(
         @DateTimeFormat(pattern = "yyMMdd")
-        @RequestParam(required = false) LocalDate date
+        @RequestParam(required = false) LocalDate date,
+        @UserId Integer userId
     ) {
-        List<DiningResponse> responses = diningService.getDinings(date);
+        List<DiningResponse> responses = diningService.getDinings(date, userId);
         return ResponseEntity.ok(responses);
     }
 
     @PatchMapping("/dining/like")
     public ResponseEntity<Void> likeDining(
-        @RequestBody DiningLikeRequest diningLikeRequest
+        @Auth (permit = {STUDENT, COOP}) Integer userId,
+        @RequestParam Integer diningId
     ) {
-        diningService.likeDining(diningLikeRequest);
+        diningService.likeDining(userId, diningId);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/dining/like/cancel")
     public ResponseEntity<Void> likeDiningCancel(
-        @RequestBody DiningLikeRequest diningLikeRequest
+        @Auth (permit = {STUDENT, COOP}) Integer userId,
+        @RequestParam Integer diningId
     ) {
-        diningService.likeDiningCancel(diningLikeRequest);
+        diningService.likeDiningCancel(userId, diningId);
         return ResponseEntity.ok().build();
     }
 }

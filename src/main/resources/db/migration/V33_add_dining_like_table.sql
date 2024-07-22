@@ -1,7 +1,0 @@
-CREATE TABLE IF NOT EXISTS dining_likes (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    dining_id INT NOT NULL,
-    user_id INT NOT NULL
-);
-
-ALTER TABLE `dining_menus` ADD COLUMN `likes` INT DEFAULT 0;
