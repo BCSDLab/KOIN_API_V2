@@ -59,7 +59,6 @@ class CircuitBreakerApiTest extends AcceptanceTest {
             } catch (RuntimeException e) {
                 // CLOSED or Last Try
             }
-            System.out.println(circuitBreaker.getState());
         }
     }
 }
