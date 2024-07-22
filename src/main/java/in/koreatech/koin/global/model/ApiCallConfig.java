@@ -6,8 +6,14 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import io.swagger.v3.oas.annotations.Hidden;
+
+@Hidden
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
-public @interface CallRatio {
+public @interface ApiCallConfig {
+
     int ratio();
+
+    String methodToCall();
 }
