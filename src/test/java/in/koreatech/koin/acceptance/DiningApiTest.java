@@ -17,9 +17,11 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
+import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.CoopShopFixture;
 import in.koreatech.koin.fixture.DiningFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
@@ -41,11 +43,15 @@ class DiningApiTest extends AcceptanceTest {
     @Autowired
     private DiningFixture diningFixture;
 
+    @Autowired
+    private CoopShopFixture coopShopFixture;
+
     private Dining A코너_점심;
     private User coop_준기;
     private String token_준기;
     private User owner_현수;
     private String token_현수;
+    private CoopShop 학생식당;
 
     @BeforeEach
     void setUp() {
@@ -54,6 +60,7 @@ class DiningApiTest extends AcceptanceTest {
         owner_현수 = userFixture.현수_사장님().getUser();
         token_현수 = userFixture.getToken(owner_현수);
         A코너_점심 = diningFixture.A코스_점심(LocalDate.parse("2024-01-15"));
+        학생식당 = coopShopFixture.학생식당();
     }
 
     @Test

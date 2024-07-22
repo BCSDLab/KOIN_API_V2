@@ -18,6 +18,8 @@ import in.koreatech.koin.domain.coop.model.DiningImageUploadEvent;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
+import in.koreatech.koin.domain.coopshop.model.CoopShopType;
+import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -38,20 +40,19 @@ public class CoopService {
     private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
     private final CoopRepository coopRepository;
     private final UserTokenRepository userTokenRepository;
+    private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
     @Transactional
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
         Dining dining = diningRepository.getById(soldOutRequest.menuId());
-        LocalDateTime now = LocalDateTime.now(clock);
 
         if (soldOutRequest.soldOut()) {
+            LocalDateTime now = LocalDateTime.now(clock);
             dining.setSoldOut(now);
-            LocalDateTime startTime = dining.getType().getStartTime().atDate(now.toLocalDate());
-            LocalDateTime endTime = dining.getType().getEndTime().atDate(now.toLocalDate());
-            if (diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty() &&
-                (!now.isBefore(startTime) && !now.isAfter(endTime))) {
+            boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType());
+            if (isOpened && diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty()) {
                 eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getPlace(), dining.getType()));
             }
         } else {
@@ -62,7 +63,8 @@ public class CoopService {
     @Transactional
     public void saveDiningImage(DiningImageRequest imageRequest) {
         Dining dining = diningRepository.getById(imageRequest.menuId());
-        boolean isImageExist = diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(dining.getDate(), dining.getType());
+        boolean isImageExist = diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(dining.getDate(),
+            dining.getType());
 
         if (!isImageExist) {
             eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getImageUrl()));
