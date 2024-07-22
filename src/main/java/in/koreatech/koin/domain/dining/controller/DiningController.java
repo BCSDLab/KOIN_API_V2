@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.domain.dining.dto.DiningResponse;
 import in.koreatech.koin.domain.dining.service.DiningService;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -27,9 +28,10 @@ public class DiningController implements DiningApi {
     @GetMapping("/dinings")
     public ResponseEntity<List<DiningResponse>> getDinings(
         @DateTimeFormat(pattern = "yyMMdd")
-        @RequestParam(required = false) LocalDate date
+        @RequestParam(required = false) LocalDate date,
+        @UserId Integer userId
     ) {
-        List<DiningResponse> responses = diningService.getDinings(date);
+        List<DiningResponse> responses = diningService.getDinings(date, userId);
         return ResponseEntity.ok(responses);
     }
 
