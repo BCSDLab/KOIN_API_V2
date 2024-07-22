@@ -24,6 +24,8 @@ import in.koreatech.koin.config.TestRedisConfiguration;
 import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.bus.util.CityBusClient;
 import in.koreatech.koin.domain.bus.util.CityBusRouteClient;
+import in.koreatech.koin.domain.bus.util.PublicExpressBusClient;
+import in.koreatech.koin.domain.bus.util.TmoneyExpressBusClient;
 import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.shop.model.ShopEventListener;
@@ -49,6 +51,12 @@ public abstract class AcceptanceTest {
 
     @SpyBean
     protected CityBusRouteClient cityBusRouteClient;
+
+    @MockBean
+    protected PublicExpressBusClient publicExpressBusClient;
+
+    @MockBean
+    protected TmoneyExpressBusClient tmoneyExpressBusClient;
 
     @MockBean
     protected OwnerEventListener ownerEventListener;

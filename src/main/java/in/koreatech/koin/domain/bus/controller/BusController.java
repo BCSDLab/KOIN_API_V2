@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,9 @@ import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.service.BusService;
+import in.koreatech.koin.domain.bus.util.ExpressBusClient;
+import in.koreatech.koin.global.model.CallApiController;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -82,4 +87,14 @@ public class BusController implements BusApi {
             depart, arrival);
         return ResponseEntity.ok().body(singleBusTimeResponses);
     }
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @GetMapping("/callWeight")
+    public ResponseEntity<Integer> getCallWeight(@Parameter @RequestParam int num){
+        CallApiController callApiController = new CallApiController(applicationContext);
+        callApiController.controlApiCall(ExpressBusClient.class, num);
+        return ResponseEntity.ok().build();
+    };
 }

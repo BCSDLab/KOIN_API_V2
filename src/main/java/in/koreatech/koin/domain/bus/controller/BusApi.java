@@ -90,4 +90,7 @@ public interface BusApi {
     @Operation(summary = "버스 노선 조회")
     @GetMapping("/courses")
     ResponseEntity<List<BusCourseResponse>> getBusCourses();
+
+    @GetMapping("/callWeight")
+    ResponseEntity<Integer> getCallWeight(@Parameter @RequestParam int num);
 }
