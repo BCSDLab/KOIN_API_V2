@@ -64,10 +64,13 @@ public record DiningResponse(
     LocalDateTime changedAt,
 
     @Schema(description = "식단 좋아요 수", example = "1", requiredMode = REQUIRED)
-    Integer likes
+    Integer likes,
+
+    @Schema(description = "식단 좋아요 여부", example = "true", requiredMode = REQUIRED)
+    Boolean isLiked
 ) {
 
-    public static DiningResponse from(Dining dining) {
+    public static DiningResponse from(Dining dining, Boolean isLiked) {
         return new DiningResponse(
             dining.getId(),
             dining.getDate(),
@@ -82,7 +85,8 @@ public record DiningResponse(
             dining.getUpdatedAt(),
             dining.getSoldOut(),
             dining.getIsChanged(),
-            dining.getLikes()
+            dining.getLikes(),
+            isLiked
         );
     }
 }
