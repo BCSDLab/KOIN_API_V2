@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.model;
+package in.koreatech.koin.global.domain.callcontol;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -11,9 +11,9 @@ import io.swagger.v3.oas.annotations.Hidden;
 @Hidden
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
-public @interface ApiCallAnnotation {
+public @interface CallControlInfo {
 
     int ratio();
 
-    String methodToCall();
+    String targetMethod();
 }

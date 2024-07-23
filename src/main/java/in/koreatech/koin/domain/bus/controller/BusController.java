@@ -5,7 +5,6 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +23,9 @@ import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.service.BusService;
 import in.koreatech.koin.domain.bus.util.ExpressBusClient;
-import in.koreatech.koin.global.model.CallApiController;
-import io.swagger.v3.oas.annotations.Parameter;
+import in.koreatech.koin.global.domain.callcontol.CallControl;
+import in.koreatech.koin.global.domain.callcontol.CallControlConfig;
+import in.koreatech.koin.global.domain.callcontol.CallControlManager;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -89,12 +89,13 @@ public class BusController implements BusApi {
     }
 
     @Autowired
-    private ApplicationContext applicationContext;
+    private CallControlConfig callControlConfig;
 
-    @GetMapping("/callWeight")
-    public ResponseEntity<Integer> getCallWeight(@Parameter @RequestParam int num){
-        CallApiController callApiController = new CallApiController(applicationContext);
-        callApiController.controlApiCall(ExpressBusClient.class, num);
+    @GetMapping("/callControlTest")
+    public ResponseEntity<Void> callControl(@RequestParam String className) {
+        CallControl callControl = callControlConfig.generateCallControl(ExpressBusClient.class);
+        CallControlManager callControlManager = new CallControlManager(callControl);
+        callControlManager.callApi();
         return ResponseEntity.ok().build();
-    };
+    }
 }

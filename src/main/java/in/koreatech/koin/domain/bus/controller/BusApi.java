@@ -91,6 +91,12 @@ public interface BusApi {
     @GetMapping("/courses")
     ResponseEntity<List<BusCourseResponse>> getBusCourses();
 
-    @GetMapping("/callWeight")
-    ResponseEntity<Integer> getCallWeight(@Parameter @RequestParam int num);
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @GetMapping("/callControlTest")
+    ResponseEntity<Void> callControl(@RequestParam String className);
 }

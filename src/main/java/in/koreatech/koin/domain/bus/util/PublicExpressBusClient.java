@@ -32,7 +32,7 @@ import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
-import in.koreatech.koin.global.model.ApiCallAnnotation;
+import in.koreatech.koin.global.domain.callcontol.CallControlInfo;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
@@ -40,7 +40,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098541
  */
 @Component
-@ApiCallAnnotation(ratio = 2, methodToCall = "storeRemainTimeByOpenApi")
+@CallControlInfo(ratio = 2, targetMethod = "storeRemainTimeByOpenApi")
 public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiResponse, String> {
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo";
