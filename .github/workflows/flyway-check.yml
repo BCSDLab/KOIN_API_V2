@@ -1,0 +1,31 @@
+name: Check Flyway Version
+
+on: [pull_request]
+
+jobs:
+  check-flyway-version:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Fetch all branches
+      run: git fetch --all
+
+    - name: List all branches for debugging
+      run: git branch -a
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: List root directory for debugging
+      run: ls -la
+
+    - name: List .github/script directory for debugging
+      run: ls -la .github/script
+
+    - name: Run Flyway version check
+      run: python .github/SCRIPT/check_flyway_version.py
