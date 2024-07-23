@@ -46,12 +46,6 @@ public abstract class AcceptanceTest {
     @LocalServerPort
     protected int port;
 
-    @SpyBean
-    protected CityBusClient cityBusClient;
-
-    @SpyBean
-    protected CityBusRouteClient cityBusRouteClient;
-
     @MockBean
     protected PublicExpressBusClient publicExpressBusClient;
 
