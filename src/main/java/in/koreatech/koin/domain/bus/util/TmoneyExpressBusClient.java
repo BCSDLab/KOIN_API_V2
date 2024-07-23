@@ -34,7 +34,7 @@ import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
-import in.koreatech.koin.global.model.ApiCallConfig;
+import in.koreatech.koin.global.model.ApiCallAnnotation;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
@@ -42,7 +42,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  * https://apiportal.tmoney.co.kr:18443/apiGallery/apiGalleryDetail.do?apiId=API201906241410183kp&apiPckgId=APK2024051316462950w&isTestYn=Y
  */
 @Component
-@ApiCallConfig(ratio = 9, methodToCall = "storeRemainTimeByOpenApi")
+@ApiCallAnnotation(ratio = 9, methodToCall = "storeRemainTimeByOpenApi")
 public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiResponse, UriComponents> {
 
     private static final String OPEN_API_URL = "https://apigw.tmoney.co.kr:5556/gateway/xzzIbtListGet/v1/ibt_list";

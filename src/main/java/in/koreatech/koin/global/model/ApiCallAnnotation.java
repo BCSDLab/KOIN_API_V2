@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 @Hidden
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
-public @interface ApiCallConfig {
+public @interface ApiCallAnnotation {
 
     int ratio();
 
