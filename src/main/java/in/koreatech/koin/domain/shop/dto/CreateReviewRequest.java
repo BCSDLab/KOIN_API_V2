@@ -44,12 +44,12 @@ public record CreateReviewRequest(
     public CreateReviewRequest(
         @JsonProperty("rating") @NotNull @Min(1) @Max(5) Integer rating,
         @JsonProperty("content") @NotBlank String content,
-        @JsonProperty("imageUrls") List<String> imageUrls,
-        @JsonProperty("menuNames") List<String> menuNames
+        @JsonProperty("image_urls") List<String> imageUrls,
+        @JsonProperty("menu_names") List<String> menuNames
     ) {
         this.rating = rating;
         this.content = content;
-        this.imageUrls = imageUrls != null ? imageUrls : new ArrayList<>();
-        this.menuNames = menuNames;
+        this.imageUrls = imageUrls == null? new ArrayList<>(): imageUrls;
+        this.menuNames = menuNames == null? new ArrayList<>(): menuNames;
     }
 }
