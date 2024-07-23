@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.bus.util;
 
 import static java.net.URLEncoder.encode;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,6 +25,7 @@ import in.koreatech.koin.domain.bus.model.city.CityBusRoute;
 import in.koreatech.koin.domain.bus.model.city.CityBusRouteCache;
 import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.repository.CityBusRouteCacheRepository;
+import in.koreatech.koin.global.exception.KoinIllegalStateException;
 
 /**
  * OpenApi 상세: 국토교통부_(TAGO)_버스정류소정보 - 정류소별경유노선 목록조회
@@ -103,15 +103,19 @@ public class CityBusRouteClient {
         }
     }
 
-    private String getRequestURL(String cityCode, String nodeId) throws UnsupportedEncodingException {
+    private String getRequestURL(String cityCode, String nodeId) {
         String contentCount = "50";
         StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL);
-        urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));
-        urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode(contentCount, ENCODE_TYPE));
-        urlBuilder.append("&" + encode("cityCode", ENCODE_TYPE) + "=" + encode(cityCode, ENCODE_TYPE));
-        urlBuilder.append("&" + encode("nodeid", ENCODE_TYPE) + "=" + encode(nodeId, ENCODE_TYPE));
-        urlBuilder.append("&_type=json");
-        return urlBuilder.toString();
+        try {
+            urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));
+            urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode(contentCount, ENCODE_TYPE));
+            urlBuilder.append("&" + encode("cityCode", ENCODE_TYPE) + "=" + encode(cityCode, ENCODE_TYPE));
+            urlBuilder.append("&" + encode("nodeid", ENCODE_TYPE) + "=" + encode(nodeId, ENCODE_TYPE));
+            urlBuilder.append("&_type=json");
+            return urlBuilder.toString();
+        } catch (Exception e) {
+            throw new KoinIllegalStateException("시내버스 경유지 API URL 생성중 문제가 발생했습니다.", "uri:" + urlBuilder);
+        }
     }
 
     private List<CityBusRoute> extractBusRouteInfo(CityBusRouteApiResponse response) {
