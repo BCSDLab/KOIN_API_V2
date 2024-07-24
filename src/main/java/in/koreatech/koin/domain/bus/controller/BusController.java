@@ -26,6 +26,7 @@ import in.koreatech.koin.domain.bus.util.ExpressBusClient;
 import in.koreatech.koin.global.domain.callcontol.CallControl;
 import in.koreatech.koin.global.domain.callcontol.CallControlConfig;
 import in.koreatech.koin.global.domain.callcontol.CallControlManager;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -91,10 +92,13 @@ public class BusController implements BusApi {
     @Autowired
     private CallControlConfig callControlConfig;
 
+    @Autowired
+    private CircuitBreakerRegistry circuitBreakerRegistry;
+
     @GetMapping("/callControlTest")
     public ResponseEntity<Void> callControl(@RequestParam String className) {
         CallControl callControl = callControlConfig.generateCallControl(ExpressBusClient.class);
-        CallControlManager callControlManager = new CallControlManager(callControl);
+        CallControlManager callControlManager = new CallControlManager(callControl, circuitBreakerRegistry);
         callControlManager.callApi();
         return ResponseEntity.ok().build();
     }

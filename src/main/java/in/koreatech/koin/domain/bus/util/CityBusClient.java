@@ -79,7 +79,7 @@ public class CityBusClient {
     }
 
     @Transactional
-    @CircuitBreaker(name = "cityBus")
+    @CircuitBreaker(name = "CityBusClient")
     public void storeRemainTimeByOpenApi() {
         List<List<CityBusArrival>> arrivalInfosList = new ArrayList<>();
         List<String> nodeIds = BusStationNode.getNodeIds();

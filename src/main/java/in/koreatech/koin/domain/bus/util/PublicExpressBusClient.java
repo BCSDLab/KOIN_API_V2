@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.domain.bus.dto.PublicOpenApiResponse;
@@ -61,7 +62,7 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
 
     @Override
     @Transactional
-    @CircuitBreaker(name = "publicExpressBus")
+    @CircuitBreaker(name = "PublicExpressBusClient")
     public void storeRemainTimeByOpenApi() {
         for (BusStation depart : BusStation.values()) {
             for (BusStation arrival : BusStation.values()) {
@@ -117,7 +118,10 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
                 PublicOpenApiResponse.class
             );
             return response.getBody();
-        } catch (Exception ignore) {
+        } catch (HttpClientErrorException e) {
+            throw new HttpClientErrorException(e.getStatusCode(),
+                "시외버스 Api 호출 중 문제가 발생했습니다. message: " + e.getMessage());
+        }catch (Exception ignore) {
             throw BusOpenApiException.withDetail("depart: " + depart + " arrival: " + arrival);
         }
     }

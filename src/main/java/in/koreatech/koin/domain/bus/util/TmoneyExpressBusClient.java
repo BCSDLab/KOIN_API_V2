@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -61,7 +62,7 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
 
     @Override
     @Transactional
-    @CircuitBreaker(name = "tmoneyExpressBus")
+    @CircuitBreaker(name = "TmoneyExpressBusClient")
     public void storeRemainTimeByOpenApi() {
         for (BusStation depart : BusStation.values()) {
             for (BusStation arrival : BusStation.values()) {
@@ -120,6 +121,9 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
                 TmoneyOpenApiResponse.class
             );
             return response.getBody();
+        } catch (HttpClientErrorException e) {
+            throw new HttpClientErrorException(e.getStatusCode(),
+                "시외버스 Api 호출 중 문제가 발생했습니다. message: " + e.getMessage());
         } catch (Exception ignore) {
             throw BusOpenApiException.withDetail("depart: " + depart + " arrival: " + arrival);
         }

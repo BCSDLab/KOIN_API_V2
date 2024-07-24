@@ -6,6 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record ApiInfo (
+    String name,
     Object targetClass,
     Method targetMethod,
     int start,

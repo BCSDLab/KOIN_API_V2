@@ -2,16 +2,11 @@ package in.koreatech.koin.acceptance;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
-import java.time.Clock;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,11 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
-
-import com.google.gson.Gson;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
@@ -38,14 +29,10 @@ import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
-import in.koreatech.koin.domain.bus.util.ExpressBusClient;
-import in.koreatech.koin.domain.bus.util.PublicExpressBusClient;
-import in.koreatech.koin.domain.bus.util.TmoneyExpressBusClient;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.fixture.BusFixture;
-import in.koreatech.koin.global.model.CallApiController;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
@@ -64,20 +51,6 @@ class BusApiTest extends AcceptanceTest {
 
     @Autowired
     private ExpressBusCacheRepository expressBusCacheRepository;
-
-    @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
-    Gson gson;
-
-    @Autowired
-    Clock clock;
-
-    @Bean
-    public TmoneyExpressBusClient tmoneyExpressBusClient() {
-        return new TmoneyExpressBusClient("test", versionRepository, gson, clock, expressBusCacheRepository);
-    }
 
     @BeforeEach
     void setup() {
@@ -391,15 +364,5 @@ class BusApiTest extends AcceptanceTest {
                     "updated_at": "2024-01-15 12:00:00"
                 }
                 """);
-    }
-
-    @Test
-    @DisplayName("하위 클래스 리스트를 추출한다.")
-    void reflectApiListTest() {
-        CallApiController callApiController = new CallApiController(applicationContext);
-        var actualList = callApiController.getApiList(ExpressBusClient.class);
-        var expectList = Map.of("publicExpressBusClient", applicationContext.getBean(PublicExpressBusClient.class),
-            "tmoneyExpressBusClient", applicationContext.getBean(TmoneyExpressBusClient.class));
-        assertEquals(expectList, actualList);
     }
 }

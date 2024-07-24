@@ -26,6 +26,7 @@ import in.koreatech.koin.domain.bus.model.city.CityBusRouteCache;
 import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.repository.CityBusRouteCacheRepository;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
  * OpenApi 상세: 국토교통부_(TAGO)_버스정류소정보 - 정류소별경유노선 목록조회
@@ -70,6 +71,7 @@ public class CityBusRouteClient {
     }
 
     @Transactional
+    @CircuitBreaker(name = "CityBusRouteClient")
     public void storeCityBusRoute() {
         List<String> nodeIds = BusStationNode.getNodeIds();
 
