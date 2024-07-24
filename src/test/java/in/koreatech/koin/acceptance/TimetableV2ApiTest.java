@@ -2,6 +2,10 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -471,5 +475,60 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             .delete("/v2/timetables/lecture/{id}", lectureId)
             .then()
             .statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @Test
+    @DisplayName("isMain이 false인 frame과 ture인 frame을 동시에 삭제한다.")
+    void deleteNotMainAndMainTimeTablesFrame() {
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+
+        TimetableFrame mainFrame = timetableV2Fixture.시간표1(user, semester);
+        TimetableFrame frame1 = timetableV2Fixture.시간표2(user, semester);
+        TimetableFrame frame2 = timetableV2Fixture.시간표3(user, semester);
+
+        int threadCount = 2;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        executorService.execute(() -> {
+            try {
+                RestAssured
+                    .given()
+                    .header("Authorization", "Bearer " + token)
+                    .when()
+                    .param("id", frame1.getId())
+                    .delete("/v2/timetables/frame")
+                    .then()
+                    .statusCode(HttpStatus.NO_CONTENT.value());
+            } finally {
+                latch.countDown();
+            }
+        });
+
+        executorService.execute(() -> {
+            try {
+                RestAssured
+                    .given()
+                    .header("Authorization", "Bearer " + token)
+                    .when()
+                    .param("id", mainFrame.getId())
+                    .delete("/v2/timetables/frame")
+                    .then()
+                    .statusCode(HttpStatus.NO_CONTENT.value());
+            } finally {
+                latch.countDown();
+            }
+        });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        TimetableFrame reloadedFrame2 = timetableFrameRepositoryV2.findById(frame2.getId()).orElseThrow();
+        assertThat(reloadedFrame2.isMain()).isTrue();
     }
 }
