@@ -478,7 +478,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("isMain이 false인 frame과 ture인 frame을 동시에 삭제한다.")
+    @DisplayName("isMain이 false인 frame과 true인 frame을 동시에 삭제한다.")
     void deleteNotMainAndMainTimeTablesFrame() {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
@@ -526,6 +526,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             latch.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        } finally {
+            executorService.shutdown();
         }
 
         TimetableFrame reloadedFrame2 = timetableFrameRepositoryV2.findById(frame2.getId()).orElseThrow();
