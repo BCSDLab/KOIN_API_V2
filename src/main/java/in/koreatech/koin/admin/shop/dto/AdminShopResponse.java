@@ -80,7 +80,7 @@ public record AdminShopResponse(
         Collections.sort(shop.getMenuCategories());
         return new AdminShopResponse(
             shop.getAddress(),
-            shop.isDelivery(),
+            shop.getDelivery(),
             shop.getDeliveryPrice(),
             (shop.getDescription() == null || shop.getDescription().isBlank()) ? "-" : shop.getDescription(),
             shop.getId(),

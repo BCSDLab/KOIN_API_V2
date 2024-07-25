@@ -77,7 +77,7 @@ public record ShopResponse(
         Collections.sort(shop.getMenuCategories());
         return new ShopResponse(
             shop.getAddress(),
-            shop.isDelivery(),
+            shop.getDelivery(),
             shop.getDeliveryPrice(),
             (shop.getDescription() == null || shop.getDescription().isBlank()) ? "-" : shop.getDescription(),
             shop.getId(),

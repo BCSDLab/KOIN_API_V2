@@ -7,8 +7,8 @@ import in.koreatech.koin.domain.shop.dto.ShopsResponseV2.InnerShopResponse;
 public enum ShopsSortCriteria {
 
     NONE("NONE", (shop1, shop2) -> 0),
-    COUNT("COUNT", Comparator.comparingLong(InnerShopResponse::reviewCount)),
-    RATING("RATING", Comparator.comparingDouble(InnerShopResponse::averageRate))
+    COUNT("COUNT", Comparator.comparingLong(InnerShopResponse::reviewCount).reversed()),
+    RATING("RATING", Comparator.comparingDouble(InnerShopResponse::averageRate).reversed())
     ;
 
     private final String value;

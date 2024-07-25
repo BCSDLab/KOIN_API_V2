@@ -166,10 +166,10 @@ public  class ShopController implements ShopApi {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/shops/V2")
+    @GetMapping("/shops/v2")
     public ResponseEntity<ShopsResponseV2> getShopsV2(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
-        @RequestParam(name = "filter") List<ShopsFilterCriteria> shopsFilterCriterias
+        @RequestParam(name = "filter", required = false) List<ShopsFilterCriteria> shopsFilterCriterias
     ) {
         if (shopsFilterCriterias == null) {
             shopsFilterCriterias = Collections.emptyList();

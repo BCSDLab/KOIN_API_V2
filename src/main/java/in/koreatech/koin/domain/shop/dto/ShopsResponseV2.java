@@ -79,7 +79,7 @@ public record ShopsResponseV2(
                 shop.getShopCategories().stream().map(shopCategoryMap ->
                     shopCategoryMap.getShopCategory().getId()
                 ).toList(),
-                shop.isDelivery(),
+                shop.getDelivery(),
                 shop.getId(),
                 shop.getName(),
                 shop.getShopOpens().stream().sorted().map(InnerShopOpen::from).toList(),
@@ -90,7 +90,9 @@ public record ShopsResponseV2(
                 isOpen,
                 shop.getReviews().stream()
                     .filter(review -> notContainsUnhandledReport(review.getReports()))
-                    .mapToInt(ShopReview::getRating).average().getAsDouble(),
+                    .mapToInt(ShopReview::getRating)
+                    .average()
+                    .orElse(0.0),
                 shop.getReviews().stream()
                     .filter(review -> notContainsUnhandledReport(review.getReports()))
                     .count()

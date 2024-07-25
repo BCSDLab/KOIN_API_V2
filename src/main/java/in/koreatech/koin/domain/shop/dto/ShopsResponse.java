@@ -63,7 +63,7 @@ public record ShopsResponse(
                 shop.getShopCategories().stream().map(shopCategoryMap ->
                     shopCategoryMap.getShopCategory().getId()
                 ).toList(),
-                shop.isDelivery(),
+                shop.getDelivery(),
                 shop.getId(),
                 shop.getName(),
                 shop.getShopOpens().stream().sorted().map(InnerShopOpen::from).toList(),
