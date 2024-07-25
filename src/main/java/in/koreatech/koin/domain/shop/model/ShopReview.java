@@ -46,6 +46,9 @@ public class ShopReview extends BaseEntity {
     @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;
 
+    @Column(nullable = false)
+    private Boolean isDeleted;
+
     @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL, fetch = LAZY)
     private List<ShopReviewImage> images = new ArrayList<>();
 
@@ -90,5 +93,13 @@ public class ShopReview extends BaseEntity {
                     .build();
             this.menus.add(shopReviewImage);
         }
+    }
+
+    public void deleteReview() {
+        this.isDeleted = true;
+    }
+
+    public void cancelReview() {
+        this.isDeleted = false;
     }
 }

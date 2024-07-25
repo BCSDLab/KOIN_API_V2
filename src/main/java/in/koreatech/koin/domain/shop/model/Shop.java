@@ -75,7 +75,7 @@ public class Shop extends BaseEntity {
 
     @NotNull
     @Column(name = "delivery", nullable = false)
-    private boolean delivery = false;
+    private Boolean delivery = false;
 
     @NotNull
     @Column(name = "delivery_price", nullable = false)
@@ -119,6 +119,9 @@ public class Shop extends BaseEntity {
 
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<EventArticle> eventArticles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
+    private List<ShopReview> reviews = new ArrayList<>();
 
     @Size(max = 10)
     @Column(name = "bank", length = 10)

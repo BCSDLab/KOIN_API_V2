@@ -16,49 +16,58 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
 
     ShopReview save(ShopReview review);
 
-    List<ShopReview> findAllByShopId(Integer shopId);
+    List<ShopReview> findAllByShopIdAndIsDeleted(Integer shopId, Boolean isDeleted);
 
-    Optional<ShopReview> findById(Integer reviewId);
+    Optional<ShopReview> findByIdAndIsDeleted(Integer reviewId, Boolean isDeleted);
 
-    default ShopReview getById(Integer reviewId) {
-        return findById(reviewId)
+    default ShopReview getByIdAndIsDeleted(Integer reviewId, Boolean isDeleted) {
+        return findByIdAndIsDeleted(reviewId, isDeleted)
             .orElseThrow(() -> ReviewNotFoundException.withDetail(String.format("reviewId: %s", reviewId)));
     }
 
-    Optional<ShopReview> findAllByIdAndShopId(Integer reviewId, Integer shopId);
+    Optional<ShopReview> findAllByIdAndShopIdAndIsDeleted(Integer reviewId, Integer shopId, Boolean isDeleted);
 
-    default ShopReview getAllByIdAndShopId(Integer reviewId, Integer shopId) {
-        return findAllByIdAndShopId(reviewId, shopId)
+    default ShopReview getAllByIdAndShopIdAndIsDeleted(Integer reviewId, Integer shopId, Boolean isDeleted) {
+        return findAllByIdAndShopIdAndIsDeleted(reviewId, shopId, isDeleted)
             .orElseThrow(() -> ReviewNotFoundException.withDetail(String.format("reviewId: %s", reviewId)));
     }
-
-    void deleteById(Integer id);
 
     @Query("""
            SELECT sr FROM ShopReview sr 
            WHERE sr.shop.id = :shopId 
+           AND sr.isDeleted = :isDeleted
            AND NOT EXISTS (
                SELECT r FROM ShopReviewReport r 
                WHERE r.review.id = sr.id 
                AND r.userId.id = :userId
            )
            """)
-    Page<ShopReview> findAllByShopIdExcludingReportedByUser(@Param("shopId") Integer shopId, @Param("userId") Integer userId, Pageable pageable);
+    Page<ShopReview> findAllByShopIdExcludingReportedByUserAndIsDeleted(
+        @Param("shopId") Integer shopId,
+        @Param("userId") Integer userId,
+        @Param("isDeleted") Boolean isDeleted,
+        Pageable pageable);
 
     @Query("""
            SELECT COUNT(sr) FROM ShopReview sr 
-           WHERE sr.shop.id = :shopId 
+           WHERE sr.shop.id = :shopId
+           AND sr.isDeleted = :isDeleted 
            AND NOT EXISTS (
                SELECT r FROM ShopReviewReport r 
                WHERE r.review.id = sr.id 
                AND r.userId.id = :userId
            )
            """)
-    Integer countByShopIdExcludingReportedByUser(@Param("shopId") Integer shopId, @Param("userId") Integer userId);
+    Integer countByShopIdExcludingReportedByUserAndIsDeleted(
+        @Param("shopId") Integer shopId,
+        @Param("userId") Integer userId,
+        @Param("isDeleted") Boolean isDeleted
+        );
 
     @Query("""
            SELECT COUNT(sr) FROM ShopReview sr 
            WHERE sr.shop.id = :shopId 
+           AND sr.isDeleted = :isDeleted
            AND NOT EXISTS (
                SELECT r FROM ShopReviewReport r 
                WHERE r.review.id = sr.id 
@@ -66,5 +75,9 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
                )
            AND sr.rating = :rating
            """)
-    Integer countReviewRating(@Param("shopId") Integer shopId, @Param("userId") Integer userId, @Param("rating") Integer rating);
+    Integer countReviewRatingAndIsDeleted(
+        @Param("shopId") Integer shopId,
+        @Param("userId") Integer userId,
+        @Param("isDeleted") Boolean isDeleted,
+        @Param("rating") Integer rating);
 }

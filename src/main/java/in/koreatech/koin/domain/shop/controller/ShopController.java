@@ -3,6 +3,9 @@ package in.koreatech.koin.domain.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +28,10 @@ import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportCategoryResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
+import in.koreatech.koin.domain.shop.dto.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
+import in.koreatech.koin.domain.shop.dto.ShopsResponseV2;
+import in.koreatech.koin.domain.shop.dto.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.service.ShopReviewService;
 import in.koreatech.koin.domain.shop.service.ShopService;
 import in.koreatech.koin.global.auth.Auth;
@@ -36,7 +42,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class ShopController implements ShopApi {
+public  class ShopController implements ShopApi {
 
     private final ShopService shopService;
     private final ShopReviewService shopReviewService;
@@ -158,5 +164,17 @@ public class ShopController implements ShopApi {
     ) {
         shopReviewService.reportReview(shopId, reviewId, studentId, shopReviewReportRequest);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/shops/V2")
+    public ResponseEntity<ShopsResponseV2> getShopsV2(
+        @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
+        @RequestParam(name = "filter") List<ShopsFilterCriteria> shopsFilterCriterias
+    ) {
+        if (shopsFilterCriterias == null) {
+            shopsFilterCriterias = Collections.emptyList();
+        }
+        var shops = shopService.getShopsV2(sortBy, shopsFilterCriterias);
+        return ResponseEntity.ok(shops);
     }
 }

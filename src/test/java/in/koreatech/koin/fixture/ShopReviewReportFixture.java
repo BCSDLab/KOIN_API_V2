@@ -29,7 +29,7 @@ public final class ShopReviewReportFixture {
             ShopReviewReport.builder()
                 .review(shopReview)
                 .title("기타")
-                .detail("부적절한 리뷰입니다.")
+                .content("부적절한 리뷰입니다.")
                 .userId(student)
                 .build()
         );
