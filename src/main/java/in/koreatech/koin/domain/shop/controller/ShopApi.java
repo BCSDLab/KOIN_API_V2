@@ -248,7 +248,7 @@ public interface ShopApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "모든 상점 조회 V2")
+    @Operation(summary = "정렬, 필터가 있는 모든 상점 조회")
     @GetMapping("/shops/v2")
     ResponseEntity<ShopsResponseV2> getShopsV2(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,

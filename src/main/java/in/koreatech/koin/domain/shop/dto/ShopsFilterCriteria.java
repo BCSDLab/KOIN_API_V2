@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.shop.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
-import in.koreatech.koin.domain.shop.dto.ShopsResponseV2.InnerShopResponse;
+
 import in.koreatech.koin.domain.shop.model.Shop;
 
 public enum ShopsFilterCriteria {
