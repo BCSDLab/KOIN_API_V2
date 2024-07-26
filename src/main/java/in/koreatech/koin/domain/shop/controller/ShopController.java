@@ -134,7 +134,7 @@ public  class ShopController implements ShopApi {
         @RequestBody @Valid ModifyReviewRequest modifyReviewRequest,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
-        shopReviewService.modifyShop(modifyReviewRequest, reviewId, studentId);
+        shopReviewService.modifyReview(modifyReviewRequest, reviewId, studentId);
         return ResponseEntity.noContent().build();
     }
 

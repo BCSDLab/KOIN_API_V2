@@ -1,5 +1,8 @@
 package in.koreatech.koin.acceptance;
 
+import static in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED;
+import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -13,7 +16,9 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.Menu;
+import in.koreatech.koin.domain.shop.model.ReportStatus;
 import in.koreatech.koin.domain.shop.model.Shop;
+import in.koreatech.koin.domain.shop.model.ShopReview;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.fixture.EventArticleFixture;
 import in.koreatech.koin.fixture.MenuCategoryFixture;
@@ -1314,5 +1319,239 @@ class ShopApiTest extends AcceptanceTest {
                     ]
                 }
                 """, 신전_떡볶이_영업여부, 마슬랜_영업여부));
+    }
+
+    @Test
+    void 신고됐지만_아직_처리되지_않은_리뷰는_무시된_상태로_모든_상점을_조회한다() {
+        // given
+        Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
+        ShopReview 리뷰_4점 = shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
+        shopReviewReportFixture.리뷰_신고(익명_학생, 리뷰_4점, UNHANDLED);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+        var response = RestAssured
+            .given()
+            .when()
+            .get("/shops/v2")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        // 2024-01-15 12:00 월요일 기준
+        boolean 신전_떡볶이_영업여부 = true;
+        boolean 마슬랜_영업여부 = true;
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "count": 2,
+                    "shops": [
+                        {
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        },{
+                            "category_ids": [
+                               \s
+                            ],
+                            "delivery": false,
+                            "id": 2,
+                            "name": "신전 떡볶이",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "TUESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "WEDNESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "THURSDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SATURDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SUNDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7788-9900",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 0.0,
+                            "review_count": 0
+                        }
+                    ]
+                }
+                """, 마슬랜_영업여부, 신전_떡볶이_영업여부));
+    }
+
+    @Test
+    void 신고_반려된_리뷰는_반영된_상태로_모든_상점을_조회한다() {
+        // given
+        Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
+        ShopReview 리뷰_4점 = shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
+        shopReviewReportFixture.리뷰_신고(익명_학생, 리뷰_4점, DISMISSED);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+        var response = RestAssured
+            .given()
+            .when()
+            .get("/shops/v2")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        // 2024-01-15 12:00 월요일 기준
+        boolean 신전_떡볶이_영업여부 = true;
+        boolean 마슬랜_영업여부 = true;
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "count": 2,
+                    "shops": [
+                        {
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        },{
+                            "category_ids": [
+                               \s
+                            ],
+                            "delivery": false,
+                            "id": 2,
+                            "name": "신전 떡볶이",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "TUESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "WEDNESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "THURSDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SATURDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SUNDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7788-9900",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        }
+                    ]
+                }
+                """, 마슬랜_영업여부, 신전_떡볶이_영업여부));
     }
 }

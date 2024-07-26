@@ -39,28 +39,26 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
            AND NOT EXISTS (
                SELECT r FROM ShopReviewReport r 
                WHERE r.review.id = sr.id 
-               AND r.userId.id = :userId
+               AND r.reportStatus != in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED
            )
            """)
-    Page<ShopReview> findAllByShopIdExcludingReportedByUserAndIsDeleted(
+    Page<ShopReview> findAllByShopIdNotContainReportedAndIsDeleted(
         @Param("shopId") Integer shopId,
-        @Param("userId") Integer userId,
         @Param("isDeleted") Boolean isDeleted,
         Pageable pageable);
 
     @Query("""
-           SELECT COUNT(sr) FROM ShopReview sr 
-           WHERE sr.shop.id = :shopId
-           AND sr.isDeleted = :isDeleted 
-           AND NOT EXISTS (
-               SELECT r FROM ShopReviewReport r 
-               WHERE r.review.id = sr.id 
-               AND r.userId.id = :userId
-           )
-           """)
-    Integer countByShopIdExcludingReportedByUserAndIsDeleted(
+       SELECT COUNT(sr) FROM ShopReview sr 
+       WHERE sr.shop.id = :shopId
+       AND sr.isDeleted = :isDeleted 
+       AND NOT EXISTS (
+           SELECT r FROM ShopReviewReport r 
+           WHERE r.review.id = sr.id 
+           AND r.reportStatus != in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED
+       )
+       """)
+    Integer countByShopIdNotContainReportedAndIsDeleted(
         @Param("shopId") Integer shopId,
-        @Param("userId") Integer userId,
         @Param("isDeleted") Boolean isDeleted
         );
 
@@ -71,13 +69,14 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
            AND NOT EXISTS (
                SELECT r FROM ShopReviewReport r 
                WHERE r.review.id = sr.id 
-               AND r.userId.id = :userId
+               AND r.reportStatus != in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED
                )
            AND sr.rating = :rating
            """)
-    Integer countReviewRatingAndIsDeleted(
+    Integer countReviewRatingNotContainReportedAndIsDeleted(
         @Param("shopId") Integer shopId,
-        @Param("userId") Integer userId,
         @Param("isDeleted") Boolean isDeleted,
         @Param("rating") Integer rating);
+
+    Optional<ShopReview> findById(Integer reviewId);
 }

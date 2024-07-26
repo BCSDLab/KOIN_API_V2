@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.service;
 
+import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,15 +52,14 @@ public class ShopReviewService {
     private final EntityManager entityManager;
 
     public ShopReviewResponse getReviewsByShopId(Integer shopId, Integer userId, Integer page, Integer limit) {
-        Integer total = shopReviewRepository.countByShopIdExcludingReportedByUserAndIsDeleted(shopId, userId, false);
+        Integer total = shopReviewRepository.countByShopIdNotContainReportedAndIsDeleted(shopId, false);
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(
             criteria.getPage(),
             criteria.getLimit()
         );
-        Page<ShopReview> result = shopReviewRepository.findAllByShopIdExcludingReportedByUserAndIsDeleted(
+        Page<ShopReview> result = shopReviewRepository.findAllByShopIdNotContainReportedAndIsDeleted(
             shopId,
-            userId,
             false,
             pageRequest
         );
@@ -101,7 +102,7 @@ public class ShopReviewService {
     }
 
     @Transactional
-    public void modifyShop(ModifyReviewRequest modifyReviewRequest, Integer reviewId, Integer studentId) {
+    public void modifyReview(ModifyReviewRequest modifyReviewRequest, Integer reviewId, Integer studentId) {
         ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(reviewId, false);
         if (!Objects.equals(shopReview.getReviewer().getId(), studentId)) {
             throw AuthenticationException.withDetail("해당 유저가 작성한 리뷰가 아닙니다.");
@@ -128,6 +129,7 @@ public class ShopReviewService {
                 .userId(student)
                 .review(shopReview)
                 .title(shopReviewReportRequest.title())
+                .reportStatus(UNHANDLED)
                 .content(shopReviewReportRequest.content())
                 .build()
         );
@@ -147,7 +149,7 @@ public class ShopReviewService {
             5, 0
         ));
         for (Integer rating : ratings.keySet()) {
-            Integer count = shopReviewRepository.countReviewRatingAndIsDeleted(shopId, studentId, false, rating);
+            Integer count = shopReviewRepository.countReviewRatingNotContainReportedAndIsDeleted(shopId, false, rating);
             ratings.put(rating, count);
         }
         return ratings;

@@ -2,6 +2,7 @@ package in.koreatech.koin.fixture;
 
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.domain.shop.model.ReportStatus;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopReview;
 import in.koreatech.koin.domain.shop.model.ShopReviewImage;
@@ -24,12 +25,13 @@ public final class ShopReviewReportFixture {
         this.shopReviewReportRepository = shopReviewReportRepository;
     }
 
-    public ShopReviewReport 리뷰_신고(Student student, ShopReview shopReview) {
+    public ShopReviewReport 리뷰_신고(Student student, ShopReview shopReview, ReportStatus reportStatus) {
         return shopReviewReportRepository.save(
             ShopReviewReport.builder()
                 .review(shopReview)
                 .title("기타")
                 .content("부적절한 리뷰입니다.")
+                .reportStatus(reportStatus)
                 .userId(student)
                 .build()
         );
