@@ -46,7 +46,6 @@ public class ShopReview extends BaseEntity {
     @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;
 
-    @Column(nullable = false)
     private Boolean isDeleted;
 
     @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL, fetch = LAZY)

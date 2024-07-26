@@ -79,10 +79,10 @@ class ShopReviewApiTest extends AcceptanceTest {
         준호_학생 = userFixture.준호_학생();
         익명_학생 = userFixture.익명_학생();
         현수_사장님 = userFixture.현수_사장님();
-        신전_떡볶이 = shopFixture.신전_떡볶이(현수_사장님);
+        신전_떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(현수_사장님);
         token_준호 = userFixture.getToken(준호_학생.getUser());
-        준호_학생_리뷰 = shopReviewFixture.리뷰(준호_학생, 신전_떡볶이);
-        익명_학생_리뷰 = shopReviewFixture.리뷰(익명_학생, 신전_떡볶이);
+        준호_학생_리뷰 = shopReviewFixture.리뷰_4점(준호_학생, 신전_떡볶이);
+        익명_학생_리뷰 = shopReviewFixture.리뷰_4점(익명_학생, 신전_떡볶이);
         신고_카테고리_1 = shopReviewReportCategoryFixture.리뷰_신고_주제에_맞지_않음();
         신고_카테고리_2 = shopReviewReportCategoryFixture.리뷰_신고_스팸();
         신고_카테고리_3 = shopReviewReportCategoryFixture.리뷰_신고_욕설();
