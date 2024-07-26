@@ -21,11 +21,11 @@ public class CallControlConfig {
 
     private final ApplicationContext context;
     private final CallControlRegistry callControlRegistry;
-    private final Class<CallControlInfo> callControlInfo = CallControlInfo.class;
+    private final Class<CallControlInfo> CALL_CONTROL_INFO = CallControlInfo.class;
 
     @Bean
-    public CallControl generateExpressBusApiCallControl() {
-        return callControlRegistry.callControl("ExpressBusClient", generateCallControl(ExpressBusClient.class));
+    public void registerExpressBusApiCallControl() {
+        callControlRegistry.registerCallControl("ExpressBusClient", generateCallControl(ExpressBusClient.class));
     }
 
     public CallControl generateCallControl(Class<?> superType) {
@@ -61,14 +61,14 @@ public class CallControlConfig {
 
     public int getClassRatio(Class<?> targetClass) {
         try {
-            return targetClass.getAnnotation(callControlInfo).ratio();
+            return targetClass.getAnnotation(CALL_CONTROL_INFO).ratio();
         } catch (Exception e) {
             throw new BeanNotFoundException("클래스가 해당 어노테이션을 가지지 않습니다. annotation : CallControlInfo");
         }
     }
 
     public Method getTargetMethod(Class<?> targetClass) {
-        String targetMethod = targetClass.getAnnotation(callControlInfo).targetMethod();
+        String targetMethod = targetClass.getAnnotation(CALL_CONTROL_INFO).targetMethod();
         try {
             return targetClass.getMethod(targetMethod);
         } catch (NoSuchMethodException e) {

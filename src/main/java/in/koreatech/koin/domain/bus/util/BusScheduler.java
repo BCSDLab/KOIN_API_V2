@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.bus.util;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.global.domain.callcontol.CallControlManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class BusScheduler {
 
+    private final CallControlManager callControlManager;
     private final CityBusClient cityBusClient;
-    private final TmoneyExpressBusClient tmoneyExpressBusClient;
     private final CityBusRouteClient cityBusRouteClient;
 
     @Scheduled(cron = "0 * * * * *")
@@ -28,7 +29,7 @@ public class BusScheduler {
     @Scheduled(cron = "0 30 0 * * *")
     public void cacheExpressBusByOpenApi() {
         try {
-            tmoneyExpressBusClient.storeRemainTimeByOpenApi();
+            callControlManager.callApi("ExpressBusClient");
         } catch (Exception e) {
             log.warn("시외버스 스케줄링 과정에서 오류가 발생했습니다.");
         }

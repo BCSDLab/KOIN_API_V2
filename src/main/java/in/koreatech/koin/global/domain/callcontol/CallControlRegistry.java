@@ -10,8 +10,11 @@ public class CallControlRegistry {
 
     private final Map<String, CallControl> callControlMaps = new HashMap<>();
 
-    public CallControl callControl(String name, CallControl callControl) {
+    public void registerCallControl(String name, CallControl callControl) {
         callControlMaps.put(name, callControl);
-        return callControl;
+    }
+
+    public CallControl getCallControl(String name) {
+        return callControlMaps.get(name);
     }
 }
