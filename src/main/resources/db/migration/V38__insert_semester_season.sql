@@ -1,0 +1,12 @@
+INSERT INTO semester (semester) VALUES ('2019-여름');
+INSERT INTO semester (semester) VALUES ('2019-겨울');
+INSERT INTO semester (semester) VALUES ('2020-여름');
+INSERT INTO semester (semester) VALUES ('2020-겨울');
+INSERT INTO semester (semester) VALUES ('2021-여름');
+INSERT INTO semester (semester) VALUES ('2021-겨울');
+INSERT INTO semester (semester) VALUES ('2022-여름');
+INSERT INTO semester (semester) VALUES ('2022-겨울');
+INSERT INTO semester (semester) VALUES ('2023-여름');
+INSERT INTO semester (semester) VALUES ('2023-겨울');
+INSERT INTO semester (semester) VALUES ('2024-여름');
+INSERT INTO semester (semester) VALUES ('2024-겨울');
