@@ -17,7 +17,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
 @Import(TestResilience4jConfig.class)
-class CircuitBreakerApiTest extends AcceptanceTest {
+class CircuitBreakerVerifierApiTest extends AcceptanceTest {
 
     @Autowired
     private CircuitBreakerRegistry circuitBreakerRegistry;

@@ -10,10 +10,8 @@ import io.swagger.v3.oas.annotations.Hidden;
 
 @Hidden
 @Retention(RUNTIME)
-@Target(ElementType.TYPE)
+@Target(ElementType.METHOD)
 public @interface CallControlInfo {
 
     int ratio();
-
-    String targetMethod();
 }
