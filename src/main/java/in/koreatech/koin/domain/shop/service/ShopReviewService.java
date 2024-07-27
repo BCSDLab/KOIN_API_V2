@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shop.service;
 
 import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
+import static in.koreatech.koin.domain.shop.repository.ShopReviewRepository.NOT_DELETED;
 
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +53,7 @@ public class ShopReviewService {
     private final EntityManager entityManager;
 
     public ShopReviewResponse getReviewsByShopId(Integer shopId, Integer userId, Integer page, Integer limit) {
-        Integer total = shopReviewRepository.countByShopIdNotContainReportedAndIsDeleted(shopId, false);
+        Integer total = shopReviewRepository.countByShopIdNotContainReportedAndIsDeleted(shopId, NOT_DELETED);
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(
             criteria.getPage(),
@@ -94,7 +95,7 @@ public class ShopReviewService {
 
     @Transactional
     public void deleteReview(Integer reviewId, Integer studentId) {
-        ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(reviewId, false);
+        ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(reviewId, NOT_DELETED);
         if (!Objects.equals(shopReview.getReviewer().getId(), studentId)) {
             throw AuthenticationException.withDetail("해당 유저가 작성한 리뷰가 아닙니다.");
         }
@@ -123,7 +124,7 @@ public class ShopReviewService {
         ShopReviewReportRequest shopReviewReportRequest
     ) {
         Student student = studentRepository.getById(studentId);
-        ShopReview shopReview = shopReviewRepository.getAllByIdAndShopIdAndIsDeleted(reviewId, shopId, false);
+        ShopReview shopReview = shopReviewRepository.getAllByIdAndShopIdAndIsDeleted(reviewId, shopId, NOT_DELETED);
         shopReviewReportRepository.save(
             ShopReviewReport.builder()
                 .userId(student)

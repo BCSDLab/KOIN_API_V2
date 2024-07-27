@@ -33,7 +33,7 @@ public record ShopsResponseV2(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerShopResponse(
-        @Schema(example = "[1, 2, 3]", description = " 속해있는 상점 카테고리들의 고유 id 리스트", requiredMode = NOT_REQUIRED)
+        @Schema(example = "[1, 2, 3]", description = "속해있는 상점 카테고리들의 고유 id 리스트", requiredMode = NOT_REQUIRED)
         List<Integer> categoryIds,
 
         @Schema(example = "true", description = "배달 가능 여부", requiredMode = REQUIRED)

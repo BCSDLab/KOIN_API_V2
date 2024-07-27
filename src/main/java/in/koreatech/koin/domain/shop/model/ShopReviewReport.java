@@ -49,8 +49,13 @@ public class ShopReviewReport extends BaseEntity {
     private Student userId;
 
     @Builder
-    public ShopReviewReport(ShopReview review, String title, String content, ReportStatus reportStatus,
-        Student userId) {
+    public ShopReviewReport(
+        ShopReview review,
+        String title,
+        String content,
+        ReportStatus reportStatus,
+        Student userId
+    ) {
         this.review = review;
         this.title = title;
         this.content = content;

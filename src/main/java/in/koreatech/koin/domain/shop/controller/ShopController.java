@@ -42,7 +42,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public  class ShopController implements ShopApi {
+public class ShopController implements ShopApi {
 
     private final ShopService shopService;
     private final ShopReviewService shopReviewService;

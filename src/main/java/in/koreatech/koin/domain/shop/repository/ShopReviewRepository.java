@@ -14,6 +14,8 @@ import io.lettuce.core.dynamic.annotation.Param;
 
 public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
 
+    boolean NOT_DELETED = false;
+
     ShopReview save(ShopReview review);
 
     List<ShopReview> findAllByShopIdAndIsDeleted(Integer shopId, Boolean isDeleted);
@@ -45,7 +47,8 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
     Page<ShopReview> findAllByShopIdNotContainReportedAndIsDeleted(
         @Param("shopId") Integer shopId,
         @Param("isDeleted") Boolean isDeleted,
-        Pageable pageable);
+        Pageable pageable
+    );
 
     @Query("""
        SELECT COUNT(sr) FROM ShopReview sr 
@@ -76,7 +79,8 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
     Integer countReviewRatingNotContainReportedAndIsDeleted(
         @Param("shopId") Integer shopId,
         @Param("isDeleted") Boolean isDeleted,
-        @Param("rating") Integer rating);
+        @Param("rating") Integer rating
+    );
 
     Optional<ShopReview> findById(Integer reviewId);
 }
