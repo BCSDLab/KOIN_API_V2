@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.domain.callcontol;
+package in.koreatech.koin.global.domain.callcontoller;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 

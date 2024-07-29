@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.domain.callcontol.exception;
+package in.koreatech.koin.global.domain.callcontoller.exception;
 
 import in.koreatech.koin.global.exception.DataNotFoundException;
 

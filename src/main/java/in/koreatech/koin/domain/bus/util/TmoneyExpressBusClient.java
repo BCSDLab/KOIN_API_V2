@@ -34,7 +34,7 @@ import in.koreatech.koin.domain.bus.model.express.TmoneyOpenApiExpressBusArrival
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import in.koreatech.koin.global.domain.callcontol.CallControlInfo;
+import in.koreatech.koin.global.domain.callcontoller.CallControlInfo;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 

@@ -22,7 +22,7 @@ import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.service.BusService;
-import in.koreatech.koin.global.domain.callcontol.CallControl;
+import in.koreatech.koin.global.domain.callcontoller.CallController;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -86,11 +86,11 @@ public class BusController implements BusApi {
     }
 
     @Autowired
-    private CallControl callControl;
+    private CallController callController;
 
     @GetMapping("/callControlTest")
     public ResponseEntity<Void> callControl(@RequestParam String className) {
-        callControl.callApi(className);
+        callController.callApi(className);
         return ResponseEntity.ok().build();
     }
 }

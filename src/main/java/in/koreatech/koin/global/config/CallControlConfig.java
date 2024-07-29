@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import in.koreatech.koin.domain.bus.util.ExpressBusClient;
-import in.koreatech.koin.global.domain.callcontol.model.BaseApi;
+import in.koreatech.koin.global.domain.callcontoller.model.ParentApi;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -12,11 +12,11 @@ import lombok.RequiredArgsConstructor;
 public class CallControlConfig {
 
     @Bean(name = "ExpressBus")
-    public BaseApi registerExpressBusConfig() {
-        return generateBaseApi(ExpressBusClient.class);
+    public ParentApi registerExpressBusConfig() {
+        return generateParentApi(ExpressBusClient.class);
     }
 
-    private BaseApi generateBaseApi(Class<?> baseApiType) {
-        return BaseApi.of(baseApiType);
+    private ParentApi generateParentApi(Class<?> parentType) {
+        return ParentApi.of(parentType);
     }
 }

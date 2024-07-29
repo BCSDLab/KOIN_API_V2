@@ -1,31 +1,31 @@
-package in.koreatech.koin.global.domain.callcontol.model;
+package in.koreatech.koin.global.domain.callcontoller.model;
 
 import java.lang.reflect.Method;
 
-import in.koreatech.koin.global.domain.callcontol.CallControlInfo;
+import in.koreatech.koin.global.domain.callcontoller.CallControlInfo;
 import in.koreatech.koin.global.model.ReflectionUtils;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class SubApi {
+public class ChildApi {
 
     private static final Class<CallControlInfo> CALL_CONTROL_ANNOTATION = CallControlInfo.class;
 
-    private final Object subApiType;
+    private final Object childType;
     private final Method targetMethod;
     private int start;
     private int end;
 
     public void callMethod() {
-        ReflectionUtils.callMethod(subApiType, targetMethod);
+        ReflectionUtils.callMethod(childType, targetMethod);
     }
 
-    public static SubApi of(Object subApiType) {
-        Method targetMethod = ReflectionUtils.findMethodByAnnotation(subApiType, CALL_CONTROL_ANNOTATION);
-        return SubApi.builder()
-            .subApiType(subApiType)
+    public static ChildApi of(Object childType) {
+        Method targetMethod = ReflectionUtils.findMethodByAnnotation(childType, CALL_CONTROL_ANNOTATION);
+        return ChildApi.builder()
+            .childType(childType)
             .targetMethod(targetMethod)
             .build();
     }

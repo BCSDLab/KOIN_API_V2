@@ -10,8 +10,8 @@ import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
-import in.koreatech.koin.global.domain.callcontol.exception.BeanNotFoundException;
-import in.koreatech.koin.global.domain.callcontol.exception.MethodNotFoundException;
+import in.koreatech.koin.global.domain.callcontoller.exception.BeanNotFoundException;
+import in.koreatech.koin.global.domain.callcontoller.exception.MethodNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -19,11 +19,11 @@ public class ReflectionUtils {
 
     public static final ApplicationContext context = ApplicationContextProvider.getApplicationContext();
 
-    public static List<?> getSubTypeBeans(Class<?> baseType) {
+    public static List<?> getChildTypes(Class<?> parentType) {
         try {
-            return context.getBeansOfType(baseType).values().stream().toList();
+            return context.getBeansOfType(parentType).values().stream().toList();
         } catch (NoSuchBeanDefinitionException e) {
-            throw new BeanNotFoundException("하위 타입이 존재하지 않습니다. 상위 타입: " + baseType);
+            throw new BeanNotFoundException("하위 타입이 존재하지 않습니다. 상위 타입: " + parentType);
         }
     }
 
