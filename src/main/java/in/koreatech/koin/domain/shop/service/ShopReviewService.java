@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.service;
 
+import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,6 @@ import in.koreatech.koin.domain.shop.repository.ShopReviewReportRepository;
 import in.koreatech.koin.domain.shop.repository.ShopReviewRepository;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.auth.exception.AuthenticationException;
 import in.koreatech.koin.global.model.Criteria;
 import jakarta.persistence.EntityManager;
@@ -48,32 +49,20 @@ public class ShopReviewService {
     private final ShopReviewReportCategoryRepository shopReviewReportCategoryRepository;
     private final StudentRepository studentRepository;
 
-    private final JwtProvider jwtProvider;
     private final EntityManager entityManager;
-    /*
-    TODO:
-        - 어드민 페이지
-            - 어드민이 신고된 리뷰를 확인할 수 있어야 한다.
-            - 어드민이 신고된 리뷰를 삭제할 수 있어야 한다.
-            - 어드민이 신고를 삭제할 수 있다.
-                - 신고된 리뷰 조회 api작성(어드민 권한)
-                - 신고된 리뷰 삭제 api작성(어드민 권한)
-        - 어떻게 할지 자세한건 팀에서 논의 필요
-     */
 
     public ShopReviewResponse getReviewsByShopId(Integer shopId, Integer userId, Integer page, Integer limit) {
-        Integer total = shopReviewRepository.countByShopIdExcludingReportedByUser(shopId, userId);
+        Integer total = shopReviewRepository.countByShopIdNotContainReportedAndIsDeletedFalse(shopId);
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(
             criteria.getPage(),
             criteria.getLimit()
         );
-        Page<ShopReview> result = shopReviewRepository.findAllByShopIdExcludingReportedByUser(
+        Page<ShopReview> result = shopReviewRepository.findAllByShopIdNotContainReportedAndIsDeletedFalse(
             shopId,
-            userId,
             pageRequest
         );
-        Map<Integer, Integer> ratings = getRating(shopId, userId);
+        Map<Integer, Integer> ratings = getRating(shopId);
         return ShopReviewResponse.from(result, userId, criteria, ratings);
     }
 
@@ -104,16 +93,16 @@ public class ShopReviewService {
 
     @Transactional
     public void deleteReview(Integer reviewId, Integer studentId) {
-        ShopReview shopReview = shopReviewRepository.getById(reviewId);
+        ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(reviewId);
         if (!Objects.equals(shopReview.getReviewer().getId(), studentId)) {
             throw AuthenticationException.withDetail("해당 유저가 작성한 리뷰가 아닙니다.");
         }
-        shopReviewRepository.deleteById(shopReview.getId());
+        shopReview.deleteReview();
     }
 
     @Transactional
-    public void modifyShop(ModifyReviewRequest modifyReviewRequest, Integer reviewId, Integer studentId) {
-        ShopReview shopReview = shopReviewRepository.getById(reviewId);
+    public void modifyReview(ModifyReviewRequest modifyReviewRequest, Integer reviewId, Integer studentId) {
+        ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(reviewId);
         if (!Objects.equals(shopReview.getReviewer().getId(), studentId)) {
             throw AuthenticationException.withDetail("해당 유저가 작성한 리뷰가 아닙니다.");
         }
@@ -133,13 +122,14 @@ public class ShopReviewService {
         ShopReviewReportRequest shopReviewReportRequest
     ) {
         Student student = studentRepository.getById(studentId);
-        ShopReview shopReview = shopReviewRepository.getAllByIdAndShopId(reviewId, shopId);
+        ShopReview shopReview = shopReviewRepository.getAllByIdAndShopIdAndIsDeleted(reviewId, shopId);
         shopReviewReportRepository.save(
             ShopReviewReport.builder()
                 .userId(student)
                 .review(shopReview)
                 .title(shopReviewReportRequest.title())
-                .detail(shopReviewReportRequest.content())
+                .reportStatus(UNHANDLED)
+                .content(shopReviewReportRequest.content())
                 .build()
         );
     }
@@ -149,7 +139,7 @@ public class ShopReviewService {
         return ShopReviewReportCategoryResponse.from(shopReviewReportCategories);
     }
 
-    private Map<Integer, Integer> getRating(Integer shopId, Integer studentId) {
+    private Map<Integer, Integer> getRating(Integer shopId) {
         Map<Integer, Integer> ratings = new HashMap<>(Map.of(
             1, 0,
             2, 0,
@@ -158,7 +148,7 @@ public class ShopReviewService {
             5, 0
         ));
         for (Integer rating : ratings.keySet()) {
-            Integer count = shopReviewRepository.countReviewRating(shopId, studentId, rating);
+            Integer count = shopReviewRepository.countReviewRatingNotContainReportedAndIsDeletedFalse(shopId, rating);
             ratings.put(rating, count);
         }
         return ratings;

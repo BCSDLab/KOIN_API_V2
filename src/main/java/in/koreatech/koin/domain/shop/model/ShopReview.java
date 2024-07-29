@@ -19,6 +19,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,6 +46,10 @@ public class ShopReview extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;
+
+    @NotNull
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
     @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = ALL, fetch = LAZY)
     private List<ShopReviewImage> images = new ArrayList<>();
@@ -90,5 +95,13 @@ public class ShopReview extends BaseEntity {
                     .build();
             this.menus.add(shopReviewImage);
         }
+    }
+
+    public void deleteReview() {
+        this.isDeleted = true;
+    }
+
+    public void cancelReview() {
+        this.isDeleted = false;
     }
 }
