@@ -1,6 +1,5 @@
 package in.koreatech.koin.global.config;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,14 +11,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CallControlConfig {
 
-    private final ApplicationContext context;
-
     @Bean(name = "ExpressBus")
     public BaseApi registerExpressBusConfig() {
         return generateBaseApi(ExpressBusClient.class);
     }
 
     private BaseApi generateBaseApi(Class<?> baseApiType) {
-        return BaseApi.of(baseApiType, context);
+        return BaseApi.of(baseApiType);
     }
 }
