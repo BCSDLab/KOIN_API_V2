@@ -18,6 +18,11 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
 
     Optional<TimetableFrame> findById(Integer id);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT t FROM TimetableFrame t WHERE t.id = :id")
+    Optional<TimetableFrame> findByIdWithLock(@Param("id") Integer id);
+
+
     List<TimetableFrame> findByUserIdAndIsMainTrue(Integer userId);
 
     Optional<TimetableFrame> findByUserIdAndSemesterIdAndIsMainTrue(Integer userId, Integer semesterId);
@@ -25,6 +30,11 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
     default TimetableFrame getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> TimetableNotFoundException.withDetail("id: " + id));
+    }
+
+    default TimetableFrame getByIdWithLock(Integer id) {
+        return findByIdWithLock(id)
+                .orElseThrow(() -> TimetableNotFoundException.withDetail("id: " + id));
     }
 
     default TimetableFrame getMainTimetableByUserIdAndSemesterId(Integer userId, Integer semesterId) {
