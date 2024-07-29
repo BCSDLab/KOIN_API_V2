@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.shop.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -18,67 +17,62 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
 
     ShopReview save(ShopReview review);
 
-    List<ShopReview> findAllByShopIdAndIsDeleted(Integer shopId, Boolean isDeleted);
+    Optional<ShopReview> findByIdAndIsDeletedFalse(Integer reviewId);
 
-    Optional<ShopReview> findByIdAndIsDeleted(Integer reviewId, Boolean isDeleted);
-
-    default ShopReview getByIdAndIsDeleted(Integer reviewId, Boolean isDeleted) {
-        return findByIdAndIsDeleted(reviewId, isDeleted)
+    default ShopReview getByIdAndIsDeleted(Integer reviewId) {
+        return findByIdAndIsDeletedFalse(reviewId)
             .orElseThrow(() -> ReviewNotFoundException.withDetail(String.format("reviewId: %s", reviewId)));
     }
 
-    Optional<ShopReview> findAllByIdAndShopIdAndIsDeleted(Integer reviewId, Integer shopId, Boolean isDeleted);
+    Optional<ShopReview> findAllByIdAndShopIdAndIsDeletedFalse(Integer reviewId, Integer shopId);
 
-    default ShopReview getAllByIdAndShopIdAndIsDeleted(Integer reviewId, Integer shopId, Boolean isDeleted) {
-        return findAllByIdAndShopIdAndIsDeleted(reviewId, shopId, isDeleted)
+    default ShopReview getAllByIdAndShopIdAndIsDeleted(Integer reviewId, Integer shopId) {
+        return findAllByIdAndShopIdAndIsDeletedFalse(reviewId, shopId)
             .orElseThrow(() -> ReviewNotFoundException.withDetail(String.format("reviewId: %s", reviewId)));
     }
 
     @Query("""
            SELECT sr FROM ShopReview sr 
            WHERE sr.shop.id = :shopId 
-           AND sr.isDeleted = :isDeleted
+           AND sr.isDeleted = false
            AND NOT EXISTS (
                SELECT r FROM ShopReviewReport r 
                WHERE r.review.id = sr.id 
                AND r.reportStatus != in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED
            )
            """)
-    Page<ShopReview> findAllByShopIdNotContainReportedAndIsDeleted(
+    Page<ShopReview> findAllByShopIdNotContainReportedAndIsDeletedFalse(
         @Param("shopId") Integer shopId,
-        @Param("isDeleted") Boolean isDeleted,
         Pageable pageable
     );
 
     @Query("""
        SELECT COUNT(sr) FROM ShopReview sr 
        WHERE sr.shop.id = :shopId
-       AND sr.isDeleted = :isDeleted 
+       AND sr.isDeleted = false 
        AND NOT EXISTS (
            SELECT r FROM ShopReviewReport r 
            WHERE r.review.id = sr.id 
-           AND r.reportStatus != in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED
+           AND r.reportStatus != 'DISMISSED'
        )
        """)
-    Integer countByShopIdNotContainReportedAndIsDeleted(
-        @Param("shopId") Integer shopId,
-        @Param("isDeleted") Boolean isDeleted
+    Integer countByShopIdNotContainReportedAndIsDeletedFalse(
+        @Param("shopId") Integer shopId
         );
 
     @Query("""
            SELECT COUNT(sr) FROM ShopReview sr 
            WHERE sr.shop.id = :shopId 
-           AND sr.isDeleted = :isDeleted
+           AND sr.isDeleted = false
            AND NOT EXISTS (
                SELECT r FROM ShopReviewReport r 
                WHERE r.review.id = sr.id 
-               AND r.reportStatus != in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED
+               AND r.reportStatus != 'DISMISSED'
                )
            AND sr.rating = :rating
            """)
-    Integer countReviewRatingNotContainReportedAndIsDeleted(
+    Integer countReviewRatingNotContainReportedAndIsDeletedFalse(
         @Param("shopId") Integer shopId,
-        @Param("isDeleted") Boolean isDeleted,
         @Param("rating") Integer rating
     );
 

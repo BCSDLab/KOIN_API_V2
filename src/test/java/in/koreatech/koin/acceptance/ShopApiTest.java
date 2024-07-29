@@ -672,7 +672,7 @@ class ShopApiTest extends AcceptanceTest {
             .given()
             .queryParam("sorter", "RATING")
             .when()
-            .get("/shops/v2")
+            .get("/v2/shop")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -791,7 +791,7 @@ class ShopApiTest extends AcceptanceTest {
             .given()
             .queryParam("sorter", "COUNT")
             .when()
-            .get("/shops/v2")
+            .get("/v2/shop")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -910,7 +910,7 @@ class ShopApiTest extends AcceptanceTest {
             .given()
             .queryParam("sorter", "COUNT")
             .when()
-            .get("/shops/v2")
+            .get("/v2/shop")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -1029,7 +1029,7 @@ class ShopApiTest extends AcceptanceTest {
             .given()
             .queryParam("filter", "OPEN")
             .when()
-            .get("/shops/v2")
+            .get("/v2/shop")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -1089,7 +1089,7 @@ class ShopApiTest extends AcceptanceTest {
             .given()
             .queryParam("filter", "DELIVERY")
             .when()
-            .get("/shops/v2")
+            .get("/v2/shop")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -1152,7 +1152,7 @@ class ShopApiTest extends AcceptanceTest {
             .queryParam("filter", "DELIVERY")
             .queryParam("filter", "OPEN")
             .when()
-            .get("/shops/v2")
+            .get("/v2/shop")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -1215,7 +1215,7 @@ class ShopApiTest extends AcceptanceTest {
             .queryParam("filter", "OPEN")
             .queryParam("sorter", "COUNT")
             .when()
-            .get("/shops/v2")
+            .get("/v2/shop")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -1332,7 +1332,7 @@ class ShopApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .get("/shops/v2")
+            .get("/v2/shop")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -1449,7 +1449,7 @@ class ShopApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .get("/shops/v2")
+            .get("/v2/shop")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();

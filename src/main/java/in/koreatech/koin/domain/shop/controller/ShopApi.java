@@ -249,7 +249,7 @@ public interface ShopApi {
         }
     )
     @Operation(summary = "정렬, 필터가 있는 모든 상점 조회")
-    @GetMapping("/shops/v2")
+    @GetMapping("/v2/shops")
     ResponseEntity<ShopsResponseV2> getShopsV2(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
         @RequestParam(name = "filter") List<ShopsFilterCriteria> shopsFilterCriterias

@@ -166,7 +166,7 @@ public class ShopController implements ShopApi {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/shops/v2")
+    @GetMapping("/v2/shops")
     public ResponseEntity<ShopsResponseV2> getShopsV2(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
         @RequestParam(name = "filter", required = false) List<ShopsFilterCriteria> shopsFilterCriterias

@@ -120,7 +120,7 @@ class ShopReviewApiTest extends AcceptanceTest {
             .extract();
 
         transactionTemplate.executeWithoutResult(status -> {
-            ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(INITIAL_REVIEW_COUNT + 1, false);
+            ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(INITIAL_REVIEW_COUNT + 1);
             assertSoftly(
                 softly -> {
                     softly.assertThat(shopReview.getRating()).isEqualTo(4);
@@ -161,7 +161,7 @@ class ShopReviewApiTest extends AcceptanceTest {
             .extract();
 
         transactionTemplate.executeWithoutResult(status -> {
-            ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(준호_학생_리뷰.getId(), false);
+            ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(준호_학생_리뷰.getId());
             assertSoftly(
                 softly -> {
                     softly.assertThat(shopReview.getRating()).isEqualTo(3);

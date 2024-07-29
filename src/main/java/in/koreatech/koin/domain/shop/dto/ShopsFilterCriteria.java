@@ -9,7 +9,8 @@ import in.koreatech.koin.domain.shop.model.Shop;
 public enum ShopsFilterCriteria {
 
     OPEN("OPEN"),
-    DELIVERY("DELIVERY");
+    DELIVERY("DELIVERY"),
+    ;
 
     private final String value;
 

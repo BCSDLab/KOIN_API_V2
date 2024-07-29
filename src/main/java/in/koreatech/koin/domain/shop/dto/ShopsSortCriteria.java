@@ -8,7 +8,7 @@ public enum ShopsSortCriteria {
 
     NONE("NONE", (shop1, shop2) -> 0),
     COUNT("COUNT", Comparator.comparingLong(InnerShopResponse::reviewCount).reversed()),
-    RATING("RATING", Comparator.comparingDouble(InnerShopResponse::averageRate).reversed())
+    RATING("RATING", Comparator.comparingDouble(InnerShopResponse::averageRate).reversed()),
     ;
 
     private final String value;
