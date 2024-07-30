@@ -90,13 +90,4 @@ public interface BusApi {
     @Operation(summary = "버스 노선 조회")
     @GetMapping("/courses")
     ResponseEntity<List<BusCourseResponse>> getBusCourses();
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @GetMapping("/callControlTest")
-    ResponseEntity<Void> callControl(@RequestParam String className);
 }

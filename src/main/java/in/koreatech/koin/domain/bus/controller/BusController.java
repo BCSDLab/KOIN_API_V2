@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +21,6 @@ import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.service.BusService;
-import in.koreatech.koin.global.domain.callcontoller.CallController;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -83,14 +81,5 @@ public class BusController implements BusApi {
         List<SingleBusTimeResponse> singleBusTimeResponses = busService.searchTimetable(date, LocalTime.parse(time),
             depart, arrival);
         return ResponseEntity.ok().body(singleBusTimeResponses);
-    }
-
-    @Autowired
-    private CallController callController;
-
-    @GetMapping("/callControlTest")
-    public ResponseEntity<Void> callControl(@RequestParam String className) {
-        callController.callApi(className);
-        return ResponseEntity.ok().build();
     }
 }

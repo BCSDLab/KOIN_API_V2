@@ -12,16 +12,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CallController {
 
-    private ParentApi parentApi;
-
     public void callApi(String beanName) {
-        parentApi = (ParentApi)ReflectionUtils.findBeanByName(beanName);
+        ParentApi parentApi = (ParentApi)ReflectionUtils.findBeanByName(beanName);
         int randomNum = RandomGenerator.createNumber(0, parentApi.totalRatio());
-        ChildApi selectedApi = selectChildApi(randomNum);
+        ChildApi selectedApi = selectChildApi(parentApi, randomNum);
         selectedApi.callMethod();
     }
 
-    private ChildApi selectChildApi(int randomNum) {
+    private ChildApi selectChildApi(ParentApi parentApi, int randomNum) {
         return parentApi.childApis().stream()
             .filter(apiRange -> apiRange.getStart() <= randomNum && apiRange.getEnd() > randomNum)
             .findAny()

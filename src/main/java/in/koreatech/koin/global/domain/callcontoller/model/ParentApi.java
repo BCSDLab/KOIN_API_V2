@@ -15,7 +15,7 @@ public record ParentApi(
         List<ChildApi> childApis = ReflectionUtils.getChildTypes(parentType).stream()
             .map(ChildApi::of)
             .toList();
-        int totalRatio = setChildsRange(childApis);
+        int totalRatio = setChildSelectedRange(childApis);
 
         return ParentApi.builder()
             .childApis(childApis)
@@ -23,11 +23,11 @@ public record ParentApi(
             .build();
     }
 
-    private static int setChildsRange(List<ChildApi> childApis) {
-        int total = 0;
+    private static int setChildSelectedRange(List<ChildApi> childApis) {
+        int totalRange = 0;
         for (var subApi : childApis) {
-            total += subApi.setRange(total);
+            totalRange += subApi.setRange(totalRange);
         }
-        return total;
+        return totalRange;
     }
 }
