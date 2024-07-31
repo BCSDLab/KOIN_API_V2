@@ -66,7 +66,10 @@ public class CoopService {
         boolean isImageExist = diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(dining.getDate(),
             dining.getType());
 
-        if (!isImageExist) {
+        LocalDateTime now = LocalDateTime.now(clock);
+        boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType());
+
+        if (isOpened && !isImageExist) {
             eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getImageUrl()));
         }
 
