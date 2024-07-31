@@ -18,7 +18,10 @@ import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
+import in.koreatech.koin.domain.shop.dto.ShopsResponseV2;
+import in.koreatech.koin.domain.shop.dto.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.model.Menu;
 import in.koreatech.koin.domain.shop.model.MenuCategory;
 import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
@@ -29,15 +32,7 @@ import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewImageRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewMenuRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewReportCategoryRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewReportRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewRepository;
 import in.koreatech.koin.domain.shop.repository.redis.ShopsRedisRepository;
-import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -117,4 +112,20 @@ public class ShopService {
         ShopsResponse shopsResponse = ShopsResponse.from(innerShopResponses);
         shopsRedisRepository.save(shopsResponse);
     }
+
+    public ShopsResponseV2 getShopsV2(ShopsSortCriteria sortBy, List<ShopsFilterCriteria> shopsFilterCriterias) {
+        List<Shop> shops = shopRepository.findAll();
+        LocalDateTime now = LocalDateTime.now(clock);
+        List<ShopsResponseV2.InnerShopResponse> innerShopResponses = shops.stream()
+            .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias, now))
+            .map(shop -> {
+                boolean isDurationEvent = eventArticleRepository.isDurationEvent(shop.getId(), now.toLocalDate());
+                return ShopsResponseV2.InnerShopResponse.from(shop, isDurationEvent, shop.isOpen(now));
+            })
+            .sorted(ShopsResponseV2.InnerShopResponse.getComparator(sortBy))
+            .toList();
+        ShopsResponseV2 shopsResponse = ShopsResponseV2.from(innerShopResponses);
+        return shopsResponse;
+    }
+
 }

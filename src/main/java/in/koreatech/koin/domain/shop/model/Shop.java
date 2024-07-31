@@ -8,8 +8,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.hibernate.annotations.Where;
 
@@ -25,6 +27,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -39,6 +44,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "shops")
 @Where(clause = "is_deleted=0")
+@NamedEntityGraph(name = "Shop.withAll", attributeNodes = {
+    @NamedAttributeNode(value = "shopOpens"),
+    @NamedAttributeNode(value = "shopCategories", subgraph = "shopCategory1"),
+},
+    subgraphs = @NamedSubgraph(name = "shopCategory1", attributeNodes = {
+        @NamedAttributeNode("shopCategory")
+    })
+)
 public class Shop extends BaseEntity {
 
     @Id
@@ -75,7 +88,7 @@ public class Shop extends BaseEntity {
 
     @NotNull
     @Column(name = "delivery", nullable = false)
-    private boolean delivery = false;
+    private Boolean delivery = false;
 
     @NotNull
     @Column(name = "delivery_price", nullable = false)
@@ -106,7 +119,7 @@ public class Shop extends BaseEntity {
     private Integer hit;
 
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
-    private List<ShopCategoryMap> shopCategories = new ArrayList<>();
+    private Set<ShopCategoryMap> shopCategories = new HashSet<>();
 
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<ShopOpen> shopOpens = new ArrayList<>();
@@ -119,6 +132,9 @@ public class Shop extends BaseEntity {
 
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<EventArticle> eventArticles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
+    private List<ShopReview> reviews = new ArrayList<>();
 
     @Size(max = 10)
     @Column(name = "bank", length = 10)

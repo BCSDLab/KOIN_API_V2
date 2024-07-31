@@ -30,7 +30,7 @@ public final class ShopReviewFixture {
     }
 
 
-    public ShopReview 리뷰(Student student, Shop shop) {
+    public ShopReview 리뷰_4점(Student student, Shop shop) {
         ShopReview shopReview = ShopReview.builder()
             .reviewer(student)
             .content("여기 진짜 맛있어요.")

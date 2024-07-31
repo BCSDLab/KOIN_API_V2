@@ -1,5 +1,8 @@
 package in.koreatech.koin.acceptance;
 
+import static in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED;
+import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -13,12 +16,17 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.Menu;
+import in.koreatech.koin.domain.shop.model.ReportStatus;
 import in.koreatech.koin.domain.shop.model.Shop;
+import in.koreatech.koin.domain.shop.model.ShopReview;
+import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.fixture.EventArticleFixture;
 import in.koreatech.koin.fixture.MenuCategoryFixture;
 import in.koreatech.koin.fixture.MenuFixture;
 import in.koreatech.koin.fixture.ShopCategoryFixture;
 import in.koreatech.koin.fixture.ShopFixture;
+import in.koreatech.koin.fixture.ShopReviewFixture;
+import in.koreatech.koin.fixture.ShopReviewReportFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
@@ -34,6 +42,12 @@ class ShopApiTest extends AcceptanceTest {
     private ShopFixture shopFixture;
 
     @Autowired
+    private ShopReviewFixture shopReviewFixture;
+
+    @Autowired
+    private ShopReviewReportFixture shopReviewReportFixture;
+
+    @Autowired
     private MenuFixture menuFixture;
 
     @Autowired
@@ -45,20 +59,23 @@ class ShopApiTest extends AcceptanceTest {
     @Autowired
     private ShopCategoryFixture shopCategoryFixture;
 
-    private Shop shop;
+    private Shop 마슬랜;
     private Owner owner;
+
+    private Student 익명_학생;
 
     @BeforeEach
     void setUp() {
         owner = userFixture.준영_사장님();
-        shop = shopFixture.마슬랜(owner);
+        마슬랜 = shopFixture.마슬랜(owner);
+        익명_학생 = userFixture.익명_학생();
     }
 
     @Test
     @DisplayName("옵션이 하나 있는 상점의 메뉴를 조회한다.")
     void findMenuSingleOption() {
         // given
-        Menu menu = menuFixture.짜장면_단일메뉴(shop, menuCategoryFixture.메인메뉴(shop));
+        Menu menu = menuFixture.짜장면_단일메뉴(마슬랜, menuCategoryFixture.메인메뉴(마슬랜));
 
         var response = RestAssured
             .given()
@@ -95,7 +112,7 @@ class ShopApiTest extends AcceptanceTest {
     @DisplayName("옵션이 여러 개 있는 상점의 메뉴를 조회한다.")
     void findMenuMultipleOption() {
         // given
-        Menu menu = menuFixture.짜장면_옵션메뉴(shop, menuCategoryFixture.메인메뉴(shop));
+        Menu menu = menuFixture.짜장면_옵션메뉴(마슬랜, menuCategoryFixture.메인메뉴(마슬랜));
 
         var response = RestAssured
             .given()
@@ -176,9 +193,9 @@ class ShopApiTest extends AcceptanceTest {
     @DisplayName("상점의 메뉴 카테고리들을 조회한다.")
     void findShopMenuCategories() {
         // given
-        menuCategoryFixture.사이드메뉴(shop);
-        menuCategoryFixture.세트메뉴(shop);
-        Menu menu = menuFixture.짜장면_단일메뉴(shop, menuCategoryFixture.추천메뉴(shop));
+        menuCategoryFixture.사이드메뉴(마슬랜);
+        menuCategoryFixture.세트메뉴(마슬랜);
+        Menu menu = menuFixture.짜장면_단일메뉴(마슬랜, menuCategoryFixture.추천메뉴(마슬랜));
 
         var response = RestAssured
             .given()
@@ -214,12 +231,12 @@ class ShopApiTest extends AcceptanceTest {
     @DisplayName("특정 상점 조회")
     void getShop() {
         // given
-        menuCategoryFixture.사이드메뉴(shop);
-        menuCategoryFixture.세트메뉴(shop);
+        menuCategoryFixture.사이드메뉴(마슬랜);
+        menuCategoryFixture.세트메뉴(마슬랜);
         var response = RestAssured
             .given()
             .when()
-            .get("/shops/{shopId}", shop.getId())
+            .get("/shops/{shopId}", 마슬랜.getId())
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -279,12 +296,12 @@ class ShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("특정 상점 모든 메뉴 조회")
     void getShopMenus() {
-        menuFixture.짜장면_단일메뉴(shop, menuCategoryFixture.추천메뉴(shop));
-        menuFixture.짜장면_옵션메뉴(shop, menuCategoryFixture.세트메뉴(shop));
+        menuFixture.짜장면_단일메뉴(마슬랜, menuCategoryFixture.추천메뉴(마슬랜));
+        menuFixture.짜장면_옵션메뉴(마슬랜, menuCategoryFixture.세트메뉴(마슬랜));
         var response = RestAssured
             .given()
             .when()
-            .get("/shops/{shopId}/menus", shop.getId())
+            .get("/shops/{shopId}/menus", 마슬랜.getId())
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -352,7 +369,7 @@ class ShopApiTest extends AcceptanceTest {
     @DisplayName("모든 상점 조회")
     void getAllShop() {
         // given
-        shopFixture.신전_떡볶이(owner);
+        shopFixture.영업중이_아닌_신전_떡볶이(owner);
         var response = RestAssured
             .given()
             .when()
@@ -497,12 +514,12 @@ class ShopApiTest extends AcceptanceTest {
     @DisplayName("특정 상점의 이벤트들을 조회한다.")
     void getShopEvents() {
         eventArticleFixture.할인_이벤트(
-            shop,
+            마슬랜,
             LocalDate.now(clock).minusDays(3),
             LocalDate.now(clock).plusDays(3)
         );
         eventArticleFixture.참여_이벤트(
-            shop,
+            마슬랜,
             LocalDate.now(clock).minusDays(3),
             LocalDate.now(clock).plusDays(3)
         );
@@ -510,7 +527,7 @@ class ShopApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .get("/shops/{shopId}/events", shop.getId())
+            .get("/shops/{shopId}/events", 마슬랜.getId())
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -554,12 +571,12 @@ class ShopApiTest extends AcceptanceTest {
     @DisplayName("이벤트 진행중인 상점의 정보를 조회한다.")
     void getShopWithEvents() {
         eventArticleFixture.할인_이벤트(
-            shop,
+            마슬랜,
             LocalDate.now(clock).minusDays(3),
             LocalDate.now(clock).plusDays(3)
         );
         eventArticleFixture.참여_이벤트(
-            shop,
+            마슬랜,
             LocalDate.now(clock).minusDays(3),
             LocalDate.now(clock).plusDays(3)
         );
@@ -567,7 +584,7 @@ class ShopApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .get("/shops/{shopId}", shop.getId())
+            .get("/shops/{shopId}", 마슬랜.getId())
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -579,12 +596,12 @@ class ShopApiTest extends AcceptanceTest {
     @DisplayName("이벤트 진행중이지 않은 상점의 정보를 조회한다.")
     void getShopWithoutEvents() {
         eventArticleFixture.할인_이벤트(
-            shop,
+            마슬랜,
             LocalDate.now(clock).plusDays(3),
             LocalDate.now(clock).plusDays(5)
         );
         eventArticleFixture.참여_이벤트(
-            shop,
+            마슬랜,
             LocalDate.now(clock).minusDays(5),
             LocalDate.now(clock).minusDays(3)
         );
@@ -592,7 +609,7 @@ class ShopApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .get("/shops/{shopId}", shop.getId())
+            .get("/shops/{shopId}", 마슬랜.getId())
             .then()
 
             .statusCode(HttpStatus.OK.value())
@@ -605,12 +622,12 @@ class ShopApiTest extends AcceptanceTest {
     @DisplayName("이벤트 베너 조회")
     void ownerShopDeleteEvent() {
         eventArticleFixture.참여_이벤트(
-            shop,
+            마슬랜,
             LocalDate.now(clock),
             LocalDate.now(clock).plusDays(10)
         );
         eventArticleFixture.할인_이벤트(
-            shop,
+            마슬랜,
             LocalDate.now(clock).minusDays(10),
             LocalDate.now(clock).minusDays(1)
         );
@@ -643,5 +660,898 @@ class ShopApiTest extends AcceptanceTest {
                     ]
                 }
                 """);
+    }
+
+    @Test
+    void 리뷰_평점순으로_정렬하여_모든_상점을_조회한다() {
+        // given
+        Shop 영업중인_티바 = shopFixture.영업중인_티바(owner);
+        shopReviewFixture.리뷰_4점(익명_학생, 영업중인_티바);
+
+        var response = RestAssured
+            .given()
+            .queryParam("sorter", "RATING")
+            .when()
+            .get("/v2/shops")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        // 2024-01-15 12:00 월요일 기준
+        boolean 마슬랜_영업여부 = true;
+        boolean 티바_영업여부 = true;
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "count": 2,
+                    "shops": [
+                        {
+                            "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 2,
+                            "name": "티바",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "TUESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "WEDNESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "THURSDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SATURDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SUNDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7788-9900",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        },{
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 0.0,
+                            "review_count": 0
+                        }
+                    ]
+                }
+                """, 티바_영업여부, 마슬랜_영업여부));
+    }
+
+    @Test
+    void 리뷰_개수순으로_정렬하여_모든_상점을_조회한다() {
+        // given
+        Shop 영업중인_티바 = shopFixture.영업중인_티바(owner);
+        shopReviewFixture.리뷰_4점(익명_학생, 영업중인_티바);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+
+        var response = RestAssured
+            .given()
+            .queryParam("sorter", "COUNT")
+            .when()
+            .get("/v2/shops")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        // 2024-01-15 12:00 월요일 기준
+        boolean 마슬랜_영업여부 = true;
+        boolean 티바_영업여부 = true;
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "count": 2,
+                    "shops": [
+                        {
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 2
+                        },{
+                            "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 2,
+                            "name": "티바",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "TUESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "WEDNESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "THURSDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SATURDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SUNDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7788-9900",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        }
+                    ]
+                }
+                """, 티바_영업여부, 마슬랜_영업여부));
+    }
+
+    @Test
+    void 리뷰_개수가_많아도_영업중이_아니라면_정렬_우선순위가_낮은_상태로_모든_상점을_조회한다() {
+        // given
+        Shop 영업중이_아닌_신전떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(owner);
+        shopReviewFixture.리뷰_4점(익명_학생, 영업중이_아닌_신전떡볶이);
+        shopReviewFixture.리뷰_4점(익명_학생, 영업중이_아닌_신전떡볶이);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+
+        var response = RestAssured
+            .given()
+            .queryParam("sorter", "COUNT")
+            .when()
+            .get("/v2/shops")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        // 2024-01-15 12:00 월요일 기준
+        boolean 신전떡볶이_영업여부 = false;
+        boolean 마슬랜_영업여부 = true;
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "count": 2,
+                    "shops": [
+                        {
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        },{
+                            "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 2,
+                            "name": "신전 떡볶이",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "12:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "TUESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "WEDNESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "THURSDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SATURDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SUNDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7788-9900",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 2
+                        }
+                    ]
+                }
+                """, 마슬랜_영업여부, 신전떡볶이_영업여부));
+    }
+
+    @Test
+    void 운영중인_상점만_필터하여_모든_상점을_조회한다() {
+        // given
+        Shop 영업중이_아닌_신전떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(owner);
+        shopReviewFixture.리뷰_4점(익명_학생, 영업중이_아닌_신전떡볶이);
+        shopReviewFixture.리뷰_4점(익명_학생, 영업중이_아닌_신전떡볶이);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+
+        var response = RestAssured
+            .given()
+            .queryParam("filter", "OPEN")
+            .when()
+            .get("/v2/shops")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        // 2024-01-15 12:00 월요일 기준
+        boolean 마슬랜_영업여부 = true;
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "count": 1,
+                    "shops": [
+                        {
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        }
+                    ]
+                }
+                """, 마슬랜_영업여부));
+    }
+
+    @Test
+    void 배달_가능한_상점만_필터하여_모든_상점을_조회한다() {
+        // given
+        Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
+        shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
+        shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+
+        var response = RestAssured
+            .given()
+            .queryParam("filter", "DELIVERY")
+            .when()
+            .get("/v2/shops")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        // 2024-01-15 12:00 월요일 기준
+        boolean 마슬랜_영업여부 = true;
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "count": 1,
+                    "shops": [
+                        {
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        }
+                    ]
+                }
+                """, 마슬랜_영업여부));
+    }
+
+    @Test
+    void 배달_가능하고_영업중인_상점만_필터하여_모든_상점을_조회한다() {
+        // given
+        Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
+        shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
+        shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
+
+        shopFixture.영업중이_아닌_신전_떡볶이(owner);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+
+        var response = RestAssured
+            .given()
+            .queryParam("filter", "DELIVERY")
+            .queryParam("filter", "OPEN")
+            .when()
+            .get("/v2/shops")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        // 2024-01-15 12:00 월요일 기준
+        boolean 마슬랜_영업여부 = true;
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "count": 1,
+                    "shops": [
+                        {
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        }
+                    ]
+                }
+                """, 마슬랜_영업여부));
+    }
+
+    @Test
+    void 영업중인_상점만_필터하여_리뷰_개수_순으로_모든_상점을_조회한다() {
+        // given
+        Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
+        shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
+        shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
+
+        shopFixture.영업중이_아닌_신전_떡볶이(owner);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+
+        var response = RestAssured
+            .given()
+            .queryParam("filter", "OPEN")
+            .queryParam("sorter", "COUNT")
+            .when()
+            .get("/v2/shops")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        // 2024-01-15 12:00 월요일 기준
+        boolean 신전_떡볶이_영업여부 = true;
+        boolean 마슬랜_영업여부 = true;
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "count": 2,
+                    "shops": [
+                        {
+                            "category_ids": [
+                               \s
+                            ],
+                            "delivery": false,
+                            "id": 2,
+                            "name": "신전 떡볶이",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "TUESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "WEDNESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "THURSDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SATURDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SUNDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7788-9900",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 2
+                        },{
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        }
+                    ]
+                }
+                """, 신전_떡볶이_영업여부, 마슬랜_영업여부));
+    }
+
+    @Test
+    void 신고됐지만_아직_처리되지_않은_리뷰는_무시된_상태로_모든_상점을_조회한다() {
+        // given
+        Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
+        ShopReview 리뷰_4점 = shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
+        shopReviewReportFixture.리뷰_신고(익명_학생, 리뷰_4점, UNHANDLED);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+        var response = RestAssured
+            .given()
+            .when()
+            .get("/v2/shops")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        // 2024-01-15 12:00 월요일 기준
+        boolean 신전_떡볶이_영업여부 = true;
+        boolean 마슬랜_영업여부 = true;
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "count": 2,
+                    "shops": [
+                        {
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        },{
+                            "category_ids": [
+                               \s
+                            ],
+                            "delivery": false,
+                            "id": 2,
+                            "name": "신전 떡볶이",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "TUESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "WEDNESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "THURSDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SATURDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SUNDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7788-9900",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 0.0,
+                            "review_count": 0
+                        }
+                    ]
+                }
+                """, 마슬랜_영업여부, 신전_떡볶이_영업여부));
+    }
+
+    @Test
+    void 신고_반려된_리뷰는_반영된_상태로_모든_상점을_조회한다() {
+        // given
+        Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
+        ShopReview 리뷰_4점 = shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
+        shopReviewReportFixture.리뷰_신고(익명_학생, 리뷰_4점, DISMISSED);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+        var response = RestAssured
+            .given()
+            .when()
+            .get("/v2/shops")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        // 2024-01-15 12:00 월요일 기준
+        boolean 신전_떡볶이_영업여부 = true;
+        boolean 마슬랜_영업여부 = true;
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                    "count": 2,
+                    "shops": [
+                        {
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "21:00"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        },{
+                            "category_ids": [
+                               \s
+                            ],
+                            "delivery": false,
+                            "id": 2,
+                            "name": "신전 떡볶이",
+                            "open": [
+                                {
+                                    "day_of_week": "MONDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "TUESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "WEDNESDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "THURSDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "FRIDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SATURDAY",
+                                    "closed": false,
+                                    "open_time": "11:30",
+                                    "close_time": "21:30"
+                                },
+                                {
+                                    "day_of_week": "SUNDAY",
+                                    "closed": false,
+                                    "open_time": "00:00",
+                                    "close_time": "00:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7788-9900",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        }
+                    ]
+                }
+                """, 마슬랜_영업여부, 신전_떡볶이_영업여부));
     }
 }

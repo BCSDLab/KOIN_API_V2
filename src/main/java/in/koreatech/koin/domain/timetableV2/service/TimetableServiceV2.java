@@ -74,7 +74,7 @@ public class TimetableServiceV2 {
 
     @Transactional
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {
-        TimetableFrame frame = timetableFrameRepositoryV2.getById(frameId);
+        TimetableFrame frame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
         if (!Objects.equals(frame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }

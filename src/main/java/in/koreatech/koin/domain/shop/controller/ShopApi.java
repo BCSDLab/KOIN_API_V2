@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +25,10 @@ import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportCategoryResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
+import in.koreatech.koin.domain.shop.dto.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
+import in.koreatech.koin.domain.shop.dto.ShopsResponseV2;
+import in.koreatech.koin.domain.shop.dto.ShopsSortCriteria;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import io.swagger.v3.oas.annotations.Operation;
@@ -233,5 +238,20 @@ public interface ShopApi {
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestBody @Valid ShopReviewReportRequest shopReviewReportRequest,
         @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "정렬, 필터가 있는 모든 상점 조회")
+    @GetMapping("/v2/shops")
+    ResponseEntity<ShopsResponseV2> getShopsV2(
+        @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
+        @RequestParam(name = "filter") List<ShopsFilterCriteria> shopsFilterCriterias
     );
 }

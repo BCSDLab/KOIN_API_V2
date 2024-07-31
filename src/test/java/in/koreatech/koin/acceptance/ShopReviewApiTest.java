@@ -1,5 +1,7 @@
 package in.koreatech.koin.acceptance;
 
+import static in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED;
+import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import java.util.Optional;
@@ -13,6 +15,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
+import in.koreatech.koin.domain.shop.model.ReportStatus;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopReview;
 import in.koreatech.koin.domain.shop.model.ShopReviewReport;
@@ -79,10 +82,10 @@ class ShopReviewApiTest extends AcceptanceTest {
         준호_학생 = userFixture.준호_학생();
         익명_학생 = userFixture.익명_학생();
         현수_사장님 = userFixture.현수_사장님();
-        신전_떡볶이 = shopFixture.신전_떡볶이(현수_사장님);
+        신전_떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(현수_사장님);
         token_준호 = userFixture.getToken(준호_학생.getUser());
-        준호_학생_리뷰 = shopReviewFixture.리뷰(준호_학생, 신전_떡볶이);
-        익명_학생_리뷰 = shopReviewFixture.리뷰(익명_학생, 신전_떡볶이);
+        준호_학생_리뷰 = shopReviewFixture.리뷰_4점(준호_학생, 신전_떡볶이);
+        익명_학생_리뷰 = shopReviewFixture.리뷰_4점(익명_학생, 신전_떡볶이);
         신고_카테고리_1 = shopReviewReportCategoryFixture.리뷰_신고_주제에_맞지_않음();
         신고_카테고리_2 = shopReviewReportCategoryFixture.리뷰_신고_스팸();
         신고_카테고리_3 = shopReviewReportCategoryFixture.리뷰_신고_욕설();
@@ -117,7 +120,7 @@ class ShopReviewApiTest extends AcceptanceTest {
             .extract();
 
         transactionTemplate.executeWithoutResult(status -> {
-            ShopReview shopReview = shopReviewRepository.getById(INITIAL_REVIEW_COUNT + 1);
+            ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(INITIAL_REVIEW_COUNT + 1);
             assertSoftly(
                 softly -> {
                     softly.assertThat(shopReview.getRating()).isEqualTo(4);
@@ -158,7 +161,7 @@ class ShopReviewApiTest extends AcceptanceTest {
             .extract();
 
         transactionTemplate.executeWithoutResult(status -> {
-            ShopReview shopReview = shopReviewRepository.getById(준호_학생_리뷰.getId());
+            ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(준호_학생_리뷰.getId());
             assertSoftly(
                 softly -> {
                     softly.assertThat(shopReview.getRating()).isEqualTo(3);
@@ -253,9 +256,9 @@ class ShopReviewApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("로그인한 사용자가 자신이 신고한 리뷰를 제외한 모든 리뷰를 조회할 수 있다.")
+    @DisplayName("신고된 리뷰를 제외한 모든 리뷰를 조회할 수 있다.")
     void getReviewWithoutReportedReviews() {
-        ShopReviewReport shopReviewReport = shopReviewReportFixture.리뷰_신고(준호_학생, 익명_학생_리뷰);
+        ShopReviewReport shopReviewReport = shopReviewReportFixture.리뷰_신고(준호_학생, 익명_학생_리뷰, UNHANDLED);
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
@@ -471,6 +474,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                     softly.assertThat(shopReviewReport.isPresent()).isTrue();
                     softly.assertThat(shopReviewReport.get().getTitle()).isEqualTo("기타");
                     softly.assertThat(shopReviewReport.get().getContent()).isEqualTo("적절치 못한 리뷰인 것 같습니다.");
+                    softly.assertThat(shopReviewReport.get().getReportStatus()).isEqualTo(UNHANDLED);
                 }
             );
         });
@@ -493,12 +497,93 @@ class ShopReviewApiTest extends AcceptanceTest {
             .extract();
 
         transactionTemplate.executeWithoutResult(status -> {
-            Optional<ShopReviewReport> shopReviewReport = shopReviewReportRepository.findById(1);
+            Optional<ShopReview> shopReview = shopReviewRepository.findById(1);
             assertSoftly(
                 softly -> {
-                    softly.assertThat(shopReviewReport.isPresent()).isFalse();
+                    softly.assertThat(shopReview.get().isDeleted()).isTrue();
                 }
             );
         });
+    }
+
+    @Test
+    void 신고가_반려된_리뷰는_포함해서_모든_리뷰를_조회한다() {
+        ShopReviewReport shopReviewReport = shopReviewReportFixture.리뷰_신고(준호_학생, 익명_학생_리뷰, DISMISSED);
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_준호)
+            .when()
+            .queryParam("limit", 10)
+            .queryParam("page", 1)
+            .pathParam("shopId", 신전_떡볶이.getId())
+            .get("/shops/{shopId}/reviews")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                {
+                   "total_count": 2,
+                   "current_count": 2,
+                   "total_page": 1,
+                   "current_page": 1,
+                   "statistics": {
+                     "average_rating": 4.0,
+                     "ratings": {
+                       "1": 0,
+                       "2": 0,
+                       "3": 0,
+                       "4": 2,
+                       "5": 0
+                     }
+                   },
+                   "reviews": [
+                     { 
+                       "review_id": %d,
+                       "rating": %d,
+                       "nick_name": "%s",
+                       "content": "%s",
+                       "image_urls": [
+                         "%s"
+                       ],
+                       "menu_names": [
+                         "%s"
+                       ],
+                       "is_mine": true,
+                       "is_modified": false,
+                       "created_at": "2024-01-15"
+                     },{ 
+                       "review_id": %d,
+                       "rating": %d,
+                       "nick_name": "%s",
+                       "content": "%s",
+                       "image_urls": [
+                         "%s"
+                       ],
+                       "menu_names": [
+                         "%s"
+                       ],
+                       "is_mine": false,
+                       "is_modified": false,
+                       "created_at": "2024-01-15"
+                     }
+                   ]
+                 }
+                """,
+                준호_학생_리뷰.getId(),
+                준호_학생_리뷰.getRating(),
+                준호_학생_리뷰.getReviewer().getUser().getNickname(),
+                준호_학생_리뷰.getContent(),
+                준호_학생_리뷰.getImages().get(0).getImageUrls(),
+                준호_학생_리뷰.getMenus().get(0).getMenuName(),
+                익명_학생_리뷰.getId(),
+                익명_학생_리뷰.getRating(),
+                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getContent(),
+                익명_학생_리뷰.getImages().get(0).getImageUrls(),
+                익명_학생_리뷰.getMenus().get(0).getMenuName())
+            );
     }
 }

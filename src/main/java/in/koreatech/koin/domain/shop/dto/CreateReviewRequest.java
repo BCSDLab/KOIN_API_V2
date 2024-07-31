@@ -2,8 +2,11 @@ package in.koreatech.koin.domain.shop.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -37,4 +40,16 @@ public record CreateReviewRequest(
     @Schema(example = "[\"치킨\", \"피자\"]", description = "메뉴 이름", requiredMode = REQUIRED)
     List<String> menuNames
 ) {
+    @JsonCreator
+    public CreateReviewRequest(
+        @JsonProperty("rating") @NotNull @Min(1) @Max(5) Integer rating,
+        @JsonProperty("content") @NotBlank String content,
+        @JsonProperty("image_urls") List<String> imageUrls,
+        @JsonProperty("menu_names") List<String> menuNames
+    ) {
+        this.rating = rating;
+        this.content = content;
+        this.imageUrls = imageUrls == null? new ArrayList<>(): imageUrls;
+        this.menuNames = menuNames == null? new ArrayList<>(): menuNames;
+    }
 }
