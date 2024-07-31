@@ -584,4 +584,45 @@ class TimetableApiTest extends AcceptanceTest {
 
         assertThat(timetableRepository.findById(2)).isNotPresent();
     }
+
+    @Test
+    @DisplayName("시간표 삭제 동시성 예외 적절하게 처리하는지 테스트한다.")
+    void deleteTimetableConcurrency() throws InterruptedException {
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
+
+        timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        CountDownLatch latch = new CountDownLatch(2);
+
+        List<Response> responseList = new ArrayList<>();
+        Runnable deleteTask = () -> {
+            Response response = RestAssured
+                    .given()
+                    .header("Authorization", "Bearer " + token)
+                    .when()
+                    .param("id", 2)
+                    .delete("/timetable");
+            responseList.add(response);
+            latch.countDown();
+        };
+
+        executor.submit(deleteTask);
+        executor.submit(deleteTask);
+
+        latch.await();
+
+        boolean hasConflict = responseList.stream()
+                .anyMatch(response -> response.getStatusCode() == 409);
+
+        assertThat(hasConflict).isTrue();
+        assertThat(timetableRepository.findById(2)).isNotPresent();
+
+        executor.shutdown();
+    }
 }
