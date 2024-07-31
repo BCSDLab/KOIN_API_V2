@@ -29,7 +29,7 @@ public class BusScheduler {
         }
     }
 
-    @Scheduled(cron = "* * * * * *")
+    @Scheduled(cron = "0 30 0 * * *")
     public void cacheExpressBusByOpenApi() {
         try {
             callController.selectChildClass(expressBusClients).storeRemainTimeByOpenApi();
