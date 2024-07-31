@@ -47,12 +47,6 @@ public abstract class AcceptanceTest {
     protected int port;
 
     @MockBean
-    protected PublicExpressBusClient publicExpressBusClient;
-
-    @MockBean
-    protected TmoneyExpressBusClient tmoneyExpressBusClient;
-
-    @MockBean
     protected OwnerEventListener ownerEventListener;
 
     @MockBean
