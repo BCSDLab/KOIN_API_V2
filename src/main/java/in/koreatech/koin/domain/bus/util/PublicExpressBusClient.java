@@ -32,8 +32,8 @@ import in.koreatech.koin.domain.bus.model.express.PublicOpenApiExpressBusArrival
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import in.koreatech.koin.global.domain.callcontoller.CallControlInfo;
+import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
@@ -41,6 +41,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098541
  */
 @Component
+@CallControlInfo(ratio = 2)
 public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiResponse, String> {
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo";
@@ -61,7 +62,6 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
 
     @Override
     @Transactional
-    @CallControlInfo(ratio = 2)
     @CircuitBreaker(name = "PublicExpressBusClient")
     public void storeRemainTimeByOpenApi() {
         for (BusStation depart : BusStation.values()) {
@@ -121,7 +121,7 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
         } catch (HttpClientErrorException e) {
             throw new HttpClientErrorException(e.getStatusCode(),
                 "시외버스 Api 호출 중 문제가 발생했습니다. message: " + e.getMessage());
-        }catch (Exception ignore) {
+        } catch (Exception ignore) {
             throw BusOpenApiException.withDetail("depart: " + depart + " arrival: " + arrival);
         }
     }
@@ -135,8 +135,10 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
             urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));
             urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode("30", ENCODE_TYPE));
             urlBuilder.append("&" + encode("_type", ENCODE_TYPE) + "=" + encode("json", ENCODE_TYPE));
-            urlBuilder.append("&" + encode("depTerminalId", ENCODE_TYPE) + "=" + encode(departNode.getStationId(), ENCODE_TYPE));
-            urlBuilder.append("&" + encode("arrTerminalId", ENCODE_TYPE) + "=" + encode(arrivalNode.getStationId(), ENCODE_TYPE));
+            urlBuilder.append(
+                "&" + encode("depTerminalId", ENCODE_TYPE) + "=" + encode(departNode.getStationId(), ENCODE_TYPE));
+            urlBuilder.append(
+                "&" + encode("arrTerminalId", ENCODE_TYPE) + "=" + encode(arrivalNode.getStationId(), ENCODE_TYPE));
             urlBuilder.append("&" + encode("depPlandTime", ENCODE_TYPE) + "="
                 + encode(LocalDateTime.now(clock).format(ofPattern("yyyyMMdd")), ENCODE_TYPE));
             return urlBuilder.toString();
