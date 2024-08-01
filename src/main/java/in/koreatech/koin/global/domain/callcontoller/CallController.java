@@ -11,10 +11,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CallController {
 
-    public <T> T selectChildClass(List<T> children) {
-        CallApiList<T> parent = new CallApiList<>(children);
-        int randomNum = RandomGenerator.createNumber(0, parent.getCallApiList().size());
-        return parent.getCallApiList().get(randomNum);
+    public <T> T selectCallApi(List<T> children) {
+        CallApiList<T> callApiList = new CallApiList<>(children);
+        int randomNum = RandomGenerator.createNumber(0, callApiList.getCallApiList().size());
+        return callApiList.getCallApiList().get(randomNum);
     }
 }
 

@@ -32,7 +32,7 @@ public class BusScheduler {
     @Scheduled(cron = "0 30 0 * * *")
     public void cacheExpressBusByOpenApi() {
         try {
-            callController.selectChildClass(expressBusClients).storeRemainTimeByOpenApi();
+            callController.selectCallApi(expressBusClients).storeRemainTimeByOpenApi();
         } catch (Exception e) {
             log.warn("시외버스 스케줄링 과정에서 오류가 발생했습니다.");
         }

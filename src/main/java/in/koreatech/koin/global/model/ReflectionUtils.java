@@ -10,8 +10,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReflectionUtils {
 
-    public static <A extends Annotation> Object findAnnotationValue(Object proxy, Class<A> annotationType,
-        String methodName) {
+    public static <A extends Annotation> Object findAnnotationValue(
+        Object proxy,
+        Class<A> annotationType,
+        String methodName
+    ) {
         Class<?> object = AopProxyUtils.ultimateTargetClass(proxy);
         try {
             A annotation = object.getDeclaredAnnotation(annotationType);
@@ -22,12 +25,15 @@ public class ReflectionUtils {
         }
     }
 
-    private static <A extends Annotation> Object extractAnnotationValue(A annotation, String methodName) {
+    private static <A extends Annotation> Object extractAnnotationValue(
+        A annotation,
+        String methodName
+    ) {
         try {
             Method method = annotation.annotationType().getMethod(methodName);
             return method.invoke(annotation);
         } catch (Exception e) {
-            throw new RuntimeException("어노테이션 값 가져오기 실패: " + e.getMessage(), e);
+            throw new RuntimeException("어노테이션의 필드를 가져올 수 없습니다. " + e.getMessage());
         }
     }
 }
