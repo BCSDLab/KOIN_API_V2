@@ -430,4 +430,50 @@ class DiningApiTest extends AcceptanceTest {
                 ]
                 """);
     }
+
+    @Test
+    @DisplayName("이미지 업로드를 한다. - 품절 알림이 발송된다.")
+    void checkImageUploadNotification() {
+        String imageUrl = "https://stage.koreatech.in/image.jpg";
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_준기)
+            .body(String.format("""
+                {
+                    "menu_id": "%s",
+                    "image_url": "%s"
+                }
+                """, A코너_점심.getId(), imageUrl))
+            .when()
+            .patch("/coop/dining/image")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        verify(coopEventListener).onDiningImageUploadRequest(any());
+    }
+
+    @Test
+    @DisplayName("해당 식사시간 외에 이미지 업로드를 한다. - 품절 알림이 발송되지 않는다.")
+    void checkImageUploadNotificationAfterHours() {
+        Dining A코너_저녁 = diningFixture.A코스_저녁(LocalDate.parse("2024-01-15"));
+        String imageUrl = "https://stage.koreatech.in/image.jpg";
+
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_준기)
+            .body(String.format("""
+                {
+                    "menu_id": "%s",
+                    "image_url": "%s"
+                }
+                """, A코너_저녁.getId(), imageUrl))
+            .when()
+            .patch("/coop/dining/image")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        verify(coopEventListener, never()).onDiningImageUploadRequest(any());
+    }
 }
