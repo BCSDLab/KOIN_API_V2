@@ -1,12 +1,10 @@
 package in.koreatech.koin.domain.shop.dto;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
+
 import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.Getter;
 
 @Getter
