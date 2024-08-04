@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import in.koreatech.koin.global.exception.RequestTooFastException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +39,7 @@ public class TimetableService {
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final SemesterRepositoryV2 semesterRepositoryV2;
     private final UserRepository userRepository;
+    private final EntityManager entityManager;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
         List<Lecture> lectures = lectureRepositoryV2.findBySemester(semester);
@@ -111,13 +115,17 @@ public class TimetableService {
 
     @Transactional
     public void deleteTimetableLecture(Integer userId, Integer timetableLectureId) {
-        TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableLectureId);
-        TimetableFrame frame = timetableFrameRepositoryV2.getById(timetableLecture.getTimetableFrame().getId());
-        if (!Objects.equals(frame.getUser().getId(), userId)) {
-            throw AuthorizationException.withDetail("userId: " + userId);
+        try {
+            TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableLectureId);
+            TimetableFrame frame = timetableFrameRepositoryV2.getById(timetableLecture.getTimetableFrame().getId());
+            if (!Objects.equals(frame.getUser().getId(), userId)) {
+                throw AuthorizationException.withDetail("userId: " + userId);
+            }
+            timetableLectureRepositoryV2.deleteById(timetableLectureId);
+            entityManager.flush();
+        } catch (OptimisticLockException e) {
+            throw new RequestTooFastException("요청이 너무 빠릅니다. 다시 시도해주세요.");
         }
-
-        timetableLectureRepositoryV2.deleteById(timetableLectureId);
     }
 
     private TimetableResponse getTimetableResponse(Integer userId, TimetableFrame timetableFrame) {
