@@ -455,8 +455,16 @@ class ShopReviewApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token_준호)
             .body("""
                 {
-                    "title": "기타",
-                    "content": "적절치 못한 리뷰인 것 같습니다."
+                  "reports": [
+                    {
+                      "title": "기타",
+                      "content": "적절치 못한 리뷰인 것 같습니다."
+                    },
+                    {
+                      "title": "스팸",
+                      "content": "광고가 포함된 리뷰입니다."
+                    }
+                  ]
                 }
                 """)
             .when()
@@ -468,13 +476,17 @@ class ShopReviewApiTest extends AcceptanceTest {
             .extract();
 
         transactionTemplate.executeWithoutResult(status -> {
-            Optional<ShopReviewReport> shopReviewReport = shopReviewReportRepository.findById(1);
+            Optional<ShopReviewReport> shopReviewReport1 = shopReviewReportRepository.findById(1);
+            Optional<ShopReviewReport> shopReviewReport2 = shopReviewReportRepository.findById(2);
             assertSoftly(
                 softly -> {
-                    softly.assertThat(shopReviewReport.isPresent()).isTrue();
-                    softly.assertThat(shopReviewReport.get().getTitle()).isEqualTo("기타");
-                    softly.assertThat(shopReviewReport.get().getContent()).isEqualTo("적절치 못한 리뷰인 것 같습니다.");
-                    softly.assertThat(shopReviewReport.get().getReportStatus()).isEqualTo(UNHANDLED);
+                    softly.assertThat(shopReviewReport1.isPresent()).isTrue();
+                    softly.assertThat(shopReviewReport1.get().getTitle()).isEqualTo("기타");
+                    softly.assertThat(shopReviewReport1.get().getContent()).isEqualTo("적절치 못한 리뷰인 것 같습니다.");
+                    softly.assertThat(shopReviewReport1.get().getReportStatus()).isEqualTo(UNHANDLED);
+                    softly.assertThat(shopReviewReport2.get().getTitle()).isEqualTo("스팸");
+                    softly.assertThat(shopReviewReport2.get().getContent()).isEqualTo("광고가 포함된 리뷰입니다.");
+                    softly.assertThat(shopReviewReport2.get().getReportStatus()).isEqualTo(UNHANDLED);
                 }
             );
         });
