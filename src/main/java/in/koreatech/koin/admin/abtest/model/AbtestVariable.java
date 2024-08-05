@@ -1,9 +1,13 @@
 package in.koreatech.koin.admin.abtest.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.ColumnDefault;
 
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,18 +19,22 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
 @Entity
+@NoArgsConstructor(access = PROTECTED)
 @Table(name = "abtest_variable", schema = "koin")
-public class AbtestVariable {
+public class AbtestVariable extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "int UNSIGNED not null")
-    private Long id;
+    @Column(name = "id")
+    private Integer id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -43,26 +51,32 @@ public class AbtestVariable {
     @Column(name = "display_name", nullable = false)
     private String displayName;
 
-    @Column(name = "rate", columnDefinition = "int UNSIGNED not null")
-    private Long rate;
+    @Column(name = "rate")
+    private Integer rate;
 
-    @ColumnDefault("'0'")
-    @Column(name = "count", columnDefinition = "int UNSIGNED not null")
-    private Long count;
+    @Column(name = "count")
+    private Integer count;
 
     @NotNull
-    @ColumnDefault("0")
     @Column(name = "is_before", nullable = false)
     private Boolean isBefore = false;
 
-    @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
-    @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
+    @Builder
+    private AbtestVariable(
+        Integer id,
+        Abtest abtest,
+        String name,
+        String displayName,
+        Integer rate,
+        Integer count,
+        Boolean isBefore
+    ) {
+        this.id = id;
+        this.abtest = abtest;
+        this.name = name;
+        this.displayName = displayName;
+        this.rate = rate;
+        this.count = count;
+        this.isBefore = isBefore;
+    }
 }

@@ -1,9 +1,13 @@
 package in.koreatech.koin.admin.abtest.model;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.ColumnDefault;
 
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,18 +18,22 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
 @Entity
+@NoArgsConstructor(access = PROTECTED)
 @Table(name = "access_history_abtest_variable", schema = "koin")
-public class AccessHistoryAbtestVariable {
+public class AccessHistoryAbtestVariable extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "int UNSIGNED not null")
-    private Long id;
+    @Column(name = "id")
+    private Integer id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -37,14 +45,14 @@ public class AccessHistoryAbtestVariable {
     @JoinColumn(name = "variable_id", nullable = false)
     private AbtestVariable variable;
 
-    @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
-    @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
+    @Builder
+    private AccessHistoryAbtestVariable(
+        Integer id,
+        AccessHistory accessHistory,
+        AbtestVariable variable
+    ) {
+        this.id = id;
+        this.accessHistory = accessHistory;
+        this.variable = variable;
+    }
 }

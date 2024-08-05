@@ -1,10 +1,12 @@
 package in.koreatech.koin.admin.abtest.model;
 
-import java.time.Instant;
+import static lombok.AccessLevel.PROTECTED;
 
-import org.hibernate.annotations.ColumnDefault;
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,18 +18,20 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
 @Entity
+@NoArgsConstructor(access = PROTECTED)
 @Table(name = "device", schema = "koin")
-public class Device {
+public class Device extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "int UNSIGNED not null")
-    private Long id;
+    @Column(name = "id")
+    private Integer id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -47,18 +51,23 @@ public class Device {
     private String fcmToken;
 
     @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "last_accessed_at", nullable = false)
-    private Instant lastAccessedAt;
+    private LocalDateTime lastAccessedAt;
 
-    @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
-    @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
+    @Builder
+    private Device(
+        Integer id,
+        User user,
+        String model,
+        String os,
+        String fcmToken,
+        LocalDateTime lastAccessedAt
+    ) {
+        this.id = id;
+        this.user = user;
+        this.model = model;
+        this.os = os;
+        this.fcmToken = fcmToken;
+        this.lastAccessedAt = lastAccessedAt;
+    }
 }
