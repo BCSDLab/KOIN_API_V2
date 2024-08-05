@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop.service;
 
+import static in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest.*;
 import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
 
 import java.util.HashMap;
@@ -123,15 +124,17 @@ public class ShopReviewService {
     ) {
         Student student = studentRepository.getById(studentId);
         ShopReview shopReview = shopReviewRepository.getAllByIdAndShopIdAndIsDeleted(reviewId, shopId);
-        shopReviewReportRepository.save(
-            ShopReviewReport.builder()
-                .userId(student)
-                .review(shopReview)
-                .title(shopReviewReportRequest.title())
-                .reportStatus(UNHANDLED)
-                .content(shopReviewReportRequest.content())
-                .build()
-        );
+        for (InnerShopReviewReport shopReviewReport: shopReviewReportRequest.reports()) {
+            shopReviewReportRepository.save(
+                ShopReviewReport.builder()
+                    .userId(student)
+                    .review(shopReview)
+                    .title(shopReviewReport.title())
+                    .reportStatus(UNHANDLED)
+                    .content(shopReviewReport.content())
+                    .build()
+            );
+        }
     }
 
     public ShopReviewReportCategoryResponse getReviewReportCategories() {

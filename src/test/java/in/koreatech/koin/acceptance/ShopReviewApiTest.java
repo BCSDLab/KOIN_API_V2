@@ -134,6 +134,46 @@ class ShopReviewApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 리뷰_내용을_작성하지_않고_리뷰를_등록할_수_있다() {
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_준호)
+            .body(String.format("""
+                {
+                  "rating": 4,
+                  "image_urls": [
+                    "https://static.koreatech.in/example.png"
+                  ],
+                  "menu_names": [
+                    "치킨",
+                    "피자"
+                  ]
+                }
+                """))
+            .when()
+            .pathParam("shopId", 신전_떡볶이.getId())
+            .post("/shops/{shopId}/reviews")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.CREATED.value())
+            .extract();
+
+        transactionTemplate.executeWithoutResult(status -> {
+            ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(INITIAL_REVIEW_COUNT + 1);
+            assertSoftly(
+                softly -> {
+                    softly.assertThat(shopReview.getRating()).isEqualTo(4);
+                    softly.assertThat(shopReview.getContent()).isNull();
+                    softly.assertThat(shopReview.getImages().get(0).getImageUrls()).isEqualTo("https://static.koreatech.in/example.png");
+                    softly.assertThat(shopReview.getMenus().get(0).getMenuName()).isEqualTo("치킨");
+                    softly.assertThat(shopReview.getMenus().get(1).getMenuName()).isEqualTo("피자");
+                }
+            );
+        });
+    }
+
+    @Test
     @DisplayName("사용자가 본인의 리뷰를 수정할 수 있다.")
     void modifyReview() {
         var response = RestAssured
@@ -455,8 +495,16 @@ class ShopReviewApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token_준호)
             .body("""
                 {
-                    "title": "기타",
-                    "content": "적절치 못한 리뷰인 것 같습니다."
+                  "reports": [
+                    {
+                      "title": "기타",
+                      "content": "적절치 못한 리뷰인 것 같습니다."
+                    },
+                    {
+                      "title": "스팸",
+                      "content": "광고가 포함된 리뷰입니다."
+                    }
+                  ]
                 }
                 """)
             .when()
@@ -468,13 +516,17 @@ class ShopReviewApiTest extends AcceptanceTest {
             .extract();
 
         transactionTemplate.executeWithoutResult(status -> {
-            Optional<ShopReviewReport> shopReviewReport = shopReviewReportRepository.findById(1);
+            Optional<ShopReviewReport> shopReviewReport1 = shopReviewReportRepository.findById(1);
+            Optional<ShopReviewReport> shopReviewReport2 = shopReviewReportRepository.findById(2);
             assertSoftly(
                 softly -> {
-                    softly.assertThat(shopReviewReport.isPresent()).isTrue();
-                    softly.assertThat(shopReviewReport.get().getTitle()).isEqualTo("기타");
-                    softly.assertThat(shopReviewReport.get().getContent()).isEqualTo("적절치 못한 리뷰인 것 같습니다.");
-                    softly.assertThat(shopReviewReport.get().getReportStatus()).isEqualTo(UNHANDLED);
+                    softly.assertThat(shopReviewReport1.isPresent()).isTrue();
+                    softly.assertThat(shopReviewReport1.get().getTitle()).isEqualTo("기타");
+                    softly.assertThat(shopReviewReport1.get().getContent()).isEqualTo("적절치 못한 리뷰인 것 같습니다.");
+                    softly.assertThat(shopReviewReport1.get().getReportStatus()).isEqualTo(UNHANDLED);
+                    softly.assertThat(shopReviewReport2.get().getTitle()).isEqualTo("스팸");
+                    softly.assertThat(shopReviewReport2.get().getContent()).isEqualTo("광고가 포함된 리뷰입니다.");
+                    softly.assertThat(shopReviewReport2.get().getReportStatus()).isEqualTo(UNHANDLED);
                 }
             );
         });
