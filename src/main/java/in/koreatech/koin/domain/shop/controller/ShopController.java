@@ -28,6 +28,7 @@ import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportCategoryResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
+import in.koreatech.koin.domain.shop.dto.ShopReviewsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponseV2;
@@ -107,13 +108,13 @@ public class ShopController implements ShopApi {
     }
 
     @GetMapping("/shops/{shopId}/reviews")
-    public ResponseEntity<ShopReviewResponse> getReviews(
+    public ResponseEntity<ShopReviewsResponse> getReviews(
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "50", required = false) Integer limit,
         @UserId Integer userId
     ) {
-        ShopReviewResponse reviewResponse = shopReviewService.getReviewsByShopId(shopId, userId, page, limit);
+        ShopReviewsResponse reviewResponse = shopReviewService.getReviewsByShopId(shopId, userId, page, limit);
         return ResponseEntity.ok(reviewResponse);
     }
 
@@ -176,5 +177,15 @@ public class ShopController implements ShopApi {
         }
         var shops = shopService.getShopsV2(sortBy, shopsFilterCriterias);
         return ResponseEntity.ok(shops);
+    }
+
+    @GetMapping("/shops/{shopId}/reviews/{reviewId}")
+    public ResponseEntity<ShopReviewResponse> getReview(
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @Parameter(in = PATH) @PathVariable Integer reviewId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        ShopReviewResponse shopReviewResponse = shopReviewService.getReviewByReviewId(shopId, reviewId, studentId);
+        return ResponseEntity.ok(shopReviewResponse);
     }
 }

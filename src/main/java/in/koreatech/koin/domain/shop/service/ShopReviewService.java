@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.shop.service;
 
-import static in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest.*;
+import static in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest.InnerShopReviewReport;
 import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
 
 import java.util.HashMap;
@@ -18,6 +18,8 @@ import in.koreatech.koin.domain.shop.dto.ModifyReviewRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportCategoryResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
+import in.koreatech.koin.domain.shop.dto.ShopReviewsResponse;
+import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopReview;
 import in.koreatech.koin.domain.shop.model.ShopReviewImage;
@@ -52,7 +54,7 @@ public class ShopReviewService {
 
     private final EntityManager entityManager;
 
-    public ShopReviewResponse getReviewsByShopId(Integer shopId, Integer userId, Integer page, Integer limit) {
+    public ShopReviewsResponse getReviewsByShopId(Integer shopId, Integer userId, Integer page, Integer limit) {
         Integer total = shopReviewRepository.countByShopIdNotContainReportedAndIsDeletedFalse(shopId);
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(
@@ -64,7 +66,7 @@ public class ShopReviewService {
             pageRequest
         );
         Map<Integer, Integer> ratings = getRating(shopId);
-        return ShopReviewResponse.from(result, userId, criteria, ratings);
+        return ShopReviewsResponse.from(result, userId, criteria, ratings);
     }
 
     @Transactional
@@ -124,7 +126,7 @@ public class ShopReviewService {
     ) {
         Student student = studentRepository.getById(studentId);
         ShopReview shopReview = shopReviewRepository.getAllByIdAndShopIdAndIsDeleted(reviewId, shopId);
-        for (InnerShopReviewReport shopReviewReport: shopReviewReportRequest.reports()) {
+        for (InnerShopReviewReport shopReviewReport : shopReviewReportRequest.reports()) {
             shopReviewReportRepository.save(
                 ShopReviewReport.builder()
                     .userId(student)
@@ -155,5 +157,15 @@ public class ShopReviewService {
             ratings.put(rating, count);
         }
         return ratings;
+    }
+
+    public ShopReviewResponse getReviewByReviewId(Integer shopId, Integer reviewId, Integer studentId) {
+        ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(reviewId);
+        if (!Objects.equals(shopReview.getShop().getId(), shopId) ||
+            !Objects.equals(shopReview.getReviewer().getId(), studentId)
+        ) {
+            throw ReviewNotFoundException.withDetail("해당 상점의 리뷰가 아닙니다.");
+        }
+        return ShopReviewResponse.from(shopReview);
     }
 }
