@@ -4,7 +4,6 @@ import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
-import java.io.UnsupportedEncodingException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -19,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -34,6 +34,7 @@ import in.koreatech.koin.domain.bus.model.express.TmoneyOpenApiExpressBusArrival
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
+import in.koreatech.koin.global.domain.callcontoller.CallControlInfo;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
@@ -42,10 +43,10 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  * https://apiportal.tmoney.co.kr:18443/apiGallery/apiGalleryDetail.do?apiId=API201906241410183kp&apiPckgId=APK2024051316462950w&isTestYn=Y
  */
 @Component
+@CallControlInfo(ratio = 9)
 public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiResponse, UriComponents> {
 
     private static final String OPEN_API_URL = "https://apigw.tmoney.co.kr:5556/gateway/xzzIbtListGet/v1/ibt_list";
-
     private final String openApiKey;
 
     public TmoneyExpressBusClient(
@@ -61,7 +62,7 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
 
     @Override
     @Transactional
-    @CircuitBreaker(name = "tmoneyExpressBus")
+    @CircuitBreaker(name = "TmoneyExpressBusClient")
     public void storeRemainTimeByOpenApi() {
         for (BusStation depart : BusStation.values()) {
             for (BusStation arrival : BusStation.values()) {
@@ -120,13 +121,16 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
                 TmoneyOpenApiResponse.class
             );
             return response.getBody();
+        } catch (HttpClientErrorException e) {
+            throw new HttpClientErrorException(e.getStatusCode(),
+                "시외버스 Api 호출 중 문제가 발생했습니다. message: " + e.getMessage());
         } catch (Exception ignore) {
             throw BusOpenApiException.withDetail("depart: " + depart + " arrival: " + arrival);
         }
     }
 
     @Override
-    protected UriComponents getBusApiURL(BusStation depart, BusStation arrival) throws UnsupportedEncodingException {
+    protected UriComponents getBusApiURL(BusStation depart, BusStation arrival) {
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
         LocalDateTime today = LocalDateTime.now(clock);
@@ -143,7 +147,7 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
                 .build();
             return uri;
         } catch (Exception e) {
-            throw new KoinIllegalStateException("시외버스 API URL 생성중 문제가 발생했습니다.");
+            throw new KoinIllegalStateException("티머니 시외버스 API URL 생성중 문제가 발생했습니다. uri: " + OPEN_API_URL);
         }
     }
 }

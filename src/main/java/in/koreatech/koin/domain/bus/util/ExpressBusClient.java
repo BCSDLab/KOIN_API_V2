@@ -4,7 +4,6 @@ import static in.koreatech.koin.domain.bus.model.enums.BusStation.KOREATECH;
 import static in.koreatech.koin.domain.bus.model.enums.BusStation.TERMINAL;
 import static in.koreatech.koin.domain.bus.model.enums.BusType.EXPRESS;
 
-import java.io.UnsupportedEncodingException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -127,7 +126,7 @@ public abstract class ExpressBusClient<T, U> {
 
     protected abstract T getOpenApiResponse(BusStation depart, BusStation arrival);
 
-    protected abstract U getBusApiURL(BusStation depart, BusStation arrival) throws UnsupportedEncodingException;
+    protected abstract U getBusApiURL(BusStation depart, BusStation arrival);
 
     protected abstract List<?> extractBusArrivalInfo(T ExpressBusResponse);
 }
