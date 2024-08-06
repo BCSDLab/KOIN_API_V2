@@ -15,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -35,23 +36,30 @@ public class AccessHistory extends BaseEntity {
     @Column(name = "id")
     private Integer id;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "device_id")
+    private Device device;
+
     @Size(max = 45)
     @NotNull
     @Column(name = "public_ip", nullable = false, length = 45)
     private String publicIp;
 
-    @NotNull
+    //TODO 연결테이블 적용
+/*    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "variable_id", nullable = false)
-    private AbtestVariable variable;
+    private AbtestVariable variable;*/
 
     @Builder
     private AccessHistory(
         Integer id,
+        Device device,
         String publicIp,
         AbtestVariable variable
     ) {
         this.id = id;
+        this.device = device;
         this.publicIp = publicIp;
         this.variable = variable;
     }

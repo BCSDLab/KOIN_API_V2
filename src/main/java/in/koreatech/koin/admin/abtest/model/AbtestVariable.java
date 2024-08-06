@@ -61,6 +61,9 @@ public class AbtestVariable extends BaseEntity {
     @Column(name = "is_before", nullable = false)
     private Boolean isBefore = false;
 
+    //TODO 연결테이블 적용
+
+
     @Builder
     private AbtestVariable(
         Integer id,
