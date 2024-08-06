@@ -1,6 +1,10 @@
 package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
+import java.util.Objects;
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,8 +13,11 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.abtest.model.Abtest;
+import in.koreatech.koin.admin.abtest.model.AbtestVariable;
+import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
 import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
+import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.AbtestFixture;
@@ -129,12 +136,12 @@ public class AbtestApiTest extends AcceptanceTest {
                   "status": "IN_PROGRESS",
                   "variables": [
                     {
-                      "rate": 33,
+                      "rate": 50,
                       "display_name": "실험군 A",
                       "name": "A"
                     },
                     {
-                      "rate": 67,
+                      "rate": 50,
                       "display_name": "실험군 B",
                       "name": "B"
                     }
@@ -206,6 +213,8 @@ public class AbtestApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
+            .queryParam("page", 2)
+            .queryParam("limit", 8)
             .header("Authorization", "Bearer" + token)
             .when()
             .get("/abtest")
@@ -216,13 +225,13 @@ public class AbtestApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
                 {
-                  "total_count": 2,
-                  "current_count": 2,
-                  "total_page": 1,
-                  "current_page": 1,
+                  "total_count": 10,
+                  "current_count": 5,
+                  "total_page": 2,
+                  "current_page": 2,
                   "tests": [
                     {
-                      "id": 1,
+                      "id": 9,
                       "status": "IN_PROGRESS",
                       "creator": "송선권",
                       "team": "campus",
@@ -231,11 +240,11 @@ public class AbtestApiTest extends AcceptanceTest {
                       "updated_at": "2024-01-15 12:00:00"
                     },
                     {
-                      "id": 2,
+                      "id": 10,
                       "status": "IN_PROGRESS",
                       "creator": "송선권",
                       "team": "campus",
-                      "title": "shop_ui_test",
+                      "title": "dining_ui_test",
                       "created_at": "2024-01-15 12:00:00",
                       "updated_at": "2024-01-15 12:00:00"
                     }
@@ -256,7 +265,26 @@ public class AbtestApiTest extends AcceptanceTest {
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer" + token)
             .body(String.format("""
-                                
+                {
+                  "display_title": "식단_UI_실험",
+                  "creator": "김성재",
+                  "team": "user",
+                  "title": "dining_ui_test",
+                  "variables": [
+                    {
+                      "rate": 10,
+                      "display_name": "실험군 A",
+                      "name": "A"
+                    },
+                    {
+                      "rate": 90,
+                      "display_name": "실험군 B",
+                      "name": "B"
+                    }
+                  ],
+                  "created_at": "2024-01-15 12:00:00",
+                  "updated_at": "2024-01-15 12:00:00"
+                }
                 """))
             .when()
             .put("/abtest/{id}", abtest.getId())
@@ -265,8 +293,28 @@ public class AbtestApiTest extends AcceptanceTest {
             .extract();
 
         JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
-                """, abtest.getId()));
+            .isEqualTo("""
+                {
+                  "id": 1,
+                 "display_title": "식단_UI_실험",
+                  "creator": "김성재",
+                  "team": "user",
+                  "title": "dining_ui_test",
+                  "status": "IN_PROGRESS",
+                  "variables": [
+                    {
+                      "rate": 10,
+                      "display_name": "실험군 A",
+                      "name": "A"
+                    },
+                    {
+                      "rate": 90,
+                      "display_name": "실험군 B",
+                      "name": "B"
+                    }
+                  ]
+                }
+                """);
     }
 
     @Test
@@ -276,7 +324,7 @@ public class AbtestApiTest extends AcceptanceTest {
         String token = userFixture.getToken(adminUser);
         Abtest abtest = abtestFixture.식단_UI_실험();
 
-        var response = RestAssured
+        RestAssured
             .given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer" + token)
@@ -313,7 +361,8 @@ public class AbtestApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(abtest.getStatus()).isEqualTo("IN_PROGRESS");
+        assertThat(abtest.getStatus()).isEqualTo("CLOSE");
+        assertThat(abtest.getWinner().getName()).isEqualTo("A");
     }
 
     @Test
@@ -321,6 +370,7 @@ public class AbtestApiTest extends AcceptanceTest {
     void getUsersByUserName() {
         User adminUser = userFixture.코인_운영자();
         Student student = userFixture.성빈_학생();
+        Owner owner = userFixture.성빈_사장님();
         String token = userFixture.getToken(adminUser);
 
         var response = RestAssured
@@ -336,7 +386,21 @@ public class AbtestApiTest extends AcceptanceTest {
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
-                """));
+                {
+                  "users": [
+                    {
+                    "id": "%d",
+                    "name" : "박성빈",
+                    "detail": "testsungbeen@koreatech.ac.kr"
+                    },
+                    {
+                    "id": "%d",
+                    "name" : "박성빈",
+                    "detail": "01098765432"
+                    }
+                  ]
+                }
+                """, student.getUser().getId(), owner.getUser().getId()));
     }
 
     @Test
@@ -344,7 +408,8 @@ public class AbtestApiTest extends AcceptanceTest {
     void getDevicesByUserId() {
         User adminUser = userFixture.코인_운영자();
         Student student = userFixture.성빈_학생();
-        Device device = abtestFixture.아이폰(student.getUser().getId());
+        Device device1 = abtestFixture.아이폰(student.getUser().getId());
+        Device device2 = abtestFixture.갤럭시(student.getUser().getId());
         String token = userFixture.getToken(adminUser);
 
         var response = RestAssured
@@ -360,7 +425,26 @@ public class AbtestApiTest extends AcceptanceTest {
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
-                """));
+                {
+                  "devices": [
+                    {
+                    "id": %d,
+                    "type": "mobile",
+                    "model" : "아이폰14",
+                    "os": "ios 17",
+                    "last_logged_at": "2024-08-06 14:46:00"
+                    },
+                  "devices": [
+                    {
+                    "id": %d,
+                    "type": "mobile",
+                    "model" : "갤럭시24",
+                    "os": "android 17",
+                    "last_logged_at": "2024-08-06 14:46:00"
+                    }
+                  ]
+                }
+                """, device1.getId(), device2.getId()));
     }
 
     @Test
@@ -389,7 +473,13 @@ public class AbtestApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        // 특정 유저의 실험군이 바뀌었는지 확인하는 코드 필요
+        Optional<AbtestVariable> variable = device.getAccessHistory().getAccessHistoryAbtestVariables().stream()
+            .map(AccessHistoryAbtestVariable::getVariable)
+            .filter(var -> Objects.equals(var.getAbtest().getId(), abtest.getId()))
+            .filter(var -> var.getIsBefore().equals(false))
+            .findAny();
+
+        assertThat(variable.get().getName()).isEqualTo("A");
     }
 
     @Test
@@ -411,27 +501,29 @@ public class AbtestApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        // 실험이름으로 조건걸어서 확인하기. 엔티티 수정 후 마저 작성
-/*
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(device.getAccessHistory().getVariable().getName());
-*/
+        Optional<AbtestVariable> variable = device.getAccessHistory().getAccessHistoryAbtestVariables().stream()
+            .map(AccessHistoryAbtestVariable::getVariable)
+            .filter(var -> var.getAbtest().getTitle().equals(abtest.getTitle()))
+            .findAny();
+
+        JsonAssertions.assertThat(response.asPrettyString()).isEqualTo(variable.get().getName());
     }
 
     @Test
     @DisplayName("(실험군 자동 편입)실험군에 최초로 편입된다.")
     void assignAbtest() {
         Student student = userFixture.성빈_학생();
-        Device device = abtestFixture.아이폰(student.getUser().getId());
+        Device device1 = abtestFixture.아이폰(student.getUser().getId());
+        Device device2 = abtestFixture.갤럭시(student.getUser().getId());
         Abtest abtest = abtestFixture.식단_UI_실험();
 
-        var response = RestAssured
+        var response1 = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("X-Forwarded-For", device.getAccessHistory().getPublicIp())
+            .header("X-Forwarded-For", device1.getAccessHistory().getPublicIp())
             .body(String.format("""
                 {
-                  "title": "business.register.phone_number"
+                  "title": "dining_ui_test"
                 }
                 """))
             .when()
@@ -440,6 +532,23 @@ public class AbtestApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        // 위 테스트와 동일
+        var response2 = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .header("X-Forwarded-For", device2.getAccessHistory().getPublicIp())
+            .body(String.format("""
+                {
+                  "title": "dining_ui_test"
+                }
+                """))
+            .when()
+            .get("/abtest/assign")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        String res1 = response1.asPrettyString();
+        String res2 = response2.asPrettyString();
+        assertNotEquals(res1, res2);
     }
 }

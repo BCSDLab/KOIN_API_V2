@@ -133,7 +133,7 @@ public final class UserFixture {
                     User.builder()
                         .password(passwordEncoder.encode("1234"))
                         .nickname("성빈")
-                        .name("테스트용_성빈")
+                        .name("박성빈")
                         .phoneNumber("01099411123")
                         .userType(STUDENT)
                         .gender(MAN)
@@ -144,6 +144,47 @@ public final class UserFixture {
                 )
                 .build()
         );
+    }
+
+    public Owner 성빈_사장님() {
+        User user = User.builder()
+            .password(passwordEncoder.encode("1234"))
+            .nickname("성빈")
+            .name("박성빈")
+            .phoneNumber("01098765432")
+            .userType(OWNER)
+            .gender(MAN)
+            .email("testsungbeen@naver.com")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        Owner owner = Owner.builder()
+            .account("01098765432")
+            .user(user)
+            .companyRegistrationNumber("123-45-67190")
+            .grantShop(true)
+            .grantEvent(true)
+            .account("01098765432")
+            .attachments(new ArrayList<>())
+            .build();
+
+        OwnerAttachment attachment1 = OwnerAttachment.builder()
+            .url("https://test.com/성빈_사장님_인증사진_1.jpg")
+            .isDeleted(false)
+            .owner(owner)
+            .build();
+
+        OwnerAttachment attachment2 = OwnerAttachment.builder()
+            .url("https://test.com/성빈_사장님_인증사진_2.jpg")
+            .isDeleted(false)
+            .owner(owner)
+            .build();
+
+        owner.getAttachments().add(attachment1);
+        owner.getAttachments().add(attachment2);
+
+        return ownerRepository.save(owner);
     }
 
     public Owner 현수_사장님() {

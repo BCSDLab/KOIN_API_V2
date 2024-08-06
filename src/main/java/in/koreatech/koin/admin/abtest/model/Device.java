@@ -43,6 +43,11 @@ public class Device extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @NotNull
+    @Size(max = 50)
+    @Column(name = "type", length = 50)
+    private String type;
+
     @Size(max = 100)
     @Column(name = "model", length = 100)
     private String model;
@@ -64,6 +69,7 @@ public class Device extends BaseEntity {
         Integer id,
         AccessHistory accessHistory,
         User user,
+        String type,
         String model,
         String os,
         String fcmToken,
@@ -72,6 +78,7 @@ public class Device extends BaseEntity {
         this.id = id;
         this.accessHistory = accessHistory;
         this.user = user;
+        this.type = type;
         this.model = model;
         this.os = os;
         this.fcmToken = fcmToken;

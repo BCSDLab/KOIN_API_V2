@@ -9,6 +9,7 @@ import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
 
 import in.koreatech.koin.global.domain.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -48,7 +49,7 @@ public class AccessHistory extends BaseEntity {
     @Column(name = "public_ip", nullable = false, length = 45)
     private String publicIp;
 
-    @OneToMany(mappedBy = "accessHistory")
+    @OneToMany(mappedBy = "accessHistory", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<AccessHistoryAbtestVariable> accessHistoryAbtestVariables = new ArrayList<>();
 
     @Builder

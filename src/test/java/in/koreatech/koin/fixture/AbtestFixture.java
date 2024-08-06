@@ -59,7 +59,7 @@ public final class AbtestFixture {
                 .abtest(abtest)
                 .name("A")
                 .displayName("실험군 A")
-                .rate(33)
+                .rate(50)
                 .count(0)
                 .isBefore(false)
                 .build();
@@ -69,7 +69,7 @@ public final class AbtestFixture {
                 .abtest(abtest)
                 .name("B")
                 .displayName("실험군 B")
-                .rate(67)
+                .rate(50)
                 .count(0)
                 .isBefore(false)
                 .build();
@@ -102,8 +102,25 @@ public final class AbtestFixture {
                 ))
                 .user(userRepository.getById(userId))
                 .model("아이폰14")
-                .os("ios")
+                .os("ios 17")
                 .fcmToken("abcd1234")
+                .lastAccessedAt(LocalDateTime.of(2024, 8, 6, 14, 46))
+                .build()
+        );
+    }
+
+    public Device 갤럭시(Integer userId) {
+        return deviceRepository.save(
+            Device.builder()
+                .accessHistory(accessHistoryRepository.save(
+                    AccessHistory.builder()
+                        .publicIp("5678")
+                        .build()
+                ))
+                .user(userRepository.getById(userId))
+                .model("갤럭시24")
+                .os("android 17")
+                .fcmToken("abcd14")
                 .lastAccessedAt(LocalDateTime.of(2024, 8, 6, 14, 46))
                 .build()
         );

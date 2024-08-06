@@ -10,6 +10,7 @@ import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
 
 import in.koreatech.koin.global.domain.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -64,7 +65,7 @@ public class AbtestVariable extends BaseEntity {
     @Column(name = "is_before", nullable = false)
     private Boolean isBefore = false;
 
-    @OneToMany(mappedBy = "abtestVariable")
+    @OneToMany(mappedBy = "variable", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<AccessHistoryAbtestVariable> accessHistoryAbtestVariables = new ArrayList<>();
 
     @Builder
