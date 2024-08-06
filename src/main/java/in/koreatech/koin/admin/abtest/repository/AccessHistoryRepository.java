@@ -6,4 +6,5 @@ import in.koreatech.koin.admin.abtest.model.AccessHistory;
 
 public interface AccessHistoryRepository extends Repository<AccessHistory, Integer> {
 
+    AccessHistory save(AccessHistory accessHistory);
 }

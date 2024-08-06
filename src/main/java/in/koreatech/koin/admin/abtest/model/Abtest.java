@@ -3,15 +3,20 @@ package in.koreatech.koin.admin.abtest.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.ColumnDefault;
 
 import in.koreatech.koin.global.domain.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -34,35 +39,49 @@ public class Abtest extends BaseEntity {
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(name = "title", nullable = false)
+    private String title;
 
     @Size(max = 255)
     @NotNull
     @Column(name = "display_name", nullable = false)
-    private String displayName;
+    private String displayTitle;
 
     @Size(max = 255)
     @Column(name = "description")
     private String description;
 
+    @Size(max = 50)
+    @Column(name = "creator")
+    private String creator;
+
+    @Size(max = 50)
+    @Column(name = "team")
+    private String team;
+
     @NotNull
-    @ColumnDefault("1")
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = false;
+    @Column(name = "status", nullable = false)
+    private String status;
+
+    @OneToMany(mappedBy = "abtest", cascade = CascadeType.PERSIST)
+    private List<AbtestVariable> abtestVariables = new ArrayList<>();
 
     @Builder
     private Abtest(
         Integer id,
-        String name,
-        String displayName,
+        String title,
+        String displayTitle,
         String description,
-        Boolean isActive
+        String creator,
+        String team,
+        String status
     ) {
         this.id = id;
-        this.name = name;
-        this.displayName = displayName;
+        this.title = title;
+        this.displayTitle = displayTitle;
         this.description = description;
-        this.isActive = isActive;
+        this.creator = creator;
+        this.team = team;
+        this.status = status;
     }
 }

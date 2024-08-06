@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -34,7 +35,7 @@ public class Device extends BaseEntity {
     @Column(name = "id")
     private Integer id;
 
-    @OneToOne(mappedBy = "device")
+    @OneToOne(mappedBy = "device", cascade = CascadeType.PERSIST)
     private AccessHistory accessHistory;
 
     @NotNull
@@ -61,6 +62,7 @@ public class Device extends BaseEntity {
     @Builder
     private Device(
         Integer id,
+        AccessHistory accessHistory,
         User user,
         String model,
         String os,
@@ -68,6 +70,7 @@ public class Device extends BaseEntity {
         LocalDateTime lastAccessedAt
     ) {
         this.id = id;
+        this.accessHistory = accessHistory;
         this.user = user;
         this.model = model;
         this.os = os;

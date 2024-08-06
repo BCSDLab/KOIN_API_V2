@@ -4,6 +4,8 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.ColumnDefault;
 
@@ -16,6 +18,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -61,8 +64,8 @@ public class AbtestVariable extends BaseEntity {
     @Column(name = "is_before", nullable = false)
     private Boolean isBefore = false;
 
-    //TODO 연결테이블 적용
-
+    @OneToMany(mappedBy = "abtestVariable")
+    private List<AccessHistoryAbtestVariable> accessHistoryAbtestVariables = new ArrayList<>();
 
     @Builder
     private AbtestVariable(

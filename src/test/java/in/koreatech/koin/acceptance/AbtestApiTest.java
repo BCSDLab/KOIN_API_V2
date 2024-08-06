@@ -120,7 +120,28 @@ public class AbtestApiTest extends AcceptanceTest {
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
-
+                {
+                  "id": 1,
+                  "display_title": "식단_UI_실험",
+                  "creater": "송선권",
+                  "team": "campus",
+                  "title": "dining_ui_test",
+                  "status": "IN_PROGRESS",
+                  "variables": [
+                    {
+                      "rate": 33,
+                      "display_name": "실험군 A",
+                      "name": "A"
+                    },
+                    {
+                      "rate": 67,
+                      "display_name": "실험군 B",
+                      "name": "B"
+                    }
+                  ],
+                  "created_at": "2024-01-15 12:00:00",
+                  "updated_at": "2024-01-15 12:00:00"
+                }
                 """, abtest.getId()));
     }
 
@@ -144,6 +165,32 @@ public class AbtestApiTest extends AcceptanceTest {
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
+                {
+                  "total_count": 2,
+                  "current_count": 2,
+                  "total_page": 1,
+                  "current_page": 1,
+                  "tests": [
+                    {
+                      "id": 1,
+                      "status": "IN_PROGRESS",
+                      "creator": "송선권",
+                      "team": "campus",
+                      "title": "dining_ui_test",
+                      "created_at": "2024-01-15 12:00:00",
+                      "updated_at": "2024-01-15 12:00:00"
+                    },
+                    {
+                      "id": 2,
+                      "status": "IN_PROGRESS",
+                      "creator": "송선권",
+                      "team": "campus",
+                      "title": "shop_ui_test",
+                      "created_at": "2024-01-15 12:00:00",
+                      "updated_at": "2024-01-15 12:00:00"
+                    }
+                  ]
+                }
                 """));
     }
 
@@ -168,6 +215,32 @@ public class AbtestApiTest extends AcceptanceTest {
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
+                {
+                  "total_count": 2,
+                  "current_count": 2,
+                  "total_page": 1,
+                  "current_page": 1,
+                  "tests": [
+                    {
+                      "id": 1,
+                      "status": "IN_PROGRESS",
+                      "creator": "송선권",
+                      "team": "campus",
+                      "title": "dining_ui_test",
+                      "created_at": "2024-01-15 12:00:00",
+                      "updated_at": "2024-01-15 12:00:00"
+                    },
+                    {
+                      "id": 2,
+                      "status": "IN_PROGRESS",
+                      "creator": "송선권",
+                      "team": "campus",
+                      "title": "shop_ui_test",
+                      "created_at": "2024-01-15 12:00:00",
+                      "updated_at": "2024-01-15 12:00:00"
+                    }
+                  ]
+                }
                 """));
     }
 
@@ -240,7 +313,7 @@ public class AbtestApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(abtest.getIsActive()).isFalse();
+        assertThat(abtest.getStatus()).isEqualTo("IN_PROGRESS");
     }
 
     @Test
@@ -331,7 +404,7 @@ public class AbtestApiTest extends AcceptanceTest {
             .given()
             .contentType(ContentType.JSON)
             .header("X-Forwarded-For", device.getAccessHistory().getPublicIp())
-            .queryParam("title", abtest.getName())
+            .queryParam("title", abtest.getTitle())
             .when()
             .get("/abtest/me")
             .then()

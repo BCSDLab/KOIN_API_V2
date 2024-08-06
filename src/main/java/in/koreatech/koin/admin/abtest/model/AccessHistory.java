@@ -3,6 +3,8 @@ package in.koreatech.koin.admin.abtest.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.ColumnDefault;
 
@@ -15,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -45,22 +48,17 @@ public class AccessHistory extends BaseEntity {
     @Column(name = "public_ip", nullable = false, length = 45)
     private String publicIp;
 
-    //TODO 연결테이블 적용
-/*    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "variable_id", nullable = false)
-    private AbtestVariable variable;*/
+    @OneToMany(mappedBy = "accessHistory")
+    private List<AccessHistoryAbtestVariable> accessHistoryAbtestVariables = new ArrayList<>();
 
     @Builder
     private AccessHistory(
         Integer id,
         Device device,
-        String publicIp,
-        AbtestVariable variable
+        String publicIp
     ) {
         this.id = id;
         this.device = device;
         this.publicIp = publicIp;
-        this.variable = variable;
     }
 }

@@ -9,4 +9,6 @@ import in.koreatech.koin.admin.abtest.model.Abtest;
 public interface AbtestRepository extends Repository<Abtest, Integer> {
 
     Optional<Abtest> findById(Integer id);
+
+    Abtest save(Abtest build);
 }

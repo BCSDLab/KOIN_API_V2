@@ -1,4 +1,5 @@
-CREATE TABLE `device` (
+CREATE TABLE `device`
+(
     `id`               int unsigned NOT NULL AUTO_INCREMENT,
     `user_id`          int unsigned NOT NULL,
     `model`            varchar(100)       DEFAULT NULL,
@@ -21,7 +22,8 @@ CREATE TABLE `access_history`
     PRIMARY KEY (`id`),
 );
 
-CREATE TABLE `abtest_variable` (
+CREATE TABLE `abtest_variable`
+(
     `id`           int unsigned NOT NULL AUTO_INCREMENT,
     `abtest_id`    int unsigned NOT NULL,
     `name`         varchar(255) NOT NULL,
@@ -34,7 +36,8 @@ CREATE TABLE `abtest_variable` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `access_history_abtest_variable` (
+CREATE TABLE `access_history_abtest_variable`
+(
     `id`                int unsigned NOT NULL AUTO_INCREMENT,
     `access_history_id` int unsigned NOT NULL,
     `variable_id`       int unsigned NOT NULL,
@@ -43,13 +46,16 @@ CREATE TABLE `access_history_abtest_variable` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `abtest` (
+CREATE TABLE `abtest`
+(
     `id`           int unsigned NOT NULL AUTO_INCREMENT,
-    `name`         varchar(255) NOT NULL,
-    `display_name` varchar(255) NOT NULL,
+    `title`         varchar(255) NOT NULL,
+    `display_title` varchar(255) NOT NULL,
     `description`  varchar(255)          DEFAULT NULL,
+    `creator`      varchar(50)           DEFAULT NULL,
+    `team`         varchar(50)           DEFAULT NULL,
     `winner_id`    int unsigned DEFAULT NULL,
-    `is_active`    tinyint(1) DEFAULT '1',
+    `status`    varchar(50) NOT NULL DEFAULT `IN_PROGRESS`,
     `created_at`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
