@@ -46,6 +46,7 @@ public record ShopReviewResponse(
     @Schema(example = "2024-03-01", description = "리뷰 작성일", requiredMode = REQUIRED)
     LocalDateTime createdAt
 ) {
+
     public static ShopReviewResponse from(ShopReview review) {
         String nickName = review.getReviewer().getUser().getNickname();
         if (nickName == null) {

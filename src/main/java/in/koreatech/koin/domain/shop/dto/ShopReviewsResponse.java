@@ -39,6 +39,7 @@ public record ShopReviewsResponse(
     @Schema(description = "해당 상점의 리뷰", requiredMode = REQUIRED)
     List<InnerReviewResponse> reviews
 ) {
+
     public static ShopReviewsResponse from(
         Page<ShopReview> pagedResult,
         Integer userId,
@@ -90,6 +91,7 @@ public record ShopReviewsResponse(
         @Schema(example = "2024-03-01", description = "리뷰 작성일", requiredMode = REQUIRED)
         LocalDateTime createdAt
     ) {
+
         public static InnerReviewResponse from(ShopReview review, Integer userId) {
             String nickName = review.getReviewer().getUser().getNickname();
             if (nickName == null) {
@@ -126,6 +128,7 @@ public record ShopReviewsResponse(
         Map<Integer, Integer> ratings
 
     ) {
+
         public static InnerReviewStatisticsResponse from(Map<Integer, Integer> ratings) {
             double totalSum = ratings.entrySet()
                 .stream()
@@ -145,5 +148,4 @@ public record ShopReviewsResponse(
             );
         }
     }
-
 }
