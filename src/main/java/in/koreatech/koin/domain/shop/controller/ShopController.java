@@ -25,6 +25,7 @@ import in.koreatech.koin.domain.shop.dto.ReviewsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
+import in.koreatech.koin.domain.shop.dto.ShopMyReviewsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportCategoryResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
@@ -118,6 +119,16 @@ public class ShopController implements ShopApi {
     ) {
         ShopReviewsResponse reviewResponse = shopReviewService.getReviewsByShopId(shopId, userId, page, limit, sortBy);
         return ResponseEntity.ok(reviewResponse);
+    }
+
+    @GetMapping("/shops/{shopId}/reviews/me")
+    public ResponseEntity<ShopMyReviewsResponse> getMyReviews(
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @RequestParam(name = "sorter", defaultValue = "LATEST") ReviewsSortCriteria sortBy,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        ShopMyReviewsResponse reviewsResponse = shopReviewService.getMyReviewsByShopId(shopId, studentId, sortBy);
+        return ResponseEntity.ok(reviewsResponse);
     }
 
     @PostMapping("/shops/{shopId}/reviews")

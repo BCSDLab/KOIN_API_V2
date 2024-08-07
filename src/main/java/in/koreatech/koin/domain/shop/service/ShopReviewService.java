@@ -10,13 +10,13 @@ import java.util.Objects;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.shop.dto.CreateReviewRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyReviewRequest;
 import in.koreatech.koin.domain.shop.dto.ReviewsSortCriteria;
+import in.koreatech.koin.domain.shop.dto.ShopMyReviewsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportCategoryResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
@@ -170,5 +170,14 @@ public class ShopReviewService {
             throw ReviewNotFoundException.withDetail("해당 상점의 리뷰가 아닙니다.");
         }
         return ShopReviewResponse.from(shopReview);
+    }
+
+    public ShopMyReviewsResponse getMyReviewsByShopId(Integer shopId, Integer studentId, ReviewsSortCriteria sortBy) {
+        List<ShopReview> reviews = shopReviewRepository.findAllMyReviewsByShopIdNotContainReportedAndIsDeletedFalse(
+            shopId,
+            studentId,
+            sortBy.getSort()
+        );
+        return ShopMyReviewsResponse.from(reviews);
     }
 }
