@@ -26,12 +26,12 @@ public class AbtestService {
 
     @Transactional
     public void syncCacheCountToDB() {
-        List<AbtestCount> abtestCounts = abtestCountRepository.findAll();
-        abtestCounts.forEach(abtestCount -> {
+        List<AbtestCount> cacheCount = abtestCountRepository.findAll();
+        cacheCount.forEach(abtestCount -> {
             AbtestVariable variable = abtestVariableRepository.getById(abtestCount.getVariableId());
             variable.addCount(abtestCount.getCount());
             abtestCount.resetCount();
         });
-        abtestCountRepository.saveAll(abtestCounts);
+        abtestCountRepository.saveAll(cacheCount);
     }
 }
