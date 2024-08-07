@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.util;
+package in.koreatech.koin.domain.bus.util.express;
 
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -44,26 +44,29 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  */
 @Component
 @CallControlInfo(ratio = 9)
-public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiResponse, UriComponents> {
+public class TmoneyExpressBusClient extends ExpressBusClient {
 
     private static final String OPEN_API_URL = "https://apigw.tmoney.co.kr:5556/gateway/xzzIbtListGet/v1/ibt_list";
+
+    private final RestTemplate restTemplate;
     private final String openApiKey;
 
     public TmoneyExpressBusClient(
-        RestTemplate restTemplate,
         @Value("${OPEN_API_KEY_TMONEY}") String openApiKey,
         VersionRepository versionRepository,
+        RestTemplate restTemplate,
         Clock clock,
         ExpressBusCacheRepository expressBusCacheRepository
     ) {
-        super(versionRepository, restTemplate, clock, expressBusCacheRepository);
+        super(expressBusCacheRepository, versionRepository, clock);
+        this.restTemplate = restTemplate;
         this.openApiKey = openApiKey;
     }
 
     @Override
     @Transactional
     @CircuitBreaker(name = "TmoneyExpressBusClient")
-    public void storeRemainTimeByOpenApi() {
+    public void storeRemainTime() {
         for (BusStation depart : BusStation.values()) {
             for (BusStation arrival : BusStation.values()) {
                 if (depart == arrival || depart.equals(BusStation.STATION) || arrival.equals(BusStation.STATION)) {
@@ -96,16 +99,14 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
         versionRepository.getByType(VersionType.EXPRESS).update(clock);
     }
 
-    @Override
-    protected List<TmoneyOpenApiExpressBusArrival> extractBusArrivalInfo(TmoneyOpenApiResponse tmoneyResponse) {
+    private List<TmoneyOpenApiExpressBusArrival> extractBusArrivalInfo(TmoneyOpenApiResponse tmoneyResponse) {
         if (!tmoneyResponse.code().equals("00000")) {
             return Collections.emptyList();
         }
         return tmoneyResponse.response().LINE_LIST();
     }
 
-    @Override
-    protected TmoneyOpenApiResponse getOpenApiResponse(BusStation depart, BusStation arrival) {
+    private TmoneyOpenApiResponse getOpenApiResponse(BusStation depart, BusStation arrival) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -113,7 +114,7 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
             headers.set("Accept", "*/*");
 
             HttpEntity<?> entity = new HttpEntity<>(headers);
-            UriComponents uri = getBusApiURL(depart, arrival);
+            UriComponents uri = getRequestURL(depart, arrival);
             ResponseEntity<TmoneyOpenApiResponse> response = restTemplate.exchange(
                 uri.toString(),
                 HttpMethod.GET,
@@ -129,8 +130,7 @@ public class TmoneyExpressBusClient extends ExpressBusClient<TmoneyOpenApiRespon
         }
     }
 
-    @Override
-    protected UriComponents getBusApiURL(BusStation depart, BusStation arrival) {
+    private UriComponents getRequestURL(BusStation depart, BusStation arrival) {
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
         LocalDateTime today = LocalDateTime.now(clock);

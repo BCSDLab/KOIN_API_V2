@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.util;
+package in.koreatech.koin.domain.bus.util.city;
 
 import static java.net.URLEncoder.encode;
 

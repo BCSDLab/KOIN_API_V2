@@ -12,27 +12,27 @@ public interface CallControllable<T> {
 
     T getInstanceByRatio();
 
-    default T selectCallApi(List<T> callApiList) {
-        int lastIndex = callApiList.size() - 1;
-        T callApi = callApiList.get(lastIndex);
-        callApiList.remove(lastIndex);
+    default T selectCallApi(List<T> callListByRatio) {
+        int lastIndex = callListByRatio.size() - 1;
+        T callApi = callListByRatio.get(lastIndex);
+        callListByRatio.remove(lastIndex);
         return callApi;
     }
 
-    default List<T> generateCallApiList(List<T> children) {
-        List<T> callApiList = new ArrayList<>();
-        children.forEach(
+    default List<T> generateApiCallListByRatio(List<T> childTypes) {
+        List<T> callListByRatio = new ArrayList<>();
+        childTypes.forEach(
             child -> {
-                int ratio = getApiRatio(child);
+                int ratio = getChildRatio(child);
                 for (int i = 0; i < ratio; i++) {
-                    callApiList.add(child);
+                    callListByRatio.add(child);
                 }
             }
         );
-        return callApiList;
+        return callListByRatio;
     }
 
-    private int getApiRatio(T child) {
+    private int getChildRatio(T child) {
         return (int)ReflectionUtils.findAnnotationValue(child, CALL_CONTROL_ANNOTATION, RATIO);
     }
 }

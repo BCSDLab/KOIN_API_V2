@@ -1,20 +1,20 @@
-package in.koreatech.koin.domain.bus.util;
+package in.koreatech.koin.domain.bus.util.express;
 
 import static in.koreatech.koin.domain.bus.model.enums.BusStation.KOREATECH;
 import static in.koreatech.koin.domain.bus.model.enums.BusStation.TERMINAL;
 import static in.koreatech.koin.domain.bus.model.enums.BusType.EXPRESS;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
@@ -26,26 +26,29 @@ import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusTimetable;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
-import in.koreatech.koin.domain.version.repository.VersionRepository;
+import in.koreatech.koin.global.domain.callcontoller.CallControllable;
+import lombok.RequiredArgsConstructor;
 
+@Component
 @Transactional(readOnly = true)
-public abstract class ExpressBusClient<T, U> {
+@RequiredArgsConstructor
+public class ExpressBusService implements CallControllable<ExpressBusClient> {
 
-    protected final VersionRepository versionRepository;
-    protected final ExpressBusCacheRepository expressBusCacheRepository;
-    protected final RestTemplate restTemplate;
-    protected final Clock clock;
+    private final List<ExpressBusClient> expressBusTypes;
+    private final List<ExpressBusClient> apiCallListByRatio = new ArrayList<>();
+    private final ExpressBusCacheRepository expressBusCacheRepository;
 
-    public ExpressBusClient(
-        VersionRepository versionRepository,
-        RestTemplate restTemplate,
-        Clock clock,
-        ExpressBusCacheRepository expressBusCacheRepository
-    ) {
-        this.versionRepository = versionRepository;
-        this.restTemplate = restTemplate;
-        this.clock = clock;
-        this.expressBusCacheRepository = expressBusCacheRepository;
+    public void storeRemainTimeByRatio() {
+        ExpressBusClient selectedBusClient = getInstanceByRatio();
+        selectedBusClient.storeRemainTime();
+    }
+
+    @Override
+    public ExpressBusClient getInstanceByRatio() {
+        if (apiCallListByRatio.isEmpty()) {
+            apiCallListByRatio.addAll(generateApiCallListByRatio(expressBusTypes));
+        }
+        return selectCallApi(apiCallListByRatio);
     }
 
     public SingleBusTimeResponse searchBusTime(
@@ -121,12 +124,4 @@ public abstract class ExpressBusClient<T, U> {
             .map(ExpressBusTimetable::from)
             .toList();
     }
-
-    public abstract void storeRemainTimeByOpenApi();
-
-    protected abstract T getOpenApiResponse(BusStation depart, BusStation arrival);
-
-    protected abstract U getBusApiURL(BusStation depart, BusStation arrival);
-
-    protected abstract List<?> extractBusArrivalInfo(T ExpressBusResponse);
 }

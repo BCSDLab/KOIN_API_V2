@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.util;
+package in.koreatech.koin.domain.bus.util.express;
 
 import static java.net.URLEncoder.encode;
 import static java.time.format.DateTimeFormatter.ofPattern;
@@ -42,11 +42,12 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
  */
 @Component
 @CallControlInfo(ratio = 2)
-public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiResponse, String> {
+public class PublicExpressBusClient extends ExpressBusClient {
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/SuburbsBusInfoService/getStrtpntAlocFndSuberbsBusInfo";
     private static final String ENCODE_TYPE = "UTF-8";
 
+    private final RestTemplate restTemplate;
     private final String openApiKey;
 
     public PublicExpressBusClient(
@@ -56,14 +57,15 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
         Clock clock,
         ExpressBusCacheRepository expressBusCacheRepository
     ) {
-        super(versionRepository, restTemplate, clock, expressBusCacheRepository);
+        super(expressBusCacheRepository, versionRepository, clock);
+        this.restTemplate = restTemplate;
         this.openApiKey = openApiKey;
     }
 
     @Override
     @Transactional
     @CircuitBreaker(name = "PublicExpressBusClient")
-    public void storeRemainTimeByOpenApi() {
+    public void storeRemainTime() {
         for (BusStation depart : BusStation.values()) {
             for (BusStation arrival : BusStation.values()) {
                 if (depart == arrival || depart.equals(BusStation.STATION) || arrival.equals(BusStation.STATION)) {
@@ -102,15 +104,14 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
         versionRepository.getByType(VersionType.EXPRESS).update(clock);
     }
 
-    @Override
-    protected PublicOpenApiResponse getOpenApiResponse(BusStation depart, BusStation arrival) {
+    private PublicOpenApiResponse getOpenApiResponse(BusStation depart, BusStation arrival) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Accept", "*/*");
 
             HttpEntity<?> entity = new HttpEntity<>(headers);
-            URL uri = new URL(getBusApiURL(depart, arrival));
+            URL uri = new URL(getRequestURL(depart, arrival));
             ResponseEntity<PublicOpenApiResponse> response = restTemplate.exchange(
                 uri.toURI(),
                 HttpMethod.GET,
@@ -126,8 +127,7 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
         }
     }
 
-    @Override
-    protected String getBusApiURL(BusStation depart, BusStation arrival) {
+    private String getRequestURL(BusStation depart, BusStation arrival) {
         ExpressBusStationNode departNode = ExpressBusStationNode.from(depart);
         ExpressBusStationNode arrivalNode = ExpressBusStationNode.from(arrival);
         StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL); /*URL*/
@@ -147,8 +147,7 @@ public class PublicExpressBusClient extends ExpressBusClient<PublicOpenApiRespon
         }
     }
 
-    @Override
-    protected List<PublicOpenApiExpressBusArrival> extractBusArrivalInfo(PublicOpenApiResponse publicResponse) {
+    private List<PublicOpenApiExpressBusArrival> extractBusArrivalInfo(PublicOpenApiResponse publicResponse) {
         if (!publicResponse.response().header().resultCode().equals("00")
             || publicResponse.response().body().totalCount() == 0) {
             return Collections.emptyList();
