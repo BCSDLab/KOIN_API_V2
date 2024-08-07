@@ -17,12 +17,7 @@ ALTER TABLE `koin`.`access_history`
         FOREIGN KEY (`device_id`)
             REFERENCES `koin`.`device` (`id`)
             ON DELETE NO ACTION
-            ON UPDATE NO ACTION,
-ADD CONSTRAINT `FK_ACCESS_HISTORY_ON_VARIABLE_ID`
-  FOREIGN KEY (`variable_id`)
-  REFERENCES `koin`.`abtest_variable` (`id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
+            ON UPDATE NO ACTION;
 
 
 ALTER TABLE `koin`.`access_history_abtest_variable`

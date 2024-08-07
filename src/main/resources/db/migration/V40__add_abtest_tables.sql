@@ -16,7 +16,6 @@ CREATE TABLE `access_history`
     `id`          int unsigned NOT NULL AUTO_INCREMENT,
     `device_id`   int unsigned DEFAULT NULL,
     `public_ip`   varchar(45) NOT NULL,
-    `variable_id` int unsigned NOT NULL,
     `created_at`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
