@@ -10,11 +10,13 @@ import java.util.Objects;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.shop.dto.CreateReviewRequest;
 import in.koreatech.koin.domain.shop.dto.ModifyReviewRequest;
+import in.koreatech.koin.domain.shop.dto.ReviewsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportCategoryResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
@@ -54,12 +56,13 @@ public class ShopReviewService {
 
     private final EntityManager entityManager;
 
-    public ShopReviewsResponse getReviewsByShopId(Integer shopId, Integer userId, Integer page, Integer limit) {
+    public ShopReviewsResponse getReviewsByShopId(Integer shopId, Integer userId, Integer page, Integer limit, ReviewsSortCriteria sortBy) {
         Integer total = shopReviewRepository.countByShopIdNotContainReportedAndIsDeletedFalse(shopId);
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(
             criteria.getPage(),
-            criteria.getLimit()
+            criteria.getLimit(),
+            sortBy.getSort()
         );
         Page<ShopReview> result = shopReviewRepository.findAllByShopIdNotContainReportedAndIsDeletedFalse(
             shopId,

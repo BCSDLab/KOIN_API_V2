@@ -18,6 +18,7 @@ import in.koreatech.koin.domain.shop.dto.CreateReviewRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ModifyReviewRequest;
+import in.koreatech.koin.domain.shop.dto.ReviewsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
@@ -159,6 +160,7 @@ public interface ShopApi {
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "50", required = false) Integer limit,
+        @RequestParam(name = "sorter", defaultValue = "LATEST") ReviewsSortCriteria sortBy,
         @UserId Integer userId
     );
 
