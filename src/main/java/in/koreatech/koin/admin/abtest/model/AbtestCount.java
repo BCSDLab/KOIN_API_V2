@@ -11,12 +11,16 @@ import lombok.Getter;
 public class AbtestCount {
 
     @Id
-    private Integer id;
+    private Integer variableId;
     private Integer count;
 
     @Builder
-    private AbtestCount(Integer id, Integer count) {
-        this.id = id;
+    private AbtestCount(Integer variableId, Integer count) {
+        this.variableId = variableId;
         this.count = count;
+    }
+
+    public void resetCount() {
+        count = 0;
     }
 }

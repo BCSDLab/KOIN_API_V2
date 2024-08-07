@@ -8,4 +8,8 @@ import in.koreatech.koin.admin.abtest.model.AbtestCount;
 
 public interface AbtestCountRepository extends Repository<AbtestCount, Integer> {
     List<AbtestCount> findAll();
+
+    void save(AbtestCount abtestCount);
+
+    void saveAll(List<AbtestCount> abtestCounts);
 }

@@ -2,12 +2,8 @@ package in.koreatech.koin.admin.abtest.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.hibernate.annotations.ColumnDefault;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
@@ -23,11 +19,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Entity
@@ -85,5 +79,9 @@ public class AbtestVariable extends BaseEntity {
         this.rate = rate;
         this.count = count;
         this.isBefore = isBefore;
+    }
+
+    public void addCount(int count) {
+        this.count += count;
     }
 }
