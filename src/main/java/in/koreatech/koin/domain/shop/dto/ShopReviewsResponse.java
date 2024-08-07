@@ -143,7 +143,7 @@ public record ShopReviewsResponse(
                 averageRating = totalSum / totalCount;
             }
             return new InnerReviewStatisticsResponse(
-                averageRating,
+                Math.round(averageRating * 10) / 10.0,
                 ratings
             );
         }
