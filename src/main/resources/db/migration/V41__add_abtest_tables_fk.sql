@@ -8,7 +8,6 @@ ALTER TABLE `koin`.`device`
             ON DELETE NO ACTION
             ON UPDATE NO ACTION;
 
-
 ALTER TABLE `koin`.`access_history`
     ADD INDEX `FK_ACCESS_HISTORY_ON_DEVICE_ID_idx` (`device_id` ASC) VISIBLE,
 ADD INDEX `FK_ACCESS_HISTORY_ON_VARIABLE_ID_idx` (`variable_id` ASC) VISIBLE;
@@ -55,7 +54,6 @@ ALTER TABLE `koin`.`abtest_variable`
 
 
 ALTER TABLE `koin`.`abtest`
-    CHANGE COLUMN `is_active` `is_active` TINYINT(1) NOT NULL DEFAULT '1' ,
     ADD INDEX `FK_ABTEST_ON_WINNER_ID_idx` (`winner_id` ASC) VISIBLE;
 ;
 ALTER TABLE `koin`.`abtest`

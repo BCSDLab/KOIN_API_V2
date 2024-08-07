@@ -19,7 +19,7 @@ CREATE TABLE `access_history`
     `variable_id` int unsigned NOT NULL,
     `created_at`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
+    PRIMARY KEY (`id`)
 );
 
 CREATE TABLE `abtest_variable`
@@ -48,16 +48,16 @@ CREATE TABLE `access_history_abtest_variable`
 
 CREATE TABLE `abtest`
 (
-    `id`           int unsigned NOT NULL AUTO_INCREMENT,
+    `id`            int unsigned NOT NULL AUTO_INCREMENT,
     `title`         varchar(255) NOT NULL,
     `display_title` varchar(255) NOT NULL,
-    `description`  varchar(255)          DEFAULT NULL,
-    `creator`      varchar(50)           DEFAULT NULL,
-    `team`         varchar(50)           DEFAULT NULL,
-    `winner_id`    int unsigned DEFAULT NULL,
-    `status`    varchar(50) NOT NULL DEFAULT `IN_PROGRESS`,
-    `created_at`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `description`   varchar(255)          DEFAULT NULL,
+    `creator`       varchar(50)           DEFAULT NULL,
+    `team`          varchar(50)           DEFAULT NULL,
+    `winner_id`     int unsigned DEFAULT NULL,
+    `status`        varchar(50)  NOT NULL DEFAULT 'IN_PROGRESS',
+    `created_at`    timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`    timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 );
 
