@@ -48,6 +48,8 @@ class TimetableApiTest extends AcceptanceTest {
     @Test
     @DisplayName("특정 학기 강의를 조회한다")
     void getSemesterLecture() {
+        semesterFixture.semester("20192");
+        semesterFixture.semester("20201");
         String semester = "20201";
         lectureFixture.HRD_개론(semester);
         lectureFixture.건축구조의_이해_및_실습("20192");
@@ -88,6 +90,7 @@ class TimetableApiTest extends AcceptanceTest {
     @Test
     @DisplayName("특정 학기 강의들을 조회한다")
     void getSemesterLectures() {
+        semesterFixture.semester("20201");
         String semester = "20201";
         lectureFixture.HRD_개론(semester);
         lectureFixture.건축구조의_이해_및_실습(semester);
