@@ -34,4 +34,14 @@ public class AbtestService {
         });
         abtestCountRepository.saveAll(cacheCount);
     }
+
+    @Transactional
+    public void assignVariable(String title) {
+        Abtest abtest = abtestRepository.getByTitle(title);
+        AbtestVariable variable =
+    }
+
+    public void getMyVariable() {
+
+    }
 }

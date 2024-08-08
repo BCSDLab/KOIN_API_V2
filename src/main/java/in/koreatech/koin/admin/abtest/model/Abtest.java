@@ -1,10 +1,13 @@
 package in.koreatech.koin.admin.abtest.model;
 
+import static java.util.Arrays.stream;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.hibernate.annotations.ColumnDefault;
 
@@ -90,5 +93,41 @@ public class Abtest extends BaseEntity {
         this.creator = creator;
         this.team = team;
         this.status = status;
+    }
+
+    public String assignVariable(List<AbtestCount> cacheCounts) {
+        Map<Integer, Integer> cacheCount = cacheCounts.stream()
+            .collect(Collectors.toMap(
+                AbtestCount::getVariableId,
+                AbtestCount::getCount
+            ));
+
+        Map<Integer, Integer> dbCount = abtestVariables.stream()
+            .collect(Collectors.toMap(
+                AbtestVariable::getId,
+                AbtestVariable::getCount
+            ));
+
+        dbCount.forEach((key, value) -> cacheCount.merge(key, value, (v1, v2) -> v1 + v2));
+
+        int cacheCount = cacheCounts.stream()
+            .mapToInt(AbtestCount::getCount)
+            .sum();
+
+        int dbCount = abtestVariables.stream()
+            .mapToInt(AbtestVariable::getCount)
+            .sum();
+
+        int totalCount = cacheCount + dbCount;
+
+
+
+
+        List<Double> nowRate = abtestVariables.stream()
+            .mapToInt(AbtestVariable::getCount)
+            .mapToDouble(count -> count / totalCount * 100)
+            .boxed()
+            .toList();
+
     }
 }

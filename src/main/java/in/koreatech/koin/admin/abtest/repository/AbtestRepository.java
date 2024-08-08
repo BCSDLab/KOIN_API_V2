@@ -17,4 +17,10 @@ public interface AbtestRepository extends Repository<Abtest, Integer> {
         return findById(id).orElseThrow(() ->
             AbtestNotFoundException.withDetail("AbtestId: " + id));
     }
+
+    Optional<Abtest> findByTitle(String title);
+
+    default Abtest getByTitle(String title) {
+        return findByTitle(title).orElseThrow(() -> AbtestNotFoundException.withDetail("Abtest Title: " + title));
+    }
 }
