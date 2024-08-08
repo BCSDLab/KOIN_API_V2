@@ -178,6 +178,27 @@ class TimetableApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("계절학기를 조회하면 빈 리스트로 반환한다.")
+    void getSeasonLecture() {
+        semesterFixture.semester("20241");
+        semesterFixture.semester("20242");
+        semesterFixture.semester("2024-여름");
+        semesterFixture.semester("2024-겨울");
+
+        var Response = RestAssured
+                .given()
+                .when()
+                .param("semester_date", "2024-여름")
+                .get("/lectures")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+
+        JsonAssertions.assertThat(Response.asPrettyString())
+                .isEqualTo("[]");
+    }
+
+    @Test
     @DisplayName("모든 학기를 조회한다.")
     void findAllSemesters() {
         semesterFixture.semester("20221");
