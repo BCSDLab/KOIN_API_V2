@@ -90,11 +90,13 @@ public record ShopsResponseV2(
                 isOpen,
                 shop.getReviews().stream()
                     .filter(review -> notContainsUnhandledReport(review.getReports()))
+                    .filter(review -> !review.isDeleted())
                     .mapToInt(ShopReview::getRating)
                     .average()
                     .orElse(0.0),
                 shop.getReviews().stream()
                     .filter(review -> notContainsUnhandledReport(review.getReports()))
+                    .filter(review -> !review.isDeleted())
                     .count()
             );
         }
