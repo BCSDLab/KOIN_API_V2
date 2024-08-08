@@ -61,7 +61,12 @@ public class ShopReview extends BaseEntity {
     private List<ShopReviewReport> reports = new ArrayList<>();
 
     @Builder
-    public ShopReview(String content, Integer rating, Student reviewer, Shop shop) {
+    public ShopReview(
+        String content,
+        Integer rating,
+        Student reviewer,
+        Shop shop
+    ) {
         this.content = content;
         this.rating = rating;
         this.reviewer = reviewer;
@@ -90,9 +95,9 @@ public class ShopReview extends BaseEntity {
         entityManager.flush();
         for (String menuName : menuNames) {
             ShopReviewMenu shopReviewImage = ShopReviewMenu.builder()
-                    .menuName(menuName)
-                    .review(this)
-                    .build();
+                .menuName(menuName)
+                .review(this)
+                .build();
             this.menus.add(shopReviewImage);
         }
     }
