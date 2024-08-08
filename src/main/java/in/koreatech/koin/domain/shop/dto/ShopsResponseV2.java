@@ -88,12 +88,12 @@ public record ShopsResponseV2(
                 shop.getPhone(),
                 isEvent,
                 isOpen,
-                shop.getReviews().stream()
+                Math.round(shop.getReviews().stream()
                     .filter(review -> notContainsUnhandledReport(review.getReports()))
                     .filter(review -> !review.isDeleted())
                     .mapToInt(ShopReview::getRating)
                     .average()
-                    .orElse(0.0),
+                    .orElse(0.0) * 10) / 10.0,
                 shop.getReviews().stream()
                     .filter(review -> notContainsUnhandledReport(review.getReports()))
                     .filter(review -> !review.isDeleted())
