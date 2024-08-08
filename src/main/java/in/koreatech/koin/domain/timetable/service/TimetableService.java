@@ -15,7 +15,6 @@ import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
-import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
@@ -42,10 +41,8 @@ public class TimetableService {
     private final EntityManager entityManager;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
+        semesterRepositoryV2.getBySemester(semester);
         List<Lecture> lectures = lectureRepositoryV2.findBySemester(semester);
-        if (lectures.isEmpty()) {
-            throw SemesterNotFoundException.withDetail(semester);
-        }
         return lectures.stream()
                 .map(LectureResponse::from)
                 .toList();
