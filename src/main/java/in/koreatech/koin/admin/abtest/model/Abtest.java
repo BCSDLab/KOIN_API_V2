@@ -3,14 +3,15 @@ package in.koreatech.koin.admin.abtest.model;
 import static java.util.Arrays.stream;
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.Instant;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.hibernate.annotations.ColumnDefault;
+import com.google.api.gax.rpc.NotFoundException;
 
+import in.koreatech.koin.admin.abtest.exception.AbtestNotIncludeVariableException;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -20,17 +21,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Entity
@@ -95,39 +93,40 @@ public class Abtest extends BaseEntity {
         this.status = status;
     }
 
-    public String assignVariable(List<AbtestCount> cacheCounts) {
-        Map<Integer, Integer> cacheCount = cacheCounts.stream()
-            .collect(Collectors.toMap(
-                AbtestCount::getVariableId,
-                AbtestCount::getCount
-            ));
-
+    public AbtestVariable assignVariable(List<AbtestVariableCount> cacheCounts) {
         Map<Integer, Integer> dbCount = abtestVariables.stream()
-            .collect(Collectors.toMap(
-                AbtestVariable::getId,
-                AbtestVariable::getCount
-            ));
+            .collect(Collectors.toMap(AbtestVariable::getId, AbtestVariable::getCount));
+        Map<Integer, Integer> cacheCount = cacheCounts.stream()
+            .collect(Collectors.toMap(AbtestVariableCount::getVariableId, AbtestVariableCount::getCount));
+        Map<Integer, Integer> count = merge(dbCount, cacheCount, 1);
+        int totalCount = count.values().stream().mapToInt(Integer::intValue).sum();
 
-        dbCount.forEach((key, value) -> cacheCount.merge(key, value, (v1, v2) -> v1 + v2));
+        Map<Integer, Integer> nowRate = count.entrySet().stream()
+            .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue() / totalCount * 100))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<Integer, Integer> dbRate = abtestVariables.stream()
+            .collect(Collectors.toMap(AbtestVariable::getId, AbtestVariable::getRate));
+        Map<Integer, Integer> differenceRate = merge(dbRate, nowRate, -1);
+        int targetVariable = differenceRate.entrySet().stream()
+            .max(Map.Entry.comparingByValue())
+            .orElseThrow(() -> AbtestNotIncludeVariableException.withDetail("abtest name: " + title))
+            .getKey();
 
-        int cacheCount = cacheCounts.stream()
-            .mapToInt(AbtestCount::getCount)
-            .sum();
+        return abtestVariables.stream()
+            .filter(abtestVariable -> abtestVariable.getId() == targetVariable)
+            .findAny()
+            .get();
+    }
 
-        int dbCount = abtestVariables.stream()
-            .mapToInt(AbtestVariable::getCount)
-            .sum();
-
-        int totalCount = cacheCount + dbCount;
-
-
-
-
-        List<Double> nowRate = abtestVariables.stream()
-            .mapToInt(AbtestVariable::getCount)
-            .mapToDouble(count -> count / totalCount * 100)
-            .boxed()
-            .toList();
-
+    /**
+     * 두 Map에서 동일한 key를 가지는 value를 합치는 함수. 단, 1번째 매개변수로 들어온 Map에 merge하기 때문에 side effect 존재.
+     * @param m1 병합할 Map 1 (병합 결과가 기록되는 곳)
+     * @param m2 병합할 Map 2
+     * @param weight 가중치. 병합 시 m2에 weight만큼 곱하여 더함
+     * @return 병합된 Map(m1) 반환
+     */
+    private Map<Integer, Integer> merge(Map<Integer, Integer> m1, Map<Integer, Integer> m2, int weight) {
+        m2.forEach((key, value) -> m1.merge(key, weight * value, Integer::sum));
+        return m1;
     }
 }

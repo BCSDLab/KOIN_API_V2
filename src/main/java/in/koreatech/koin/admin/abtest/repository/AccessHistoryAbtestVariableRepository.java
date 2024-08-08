@@ -6,4 +6,5 @@ import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
 
 public interface AccessHistoryAbtestVariableRepository extends Repository<AccessHistoryAbtestVariable, Integer> {
 
+    AccessHistoryAbtestVariable save(AccessHistoryAbtestVariable accessHistoryAbtestVariable);
 }

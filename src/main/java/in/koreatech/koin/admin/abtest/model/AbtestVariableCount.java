@@ -8,14 +8,14 @@ import lombok.Getter;
 
 @Getter
 @RedisHash("AbTestCount")
-public class AbtestCount {
+public class AbtestVariableCount {
 
     @Id
     private Integer variableId;
     private Integer count;
 
     @Builder
-    private AbtestCount(Integer variableId, Integer count) {
+    private AbtestVariableCount(Integer variableId, Integer count) {
         this.variableId = variableId;
         this.count = count;
     }
