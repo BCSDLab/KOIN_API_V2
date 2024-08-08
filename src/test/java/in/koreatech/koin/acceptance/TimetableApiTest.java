@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,12 @@ import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SuppressWarnings("NonAsciiCharacters")
 class TimetableApiTest extends AcceptanceTest {
@@ -58,7 +65,7 @@ class TimetableApiTest extends AcceptanceTest {
             .isEqualTo("""
                 [
                     {
-                        "id": 1,
+                        "id" : 1,
                         "code": "BSM590",
                         "name": "컴퓨팅사고",
                         "grades": "3",
@@ -99,7 +106,7 @@ class TimetableApiTest extends AcceptanceTest {
             .isEqualTo("""
                 [
                     {
-                        "id": 1,
+                        "id" : 1,
                         "code": "BSM590",
                         "name": "컴퓨팅사고",
                         "grades": "3",
@@ -116,7 +123,7 @@ class TimetableApiTest extends AcceptanceTest {
                         ]
                     },
                     {
-                        "id": 2,
+                        "id" : 2,
                         "code": "ARB244",
                         "name": "건축구조의 이해 및 실습",
                         "grades": "3",
@@ -133,7 +140,7 @@ class TimetableApiTest extends AcceptanceTest {
                         ]
                     },
                     {
-                        "id": 3,
+                        "id" : 3,
                         "code": "MEB311",
                         "name": "재료역학",
                         "grades": "3",
@@ -335,8 +342,8 @@ class TimetableApiTest extends AcceptanceTest {
                 {
                     "user_id": 1,
                     "semesters": [
-                      "20192",
-                      "20201"
+                      "20201",
+                      "20192"
                     ]
                 }
                 """
@@ -583,5 +590,46 @@ class TimetableApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value());
 
         assertThat(timetableRepository.findById(2)).isNotPresent();
+    }
+
+    @Test
+    @DisplayName("시간표 삭제 동시성 예외 적절하게 처리하는지 테스트한다.")
+    void deleteTimetableConcurrency() throws InterruptedException {
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
+
+        timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        CountDownLatch latch = new CountDownLatch(2);
+
+        List<Response> responseList = new ArrayList<>();
+        Runnable deleteTask = () -> {
+            Response response = RestAssured
+                    .given()
+                    .header("Authorization", "Bearer " + token)
+                    .when()
+                    .param("id", 2)
+                    .delete("/timetable");
+            responseList.add(response);
+            latch.countDown();
+        };
+
+        executor.submit(deleteTask);
+        executor.submit(deleteTask);
+
+        latch.await();
+
+        boolean hasConflict = responseList.stream()
+                .anyMatch(response -> response.getStatusCode() == 409);
+
+        assertThat(hasConflict).isTrue();
+        assertThat(timetableRepository.findById(2)).isNotPresent();
+
+        executor.shutdown();
     }
 }

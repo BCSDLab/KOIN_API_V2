@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -719,7 +720,7 @@ class AdminShopApiTest extends AcceptanceTest {
             Shop result = adminShopRepository.getById(1);
             List<ShopImage> shopImages = result.getShopImages();
             List<ShopOpen> shopOpens = result.getShopOpens();
-            List<ShopCategoryMap> shopCategoryMaps = result.getShopCategories();
+            Set<ShopCategoryMap> shopCategoryMaps = result.getShopCategories();
             assertSoftly(
                 softly -> {
                     softly.assertThat(result.getAddress()).isEqualTo("충청남도 천안시 동남구 병천면 충절로 1600");
@@ -731,8 +732,7 @@ class AdminShopApiTest extends AcceptanceTest {
                     softly.assertThat(result.isPayCard()).isTrue();
                     softly.assertThat(result.getPhone()).isEqualTo("041-123-4567");
 
-                    softly.assertThat(shopCategoryMaps.get(0).getShopCategory().getId()).isEqualTo(1);
-                    softly.assertThat(shopCategoryMaps.get(1).getShopCategory().getId()).isEqualTo(2);
+                    softly.assertThat(shopCategoryMaps.size()).isEqualTo(2);
 
                     softly.assertThat(shopImages.get(0).getImageUrl())
                         .isEqualTo("https://fixed-shopimage.com/수정된_상점_이미지.png");
@@ -927,7 +927,7 @@ class AdminShopApiTest extends AcceptanceTest {
     @Test
     @DisplayName("어드민이 상점을 삭제한다.")
     void deleteShop() {
-        Shop shop = shopFixture.신전_떡볶이(owner_현수);
+        Shop shop = shopFixture.영업중이_아닌_신전_떡볶이(owner_현수);
 
         RestAssured
             .given()

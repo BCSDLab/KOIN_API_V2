@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -108,7 +109,7 @@ class OwnerShopApiTest extends AcceptanceTest {
     @DisplayName("사장님의 가게 목록을 조회한다.")
     void getOwnerShops() {
         // given
-        shopFixture.신전_떡볶이(owner_현수);
+        shopFixture.영업중이_아닌_신전_떡볶이(owner_현수);
 
         // when then
         var response = RestAssured
@@ -758,7 +759,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             Shop result = shopRepository.getById(1);
             List<ShopImage> shopImages = result.getShopImages();
             List<ShopOpen> shopOpens = result.getShopOpens();
-            List<ShopCategoryMap> shopCategoryMaps = result.getShopCategories();
+            Set<ShopCategoryMap> shopCategoryMaps = result.getShopCategories();
             assertSoftly(
                 softly -> {
                     softly.assertThat(result.getAddress()).isEqualTo("충청남도 천안시 동남구 병천면 충절로 1600");
@@ -770,8 +771,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                     softly.assertThat(result.isPayCard()).isTrue();
                     softly.assertThat(result.getPhone()).isEqualTo("041-123-4567");
 
-                    softly.assertThat(shopCategoryMaps.get(0).getShopCategory().getId()).isEqualTo(1);
-                    softly.assertThat(shopCategoryMaps.get(1).getShopCategory().getId()).isEqualTo(2);
+                    softly.assertThat(shopCategoryMaps.size()).isEqualTo(2);
 
                     softly.assertThat(shopImages.get(0).getImageUrl())
                         .isEqualTo("https://fixed-shopimage.com/수정된_상점_이미지.png");

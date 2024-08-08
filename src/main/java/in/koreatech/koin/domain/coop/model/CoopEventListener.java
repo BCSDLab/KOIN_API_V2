@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.coop.model;
 
+import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_IMAGE_UPLOAD;
 import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
 import static in.koreatech.koin.global.fcm.MobileAppPath.DINING;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
@@ -41,6 +42,20 @@ public class CoopEventListener {
                 event.place(),
                 subscribe.getUser()
             )).toList();
+        notificationService.push(notifications);
+    }
+
+    @TransactionalEventListener(phase = AFTER_COMMIT)
+    public void onDiningImageUploadRequest(DiningImageUploadEvent event) {
+        var notifications = notificationSubscribeRepository
+            .findAllBySubscribeTypeAndDetailType(DINING_IMAGE_UPLOAD, null).stream()
+            .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
+            .map(subscribe -> notificationFactory.generateDiningImageUploadNotification(
+                DINING,
+                event.imageUrl(),
+                subscribe.getUser()
+            )).toList();
+
         notificationService.push(notifications);
     }
 }

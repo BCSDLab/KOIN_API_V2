@@ -17,7 +17,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
 @Import(TestResilience4jConfig.class)
-class CircuitBreakerApiTest extends AcceptanceTest {
+class CircuitBreakerTest extends AcceptanceTest {
 
     @Autowired
     private CircuitBreakerRegistry circuitBreakerRegistry;
@@ -56,12 +56,9 @@ class CircuitBreakerApiTest extends AcceptanceTest {
                 testCircuitBreakerClient.testMethod();
             } catch (CallNotPermittedException e) {
                 // OPEN or HALF_OPEN
-                System.out.println("엥");
             } catch (RuntimeException e) {
                 // CLOSED or Last Try
-                System.out.println("엥엥");
             }
-            System.out.println(circuitBreaker.getState());
         }
     }
 }

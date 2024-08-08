@@ -19,18 +19,30 @@ public class Resilience4jConfig {
     private final CircuitBreakerRegistry circuitBreakerRegistry;
 
     @Bean
-    public CircuitBreaker tmoneyExpressBusCircuitBreaker(){
-        CircuitBreakerConfig circuitBreakerConfig = getExpressBusConfig();
-        return circuitBreakerRegistry.circuitBreaker("tmoneyExpressBus", circuitBreakerConfig);
+    public CircuitBreaker tmoneyExpressBusCircuitBreaker() {
+        CircuitBreakerConfig circuitBreakerConfig = getBusConfig();
+        return circuitBreakerRegistry.circuitBreaker("TmoneyExpressBusClient", circuitBreakerConfig);
     }
 
     @Bean
-    public CircuitBreaker publicExpressBusCircuitBreaker(){
-        CircuitBreakerConfig circuitBreakerConfig = getExpressBusConfig();
-        return circuitBreakerRegistry.circuitBreaker("publicExpressBus", circuitBreakerConfig);
+    public CircuitBreaker publicExpressBusCircuitBreaker() {
+        CircuitBreakerConfig circuitBreakerConfig = getBusConfig();
+        return circuitBreakerRegistry.circuitBreaker("PublicExpressBusClient", circuitBreakerConfig);
     }
 
-    private static CircuitBreakerConfig getExpressBusConfig() {
+    @Bean
+    public CircuitBreaker cityBusCircuitBreaker() {
+        CircuitBreakerConfig circuitBreakerConfig = getBusConfig();
+        return circuitBreakerRegistry.circuitBreaker("CityBusClient", circuitBreakerConfig);
+    }
+
+    @Bean
+    public CircuitBreaker cityBusRouteCircuitBreaker() {
+        CircuitBreakerConfig circuitBreakerConfig = getBusConfig();
+        return circuitBreakerRegistry.circuitBreaker("CityBusRouteClient", circuitBreakerConfig);
+    }
+
+    private static CircuitBreakerConfig getBusConfig() {
         return CircuitBreakerConfig.custom()
             // 최소 호출횟수
             .minimumNumberOfCalls(2)

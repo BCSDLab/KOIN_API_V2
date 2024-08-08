@@ -17,9 +17,11 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
+import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.CoopShopFixture;
 import in.koreatech.koin.fixture.DiningFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
@@ -41,11 +43,15 @@ class DiningApiTest extends AcceptanceTest {
     @Autowired
     private DiningFixture diningFixture;
 
+    @Autowired
+    private CoopShopFixture coopShopFixture;
+
     private Dining A코너_점심;
     private User coop_준기;
     private String token_준기;
     private User owner_현수;
     private String token_현수;
+    private CoopShop 학생식당;
 
     @BeforeEach
     void setUp() {
@@ -54,6 +60,7 @@ class DiningApiTest extends AcceptanceTest {
         owner_현수 = userFixture.현수_사장님().getUser();
         token_현수 = userFixture.getToken(owner_현수);
         A코너_점심 = diningFixture.A코스_점심(LocalDate.parse("2024-01-15"));
+        학생식당 = coopShopFixture.학생식당();
     }
 
     @Test
@@ -87,7 +94,9 @@ class DiningApiTest extends AcceptanceTest {
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
-                        "changed_at": null
+                        "changed_at": null,
+                        "likes": 0,
+                        "is_liked" : false
                     }
                 ]
                 """);
@@ -135,7 +144,9 @@ class DiningApiTest extends AcceptanceTest {
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
-                        "changed_at": null
+                        "changed_at": null,
+                        "likes": 0,
+                        "is_liked" : false
                     }
                 ]
                 """);
@@ -291,5 +302,178 @@ class DiningApiTest extends AcceptanceTest {
             .extract();
 
         verify(coopEventListener, never()).onDiningSoldOutRequest(any());
+    }
+
+    @Test
+    @DisplayName("특정 식단의 좋아요를 누른다")
+    void likeDining() {
+        RestAssured.given()
+            .header("Authorization", "Bearer " + token_준기)
+            .param("diningId", 1)
+            .when()
+            .patch("/dining/like")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("특정 식단의 좋아요 중복해서 누르면 에러")
+    void likeDiningDuplicate() {
+        RestAssured.given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_준기)
+            .param("diningId", 1)
+            .when()
+            .patch("/dining/like")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        RestAssured.given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_준기)
+            .param("diningId", 1)
+            .when()
+            .patch("/dining/like")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value())
+            .extract();
+    }
+
+    @Test
+    @DisplayName("좋아요 누른 식단은 isLiked가 true로 반환")
+    void checkIsLikedTrue() {
+        RestAssured.given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_준기)
+            .param("diningId", 1)
+            .when()
+            .patch("/dining/like")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        var response = given()
+            .header("Authorization", "Bearer " + token_준기)
+            .when()
+            .get("/dinings?date=240115")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                [
+                    {
+                        "id": 1,
+                        "date": "2024-01-15",
+                        "type": "LUNCH",
+                        "place": "A코스",
+                        "price_card": 6000,
+                        "price_cash": 6000,
+                        "kcal": 881,
+                        "menu": [
+                            "병아리콩밥",
+                            "(탕)소고기육개장",
+                            "땡초부추전",
+                            "누룽지탕"
+                        ],
+                        "image_url": null,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00",
+                        "soldout_at": null,
+                        "changed_at": null,
+                        "likes": 1,
+                        "is_liked" : true
+                    }
+                ]
+                """);
+    }
+
+    @Test
+    @DisplayName("좋아요 안누른 식단은 isLiked가 false로 반환")
+    void checkIsLikedFalse() {
+        var response = given()
+            .header("Authorization", "Bearer " + token_준기)
+            .when()
+            .get("/dinings?date=240115")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                [
+                    {
+                        "id": 1,
+                        "date": "2024-01-15",
+                        "type": "LUNCH",
+                        "place": "A코스",
+                        "price_card": 6000,
+                        "price_cash": 6000,
+                        "kcal": 881,
+                        "menu": [
+                            "병아리콩밥",
+                            "(탕)소고기육개장",
+                            "땡초부추전",
+                            "누룽지탕"
+                        ],
+                        "image_url": null,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00",
+                        "soldout_at": null,
+                        "changed_at": null,
+                        "likes": 0,
+                        "is_liked" : false
+                    }
+                ]
+                """);
+    }
+
+    @Test
+    @DisplayName("이미지 업로드를 한다. - 품절 알림이 발송된다.")
+    void checkImageUploadNotification() {
+        String imageUrl = "https://stage.koreatech.in/image.jpg";
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_준기)
+            .body(String.format("""
+                {
+                    "menu_id": "%s",
+                    "image_url": "%s"
+                }
+                """, A코너_점심.getId(), imageUrl))
+            .when()
+            .patch("/coop/dining/image")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        verify(coopEventListener).onDiningImageUploadRequest(any());
+    }
+
+    @Test
+    @DisplayName("해당 식사시간 외에 이미지 업로드를 한다. - 품절 알림이 발송되지 않는다.")
+    void checkImageUploadNotificationAfterHours() {
+        Dining A코너_저녁 = diningFixture.A코스_저녁(LocalDate.parse("2024-01-15"));
+        String imageUrl = "https://stage.koreatech.in/image.jpg";
+
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_준기)
+            .body(String.format("""
+                {
+                    "menu_id": "%s",
+                    "image_url": "%s"
+                }
+                """, A코너_저녁.getId(), imageUrl))
+            .when()
+            .patch("/coop/dining/image")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        verify(coopEventListener, never()).onDiningImageUploadRequest(any());
     }
 }

@@ -31,6 +31,7 @@ public class DiningFixture {
                 .kcal(300)
                 .menu("""
                     ["참치김치볶음밥", "유부된장국", "땡초부추전", "누룽지탕"]""")
+                .likes(0)
                 .build()
         );
     }
@@ -46,6 +47,7 @@ public class DiningFixture {
                 .kcal(881)
                 .menu("""
                     ["혼합잡곡밥", "가쓰오장국", "땡초부추전", "누룽지탕"]""")
+                .likes(0)
                 .build()
         );
     }
@@ -61,6 +63,7 @@ public class DiningFixture {
                 .kcal(881)
                 .menu("""
                     ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
+                .likes(0)
                 .build()
         );
     }
@@ -76,6 +79,7 @@ public class DiningFixture {
                 .kcal(881)
                 .menu("""
                     ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
+                .likes(0)
                 .build()
         );
     }
@@ -91,6 +95,7 @@ public class DiningFixture {
                 .kcal(881)
                 .menu("""
                     ["병아리", "소고기", "땡초", "탕"]""")
+                .likes(0)
                 .build()
         );
     }

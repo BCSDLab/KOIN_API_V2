@@ -97,6 +97,30 @@ public final class UserFixture {
         );
     }
 
+    public Student 익명_학생() {
+        return studentRepository.save(
+            Student.builder()
+                .studentNumber("2020136111")
+                .anonymousNickname("익명111")
+                .department("컴퓨터공학부")
+                .userIdentity(UNDERGRADUATE)
+                .isGraduated(false)
+                .user(
+                    User.builder()
+                        .password(passwordEncoder.encode("1234"))
+                        .name("테스트용_익명")
+                        .phoneNumber("01011111111")
+                        .userType(STUDENT)
+                        .gender(MAN)
+                        .email("lyw4888@koreatech.ac.kr")
+                        .isAuthed(true)
+                        .isDeleted(false)
+                        .build()
+                )
+                .build()
+        );
+    }
+
     public Student 성빈_학생() {
         return studentRepository.save(
             Student.builder()

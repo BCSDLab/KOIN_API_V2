@@ -2,8 +2,6 @@ package in.koreatech.koin.acceptance;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -15,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -38,6 +37,7 @@ import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
+@TestConfiguration
 class BusApiTest extends AcceptanceTest {
 
     @Autowired
@@ -55,153 +55,7 @@ class BusApiTest extends AcceptanceTest {
     @BeforeEach
     void setup() {
         busFixture.버스_시간표_등록();
-        when(cityBusClient.getOpenApiResponse(anyString())).thenReturn("""
-            {
-              "response": {
-                "header": {
-                  "resultCode": "00",
-                  "resultMsg": "NORMAL SERVICE."
-                },
-                "body": {
-                  "items": {
-                    "item": [
-                      {
-                        "arrprevstationcnt": 3,
-                        "arrtime": 600,
-                        "nodeid": "CAB285000686",
-                        "nodenm": "종합터미널",
-                        "routeid": "CAB285000003",
-                        "routeno": 400,
-                        "routetp": "일반버스",
-                        "vehicletp": "저상버스"
-                      },
-                      {
-                        "arrprevstationcnt": 10,
-                        "arrtime": 800,
-                        "nodeid": "CAB285000686",
-                        "nodenm": "종합터미널",
-                        "routeid": "CAB285000024",
-                        "routeno": 405,
-                        "routetp": "일반버스",
-                        "vehicletp": "일반차량"
-                      },
-                      {
-                        "arrprevstationcnt": 10,
-                        "arrtime": 700,
-                        "nodeid": "CAB285000686",
-                        "nodenm": "종합터미널",
-                        "routeid": "CAB285000024",
-                        "routeno": 200,
-                        "routetp": "일반버스",
-                        "vehicletp": "일반차량"
-                      }
-                    ]
-                  },
-                  "numOfRows": 30,
-                  "pageNo": 1,
-                  "totalCount": 3
-                }
-              }
-            }
-            """);
-
-        when(cityBusRouteClient.getOpenApiResponse("CAB285000686")).thenReturn("""
-            {
-              "response": {
-                "header": {
-                  "resultCode": "00",
-                  "resultMsg": "NORMAL SERVICE."
-                },
-                "body": {
-                  "items": {
-                    "item": [
-                      {
-                        "endnodenm": "황사동",
-                        "routeid": "CAB285000146",
-                        "routeno": 402,
-                        "routetp": "일반버스",
-                        "startnodenm": "종합터미널"
-                      },
-                      {
-                        "endnodenm": "방아다리공원",
-                        "routeid": "CAB285000331",
-                        "routeno": 9,
-                        "routetp": "일반버스",
-                        "startnodenm": "종합터미널"
-                      },
-                      {
-                        "endnodenm": "유관순열사유적지",
-                        "routeid": "CAB285000407",
-                        "routeno": 405,
-                        "routetp": "일반버스",
-                        "startnodenm": "종합터미널"
-                      },
-                      {
-                        "endnodenm": "병천3리",
-                        "routeid": "CAB285000142",
-                        "routeno": 400,
-                        "routetp": "일반버스",
-                        "startnodenm": "종합터미널"
-                      }
-                    ]
-                  },
-                  "numOfRows": 50,
-                  "pageNo": 1,
-                  "totalCount": 4
-                }
-              }
-            }
-            """
-        );
-
-        when(cityBusRouteClient.getOpenApiResponse("CAB285000406")).thenReturn("""
-            {
-              "response": {
-                "header": {
-                  "resultCode": "00",
-                  "resultMsg": "NORMAL SERVICE."
-                },
-                "body": {
-                  "items": {
-                    "item": [
-                      {
-                        "endnodenm": "황사동",
-                        "routeid": "CAB285000146",
-                        "routeno": 402,
-                        "routetp": "일반버스",
-                        "startnodenm": "종합터미널"
-                      },
-                      {
-                        "endnodenm": "병천중고등학교",
-                        "routeid": "CAB285000049",
-                        "routeno": 95,
-                        "routetp": "일반버스",
-                        "startnodenm": "월봉청솔아파트"
-                      },
-                      {
-                        "endnodenm": "유관순열사유적지",
-                        "routeid": "CAB285000407",
-                        "routeno": 405,
-                        "routetp": "일반버스",
-                        "startnodenm": "종합터미널"
-                      },
-                      {
-                        "endnodenm": "병천3리",
-                        "routeid": "CAB285000142",
-                        "routeno": 400,
-                        "routetp": "일반버스",
-                        "startnodenm": "종합터미널"
-                      }
-                    ]
-                  },
-                  "numOfRows": 50,
-                  "pageNo": 1,
-                  "totalCount": 4
-                }
-              }
-            }
-            """
-        );
+        busFixture.시내버스_시간표_등록();
     }
 
     @Test
@@ -373,16 +227,46 @@ class BusApiTest extends AcceptanceTest {
     @Test
     @DisplayName("시내버스 시간표를 조회한다 - 지원하지 않음")
     void getCityBusTimetable() {
-        RestAssured
+        Version version = Version.builder()
+            .version("test_version")
+            .type(VersionType.CITY.getValue())
+            .build();
+        versionRepository.save(version);
+
+        Long busNumber = 400L;
+        String direction = "종합터미널";
+
+        var response = RestAssured
             .given()
             .when()
-            .param("bus_type", "city")
-            .param("direction", "to")
-            .param("region", "천안")
-            .get("/bus/timetable")
+            .param("bus_number", busNumber)
+            .param("direction", direction)
+            .get("/bus/timetable/city")
             .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .statusCode(HttpStatus.OK.value())
             .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "bus_info": {
+                        "arrival_node": "종합터미널",
+                        "depart_node": "병천3리",
+                        "number": 400
+                    },
+                    "bus_timetables": [
+                        {
+                            "day_of_week": "평일",
+                            "depart_info": ["06:00", "07:00"]
+                        },
+                        {
+                            "day_of_week": "주말",
+                            "depart_info": ["08:00", "09:00"]
+                        }
+                    ],
+                    "updated_at": "2024-07-19 19:00:00"
+                }
+                """);
     }
 
     @Test
