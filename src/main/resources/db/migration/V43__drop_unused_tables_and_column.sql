@@ -1,0 +1,30 @@
+DROP TABLE IF EXISTS shop_view_logs;
+DROP TABLE IF EXISTS test;
+DROP TABLE IF EXISTS temp_comments;
+DROP TABLE IF EXISTS temp_articles;
+DROP TABLE IF EXISTS surveys;
+DROP TABLE IF EXISTS survey_view_logs;
+DROP TABLE IF EXISTS survey_answers;
+DROP TABLE IF EXISTS survey_questions;
+DROP TABLE IF EXISTS lost_item_comments;
+DROP TABLE IF EXISTS lost_items;
+DROP TABLE IF EXISTS lost_item_view_logs;
+DROP TABLE IF EXISTS land_comments;
+DROP TABLE IF EXISTS item_view_logs;
+DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS item_comments;
+DROP TABLE IF EXISTS integrated_assessments;
+DROP TABLE IF EXISTS holidays;
+DROP TABLE IF EXISTS faqs;
+DROP TABLE IF EXISTS failed_jobs;
+DROP TABLE IF EXISTS calendar_universities;
+DROP TABLE IF EXISTS callvan_companies;
+DROP TABLE IF EXISTS callvan_participants;
+DROP TABLE IF EXISTS callvan_rooms;
+DROP TABLE IF EXISTS circles;
+DROP TABLE IF EXISTS dept_nums;
+DROP TABLE IF EXISTS event_comments;
+DROP TABLE IF EXISTS dept_infos;
+
+ALTER TABLE owners
+DROP COLUMN company_registration_certificate_image_url;
