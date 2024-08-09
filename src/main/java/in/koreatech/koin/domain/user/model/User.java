@@ -82,14 +82,6 @@ public class User extends BaseEntity {
     private boolean isDeleted = false;
 
     @Size(max = 255)
-    @Column(name = "auth_token")
-    private String authToken;
-
-    @Convert(converter = LocalDateTimeAttributeConverter.class)
-    @Column(name = "auth_expired_at", columnDefinition = "TIMESTAMP")
-    private LocalDateTime authExpiredAt;
-
-    @Size(max = 255)
     @Column(name = "reset_token")
     private String resetToken;
 
@@ -113,8 +105,6 @@ public class User extends BaseEntity {
         LocalDateTime lastLoggedAt,
         String profileImageUrl,
         Boolean isDeleted,
-        String authToken,
-        LocalDateTime authExpiredAt,
         String resetToken,
         LocalDateTime resetExpiredAt,
         String deviceToken
@@ -130,8 +120,6 @@ public class User extends BaseEntity {
         this.lastLoggedAt = lastLoggedAt;
         this.profileImageUrl = profileImageUrl;
         this.isDeleted = isDeleted;
-        this.authToken = authToken;
-        this.authExpiredAt = authExpiredAt;
         this.resetToken = resetToken;
         this.resetExpiredAt = resetExpiredAt;
         this.deviceToken = deviceToken;
