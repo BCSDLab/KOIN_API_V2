@@ -49,7 +49,10 @@ public record TimetableLectureUpdateRequest(
 
         @Schema(name = "memo", example = "메모메모", requiredMode = NOT_REQUIRED)
         @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
-        String memo
+        String memo,
+
+        @Schema(name = "이수 구분 id", example = "1", requiredMode = NOT_REQUIRED)
+        Integer standardGraduationRequirementId
     ) {
 
     }

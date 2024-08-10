@@ -5,10 +5,15 @@ import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateReq
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.collegecredit.model.StandardGraduationRequirements;
+import in.koreatech.koin.domain.collegecredit.model.StudentCourseCalculation;
+import in.koreatech.koin.domain.collegecredit.repository.StandardGraduationRequirementsRepository;
+import in.koreatech.koin.domain.collegecredit.repository.StudentCourseCalculationRepository;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameCreateRequest;
@@ -24,7 +29,9 @@ import in.koreatech.koin.domain.timetableV2.repository.LectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
+import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +45,10 @@ public class TimetableServiceV2 {
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
     private final SemesterRepositoryV2 semesterRepositoryV2;
+    private final StudentCourseCalculationRepository studentCourseCalculationRepository;
+    private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
 
     @Transactional
     public TimetableFrameResponse createTimetablesFrame(Integer userId, TimetableFrameCreateRequest request) {
@@ -47,7 +57,8 @@ public class TimetableServiceV2 {
         int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId, semester.getId());
         boolean isMain = (currentFrameCount == 0);
 
-        TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, "시간표" + (currentFrameCount+1), isMain);
+        TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, "시간표" + (currentFrameCount + 1),
+            isMain);
         TimetableFrame savedTimetableFrame = timetableFrameRepositoryV2.save(timetableFrame);
         return TimetableFrameResponse.from(savedTimetableFrame);
     }
@@ -82,7 +93,8 @@ public class TimetableServiceV2 {
         if (frame.isMain()) {
             TimetableFrame nextMainFrame =
                 timetableFrameRepositoryV2.
-                    findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId, frame.getSemester().getId());
+                    findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId,
+                        frame.getSemester().getId());
             if (nextMainFrame != null) {
                 nextMainFrame.updateStatusMain(true);
             }
@@ -114,9 +126,13 @@ public class TimetableServiceV2 {
         if (!Objects.equals(timetableFrame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
-
+        Student student = studentRepository.getById(userId);
+        Optional<StandardGraduationRequirements> standardGraduationRequirements =
+            standardGraduationRequirementsRepository.findByYearAndDepartment(student.getStudentNumber().substring(0, 4),
+                student.getDepartment());
         for (InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
             TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
+            Lecture lecture = lectureRepositoryV2.getLectureById(timetableRequest.lectureId());
             if (timetableRequest.lectureId() == null) {
                 timetableLecture.update(
                     timetableRequest.classTitle(),
@@ -125,7 +141,13 @@ public class TimetableServiceV2 {
                     timetableRequest.professor(),
                     timetableRequest.grades(),
                     timetableRequest.memo());
+                calculateCourseTypeCredit(userId, standardGraduationRequirements.get(),
+                    Integer.parseInt(timetableRequest.grades()));
             }
+            if (timetableLecture.getStandardGraduationRequirements().getId()
+                != timetableRequest.standardGraduationRequirementId())
+            calculateCourseTypeCredit(userId, standardGraduationRequirements.get(),
+                Integer.parseInt(lecture.getGrades()));
         }
         List<TimetableLecture> timetableLectures = timetableFrame.getTimetableLectures();
         return getTimetableLectureResponse(userId, timetableFrame, timetableLectures);
@@ -184,5 +206,17 @@ public class TimetableServiceV2 {
         TimetableFrame mainTimetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
             semesterId);
         mainTimetableFrame.cancelMain();
+    }
+
+    private void calculateCourseTypeCredit(Integer userId,
+        StandardGraduationRequirements standardGraduationRequirements, int completeGrades) {
+        if (standardGraduationRequirements != null) {
+            Optional<StudentCourseCalculation> studentCourseCalculation =
+                studentCourseCalculationRepository.findByUserIdAndStandardGraduationRequirementsId(userId,
+                    standardGraduationRequirements.getId());
+
+            studentCourseCalculation.ifPresent(
+                courseCalculation -> courseCalculation.calculateCompletedGrades(completeGrades));
+        }
     }
 }

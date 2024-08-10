@@ -5,6 +5,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin.domain.collegecredit.model.StandardGraduationRequirements;
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest;
@@ -16,6 +17,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -71,9 +73,14 @@ public class TimetableLecture extends BaseEntity {
     @JoinColumn(name = "frame_id")
     private TimetableFrame timetableFrame;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "standard_graduation_requirements_id")
+    private StandardGraduationRequirements standardGraduationRequirements;
+
     @Builder
     public TimetableLecture(String classTitle, String classTime, String classPlace, String professor,
-        String grades, String memo, boolean isDeleted, Lecture lecture, TimetableFrame timetableFrame) {
+        String grades, String memo, boolean isDeleted, Lecture lecture, TimetableFrame timetableFrame,
+        StandardGraduationRequirements standardGraduationRequirements) {
         this.classTitle = classTitle;
         this.classTime = classTime;
         this.classPlace = classPlace;
@@ -83,6 +90,7 @@ public class TimetableLecture extends BaseEntity {
         this.isDeleted = isDeleted;
         this.lecture = lecture;
         this.timetableFrame = timetableFrame;
+        this.standardGraduationRequirements = standardGraduationRequirements;
     }
 
     public void update(String classTitle, String classTime, String classPlace, String professor,

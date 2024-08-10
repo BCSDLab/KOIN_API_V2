@@ -66,7 +66,8 @@ public record TimetableLectureCreateRequest(
                 memo,
                 false,
                 null,
-                timetableFrame
+                timetableFrame,
+                null
             );
         }
 
@@ -80,7 +81,8 @@ public record TimetableLectureCreateRequest(
                 memo,
                 false,
                 lecture,
-                timetableFrame
+                timetableFrame,
+                null
             );
         }
     }
