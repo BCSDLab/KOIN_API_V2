@@ -42,6 +42,6 @@ public class StudentCourseCalculation {
     }
 
     public void calculateCompletedGrades(int completedGrades) {
-        this.completedGrades += completedGrades;
+        this.completedGrades = completedGrades;
     }
 }
