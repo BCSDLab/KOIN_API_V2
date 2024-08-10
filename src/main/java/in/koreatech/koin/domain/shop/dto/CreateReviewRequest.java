@@ -8,6 +8,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.global.validation.UniqueUrl;
@@ -18,7 +19,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record CreateReviewRequest(
     @Schema(example = "4", description = "리뷰의 별점", requiredMode = REQUIRED)
     @NotNull
@@ -27,7 +28,6 @@ public record CreateReviewRequest(
     Integer rating,
 
     @Schema(example = "정말 맛있어요~!", description = "리뷰 내용", requiredMode = REQUIRED)
-    @NotBlank
     String content,
 
     @Schema(example = """
@@ -43,7 +43,7 @@ public record CreateReviewRequest(
     @JsonCreator
     public CreateReviewRequest(
         @JsonProperty("rating") @NotNull @Min(1) @Max(5) Integer rating,
-        @JsonProperty("content") @NotBlank String content,
+        @JsonProperty("content") String content,
         @JsonProperty("image_urls") List<String> imageUrls,
         @JsonProperty("menu_names") List<String> menuNames
     ) {

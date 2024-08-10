@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class BusScheduler {
 
+    private final ExpressBusFactory expressBusFactory;
     private final CityBusClient cityBusClient;
-    private final TmoneyExpressBusClient tmoneyExpressBusClient;
     private final CityBusRouteClient cityBusRouteClient;
 
     @Scheduled(cron = "0 * * * * *")
@@ -28,7 +28,7 @@ public class BusScheduler {
     @Scheduled(cron = "0 30 0 * * *")
     public void cacheExpressBusByOpenApi() {
         try {
-            tmoneyExpressBusClient.storeRemainTimeByOpenApi();
+            expressBusFactory.getInstanceByRatio().storeRemainTimeByOpenApi();
         } catch (Exception e) {
             log.warn("시외버스 스케줄링 과정에서 오류가 발생했습니다.");
         }

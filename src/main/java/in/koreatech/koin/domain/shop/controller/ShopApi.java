@@ -18,13 +18,16 @@ import in.koreatech.koin.domain.shop.dto.CreateReviewRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ModifyReviewRequest;
+import in.koreatech.koin.domain.shop.dto.ReviewsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
+import in.koreatech.koin.domain.shop.dto.ShopMyReviewsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportCategoryResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
+import in.koreatech.koin.domain.shop.dto.ShopReviewsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponseV2;
@@ -154,11 +157,40 @@ public interface ShopApi {
     )
     @Operation(summary = "특정 상점 리뷰 조회")
     @GetMapping("/shops/{shopId}/reviews")
-    ResponseEntity<ShopReviewResponse> getReviews(
+    ResponseEntity<ShopReviewsResponse> getReviews(
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "50", required = false) Integer limit,
+        @RequestParam(name = "sorter", defaultValue = "LATEST") ReviewsSortCriteria sortBy,
         @UserId Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "자신의 리뷰 조회")
+    @GetMapping("/shops/{shopId}/reviews/me")
+    ResponseEntity<ShopMyReviewsResponse> getMyReviews(
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @RequestParam(name = "sorter", defaultValue = "LATEST") ReviewsSortCriteria sortBy,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 리뷰 조회")
+    @GetMapping("/shops/{shopId}/reviews/{reviewId}")
+    ResponseEntity<ShopReviewResponse> getReview(
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @Parameter(in = PATH) @PathVariable Integer reviewId,
+        @Auth(permit = {STUDENT}) Integer studentId
     );
 
     @ApiResponses(

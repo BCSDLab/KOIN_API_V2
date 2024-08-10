@@ -73,7 +73,6 @@ public class StudentTemporaryStatus {
                 .isAuthed(true)
                 .isDeleted(false)
                 .userType(UserType.STUDENT)
-                .authToken(authToken)
                 .build();
 
         return Student.builder()

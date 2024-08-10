@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -36,6 +37,7 @@ import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
+@TestConfiguration
 class BusApiTest extends AcceptanceTest {
 
     @Autowired

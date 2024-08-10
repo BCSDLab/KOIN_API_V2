@@ -12,16 +12,25 @@ import org.springframework.data.auditing.DateTimeProvider;
 public class TestTimeConfig {
 
     private final LocalDateTime fixedTime = LocalDateTime.of(2024, 1, 15, 12, 0);
+    private LocalDateTime currTime = fixedTime;
+
+    public void setCurrTime(LocalDateTime localDateTime) {
+        this.currTime = localDateTime;
+    }
+
+    public void setOriginTime() {
+        this.currTime = fixedTime;
+    }
 
     @Bean
     public DateTimeProvider dateTimeProvider() {
-        return () -> Optional.of(fixedTime);
+        return () -> Optional.of(currTime);
     }
 
     @Bean
     public Clock clock() {
         return Clock.fixed(
-            fixedTime.atZone(Clock.systemDefaultZone().getZone()).toInstant(),
+            currTime.atZone(Clock.systemDefaultZone().getZone()).toInstant(),
             Clock.systemDefaultZone().getZone()
         );
     }

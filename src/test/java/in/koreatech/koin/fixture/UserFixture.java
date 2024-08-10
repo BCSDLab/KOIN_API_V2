@@ -350,8 +350,6 @@ public final class UserFixture {
         private LocalDateTime lastLoggedAt;
         private String profileImageUrl;
         private Boolean isDeleted;
-        private String authToken;
-        private LocalDateTime authExpiredAt;
         private String resetToken;
         private LocalDateTime resetExpiredAt;
         private String deviceToken;
@@ -411,16 +409,6 @@ public final class UserFixture {
             return this;
         }
 
-        public UserFixtureBuilder authToken(String authToken) {
-            this.authToken = authToken;
-            return this;
-        }
-
-        public UserFixtureBuilder authExpiredAt(LocalDateTime authExpiredAt) {
-            this.authExpiredAt = authExpiredAt;
-            return this;
-        }
-
         public UserFixtureBuilder resetToken(String resetToken) {
             this.resetToken = resetToken;
             return this;
@@ -440,14 +428,12 @@ public final class UserFixture {
             return userRepository.save(
                 User.builder()
                     .phoneNumber(phoneNumber)
-                    .authExpiredAt(authExpiredAt)
                     .deviceToken(deviceToken)
                     .lastLoggedAt(lastLoggedAt)
                     .isAuthed(isAuthed)
                     .resetExpiredAt(resetExpiredAt)
                     .resetToken(resetToken)
                     .nickname(nickname)
-                    .authToken(authToken)
                     .isDeleted(isDeleted)
                     .email(email)
                     .profileImageUrl(profileImageUrl)

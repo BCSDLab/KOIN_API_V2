@@ -27,7 +27,6 @@ public record ModifyReviewRequest(
     Integer rating,
 
     @Schema(example = "정말 맛있어요~!", description = "리뷰 내용", requiredMode = REQUIRED)
-    @NotBlank
     String content,
 
     @Schema(example = """
@@ -43,7 +42,7 @@ public record ModifyReviewRequest(
     @JsonCreator
     public ModifyReviewRequest(
         @JsonProperty("rating") @NotNull @Min(1) @Max(5) Integer rating,
-        @JsonProperty("content") @NotBlank String content,
+        @JsonProperty("content") String content,
         @JsonProperty("image_urls") List<String> imageUrls,
         @JsonProperty("menu_names") List<String> menuNames
     ) {
