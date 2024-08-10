@@ -14,7 +14,7 @@ public interface TimetableLectureRepositoryV2 extends Repository<TimetableLectur
 
     List<TimetableLecture> findAllByTimetableFrameId(Integer id);
 
-    List<TimetableLecture> findAllByUserIdAndStandardGraduationRequirementsIdAndTimetableFrameId(Integer userId, Integer standardGraduationRequirementsId, Integer timetableFrameId);
+    List<TimetableLecture> findAllByStandardGraduationRequirementsIdAndTimetableFrameId(Integer standardGraduationRequirementsId, Integer timetableFrameId);
 
     void deleteById(Integer id);
 

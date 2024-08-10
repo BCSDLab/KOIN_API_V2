@@ -207,7 +207,7 @@ public class TimetableServiceV2 {
             List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(student.getUser().getId());
             for (TimetableFrame timetableFrame : timetableFrames) {
                 List<TimetableLecture> timetableLectures = timetableLectureRepositoryV2
-                        .findAllByUserIdAndStandardGraduationRequirementsIdAndTimetableFrameId(userId, standardGraduationRequirementId, timetableFrame.getId());
+                        .findAllByStandardGraduationRequirementsIdAndTimetableFrameId(standardGraduationRequirementId, timetableFrame.getId());
                 int grades = timetableLectures.stream()
                         .mapToInt(timeTableLecture -> {
                             if (timeTableLecture.getLecture() != null) {
