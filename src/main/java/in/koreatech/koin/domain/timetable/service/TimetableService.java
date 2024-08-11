@@ -95,8 +95,7 @@ public class TimetableService {
         User user = userRepository.getById(userId);
 
         Optional<TimetableFrame> timetableFrame = timetableFrameRepositoryV2.findByUserIdAndSemesterIdAndIsMainTrue(
-            userId,
-            semester.getId());
+            userId, semester.getId());
 
         if (timetableFrame.isEmpty()) {
             TimetableFrame newTimetableFrame = TimetableFrame
