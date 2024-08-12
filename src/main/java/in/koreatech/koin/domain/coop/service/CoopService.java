@@ -67,7 +67,7 @@ public class CoopService {
             dining.getType());
 
         LocalDateTime now = LocalDateTime.now(clock);
-        boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType());
+        boolean isOpened = coopShopService.getIsOpenedUntil1HourAgo(now, CoopShopType.CAFETERIA, dining.getType());
 
         if (isOpened && !isImageExist) {
             eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getImageUrl()));

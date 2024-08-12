@@ -53,4 +53,24 @@ public class CoopShopService {
             return false;
         }
     }
+
+    public boolean getIsOpenedUntil1HourAgo(LocalDateTime now, CoopShopType coopShopType, DiningType type) {
+        try {
+            String todayType =
+                (now.getDayOfWeek() == DayOfWeek.SATURDAY || now.getDayOfWeek() == DayOfWeek.SUNDAY) ? "주말" : "평일";
+            CoopShop coopShop = coopShopRepository.getByName(coopShopType.getName());
+            CoopOpen open = coopOpenRepository
+                .getByCoopShopAndTypeAndDayOfWeek(coopShop, type.getDiningName(), todayType);
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            LocalDateTime openTime = LocalTime.parse(open.getOpenTime(), formatter)
+                .atDate(now.toLocalDate())
+                .minusHours(1);
+            LocalDateTime closeTime = LocalTime.parse(open.getCloseTime(), formatter).atDate(now.toLocalDate());
+
+            return !(now.isBefore(openTime) || now.isAfter(closeTime));
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
 }
