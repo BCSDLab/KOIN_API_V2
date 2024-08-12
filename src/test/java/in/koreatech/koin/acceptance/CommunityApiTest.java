@@ -70,7 +70,6 @@ class CommunityApiTest extends AcceptanceTest {
             .when()
             .get("/articles/{articleId}", article1.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -113,7 +112,6 @@ class CommunityApiTest extends AcceptanceTest {
             .when()
             .get("/articles/{articleId}", article1.getId())
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -144,7 +142,6 @@ class CommunityApiTest extends AcceptanceTest {
             .param("limit", 10)
             .get("/articles")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
@@ -395,7 +392,6 @@ class CommunityApiTest extends AcceptanceTest {
             .when()
             .get("/articles/hot/list")
             .then()
-            .log().all()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
