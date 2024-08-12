@@ -6,14 +6,15 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.admin.abtest.exception.AbtestNotAssignedUserException;
 import in.koreatech.koin.admin.abtest.model.Abtest;
-import in.koreatech.koin.admin.abtest.model.AbtestIp;
-import in.koreatech.koin.admin.abtest.model.AbtestVariableCount;
+import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
 import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
+import in.koreatech.koin.admin.abtest.model.redis.VariableIp;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRepository;
-import in.koreatech.koin.admin.abtest.repository.AbtestIpRepository;
+import in.koreatech.koin.admin.abtest.repository.VariableIpRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableRepository;
@@ -26,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class AbtestService {
 
     private final AbtestVariableCountRepository abtestVariableCountRepository;
-    private final AbtestIpRepository abtestIpRepository;
+    private final VariableIpRepository variableIpRepository;
     private final AbtestRepository abtestRepository;
     private final AbtestVariableRepository abtestVariableRepository;
     private final AccessHistoryRepository accessHistoryRepository;
@@ -78,12 +79,25 @@ public class AbtestService {
         return variable.getName();
     }
 
+    @Transactional
     public String getMyVariable(String title, String ipAddress) {
         Abtest abtest = abtestRepository.getByTitle(title);
-        AbtestIp abtestIp = abtestIpRepository.getById(abtest.getId());
-        int variableId = abtestIp.getVariableIdByIp(ipAddress);
-        AbtestVariable variable = abtestVariableRepository.getById(variableId);
-        // TODO: 캐시가 없으면 DB에서 꺼내서 캐시에 집어넣기
-        return variable.getName();
+        Optional<AbtestVariable> cacheVariable = abtest.getAbtestVariables().stream()
+            .filter(abtestVariable ->
+                variableIpRepository.findByVariableIdAndIp(abtestVariable.getId(), ipAddress).isPresent())
+            .findAny();
+
+        if (cacheVariable.isEmpty()) {
+            AbtestVariable dbVariable = accessHistoryRepository.findByPublicIp(ipAddress)
+                .orElseThrow(() -> AbtestNotAssignedUserException.withDetail("abtestId: " + abtest.getId() + ", "
+                    + "publicIp: " + ipAddress))
+                .findVariableByAbtestId(abtest.getId())
+                .orElseThrow(() -> AbtestNotAssignedUserException.withDetail("abtestId: " + abtest.getId() + ", "
+                    + "publicIp: " + ipAddress));
+            variableIpRepository.save(VariableIp.of(dbVariable.getId(), ipAddress));
+            return dbVariable.getName();
+        }
+
+        return cacheVariable.get().getName();
     }
 }

@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.abtest.model;
+package in.koreatech.koin.admin.abtest.model.redis;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;

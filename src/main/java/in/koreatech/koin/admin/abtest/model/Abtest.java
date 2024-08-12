@@ -9,9 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.google.api.gax.rpc.NotFoundException;
-
 import in.koreatech.koin.admin.abtest.exception.AbtestNotIncludeVariableException;
+import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

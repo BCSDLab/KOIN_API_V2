@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 
 import in.koreatech.koin.admin.abtest.exception.AbtestVariableCountNotFoundException;
-import in.koreatech.koin.admin.abtest.model.AbtestVariableCount;
+import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 
 public interface AbtestVariableCountRepository extends CrudRepository<AbtestVariableCount, Integer> {
 
