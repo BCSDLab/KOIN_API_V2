@@ -1,4 +1,4 @@
-CREATE TABLE `keywords`
+CREATE TABLE `notification_keywords`
 (
     `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `keyword`      VARCHAR(50) NOT NULL UNIQUE,
@@ -8,7 +8,7 @@ CREATE TABLE `keywords`
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `keyword_user_map`
+CREATE TABLE `notification_keyword_user_map`
 (
     `keyword_id` INT UNSIGNED NOT NULL,
     `user_id`    INT UNSIGNED NOT NULL,
