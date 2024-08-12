@@ -43,15 +43,13 @@ public class CoopShopService {
             CoopShop coopShop = coopShopRepository.getByName(coopShopType.getName());
             CoopOpen open = coopOpenRepository
                 .getByCoopShopAndTypeAndDayOfWeek(coopShop, type.getDiningName(), todayType);
-            LocalDateTime openTime;
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            LocalDateTime openTime = LocalTime.parse(open.getOpenTime(), formatter)
+                .atDate(now.toLocalDate());
+
             if (isMinus) {
-                openTime = LocalTime.parse(open.getOpenTime(), formatter)
-                    .atDate(now.toLocalDate())
-                    .minusHours(1);
-            } else {
-                openTime = LocalTime.parse(open.getOpenTime(), formatter).atDate(now.toLocalDate());
+                openTime = openTime.minusHours(1);
             }
 
             LocalDateTime closeTime = LocalTime.parse(open.getCloseTime(), formatter).atDate(now.toLocalDate());
