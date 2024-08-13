@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotAssignedUserException;
 import in.koreatech.koin.admin.abtest.model.Abtest;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
@@ -51,8 +52,9 @@ public class AbtestService {
     }
 
     @Transactional
-    public String assignVariable(UserAgentInfo userAgentInfo, String ipAddress, Integer userId, String title) {
-        Abtest abtest = abtestRepository.getByTitle(title);
+    public String assignVariable(UserAgentInfo userAgentInfo, String ipAddress, Integer userId,
+        AbtestAssignRequest request) {
+        Abtest abtest = abtestRepository.getByTitle(request.title());
         List<AbtestVariableCount> cacheCount = abtest.getAbtestVariables().stream()
             .map(abtestVariable -> abtestVariableCountRepository.getById(abtestVariable.getId()))
             .toList();
@@ -73,8 +75,8 @@ public class AbtestService {
         // 연결 기록 없으면 생성 (로그인된 사용자면 디바이스 연결까지)
         if (accessHistoryRepository.findByPublicIp(ipAddress).isEmpty()) {
             AccessHistory accessHistory = AccessHistory.builder()
-                    .publicIp(ipAddress)
-                    .build();
+                .publicIp(ipAddress)
+                .build();
             if (userId != null) {
                 accessHistory.connectDevice(deviceRepository.getByUserId(userId));
             }

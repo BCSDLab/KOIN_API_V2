@@ -2,10 +2,12 @@ package in.koreatech.koin.admin.abtest.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.service.AbtestService;
 import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
@@ -35,6 +37,17 @@ public class AbtestController implements AbtestApi {
         @RequestParam(name = "title") String title
     ) {
         var response = abtestService.getMyVariable(title, ipAddress);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/assign")
+    public ResponseEntity<String> assignAbtestVariable(
+        UserAgentInfo userAgentInfo,
+        String ipAddress,
+        Integer userId,
+        AbtestAssignRequest abtestAssignRequest
+    ) {
+        var response = abtestService.assignVariable(userAgentInfo, ipAddress, userId, abtestAssignRequest);
         return ResponseEntity.ok(response);
     }
 }
