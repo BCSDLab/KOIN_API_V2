@@ -16,7 +16,9 @@ import in.koreatech.koin.global.domain.notification.dto.NotificationPermitReques
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
+import in.koreatech.koin.global.fcm.MobileAppPath;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,6 +28,26 @@ import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Notification: 알림", description = "알림 관련 API")
 public interface NotificationApi {
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "테스트용 알림 발송")
+    @GetMapping("/notification/test")
+    ResponseEntity<Void> testSendMessage(
+        @Parameter(description = "device token") @RequestParam String deviceToken,
+        @Parameter(description = "title") @RequestParam(required = false) String title,
+        @Parameter(description = "body") @RequestParam(required = false) String body,
+        @Parameter(description = "image") @RequestParam(required = false) String image,
+        @Parameter(description = "mobile app path") @RequestParam(required = false) MobileAppPath mobileAppPath,
+        @Parameter(description = "scheme uri") @RequestParam(required = false) String url
+    );
 
     @ApiResponses(
         value = {

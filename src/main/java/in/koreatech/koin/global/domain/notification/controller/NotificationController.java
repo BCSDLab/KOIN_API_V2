@@ -1,8 +1,6 @@
 package in.koreatech.koin.global.domain.notification.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +17,8 @@ import in.koreatech.koin.global.domain.notification.dto.NotificationStatusRespon
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
+import in.koreatech.koin.global.fcm.MobileAppPath;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +27,19 @@ import lombok.RequiredArgsConstructor;
 public class NotificationController implements NotificationApi {
 
     private final NotificationService notificationService;
+
+    @GetMapping("/notification/test")
+    public ResponseEntity<Void> testSendMessage(
+        @Parameter(description = "device token") @RequestParam String deviceToken,
+        @Parameter(description = "title") @RequestParam(required = false) String title,
+        @Parameter(description = "body") @RequestParam(required = false) String body,
+        @Parameter(description = "image uri") @RequestParam(required = false) String image,
+        @Parameter(description = "mobile app path") @RequestParam(required = false) MobileAppPath mobileAppPath,
+        @Parameter(description = "scheme uri") @RequestParam(required = false) String url
+    ) {
+        notificationService.testPush(mobileAppPath, deviceToken, title, body, image, url);
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/notification")
     public ResponseEntity<NotificationStatusResponse> checkNotificationStatus(

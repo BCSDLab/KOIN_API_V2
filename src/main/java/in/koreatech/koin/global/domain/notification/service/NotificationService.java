@@ -13,9 +13,11 @@ import in.koreatech.koin.global.domain.notification.model.Notification;
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
+import in.koreatech.koin.global.domain.notification.model.NotificationType;
 import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.fcm.FcmClient;
+import in.koreatech.koin.global.fcm.MobileAppPath;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -42,7 +44,27 @@ public class NotificationService {
             notification.getMessage(),
             notification.getImageUrl(),
             notification.getMobileAppPath(),
+            notification.getSchemeUri(),
             notification.getType()
+        );
+    }
+
+    public void testPush(
+        MobileAppPath mobileAppPath,
+        String deviceToken,
+        String title,
+        String message,
+        String image,
+        String url
+    ) {
+        fcmClient.sendMessage(
+            deviceToken,
+            title,
+            message,
+            image,
+            mobileAppPath,
+            url,
+            NotificationType.MESSAGE.name().toLowerCase()
         );
     }
 
