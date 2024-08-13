@@ -20,6 +20,7 @@ import in.koreatech.koin.global.host.ServerURLArgumentResolver;
 import in.koreatech.koin.global.host.ServerURLInterceptor;
 import in.koreatech.koin.global.ipaddress.IpAddressArgumentResolver;
 import in.koreatech.koin.global.ipaddress.IpAddressInterceptor;
+import in.koreatech.koin.global.useragent.UserAgentArgumentResolver;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -32,6 +33,7 @@ public class WebConfig implements WebMvcConfigurer {
     private final AuthArgumentResolver authArgumentResolver;
     private final IpAddressInterceptor ipAddressInterceptor;
     private final ServerURLArgumentResolver serverURLArgumentResolver;
+    private final UserAgentArgumentResolver userAgentArgumentResolver;
     private final ServerURLInterceptor serverURLInterceptor;
     private final CorsProperties corsProperties;
 
@@ -54,6 +56,7 @@ public class WebConfig implements WebMvcConfigurer {
         resolvers.add(ipAddressArgumentResolver);
         resolvers.add(userIdArgumentResolver);
         resolvers.add(serverURLArgumentResolver);
+        resolvers.add(userAgentArgumentResolver);
     }
 
     @Override

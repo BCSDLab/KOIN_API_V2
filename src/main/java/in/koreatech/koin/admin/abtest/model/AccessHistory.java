@@ -63,4 +63,8 @@ public class AccessHistory extends BaseEntity {
         this.device = device;
         this.publicIp = publicIp;
     }
+
+    public void connectDevice(Device device) {
+        this.device = device;
+    }
 }

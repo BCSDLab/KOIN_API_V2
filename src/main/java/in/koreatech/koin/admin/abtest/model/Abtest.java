@@ -1,6 +1,5 @@
 package in.koreatech.koin.admin.abtest.model;
 
-import static java.util.Arrays.stream;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.AbstractMap;
@@ -47,7 +46,7 @@ public class Abtest extends BaseEntity {
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "display_name", nullable = false)
+    @Column(name = "display_title", nullable = false)
     private String displayTitle;
 
     @Size(max = 255)
@@ -70,7 +69,7 @@ public class Abtest extends BaseEntity {
     private List<AbtestVariable> abtestVariables = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "winnder_id")
+    @JoinColumn(name = "winner_id")
     private AbtestVariable winner;
 
     @Builder

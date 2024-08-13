@@ -8,17 +8,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.abtest.exception.AbtestNotAssignedUserException;
 import in.koreatech.koin.admin.abtest.model.Abtest;
-import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
 import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
+import in.koreatech.koin.admin.abtest.model.Device;
+import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 import in.koreatech.koin.admin.abtest.model.redis.VariableIp;
-import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRepository;
-import in.koreatech.koin.admin.abtest.repository.VariableIpRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
+import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
+import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
+import in.koreatech.koin.admin.abtest.repository.VariableIpRepository;
+import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.useragent.UserAgentInfo;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,6 +36,8 @@ public class AbtestService {
     private final AbtestVariableRepository abtestVariableRepository;
     private final AccessHistoryRepository accessHistoryRepository;
     private final AccessHistoryAbtestVariableRepository accessHistoryAbtestVariableRepository;
+    private final DeviceRepository deviceRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public void syncCacheCountToDB() {
@@ -45,35 +51,46 @@ public class AbtestService {
     }
 
     @Transactional
-    public String assignVariable(String title, String ipAddress) {
+    public String assignVariable(UserAgentInfo userAgentInfo, String ipAddress, Integer userId, String title) {
         Abtest abtest = abtestRepository.getByTitle(title);
         List<AbtestVariableCount> cacheCount = abtest.getAbtestVariables().stream()
             .map(abtestVariable -> abtestVariableCountRepository.getById(abtestVariable.getId()))
             .toList();
+        // 편입 대상이 되는 변수 선정
         AbtestVariable variable = abtest.assignVariable(cacheCount);
 
-        // 실제 편입 진행
-        /**
-         * findByIp(..)
-         * 있으면 그걸로 variable, variable map table
-         * 없으면 새로 만든 후에 위 과정 진행.
-         */
-
-        Optional<AccessHistory> accessHistory = accessHistoryRepository.findByPublicIp(ipAddress);
-
-        if (accessHistory.isEmpty()) {
-            // 액세스 히스토리 생성 (디바이스는?)
+        // 로그인된 사용자에게 디바이스가 없으면 생성
+        if (userId != null && deviceRepository.findByUserId(userId).isEmpty()) {
+            deviceRepository.save(
+                Device.builder()
+                    .user(userRepository.getById(userId))
+                    .model(userAgentInfo.getModel())
+                    .type(userAgentInfo.getType())
+                    .build()
+            );
         }
 
+        // 연결 기록 없으면 생성 (로그인된 사용자면 디바이스 연결까지)
+        if (accessHistoryRepository.findByPublicIp(ipAddress).isEmpty()) {
+            AccessHistory accessHistory = AccessHistory.builder()
+                    .publicIp(ipAddress)
+                    .build();
+            if (userId != null) {
+                accessHistory.connectDevice(deviceRepository.getByUserId(userId));
+            }
+            accessHistoryRepository.save(accessHistory);
+        }
+
+        // 연결 이력과 변수 연결
         // TODO: 연관관계 편입 메서드로 분리하기
-        // variable.addAccessHistory(accessHistory.get());
+        AccessHistory accessHistory = accessHistoryRepository.getByPublicIp(ipAddress);
         AccessHistoryAbtestVariable saved = accessHistoryAbtestVariableRepository.save(
             AccessHistoryAbtestVariable.builder()
-                .accessHistory(accessHistory.get())
+                .accessHistory(accessHistory)
                 .variable(variable)
                 .build()
         );
-        accessHistory.get().getAccessHistoryAbtestVariables().add(saved);
+        accessHistory.getAccessHistoryAbtestVariables().add(saved);
         variable.getAccessHistoryAbtestVariables().add(saved);
 
         return variable.getName();

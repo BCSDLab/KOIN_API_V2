@@ -78,6 +78,9 @@ dependencies {
     // resilience4j
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.1.0'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // userAgent parser
+    implementation 'com.github.ua-parser:uap-java:1.4.4'
 }
 
 tasks.named('bootBuildImage') {

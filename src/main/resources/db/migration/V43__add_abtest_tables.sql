@@ -3,7 +3,7 @@ CREATE TABLE `device`
     `id`               int unsigned NOT NULL AUTO_INCREMENT,
     `user_id`          int unsigned NOT NULL,
     `model`            varchar(100)       DEFAULT NULL,
-    `os`               varchar(100)       DEFAULT NULL,
+    `type`               varchar(100)       DEFAULT NULL,
     `fcm_token`        varchar(255)       DEFAULT NULL,
     `last_accessed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `created_at`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

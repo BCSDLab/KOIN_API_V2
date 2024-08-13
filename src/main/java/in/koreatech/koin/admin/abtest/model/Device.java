@@ -2,7 +2,6 @@ package in.koreatech.koin.admin.abtest.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 import in.koreatech.koin.domain.user.model.User;
@@ -43,18 +42,13 @@ public class Device extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotNull
-    @Size(max = 50)
-    @Column(name = "type", length = 50)
-    private String type;
-
     @Size(max = 100)
     @Column(name = "model", length = 100)
     private String model;
 
     @Size(max = 100)
-    @Column(name = "os", length = 100)
-    private String os;
+    @Column(name = "type", length = 100)
+    private String type;
 
     @Size(max = 255)
     @Column(name = "fcm_token")
@@ -69,18 +63,16 @@ public class Device extends BaseEntity {
         Integer id,
         AccessHistory accessHistory,
         User user,
-        String type,
         String model,
-        String os,
+        String type,
         String fcmToken,
         LocalDateTime lastAccessedAt
     ) {
         this.id = id;
         this.accessHistory = accessHistory;
         this.user = user;
-        this.type = type;
         this.model = model;
-        this.os = os;
+        this.type = type;
         this.fcmToken = fcmToken;
         this.lastAccessedAt = lastAccessedAt;
     }
