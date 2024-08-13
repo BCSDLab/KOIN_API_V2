@@ -29,7 +29,7 @@ public class ArticleKeywordUserMap extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "keyword_id", nullable = false)
-    private ArticleKeywords notificationKeyword;
+    private ArticleKeyword articleKeyword;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

@@ -4,6 +4,8 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -14,6 +16,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,7 +24,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "article_keywords")
 @NoArgsConstructor(access = PROTECTED)
-public class ArticleKeywords extends BaseEntity {
+public class ArticleKeyword extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -33,7 +36,12 @@ public class ArticleKeywords extends BaseEntity {
     @Column(name = "last_used_at")
     private LocalDateTime lastUsedAt;
 
-    @OneToMany(mappedBy = "notificationKeyword", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private Set<ArticleKeywordUserMap> notificationKeywordUserMaps;
+    @OneToMany(mappedBy = "notificationKeyword", cascade = CascadeType.PERSIST)
+    private List<ArticleKeywordUserMap> notificationKeywordUserMaps = new ArrayList<>();
 
+    @Builder
+    public ArticleKeyword(String keyword, LocalDateTime lastUsedAt) {
+        this.keyword = keyword;
+        this.lastUsedAt = lastUsedAt;
+    }
 }

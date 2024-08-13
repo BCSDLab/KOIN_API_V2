@@ -11,13 +11,21 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.community.dto.ArticleKeywordCreateRequest;
+import in.koreatech.koin.domain.community.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
+import in.koreatech.koin.domain.community.exception.KeywordDuplicationException;
+import in.koreatech.koin.domain.community.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.model.Article;
+import in.koreatech.koin.domain.community.model.ArticleKeyword;
+import in.koreatech.koin.domain.community.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.model.ArticleViewLog;
 import in.koreatech.koin.domain.community.model.Board;
 import in.koreatech.koin.domain.community.model.BoardTag;
+import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapRepository;
+import in.koreatech.koin.domain.community.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.repository.BoardRepository;
@@ -37,6 +45,8 @@ public class CommunityService {
     private final ArticleViewLogRepository articleViewLogRepository;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+    private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
+    private final ArticleKeywordRepository articleKeywordRepository;
 
     @Transactional
     public ArticleResponse getArticle(Integer userId, Integer articleId, String ipAddress) {
@@ -92,5 +102,31 @@ public class CommunityService {
             .sorted(Comparator.comparing(Article::getHit).reversed())
             .map(HotArticleItemResponse::from)
             .toList();
+    }
+
+    public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
+        String keyword = request.keyword().trim();
+
+        List<ArticleKeywordUserMap> userKeywords = articleKeywordUserMapRepository.findAllByUserId(userId);
+
+        if (userKeywords.size() >= 10) {
+            throw KeywordLimitExceededException.withDetail("userId: " + userId);
+        }
+
+        for (ArticleKeywordUserMap userKeyword : userKeywords) {
+            if (userKeyword.getArticleKeyword().getKeyword().equals(keyword)) {
+                throw KeywordDuplicationException.withDetail("keyword: " + keyword);
+            }
+        }
+
+        ArticleKeyword existingKeyword = articleKeywordRepository.findByKeyword(keyword);
+        if (existingKeyword == null) {
+            articleKeywordRepository.save(
+                ArticleKeyword.builder()
+                    .keyword(keyword)
+                    .lastUsedAt(LocalDateTime.now())
+                    .build()
+            );
+        }
     }
 }
