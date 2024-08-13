@@ -4,13 +4,13 @@ import in.koreatech.koin.domain.owner.exception.VerificationDailyLimitExceededEx
 import in.koreatech.koin.global.exception.KoinException;
 
 public class KeywordLimitExceededException extends KoinException {
-    private static final String DEFAULT_MESSAGE = "키워드 최대 개수 초과";
+    private static final String DEFAULT_MESSAGE = "저장할 수 있는 최대 키워드 수 10개를 초과 했습니다.";
 
-    protected KeywordLimitExceededException(String message) {
+    public KeywordLimitExceededException(String message) {
         super(message);
     }
 
-    protected KeywordLimitExceededException(String message, String detail) {
+    public KeywordLimitExceededException(String message, String detail) {
         super(message, detail);
     }
 

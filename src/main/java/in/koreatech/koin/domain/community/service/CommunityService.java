@@ -104,29 +104,29 @@ public class CommunityService {
             .toList();
     }
 
+    @Transactional
     public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
         String keyword = request.keyword().trim();
 
-        List<ArticleKeywordUserMap> userKeywords = articleKeywordUserMapRepository.findAllByUserId(userId);
-
-        if (userKeywords.size() >= 10) {
+        if (articleKeywordUserMapRepository.countByUserId(userId) >= 10) {
             throw KeywordLimitExceededException.withDetail("userId: " + userId);
         }
 
-        for (ArticleKeywordUserMap userKeyword : userKeywords) {
-            if (userKeyword.getArticleKeyword().getKeyword().equals(keyword)) {
-                throw KeywordDuplicationException.withDetail("keyword: " + keyword);
-            }
-        }
-
-        ArticleKeyword existingKeyword = articleKeywordRepository.findByKeyword(keyword);
-        if (existingKeyword == null) {
-            articleKeywordRepository.save(
+        ArticleKeyword existingKeyword = articleKeywordRepository.findByKeyword(keyword)
+            .orElseGet(() -> articleKeywordRepository.save(
                 ArticleKeyword.builder()
                     .keyword(keyword)
                     .lastUsedAt(LocalDateTime.now())
                     .build()
-            );
-        }
+            ));
+
+        existingKeyword.addUserMap(
+            ArticleKeywordUserMap.builder()
+                .user(userRepository.getById(userId))
+                .articleKeyword(existingKeyword)
+                .build()
+        );
+
+        return new ArticleKeywordResponse(existingKeyword.getId(), existingKeyword.getKeyword());
     }
 }

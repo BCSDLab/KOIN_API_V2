@@ -6,8 +6,8 @@ import static lombok.AccessLevel.PROTECTED;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
+import in.koreatech.koin.domain.community.exception.KeywordDuplicationException;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -36,12 +36,24 @@ public class ArticleKeyword extends BaseEntity {
     @Column(name = "last_used_at")
     private LocalDateTime lastUsedAt;
 
-    @OneToMany(mappedBy = "notificationKeyword", cascade = CascadeType.PERSIST)
-    private List<ArticleKeywordUserMap> notificationKeywordUserMaps = new ArrayList<>();
+    @OneToMany(mappedBy = "articleKeyword", cascade = CascadeType.PERSIST)
+    private List<ArticleKeywordUserMap> articleKeywordUserMaps = new ArrayList<>();
 
     @Builder
     public ArticleKeyword(String keyword, LocalDateTime lastUsedAt) {
         this.keyword = keyword;
         this.lastUsedAt = lastUsedAt;
+    }
+
+    public void addUserMap(ArticleKeywordUserMap keywordUserMap) {
+        if (containsKeyword(keywordUserMap.getArticleKeyword().getKeyword())) {
+            throw new KeywordDuplicationException("키워드는 중복될 수 없습니다.");
+        }
+        articleKeywordUserMaps.add(keywordUserMap);
+    }
+
+    private boolean containsKeyword(String keyword) {
+        return articleKeywordUserMaps.stream()
+            .anyMatch(map -> map.getArticleKeyword().getKeyword().equals(keyword));
     }
 }
