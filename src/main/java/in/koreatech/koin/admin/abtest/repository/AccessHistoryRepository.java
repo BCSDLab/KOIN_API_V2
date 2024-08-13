@@ -6,6 +6,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.abtest.exception.AccessHistoryNotFoundException;
 import in.koreatech.koin.admin.abtest.model.AccessHistory;
+import in.koreatech.koin.admin.abtest.model.Device;
 
 public interface AccessHistoryRepository extends Repository<AccessHistory, Integer> {
 
@@ -17,4 +18,6 @@ public interface AccessHistoryRepository extends Repository<AccessHistory, Integ
         return findByPublicIp(publicIp).orElseThrow(() ->
             AccessHistoryNotFoundException.withDetail("publicIp: " + publicIp));
     }
+
+    Optional<AccessHistory> findByDevice(Device device);
 }

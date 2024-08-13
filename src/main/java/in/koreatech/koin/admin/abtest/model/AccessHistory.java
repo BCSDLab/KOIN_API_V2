@@ -4,6 +4,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -35,7 +36,8 @@ public class AccessHistory extends BaseEntity {
     @Column(name = "id")
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY) @JoinColumn(name = "device_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "device_id")
     private Device device;
 
     @Size(max = 45)
@@ -66,5 +68,11 @@ public class AccessHistory extends BaseEntity {
 
     public void connectDevice(Device device) {
         this.device = device;
+    }
+
+    public boolean hasVariable(Integer variableId) {
+        return accessHistoryAbtestVariables.stream()
+            .map(AccessHistoryAbtestVariable::getVariable)
+            .anyMatch(abtestVariable -> Objects.equals(abtestVariable.getId(), variableId));
     }
 }

@@ -4,6 +4,8 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
 
+import org.springframework.data.annotation.CreatedDate;
+
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
@@ -56,6 +58,7 @@ public class Device extends BaseEntity {
 
     @NotNull
     @Column(name = "last_accessed_at", nullable = false)
+    @CreatedDate
     private LocalDateTime lastAccessedAt;
 
     @Builder

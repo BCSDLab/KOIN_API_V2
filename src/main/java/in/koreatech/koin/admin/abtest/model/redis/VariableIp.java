@@ -1,7 +1,5 @@
 package in.koreatech.koin.admin.abtest.model.redis;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.annotation.Id;
@@ -14,6 +12,14 @@ import lombok.Getter;
 @Getter
 @RedisHash("VariableIp")
 public class VariableIp {
+
+    /**
+     * MEMO
+     * 특정 실험에서 특정 아이피의 실험군을 조회하고자 한다면?
+     * 해당 실험에 속한 모든 실험군을 stream으로 순회하며 각각에 대해
+     * variableId:ip 꼴로 variableIpRepository.existsById(String id) 한다.
+     * -> findByVariableIdAndIp()
+     */
 
     private static final long CACHE_EXPIRE_DAYS = 3L;
 

@@ -61,7 +61,7 @@ public class AbtestService {
         // 편입 대상이 되는 변수 선정
         AbtestVariable variable = abtest.assignVariable(cacheCount);
 
-        // 로그인된 사용자에게 디바이스가 없으면 생성
+        // 로그인 유저에게 디바이스가 없으면 생성
         if (userId != null && deviceRepository.findByUserId(userId).isEmpty()) {
             deviceRepository.save(
                 Device.builder()
@@ -72,29 +72,35 @@ public class AbtestService {
             );
         }
 
-        // 연결 기록 없으면 생성 (로그인된 사용자면 디바이스 연결까지)
+        // 연결 기록 없으면 생성
         if (accessHistoryRepository.findByPublicIp(ipAddress).isEmpty()) {
             AccessHistory accessHistory = AccessHistory.builder()
                 .publicIp(ipAddress)
                 .build();
-            if (userId != null) {
-                accessHistory.connectDevice(deviceRepository.getByUserId(userId));
-            }
             accessHistoryRepository.save(accessHistory);
         }
 
-        // 연결 이력과 변수 연결
-        // TODO: 연관관계 편입 메서드로 분리하기
+        // 로그인 유저가 연결기록 - 디바이스 매핑이 안되어있으면 매핑 진행
         AccessHistory accessHistory = accessHistoryRepository.getByPublicIp(ipAddress);
-        AccessHistoryAbtestVariable saved = accessHistoryAbtestVariableRepository.save(
-            AccessHistoryAbtestVariable.builder()
-                .accessHistory(accessHistory)
-                .variable(variable)
-                .build()
-        );
-        accessHistory.getAccessHistoryAbtestVariables().add(saved);
-        variable.getAccessHistoryAbtestVariables().add(saved);
+        if (userId != null) {
+            Device device = deviceRepository.getByUserId(userId);
+            if (accessHistoryRepository.findByDevice(device).isEmpty()) {
+                accessHistory.connectDevice(device);
+            }
+        }
 
+        // 연결 이력 - 변수 연결
+        // TODO: 연관관계 편입 메서드로 분리하기
+        if (!accessHistory.hasVariable(variable.getId())) {
+            AccessHistoryAbtestVariable saved = accessHistoryAbtestVariableRepository.save(
+                AccessHistoryAbtestVariable.builder()
+                    .accessHistory(accessHistory)
+                    .variable(variable)
+                    .build()
+            );
+            accessHistory.getAccessHistoryAbtestVariables().add(saved);
+            variable.getAccessHistoryAbtestVariables().add(saved);
+        }
         return variable.getName();
     }
 
