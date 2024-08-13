@@ -19,9 +19,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "notification_keywords")
+@Table(name = "article_keywords")
 @NoArgsConstructor(access = PROTECTED)
-public class NotificationKeyword extends BaseEntity {
+public class ArticleKeywords extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -34,6 +34,6 @@ public class NotificationKeyword extends BaseEntity {
     private LocalDateTime lastUsedAt;
 
     @OneToMany(mappedBy = "notificationKeyword", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private Set<NotificationKeywordUserMap> notificationKeywordUserMaps;
+    private Set<ArticleKeywordUserMap> notificationKeywordUserMaps;
 
 }

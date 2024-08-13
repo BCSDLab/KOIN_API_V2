@@ -17,11 +17,11 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "notification_keyword_user_map", uniqueConstraints = {
+@Table(name = "article_keyword_user_map", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"keyword_id", "user_id"})
 })
 @NoArgsConstructor(access = PROTECTED)
-public class NotificationKeywordUserMap extends BaseEntity {
+public class ArticleKeywordUserMap extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -29,7 +29,7 @@ public class NotificationKeywordUserMap extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "keyword_id", nullable = false)
-    private NotificationKeyword notificationKeyword;
+    private ArticleKeywords notificationKeyword;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
