@@ -2,6 +2,7 @@ package in.koreatech.koin.global.fcm;
 
 import static com.google.firebase.messaging.AndroidConfig.Priority.HIGH;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.scheduling.annotation.Async;
@@ -29,6 +30,7 @@ public class FcmClient {
         String content,
         String imageUrl,
         MobileAppPath path,
+        String schemeUri,
         String type
     ) {
         if (targetDeviceToken == null) {
@@ -36,8 +38,8 @@ public class FcmClient {
         }
         log.info("call FcmClient sendMessage: title: {}, content: {}", title, content);
 
-        AndroidConfig androidConfig = generateAndroidConfig(title, content, imageUrl, path, type);
         ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type);
+        AndroidConfig androidConfig = generateAndroidConfig(title, content, imageUrl, path, schemeUri, type);
 
         Message message = Message.builder()
             .setToken(targetDeviceToken)
@@ -68,7 +70,7 @@ public class FcmClient {
                             .build()
                     )
                     .setSound("default")
-                    .setCategory(path.getApple())
+                    .setCategory(path != null ? path.getApple() : "")
                     .setMutableContent(true)
                     .build()
             )
@@ -90,18 +92,26 @@ public class FcmClient {
         String content,
         String imageUrl,
         MobileAppPath path,
+        String schemeUri,
         String type
     ) {
         AndroidNotification androidNotification = AndroidNotification.builder()
             .setTitle(title)
             .setBody(content)
             .setImage(imageUrl)
-            .setClickAction(path.getAndroid())
+            .setClickAction(path != null ? path.getAndroid() : "")
             .build();
+
+        Map<String, String> androidNotificationV2 = new HashMap<>();
+        androidNotificationV2.put("title", title != null ? title : "");
+        androidNotificationV2.put("content", content != null ? content : "");
+        androidNotificationV2.put("imageUrl", imageUrl != null ? imageUrl : "");
+        androidNotificationV2.put("url", "koin://" + (schemeUri != null ? schemeUri : ""));
+        androidNotificationV2.put("type", type != null ? type : "");
 
         return AndroidConfig.builder()
             .setNotification(androidNotification)
-            .putData("type", type)
+            .putAllData(androidNotificationV2)
             .setPriority(HIGH)
             .build();
     }
