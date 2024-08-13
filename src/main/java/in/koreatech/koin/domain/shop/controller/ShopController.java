@@ -21,13 +21,16 @@ import in.koreatech.koin.domain.shop.dto.CreateReviewRequest;
 import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.ModifyReviewRequest;
+import in.koreatech.koin.domain.shop.dto.ReviewsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
+import in.koreatech.koin.domain.shop.dto.ShopMyReviewsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportCategoryResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
+import in.koreatech.koin.domain.shop.dto.ShopReviewsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.ShopsResponseV2;
@@ -107,14 +110,25 @@ public class ShopController implements ShopApi {
     }
 
     @GetMapping("/shops/{shopId}/reviews")
-    public ResponseEntity<ShopReviewResponse> getReviews(
+    public ResponseEntity<ShopReviewsResponse> getReviews(
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "50", required = false) Integer limit,
+        @RequestParam(name = "sorter", defaultValue = "LATEST") ReviewsSortCriteria sortBy,
         @UserId Integer userId
     ) {
-        ShopReviewResponse reviewResponse = shopReviewService.getReviewsByShopId(shopId, userId, page, limit);
+        ShopReviewsResponse reviewResponse = shopReviewService.getReviewsByShopId(shopId, userId, page, limit, sortBy);
         return ResponseEntity.ok(reviewResponse);
+    }
+
+    @GetMapping("/shops/{shopId}/reviews/me")
+    public ResponseEntity<ShopMyReviewsResponse> getMyReviews(
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @RequestParam(name = "sorter", defaultValue = "LATEST") ReviewsSortCriteria sortBy,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        ShopMyReviewsResponse reviewsResponse = shopReviewService.getMyReviewsByShopId(shopId, studentId, sortBy);
+        return ResponseEntity.ok(reviewsResponse);
     }
 
     @PostMapping("/shops/{shopId}/reviews")
@@ -176,5 +190,15 @@ public class ShopController implements ShopApi {
         }
         var shops = shopService.getShopsV2(sortBy, shopsFilterCriterias);
         return ResponseEntity.ok(shops);
+    }
+
+    @GetMapping("/shops/{shopId}/reviews/{reviewId}")
+    public ResponseEntity<ShopReviewResponse> getReview(
+        @Parameter(in = PATH) @PathVariable Integer shopId,
+        @Parameter(in = PATH) @PathVariable Integer reviewId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        ShopReviewResponse shopReviewResponse = shopReviewService.getReviewByReviewId(shopId, reviewId, studentId);
+        return ResponseEntity.ok(shopReviewResponse);
     }
 }

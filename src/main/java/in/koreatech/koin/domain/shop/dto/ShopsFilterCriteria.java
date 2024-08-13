@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import in.koreatech.koin.domain.shop.model.Shop;
+import lombok.Getter;
 
+@Getter
 public enum ShopsFilterCriteria {
 
     OPEN("OPEN"),
@@ -16,10 +18,6 @@ public enum ShopsFilterCriteria {
 
     ShopsFilterCriteria(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return value;
     }
 
     public Predicate<Shop> getCondition(LocalDateTime now) {

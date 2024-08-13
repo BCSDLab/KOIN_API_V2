@@ -19,21 +19,27 @@ public class Resilience4jConfig {
     private final CircuitBreakerRegistry circuitBreakerRegistry;
 
     @Bean
-    public CircuitBreaker tmoneyExpressBusCircuitBreaker(){
+    public CircuitBreaker tmoneyExpressBusCircuitBreaker() {
         CircuitBreakerConfig circuitBreakerConfig = getBusConfig();
-        return circuitBreakerRegistry.circuitBreaker("tmoneyExpressBus", circuitBreakerConfig);
+        return circuitBreakerRegistry.circuitBreaker("TmoneyExpressBusClient", circuitBreakerConfig);
     }
 
     @Bean
-    public CircuitBreaker publicExpressBusCircuitBreaker(){
+    public CircuitBreaker publicExpressBusCircuitBreaker() {
         CircuitBreakerConfig circuitBreakerConfig = getBusConfig();
-        return circuitBreakerRegistry.circuitBreaker("publicExpressBus", circuitBreakerConfig);
+        return circuitBreakerRegistry.circuitBreaker("PublicExpressBusClient", circuitBreakerConfig);
     }
 
     @Bean
-    public CircuitBreaker cityBusCircuitBreaker(){
+    public CircuitBreaker cityBusCircuitBreaker() {
         CircuitBreakerConfig circuitBreakerConfig = getBusConfig();
-        return circuitBreakerRegistry.circuitBreaker("cityBus", circuitBreakerConfig);
+        return circuitBreakerRegistry.circuitBreaker("CityBusClient", circuitBreakerConfig);
+    }
+
+    @Bean
+    public CircuitBreaker cityBusRouteCircuitBreaker() {
+        CircuitBreakerConfig circuitBreakerConfig = getBusConfig();
+        return circuitBreakerRegistry.circuitBreaker("CityBusRouteClient", circuitBreakerConfig);
     }
 
     private static CircuitBreakerConfig getBusConfig() {

@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.bus.util;
 
 import static java.net.URLEncoder.encode;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -31,6 +30,7 @@ import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
+import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
@@ -79,7 +79,7 @@ public class CityBusClient {
     }
 
     @Transactional
-    @CircuitBreaker(name = "cityBus")
+    @CircuitBreaker(name = "CityBusClient")
     public void storeRemainTimeByOpenApi() {
         List<List<CityBusArrival>> arrivalInfosList = new ArrayList<>();
         List<String> nodeIds = BusStationNode.getNodeIds();
@@ -128,15 +128,19 @@ public class CityBusClient {
         }
     }
 
-    private String getRequestURL(String cityCode, String nodeId) throws UnsupportedEncodingException {
+    private String getRequestURL(String cityCode, String nodeId) {
         String contentCount = "30";
         StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL);
-        urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));
-        urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode(contentCount, ENCODE_TYPE));
-        urlBuilder.append("&" + encode("cityCode", ENCODE_TYPE) + "=" + encode(cityCode, ENCODE_TYPE));
-        urlBuilder.append("&" + encode("nodeId", ENCODE_TYPE) + "=" + encode(nodeId, ENCODE_TYPE));
-        urlBuilder.append("&_type=json");
-        return urlBuilder.toString();
+        try {
+            urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));
+            urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode(contentCount, ENCODE_TYPE));
+            urlBuilder.append("&" + encode("cityCode", ENCODE_TYPE) + "=" + encode(cityCode, ENCODE_TYPE));
+            urlBuilder.append("&" + encode("nodeId", ENCODE_TYPE) + "=" + encode(nodeId, ENCODE_TYPE));
+            urlBuilder.append("&_type=json");
+            return urlBuilder.toString();
+        } catch (Exception e) {
+            throw new KoinIllegalStateException("시내버스 도착정보 API URL 생성중 문제가 발생했습니다.", "uri:" + urlBuilder);
+        }
     }
 
     private List<CityBusArrival> extractBusArrivalInfo(CityBusApiResponse response) {

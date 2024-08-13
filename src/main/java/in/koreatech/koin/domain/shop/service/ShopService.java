@@ -33,6 +33,7 @@ import in.koreatech.koin.domain.shop.repository.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.shop.repository.redis.ShopsRedisRepository;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -114,6 +115,9 @@ public class ShopService {
     }
 
     public ShopsResponseV2 getShopsV2(ShopsSortCriteria sortBy, List<ShopsFilterCriteria> shopsFilterCriterias) {
+        if (shopsFilterCriterias.contains(null)) {
+            throw KoinIllegalArgumentException.withDetail("유효하지 않은 필터입니다.");
+        }
         List<Shop> shops = shopRepository.findAll();
         LocalDateTime now = LocalDateTime.now(clock);
         List<ShopsResponseV2.InnerShopResponse> innerShopResponses = shops.stream()
