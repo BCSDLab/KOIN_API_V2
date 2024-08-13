@@ -70,7 +70,7 @@ public class FcmClient {
                             .build()
                     )
                     .setSound("default")
-                    .setCategory(path != null ? path.getApple() : "")
+                    .setCategory(path != null ? path.getApple() : null)
                     .setMutableContent(true)
                     .build()
             )
@@ -99,7 +99,7 @@ public class FcmClient {
             .setTitle(title)
             .setBody(content)
             .setImage(imageUrl)
-            .setClickAction(path != null ? path.getAndroid() : "")
+            .setClickAction(path != null ? path.getAndroid() : null)
             .build();
 
         Map<String, String> androidNotificationV2 = new HashMap<>();
