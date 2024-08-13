@@ -21,8 +21,7 @@ public class Criteria {
     }
 
     public static Criteria of(Integer page, Integer limit, Integer total) {
-        int validatedLimit = validateAndCalculateLimit(limit);
-        return new Criteria(validateAndCalculatePage(page, validatedLimit, total), validatedLimit);
+        return new Criteria(validateAndCalculatePage(page, limit, total), validateAndCalculateLimit(limit));
     }
 
     public enum Sort {

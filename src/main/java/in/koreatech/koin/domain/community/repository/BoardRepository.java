@@ -16,6 +16,4 @@ public interface BoardRepository extends Repository<Board, Integer> {
         return findById(boardId).orElseThrow(
             () -> ArticleNotFoundException.withDetail("boardId: " + boardId));
     }
-
-    Long countBy();
 }

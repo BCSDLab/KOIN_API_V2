@@ -72,18 +72,17 @@ public class CommunityService {
     }
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit) {
-        Long total = boardRepository.countBy();
-        Criteria criteria = Criteria.of(page, limit, total.intValue());
+        Criteria criteria = Criteria.of(page, limit);
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
 
         if (board.isNotice() && board.getTag().equals(BoardTag.공지사항.getTag())) {
             Page<Article> articles = articleRepository.findByIsNotice(true, pageRequest);
-            return ArticlesResponse.of(articles, criteria);
+            return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
         }
 
         Page<Article> articles = articleRepository.findByBoardId(boardId, pageRequest);
-        return ArticlesResponse.of(articles, criteria);
+        return ArticlesResponse.of(articles.getContent(), board, (long)articles.getTotalPages());
     }
 
     public List<HotArticleItemResponse> getHotArticles() {
