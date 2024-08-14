@@ -95,10 +95,9 @@ public class CommunityService {
     }
 
     public ArticlesResponse searchArticles(String query, Integer page, Integer limit) {
-        Long total = boardRepository.countBy(); //TODO 쿼리 기준으로 개수 세도록 변경
-        Criteria criteria = Criteria.of(page, limit, total.intValue());
+        Criteria criteria = Criteria.of(page, limit);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
-        Page<Article> articles = articleRepository.findByBoardId(null, pageRequest); //TODO 쿼리 기준으로 찾도록 변경
+        Page<Article> articles = articleRepository.findAllByTitleContaining(query, pageRequest);
         return ArticlesResponse.of(articles, criteria);
     }
 }

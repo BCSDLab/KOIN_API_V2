@@ -28,4 +28,6 @@ public interface ArticleRepository extends Repository<Article, Integer> {
             () -> ArticleNotFoundException.withDetail(
                 "articleId: " + articleId));
     }
+
+    Page<Article> findAllByTitleContaining(String query, PageRequest pageRequest);
 }
