@@ -30,12 +30,12 @@ public class NotificationController implements NotificationApi {
 
     @GetMapping("/notification/test")
     public ResponseEntity<Void> testSendMessage(
-        @Parameter(description = "device token") @RequestParam String deviceToken,
-        @Parameter(description = "title") @RequestParam(required = false) String title,
-        @Parameter(description = "body") @RequestParam(required = false) String body,
-        @Parameter(description = "image uri") @RequestParam(required = false) String image,
-        @Parameter(description = "mobile app path") @RequestParam(required = false) MobileAppPath mobileAppPath,
-        @Parameter(description = "scheme uri") @RequestParam(required = false) String url
+        @RequestParam String deviceToken,
+        @RequestParam(required = false) String title,
+        @RequestParam(required = false) String body,
+        @RequestParam(required = false) String image,
+        @RequestParam(required = false) MobileAppPath mobileAppPath,
+        @RequestParam(required = false) String url
     ) {
         notificationService.testPush(mobileAppPath, deviceToken, title, body, image, url);
         return ResponseEntity.ok().build();
