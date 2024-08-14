@@ -108,7 +108,7 @@ public class CommunityService {
 
     @Transactional
     public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
-        String keyword = request.keyword().trim();
+        String keyword = request.keyword().trim().toLowerCase();
 
         if (articleKeywordUserMapRepository.countByUserId(userId) >= 10) {
             throw KeywordLimitExceededException.withDetail("userId: " + userId);
