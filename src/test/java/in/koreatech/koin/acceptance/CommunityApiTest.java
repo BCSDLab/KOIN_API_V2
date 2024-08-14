@@ -390,7 +390,7 @@ class CommunityApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .get("/articles/hot/list")
+            .get("/articles/hot")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();

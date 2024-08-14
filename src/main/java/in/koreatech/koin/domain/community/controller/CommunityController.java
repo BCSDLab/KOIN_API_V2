@@ -42,7 +42,7 @@ public class CommunityController implements CommunityApi {
         return ResponseEntity.ok().body(foundArticles);
     }
 
-    @GetMapping("/articles/hot/list")
+    @GetMapping("/articles/hot")
     public ResponseEntity<List<HotArticleItemResponse>> getHotArticles() {
         List<HotArticleItemResponse> hotArticles = communityService.getHotArticles();
         return ResponseEntity.ok().body(hotArticles);
