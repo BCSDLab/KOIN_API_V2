@@ -13,4 +13,6 @@ public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Int
     ArticleKeyword save(ArticleKeyword build);
 
     void deleteById(Integer id);
+
+    Optional<ArticleKeyword> findById(Integer id);
 }

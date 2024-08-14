@@ -72,6 +72,6 @@ public class CommunityController implements CommunityApi {
         @Auth(permit = {STUDENT}) Integer userId
     ) {
         communityService.deleteKeyword(userId, keywordUserMapId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
