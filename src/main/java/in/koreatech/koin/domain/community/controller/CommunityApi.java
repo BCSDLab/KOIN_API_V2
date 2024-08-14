@@ -73,6 +73,7 @@ public interface CommunityApi {
     @GetMapping("/articles/search")
     ResponseEntity<ArticlesResponse> searchArticles(
         @RequestParam String query,
+        @RequestParam(required = false) Integer boardId,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit
     );

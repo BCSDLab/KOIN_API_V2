@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.community.service;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -77,12 +78,12 @@ public class CommunityService {
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
 
-        if (board.isNotice() && board.getTag().equals(BoardTag.공지사항.getTag())) {
-            Page<Article> articles = articleRepository.findByIsNotice(true, pageRequest);
+        if (isfullNoticeBoard(board)) {
+            Page<Article> articles = articleRepository.findAllByIsNotice(true, pageRequest);
             return ArticlesResponse.of(articles, criteria);
         }
 
-        Page<Article> articles = articleRepository.findByBoardId(boardId, pageRequest);
+        Page<Article> articles = articleRepository.findAllByBoardId(boardId, pageRequest);
         return ArticlesResponse.of(articles, criteria);
     }
 
@@ -94,10 +95,21 @@ public class CommunityService {
             .toList();
     }
 
-    public ArticlesResponse searchArticles(String query, Integer page, Integer limit) {
+    public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit) {
         Criteria criteria = Criteria.of(page, limit);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
-        Page<Article> articles = articleRepository.findAllByTitleContaining(query, pageRequest);
+        Page<Article> articles;
+        if (boardId == null) {
+            articles = articleRepository.findAllByTitleContaining(query, pageRequest);
+        } else if (isfullNoticeBoard(boardRepository.getById(boardId))) {
+            articles = articleRepository.findAllByIsNoticeAndTitleContaining(true, query, pageRequest);
+        } else {
+            articles = articleRepository.findAllByBoardIdAndTitleContaining(boardId, query, pageRequest);
+        }
         return ArticlesResponse.of(articles, criteria);
+    }
+
+    private boolean isfullNoticeBoard(Board board) {
+        return board.isNotice() && Objects.equals(board.getTag(), BoardTag.공지사항.getTag());
     }
 }
