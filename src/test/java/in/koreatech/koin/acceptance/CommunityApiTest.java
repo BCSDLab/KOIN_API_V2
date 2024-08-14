@@ -76,44 +76,12 @@ class CommunityApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 {
-                    "contentSummary": "내용",
                     "id": 1,
                     "board_id": 1,
                     "title": "자유 글의 제목입니다",
                     "content": "<p>내용</p>",
                     "nickname": "준호",
-                    "is_solved": false,
-                    "is_notice": false,
                     "hit": 1,
-                    "comment_count": 0,
-                    "board": {
-                        "id": 1,
-                        "tag": "FA001",
-                        "name": "자유게시판",
-                        "is_anonymous": false,
-                        "article_count": 0,
-                        "is_deleted": false,
-                        "is_notice": false,
-                        "parent_id": null,
-                        "seq": 1,
-                        "children": null,
-                        "created_at": "2024-01-15 12:00:00",
-                        "updated_at": "2024-01-15 12:00:00"
-                    },
-                    "comments": [
-                        {
-                            "grantEdit": false,
-                            "grantDelete": false,
-                            "id": 1,
-                            "article_id": 1,
-                            "content": "댓글",
-                            "user_id": 1,
-                            "nickname": "BCSD",
-                            "is_deleted": false,
-                            "created_at": "2024-01-15 12:00:00",
-                            "updated_at": "2024-01-15 12:00:00"
-                        }
-                    ],
                     "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
@@ -150,44 +118,12 @@ class CommunityApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 {
-                    "contentSummary": "내용",
                     "id": 1,
                     "board_id": 1,
                     "title": "자유 글의 제목입니다",
                     "content": "<p>내용</p>",
                     "nickname": "준호",
-                    "is_solved": false,
-                    "is_notice": false,
                     "hit": 2,
-                    "comment_count": 0,
-                    "board": {
-                        "id": 1,
-                        "tag": "FA001",
-                        "name": "자유게시판",
-                        "is_anonymous": false,
-                        "article_count": 0,
-                        "is_deleted": false,
-                        "is_notice": false,
-                        "parent_id": null,
-                        "seq": 1,
-                        "children": null,
-                        "created_at": "2024-01-15 12:00:00",
-                        "updated_at": "2024-01-15 12:00:00"
-                    },
-                    "comments": [
-                        {
-                            "grantEdit": true,
-                            "grantDelete": true,
-                            "id": 1,
-                            "article_id": 1,
-                            "content": "댓글",
-                            "user_id": 1,
-                            "nickname": "BCSD",
-                            "is_deleted": false,
-                            "created_at": "2024-01-15 12:00:00",
-                            "updated_at": "2024-01-15 12:00:00"
-                        }
-                    ],
                     "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
@@ -214,61 +150,30 @@ class CommunityApiTest extends AcceptanceTest {
                 {
                     "articles": [
                         {
-                            "contentSummary": "내용222",
                             "id": 2,
                             "board_id": 1,
                             "title": "자유 글2의 제목입니다",
                             "content": "<p>내용222</p>",
-                            "user_id": 1,
                             "nickname": "준호",
                             "hit": 1,
-                            "ip": "127.0.0.1",
-                            "is_solved": false,
-                            "is_deleted": false,
-                            "comment_count": 0,
-                            "meta": null,
-                            "is_notice": false,
-                            "notice_article_id": null,
-                            "summary": null,
                             "created_at": "2024-01-15 12:00:00",
                             "updated_at": "2024-01-15 12:00:00"
                         },
                         {
-                            "contentSummary": "내용",
                             "id": 1,
                             "board_id": 1,
                             "title": "자유 글의 제목입니다",
                             "content": "<p>내용</p>",
-                            "user_id": 1,
                             "nickname": "준호",
                             "hit": 1,
-                            "ip": "123.21.234.321",
-                            "is_solved": false,
-                            "is_deleted": false,
-                            "comment_count": 0,
-                            "meta": null,
-                            "is_notice": false,
-                            "notice_article_id": null,
-                            "summary": null,
                             "created_at": "2024-01-15 12:00:00",
                             "updated_at": "2024-01-15 12:00:00"
                         }
                     ],
-                    "board": {
-                        "id": 1,
-                        "tag": "FA001",
-                        "name": "자유게시판",
-                        "is_anonymous": false,
-                        "article_count": 0,
-                        "is_deleted": false,
-                        "is_notice": false,
-                        "parent_id": null,
-                        "seq": 1,
-                        "children": null,
-                        "created_at": "2024-01-15 12:00:00",
-                        "updated_at": "2024-01-15 12:00:00"
-                    },
-                    "totalPage": 1
+                    "totalCount": 2,
+                    "currentCount": 2,
+                    "totalPage": 1,
+                    "currentPage": 1
                 }
                 """);
     }
@@ -421,7 +326,7 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 요청된 페이지에 게시글이 존재하지 않으면 빈 게시글 배열을 반환한다.")
+    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 최대 페이지를 초과한 요청이 들어오면 마지막 페이지를 반환한다.")
     void getArticlesByPagination_overMaxPageNotFound() {
         // when then
         var response = RestAssured
@@ -435,7 +340,27 @@ class CommunityApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.jsonPath().getList("articles")).isEmpty();
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                   {
+                       "articles": [
+                           {
+                               "id": 2,
+                               "board_id": 1,
+                               "title": "자유 글2의 제목입니다",
+                               "content": "<p>내용222</p>",
+                               "nickname": "준호",
+                               "hit": 1,
+                               "created_at": "2024-01-15 12:00:00",
+                               "updated_at": "2024-01-15 12:00:00"
+                           }
+                       ],
+                       "totalCount": 2,
+                       "currentCount": 1,
+                       "totalPage": 2,
+                       "currentPage": 1
+                   }
+                """);
     }
 
     @Test
@@ -465,7 +390,7 @@ class CommunityApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .get("/articles/hot/list")
+            .get("/articles/hot")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -474,51 +399,51 @@ class CommunityApiTest extends AcceptanceTest {
             .isEqualTo("""
                 [
                     {
-                        "contentSummary": "내용",
                         "id": 5,
                         "board_id": 1,
                         "title": "Article 7",
-                        "comment_count": 2,
+                        "nickname": "BCSD",
                         "hit": 7,
-                        "created_at": "2024-01-15 12:00:00"
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
                     },
                     {
-                        "contentSummary": "내용",
                         "id": 4,
                         "board_id": 1,
                         "title": "Article 6",
-                        "comment_count": 2,
+                        "nickname": "BCSD",
                         "hit": 6,
-                        "created_at": "2024-01-15 12:00:00"
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
                     },
                     {
-                        "contentSummary": "내용",
                         "id": 3,
                         "board_id": 1,
                         "title": "Article 5",
-                        "comment_count": 2,
+                        "nickname": "BCSD",
                         "hit": 5,
-                        "created_at": "2024-01-15 12:00:00"
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
                     },
                     {
-                        "contentSummary": "내용222",
                         "id": 2,
                         "board_id": 1,
                         "title": "자유 글2의 제목입니다",
-                        "comment_count": 0,
+                        "nickname": "준호",
                         "hit": 1,
-                        "created_at": "2024-01-15 12:00:00"
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
                     },
                     {
-                        "contentSummary": "내용",
                         "id": 1,
                         "board_id": 1,
                         "title": "자유 글의 제목입니다",
-                        "comment_count": 0,
+                        "nickname": "준호",
                         "hit": 1,
-                        "created_at": "2024-01-15 12:00:00"
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
                     }
                 ]
-                    """);
+                """);
     }
 }

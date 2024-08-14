@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record CreateCategoryRequest(
+
     @Schema(example = "사이드 메뉴", description = "카테고리명", requiredMode = REQUIRED)
     @NotBlank(message = "카테고리명은 필수입니다.")
     @Size(min = 1, max = 20, message = "카테고리명은 1자 이상 20자 이하로 입력해주세요.")

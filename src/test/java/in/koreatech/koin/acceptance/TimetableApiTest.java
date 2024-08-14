@@ -48,6 +48,8 @@ class TimetableApiTest extends AcceptanceTest {
     @Test
     @DisplayName("특정 학기 강의를 조회한다")
     void getSemesterLecture() {
+        semesterFixture.semester("20192");
+        semesterFixture.semester("20201");
         String semester = "20201";
         lectureFixture.HRD_개론(semester);
         lectureFixture.건축구조의_이해_및_실습("20192");
@@ -88,6 +90,7 @@ class TimetableApiTest extends AcceptanceTest {
     @Test
     @DisplayName("특정 학기 강의들을 조회한다")
     void getSemesterLectures() {
+        semesterFixture.semester("20201");
         String semester = "20201";
         lectureFixture.HRD_개론(semester);
         lectureFixture.건축구조의_이해_및_실습(semester);
@@ -175,6 +178,27 @@ class TimetableApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract();
+    }
+
+    @Test
+    @DisplayName("계절학기를 조회하면 빈 리스트로 반환한다.")
+    void getSeasonLecture() {
+        semesterFixture.semester("20241");
+        semesterFixture.semester("20242");
+        semesterFixture.semester("2024-여름");
+        semesterFixture.semester("2024-겨울");
+
+        var Response = RestAssured
+                .given()
+                .when()
+                .param("semester_date", "2024-여름")
+                .get("/lectures")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+
+        JsonAssertions.assertThat(Response.asPrettyString())
+                .isEqualTo("[]");
     }
 
     @Test
