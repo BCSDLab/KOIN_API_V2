@@ -17,7 +17,6 @@ import in.koreatech.koin.domain.community.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
-import in.koreatech.koin.domain.community.exception.KeywordDuplicationException;
 import in.koreatech.koin.domain.community.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.domain.community.model.ArticleKeyword;
@@ -32,6 +31,7 @@ import in.koreatech.koin.domain.community.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.repository.BoardRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
@@ -109,6 +109,10 @@ public class CommunityService {
     @Transactional
     public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
         String keyword = request.keyword().trim().toLowerCase();
+
+        if (keyword.contains(" ")) {
+            throw new KoinIllegalArgumentException("키워드에 공백을 포함할 수 없습니다.");
+        }
 
         if (articleKeywordUserMapRepository.countByUserId(userId) >= 10) {
             throw KeywordLimitExceededException.withDetail("userId: " + userId);
