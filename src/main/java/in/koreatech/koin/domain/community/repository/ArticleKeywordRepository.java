@@ -11,4 +11,6 @@ public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Int
     Optional<ArticleKeyword> findByKeyword(String keyword);
 
     ArticleKeyword save(ArticleKeyword build);
+
+    void deleteById(Integer id);
 }

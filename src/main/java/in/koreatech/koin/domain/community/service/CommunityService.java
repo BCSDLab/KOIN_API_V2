@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.community.service;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.repository.BoardRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
@@ -120,13 +122,30 @@ public class CommunityService {
                     .build()
             ));
 
-        existingKeyword.addUserMap(
-            ArticleKeywordUserMap.builder()
-                .user(userRepository.getById(userId))
-                .articleKeyword(existingKeyword)
-                .build()
-        );
+        ArticleKeywordUserMap keywordUserMap = ArticleKeywordUserMap.builder()
+            .user(userRepository.getById(userId))
+            .articleKeyword(existingKeyword)
+            .build();
 
-        return new ArticleKeywordResponse(existingKeyword.getId(), existingKeyword.getKeyword());
+        existingKeyword.addUserMap(keywordUserMap);
+        articleKeywordUserMapRepository.save(keywordUserMap);
+
+        return new ArticleKeywordResponse(keywordUserMap.getId(), existingKeyword.getKeyword());
+    }
+
+    @Transactional
+    public void deleteKeyword(Integer userId, Integer keywordUserMapId) {
+        ArticleKeywordUserMap articleKeywordUserMap = articleKeywordUserMapRepository.getById(keywordUserMapId);
+        if (!Objects.equals(articleKeywordUserMap.getUser().getId(), userId)) {
+            throw AuthorizationException.withDetail("userId: " + userId);
+        }
+
+        articleKeywordUserMapRepository.deleteById(keywordUserMapId);
+
+        boolean isKeywordUsedByOthers = articleKeywordUserMapRepository.existsByArticleKeywordId(
+            articleKeywordUserMap.getArticleKeyword().getId());
+        if (!isKeywordUsedByOthers) {
+            articleKeywordRepository.deleteById(articleKeywordUserMap.getArticleKeyword().getId());
+        }
     }
 }

@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,5 +64,14 @@ public class CommunityController implements CommunityApi {
     ) {
         ArticleKeywordResponse response = communityService.createKeyword(userId, request);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/articles/keyword/{id}")
+    public ResponseEntity<Void> deleteKeyword(
+        @PathVariable(value = "id") Integer keywordUserMapId,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        communityService.deleteKeyword(userId, keywordUserMapId);
+        return ResponseEntity.ok().build();
     }
 }
