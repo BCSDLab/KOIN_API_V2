@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record ArticlesResponse(
     @Schema(description = "게시글 목록")
     List<InnerArticleResponse> articles,

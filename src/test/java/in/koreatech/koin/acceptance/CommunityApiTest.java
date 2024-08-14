@@ -170,10 +170,10 @@ class CommunityApiTest extends AcceptanceTest {
                             "updated_at": "2024-01-15 12:00:00"
                         }
                     ],
-                    "totalCount": 2,
-                    "currentCount": 2,
-                    "totalPage": 1,
-                    "currentPage": 1
+                    "total_count": 2,
+                    "current_count": 2,
+                    "total_page": 1,
+                    "current_page": 1
                 }
                 """);
     }
@@ -355,10 +355,10 @@ class CommunityApiTest extends AcceptanceTest {
                                "updated_at": "2024-01-15 12:00:00"
                            }
                        ],
-                       "totalCount": 2,
-                       "currentCount": 1,
-                       "totalPage": 2,
-                       "currentPage": 1
+                       "total_count": 2,
+                       "current_count": 1,
+                       "total_page": 2,
+                       "current_page": 1
                    }
                 """);
     }
