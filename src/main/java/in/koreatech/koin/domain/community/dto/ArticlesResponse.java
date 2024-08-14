@@ -57,9 +57,6 @@ public record ArticlesResponse(
         @Schema(description = "제목", example = "제목", requiredMode = REQUIRED)
         String title,
 
-        @Schema(description = "내용", example = "내용", requiredMode = REQUIRED)
-        String content,
-
         @Schema(description = "작성자 닉네임", example = "닉네임", requiredMode = REQUIRED)
         String nickname,
 
@@ -78,7 +75,6 @@ public record ArticlesResponse(
                 article.getId(),
                 article.getBoard().getId(),
                 article.getTitle(),
-                article.getContent(),
                 article.getNickname(),
                 article.getHit(),
                 article.getCreatedAt(),
