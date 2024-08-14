@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.community.exception;
 import in.koreatech.koin.global.exception.DuplicationException;
 
 public class KeywordDuplicationException extends DuplicationException {
+
     private static final String DEFAULT_MESSAGE = "키워드는 중복될 수 없습니다.";
 
     public KeywordDuplicationException(String message) {
