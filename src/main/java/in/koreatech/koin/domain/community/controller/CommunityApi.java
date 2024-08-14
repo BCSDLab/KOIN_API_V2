@@ -6,6 +6,7 @@ import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -83,6 +84,22 @@ public interface CommunityApi {
     @PostMapping("/articles/keyword")
     ResponseEntity<ArticleKeywordResponse> createKeyword(
         @Valid @RequestBody ArticleKeywordCreateRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "알림 키워드 삭제")
+    @DeleteMapping("/articles/keyword/{id}")
+    ResponseEntity<Void> deleteKeyword(
+        @PathVariable(value = "id") Integer keywordUserMapId,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }
