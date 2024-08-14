@@ -47,4 +47,14 @@ public class CommunityController implements CommunityApi {
         List<HotArticleItemResponse> hotArticles = communityService.getHotArticles();
         return ResponseEntity.ok().body(hotArticles);
     }
+
+    @GetMapping("/articles/search")
+    public ResponseEntity<ArticlesResponse> searchArticles(
+        @RequestParam String query,
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit
+    ) {
+        ArticlesResponse foundArticles = communityService.searchArticles(query, page, limit);
+        return ResponseEntity.ok().body(foundArticles);
+    }
 }

@@ -93,4 +93,12 @@ public class CommunityService {
             .map(HotArticleItemResponse::from)
             .toList();
     }
+
+    public ArticlesResponse searchArticles(String query, Integer page, Integer limit) {
+        Long total = boardRepository.countBy(); //TODO 쿼리 기준으로 개수 세도록 변경
+        Criteria criteria = Criteria.of(page, limit, total.intValue());
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        Page<Article> articles = articleRepository.findByBoardId(null, pageRequest); //TODO 쿼리 기준으로 찾도록 변경
+        return ArticlesResponse.of(articles, criteria);
+    }
 }
