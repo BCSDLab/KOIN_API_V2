@@ -7,51 +7,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import in.koreatech.koin.admin.shop.dto.*;
+import in.koreatech.koin.admin.shop.repository.*;
+import in.koreatech.koin.domain.shop.model.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.admin.shop.dto.AdminCreateMenuCategoryRequest;
-import in.koreatech.koin.admin.shop.dto.AdminCreateMenuRequest;
-import in.koreatech.koin.admin.shop.dto.AdminCreateShopCategoryRequest;
-import in.koreatech.koin.admin.shop.dto.AdminCreateShopRequest;
 import in.koreatech.koin.admin.shop.dto.AdminCreateShopRequest.InnerShopOpen;
-import in.koreatech.koin.admin.shop.dto.AdminMenuCategoriesResponse;
-import in.koreatech.koin.admin.shop.dto.AdminMenuDetailResponse;
-import in.koreatech.koin.admin.shop.dto.AdminModifyMenuCategoryRequest;
-import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest;
 import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest.InnerOptionPrice;
-import in.koreatech.koin.admin.shop.dto.AdminModifyShopCategoryRequest;
-import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
-import in.koreatech.koin.admin.shop.dto.AdminShopCategoriesResponse;
-import in.koreatech.koin.admin.shop.dto.AdminShopCategoryResponse;
-import in.koreatech.koin.admin.shop.dto.AdminShopMenuResponse;
-import in.koreatech.koin.admin.shop.dto.AdminShopResponse;
-import in.koreatech.koin.admin.shop.dto.AdminShopsResponse;
 import in.koreatech.koin.admin.shop.exception.ShopCategoryDuplicationException;
-import in.koreatech.koin.admin.shop.repository.AdminEventArticleRepository;
-import in.koreatech.koin.admin.shop.repository.AdminMenuCategoryMapRepository;
-import in.koreatech.koin.admin.shop.repository.AdminMenuCategoryRepository;
-import in.koreatech.koin.admin.shop.repository.AdminMenuDetailRepository;
-import in.koreatech.koin.admin.shop.repository.AdminMenuImageRepository;
-import in.koreatech.koin.admin.shop.repository.AdminMenuRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopCategoryMapRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopCategoryRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopImageRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopOpenRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
-import in.koreatech.koin.domain.shop.model.Menu;
-import in.koreatech.koin.domain.shop.model.MenuCategory;
-import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
-import in.koreatech.koin.domain.shop.model.MenuImage;
-import in.koreatech.koin.domain.shop.model.MenuOption;
-import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopCategory;
-import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
-import in.koreatech.koin.domain.shop.model.ShopImage;
-import in.koreatech.koin.domain.shop.model.ShopOpen;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import jakarta.persistence.EntityManager;
@@ -75,6 +42,8 @@ public class AdminShopService {
     private final AdminMenuCategoryMapRepository adminMenuCategoryMapRepository;
     private final AdminMenuImageRepository adminMenuImageRepository;
     private final AdminMenuDetailRepository adminMenuDetailRepository;
+    private final AdminShopReviewRepository adminShopReviewRepository;
+    private final AdminShopReviewCustomRepository adminShopReviewCustomRepository;
 
     public AdminShopsResponse getShops(Integer page, Integer limit, Boolean isDeleted) {
         Integer total = adminShopRepository.countAllByIsDeleted(isDeleted);
@@ -323,5 +292,39 @@ public class AdminShopService {
             throw new KoinIllegalArgumentException("해당 상점의 카테고리가 아닙니다.");
         }
         adminMenuRepository.deleteById(menuId);
+    }
+
+    @Transactional(readOnly = true)
+    public AdminShopsReviewsResponse getReviews(
+        Integer page,
+        Integer limit,
+        Boolean isReported,
+        Boolean isHaveUnhandledReport,
+        Integer shopId
+    ) {
+        Long reviewCount = adminShopReviewCustomRepository.countShopReview(shopId, isReported, isHaveUnhandledReport);
+        Criteria criteria = Criteria.of(page, limit, reviewCount.intValue());
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), Sort.by(Sort.Direction.ASC, "id"));
+        Page<ShopReview> reviews = adminShopReviewCustomRepository.findShopReview(shopId, isReported, isHaveUnhandledReport, pageRequest);
+        return AdminShopsReviewsResponse.of(reviews, criteria);
+    }
+
+    @Transactional
+    public void modifyShopReviewReportStatus(Integer reviewId, AdminModifyShopReviewReportStatusRequest adminModifyShopReviewReportStatusRequest) {
+        ShopReview shopReview = adminShopReviewRepository.findById(reviewId);
+
+        List<ShopReviewReport> unhandledReports = shopReview.getReports().stream()
+                .filter(report -> report.getReportStatus() == ReportStatus.UNHANDLED)
+                .toList();
+
+        unhandledReports.forEach(report -> report.modifyReportStatus(adminModifyShopReviewReportStatusRequest.reportStatus()));
+    }
+
+    @Transactional
+    public void deleteShopReview(Integer reviewId) {
+        ShopReview shopReview = adminShopReviewRepository.findById(reviewId);
+        shopReview.getReports().forEach(report -> report.modifyReportStatus(ReportStatus.DELETED));
+
+        shopReview.deleteReview();
     }
 }

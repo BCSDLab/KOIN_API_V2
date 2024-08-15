@@ -1,0 +1,15 @@
+package in.koreatech.koin.admin.shop.dto;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import in.koreatech.koin.domain.shop.model.ReportStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record AdminModifyShopReviewReportStatusRequest(
+    @Schema(description = "신고 상태", example = "DISMISSED", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "변경하려는 상태는 필수입니다.")
+    ReportStatus reportStatus
+) {
+}

@@ -3,6 +3,8 @@ package in.koreatech.koin.admin.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import in.koreatech.koin.admin.shop.dto.*;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,21 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.admin.shop.dto.AdminCreateMenuCategoryRequest;
-import in.koreatech.koin.admin.shop.dto.AdminCreateMenuRequest;
-import in.koreatech.koin.admin.shop.dto.AdminCreateShopCategoryRequest;
-import in.koreatech.koin.admin.shop.dto.AdminCreateShopRequest;
-import in.koreatech.koin.admin.shop.dto.AdminMenuCategoriesResponse;
-import in.koreatech.koin.admin.shop.dto.AdminMenuDetailResponse;
-import in.koreatech.koin.admin.shop.dto.AdminModifyMenuCategoryRequest;
-import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest;
-import in.koreatech.koin.admin.shop.dto.AdminModifyShopCategoryRequest;
-import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
-import in.koreatech.koin.admin.shop.dto.AdminShopCategoriesResponse;
-import in.koreatech.koin.admin.shop.dto.AdminShopCategoryResponse;
-import in.koreatech.koin.admin.shop.dto.AdminShopMenuResponse;
-import in.koreatech.koin.admin.shop.dto.AdminShopResponse;
-import in.koreatech.koin.admin.shop.dto.AdminShopsResponse;
 import in.koreatech.koin.admin.shop.service.AdminShopService;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -233,5 +220,37 @@ public class AdminShopController implements AdminShopApi {
     ) {
         adminShopService.deleteMenu(shopId, menuId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/admin/shops/reviews")
+    public ResponseEntity<AdminShopsReviewsResponse> getReviews(
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
+        @RequestParam(name = "is_reported", required = false) Boolean isReported,
+        @RequestParam(name = "is_have_unhandled_report", required = false) Boolean isHaveUnhandledReport,
+        @RequestParam(name = "shop_id", required = false) Integer shopId,
+        @Auth(permit = {ADMIN}) Integer adminId) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminShopService.getReviews(page, limit, isReported, isHaveUnhandledReport, shopId));
+    }
+
+    @Operation(summary = "리뷰 신고 상태 변경")
+    @PutMapping("/admin/shops/reviews/{id}")
+    public ResponseEntity<Void> modifyReviewReportStatus(
+        @Parameter(in = PATH) @PathVariable Integer id,
+        @RequestBody @Valid AdminModifyShopReviewReportStatusRequest adminModifyShopReviewReportStatusRequest,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminShopService.modifyShopReviewReportStatus(id, adminModifyShopReviewReportStatusRequest);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @Operation(summary = "리뷰 삭제")
+    @DeleteMapping("/admin/shops/reviews/{id}")
+    public ResponseEntity<Void> deleteReview(
+        @Parameter(in = PATH) @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminShopService.deleteShopReview(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
