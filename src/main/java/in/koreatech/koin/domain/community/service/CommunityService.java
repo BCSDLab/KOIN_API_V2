@@ -78,7 +78,7 @@ public class CommunityService {
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
 
-        if (isfullNoticeBoard(board)) {
+        if (isFullNoticeBoard(board)) {
             Page<Article> articles = articleRepository.findAllByIsNotice(true, pageRequest);
             return ArticlesResponse.of(articles, criteria);
         }
@@ -101,7 +101,7 @@ public class CommunityService {
         Page<Article> articles;
         if (boardId == null) {
             articles = articleRepository.findAllByTitleContaining(query, pageRequest);
-        } else if (isfullNoticeBoard(boardRepository.getById(boardId))) {
+        } else if (isFullNoticeBoard(boardRepository.getById(boardId))) {
             articles = articleRepository.findAllByIsNoticeAndTitleContaining(true, query, pageRequest);
         } else {
             articles = articleRepository.findAllByBoardIdAndTitleContaining(boardId, query, pageRequest);
@@ -109,7 +109,7 @@ public class CommunityService {
         return ArticlesResponse.of(articles, criteria);
     }
 
-    private boolean isfullNoticeBoard(Board board) {
+    private boolean isFullNoticeBoard(Board board) {
         return board.isNotice() && Objects.equals(board.getTag(), BoardTag.공지사항.getTag());
     }
 }
