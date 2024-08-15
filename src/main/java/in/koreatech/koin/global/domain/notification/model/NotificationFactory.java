@@ -8,25 +8,6 @@ import in.koreatech.koin.global.fcm.MobileAppPath;
 @Component
 public class NotificationFactory {
 
-    public Notification generateTestNotification(
-        MobileAppPath path,
-        String schemeUri,
-        String imageUrl,
-        String title,
-        String message,
-        User target
-    ) {
-        return new Notification(
-            path,
-            schemeUri,
-            title,
-            message,
-            imageUrl,
-            NotificationType.MESSAGE,
-            target
-        );
-    }
-
     public Notification generateShopEventCreateNotification(
         MobileAppPath path,
         String schemeUri,
