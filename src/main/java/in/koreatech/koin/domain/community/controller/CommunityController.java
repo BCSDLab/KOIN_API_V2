@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.community.dto.ArticleKeywordCreateRequest;
-import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticleKeywordResponse;
+import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.service.CommunityService;
@@ -51,7 +51,7 @@ public class CommunityController implements CommunityApi {
         return ResponseEntity.ok().body(foundArticles);
     }
 
-    @GetMapping("/articles/hot")
+    @GetMapping("/articles/hot/list")
     public ResponseEntity<List<HotArticleItemResponse>> getHotArticles() {
         List<HotArticleItemResponse> hotArticles = communityService.getHotArticles();
         return ResponseEntity.ok().body(hotArticles);
