@@ -33,7 +33,7 @@ public class ArticleKeyword extends BaseEntity {
     @Column(nullable = false, unique = true, length = 50)
     private String keyword;
 
-    @Column(name = "last_used_at")
+    @Column(name = "last_used_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastUsedAt;
 
     @OneToMany(mappedBy = "articleKeyword", cascade = CascadeType.PERSIST)
