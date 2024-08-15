@@ -2,7 +2,6 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,6 @@ import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapReposi
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.CommentRepository;
 import in.koreatech.koin.domain.user.model.Student;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.UserFixture;
@@ -402,7 +400,7 @@ class CommunityApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .get("/articles/hot")
+            .get("/articles/hot/list")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
