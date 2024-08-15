@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.community.dto.ArticleKeywordCreateRequest;
 import in.koreatech.koin.domain.community.dto.ArticleKeywordResponse;
+import in.koreatech.koin.domain.community.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
@@ -102,4 +103,17 @@ public interface CommunityApi {
         @PathVariable(value = "id") Integer keywordUserMapId,
         @Auth(permit = {STUDENT}) Integer userId
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "자신의 알림 키워드 전체 조회")
+    @GetMapping("/articles/keyword/me")
+    ResponseEntity<ArticleKeywordsResponse> getMyKeywords(
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
 }

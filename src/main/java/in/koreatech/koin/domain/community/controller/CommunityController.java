@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.community.dto.ArticleKeywordCreateRequest;
+import in.koreatech.koin.domain.community.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
@@ -74,4 +75,13 @@ public class CommunityController implements CommunityApi {
         communityService.deleteKeyword(userId, keywordUserMapId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/articles/keyword/me")
+    public ResponseEntity<ArticleKeywordsResponse> getMyKeywords(
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        ArticleKeywordsResponse response = communityService.getMyKeywords(userId);
+        return ResponseEntity.ok(response);
+    }
+
 }

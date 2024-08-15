@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.community.dto.ArticleKeywordCreateRequest;
 import in.koreatech.koin.domain.community.dto.ArticleKeywordResponse;
+import in.koreatech.koin.domain.community.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
@@ -152,4 +153,15 @@ public class CommunityService {
             articleKeywordRepository.deleteById(articleKeywordUserMap.getArticleKeyword().getId());
         }
     }
+
+    public ArticleKeywordsResponse getMyKeywords(Integer userId) {
+        List<ArticleKeywordUserMap> articleKeywordUserMaps = articleKeywordUserMapRepository.findAllByUserId(userId);
+
+        if (articleKeywordUserMaps.isEmpty()) {
+            return new ArticleKeywordsResponse(0, List.of());
+        }
+
+        return ArticleKeywordsResponse.from(articleKeywordUserMaps);
+    }
+
 }
