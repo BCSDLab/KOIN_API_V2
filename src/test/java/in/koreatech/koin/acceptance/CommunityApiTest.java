@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,16 +11,21 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.community.model.Article;
+import in.koreatech.koin.domain.community.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.model.Board;
 import in.koreatech.koin.domain.community.model.Comment;
+import in.koreatech.koin.domain.community.repository.ArticleKeywordRepository;
+import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.CommentRepository;
 import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
 class CommunityApiTest extends AcceptanceTest {
@@ -29,6 +35,12 @@ class CommunityApiTest extends AcceptanceTest {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private ArticleKeywordRepository articleKeywordRepository;
+
+    @Autowired
+    private ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
     @Autowired
     private UserFixture userFixture;
@@ -445,5 +457,93 @@ class CommunityApiTest extends AcceptanceTest {
                     }
                 ]
                 """);
+    }
+
+    @Test
+    @DisplayName("알림 키워드를 추가한다.")
+    void 알림_키워드_추가() {
+        String token = userFixture.getToken(student.getUser());
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                    "keyword": "장학금"
+                }
+                """)
+            .when()
+            .post("/articles/keyword")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                  "id": 1,
+                  "keyword": "장학금"
+                }
+                """);
+    }
+
+    @Test
+    @DisplayName("알림 키워드를 추가한다. - 10개 넘어가면 400에러 반환")
+    void 알림_키워드_10개_넘게_추가시_에러() {
+        String token = userFixture.getToken(student.getUser());
+
+        for (int i = 0; i < 10; i++) {
+            RestAssured
+                .given()
+                .header("Authorization", "Bearer " + token)
+                .contentType(ContentType.JSON)
+                .body(String.format("""
+                        {
+                        "keyword": "keyword%d"
+                        }
+                    """, i))
+
+                .when()
+                .post("/articles/keyword")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+        }
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                    "keyword": "장학금"
+                }
+                """)
+            .when()
+            .post("/articles/keyword")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("알림 키워드를 삭제한다.")
+    void 알림_키워드_삭제() {
+        String token = userFixture.getToken(student.getUser());
+        ArticleKeywordUserMap articleKeywordUserMap = articleFixture.키워드1("수강 신청", student.getUser());
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .pathParam("id", articleKeywordUserMap.getId())
+            .contentType(ContentType.JSON)
+            .when()
+            .delete("/articles/keyword/{id}")
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract()
+            .asString();
+
+        assertThat(articleKeywordUserMapRepository.findById(articleKeywordUserMap.getId()).isEmpty());
+        assertThat(articleKeywordRepository.findById(articleKeywordUserMap.getArticleKeyword().getId()).isEmpty());
     }
 }

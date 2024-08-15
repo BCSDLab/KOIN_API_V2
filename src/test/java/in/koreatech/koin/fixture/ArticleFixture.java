@@ -1,9 +1,15 @@
 package in.koreatech.koin.fixture;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.community.model.Article;
+import in.koreatech.koin.domain.community.model.ArticleKeyword;
+import in.koreatech.koin.domain.community.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.model.Board;
+import in.koreatech.koin.domain.community.repository.ArticleKeywordRepository;
+import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.user.model.User;
 
@@ -12,9 +18,16 @@ import in.koreatech.koin.domain.user.model.User;
 public class ArticleFixture {
 
     private final ArticleRepository articleRepository;
+    private final ArticleKeywordRepository articleKeywordRepository;
+    private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
-    public ArticleFixture(ArticleRepository articleRepository) {
+    public ArticleFixture(
+        ArticleRepository articleRepository,
+        ArticleKeywordRepository articleKeywordRepository,
+        ArticleKeywordUserMapRepository articleKeywordUserMapRepository) {
         this.articleRepository = articleRepository;
+        this.articleKeywordRepository = articleKeywordRepository;
+        this.articleKeywordUserMapRepository = articleKeywordUserMapRepository;
     }
 
     public Article 자유글_1(User user, Board board) {
@@ -55,6 +68,20 @@ public class ArticleFixture {
                 .noticeArticleId(null)
                 .build()
         );
+    }
+
+    public ArticleKeywordUserMap 키워드1(String keyword, User user) {
+        ArticleKeyword articleKeyword = articleKeywordRepository.save(ArticleKeyword.builder()
+                .keyword(keyword)
+                .lastUsedAt(LocalDateTime.now())
+                .build());
+
+        ArticleKeywordUserMap articleKeywordUserMap = ArticleKeywordUserMap.builder()
+            .articleKeyword(articleKeyword)
+            .user(user)
+            .build();
+
+        return articleKeywordUserMapRepository.save(articleKeywordUserMap);
     }
 
     public ArticleFixtureBuilder builder() {
