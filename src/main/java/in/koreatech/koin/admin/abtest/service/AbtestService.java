@@ -7,8 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
+import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
+import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
+import in.koreatech.koin.admin.abtest.exception.AbtestAlreadyExistException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotAssignedUserException;
 import in.koreatech.koin.admin.abtest.model.Abtest;
+import in.koreatech.koin.admin.abtest.model.AbtestStatus;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
 import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
@@ -40,15 +44,29 @@ public class AbtestService {
     private final DeviceRepository deviceRepository;
     private final UserRepository userRepository;
 
-    @Transactional
-    public void syncCacheCountToDB() {
-        List<AbtestVariableCount> cacheCount = abtestVariableCountRepository.findAll();
-        cacheCount.forEach(abtestVariableCount -> {
-            AbtestVariable variable = abtestVariableRepository.getById(abtestVariableCount.getVariableId());
-            variable.addCount(abtestVariableCount.getCount());
-            abtestVariableCount.resetCount();
-        });
-        abtestVariableCountRepository.saveAll(cacheCount);
+    public AbtestResponse createAbtest(AbtestRequest request) {
+        /**
+         * TODO 명세 보고 예외 추가하기
+         */
+        if (abtestRepository.findByTitle(request.title()).isPresent()) {
+            throw AbtestAlreadyExistException.withDetail("title: " + request.title());
+        }
+
+        Abtest saved = abtestRepository.save(
+            Abtest.builder()
+                .title(request.title())
+                .displayTitle(request.displayTitle())
+                .description(request.description())
+                .creator(request.creater())
+                .team(request.team())
+                .status(AbtestStatus.IN_PROGRESS)
+                .build()
+        );
+
+        // rate 합이 100이 아닌 경우, 변수명이 동일한 경우는 여기서 에러내기
+        saved.setVariables();
+
+        return null;
     }
 
     @Transactional
@@ -124,5 +142,16 @@ public class AbtestService {
         }
 
         return cacheVariable.get().getName();
+    }
+
+    @Transactional
+    public void syncCacheCountToDB() {
+        List<AbtestVariableCount> cacheCount = abtestVariableCountRepository.findAll();
+        cacheCount.forEach(abtestVariableCount -> {
+            AbtestVariable variable = abtestVariableRepository.getById(abtestVariableCount.getVariableId());
+            variable.addCount(abtestVariableCount.getCount());
+            abtestVariableCount.resetCount();
+        });
+        abtestVariableCountRepository.saveAll(cacheCount);
     }
 }

@@ -14,6 +14,8 @@ import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -63,7 +65,8 @@ public class Abtest extends BaseEntity {
 
     @NotNull
     @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private AbtestStatus status;
 
     @OneToMany(mappedBy = "abtest", cascade = CascadeType.PERSIST)
     private List<AbtestVariable> abtestVariables = new ArrayList<>();
@@ -80,7 +83,7 @@ public class Abtest extends BaseEntity {
         String description,
         String creator,
         String team,
-        String status
+        AbtestStatus status
     ) {
         this.id = id;
         this.title = title;

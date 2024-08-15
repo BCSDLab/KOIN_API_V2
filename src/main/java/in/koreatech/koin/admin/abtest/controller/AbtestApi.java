@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.abtest.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
+import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
+import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
+import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import in.koreatech.koin.global.useragent.UserAgent;
@@ -23,6 +28,20 @@ import jakarta.validation.Valid;
 @RequestMapping("/abtest")
 @Tag(name = "(NORMAL, ADMIN) Abtest : AB테스트", description = "AB테스트를 관리한다.")
 public interface AbtestApi {
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "(ADMIN) 실험 생성")
+    @PostMapping
+    ResponseEntity<AbtestResponse> createAbtest(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @RequestBody @Valid AbtestRequest request
+    );
 
     @ApiResponses(
         value = {
