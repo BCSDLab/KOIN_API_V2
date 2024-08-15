@@ -1,8 +1,6 @@
 package in.koreatech.koin.global.domain.notification.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,9 +14,7 @@ import in.koreatech.koin.global.domain.notification.dto.NotificationPermitReques
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
-import in.koreatech.koin.global.fcm.MobileAppPath;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,26 +24,6 @@ import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Notification: 알림", description = "알림 관련 API")
 public interface NotificationApi {
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "테스트용 알림 발송")
-    @GetMapping("/notification/test")
-    ResponseEntity<Void> testSendMessage(
-        @Parameter(description = "device token") @RequestParam String deviceToken,
-        @Parameter(description = "알림 제목") @RequestParam(required = false) String title,
-        @Parameter(description = "알림 내용") @RequestParam(required = false) String body,
-        @Parameter(description = "이미지 url") @RequestParam(required = false) String image,
-        @Parameter(description = "app path") @RequestParam(required = false) MobileAppPath mobileAppPath,
-        @Parameter(description = "스킴 uri(ex: shop?id=1)") @RequestParam(required = false) String url
-    );
 
     @ApiResponses(
         value = {

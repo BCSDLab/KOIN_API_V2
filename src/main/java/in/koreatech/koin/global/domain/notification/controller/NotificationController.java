@@ -17,8 +17,6 @@ import in.koreatech.koin.global.domain.notification.dto.NotificationStatusRespon
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
-import in.koreatech.koin.global.fcm.MobileAppPath;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -27,19 +25,6 @@ import lombok.RequiredArgsConstructor;
 public class NotificationController implements NotificationApi {
 
     private final NotificationService notificationService;
-
-    @GetMapping("/notification/test")
-    public ResponseEntity<Void> testSendMessage(
-        @RequestParam String deviceToken,
-        @RequestParam(required = false) String title,
-        @RequestParam(required = false) String body,
-        @RequestParam(required = false) String image,
-        @RequestParam(required = false) MobileAppPath mobileAppPath,
-        @RequestParam(required = false) String url
-    ) {
-        notificationService.testPush(mobileAppPath, deviceToken, title, body, image, url);
-        return ResponseEntity.ok().build();
-    }
 
     @GetMapping("/notification")
     public ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
