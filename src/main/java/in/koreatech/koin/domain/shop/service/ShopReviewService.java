@@ -178,6 +178,7 @@ public class ShopReviewService {
             studentId,
             sortBy.getSort()
         );
+
         return ShopMyReviewsResponse.from(reviews);
     }
 }
