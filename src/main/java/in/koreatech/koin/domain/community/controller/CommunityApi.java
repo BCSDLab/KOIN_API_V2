@@ -68,7 +68,7 @@ public interface CommunityApi {
         }
     )
     @Operation(summary = "인기 게시글 목록 조회")
-    @GetMapping("/articles/hot")
+    @GetMapping("/articles/hot/list")
     ResponseEntity<List<HotArticleItemResponse>> getHotArticles();
 
     @ApiResponses(
