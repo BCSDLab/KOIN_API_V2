@@ -551,9 +551,9 @@ class CommunityApiTest extends AcceptanceTest {
     @DisplayName("자신의 알림 키워드를 조회한다.")
     void 자신의_알림_키워드_조회() {
         String token = userFixture.getToken(student.getUser());
-        ArticleKeywordUserMap articleKeywordUserMap1 = articleFixture.키워드1("수강신청", student.getUser());
-        ArticleKeywordUserMap articleKeywordUserMap2 = articleFixture.키워드1("장학금", student.getUser());
-        ArticleKeywordUserMap articleKeywordUserMap3 = articleFixture.키워드1("생활관", student.getUser());
+        articleFixture.키워드1("수강신청", student.getUser());
+        articleFixture.키워드1("장학금", student.getUser());
+        articleFixture.키워드1("생활관", student.getUser());
 
         var response = RestAssured
             .given()
