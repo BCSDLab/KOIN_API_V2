@@ -57,14 +57,14 @@ public class ShopReviewService {
     private final EntityManager entityManager;
 
     public ShopReviewsResponse getReviewsByShopId(Integer shopId, Integer userId, Integer page, Integer limit, ReviewsSortCriteria sortBy) {
-        Integer total = shopReviewRepository.countByShopIdNotContainReportedAndIsDeletedFalse(shopId);
+        Integer total = shopReviewRepository.countByShopIdAndIsDeletedFalse(shopId);
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(
             criteria.getPage(),
             criteria.getLimit(),
             sortBy.getSort()
         );
-        Page<ShopReview> result = shopReviewRepository.findAllByShopIdNotContainReportedAndIsDeletedFalse(
+        Page<ShopReview> result = shopReviewRepository.findByShopIdAndIsDeletedFalse(
             shopId,
             pageRequest
         );
@@ -156,7 +156,7 @@ public class ShopReviewService {
             5, 0
         ));
         for (Integer rating : ratings.keySet()) {
-            Integer count = shopReviewRepository.countReviewRatingNotContainReportedAndIsDeletedFalse(shopId, rating);
+            Integer count = shopReviewRepository.countByShopIdAndRatingAndIsDeletedFalse(shopId, rating);
             ratings.put(rating, count);
         }
         return ratings;
@@ -171,7 +171,7 @@ public class ShopReviewService {
     }
 
     public ShopMyReviewsResponse getMyReviewsByShopId(Integer shopId, Integer studentId, ReviewsSortCriteria sortBy) {
-        List<ShopReview> reviews = shopReviewRepository.findAllMyReviewsByShopIdNotContainReportedAndIsDeletedFalse(
+        List<ShopReview> reviews = shopReviewRepository.findByShopIdAndReviewerIdAndIsDeletedFalse(
             shopId,
             studentId,
             sortBy.getSort()
