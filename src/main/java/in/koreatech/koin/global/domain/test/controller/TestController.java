@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/test")
 @RequiredArgsConstructor
-public class TestController implements TestApi{
+public class TestController implements TestApi {
 
     private final FcmClient fcmClient;
 
