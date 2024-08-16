@@ -59,7 +59,7 @@ public interface KeywordApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true)))
         }
     )
     @Operation(summary = "자신의 알림 키워드 전체 조회")
