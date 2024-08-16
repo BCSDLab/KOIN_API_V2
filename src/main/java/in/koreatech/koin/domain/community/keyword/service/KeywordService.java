@@ -81,10 +81,6 @@ public class KeywordService {
     public ArticleKeywordsResponse getMyKeywords(Integer userId) {
         List<ArticleKeywordUserMap> articleKeywordUserMaps = articleKeywordUserMapRepository.findAllByUserId(userId);
 
-        if (articleKeywordUserMaps.isEmpty()) {
-            return new ArticleKeywordsResponse(0, List.of());
-        }
-
         return ArticleKeywordsResponse.from(articleKeywordUserMaps);
     }
 
