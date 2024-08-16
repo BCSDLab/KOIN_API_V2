@@ -28,6 +28,7 @@ import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
 import in.koreatech.koin.admin.abtest.repository.VariableIpRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.useragent.UserAgentInfo;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -35,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class AbtestService {
 
+    private final EntityManager entityManager;
     private final AbtestVariableCountRepository abtestVariableCountRepository;
     private final VariableIpRepository variableIpRepository;
     private final AbtestRepository abtestRepository;
@@ -44,14 +46,11 @@ public class AbtestService {
     private final DeviceRepository deviceRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public AbtestResponse createAbtest(AbtestRequest request) {
-        /**
-         * TODO 명세 보고 예외 추가하기
-         */
         if (abtestRepository.findByTitle(request.title()).isPresent()) {
             throw AbtestAlreadyExistException.withDetail("title: " + request.title());
         }
-
         Abtest saved = abtestRepository.save(
             Abtest.builder()
                 .title(request.title())
@@ -62,11 +61,8 @@ public class AbtestService {
                 .status(AbtestStatus.IN_PROGRESS)
                 .build()
         );
-
-        // rate 합이 100이 아닌 경우, 변수명이 동일한 경우는 여기서 에러내기
-        saved.setVariables();
-
-        return null;
+        saved.setVariables(request.variables(), entityManager);
+        return AbtestResponse.from(saved);
     }
 
     @Transactional

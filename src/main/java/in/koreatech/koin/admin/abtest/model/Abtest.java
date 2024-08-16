@@ -8,12 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotIncludeVariableException;
+import in.koreatech.koin.admin.abtest.exception.AbtestVariableIllegalArgumentException;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -68,7 +71,7 @@ public class Abtest extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private AbtestStatus status;
 
-    @OneToMany(mappedBy = "abtest", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "abtest", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AbtestVariable> abtestVariables = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -129,5 +132,35 @@ public class Abtest extends BaseEntity {
     private Map<Integer, Integer> merge(Map<Integer, Integer> m1, Map<Integer, Integer> m2, int weight) {
         m2.forEach((key, value) -> m1.merge(key, weight * value, Integer::sum));
         return m1;
+    }
+
+    public void setVariables(List<AbtestRequest.InnerVariableRequest> variables, EntityManager entityManager) {
+        vaildateVariables(variables);
+        List<AbtestVariable> saved = variables.stream()
+            .map(request ->
+                AbtestVariable.builder()
+                    .abtest(this)
+                    .displayName(request.displayName())
+                    .rate(request.rate())
+                    .name(request.name())
+                    .build()
+            ).toList();
+        abtestVariables.clear();
+        entityManager.flush();
+        abtestVariables.addAll(saved);
+    }
+
+    private static void vaildateVariables(List<AbtestRequest.InnerVariableRequest> variables) {
+        int sum = variables.stream().mapToInt(AbtestRequest.InnerVariableRequest::rate).sum();
+        if (sum != 100) {
+            throw AbtestVariableIllegalArgumentException.withDetail("실험군 비율 합이 100이 아닙니다. rate sum: " + sum);
+        }
+
+        int distinctSize = variables.stream()
+            .map(variable -> variable.name())
+            .distinct().toList().size();
+        if (distinctSize != variables.size()) {
+            throw AbtestVariableIllegalArgumentException.withDetail("실험군 간의 변수명이 중복됩니다.");
+        }
     }
 }

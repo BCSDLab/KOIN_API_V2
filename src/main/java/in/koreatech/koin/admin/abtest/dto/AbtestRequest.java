@@ -31,7 +31,7 @@ public record AbtestRequest(
 ) {
 
     @JsonNaming(SnakeCaseStrategy.class)
-    private record InnerVariableRequest(
+    public record InnerVariableRequest(
 
         @Schema(description = "실험군 편입 비율", example = "33", requiredMode = REQUIRED)
         Integer rate,

@@ -4,7 +4,6 @@ import static lombok.AccessLevel.PROTECTED;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
@@ -50,13 +49,12 @@ public class AbtestVariable extends BaseEntity {
     @Column(name = "display_name", nullable = false)
     private String displayName;
 
-    @Column(name = "rate")
+    @Column(name = "rate", nullable = false)
     private Integer rate;
 
-    @Column(name = "count")
-    private Integer count;
+    @Column(name = "count", nullable = false)
+    private Integer count = 0;
 
-    @NotNull
     @Column(name = "is_before", nullable = false)
     private Boolean isBefore = false;
 
@@ -78,8 +76,8 @@ public class AbtestVariable extends BaseEntity {
         this.name = name;
         this.displayName = displayName;
         this.rate = rate;
-        this.count = count;
-        this.isBefore = isBefore;
+        this.count = count != null ? count : 0;
+        this.isBefore = isBefore != null ? isBefore : false;
     }
 
     public void addCount(int count) {

@@ -8,6 +8,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.admin.abtest.model.Abtest;
+import in.koreatech.koin.admin.abtest.model.AbtestVariable;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -37,11 +39,27 @@ public record AbtestResponse(
     @Schema(description = "실험 내용", example = "식단 UI 변경에 따른 사용자 변화량 조사", requiredMode = NOT_REQUIRED)
     String description,
 
-    List<InnerVariableRequest> variables
+    List<InnerVariableResponse> variables
 ) {
 
+    public static AbtestResponse from(Abtest abtest) {
+        return new AbtestResponse(
+            abtest.getId(),
+            abtest.getDisplayTitle(),
+            abtest.getCreator(),
+            abtest.getTeam(),
+            abtest.getStatus().name(),
+            abtest.getWinner() != null ? abtest.getWinner().getName() : null,
+            abtest.getTitle(),
+            abtest.getDescription(),
+            abtest.getAbtestVariables().stream()
+                .map(InnerVariableResponse::from)
+                .toList()
+        );
+    }
+
     @JsonNaming(SnakeCaseStrategy.class)
-    private record InnerVariableRequest(
+    private record InnerVariableResponse(
 
         @Schema(description = "실험군 편입 비율", example = "33", requiredMode = REQUIRED)
         Integer rate,
@@ -52,5 +70,12 @@ public record AbtestResponse(
         @Schema(description = "실험군 이름(변수명)", example = "A", requiredMode = REQUIRED)
         String name
     ) {
+        public static InnerVariableResponse from(AbtestVariable abtestVariable) {
+            return new InnerVariableResponse(
+                abtestVariable.getRate(),
+                abtestVariable.getDisplayName(),
+                abtestVariable.getName()
+            );
+        }
     }
 }
