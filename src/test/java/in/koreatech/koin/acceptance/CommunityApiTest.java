@@ -2,7 +2,6 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,16 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.community.model.Article;
-import in.koreatech.koin.domain.community.model.ArticleKeywordUserMap;
-import in.koreatech.koin.domain.community.model.Board;
-import in.koreatech.koin.domain.community.model.Comment;
-import in.koreatech.koin.domain.community.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapRepository;
-import in.koreatech.koin.domain.community.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.repository.CommentRepository;
+import in.koreatech.koin.domain.community.articles.model.Article;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
+import in.koreatech.koin.domain.community.articles.model.Board;
+import in.koreatech.koin.domain.community.articles.model.Comment;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
+import in.koreatech.koin.domain.community.articles.repository.ArticleRepository;
+import in.koreatech.koin.domain.community.articles.repository.CommentRepository;
 import in.koreatech.koin.domain.user.model.Student;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.UserFixture;
@@ -35,12 +33,6 @@ class CommunityApiTest extends AcceptanceTest {
 
     @Autowired
     private CommentRepository commentRepository;
-
-    @Autowired
-    private ArticleKeywordRepository articleKeywordRepository;
-
-    @Autowired
-    private ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
     @Autowired
     private UserFixture userFixture;
@@ -457,151 +449,6 @@ class CommunityApiTest extends AcceptanceTest {
                     }
                 ]
                 """);
-    }
-
-    @Test
-    void 알림_키워드_추가() {
-        String token = userFixture.getToken(student.getUser());
-
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
-                {
-                    "keyword": "장학금"
-                }
-                """)
-            .when()
-            .post("/articles/keyword")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                {
-                  "id": 1,
-                  "keyword": "장학금"
-                }
-                """);
-    }
-
-    @Test
-    void 알림_키워드_10개_넘게_추가시_400에러_반환() {
-        String token = userFixture.getToken(student.getUser());
-
-        for (int i = 0; i < 10; i++) {
-            RestAssured
-                .given()
-                .header("Authorization", "Bearer " + token)
-                .contentType(ContentType.JSON)
-                .body(String.format("""
-                        {
-                        "keyword": "keyword%d"
-                        }
-                    """, i))
-
-                .when()
-                .post("/articles/keyword")
-                .then()
-                .statusCode(HttpStatus.OK.value());
-        }
-
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
-                {
-                    "keyword": "장학금"
-                }
-                """)
-            .when()
-            .post("/articles/keyword")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 알림_키워드_삭제() {
-        String token = userFixture.getToken(student.getUser());
-        ArticleKeywordUserMap articleKeywordUserMap = articleFixture.키워드1("수강 신청", student.getUser());
-
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .pathParam("id", articleKeywordUserMap.getId())
-            .contentType(ContentType.JSON)
-            .when()
-            .delete("/articles/keyword/{id}")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract()
-            .asString();
-
-        assertThat(articleKeywordUserMapRepository.findById(articleKeywordUserMap.getId()).isEmpty());
-        assertThat(articleKeywordRepository.findById(articleKeywordUserMap.getArticleKeyword().getId()).isEmpty());
-    }
-
-    @Test
-    void 자신의_알림_키워드_조회() {
-        String token = userFixture.getToken(student.getUser());
-        articleFixture.키워드1("수강신청", student.getUser());
-        articleFixture.키워드1("장학금", student.getUser());
-        articleFixture.키워드1("생활관", student.getUser());
-
-        var response = RestAssured
-            .given()
-            .when()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .get("/articles/keyword/me")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                {
-                    "count": 3,
-                    "keywords": [
-                        {
-                        "id": 1,
-                        "keyword": "수강신청"
-                        },
-                        {
-                        "id": 2,
-                        "keyword": "장학금"
-                        },
-                        {
-                        "id": 3,
-                        "keyword": "생활관"
-                        }
-                    ]
-                }""");
-    }
-
-    @Test
-    void 자신의_알림_키워드_조회_사용자가_아무것도_추가_안했으면_빈리스트_반환() {
-        String token = userFixture.getToken(student.getUser());
-
-        var response = RestAssured
-            .given()
-            .when()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .get("/articles/keyword/me")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                {
-                    "count": 0,
-                    "keywords": []
-                }""");
     }
 
 }
