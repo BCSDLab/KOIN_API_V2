@@ -162,11 +162,9 @@ public class ShopReviewService {
         return ratings;
     }
 
-    public ShopReviewResponse getReviewByReviewId(Integer shopId, Integer reviewId, Integer studentId) {
+    public ShopReviewResponse getReviewByReviewId(Integer shopId, Integer reviewId) {
         ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(reviewId);
-        if (!Objects.equals(shopReview.getShop().getId(), shopId) ||
-            !Objects.equals(shopReview.getReviewer().getId(), studentId)
-        ) {
+        if (!Objects.equals(shopReview.getShop().getId(), shopId)) {
             throw ReviewNotFoundException.withDetail("해당 상점의 리뷰가 아닙니다.");
         }
         return ShopReviewResponse.from(shopReview);
