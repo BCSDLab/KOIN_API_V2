@@ -25,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class KeywordService {
 
+    private static final int ARTICLE_KEYWORD_LIMIT = 10;
+
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
     private final ArticleKeywordRepository articleKeywordRepository;
     private final UserRepository userRepository;
@@ -37,7 +39,7 @@ public class KeywordService {
             throw new KoinIllegalArgumentException("키워드에 공백을 포함할 수 없습니다.");
         }
 
-        if (articleKeywordUserMapRepository.countByUserId(userId) >= 10) {
+        if (articleKeywordUserMapRepository.countByUserId(userId) >= ARTICLE_KEYWORD_LIMIT) {
             throw KeywordLimitExceededException.withDetail("userId: " + userId);
         }
 
