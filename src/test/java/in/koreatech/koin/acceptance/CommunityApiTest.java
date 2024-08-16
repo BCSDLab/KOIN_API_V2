@@ -10,8 +10,11 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.community.model.Article;
+import in.koreatech.koin.domain.community.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.model.Board;
 import in.koreatech.koin.domain.community.model.Comment;
+import in.koreatech.koin.domain.community.repository.ArticleKeywordRepository;
+import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.CommentRepository;
 import in.koreatech.koin.domain.user.model.Student;
@@ -20,6 +23,7 @@ import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
 class CommunityApiTest extends AcceptanceTest {
@@ -29,6 +33,12 @@ class CommunityApiTest extends AcceptanceTest {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private ArticleKeywordRepository articleKeywordRepository;
+
+    @Autowired
+    private ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
     @Autowired
     private UserFixture userFixture;
@@ -153,7 +163,6 @@ class CommunityApiTest extends AcceptanceTest {
                             "id": 2,
                             "board_id": 1,
                             "title": "자유 글2의 제목입니다",
-                            "content": "<p>내용222</p>",
                             "nickname": "준호",
                             "hit": 1,
                             "created_at": "2024-01-15 12:00:00",
@@ -163,17 +172,16 @@ class CommunityApiTest extends AcceptanceTest {
                             "id": 1,
                             "board_id": 1,
                             "title": "자유 글의 제목입니다",
-                            "content": "<p>내용</p>",
                             "nickname": "준호",
                             "hit": 1,
                             "created_at": "2024-01-15 12:00:00",
                             "updated_at": "2024-01-15 12:00:00"
                         }
                     ],
-                    "totalCount": 2,
-                    "currentCount": 2,
-                    "totalPage": 1,
-                    "currentPage": 1
+                    "total_count": 2,
+                    "current_count": 2,
+                    "total_page": 1,
+                    "current_page": 1
                 }
                 """);
     }
@@ -348,17 +356,16 @@ class CommunityApiTest extends AcceptanceTest {
                                "id": 2,
                                "board_id": 1,
                                "title": "자유 글2의 제목입니다",
-                               "content": "<p>내용222</p>",
                                "nickname": "준호",
                                "hit": 1,
                                "created_at": "2024-01-15 12:00:00",
                                "updated_at": "2024-01-15 12:00:00"
                            }
                        ],
-                       "totalCount": 2,
-                       "currentCount": 1,
-                       "totalPage": 2,
-                       "currentPage": 1
+                       "total_count": 2,
+                       "current_count": 1,
+                       "total_page": 2,
+                       "current_page": 1
                    }
                 """);
     }
@@ -390,7 +397,7 @@ class CommunityApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .get("/articles/hot/list")
+            .get("/articles/hot")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -445,5 +452,137 @@ class CommunityApiTest extends AcceptanceTest {
                     }
                 ]
                 """);
+    }
+
+    @Test
+    @DisplayName("게시글을 검색한다.")
+    void searchNoticeArticles() {
+        var response = RestAssured
+            .given()
+            .when()
+            .queryParam("query", "자유")
+            .queryParam("board", 1)
+            .get("/articles/search")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                   {
+                       "articles": [
+                           {
+                               "id": 2,
+                               "board_id": 1,
+                               "title": "자유 글2의 제목입니다",
+                               "nickname": "준호",
+                               "hit": 1,
+                               "created_at": "2024-01-15 12:00:00",
+                               "updated_at": "2024-01-15 12:00:00"
+                           },
+                           {
+                               "id": 1,
+                               "board_id": 1,
+                               "title": "자유 글의 제목입니다",
+                               "nickname": "준호",
+                               "hit": 1,
+                               "created_at": "2024-01-15 12:00:00",
+                               "updated_at": "2024-01-15 12:00:00"
+                           }
+                       ],
+                       "total_count": 2,
+                       "current_count": 2,
+                       "total_page": 1,
+                       "current_page": 1
+                   }
+                """);
+    }
+
+    @Test
+    @DisplayName("알림 키워드를 추가한다.")
+    void 알림_키워드_추가() {
+        String token = userFixture.getToken(student.getUser());
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                    "keyword": "장학금"
+                }
+                """)
+            .when()
+            .post("/articles/keyword")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                  "id": 1,
+                  "keyword": "장학금"
+                }
+                """);
+    }
+
+    @Test
+    @DisplayName("알림 키워드를 추가한다. - 10개 넘어가면 400에러 반환")
+    void 알림_키워드_10개_넘게_추가시_에러() {
+        String token = userFixture.getToken(student.getUser());
+
+        for (int i = 0; i < 10; i++) {
+            RestAssured
+                .given()
+                .header("Authorization", "Bearer " + token)
+                .contentType(ContentType.JSON)
+                .body(String.format("""
+                        {
+                        "keyword": "keyword%d"
+                        }
+                    """, i))
+
+                .when()
+                .post("/articles/keyword")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+        }
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                    "keyword": "장학금"
+                }
+                """)
+            .when()
+            .post("/articles/keyword")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("알림 키워드를 삭제한다.")
+    void 알림_키워드_삭제() {
+        String token = userFixture.getToken(student.getUser());
+        ArticleKeywordUserMap articleKeywordUserMap = articleFixture.키워드1("수강 신청", student.getUser());
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .pathParam("id", articleKeywordUserMap.getId())
+            .contentType(ContentType.JSON)
+            .when()
+            .delete("/articles/keyword/{id}")
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract()
+            .asString();
+
+        assertThat(articleKeywordUserMapRepository.findById(articleKeywordUserMap.getId()).isEmpty());
+        assertThat(articleKeywordRepository.findById(articleKeywordUserMap.getArticleKeyword().getId()).isEmpty());
     }
 }
