@@ -47,4 +47,15 @@ public class ArticleController implements ArticleApi {
         List<HotArticleItemResponse> hotArticles = articleService.getHotArticles();
         return ResponseEntity.ok().body(hotArticles);
     }
+
+    @GetMapping("/articles/search")
+    public ResponseEntity<ArticlesResponse> searchArticles(
+        @RequestParam String query,
+        @RequestParam(required = false) Integer boardId,
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit
+    ) {
+        ArticlesResponse foundArticles = articleService.searchArticles(query, boardId, page, limit);
+        return ResponseEntity.ok().body(foundArticles);
+    }
 }

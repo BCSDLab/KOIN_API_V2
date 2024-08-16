@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.community.articles.service;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -18,8 +19,6 @@ import in.koreatech.koin.domain.community.articles.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.articles.model.Article;
 import in.koreatech.koin.domain.community.articles.model.Board;
 import in.koreatech.koin.domain.community.articles.model.BoardTag;
-import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
-import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.articles.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.articles.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.articles.repository.BoardRepository;
@@ -80,11 +79,11 @@ public class ArticleService {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
 
         if (board.isNotice() && board.getTag().equals(BoardTag.공지사항.getTag())) {
-            Page<Article> articles = articleRepository.findByIsNotice(true, pageRequest);
+            Page<Article> articles = articleRepository.findAllByIsNotice(true, pageRequest);
             return ArticlesResponse.of(articles, criteria);
         }
 
-        Page<Article> articles = articleRepository.findByBoardId(boardId, pageRequest);
+        Page<Article> articles = articleRepository.findAllByBoardId(boardId, pageRequest);
         return ArticlesResponse.of(articles, criteria);
     }
 
@@ -95,4 +94,24 @@ public class ArticleService {
             .map(HotArticleItemResponse::from)
             .toList();
     }
+
+
+    public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit) {
+        Criteria criteria = Criteria.of(page, limit);
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        Page<Article> articles;
+        if (boardId == null) {
+            articles = articleRepository.findAllByTitleContaining(query, pageRequest);
+        } else if (isFullNoticeBoard(boardRepository.getById(boardId))) {
+            articles = articleRepository.findAllByIsNoticeAndTitleContaining(true, query, pageRequest);
+        } else {
+            articles = articleRepository.findAllByBoardIdAndTitleContaining(boardId, query, pageRequest);
+        }
+        return ArticlesResponse.of(articles, criteria);
+    }
+
+    private boolean isFullNoticeBoard(Board board) {
+        return board.isNotice() && Objects.equals(board.getTag(), BoardTag.공지사항.getTag());
+    }
+
 }

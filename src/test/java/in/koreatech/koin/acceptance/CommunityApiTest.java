@@ -157,7 +157,6 @@ class CommunityApiTest extends AcceptanceTest {
                             "id": 2,
                             "board_id": 1,
                             "title": "자유 글2의 제목입니다",
-                            "content": "<p>내용222</p>",
                             "nickname": "준호",
                             "hit": 1,
                             "created_at": "2024-01-15 12:00:00",
@@ -167,17 +166,16 @@ class CommunityApiTest extends AcceptanceTest {
                             "id": 1,
                             "board_id": 1,
                             "title": "자유 글의 제목입니다",
-                            "content": "<p>내용</p>",
                             "nickname": "준호",
                             "hit": 1,
                             "created_at": "2024-01-15 12:00:00",
                             "updated_at": "2024-01-15 12:00:00"
                         }
                     ],
-                    "totalCount": 2,
-                    "currentCount": 2,
-                    "totalPage": 1,
-                    "currentPage": 1
+                    "total_count": 2,
+                    "current_count": 2,
+                    "total_page": 1,
+                    "current_page": 1
                 }
                 """);
     }
@@ -352,17 +350,16 @@ class CommunityApiTest extends AcceptanceTest {
                                "id": 2,
                                "board_id": 1,
                                "title": "자유 글2의 제목입니다",
-                               "content": "<p>내용222</p>",
                                "nickname": "준호",
                                "hit": 1,
                                "created_at": "2024-01-15 12:00:00",
                                "updated_at": "2024-01-15 12:00:00"
                            }
                        ],
-                       "totalCount": 2,
-                       "currentCount": 1,
-                       "totalPage": 2,
-                       "currentPage": 1
+                       "total_count": 2,
+                       "current_count": 1,
+                       "total_page": 2,
+                       "current_page": 1
                    }
                 """);
     }
@@ -451,4 +448,47 @@ class CommunityApiTest extends AcceptanceTest {
                 """);
     }
 
+    @Test
+    @DisplayName("게시글을 검색한다.")
+    void searchNoticeArticles() {
+        var response = RestAssured
+            .given()
+            .when()
+            .queryParam("query", "자유")
+            .queryParam("board", 1)
+            .get("/articles/search")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                   {
+                       "articles": [
+                           {
+                               "id": 2,
+                               "board_id": 1,
+                               "title": "자유 글2의 제목입니다",
+                               "nickname": "준호",
+                               "hit": 1,
+                               "created_at": "2024-01-15 12:00:00",
+                               "updated_at": "2024-01-15 12:00:00"
+                           },
+                           {
+                               "id": 1,
+                               "board_id": 1,
+                               "title": "자유 글의 제목입니다",
+                               "nickname": "준호",
+                               "hit": 1,
+                               "created_at": "2024-01-15 12:00:00",
+                               "updated_at": "2024-01-15 12:00:00"
+                           }
+                       ],
+                       "total_count": 2,
+                       "current_count": 2,
+                       "total_page": 1,
+                       "current_page": 1
+                   }
+                """);
+    }
 }
