@@ -1322,7 +1322,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 신고됐지만_아직_처리되지_않은_리뷰는_무시된_상태로_모든_상점을_조회한다() {
+    void 신고된_리뷰의_내용도_반영해서_모든_상점을_조회한다() {
         // given
         Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
         ShopReview 리뷰_4점 = shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
@@ -1430,8 +1430,8 @@ class ShopApiTest extends AcceptanceTest {
                             "phone": "010-7788-9900",
                             "is_event": false,
                             "is_open": %s,
-                            "average_rate": 0.0,
-                            "review_count": 0
+                            "average_rate": 4.0,
+                            "review_count": 1
                         }
                     ]
                 }
