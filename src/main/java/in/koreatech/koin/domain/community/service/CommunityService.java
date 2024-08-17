@@ -24,8 +24,8 @@ import in.koreatech.koin.domain.community.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.model.ArticleViewLog;
 import in.koreatech.koin.domain.community.model.Board;
 import in.koreatech.koin.domain.community.model.BoardTag;
-import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.repository.ArticleKeywordRepository;
+import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.repository.BoardRepository;
@@ -84,17 +84,17 @@ public class CommunityService {
     }
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit) {
-        Long total = boardRepository.countBy();
+        Long total = articleRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
 
-        if (board.isNotice() && board.getTag().equals(BoardTag.공지사항.getTag())) {
-            Page<Article> articles = articleRepository.findByIsNotice(true, pageRequest);
+        if (isFullNoticeBoard(board)) {
+            Page<Article> articles = articleRepository.findAllByIsNotice(true, pageRequest);
             return ArticlesResponse.of(articles, criteria);
         }
 
-        Page<Article> articles = articleRepository.findByBoardId(boardId, pageRequest);
+        Page<Article> articles = articleRepository.findAllByBoardId(boardId, pageRequest);
         return ArticlesResponse.of(articles, criteria);
     }
 
@@ -104,6 +104,24 @@ public class CommunityService {
             .sorted(Comparator.comparing(Article::getHit).reversed())
             .map(HotArticleItemResponse::from)
             .toList();
+    }
+
+    public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit) {
+        Criteria criteria = Criteria.of(page, limit);
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        Page<Article> articles;
+        if (boardId == null) {
+            articles = articleRepository.findAllByTitleContaining(query, pageRequest);
+        } else if (isFullNoticeBoard(boardRepository.getById(boardId))) {
+            articles = articleRepository.findAllByIsNoticeAndTitleContaining(true, query, pageRequest);
+        } else {
+            articles = articleRepository.findAllByBoardIdAndTitleContaining(boardId, query, pageRequest);
+        }
+        return ArticlesResponse.of(articles, criteria);
+    }
+
+    private boolean isFullNoticeBoard(Board board) {
+        return board.isNotice() && Objects.equals(board.getTag(), BoardTag.공지사항.getTag());
     }
 
     @Transactional

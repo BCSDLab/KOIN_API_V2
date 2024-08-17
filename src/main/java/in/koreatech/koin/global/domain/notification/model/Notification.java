@@ -33,6 +33,9 @@ public class Notification extends BaseEntity {
     @Column(name = "app_path")
     private MobileAppPath mobileAppPath;
 
+    @Column(name = "scheme_uri")
+    private String schemeUri;
+
     @Column(name = "title")
     private String title;
 
@@ -55,6 +58,7 @@ public class Notification extends BaseEntity {
 
     public Notification(
         MobileAppPath appPath,
+        String schemeUri,
         String title,
         String message,
         String imageUrl,
@@ -62,6 +66,7 @@ public class Notification extends BaseEntity {
         User user
     ) {
         this.mobileAppPath = appPath;
+        this.schemeUri = schemeUri;
         this.title = title;
         this.message = message;
         this.imageUrl = imageUrl;

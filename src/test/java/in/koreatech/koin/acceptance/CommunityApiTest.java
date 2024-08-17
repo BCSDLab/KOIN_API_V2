@@ -163,7 +163,6 @@ class CommunityApiTest extends AcceptanceTest {
                             "id": 2,
                             "board_id": 1,
                             "title": "자유 글2의 제목입니다",
-                            "content": "<p>내용222</p>",
                             "nickname": "준호",
                             "hit": 1,
                             "created_at": "2024-01-15 12:00:00",
@@ -173,17 +172,16 @@ class CommunityApiTest extends AcceptanceTest {
                             "id": 1,
                             "board_id": 1,
                             "title": "자유 글의 제목입니다",
-                            "content": "<p>내용</p>",
                             "nickname": "준호",
                             "hit": 1,
                             "created_at": "2024-01-15 12:00:00",
                             "updated_at": "2024-01-15 12:00:00"
                         }
                     ],
-                    "totalCount": 2,
-                    "currentCount": 2,
-                    "totalPage": 1,
-                    "currentPage": 1
+                    "total_count": 2,
+                    "current_count": 2,
+                    "total_page": 1,
+                    "current_page": 1
                 }
                 """);
     }
@@ -336,6 +334,42 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 특정 페이지 조회")
+    void getArticlesByPagination_pageTest() {
+        var response = RestAssured
+            .given()
+            .when()
+            .param("boardId", board.getId())
+            .param("page", 2)
+            .param("limit", 1)
+            .get("/articles")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "articles": [
+                        {
+                            "id": 1,
+                            "board_id": 1,
+                            "title": "자유 글의 제목입니다",
+                            "nickname": "준호",
+                            "hit": 1,
+                            "created_at": "2024-01-15 12:00:00",
+                            "updated_at": "2024-01-15 12:00:00"
+                        }
+                    ],
+                   "total_count": 2,
+                   "current_count": 1,
+                   "total_page": 2,
+                   "current_page": 2
+                }
+                """);
+    }
+
+    @Test
     @DisplayName("게시글들을 페이지네이션하여 조회한다. - 최대 페이지를 초과한 요청이 들어오면 마지막 페이지를 반환한다.")
     void getArticlesByPagination_overMaxPageNotFound() {
         // when then
@@ -355,20 +389,19 @@ class CommunityApiTest extends AcceptanceTest {
                    {
                        "articles": [
                            {
-                               "id": 2,
+                               "id": 1,
                                "board_id": 1,
-                               "title": "자유 글2의 제목입니다",
-                               "content": "<p>내용222</p>",
+                               "title": "자유 글의 제목입니다",
                                "nickname": "준호",
                                "hit": 1,
                                "created_at": "2024-01-15 12:00:00",
                                "updated_at": "2024-01-15 12:00:00"
                            }
                        ],
-                       "totalCount": 2,
-                       "currentCount": 1,
-                       "totalPage": 2,
-                       "currentPage": 1
+                       "total_count": 2,
+                       "current_count": 1,
+                       "total_page": 2,
+                       "current_page": 2
                    }
                 """);
     }
@@ -400,7 +433,7 @@ class CommunityApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .get("/articles/hot/list")
+            .get("/articles/hot")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -454,6 +487,50 @@ class CommunityApiTest extends AcceptanceTest {
                         "updated_at": "2024-01-15 12:00:00"
                     }
                 ]
+                """);
+    }
+
+    @Test
+    @DisplayName("게시글을 검색한다.")
+    void searchNoticeArticles() {
+        var response = RestAssured
+            .given()
+            .when()
+            .queryParam("query", "자유")
+            .queryParam("board", 1)
+            .get("/articles/search")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                   {
+                       "articles": [
+                           {
+                               "id": 2,
+                               "board_id": 1,
+                               "title": "자유 글2의 제목입니다",
+                               "nickname": "준호",
+                               "hit": 1,
+                               "created_at": "2024-01-15 12:00:00",
+                               "updated_at": "2024-01-15 12:00:00"
+                           },
+                           {
+                               "id": 1,
+                               "board_id": 1,
+                               "title": "자유 글의 제목입니다",
+                               "nickname": "준호",
+                               "hit": 1,
+                               "created_at": "2024-01-15 12:00:00",
+                               "updated_at": "2024-01-15 12:00:00"
+                           }
+                       ],
+                       "total_count": 2,
+                       "current_count": 2,
+                       "total_page": 1,
+                       "current_page": 1
+                   }
                 """);
     }
 
