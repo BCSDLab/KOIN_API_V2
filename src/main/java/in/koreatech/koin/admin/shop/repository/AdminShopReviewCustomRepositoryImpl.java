@@ -1,9 +1,10 @@
 package in.koreatech.koin.admin.shop.repository;
 
+import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
+
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import in.koreatech.koin.domain.shop.model.QShopReview;
-import in.koreatech.koin.domain.shop.model.ReportStatus;
 import in.koreatech.koin.domain.shop.model.ShopReview;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,29 +21,14 @@ public class AdminShopReviewCustomRepositoryImpl implements AdminShopReviewCusto
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<ShopReview> findShopReview(Integer shopId, Boolean isReported, Boolean isHaveUnhandledReport, Pageable pageable) {
+    public Page<ShopReview> findShopReview(
+        Integer shopId,
+        Boolean isReported,
+        Boolean isHaveUnhandledReport,
+        Pageable pageable
+    ) {
         QShopReview shopReview = QShopReview.shopReview;
-        BooleanBuilder whereCondition = new BooleanBuilder();
-
-        if (shopId != null) {
-            whereCondition.and(shopReview.shop.id.eq(shopId));
-        }
-
-        if (isReported != null) {
-            if (isReported) {
-                whereCondition.and(shopReview.reports.isNotEmpty());
-            } else {
-                whereCondition.and(shopReview.reports.isEmpty());
-            }
-        }
-
-        if (isHaveUnhandledReport != null) {
-            if (isHaveUnhandledReport) {
-                whereCondition.and(shopReview.reports.any().reportStatus.eq(ReportStatus.UNHANDLED));
-            }
-        }
-
-        whereCondition.and(shopReview.isDeleted.eq(false));
+        BooleanBuilder whereCondition = buildWhereCondition(shopId, isReported, isHaveUnhandledReport);
 
         List<ShopReview> shopReviews = queryFactory
             .selectDistinct(shopReview)
@@ -54,13 +40,31 @@ public class AdminShopReviewCustomRepositoryImpl implements AdminShopReviewCusto
             .limit(pageable.getPageSize())
             .fetch();
 
-
         long total = this.countShopReview(shopId, isReported, isHaveUnhandledReport);
         return new PageImpl<>(shopReviews, pageable, total);
     }
 
     @Override
-    public Long countShopReview(Integer shopId, Boolean isReported, Boolean isHaveUnhandledReport) {
+    public Long countShopReview(
+        Integer shopId,
+        Boolean isReported,
+        Boolean isHaveUnhandledReport
+    ) {
+        QShopReview shopReview = QShopReview.shopReview;
+        BooleanBuilder whereCondition = buildWhereCondition(shopId, isReported, isHaveUnhandledReport);
+
+        return queryFactory
+            .select(shopReview.count())
+            .from(shopReview)
+            .where(whereCondition)
+            .fetchOne();
+    }
+
+    private BooleanBuilder buildWhereCondition(
+        Integer shopId,
+        Boolean isReported,
+        Boolean isHaveUnhandledReport
+    ) {
         QShopReview shopReview = QShopReview.shopReview;
         BooleanBuilder whereCondition = new BooleanBuilder();
 
@@ -78,14 +82,11 @@ public class AdminShopReviewCustomRepositoryImpl implements AdminShopReviewCusto
 
         if (isHaveUnhandledReport != null) {
             if (isHaveUnhandledReport) {
-                whereCondition.and(shopReview.reports.any().reportStatus.eq(ReportStatus.UNHANDLED));
+                whereCondition.and(shopReview.reports.any().reportStatus.eq(UNHANDLED));
             }
         }
 
-        return queryFactory
-            .select(shopReview.count())
-            .from(shopReview)
-            .where(whereCondition)
-            .fetchOne();
+        whereCondition.and(shopReview.isDeleted.eq(false));
+        return whereCondition;
     }
 }

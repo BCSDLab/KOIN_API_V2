@@ -1,5 +1,7 @@
 package in.koreatech.koin.admin.shop.service;
 
+import static in.koreatech.koin.domain.shop.model.ReportStatus.DELETED;
+
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -9,6 +11,7 @@ import java.util.Optional;
 
 import in.koreatech.koin.admin.shop.dto.*;
 import in.koreatech.koin.admin.shop.repository.*;
+import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 import in.koreatech.koin.domain.shop.model.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -299,32 +302,48 @@ public class AdminShopService {
         Integer page,
         Integer limit,
         Boolean isReported,
-        Boolean isHaveUnhandledReport,
+        Boolean hasUnhandledReport,
         Integer shopId
     ) {
-        Long reviewCount = adminShopReviewCustomRepository.countShopReview(shopId, isReported, isHaveUnhandledReport);
+        Long reviewCount = adminShopReviewCustomRepository.countShopReview(shopId, isReported, hasUnhandledReport);
         Criteria criteria = Criteria.of(page, limit, reviewCount.intValue());
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), Sort.by(Sort.Direction.ASC, "id"));
-        Page<ShopReview> reviews = adminShopReviewCustomRepository.findShopReview(shopId, isReported, isHaveUnhandledReport, pageRequest);
+        PageRequest pageRequest = PageRequest.of(
+            criteria.getPage(),
+            criteria.getLimit(),
+            Sort.by(Sort.Direction.ASC, "id")
+        );
+
+        Page<ShopReview> reviews = adminShopReviewCustomRepository.findShopReview(
+            shopId,
+            isReported,
+            hasUnhandledReport,
+            pageRequest
+        );
         return AdminShopsReviewsResponse.of(reviews, criteria);
     }
 
     @Transactional
-    public void modifyShopReviewReportStatus(Integer reviewId, AdminModifyShopReviewReportStatusRequest adminModifyShopReviewReportStatusRequest) {
-        ShopReview shopReview = adminShopReviewRepository.findById(reviewId);
+    public void modifyShopReviewReportStatus(
+        Integer reviewId,
+        AdminModifyShopReviewReportStatusRequest adminModifyShopReviewReportStatusRequest
+    ) {
+        ShopReview shopReview = adminShopReviewRepository.findById(reviewId)
+            .orElseThrow(() -> ReviewNotFoundException.withDetail("reviewId: " + reviewId));
 
         List<ShopReviewReport> unhandledReports = shopReview.getReports().stream()
-                .filter(report -> report.getReportStatus() == ReportStatus.UNHANDLED)
-                .toList();
+            .filter(report -> report.getReportStatus() == ReportStatus.UNHANDLED)
+            .toList();
 
-        unhandledReports.forEach(report -> report.modifyReportStatus(adminModifyShopReviewReportStatusRequest.reportStatus()));
+        unhandledReports.forEach(
+            report -> report.modifyReportStatus(adminModifyShopReviewReportStatusRequest.reportStatus()));
     }
 
     @Transactional
     public void deleteShopReview(Integer reviewId) {
-        ShopReview shopReview = adminShopReviewRepository.findById(reviewId);
-        shopReview.getReports().forEach(report -> report.modifyReportStatus(ReportStatus.DELETED));
+        ShopReview shopReview = adminShopReviewRepository.findById(reviewId)
+            .orElseThrow(() -> ReviewNotFoundException.withDetail("reviewId: " + reviewId));
 
+        shopReview.getReports().forEach(report -> report.modifyReportStatus(DELETED));
         shopReview.deleteReview();
     }
 }

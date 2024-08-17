@@ -10,9 +10,10 @@ import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
+import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record AdminShopsReviewsResponse(
@@ -29,6 +30,7 @@ public record AdminShopsReviewsResponse(
     @Schema(description = "리뷰 리스트", requiredMode = REQUIRED)
     List<InnerReviewResponse> reviews
 ) {
+
     public static AdminShopsReviewsResponse of(Page<ShopReview> reviews, Criteria criteria) {
         return new AdminShopsReviewsResponse(
             reviews.getTotalElements(),
@@ -37,6 +39,7 @@ public record AdminShopsReviewsResponse(
             reviews.stream().map(InnerReviewResponse::from).toList()
         );
     }
+
     public record InnerReviewResponse(
         @Schema(example = "1", description = "리뷰 ID", requiredMode = REQUIRED)
         int reviewId,
@@ -74,14 +77,13 @@ public record AdminShopsReviewsResponse(
         List<InnerReportResponse> reports,
 
         @Schema(description = "상점 정보", requiredMode = REQUIRED)
-        InnerShopResposne shop
+        InnerShopResponse shop
     ) {
 
         public static InnerReviewResponse from(ShopReview review) {
-            String nickName = review.getReviewer().getUser().getNickname();
-            if (nickName == null) {
-                nickName = review.getReviewer().getAnonymousNickname();
-            }
+            String nickName = Optional.ofNullable(review.getReviewer().getUser().getNickname())
+                                      .orElse(review.getReviewer().getAnonymousNickname());
+
             return new InnerReviewResponse(
                 review.getId(),
                 review.getRating(),
@@ -90,10 +92,10 @@ public record AdminShopsReviewsResponse(
                 review.getImages().stream().map(ShopReviewImage::getImageUrls).toList(),
                 review.getMenus().stream().map(ShopReviewMenu::getMenuName).toList(),
                 !review.getCreatedAt().equals(review.getUpdatedAt()),
-                review.getReports().stream().anyMatch(report -> report.getReportStatus() == ReportStatus.UNHANDLED),
+                review.getReports().stream().anyMatch(report -> report.getReportStatus() == UNHANDLED),
                 review.getCreatedAt(),
                 review.getReports().stream().map(InnerReportResponse::from).toList(),
-                InnerShopResposne.from(review.getShop())
+                InnerShopResponse.from(review.getShop())
             );
         }
 
@@ -113,6 +115,7 @@ public record AdminShopsReviewsResponse(
             @Schema(example = "PENDING", description = "신고 상태", requiredMode = REQUIRED)
             String status
         ) {
+
             public static InnerReportResponse from(ShopReviewReport report) {
                 return new InnerReportResponse(
                     report.getId(),
@@ -124,15 +127,16 @@ public record AdminShopsReviewsResponse(
             }
         }
 
-        public record InnerShopResposne(
+        public record InnerShopResponse(
             @Schema(example = "1", description = "상점 ID", requiredMode = REQUIRED)
             int shopId,
 
             @Schema(example = "맛집", description = "상점 이름", requiredMode = REQUIRED)
             String shopName
         ) {
-            public static InnerShopResposne from(Shop shop) {
-                return new InnerShopResposne(
+
+            public static InnerShopResponse from(Shop shop) {
+                return new InnerShopResponse(
                     shop.getId(),
                     shop.getName()
                 );

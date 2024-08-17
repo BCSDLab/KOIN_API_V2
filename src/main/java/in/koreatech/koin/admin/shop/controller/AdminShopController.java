@@ -227,10 +227,15 @@ public class AdminShopController implements AdminShopApi {
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
         @RequestParam(name = "is_reported", required = false) Boolean isReported,
-        @RequestParam(name = "is_have_unhandled_report", required = false) Boolean isHaveUnhandledReport,
+        @RequestParam(name = "has_unhandled_report", required = false) Boolean hasUnhandledReport,
         @RequestParam(name = "shop_id", required = false) Integer shopId,
-        @Auth(permit = {ADMIN}) Integer adminId) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminShopService.getReviews(page, limit, isReported, isHaveUnhandledReport, shopId));
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(adminShopService.getReviews(
+                page, limit, isReported, hasUnhandledReport, shopId
+            ));
     }
 
     @Operation(summary = "리뷰 신고 상태 변경")
