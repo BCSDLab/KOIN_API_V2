@@ -34,4 +34,6 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Page<Article> findAllByTitleContaining(String query, PageRequest pageRequest);
 
     Page<Article> findAllByIsNoticeAndTitleContaining(Boolean isNotice, String query, PageRequest pageRequest);
+
+    Long countBy();
 }
