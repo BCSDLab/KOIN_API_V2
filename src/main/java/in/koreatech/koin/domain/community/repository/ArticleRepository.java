@@ -15,19 +15,25 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Article save(Article article);
 
-    Page<Article> findByIsNotice(Boolean isNotice, Pageable pageable);
+    Page<Article> findAllByIsNotice(Boolean isNotice, Pageable pageable);
 
     Optional<Article> findById(Integer articleId);
 
     List<Article> findAll(Pageable pageable);
 
-    Page<Article> findByBoardId(Integer boardId, PageRequest pageRequest);
+    Page<Article> findAllByBoardId(Integer boardId, PageRequest pageRequest);
 
     default Article getById(Integer articleId) {
         return findById(articleId).orElseThrow(
             () -> ArticleNotFoundException.withDetail(
                 "articleId: " + articleId));
     }
+
+    Page<Article> findAllByBoardIdAndTitleContaining(Integer boardId, String query, PageRequest pageRequest);
+
+    Page<Article> findAllByTitleContaining(String query, PageRequest pageRequest);
+
+    Page<Article> findAllByIsNoticeAndTitleContaining(Boolean isNotice, String query, PageRequest pageRequest);
 
     Long countBy();
 }
