@@ -56,7 +56,13 @@ public class ShopReviewService {
 
     private final EntityManager entityManager;
 
-    public ShopReviewsResponse getReviewsByShopId(Integer shopId, Integer userId, Integer page, Integer limit, ReviewsSortCriteria sortBy) {
+    public ShopReviewsResponse getReviewsByShopId(
+        Integer shopId,
+        Integer userId,
+        Integer page,
+        Integer limit,
+        ReviewsSortCriteria sortBy
+    ) {
         Integer total = shopReviewRepository.countByShopIdAndIsDeletedFalse(shopId);
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(
