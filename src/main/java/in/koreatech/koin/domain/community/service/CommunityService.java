@@ -24,8 +24,8 @@ import in.koreatech.koin.domain.community.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.model.ArticleViewLog;
 import in.koreatech.koin.domain.community.model.Board;
 import in.koreatech.koin.domain.community.model.BoardTag;
-import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.repository.ArticleKeywordRepository;
+import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.repository.BoardRepository;
@@ -84,7 +84,7 @@ public class CommunityService {
     }
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit) {
-        Long total = boardRepository.countBy();
+        Long total = articleRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
