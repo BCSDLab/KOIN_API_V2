@@ -56,6 +56,7 @@ public interface DiningApi {
         @RequestParam Integer diningId
     );
 
+    @Operation(summary = "영양사 월간조회 식단 검색")
     @GetMapping("/dinings/search")
     ResponseEntity<DiningSearchResponse> searchDinings(
         @Auth(permit = {COOP}) Integer userId,
