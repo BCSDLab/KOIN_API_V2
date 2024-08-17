@@ -49,7 +49,7 @@ public record AbtestResponse(
             abtest.getCreator(),
             abtest.getTeam(),
             abtest.getStatus().name(),
-            abtest.getWinner() != null ? abtest.getWinner().getName() : null,
+            abtest.getWinnerName(),
             abtest.getTitle(),
             abtest.getDescription(),
             abtest.getAbtestVariables().stream()

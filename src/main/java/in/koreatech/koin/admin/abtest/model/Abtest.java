@@ -163,4 +163,8 @@ public class Abtest extends BaseEntity {
             throw AbtestVariableIllegalArgumentException.withDetail("실험군 간의 변수명이 중복됩니다.");
         }
     }
+
+    public String getWinnerName() {
+        return winner != null ? winner.getName() : null;
+    }
 }

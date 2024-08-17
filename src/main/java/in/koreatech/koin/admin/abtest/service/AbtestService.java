@@ -3,12 +3,16 @@ package in.koreatech.koin.admin.abtest.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
+import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
 import in.koreatech.koin.admin.abtest.exception.AbtestAlreadyExistException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotAssignedUserException;
 import in.koreatech.koin.admin.abtest.model.Abtest;
@@ -27,6 +31,7 @@ import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
 import in.koreatech.koin.admin.abtest.repository.VariableIpRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.model.Criteria;
 import in.koreatech.koin.global.useragent.UserAgentInfo;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +68,19 @@ public class AbtestService {
         );
         saved.setVariables(request.variables(), entityManager);
         return AbtestResponse.from(saved);
+    }
+
+    public AbtestsResponse getAbtests(Integer page, Integer limit) {
+        Long title = abtestRepository.countBy();
+        Criteria criteria = Criteria.of(page, limit, title.intValue());
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
+            Sort.by(Sort.Direction.DESC, "id"));
+        Page<Abtest> abtests = abtestRepository.findAll(pageRequest);
+        return AbtestsResponse.of(abtests, criteria);
+    }
+
+    public AbtestResponse getAbtest(Integer abtestId) {
+        return AbtestResponse.from(abtestRepository.getById(abtestId));
     }
 
     @Transactional

@@ -2,6 +2,8 @@ package in.koreatech.koin.admin.abtest.repository;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.abtest.exception.AbtestNotFoundException;
@@ -23,4 +25,8 @@ public interface AbtestRepository extends Repository<Abtest, Integer> {
     default Abtest getByTitle(String title) {
         return findByTitle(title).orElseThrow(() -> AbtestNotFoundException.withDetail("Abtest Title: " + title));
     }
+
+    Long countBy();
+
+    Page<Abtest> findAll(Pageable pageable);
 }
