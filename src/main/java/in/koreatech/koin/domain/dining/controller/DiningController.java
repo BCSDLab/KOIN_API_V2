@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.dining.dto.DiningResponse;
+import in.koreatech.koin.domain.dining.dto.DiningSearchResponse;
+import in.koreatech.koin.domain.dining.model.DiningPlace;
 import in.koreatech.koin.domain.dining.service.DiningService;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
@@ -37,7 +39,7 @@ public class DiningController implements DiningApi {
 
     @PatchMapping("/dining/like")
     public ResponseEntity<Void> likeDining(
-        @Auth (permit = {STUDENT, COOP}) Integer userId,
+        @Auth(permit = {STUDENT, COOP}) Integer userId,
         @RequestParam Integer diningId
     ) {
         diningService.likeDining(userId, diningId);
@@ -46,10 +48,22 @@ public class DiningController implements DiningApi {
 
     @PatchMapping("/dining/like/cancel")
     public ResponseEntity<Void> likeDiningCancel(
-        @Auth (permit = {STUDENT, COOP}) Integer userId,
+        @Auth(permit = {STUDENT, COOP}) Integer userId,
         @RequestParam Integer diningId
     ) {
         diningService.likeDiningCancel(userId, diningId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/dinings/search")
+    public ResponseEntity<DiningSearchResponse> searchDinings(
+        @Auth(permit = {COOP}) Integer userId,
+        @RequestParam String keyword,
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
+        @RequestParam(required = false) List<DiningPlace> filter
+    ) {
+        DiningSearchResponse diningSearchResponse = diningService.searchDinings(keyword, page, limit, filter);
+        return ResponseEntity.ok().body(diningSearchResponse);
     }
 }

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.dining.dto.DiningResponse;
+import in.koreatech.koin.domain.dining.dto.DiningSearchResponse;
+import in.koreatech.koin.domain.dining.model.DiningPlace;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,7 +52,16 @@ public interface DiningApi {
     @Operation(summary = "식단 좋아요 취소")
     @PatchMapping("/dining/like/cancel")
     ResponseEntity<Void> likeDiningCancel(
-        @Auth (permit = {STUDENT, COOP}) Integer userId,
+        @Auth(permit = {STUDENT, COOP}) Integer userId,
         @RequestParam Integer diningId
+    );
+
+    @GetMapping("/dinings/search")
+    ResponseEntity<DiningSearchResponse> searchDinings(
+        @Auth(permit = {COOP}) Integer userId,
+        @RequestParam String keyword,
+        @RequestParam(name = "page", defaultValue = "1") Integer page,
+        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
+        @Parameter(description = "필터링 종류(A코너, B코너, C코너, 능수관, _2캠퍼스)") @RequestParam List<DiningPlace> filter
     );
 }
