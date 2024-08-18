@@ -39,7 +39,37 @@ public class FcmClient {
         log.info("call FcmClient sendMessage: title: {}, content: {}", title, content);
 
         ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type);
-        AndroidConfig androidConfig = generateAndroidConfig(title, content, imageUrl, path, schemeUri, type);
+        AndroidConfig androidConfig = generateAndroidConfig(title, content, imageUrl, path, type);
+
+        Message message = Message.builder()
+            .setToken(targetDeviceToken)
+            .setApnsConfig(apnsConfig)
+            .setAndroidConfig(androidConfig).build();
+        try {
+            String result = FirebaseMessaging.getInstance().send(message);
+            log.info("FCM 알림 전송 성공: {}", result);
+        } catch (Exception e) {
+            log.warn("FCM 알림 전송 실패", e);
+        }
+    }
+
+    @Async
+    public void sendMessageV2(
+        String targetDeviceToken,
+        String title,
+        String content,
+        String imageUrl,
+        MobileAppPath path,
+        String schemeUri,
+        String type
+    ) {
+        if (targetDeviceToken == null) {
+            return;
+        }
+        log.info("call FcmClient sendMessageV2: title: {}, content: {}", title, content);
+
+        ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type);
+        AndroidConfig androidConfig = generateAndroidConfigV2(title, content, imageUrl, schemeUri, type);
 
         Message message = Message.builder()
             .setToken(targetDeviceToken)
@@ -92,7 +122,6 @@ public class FcmClient {
         String content,
         String imageUrl,
         MobileAppPath path,
-        String schemeUri,
         String type
     ) {
         AndroidNotification androidNotification = AndroidNotification.builder()
@@ -102,6 +131,20 @@ public class FcmClient {
             .setClickAction(path != null ? path.getAndroid() : null)
             .build();
 
+        return AndroidConfig.builder()
+            .setNotification(androidNotification)
+            .putData("type", type != null ? type : "")
+            .setPriority(HIGH)
+            .build();
+    }
+
+    private AndroidConfig generateAndroidConfigV2(
+        String title,
+        String content,
+        String imageUrl,
+        String schemeUri,
+        String type
+    ) {
         Map<String, String> androidNotificationV2 = new HashMap<>();
         androidNotificationV2.put("title", title != null ? title : "");
         androidNotificationV2.put("content", content != null ? content : "");
@@ -110,7 +153,6 @@ public class FcmClient {
         androidNotificationV2.put("type", type != null ? type : "");
 
         return AndroidConfig.builder()
-            .setNotification(androidNotification)
             .putAllData(androidNotificationV2)
             .setPriority(HIGH)
             .build();
