@@ -8,7 +8,7 @@ public enum DiningPlace {
     B코너("B코너", true),
     C코너("C코너", true),
     능수관("능수관", false),
-    _2캠퍼스("2캠퍼스", false);
+    캠퍼스2("2캠퍼스", false);
 
     private final String placeName;
     private final boolean isCafeteria;
