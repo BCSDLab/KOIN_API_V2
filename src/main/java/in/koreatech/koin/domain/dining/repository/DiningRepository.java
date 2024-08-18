@@ -29,7 +29,8 @@ public interface DiningRepository extends Repository<Dining, Integer> {
 
     boolean existsByDateAndTypeAndImageUrlIsNotNull(LocalDate date, DiningType type);
 
-    Integer count();
+    Long count();
 
-    Page<Dining> findAllByMenuContainingAndPlaceInAndDateAfter(String keyword, List<String> diningPlaces, LocalDate oneYearAgo,Pageable pageable);
+    Page<Dining> findAllByMenuContainingAndPlaceInAndDateAfter(String keyword, List<String> diningPlaces,
+        LocalDate oneYearAgo, Pageable pageable);
 }

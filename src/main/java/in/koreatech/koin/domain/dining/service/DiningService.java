@@ -82,8 +82,8 @@ public class DiningService {
     }
 
     public DiningSearchResponse searchDinings(String keyword, Integer page, Integer limit, List<DiningPlace> filter) {
-        Integer total = diningRepository.count();
-        Criteria criteria = Criteria.of(page, limit, total);
+        Long total = diningRepository.count();
+        Criteria criteria = Criteria.of(page, limit, Math.toIntExact(total));
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
             Sort.by(Sort.Direction.DESC, "id"));
 
