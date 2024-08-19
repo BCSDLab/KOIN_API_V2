@@ -18,16 +18,10 @@ import in.koreatech.koin.domain.user.model.User;
 public class ArticleFixture {
 
     private final ArticleRepository articleRepository;
-    private final ArticleKeywordRepository articleKeywordRepository;
-    private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
     public ArticleFixture(
-        ArticleRepository articleRepository,
-        ArticleKeywordRepository articleKeywordRepository,
-        ArticleKeywordUserMapRepository articleKeywordUserMapRepository) {
+        ArticleRepository articleRepository) {
         this.articleRepository = articleRepository;
-        this.articleKeywordRepository = articleKeywordRepository;
-        this.articleKeywordUserMapRepository = articleKeywordUserMapRepository;
     }
 
     public Article 자유글_1(User user, Board board) {
@@ -68,20 +62,6 @@ public class ArticleFixture {
                 .noticeArticleId(null)
                 .build()
         );
-    }
-
-    public ArticleKeywordUserMap 키워드1(String keyword, User user) {
-        ArticleKeyword articleKeyword = articleKeywordRepository.save(ArticleKeyword.builder()
-                .keyword(keyword)
-                .lastUsedAt(LocalDateTime.now())
-                .build());
-
-        ArticleKeywordUserMap articleKeywordUserMap = ArticleKeywordUserMap.builder()
-            .articleKeyword(articleKeyword)
-            .user(user)
-            .build();
-
-        return articleKeywordUserMapRepository.save(articleKeywordUserMap);
     }
 
     public ArticleFixtureBuilder builder() {
