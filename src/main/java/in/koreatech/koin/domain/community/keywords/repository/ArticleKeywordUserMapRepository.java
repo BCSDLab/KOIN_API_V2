@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.keywords.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
@@ -23,4 +24,6 @@ public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywo
         return findById(keywordUserMapId).orElseThrow(
             () -> ArticleKeywordUserMapNotFoundException.withDetail("keywordUserMapId: " + keywordUserMapId));
     }
+
+    List<ArticleKeywordUserMap> findAllByUserId(Integer userId);
 }

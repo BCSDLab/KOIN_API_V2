@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.keywords.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.admin.coopShop.repository.AdminCoopShopRepository;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordCreateRequest;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordResponse;
+import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.keywords.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keywords.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordUserMap;
@@ -74,4 +76,15 @@ public class KeywordService {
             articleKeywordRepository.deleteById(articleKeywordUserMap.getArticleKeyword().getId());
         }
     }
+
+    public ArticleKeywordsResponse getMyKeywords(Integer userId) {
+        List<ArticleKeywordUserMap> articleKeywordUserMaps = articleKeywordUserMapRepository.findAllByUserId(userId);
+
+        if (articleKeywordUserMaps.isEmpty()) {
+            return new ArticleKeywordsResponse(0, List.of());
+        }
+
+        return ArticleKeywordsResponse.from(articleKeywordUserMaps);
+    }
+
 }
