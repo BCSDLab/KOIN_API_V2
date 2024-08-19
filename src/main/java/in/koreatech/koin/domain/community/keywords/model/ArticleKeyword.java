@@ -40,20 +40,15 @@ public class ArticleKeyword extends BaseEntity {
     private List<ArticleKeywordUserMap> articleKeywordUserMaps = new ArrayList<>();
 
     @Builder
-    public ArticleKeyword(String keyword, LocalDateTime lastUsedAt) {
+    private ArticleKeyword(String keyword, LocalDateTime lastUsedAt) {
         this.keyword = keyword;
         this.lastUsedAt = lastUsedAt;
     }
 
     public void addUserMap(ArticleKeywordUserMap keywordUserMap) {
-        if (containsKeyword(keywordUserMap.getArticleKeyword().getKeyword())) {
+        if (this.keyword.equals(keywordUserMap.getArticleKeyword().getKeyword())) {
             throw new KeywordDuplicationException("키워드는 중복될 수 없습니다.");
         }
         articleKeywordUserMaps.add(keywordUserMap);
-    }
-
-    private boolean containsKeyword(String keyword) {
-        return articleKeywordUserMaps.stream()
-            .anyMatch(map -> map.getArticleKeyword().getKeyword().equals(keyword));
     }
 }

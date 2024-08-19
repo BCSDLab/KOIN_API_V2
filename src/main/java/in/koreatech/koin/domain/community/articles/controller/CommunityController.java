@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,11 +28,12 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/articles")
 public class CommunityController implements CommunityApi {
 
     private final CommunityService communityService;
 
-    @GetMapping("/articles/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ArticleResponse> getArticle(
         @UserId Integer userId,
         @PathVariable("id") Integer articleId,
@@ -41,7 +43,7 @@ public class CommunityController implements CommunityApi {
         return ResponseEntity.ok().body(foundArticle);
     }
 
-    @GetMapping("/articles")
+    @GetMapping()
     public ResponseEntity<ArticlesResponse> getArticles(
         @RequestParam Integer boardId,
         @RequestParam(required = false) Integer page,
@@ -51,13 +53,13 @@ public class CommunityController implements CommunityApi {
         return ResponseEntity.ok().body(foundArticles);
     }
 
-    @GetMapping("/articles/hot")
+    @GetMapping("/hot")
     public ResponseEntity<List<HotArticleItemResponse>> getHotArticles() {
         List<HotArticleItemResponse> hotArticles = communityService.getHotArticles();
         return ResponseEntity.ok().body(hotArticles);
     }
 
-    @GetMapping("/articles/search")
+    @GetMapping("/search")
     public ResponseEntity<ArticlesResponse> searchArticles(
         @RequestParam String query,
         @RequestParam(required = false) Integer boardId,

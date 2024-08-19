@@ -12,7 +12,7 @@ public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywo
 
     ArticleKeywordUserMap save(ArticleKeywordUserMap articleKeywordUserMap);
 
-    Integer countByUserId(Integer userId);
+    Long countByUserId(Integer userId);
 
     void deleteById(Integer keywordId);
 

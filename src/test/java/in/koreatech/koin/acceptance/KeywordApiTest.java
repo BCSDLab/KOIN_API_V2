@@ -42,7 +42,6 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("알림 키워드를 추가한다.")
     void 알림_키워드_추가() {
         String token = userFixture.getToken(student.getUser());
 
@@ -71,8 +70,7 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("알림 키워드를 추가한다. - 10개 넘어가면 400에러 반환")
-    void 알림_키워드_10개_넘게_추가시_에러() {
+    void 알림_키워드_10개_넘게_추가시_400에러() {
         String token = userFixture.getToken(student.getUser());
 
         for (int i = 0; i < 10; i++) {
@@ -108,7 +106,6 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("알림 키워드를 삭제한다.")
     void 알림_키워드_삭제() {
         String token = userFixture.getToken(student.getUser());
         ArticleKeywordUserMap articleKeywordUserMap = keywordFixture.키워드1("수강 신청", student.getUser());
@@ -130,7 +127,6 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("자신의 알림 키워드를 조회한다.")
     void 자신의_알림_키워드_조회() {
         String token = userFixture.getToken(student.getUser());
         ArticleKeywordUserMap articleKeywordUserMap1 = keywordFixture.키워드1("수강신청", student.getUser());
@@ -169,8 +165,7 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("자신의 알림 키워드를 조회한다. - 사용자가 아무것도 추가하지 않았으면 빈 리스트 반환")
-    void 자신의_알림_키워드_조회_빈리스트_반환() {
+    void 사용자_아무것도_추가_안했을_때_자신의_알림_키워드_조회_빈리스트_반환() {
         String token = userFixture.getToken(student.getUser());
 
         var response = RestAssured

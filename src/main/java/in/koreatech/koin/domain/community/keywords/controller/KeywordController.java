@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordCreateRequest;
@@ -20,11 +21,12 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/articles/keyword")
 public class KeywordController implements KeywordApi{
 
     private final KeywordService keywordService;
 
-    @PostMapping("/articles/keyword")
+    @PostMapping()
     public ResponseEntity<ArticleKeywordResponse> createKeyword(
         @Valid @RequestBody ArticleKeywordCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
@@ -33,7 +35,7 @@ public class KeywordController implements KeywordApi{
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/articles/keyword/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteKeyword(
         @PathVariable(value = "id") Integer keywordUserMapId,
         @Auth(permit = {STUDENT}) Integer userId
@@ -42,7 +44,7 @@ public class KeywordController implements KeywordApi{
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/articles/keyword/me")
+    @GetMapping("/me")
     public ResponseEntity<ArticleKeywordsResponse> getMyKeywords(
         @Auth(permit = {STUDENT}) Integer userId
     ) {

@@ -37,7 +37,7 @@ public class ArticleKeywordUserMap extends BaseEntity {
     private User user;
 
     @Builder
-    public ArticleKeywordUserMap(ArticleKeyword articleKeyword, User user) {
+    private ArticleKeywordUserMap(ArticleKeyword articleKeyword, User user) {
         this.articleKeyword = articleKeyword;
         this.user = user;
     }
