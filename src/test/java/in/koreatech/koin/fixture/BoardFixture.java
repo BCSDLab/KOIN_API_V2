@@ -3,8 +3,8 @@ package in.koreatech.koin.fixture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.community.model.Board;
-import in.koreatech.koin.domain.community.repository.BoardRepository;
+import in.koreatech.koin.domain.community.articles.model.Board;
+import in.koreatech.koin.domain.community.articles.repository.BoardRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
