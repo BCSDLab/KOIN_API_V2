@@ -10,10 +10,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.dto.ShopResponse.InnerShopOpen;
-import in.koreatech.koin.domain.shop.model.ReportStatus;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopReview;
-import in.koreatech.koin.domain.shop.model.ShopReviewReport;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -88,19 +86,15 @@ public record ShopsResponseV2(
                 shop.getPhone(),
                 isEvent,
                 isOpen,
-                shop.getReviews().stream()
-                    .filter(review -> notContainsUnhandledReport(review.getReports()))
+                Math.round(shop.getReviews().stream()
+                    .filter(review -> !review.isDeleted())
                     .mapToInt(ShopReview::getRating)
                     .average()
-                    .orElse(0.0),
+                    .orElse(0.0) * 10) / 10.0,
                 shop.getReviews().stream()
-                    .filter(review -> notContainsUnhandledReport(review.getReports()))
+                    .filter(review -> !review.isDeleted())
                     .count()
             );
-        }
-
-        private static boolean notContainsUnhandledReport(List<ShopReviewReport> reports) {
-            return reports.stream().noneMatch(report -> report.getReportStatus().equals(ReportStatus.UNHANDLED));
         }
 
         public static Comparator<InnerShopResponse> getComparator(ShopsSortCriteria shopsSortCriteria) {

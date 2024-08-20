@@ -10,11 +10,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.global.validation.NotBlankElement;
 import in.koreatech.koin.global.validation.UniqueUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -37,6 +37,7 @@ public record ModifyReviewRequest(
     List<String> imageUrls,
 
     @Schema(example = "[\"치킨\", \"피자\"]", description = "메뉴 이름", requiredMode = REQUIRED)
+    @NotBlankElement(message = "빈 요소가 존재합니다.")
     List<String> menuNames
 ) {
     @JsonCreator

@@ -134,6 +134,32 @@ class ShopReviewApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 리뷰를_등록할_때_메뉴명을_공백으로_입력하면_예외가_발생한다() {
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_준호)
+            .body(String.format("""
+                {
+                  "rating": 4,
+                  "content": "정말 맛있어요~!",
+                  "image_urls": [
+                    "https://static.koreatech.in/example.png"
+                  ],
+                  "menu_names": [
+                    " "
+                  ]
+                }
+                """))
+            .when()
+            .pathParam("shopId", 신전_떡볶이.getId())
+            .post("/shops/{shopId}/reviews")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
+
+    @Test
     void 리뷰_내용을_작성하지_않고_리뷰를_등록할_수_있다() {
         var response = RestAssured
             .given()
@@ -262,6 +288,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": true,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },
                          {
@@ -277,6 +304,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          }
                        ]
@@ -298,8 +326,7 @@ class ShopReviewApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("신고된 리뷰를 제외한 모든 리뷰를 조회할 수 있다.")
-    void getReviewWithoutReportedReviews() {
+    void 신고된_리뷰는_is_reported_가_true_이다() {
         ShopReviewReport shopReviewReport = shopReviewReportFixture.리뷰_신고(준호_학생, 익명_학생_리뷰, UNHANDLED);
         var response = RestAssured
             .given()
@@ -317,8 +344,8 @@ class ShopReviewApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
                     {
-                       "total_count": 1,
-                       "current_count": 1,
+                       "total_count": 2,
+                       "current_count": 2,
                        "total_page": 1,
                        "current_page": 1,
                        "statistics": {
@@ -327,7 +354,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            "1": 0,
                            "2": 0,
                            "3": 0,
-                           "4": 1,
+                           "4": 2,
                            "5": 0
                          }
                        },
@@ -345,6 +372,23 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": true,
                            "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-01-15"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": true,
                            "created_at": "2024-01-15"
                          }
                        ]
@@ -355,7 +399,13 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getReviewer().getUser().getNickname(),
                 준호_학생_리뷰.getContent(),
                 준호_학생_리뷰.getImages().get(0).getImageUrls(),
-                준호_학생_리뷰.getMenus().get(0).getMenuName())
+                준호_학생_리뷰.getMenus().get(0).getMenuName(),
+                익명_학생_리뷰.getId(),
+                익명_학생_리뷰.getRating(),
+                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getContent(),
+                익명_학생_리뷰.getImages().get(0).getImageUrls(),
+                익명_학생_리뷰.getMenus().get(0).getMenuName())
             );
     }
 
@@ -405,6 +455,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },
                          {
@@ -420,6 +471,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          }
                        ]
@@ -561,7 +613,7 @@ class ShopReviewApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 신고가_반려된_리뷰는_포함해서_모든_리뷰를_조회한다() {
+    void 신고가_반려된_리뷰는_is_reported_가_false_이다() {
         ShopReviewReport shopReviewReport = shopReviewReportFixture.리뷰_신고(준호_학생, 익명_학생_리뷰, DISMISSED);
         var response = RestAssured
             .given()
@@ -607,6 +659,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": true,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },{ 
                            "review_id": %d,
@@ -621,6 +674,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          }
                        ]
@@ -680,4 +734,701 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getMenus().get(0).getMenuName())
             );
     }
+
+    @Test
+    void 최신순으로_정렬하여_리뷰를_조회한다() {
+        ShopReview 최신_리뷰_2024_08_07 = shopReviewFixture.최신_리뷰_2024_08_07(준호_학생, 신전_떡볶이);
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .when()
+            .queryParam("limit", 10)
+            .queryParam("page", 1)
+            .queryParam("sorter", "LATEST")
+            .pathParam("shopId", 신전_떡볶이.getId())
+            .get("/shops/{shopId}/reviews")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                    {
+                       "total_count": 3,
+                       "current_count": 3,
+                       "total_page": 1,
+                       "current_page": 1,
+                       "statistics": {
+                         "average_rating": 4.0,
+                         "ratings": {
+                           "1": 0,
+                           "2": 0,
+                           "3": 0,
+                           "4": 3,
+                           "5": 0
+                         }
+                       },
+                       "reviews": [
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-08-07"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-01-15"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-01-15"
+                         }
+                       ]
+                     }
+                    """,
+                최신_리뷰_2024_08_07.getId(),
+                최신_리뷰_2024_08_07.getRating(),
+                최신_리뷰_2024_08_07.getReviewer().getUser().getNickname(),
+                최신_리뷰_2024_08_07.getContent(),
+                최신_리뷰_2024_08_07.getImages().get(0).getImageUrls(),
+                최신_리뷰_2024_08_07.getMenus().get(0).getMenuName(),
+                준호_학생_리뷰.getId(),
+                준호_학생_리뷰.getRating(),
+                준호_학생_리뷰.getReviewer().getUser().getNickname(),
+                준호_학생_리뷰.getContent(),
+                준호_학생_리뷰.getImages().get(0).getImageUrls(),
+                준호_학생_리뷰.getMenus().get(0).getMenuName(),
+                익명_학생_리뷰.getId(),
+                익명_학생_리뷰.getRating(),
+                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getContent(),
+                익명_학생_리뷰.getImages().get(0).getImageUrls(),
+                익명_학생_리뷰.getMenus().get(0).getMenuName())
+            );
+    }
+
+    @Test
+    void 오래된_순으로_정렬하여_리뷰를_조회한다() {
+        ShopReview 최신_리뷰_2024_08_07 = shopReviewFixture.최신_리뷰_2024_08_07(준호_학생, 신전_떡볶이);
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .when()
+            .queryParam("limit", 10)
+            .queryParam("page", 1)
+            .queryParam("sorter", "OLDEST")
+            .pathParam("shopId", 신전_떡볶이.getId())
+            .get("/shops/{shopId}/reviews")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                    {
+                       "total_count": 3,
+                       "current_count": 3,
+                       "total_page": 1,
+                       "current_page": 1,
+                       "statistics": {
+                         "average_rating": 4.0,
+                         "ratings": {
+                           "1": 0,
+                           "2": 0,
+                           "3": 0,
+                           "4": 3,
+                           "5": 0
+                         }
+                       },
+                       "reviews": [
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-01-15"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-01-15"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-08-07"
+                         }
+                       ]
+                     }
+                    """,
+                준호_학생_리뷰.getId(),
+                준호_학생_리뷰.getRating(),
+                준호_학생_리뷰.getReviewer().getUser().getNickname(),
+                준호_학생_리뷰.getContent(),
+                준호_학생_리뷰.getImages().get(0).getImageUrls(),
+                준호_학생_리뷰.getMenus().get(0).getMenuName(),
+                익명_학생_리뷰.getId(),
+                익명_학생_리뷰.getRating(),
+                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getContent(),
+                익명_학생_리뷰.getImages().get(0).getImageUrls(),
+                익명_학생_리뷰.getMenus().get(0).getMenuName(),
+                최신_리뷰_2024_08_07.getId(),
+                최신_리뷰_2024_08_07.getRating(),
+                최신_리뷰_2024_08_07.getReviewer().getUser().getNickname(),
+                최신_리뷰_2024_08_07.getContent(),
+                최신_리뷰_2024_08_07.getImages().get(0).getImageUrls(),
+                최신_리뷰_2024_08_07.getMenus().get(0).getMenuName())
+            );
+    }
+
+    @Test
+    void 별점이_높은_순으로_정렬하여_리뷰를_조회한다() {
+        ShopReview 리뷰_5점 = shopReviewFixture.리뷰_5점(준호_학생, 신전_떡볶이);
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .when()
+            .queryParam("limit", 10)
+            .queryParam("page", 1)
+            .queryParam("sorter", "HIGHEST_RATING")
+            .pathParam("shopId", 신전_떡볶이.getId())
+            .get("/shops/{shopId}/reviews")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                    {
+                       "total_count": 3,
+                       "current_count": 3,
+                       "total_page": 1,
+                       "current_page": 1,
+                       "statistics": {
+                         "average_rating": 4.3,
+                         "ratings": {
+                           "1": 0,
+                           "2": 0,
+                           "3": 0,
+                           "4": 2,
+                           "5": 1
+                         }
+                       },
+                       "reviews": [
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-01-15"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-01-15"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-01-15"
+                         }
+                       ]
+                     }
+                    """,
+                리뷰_5점.getId(),
+                리뷰_5점.getRating(),
+                리뷰_5점.getReviewer().getUser().getNickname(),
+                리뷰_5점.getContent(),
+                리뷰_5점.getImages().get(0).getImageUrls(),
+                리뷰_5점.getMenus().get(0).getMenuName(),
+                준호_학생_리뷰.getId(),
+                준호_학생_리뷰.getRating(),
+                준호_학생_리뷰.getReviewer().getUser().getNickname(),
+                준호_학생_리뷰.getContent(),
+                준호_학생_리뷰.getImages().get(0).getImageUrls(),
+                준호_학생_리뷰.getMenus().get(0).getMenuName(),
+                익명_학생_리뷰.getId(),
+                익명_학생_리뷰.getRating(),
+                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getContent(),
+                익명_학생_리뷰.getImages().get(0).getImageUrls(),
+                익명_학생_리뷰.getMenus().get(0).getMenuName())
+            );
+    }
+
+    @Test
+    void 별점이_낮은_순으로_정렬하여_리뷰를_조회한다() {
+        ShopReview 리뷰_5점 = shopReviewFixture.리뷰_5점(준호_학생, 신전_떡볶이);
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .when()
+            .queryParam("limit", 10)
+            .queryParam("page", 1)
+            .queryParam("sorter", "LOWEST_RATING")
+            .pathParam("shopId", 신전_떡볶이.getId())
+            .get("/shops/{shopId}/reviews")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                    {
+                       "total_count": 3,
+                       "current_count": 3,
+                       "total_page": 1,
+                       "current_page": 1,
+                       "statistics": {
+                         "average_rating": 4.3,
+                         "ratings": {
+                           "1": 0,
+                           "2": 0,
+                           "3": 0,
+                           "4": 2,
+                           "5": 1
+                         }
+                       },
+                       "reviews": [
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-01-15"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-01-15"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-01-15"
+                         }
+                       ]
+                     }
+                    """,
+                준호_학생_리뷰.getId(),
+                준호_학생_리뷰.getRating(),
+                준호_학생_리뷰.getReviewer().getUser().getNickname(),
+                준호_학생_리뷰.getContent(),
+                준호_학생_리뷰.getImages().get(0).getImageUrls(),
+                준호_학생_리뷰.getMenus().get(0).getMenuName(),
+                익명_학생_리뷰.getId(),
+                익명_학생_리뷰.getRating(),
+                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getContent(),
+                익명_학생_리뷰.getImages().get(0).getImageUrls(),
+                익명_학생_리뷰.getMenus().get(0).getMenuName(),
+                리뷰_5점.getId(),
+                리뷰_5점.getRating(),
+                리뷰_5점.getReviewer().getUser().getNickname(),
+                리뷰_5점.getContent(),
+                리뷰_5점.getImages().get(0).getImageUrls(),
+                리뷰_5점.getMenus().get(0).getMenuName())
+            );
+    }
+
+    @Test
+    void 자신의_리뷰를_최신순으로_조회한다() {
+        ShopReview 최신_리뷰_2024_08_07 = shopReviewFixture.최신_리뷰_2024_08_07(준호_학생, 신전_떡볶이);
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token_준호)
+            .contentType(ContentType.JSON)
+            .when()
+            .pathParam("shopId", 신전_떡볶이.getId())
+            .queryParam("sorter", "LATEST")
+            .get("/shops/{shopId}/reviews/me")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                    {
+                       "count": 2,
+                       "reviews": [
+                       {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": true,
+                           "is_modified": false,
+                           "created_at": "2024-08-07"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": true,
+                           "is_modified": false,
+                           "created_at": "2024-01-15"
+                         }
+                       ]
+                     }
+                    """,
+                최신_리뷰_2024_08_07.getId(),
+                최신_리뷰_2024_08_07.getRating(),
+                최신_리뷰_2024_08_07.getReviewer().getUser().getNickname(),
+                최신_리뷰_2024_08_07.getContent(),
+                최신_리뷰_2024_08_07.getImages().get(0).getImageUrls(),
+                최신_리뷰_2024_08_07.getMenus().get(0).getMenuName(),
+                준호_학생_리뷰.getId(),
+                준호_학생_리뷰.getRating(),
+                준호_학생_리뷰.getReviewer().getUser().getNickname(),
+                준호_학생_리뷰.getContent(),
+                준호_학생_리뷰.getImages().get(0).getImageUrls(),
+                준호_학생_리뷰.getMenus().get(0).getMenuName())
+            );
+    }
+
+    @Test
+    void 자신의_리뷰를_오래된_순으로_조회한다() {
+        ShopReview 최신_리뷰_2024_08_07 = shopReviewFixture.최신_리뷰_2024_08_07(준호_학생, 신전_떡볶이);
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token_준호)
+            .contentType(ContentType.JSON)
+            .when()
+            .pathParam("shopId", 신전_떡볶이.getId())
+            .queryParam("sorter", "OLDEST")
+            .get("/shops/{shopId}/reviews/me")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                    {
+                       "count": 2,
+                       "reviews": [
+                       {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": true,
+                           "is_modified": false,
+                           "created_at": "2024-01-15"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": true,
+                           "is_modified": false,
+                           "created_at": "2024-08-07"
+                         }
+                       ]
+                     }
+                    """,
+                준호_학생_리뷰.getId(),
+                준호_학생_리뷰.getRating(),
+                준호_학생_리뷰.getReviewer().getUser().getNickname(),
+                준호_학생_리뷰.getContent(),
+                준호_학생_리뷰.getImages().get(0).getImageUrls(),
+                준호_학생_리뷰.getMenus().get(0).getMenuName(),
+                최신_리뷰_2024_08_07.getId(),
+                최신_리뷰_2024_08_07.getRating(),
+                최신_리뷰_2024_08_07.getReviewer().getUser().getNickname(),
+                최신_리뷰_2024_08_07.getContent(),
+                최신_리뷰_2024_08_07.getImages().get(0).getImageUrls(),
+                최신_리뷰_2024_08_07.getMenus().get(0).getMenuName())
+            );
+    }
+
+    @Test
+    void 자신의_리뷰를_별점이_높은_순으로_조회한다() {
+        ShopReview 리뷰_5점 = shopReviewFixture.리뷰_5점(준호_학생, 신전_떡볶이);
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token_준호)
+            .contentType(ContentType.JSON)
+            .when()
+            .pathParam("shopId", 신전_떡볶이.getId())
+            .queryParam("sorter", "HIGHEST_RATING")
+            .get("/shops/{shopId}/reviews/me")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                    {
+                       "count": 2,
+                       "reviews": [
+                       {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": true,
+                           "is_modified": false,
+                           "created_at": "2024-01-15"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": true,
+                           "is_modified": false,
+                           "created_at": "2024-01-15"
+                         }
+                       ]
+                     }
+                    """,
+                리뷰_5점.getId(),
+                리뷰_5점.getRating(),
+                리뷰_5점.getReviewer().getUser().getNickname(),
+                리뷰_5점.getContent(),
+                리뷰_5점.getImages().get(0).getImageUrls(),
+                리뷰_5점.getMenus().get(0).getMenuName(),
+                준호_학생_리뷰.getId(),
+                준호_학생_리뷰.getRating(),
+                준호_학생_리뷰.getReviewer().getUser().getNickname(),
+                준호_학생_리뷰.getContent(),
+                준호_학생_리뷰.getImages().get(0).getImageUrls(),
+                준호_학생_리뷰.getMenus().get(0).getMenuName())
+            );
+    }
+
+    @Test
+    void 자신의_리뷰를_별점이_낮은_순으로_조회한다() {
+        ShopReview 리뷰_5점 = shopReviewFixture.리뷰_5점(준호_학생, 신전_떡볶이);
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token_준호)
+            .contentType(ContentType.JSON)
+            .when()
+            .pathParam("shopId", 신전_떡볶이.getId())
+            .queryParam("sorter", "LOWEST_RATING")
+            .get("/shops/{shopId}/reviews/me")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo(String.format("""
+                    {
+                       "count": 2,
+                       "reviews": [
+                       {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": true,
+                           "is_modified": false,
+                           "created_at": "2024-01-15"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": true,
+                           "is_modified": false,
+                           "created_at": "2024-01-15"
+                         }
+                       ]
+                     }
+                    """,
+                준호_학생_리뷰.getId(),
+                준호_학생_리뷰.getRating(),
+                준호_학생_리뷰.getReviewer().getUser().getNickname(),
+                준호_학생_리뷰.getContent(),
+                준호_학생_리뷰.getImages().get(0).getImageUrls(),
+                준호_학생_리뷰.getMenus().get(0).getMenuName(),
+                리뷰_5점.getId(),
+                리뷰_5점.getRating(),
+                리뷰_5점.getReviewer().getUser().getNickname(),
+                리뷰_5점.getContent(),
+                리뷰_5점.getImages().get(0).getImageUrls(),
+                리뷰_5점.getMenus().get(0).getMenuName())
+            );
+    }
+
 }

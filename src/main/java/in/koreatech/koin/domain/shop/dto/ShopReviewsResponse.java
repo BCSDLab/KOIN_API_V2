@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shop.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
@@ -87,6 +88,9 @@ public record ShopReviewsResponse(
         @Schema(example = "false", description = "수정된 적 있는 리뷰인지", requiredMode = REQUIRED)
         boolean isModified,
 
+        @Schema(example = "true", description = "신고 여부", requiredMode = REQUIRED)
+        boolean isReported,
+
         @JsonFormat(pattern = "yyyy-MM-dd")
         @Schema(example = "2024-03-01", description = "리뷰 작성일", requiredMode = REQUIRED)
         LocalDateTime createdAt
@@ -97,6 +101,9 @@ public record ShopReviewsResponse(
             if (nickName == null) {
                 nickName = review.getReviewer().getAnonymousNickname();
             }
+            boolean isReported = review.getReports().stream()
+                .filter(it -> it.getReportStatus() != DISMISSED)
+                .count() > 0;
             return new InnerReviewResponse(
                 review.getId(),
                 review.getRating(),
@@ -106,6 +113,7 @@ public record ShopReviewsResponse(
                 review.getMenus().stream().map(ShopReviewMenu::getMenuName).toList(),
                 Objects.equals(review.getReviewer().getId(), userId),
                 !review.getCreatedAt().equals(review.getUpdatedAt()),
+                isReported,
                 review.getCreatedAt()
             );
         }
@@ -143,7 +151,7 @@ public record ShopReviewsResponse(
                 averageRating = totalSum / totalCount;
             }
             return new InnerReviewStatisticsResponse(
-                averageRating,
+                Math.round(averageRating * 10) / 10.0,
                 ratings
             );
         }

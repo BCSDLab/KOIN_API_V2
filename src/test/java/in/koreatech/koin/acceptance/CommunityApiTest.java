@@ -10,8 +10,11 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.community.model.Article;
+import in.koreatech.koin.domain.community.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.model.Board;
 import in.koreatech.koin.domain.community.model.Comment;
+import in.koreatech.koin.domain.community.repository.ArticleKeywordRepository;
+import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.repository.CommentRepository;
 import in.koreatech.koin.domain.user.model.Student;
@@ -20,6 +23,7 @@ import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
 class CommunityApiTest extends AcceptanceTest {
@@ -29,6 +33,12 @@ class CommunityApiTest extends AcceptanceTest {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private ArticleKeywordRepository articleKeywordRepository;
+
+    @Autowired
+    private ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
     @Autowired
     private UserFixture userFixture;
@@ -76,44 +86,12 @@ class CommunityApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 {
-                    "contentSummary": "내용",
                     "id": 1,
                     "board_id": 1,
                     "title": "자유 글의 제목입니다",
                     "content": "<p>내용</p>",
                     "nickname": "준호",
-                    "is_solved": false,
-                    "is_notice": false,
                     "hit": 1,
-                    "comment_count": 0,
-                    "board": {
-                        "id": 1,
-                        "tag": "FA001",
-                        "name": "자유게시판",
-                        "is_anonymous": false,
-                        "article_count": 0,
-                        "is_deleted": false,
-                        "is_notice": false,
-                        "parent_id": null,
-                        "seq": 1,
-                        "children": null,
-                        "created_at": "2024-01-15 12:00:00",
-                        "updated_at": "2024-01-15 12:00:00"
-                    },
-                    "comments": [
-                        {
-                            "grantEdit": false,
-                            "grantDelete": false,
-                            "id": 1,
-                            "article_id": 1,
-                            "content": "댓글",
-                            "user_id": 1,
-                            "nickname": "BCSD",
-                            "is_deleted": false,
-                            "created_at": "2024-01-15 12:00:00",
-                            "updated_at": "2024-01-15 12:00:00"
-                        }
-                    ],
                     "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
@@ -150,44 +128,12 @@ class CommunityApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 {
-                    "contentSummary": "내용",
                     "id": 1,
                     "board_id": 1,
                     "title": "자유 글의 제목입니다",
                     "content": "<p>내용</p>",
                     "nickname": "준호",
-                    "is_solved": false,
-                    "is_notice": false,
                     "hit": 2,
-                    "comment_count": 0,
-                    "board": {
-                        "id": 1,
-                        "tag": "FA001",
-                        "name": "자유게시판",
-                        "is_anonymous": false,
-                        "article_count": 0,
-                        "is_deleted": false,
-                        "is_notice": false,
-                        "parent_id": null,
-                        "seq": 1,
-                        "children": null,
-                        "created_at": "2024-01-15 12:00:00",
-                        "updated_at": "2024-01-15 12:00:00"
-                    },
-                    "comments": [
-                        {
-                            "grantEdit": true,
-                            "grantDelete": true,
-                            "id": 1,
-                            "article_id": 1,
-                            "content": "댓글",
-                            "user_id": 1,
-                            "nickname": "BCSD",
-                            "is_deleted": false,
-                            "created_at": "2024-01-15 12:00:00",
-                            "updated_at": "2024-01-15 12:00:00"
-                        }
-                    ],
                     "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
@@ -214,61 +160,28 @@ class CommunityApiTest extends AcceptanceTest {
                 {
                     "articles": [
                         {
-                            "contentSummary": "내용222",
                             "id": 2,
                             "board_id": 1,
                             "title": "자유 글2의 제목입니다",
-                            "content": "<p>내용222</p>",
-                            "user_id": 1,
                             "nickname": "준호",
                             "hit": 1,
-                            "ip": "127.0.0.1",
-                            "is_solved": false,
-                            "is_deleted": false,
-                            "comment_count": 0,
-                            "meta": null,
-                            "is_notice": false,
-                            "notice_article_id": null,
-                            "summary": null,
                             "created_at": "2024-01-15 12:00:00",
                             "updated_at": "2024-01-15 12:00:00"
                         },
                         {
-                            "contentSummary": "내용",
                             "id": 1,
                             "board_id": 1,
                             "title": "자유 글의 제목입니다",
-                            "content": "<p>내용</p>",
-                            "user_id": 1,
                             "nickname": "준호",
                             "hit": 1,
-                            "ip": "123.21.234.321",
-                            "is_solved": false,
-                            "is_deleted": false,
-                            "comment_count": 0,
-                            "meta": null,
-                            "is_notice": false,
-                            "notice_article_id": null,
-                            "summary": null,
                             "created_at": "2024-01-15 12:00:00",
                             "updated_at": "2024-01-15 12:00:00"
                         }
                     ],
-                    "board": {
-                        "id": 1,
-                        "tag": "FA001",
-                        "name": "자유게시판",
-                        "is_anonymous": false,
-                        "article_count": 0,
-                        "is_deleted": false,
-                        "is_notice": false,
-                        "parent_id": null,
-                        "seq": 1,
-                        "children": null,
-                        "created_at": "2024-01-15 12:00:00",
-                        "updated_at": "2024-01-15 12:00:00"
-                    },
-                    "totalPage": 1
+                    "total_count": 2,
+                    "current_count": 2,
+                    "total_page": 1,
+                    "current_page": 1
                 }
                 """);
     }
@@ -421,7 +334,43 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 요청된 페이지에 게시글이 존재하지 않으면 빈 게시글 배열을 반환한다.")
+    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 특정 페이지 조회")
+    void getArticlesByPagination_pageTest() {
+        var response = RestAssured
+            .given()
+            .when()
+            .param("boardId", board.getId())
+            .param("page", 2)
+            .param("limit", 1)
+            .get("/articles")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                    "articles": [
+                        {
+                            "id": 1,
+                            "board_id": 1,
+                            "title": "자유 글의 제목입니다",
+                            "nickname": "준호",
+                            "hit": 1,
+                            "created_at": "2024-01-15 12:00:00",
+                            "updated_at": "2024-01-15 12:00:00"
+                        }
+                    ],
+                   "total_count": 2,
+                   "current_count": 1,
+                   "total_page": 2,
+                   "current_page": 2
+                }
+                """);
+    }
+
+    @Test
+    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 최대 페이지를 초과한 요청이 들어오면 마지막 페이지를 반환한다.")
     void getArticlesByPagination_overMaxPageNotFound() {
         // when then
         var response = RestAssured
@@ -435,7 +384,26 @@ class CommunityApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.jsonPath().getList("articles")).isEmpty();
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                   {
+                       "articles": [
+                           {
+                               "id": 1,
+                               "board_id": 1,
+                               "title": "자유 글의 제목입니다",
+                               "nickname": "준호",
+                               "hit": 1,
+                               "created_at": "2024-01-15 12:00:00",
+                               "updated_at": "2024-01-15 12:00:00"
+                           }
+                       ],
+                       "total_count": 2,
+                       "current_count": 1,
+                       "total_page": 2,
+                       "current_page": 2
+                   }
+                """);
     }
 
     @Test
@@ -465,7 +433,7 @@ class CommunityApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .when()
-            .get("/articles/hot/list")
+            .get("/articles/hot")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
@@ -474,51 +442,183 @@ class CommunityApiTest extends AcceptanceTest {
             .isEqualTo("""
                 [
                     {
-                        "contentSummary": "내용",
                         "id": 5,
                         "board_id": 1,
                         "title": "Article 7",
-                        "comment_count": 2,
+                        "nickname": "BCSD",
                         "hit": 7,
-                        "created_at": "2024-01-15 12:00:00"
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
                     },
                     {
-                        "contentSummary": "내용",
                         "id": 4,
                         "board_id": 1,
                         "title": "Article 6",
-                        "comment_count": 2,
+                        "nickname": "BCSD",
                         "hit": 6,
-                        "created_at": "2024-01-15 12:00:00"
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
                     },
                     {
-                        "contentSummary": "내용",
                         "id": 3,
                         "board_id": 1,
                         "title": "Article 5",
-                        "comment_count": 2,
+                        "nickname": "BCSD",
                         "hit": 5,
-                        "created_at": "2024-01-15 12:00:00"
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
                     },
                     {
-                        "contentSummary": "내용222",
                         "id": 2,
                         "board_id": 1,
                         "title": "자유 글2의 제목입니다",
-                        "comment_count": 0,
+                        "nickname": "준호",
                         "hit": 1,
-                        "created_at": "2024-01-15 12:00:00"
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
                     },
                     {
-                        "contentSummary": "내용",
                         "id": 1,
                         "board_id": 1,
                         "title": "자유 글의 제목입니다",
-                        "comment_count": 0,
+                        "nickname": "준호",
                         "hit": 1,
-                        "created_at": "2024-01-15 12:00:00"
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
                     }
                 ]
-                    """);
+                """);
+    }
+
+    @Test
+    @DisplayName("게시글을 검색한다.")
+    void searchNoticeArticles() {
+        var response = RestAssured
+            .given()
+            .when()
+            .queryParam("query", "자유")
+            .queryParam("board", 1)
+            .get("/articles/search")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                   {
+                       "articles": [
+                           {
+                               "id": 2,
+                               "board_id": 1,
+                               "title": "자유 글2의 제목입니다",
+                               "nickname": "준호",
+                               "hit": 1,
+                               "created_at": "2024-01-15 12:00:00",
+                               "updated_at": "2024-01-15 12:00:00"
+                           },
+                           {
+                               "id": 1,
+                               "board_id": 1,
+                               "title": "자유 글의 제목입니다",
+                               "nickname": "준호",
+                               "hit": 1,
+                               "created_at": "2024-01-15 12:00:00",
+                               "updated_at": "2024-01-15 12:00:00"
+                           }
+                       ],
+                       "total_count": 2,
+                       "current_count": 2,
+                       "total_page": 1,
+                       "current_page": 1
+                   }
+                """);
+    }
+
+    @Test
+    @DisplayName("알림 키워드를 추가한다.")
+    void 알림_키워드_추가() {
+        String token = userFixture.getToken(student.getUser());
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                    "keyword": "장학금"
+                }
+                """)
+            .when()
+            .post("/articles/keyword")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                  "id": 1,
+                  "keyword": "장학금"
+                }
+                """);
+    }
+
+    @Test
+    @DisplayName("알림 키워드를 추가한다. - 10개 넘어가면 400에러 반환")
+    void 알림_키워드_10개_넘게_추가시_에러() {
+        String token = userFixture.getToken(student.getUser());
+
+        for (int i = 0; i < 10; i++) {
+            RestAssured
+                .given()
+                .header("Authorization", "Bearer " + token)
+                .contentType(ContentType.JSON)
+                .body(String.format("""
+                        {
+                        "keyword": "keyword%d"
+                        }
+                    """, i))
+
+                .when()
+                .post("/articles/keyword")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+        }
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .contentType(ContentType.JSON)
+            .body("""
+                {
+                    "keyword": "장학금"
+                }
+                """)
+            .when()
+            .post("/articles/keyword")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("알림 키워드를 삭제한다.")
+    void 알림_키워드_삭제() {
+        String token = userFixture.getToken(student.getUser());
+        ArticleKeywordUserMap articleKeywordUserMap = articleFixture.키워드1("수강 신청", student.getUser());
+
+        var response = RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token)
+            .pathParam("id", articleKeywordUserMap.getId())
+            .contentType(ContentType.JSON)
+            .when()
+            .delete("/articles/keyword/{id}")
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .extract()
+            .asString();
+
+        assertThat(articleKeywordUserMapRepository.findById(articleKeywordUserMap.getId()).isEmpty());
+        assertThat(articleKeywordRepository.findById(articleKeywordUserMap.getArticleKeyword().getId()).isEmpty());
     }
 }
