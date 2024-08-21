@@ -968,7 +968,7 @@ class OwnerShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 이미지_url의_요소가_null인_채로_상점을_수정하면_400에러가_반환된다() {
+    void 이미지_url의_요소가_공백인_채로_상점을_수정하면_400에러가_반환된다() {
         // given
         RestAssured
             .given()
@@ -1016,7 +1016,7 @@ class OwnerShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 이미지_url의_요소가_null인_채로_상점을_생성하면_400에러가_반환된다() {
+    void 이미지_url의_요소가_공백인_채로_상점을_생성하면_400에러가_반환된다() {
         // given
         RestAssured
             .given()
