@@ -966,4 +966,131 @@ class OwnerShopApiTest extends AcceptanceTest {
         Optional<EventArticle> modifiedEventArticle = eventArticleRepository.findById(eventArticle.getId());
         assertThat(modifiedEventArticle).isNotPresent();
     }
+
+    @Test
+    void 이미지_url의_요소가_null인_채로_상점을_수정하면_400에러가_반환된다() {
+        // given
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token_현수)
+            .contentType(ContentType.JSON)
+            .body(String.format("""
+                {
+                  "address": "충청남도 천안시 동남구 병천면 충절로 1600",
+                  "category_ids": [
+                   %d, %d
+                  ],
+                  "delivery": false,
+                  "delivery_price": 1000,
+                  "description": "이번주 전 메뉴 10%% 할인 이벤트합니다.",
+                  "image_urls": [
+                    ""
+                  ],
+                  "name": "써니 숯불 도시락",
+                  "open": [
+                    {
+                      "close_time": "22:30",
+                      "closed": false,
+                      "day_of_week": "MONDAY",
+                      "open_time": "10:00"
+                    },
+                    {
+                      "close_time": "23:30",
+                      "closed": true,
+                      "day_of_week": "SUNDAY",
+                      "open_time": "11:00"
+                    }
+                  ],
+                  "pay_bank": true,
+                  "pay_card": true,
+                  "phone": "041-123-4567"
+                }
+                """, shopCategory_일반.getId(), shopCategory_치킨.getId()
+            ))
+            .when()
+            .put("/owner/shops/{id}", shop_마슬랜.getId())
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+
+    }
+
+    @Test
+    void 이미지_url의_요소가_null인_채로_상점을_생성하면_400에러가_반환된다() {
+        // given
+        RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_현수)
+            .body(String.format("""
+                {
+                    "address": "대전광역시 유성구 대학로 291",
+                    "category_ids": [
+                        %d
+                    ],
+                    "delivery": true,
+                    "delivery_price": 4000,
+                    "description": "테스트 상점2입니다.",
+                    "image_urls": [
+                        "",
+                    ],
+                    
+                    "name": "테스트 상점2",
+                    "open": [
+                        {
+                            "close_time": "21:00",
+                            "closed": false,
+                            "day_of_week": "MONDAY",
+                            "open_time": "09:00"
+                        },
+                        {
+                            "close_time": "21:00",
+                            "closed": false,
+                            "day_of_week": "TUESDAY",
+                            "open_time": "09:00"
+                        },
+                        {
+                            "close_time": "21:00",
+                            "closed": false,
+                            "day_of_week": "WEDNESDAY",
+                            "open_time": "09:00"
+                        },
+                        {
+                            "close_time": "21:00",
+                            "closed": false,
+                            "day_of_week": "THURSDAY",
+                            "open_time": "09:00"
+                        },
+                        {
+                            "close_time": "21:00",
+                            "closed": false,
+                            "day_of_week": "FRIDAY",
+                            "open_time": "09:00"
+                        },
+                        {
+                            "close_time": "21:00",
+                            "closed": false,
+                            "day_of_week": "SATURDAY",
+                            "open_time": "09:00"
+                        },
+                        {
+                            "close_time": "21:00",
+                            "closed": false,
+                            "day_of_week": "SUNDAY",
+                            "open_time": "09:00"
+                        }
+                    ],
+                    "pay_bank": true,
+                    "pay_card": true,
+                    "phone": "010-1234-5678"
+                }
+                """, shopCategory_치킨.getId())
+            )
+            .when()
+            .post("/owner/shops")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
 }
