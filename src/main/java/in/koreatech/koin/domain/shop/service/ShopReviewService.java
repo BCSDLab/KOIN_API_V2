@@ -80,6 +80,8 @@ public class ShopReviewService {
 
     @Transactional
     public void createReview(CreateReviewRequest createReviewRequest, Integer studentId, Integer shopId) {
+        epository.getById(studentId);
+
         Student student = studentRepository.getById(studentId);
         Shop shop = shopRepository.getById(shopId);
         ShopReview shopReview = ShopReview.builder()
