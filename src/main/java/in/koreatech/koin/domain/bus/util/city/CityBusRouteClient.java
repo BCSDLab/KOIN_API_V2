@@ -71,7 +71,7 @@ public class CityBusRouteClient {
     }
 
     @Transactional
-    @CircuitBreaker(name = "CityBusRouteClient")
+    @CircuitBreaker(name = "cityBusRoute")
     public void storeCityBusRoute() {
         List<String> nodeIds = BusStationNode.getNodeIds();
 

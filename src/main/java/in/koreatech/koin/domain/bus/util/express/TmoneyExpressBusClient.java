@@ -65,7 +65,7 @@ public class TmoneyExpressBusClient extends ExpressBusClient {
 
     @Override
     @Transactional
-    @CircuitBreaker(name = "TmoneyExpressBusClient")
+    @CircuitBreaker(name = "tmoneyExpressBus")
     public void storeRemainTime() {
         for (BusStation depart : BusStation.values()) {
             for (BusStation arrival : BusStation.values()) {
