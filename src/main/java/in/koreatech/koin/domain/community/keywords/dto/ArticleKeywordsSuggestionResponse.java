@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggest;
+import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggestCache;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record ArticleKeywordsSuggestionResponse(
@@ -16,14 +16,14 @@ public record ArticleKeywordsSuggestionResponse(
 ) {
 
     public static ArticleKeywordsSuggestionResponse from(
-        List<ArticleKeywordSuggest> hotKeywords,
+        List<ArticleKeywordSuggestCache> hotKeywords,
         List<String> userKeywords) {
 
         List<String> validUserKeywords = Optional.ofNullable(userKeywords).orElse(Collections.emptyList());
 
         List<String> suggestions = hotKeywords.stream()
             .filter(hotKeyword -> !validUserKeywords.contains(hotKeyword.getKeyword()))
-            .map(ArticleKeywordSuggest::getKeyword)
+            .map(ArticleKeywordSuggestCache::getKeyword)
             .limit(5)
             .collect(Collectors.toList());
 

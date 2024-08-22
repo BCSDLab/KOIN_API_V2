@@ -2,20 +2,19 @@ package in.koreatech.koin.domain.community.keywords.repository;
 
 import java.util.List;
 
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggest;
+import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggestCache;
 
-public interface ArticleKeywordSuggestRepository extends Repository<ArticleKeywordSuggest, String> {
+public interface ArticleKeywordSuggestRepository extends Repository<ArticleKeywordSuggestCache, String> {
 
-    List<ArticleKeywordSuggest> findTop15ByOrderByCountDesc();
+    List<ArticleKeywordSuggestCache> findTop15ByOrderByCountDesc();
 
     void deleteAll();
 
-    void save(ArticleKeywordSuggest hotKeyword);
+    void save(ArticleKeywordSuggestCache hotKeyword);
 
-    List<ArticleKeywordSuggest> findAll();
+    List<ArticleKeywordSuggestCache> findAll();
 
-    void delete(ArticleKeywordSuggest hotKeyword);
+    void delete(ArticleKeywordSuggestCache hotKeyword);
 }

@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @RedisHash("HotArticleKeyword")
-public class ArticleKeywordSuggest {
+public class ArticleKeywordSuggestCache {
 
     @Id
     private Integer hotKeywordId;
@@ -16,7 +16,7 @@ public class ArticleKeywordSuggest {
     private Integer count;
 
     @Builder
-    public ArticleKeywordSuggest(Integer hotKeywordId, String keyword, Integer count) {
+    public ArticleKeywordSuggestCache(Integer hotKeywordId, String keyword, Integer count) {
         this.hotKeywordId = hotKeywordId;
         this.keyword = keyword;
         this.count = count;

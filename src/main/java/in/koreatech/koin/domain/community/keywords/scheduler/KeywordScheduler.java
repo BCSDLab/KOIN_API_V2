@@ -14,15 +14,13 @@ public class KeywordScheduler {
 
     private final KeywordService keywordService;
 
-    // @Scheduled(cron = "0 0 8-1 * * *")
-    @Scheduled(cron = "0/20 * * * * *")
+    @Scheduled(cron = "0 0 8-1 * * *")
     public void updateRedisWithHotKeywords() {
         try {
             keywordService.fetchTopKeywordsFromLastWeek();
         } catch (Exception e) {
             log.warn("추천 키워드 업데이트 중에 오류가 발생했습니다.");
         }
-
     }
 }
 

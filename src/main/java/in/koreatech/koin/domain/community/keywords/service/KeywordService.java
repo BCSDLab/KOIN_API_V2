@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.community.keywords.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -18,7 +17,7 @@ import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsSuggestion
 import in.koreatech.koin.domain.community.keywords.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keywords.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordUserMap;
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggest;
+import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordSuggestRepository;
@@ -97,7 +96,7 @@ public class KeywordService {
     }
 
     public ArticleKeywordsSuggestionResponse suggestKeywords(Integer userId) {
-        List<ArticleKeywordSuggest> hotKeywords = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc();
+        List<ArticleKeywordSuggestCache> hotKeywords = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc();
 
         List<String> userKeywords = articleKeywordUserMapRepository.findAllKeywordbyUserId(userId);
 
@@ -110,8 +109,8 @@ public class KeywordService {
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
         List<Object[]> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeek(oneWeekAgo, top15);
 
-        List<ArticleKeywordSuggest> hotKeywords = topKeywords.stream()
-            .map(result -> ArticleKeywordSuggest.builder()
+        List<ArticleKeywordSuggestCache> hotKeywords = topKeywords.stream()
+            .map(result -> ArticleKeywordSuggestCache.builder()
                 .hotKeywordId((Integer) result[0])
                 .keyword((String) result[1])
                 .count(((Long) result[2]).intValue())
@@ -120,7 +119,7 @@ public class KeywordService {
 
         articleKeywordSuggestRepository.deleteAll();
 
-        for(ArticleKeywordSuggest hotKeyword : hotKeywords) {
+        for(ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
             articleKeywordSuggestRepository.save(hotKeyword);
         }
     }

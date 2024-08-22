@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.community.keywords.exception.ArticleKeywordUserMapNotFoundException;
 import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordUserMap;
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggest;
 
 public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywordUserMap, Integer> {
 
