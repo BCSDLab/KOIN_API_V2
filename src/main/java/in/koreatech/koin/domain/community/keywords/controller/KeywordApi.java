@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordCreateRequest;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsResponse;
+import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsSuggestionResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -68,4 +69,15 @@ public interface KeywordApi {
         @Auth(permit = {STUDENT}) Integer userId
     );
 
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "알림 키워드 추천")
+    @GetMapping("/articles/keyword/suggestions")
+    ResponseEntity<ArticleKeywordsSuggestionResponse> suggestKeywords(
+        @Auth(permit = {STUDENT}) Integer userId
+    );
 }
