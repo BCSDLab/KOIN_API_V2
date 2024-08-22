@@ -3,10 +3,13 @@ package in.koreatech.koin.domain.community.keywords.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.community.keywords.exception.ArticleKeywordUserMapNotFoundException;
 import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordUserMap;
+import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggest;
 
 public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywordUserMap, Integer> {
 
@@ -26,4 +29,12 @@ public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywo
     }
 
     List<ArticleKeywordUserMap> findAllByUserId(Integer userId);
+
+    @Query(
+    """
+    SELECT akw.keyword FROM ArticleKeywordUserMap akum
+    JOIN akum.articleKeyword akw
+    WHERE akum.user.id = :userId
+    """)
+    List<String> findAllKeywordbyUserId(@Param("userId") Integer userId);
 }
