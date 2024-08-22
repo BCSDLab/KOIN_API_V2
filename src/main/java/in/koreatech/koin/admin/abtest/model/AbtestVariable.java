@@ -83,4 +83,9 @@ public class AbtestVariable extends BaseEntity {
     public void addCount(int count) {
         this.count += count;
     }
+
+    public void update(String displayName, Integer rate) {
+        this.displayName = displayName;
+        this.rate = rate;
+    }
 }

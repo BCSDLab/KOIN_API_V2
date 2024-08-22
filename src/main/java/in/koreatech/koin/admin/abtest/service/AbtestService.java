@@ -70,6 +70,20 @@ public class AbtestService {
         return AbtestResponse.from(saved);
     }
 
+    @Transactional
+    public AbtestResponse putAbtest(Integer abtestId, AbtestRequest request) {
+        Abtest foundAbtest = abtestRepository.getById(abtestId);
+        foundAbtest.update(
+            request.displayTitle(),
+            request.creater(),
+            request.team(),
+            request.title(),
+            request.description(),
+            request.variables()
+        );
+        return AbtestResponse.from(foundAbtest);
+    }
+
     public AbtestsResponse getAbtests(Integer page, Integer limit) {
         Long title = abtestRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, title.intValue());

@@ -6,10 +6,12 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotIncludeVariableException;
+import in.koreatech.koin.admin.abtest.exception.AbtestTitleIllegalArgumentException;
 import in.koreatech.koin.admin.abtest.exception.AbtestVariableIllegalArgumentException;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -150,6 +152,44 @@ public class Abtest extends BaseEntity {
         abtestVariables.addAll(saved);
     }
 
+    public void update(String displayTitle, String creater, String team, String title, String description,
+        List<AbtestRequest.InnerVariableRequest> variables) {
+        if (!this.title.equals(title)) {
+            throw AbtestTitleIllegalArgumentException.withDetail("실험 title은 변경할 수 없습니다.");
+        }
+        vaildateVariables(variables);
+        updateVariables(variables);
+        this.displayTitle = displayTitle;
+        this.creator = creater;
+        this.team = team;
+        this.description = description;
+    }
+
+    private void updateVariables(List<AbtestRequest.InnerVariableRequest> variables) {
+        abtestVariables.removeIf(abtestVariable ->
+            variables.stream().noneMatch(requestVariable ->
+                requestVariable.name().equals(abtestVariable.getName())
+            ));
+
+        variables.forEach(requestVariable -> {
+            Optional<AbtestVariable> variable = abtestVariables.stream()
+                .filter(abtestVariable -> abtestVariable.getName().equals(requestVariable.name()))
+                .findAny();
+            if (variable.isPresent()) {
+                variable.get().update(requestVariable.displayName(), requestVariable.rate());
+            }
+            if (variable.isEmpty()) {
+                AbtestVariable newVariable = AbtestVariable.builder()
+                    .abtest(this)
+                    .displayName(requestVariable.displayName())
+                    .rate(requestVariable.rate())
+                    .name(requestVariable.name())
+                    .build();
+                abtestVariables.add(newVariable);
+            }
+        });
+    }
+
     private static void vaildateVariables(List<AbtestRequest.InnerVariableRequest> variables) {
         int sum = variables.stream().mapToInt(AbtestRequest.InnerVariableRequest::rate).sum();
         if (sum != 100) {
@@ -160,7 +200,7 @@ public class Abtest extends BaseEntity {
             .map(variable -> variable.name())
             .distinct().toList().size();
         if (distinctSize != variables.size()) {
-            throw AbtestVariableIllegalArgumentException.withDetail("실험군 간의 변수명이 중복됩니다.");
+            throw AbtestVariableIllegalArgumentException.withDetail("실험군 간의 변수명(name)이 중복됩니다.");
         }
     }
 

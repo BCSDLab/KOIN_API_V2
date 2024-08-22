@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,6 +50,16 @@ public class AbtestController implements AbtestApi {
         @RequestBody @Valid AbtestRequest request
     ) {
         AbtestResponse response = abtestService.createAbtest(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AbtestResponse> putAbtest(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @PathVariable("id") Integer abtestId,
+        @RequestBody @Valid AbtestRequest request
+    ) {
+        AbtestResponse response = abtestService.putAbtest(abtestId, request);
         return ResponseEntity.ok(response);
     }
 

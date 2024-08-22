@@ -4,7 +4,7 @@ import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 
 public class AbtestVariableIllegalArgumentException extends KoinIllegalArgumentException {
 
-    private static final String DEFAULT_MESSAGE = "실험 변수가 잘못되었습니다.";
+    private static final String DEFAULT_MESSAGE = "실험군이 잘못되었습니다.";
 
     public AbtestVariableIllegalArgumentException(String message) {
         super(message);
