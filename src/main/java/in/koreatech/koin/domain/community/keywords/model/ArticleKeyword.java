@@ -54,5 +54,10 @@ public class ArticleKeyword extends BaseEntity {
         }
 
         articleKeywordUserMaps.add(keywordUserMap);
+        updateLastUsedAt();
+    }
+
+    private void updateLastUsedAt() {
+        this.lastUsedAt = LocalDateTime.now();
     }
 }

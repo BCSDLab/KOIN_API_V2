@@ -14,7 +14,7 @@ public class KeywordScheduler {
 
     private final KeywordService keywordService;
 
-    @Scheduled(cron = "0 0 8-1 * * *")
+    @Scheduled(cron = "0 0 * * * *") // 매 시간 정각에 실행
     public void updateRedisWithHotKeywords() {
         try {
             keywordService.fetchTopKeywordsFromLastWeek();

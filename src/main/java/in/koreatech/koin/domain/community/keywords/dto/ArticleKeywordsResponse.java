@@ -20,7 +20,7 @@ public record ArticleKeywordsResponse (
     public static ArticleKeywordsResponse from(List<ArticleKeywordUserMap> articleKeywordUserMaps) {
         List<InnerKeywordResponse> keywords = articleKeywordUserMaps.stream()
             .map(userMap -> new InnerKeywordResponse(
-                userMap.getArticleKeyword().getId(),
+                userMap.getId(),
                 userMap.getArticleKeyword().getKeyword()))
             .collect(Collectors.toList());
 
