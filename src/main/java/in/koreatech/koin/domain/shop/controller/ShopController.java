@@ -195,10 +195,9 @@ public class ShopController implements ShopApi {
     @GetMapping("/shops/{shopId}/reviews/{reviewId}")
     public ResponseEntity<ShopReviewResponse> getReview(
         @Parameter(in = PATH) @PathVariable Integer shopId,
-        @Parameter(in = PATH) @PathVariable Integer reviewId,
-        @Auth(permit = {STUDENT}) Integer studentId
+        @Parameter(in = PATH) @PathVariable Integer reviewId
     ) {
-        ShopReviewResponse shopReviewResponse = shopReviewService.getReviewByReviewId(shopId, reviewId, studentId);
+        ShopReviewResponse shopReviewResponse = shopReviewService.getReviewByReviewId(shopId, reviewId);
         return ResponseEntity.ok(shopReviewResponse);
     }
 }

@@ -75,5 +75,4 @@ public record AdminLandsResponse(
             );
         }
     }
-
 }

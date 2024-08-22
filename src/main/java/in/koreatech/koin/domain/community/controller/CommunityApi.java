@@ -74,6 +74,21 @@ public interface CommunityApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "게시글 검색")
+    @GetMapping("/articles/search")
+    ResponseEntity<ArticlesResponse> searchArticles(
+        @RequestParam String query,
+        @RequestParam(required = false) Integer boardId,
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),

@@ -53,7 +53,7 @@ public class CoopService {
             dining.setSoldOut(now);
             boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType(), false);
             if (isOpened && diningSoldOutCacheRepository.findById(dining.getPlace()).isEmpty()) {
-                eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getPlace(), dining.getType()));
+                eventPublisher.publishEvent(new DiningSoldOutEvent(dining.getId(), dining.getPlace(), dining.getType()));
             }
         } else {
             dining.cancelSoldOut();
@@ -69,7 +69,7 @@ public class CoopService {
         LocalDateTime now = LocalDateTime.now(clock);
         boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType(), true);
         if (isOpened && !isImageExist) {
-            eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getImageUrl()));
+            eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getId(), dining.getImageUrl()));
         }
 
         dining.setImageUrl(imageRequest.imageUrl());
