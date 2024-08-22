@@ -29,4 +29,11 @@ public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Int
     ORDER BY keyword_count DESC
     """)
     List<Object[]> findTopKeywordsInLastWeek(LocalDateTime oneWeekAgo, Pageable pageable);
+
+    @Query("""
+    SELECT k.id, k.keyword
+    FROM ArticleKeyword k
+    ORDER BY k.createdAt DESC
+    """)
+    List<Object[]> findTop15Keywords(Pageable pageable);
 }

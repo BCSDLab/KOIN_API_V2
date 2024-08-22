@@ -46,9 +46,13 @@ public class ArticleKeyword extends BaseEntity {
     }
 
     public void addUserMap(ArticleKeywordUserMap keywordUserMap) {
-        if (this.keyword.equals(keywordUserMap.getArticleKeyword().getKeyword())) {
-            throw new KeywordDuplicationException("키워드는 중복될 수 없습니다.");
+        boolean isDuplicate = articleKeywordUserMaps.stream()
+            .anyMatch(map -> map.getUser().equals(keywordUserMap.getUser()));
+
+        if (isDuplicate) {
+            throw new KeywordDuplicationException("해당 키워드는 이미 등록되었습니다.");
         }
+
         articleKeywordUserMaps.add(keywordUserMap);
     }
 }

@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.keywords.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -103,6 +104,7 @@ public class KeywordService {
         return ArticleKeywordsSuggestionResponse.from(hotKeywords, userKeywords);
     }
 
+    @Transactional
     public void fetchTopKeywordsFromLastWeek() {
         Pageable top15 = PageRequest.of(0, 15);
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
@@ -112,11 +114,14 @@ public class KeywordService {
             .map(result -> ArticleKeywordSuggest.builder()
                 .hotKeywordId((Integer) result[0])
                 .keyword((String) result[1])
-                .count((Integer) result[2])
+                .count(((Long) result[2]).intValue())
                 .build())
             .collect(Collectors.toList());
 
         articleKeywordSuggestRepository.deleteAll();
-        articleKeywordSuggestRepository.saveAll(hotKeywords);
+
+        for(ArticleKeywordSuggest hotKeyword : hotKeywords) {
+            articleKeywordSuggestRepository.save(hotKeyword);
+        }
     }
 }
