@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.community.articles.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordCreateRequest;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.articles.dto.ArticleResponse;
@@ -64,9 +65,18 @@ public class CommunityController implements CommunityApi {
         @RequestParam String query,
         @RequestParam(required = false) Integer boardId,
         @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit
+        @RequestParam(required = false) Integer limit,
+        @IpAddress String ipAddress
     ) {
-        ArticlesResponse foundArticles = communityService.searchArticles(query, boardId, page, limit);
+        ArticlesResponse foundArticles = communityService.searchArticles(query, boardId, page, limit, ipAddress);
         return ResponseEntity.ok().body(foundArticles);
+    }
+
+    @GetMapping("/articles/hot/keyword")
+    public ResponseEntity<ArticleHotKeywordResponse> getArticlesHotKeyword(
+        @RequestParam Integer count
+    ) {
+        ArticleHotKeywordResponse response = communityService.getArticlesHotKeyword(count);
+        return ResponseEntity.ok().body(response);
     }
 }

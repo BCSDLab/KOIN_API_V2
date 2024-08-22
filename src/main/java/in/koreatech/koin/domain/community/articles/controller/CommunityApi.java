@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.community.articles.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.articles.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.articles.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.articles.dto.HotArticleItemResponse;
@@ -83,6 +84,18 @@ public interface CommunityApi {
         @RequestParam String query,
         @RequestParam(required = false) Integer boardId,
         @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit
+        @RequestParam(required = false) Integer limit,
+        @IpAddress String ipAddress
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200")
+        }
+    )
+    @Operation(summary = "많이 검색되는 키워드(검색 화면)")
+    @GetMapping("/articles/hot/keyword")
+    ResponseEntity<ArticleHotKeywordResponse> getArticlesHotKeyword(
+        @RequestParam Integer count
     );
 }

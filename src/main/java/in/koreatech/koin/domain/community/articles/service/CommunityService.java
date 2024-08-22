@@ -5,13 +5,18 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.community.articles.dto.ArticleHotKeywordResponse;
+import in.koreatech.koin.domain.community.articles.model.ArticleSearchLog;
+import in.koreatech.koin.domain.community.articles.repository.ArticleSearchLogRepository;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordCreateRequest;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.articles.dto.ArticleResponse;
@@ -47,6 +52,7 @@ public class CommunityService {
     private final ArticleViewLogRepository articleViewLogRepository;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+    private final ArticleSearchLogRepository articleSearchLogRepository;
 
     @Transactional
     public ArticleResponse getArticle(Integer userId, Integer articleId, String ipAddress) {
@@ -104,7 +110,7 @@ public class CommunityService {
             .toList();
     }
 
-    public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit) {
+    public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit, String ipAddress) {
         Criteria criteria = Criteria.of(page, limit);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
         Page<Article> articles;
@@ -115,10 +121,41 @@ public class CommunityService {
         } else {
             articles = articleRepository.findAllByBoardIdAndTitleContaining(boardId, query, pageRequest);
         }
+
+        saveOrUpdateSearchLog(query, ipAddress);
+
         return ArticlesResponse.of(articles, criteria);
+    }
+
+    private void saveOrUpdateSearchLog(String keyword, String ipAddress) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return;
+        }
+
+        Optional<ArticleSearchLog> existingLog = articleSearchLogRepository.findByKeywordAndIpAddress(keyword, ipAddress);
+
+        if (existingLog.isPresent()) {
+            articleSearchLogRepository.save(existingLog.get());
+        } else {
+            ArticleSearchLog newLog = ArticleSearchLog.builder()
+                .keyword(keyword)
+                .ipAddress(ipAddress)
+                .build();
+            articleSearchLogRepository.save(newLog);
+        }
     }
 
     private boolean isFullNoticeBoard(Board board) {
         return board.isNotice() && Objects.equals(board.getTag(), BoardTag.공지사항.getTag());
     }
+
+
+    public ArticleHotKeywordResponse getArticlesHotKeyword(Integer count) {
+        LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
+        Pageable pageable = PageRequest.of(0, count);
+        List<Object[]> results = articleSearchLogRepository.findTopKeywords(oneDayAgo, pageable);
+
+        return ArticleHotKeywordResponse.from(results);
+    }
+
 }
