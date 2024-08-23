@@ -30,6 +30,7 @@ import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableRepo
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
 import in.koreatech.koin.admin.abtest.repository.VariableIpRepository;
+import in.koreatech.koin.admin.abtest.repository.VariableIpTemplateRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.model.Criteria;
 import in.koreatech.koin.global.useragent.UserAgentInfo;
@@ -50,6 +51,7 @@ public class AbtestService {
     private final AccessHistoryAbtestVariableRepository accessHistoryAbtestVariableRepository;
     private final DeviceRepository deviceRepository;
     private final UserRepository userRepository;
+    private final VariableIpTemplateRepository variableIpTemplateRepository;
 
     @Transactional
     public AbtestResponse createAbtest(AbtestRequest request) {
@@ -81,7 +83,19 @@ public class AbtestService {
             request.description(),
             request.variables()
         );
+
+        syncCacheCountToDB(foundAbtest);
+        resetVariableIpCache(foundAbtest);
+
+        // 수정된 비율에 따라 MySQL map Table 업데이트
+
+
         return AbtestResponse.from(foundAbtest);
+    }
+
+    private void resetVariableIpCache(Abtest abtest) {
+        abtest.getAbtestVariables().forEach(abtestVariable ->
+            variableIpTemplateRepository.deleteByVariableId(abtestVariable.getId()));
     }
 
     public AbtestsResponse getAbtests(Integer page, Integer limit) {
@@ -147,6 +161,7 @@ public class AbtestService {
             accessHistory.getAccessHistoryAbtestVariables().add(saved);
             variable.getAccessHistoryAbtestVariables().add(saved);
         }
+        // TODO: 캐싱해두기
         return variable.getName();
     }
 
@@ -175,6 +190,22 @@ public class AbtestService {
     @Transactional
     public void syncCacheCountToDB() {
         List<AbtestVariableCount> cacheCount = abtestVariableCountRepository.findAll();
+        cacheCount.forEach(abtestVariableCount -> {
+            AbtestVariable variable = abtestVariableRepository.getById(abtestVariableCount.getVariableId());
+            variable.addCount(abtestVariableCount.getCount());
+            abtestVariableCount.resetCount();
+        });
+        abtestVariableCountRepository.saveAll(cacheCount);
+    }
+
+    @Transactional
+    public void syncCacheCountToDB(Abtest abtest) {
+        List<AbtestVariableCount> cacheCount = abtest.getAbtestVariables().stream()
+            .map(AbtestVariable::getId)
+            .map(abtestVariableCountRepository::findById)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
         cacheCount.forEach(abtestVariableCount -> {
             AbtestVariable variable = abtestVariableRepository.getById(abtestVariableCount.getVariableId());
             variable.addCount(abtestVariableCount.getCount());

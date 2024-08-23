@@ -165,13 +165,13 @@ public class Abtest extends BaseEntity {
         this.description = description;
     }
 
-    private void updateVariables(List<AbtestRequest.InnerVariableRequest> variables) {
+    private void updateVariables(List<AbtestRequest.InnerVariableRequest> requestVariables) {
         abtestVariables.removeIf(abtestVariable ->
-            variables.stream().noneMatch(requestVariable ->
+            requestVariables.stream().noneMatch(requestVariable ->
                 requestVariable.name().equals(abtestVariable.getName())
             ));
 
-        variables.forEach(requestVariable -> {
+        requestVariables.forEach(requestVariable -> {
             Optional<AbtestVariable> variable = abtestVariables.stream()
                 .filter(abtestVariable -> abtestVariable.getName().equals(requestVariable.name()))
                 .findAny();
