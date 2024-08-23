@@ -1,6 +1,7 @@
 
 package in.koreatech.koin.domain.community.articles.dto;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,8 +14,12 @@ public record ArticleHotKeywordResponse (
     List<String> keywords
 ) {
     public static ArticleHotKeywordResponse from(List<Object[]> results) {
+        if (results == null || results.isEmpty()) {
+            return new ArticleHotKeywordResponse(Collections.emptyList());
+        }
+
         List<String> keywords = results.stream()
-            .map(result -> (String) result[0])  // Object[] 배열에서 키워드만 추출
+            .map(result -> (String) result[0])
             .collect(Collectors.toList());
 
         return new ArticleHotKeywordResponse(keywords);

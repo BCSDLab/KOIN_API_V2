@@ -19,7 +19,7 @@ public interface ArticleSearchLogRepository extends Repository<ArticleSearchLog,
     @Query("""
     SELECT log.keyword, COUNT(log.keyword) AS keywordCount
     FROM ArticleSearchLog log
-    WHERE log.updatedAt >= :startDate
+    WHERE log.updatedAt >= :oneDayAgo
     GROUP BY log.keyword
     ORDER BY keywordCount DESC
     """)

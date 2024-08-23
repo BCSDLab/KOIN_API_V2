@@ -12,7 +12,9 @@ public record ArticleKeywordsResponse (
     @Schema(description = "키워드 수", example = "3")
     Integer count,
 
-    @Schema(description = "키워드 목록")
+    @Schema(description = "나의 키워드 목록", example = """
+    ["장학금", "생활관", "수강", "룸메", "컴공"]
+    """)
     @JsonProperty("keywords")
     List<InnerKeywordResponse> innerKeywordResponseList
 ) {

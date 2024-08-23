@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggestCa
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record ArticleKeywordsSuggestionResponse(
-    @Schema(example = """
+    @Schema(description = "추천 키워드 목록",example = """
     ["장학금", "생활관", "수강", "룸메", "컴공"]
     """)
     List<String> keywords

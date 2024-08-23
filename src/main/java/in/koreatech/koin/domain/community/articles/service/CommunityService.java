@@ -110,6 +110,7 @@ public class CommunityService {
             .toList();
     }
 
+    @Transactional
     public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit, String ipAddress) {
         Criteria criteria = Criteria.of(page, limit);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
@@ -157,5 +158,4 @@ public class CommunityService {
 
         return ArticleHotKeywordResponse.from(results);
     }
-
 }
