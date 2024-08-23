@@ -72,7 +72,7 @@ public class CommunityController implements CommunityApi {
         return ResponseEntity.ok().body(foundArticles);
     }
 
-    @GetMapping("/articles/hot/keyword")
+    @GetMapping("/hot/keyword")
     public ResponseEntity<ArticleHotKeywordResponse> getArticlesHotKeyword(
         @RequestParam Integer count
     ) {

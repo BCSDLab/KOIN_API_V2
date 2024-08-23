@@ -526,6 +526,87 @@ class CommunityApiTest extends AcceptanceTest {
 
     @Test
     void 사용자들이_많이_검색_한_키워드_추천() {
+        for (int i = 1; i <= 10; i++) {
+            Article article = Article.builder()
+                .board(board)
+                .title("검색어%s 관련 게시글".formatted(i))
+                .content("검색어%s 관련 내용".formatted(i))
+                .user(student.getUser())
+                .nickname("준호")
+                .hit(0)
+                .ip("127.0.0.1")
+                .isSolved(false)
+                .isDeleted(false)
+                .commentCount((byte)0)
+                .build();
 
+            articleRepository.save(article);
+        }
+
+        String ipAddress1 = "192.168.1.1";
+        String ipAddress2 = "192.168.1.2";
+        String ipAddress3 = "192.168.1.3";
+
+        for (int i = 0; i < 5; i++) {
+            RestAssured
+                .given()
+                .queryParam("query", "검색어" + i)
+                .queryParam("board", 1)
+                .queryParam("page", 1)
+                .queryParam("limit", 10)
+                .queryParam("ipAddress", ipAddress1)
+                .when()
+                .get("/articles/search")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+            RestAssured
+                .given()
+                .queryParam("query", "검색어" + i)
+                .queryParam("board", 1)
+                .queryParam("page", 1)
+                .queryParam("limit", 10)
+                .queryParam("ipAddress", ipAddress2)
+                .when()
+                .get("/articles/search")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+        }
+
+        for (int i = 5; i < 10; i++) {
+            RestAssured
+                .given()
+                .queryParam("query", "검색어" + i)
+                .queryParam("board", 1)
+                .queryParam("page", 1)
+                .queryParam("limit", 10)
+                .queryParam("ipAddress", ipAddress3)
+                .when()
+                .get("/articles/search")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+        }
+
+        var response = RestAssured
+            .given()
+            .queryParam("count", 5)
+            .when()
+            .get("/articles/hot/keyword")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract()
+            .asPrettyString();
+
+        JsonAssertions.assertThat(response).isEqualTo("""
+                {
+                  "keywords": [
+                    "검색어0",
+                    "검색어1",
+                    "검색어2",
+                    "검색어3",
+                    "검색어4"
+                  ]
+                }
+            """);
     }
 }

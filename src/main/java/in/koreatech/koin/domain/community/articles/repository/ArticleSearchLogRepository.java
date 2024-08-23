@@ -21,15 +21,15 @@ public interface ArticleSearchLogRepository extends Repository<ArticleSearchLog,
         FROM ArticleSearchLog log
         WHERE log.updatedAt >= :oneDayAgo
         GROUP BY log.keyword
-        ORDER BY keywordCount DESC
+        ORDER BY COUNT(log.keyword) DESC
         """)
     List<Object[]> findTopKeywords(LocalDateTime oneDayAgo, Pageable pageable);
 
     @Query("""
-        SELECT log.keyword, COUNT(log.keyword) AS keywordCount
+        SELECT log.keyword, COUNT(log.keyword) AS keywordCount, MAX(log.updatedAt) AS latestUpdate
         FROM ArticleSearchLog log
         GROUP BY log.keyword
-        ORDER BY log.updatedAt DESC, keywordCount DESC
+        ORDER BY latestUpdate DESC, keywordCount DESC
         """)
     List<Object[]> findTopKeywordsByLatest(Pageable pageable);
 }

@@ -195,7 +195,7 @@ public class KeywordApiTest extends AcceptanceTest {
         Student student = userFixture.준호_학생();
         String token1 = userFixture.getToken(student.getUser());
 
-        for (int i = 1; i <= 9; i++) {
+        for (int i = 1; i <= 10; i++) {
             RestAssured
                 .given()
                 .header("Authorization", "Bearer " + token1)
