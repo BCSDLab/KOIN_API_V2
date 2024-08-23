@@ -64,7 +64,7 @@ public record AdminModifyShopRequest(
     String name,
 
     @Schema(description = "요일별 운영 시간과 휴무 여부", requiredMode = REQUIRED)
-    @Size(min = 7, max = 7, message = "The list must contain exactly 7 elements.")
+    @Size(min = 7, max = 7, message = "요일별 운영 시간은 7개여야 합니다.")
     @NotNull
     @Valid
     List<InnerShopOpen> open,
