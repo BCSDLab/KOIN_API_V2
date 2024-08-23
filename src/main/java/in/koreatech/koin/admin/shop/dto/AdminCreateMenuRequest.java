@@ -9,6 +9,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.Menu;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin.global.validation.NotBlankElement;
 import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,6 +36,7 @@ public record AdminCreateMenuRequest(
         """, description = "이미지 URL 리스트", requiredMode = REQUIRED)
     @Size(max = 3, message = "이미지는 최대 3개까지 입력 가능합니다.")
     @UniqueUrl(message = "이미지 URL은 중복될 수 없습니다.")
+    @NotBlankElement
     List<String> imageUrls,
 
     @Schema(example = "true", description = "단일 메뉴 여부", requiredMode = REQUIRED)
@@ -52,11 +55,25 @@ public record AdminCreateMenuRequest(
     @PositiveOrZero(message = "가격은 0원 이상이어야 합니다.")
     Integer singlePrice
 ) {
+
     public AdminCreateMenuRequest {
-        if (imageUrls == null) {
-            imageUrls = List.of();
+        if (isSingle) {
+            if (optionPrices != null) {
+                throw new KoinIllegalArgumentException("단일 메뉴일 때 옵션 가격 리스트는 null이어야 합니다.");
+            }
+            if (singlePrice == null) {
+                throw new KoinIllegalArgumentException("단일 메뉴일 때 단일 메뉴 가격은 필수입니다.");
+            }
+        } else {
+            if (optionPrices == null || optionPrices.isEmpty()) {
+                throw new KoinIllegalArgumentException("단일 메뉴가 아닐 때 옵션 가격 리스트는 필수입니다.");
+            }
+            if (singlePrice != null) {
+                throw new KoinIllegalArgumentException("단일 메뉴가 아닐 때 단일 메뉴 가격은 null이어야 합니다.");
+            }
         }
     }
+
     public Menu toEntity(Integer shopId) {
         return Menu.builder()
             .name(name)
