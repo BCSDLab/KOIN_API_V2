@@ -415,7 +415,6 @@ class AdminShopApiTest extends AcceptanceTest {
                         "https://test.com/test2.jpg",
                         "https://test.com/test3.jpg"
                     ],
-                    
                     "name": "테스트 상점2",
                     "open": [
                         {
@@ -678,37 +677,67 @@ class AdminShopApiTest extends AcceptanceTest {
             .header("Authorization", "Bearer " + token_admin)
             .contentType(ContentType.JSON)
             .body(String.format("""
+            {
+              "address": "충청남도 천안시 동남구 병천면 충절로 1600",
+              "category_ids": [
+               %d, %d
+              ],
+              "delivery": false,
+              "delivery_price": 1000,
+              "description": "이번주 전 메뉴 10%% 할인 이벤트합니다.",
+              "image_urls": [
+                "https://fixed-shopimage.com/수정된_상점_이미지.png"
+              ],
+              "name": "써니 숯불 도시락",
+              "open": [
                 {
-                  "address": "충청남도 천안시 동남구 병천면 충절로 1600",
-                  "category_ids": [
-                   %d, %d
-                  ],
-                  "delivery": false,
-                  "delivery_price": 1000,
-                  "description": "이번주 전 메뉴 10%% 할인 이벤트합니다.",
-                  "image_urls": [
-                    "https://fixed-shopimage.com/수정된_상점_이미지.png"
-                  ],
-                  "name": "써니 숯불 도시락",
-                  "open": [
-                    {
-                      "close_time": "22:30",
-                      "closed": false,
-                      "day_of_week": "MONDAY",
-                      "open_time": "10:00"
-                    },
-                    {
-                      "close_time": "23:30",
-                      "closed": true,
-                      "day_of_week": "SUNDAY",
-                      "open_time": "11:00"
-                    }
-                  ],
-                  "pay_bank": true,
-                  "pay_card": true,
-                  "phone": "041-123-4567"
+                    "close_time": "00:00",
+                    "closed": false,
+                    "day_of_week": "MONDAY",
+                    "open_time": "01:00"
+                },
+                {
+                    "close_time": "21:00",
+                    "closed": false,
+                    "day_of_week": "TUESDAY",
+                    "open_time": "09:00"
+                },
+                {
+                    "close_time": "21:00",
+                    "closed": false,
+                    "day_of_week": "WEDNESDAY",
+                    "open_time": "09:00"
+                },
+                {
+                    "close_time": "21:00",
+                    "closed": false,
+                    "day_of_week": "THURSDAY",
+                    "open_time": "09:00"
+                },
+                {
+                    "close_time": "21:00",
+                    "closed": false,
+                    "day_of_week": "FRIDAY",
+                    "open_time": "09:00"
+                },
+                {
+                    "close_time": "21:00",
+                    "closed": false,
+                    "day_of_week": "SATURDAY",
+                    "open_time": "09:00"
+                },
+                {
+                    "close_time": "21:00",
+                    "closed": false,
+                    "day_of_week": "SUNDAY",
+                    "open_time": "09:00"
                 }
-                """, shopCategory_일반.getId(), shopCategory_치킨.getId()
+              ],
+              "pay_bank": true,
+              "pay_card": true,
+              "phone": "041-123-4567"
+            }
+            """, shopCategory_일반.getId(), shopCategory_치킨.getId()
             ))
             .when()
             .put("/admin/shops/{id}", shop_마슬랜.getId())
@@ -717,41 +746,36 @@ class AdminShopApiTest extends AcceptanceTest {
             .extract();
 
         transactionTemplate.executeWithoutResult(status -> {
-            Shop result = adminShopRepository.getById(1);
+            Shop result = adminShopRepository.getById(shop_마슬랜.getId());
             List<ShopImage> shopImages = result.getShopImages();
             List<ShopOpen> shopOpens = result.getShopOpens();
             Set<ShopCategoryMap> shopCategoryMaps = result.getShopCategories();
-            assertSoftly(
-                softly -> {
-                    softly.assertThat(result.getAddress()).isEqualTo("충청남도 천안시 동남구 병천면 충절로 1600");
-                    softly.assertThat(result.isDeleted()).isFalse();
-                    softly.assertThat(result.getDeliveryPrice()).isEqualTo(1000);
-                    softly.assertThat(result.getDescription()).isEqualTo("이번주 전 메뉴 10% 할인 이벤트합니다.");
-                    softly.assertThat(result.getName()).isEqualTo("써니 숯불 도시락");
-                    softly.assertThat(result.isPayBank()).isTrue();
-                    softly.assertThat(result.isPayCard()).isTrue();
-                    softly.assertThat(result.getPhone()).isEqualTo("041-123-4567");
 
-                    softly.assertThat(shopCategoryMaps.size()).isEqualTo(2);
+            assertSoftly(softly -> {
+                softly.assertThat(result.getAddress()).isEqualTo("충청남도 천안시 동남구 병천면 충절로 1600");
+                softly.assertThat(result.isDeleted()).isFalse();
+                softly.assertThat(result.getDeliveryPrice()).isEqualTo(1000);
+                softly.assertThat(result.getDescription()).isEqualTo("이번주 전 메뉴 10% 할인 이벤트합니다.");
+                softly.assertThat(result.getName()).isEqualTo("써니 숯불 도시락");
+                softly.assertThat(result.isPayBank()).isTrue();
+                softly.assertThat(result.isPayCard()).isTrue();
+                softly.assertThat(result.getPhone()).isEqualTo("041-123-4567");
 
-                    softly.assertThat(shopImages.get(0).getImageUrl())
-                        .isEqualTo("https://fixed-shopimage.com/수정된_상점_이미지.png");
+                softly.assertThat(shopCategoryMaps.size()).isEqualTo(2);
 
-                    softly.assertThat(shopOpens.get(0).getCloseTime()).isEqualTo("22:30");
-                    softly.assertThat(shopOpens.get(0).getOpenTime()).isEqualTo("10:00");
+                softly.assertThat(shopImages.size()).isEqualTo(1);
+                softly.assertThat(shopImages.get(0).getImageUrl())
+                    .isEqualTo("https://fixed-shopimage.com/수정된_상점_이미지.png");
 
-                    softly.assertThat(shopOpens.get(0).getDayOfWeek()).isEqualTo("MONDAY");
-                    softly.assertThat(shopOpens.get(0).isClosed()).isFalse();
-
-                    softly.assertThat(shopOpens.get(1).getCloseTime()).isEqualTo("23:30");
-                    softly.assertThat(shopOpens.get(1).getOpenTime()).isEqualTo("11:00");
-
-                    softly.assertThat(shopOpens.get(1).getDayOfWeek()).isEqualTo("SUNDAY");
-                    softly.assertThat(shopOpens.get(1).isClosed()).isTrue();
-                }
-            );
+                softly.assertThat(shopOpens.size()).isEqualTo(7);
+                softly.assertThat(shopOpens.get(0).getCloseTime()).isEqualTo("00:00");
+                softly.assertThat(shopOpens.get(0).getOpenTime()).isEqualTo("01:00");
+                softly.assertThat(shopOpens.get(0).getDayOfWeek()).isEqualTo("MONDAY");
+                softly.assertThat(shopOpens.get(0).isClosed()).isFalse();
+            });
         });
     }
+
 
     @Test
     @DisplayName("어드민이 상점 카테고리를 수정한다.")
