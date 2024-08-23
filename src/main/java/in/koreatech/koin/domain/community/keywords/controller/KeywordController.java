@@ -53,7 +53,7 @@ public class KeywordController implements KeywordApi{
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/articles/keyword/suggestions")
+    @GetMapping("/suggestions")
     public ResponseEntity<ArticleKeywordsSuggestionResponse> suggestKeywords(
         @Auth(permit = {STUDENT}) Integer userId
     ) {

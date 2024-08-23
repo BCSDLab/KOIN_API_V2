@@ -523,4 +523,9 @@ class CommunityApiTest extends AcceptanceTest {
                    }
                 """);
     }
+
+    @Test
+    void 사용자들이_많이_검색_한_키워드_추천() {
+
+    }
 }
