@@ -59,7 +59,7 @@ class DiningApiTest extends AcceptanceTest {
         token_준기 = userFixture.getToken(coop_준기);
         owner_현수 = userFixture.현수_사장님().getUser();
         token_현수 = userFixture.getToken(owner_현수);
-        A코너_점심 = diningFixture.A코스_점심(LocalDate.parse("2024-01-15"));
+        A코너_점심 = diningFixture.A코너_점심(LocalDate.parse("2024-01-15"));
         학생식당 = coopShopFixture.학생식당();
     }
 
@@ -80,7 +80,7 @@ class DiningApiTest extends AcceptanceTest {
                         "id": 1,
                         "date": "2024-01-15",
                         "type": "LUNCH",
-                        "place": "A코스",
+                        "place": "A코너",
                         "price_card": 6000,
                         "price_cash": 6000,
                         "kcal": 881,
@@ -130,7 +130,7 @@ class DiningApiTest extends AcceptanceTest {
                         "id": 1,
                         "date": "2024-01-15",
                         "type": "LUNCH",
-                        "place": "A코스",
+                        "place": "A코너",
                         "price_card": 6000,
                         "price_cash": 6000,
                         "kcal": 881,
@@ -262,7 +262,7 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("해당 식사시간 외에 품절 요청을 한다. - 품절 알림이 발송되지 않는다.")
     void checkSoldOutNotificationAfterHours() {
-        Dining A코너_저녁 = diningFixture.A코스_저녁(LocalDate.parse("2024-01-15"));
+        Dining A코너_저녁 = diningFixture.A코너_저녁(LocalDate.parse("2024-01-15"));
         given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + token_준기)
@@ -369,7 +369,7 @@ class DiningApiTest extends AcceptanceTest {
                         "id": 1,
                         "date": "2024-01-15",
                         "type": "LUNCH",
-                        "place": "A코스",
+                        "place": "A코너",
                         "price_card": 6000,
                         "price_cash": 6000,
                         "kcal": 881,
@@ -395,8 +395,8 @@ class DiningApiTest extends AcceptanceTest {
     @DisplayName("좋아요 안누른 식단은 isLiked가 false로 반환")
     void checkIsLikedFalse() {
         var response = given()
-            .header("Authorization", "Bearer " + token_준기)
             .when()
+            .header("Authorization", "Bearer " + token_준기)
             .get("/dinings?date=240115")
             .then()
             .statusCode(HttpStatus.OK.value())
@@ -409,7 +409,7 @@ class DiningApiTest extends AcceptanceTest {
                         "id": 1,
                         "date": "2024-01-15",
                         "type": "LUNCH",
-                        "place": "A코스",
+                        "place": "A코너",
                         "price_card": 6000,
                         "price_cash": 6000,
                         "kcal": 881,
@@ -456,7 +456,7 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @DisplayName("해당 식사시간 외에 이미지 업로드를 한다. - 품절 알림이 발송되지 않는다.")
     void checkImageUploadNotificationAfterHours() {
-        Dining A코너_저녁 = diningFixture.A코스_저녁(LocalDate.parse("2024-01-15"));
+        Dining A코너_저녁 = diningFixture.A코너_저녁(LocalDate.parse("2024-01-15"));
         String imageUrl = "https://stage.koreatech.in/image.jpg";
 
         given()
@@ -475,5 +475,112 @@ class DiningApiTest extends AcceptanceTest {
             .extract();
 
         verify(coopEventListener, never()).onDiningImageUploadRequest(any());
+    }
+
+    @Test
+    @DisplayName("특정 메뉴, 특정 코너의 식단을 검색한다")
+    void searchDinings() {
+        var response = given()
+            .header("Authorization", "Bearer " + token_준기)
+            .when()
+            .get("/dinings/search?keyword=육개장&page=1&limit=10&filter=A코너")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                     "total_count": 1,
+                     "current_count": 1,
+                     "total_page": 1,
+                     "current_page": 1,
+                     "dinings": [
+                         {
+                             "id": 1,
+                             "date": "2024-01-15",
+                             "type": "LUNCH",
+                             "place": "A코너",
+                             "kcal": 881,
+                             "menu": [
+                                 "병아리콩밥",
+                                 "(탕)소고기육개장",
+                                 "땡초부추전",
+                                 "누룽지탕"
+                             ],
+                             "image_url": null,
+                             "created_at": "2024-01-15 12:00:00",
+                             "soldout_at": "2024-01-15 12:00:00",
+                             "changed_at": "2024-01-15 12:00:00",
+                             "likes": 0
+                         }
+                     ]
+                 }
+                """);
+    }
+
+    @Test
+    @DisplayName("특정 메뉴, 특정 코너의 식단을 검색한다 - 해당사항 없을 경우")
+    void searchDiningsNothing() {
+        var response = given()
+            .header("Authorization", "Bearer " + token_준기)
+            .when()
+            .get("/dinings/search?keyword=육개장&page=1&limit=10&filter=B코너")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                     "total_count": 0,
+                     "current_count": 0,
+                     "total_page": 0,
+                     "current_page": 1,
+                     "dinings": []
+                 }
+                """);
+    }
+
+    @Test
+    @DisplayName("특정 메뉴의 식단을 검색한다 - 필터 없을 경우")
+    void searchDiningsNoFilter() {
+        var response = given()
+            .header("Authorization", "Bearer " + token_준기)
+            .when()
+            .get("/dinings/search?keyword=육개장&page=1&limit=10&filter=")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+
+        JsonAssertions.assertThat(response.asPrettyString())
+            .isEqualTo("""
+                {
+                     "total_count": 1,
+                     "current_count": 1,
+                     "total_page": 1,
+                     "current_page": 1,
+                     "dinings": [
+                         {
+                             "id": 1,
+                             "date": "2024-01-15",
+                             "type": "LUNCH",
+                             "place": "A코너",
+                             "kcal": 881,
+                             "menu": [
+                                 "병아리콩밥",
+                                 "(탕)소고기육개장",
+                                 "땡초부추전",
+                                 "누룽지탕"
+                             ],
+                             "image_url": null,
+                             "created_at": "2024-01-15 12:00:00",
+                             "soldout_at": "2024-01-15 12:00:00",
+                             "changed_at": "2024-01-15 12:00:00",
+                             "likes": 0
+                         }
+                     ]
+                 }
+                """);
     }
 }
