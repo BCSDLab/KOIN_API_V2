@@ -156,6 +156,10 @@ public class CommunityService {
         Pageable pageable = PageRequest.of(0, count);
         List<Object[]> results = articleSearchLogRepository.findTopKeywords(oneDayAgo, pageable);
 
+        if (results.isEmpty()) {
+            results = articleSearchLogRepository.findTopKeywordsByLatest(pageable);
+        }
+
         return ArticleHotKeywordResponse.from(results);
     }
 }

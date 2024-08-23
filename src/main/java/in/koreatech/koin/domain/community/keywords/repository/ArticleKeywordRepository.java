@@ -21,19 +21,19 @@ public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Int
     Optional<ArticleKeyword> findById(Integer id);
 
     @Query("""
-    SELECT k.id, k.keyword, COUNT(u) AS keyword_count
-    FROM ArticleKeywordUserMap u
-    JOIN u.articleKeyword k
-    WHERE k.lastUsedAt >= :oneWeekAgo
-    GROUP BY k.id, k.keyword
-    ORDER BY keyword_count DESC
-    """)
+        SELECT k.id, k.keyword, COUNT(u) AS keyword_count
+        FROM ArticleKeywordUserMap u
+        JOIN u.articleKeyword k
+        WHERE k.lastUsedAt >= :oneWeekAgo
+        GROUP BY k.id, k.keyword
+        ORDER BY keyword_count DESC
+        """)
     List<Object[]> findTopKeywordsInLastWeek(LocalDateTime oneWeekAgo, Pageable pageable);
 
     @Query("""
-    SELECT k.id, k.keyword
-    FROM ArticleKeyword k
-    ORDER BY k.createdAt DESC
-    """)
+        SELECT k.id, k.keyword
+        FROM ArticleKeyword k
+        ORDER BY k.createdAt DESC
+        """)
     List<Object[]> findTop15Keywords(Pageable pageable);
 }

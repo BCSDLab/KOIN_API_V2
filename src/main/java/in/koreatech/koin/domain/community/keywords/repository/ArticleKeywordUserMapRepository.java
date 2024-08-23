@@ -29,11 +29,10 @@ public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywo
 
     List<ArticleKeywordUserMap> findAllByUserId(Integer userId);
 
-    @Query(
-    """
-    SELECT akw.keyword FROM ArticleKeywordUserMap akum
-    JOIN akum.articleKeyword akw
-    WHERE akum.user.id = :userId
-    """)
+    @Query("""
+        SELECT akw.keyword FROM ArticleKeywordUserMap akum
+        JOIN akum.articleKeyword akw
+        WHERE akum.user.id = :userId
+        """)
     List<String> findAllKeywordbyUserId(@Param("userId") Integer userId);
 }
