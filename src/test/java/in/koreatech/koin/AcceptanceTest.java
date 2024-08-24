@@ -26,6 +26,7 @@ import in.koreatech.koin.domain.bus.util.CityBusClient;
 import in.koreatech.koin.domain.bus.util.CityBusRouteClient;
 import in.koreatech.koin.domain.bus.util.PublicExpressBusClient;
 import in.koreatech.koin.domain.bus.util.TmoneyExpressBusClient;
+import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordEventListener;
 import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.shop.model.ShopEventListener;
@@ -57,6 +58,9 @@ public abstract class AcceptanceTest {
 
     @MockBean
     protected CoopEventListener coopEventListener;
+
+    @MockBean
+    protected ArticleKeywordEventListener articleKeywordEventListener;
 
     @SpyBean
     protected TestCircuitBreakerClient testCircuitBreakerClient;

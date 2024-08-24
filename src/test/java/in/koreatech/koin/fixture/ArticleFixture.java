@@ -64,6 +64,26 @@ public class ArticleFixture {
         );
     }
 
+    public Article 자유글_3(String title, User user, Board board) {
+        return articleRepository.save(
+            Article.builder()
+                .board(board)
+                .title(title)
+                .content("<p>내용222</p>")
+                .user(user)
+                .nickname(user.getNickname())
+                .hit(1)
+                .ip("127.0.0.1")
+                .isSolved(false)
+                .isDeleted(false)
+                .commentCount((byte)0)
+                .meta(null)
+                .isNotice(false)
+                .noticeArticleId(null)
+                .build()
+        );
+    }
+
     public ArticleFixtureBuilder builder() {
         return new ArticleFixtureBuilder();
     }

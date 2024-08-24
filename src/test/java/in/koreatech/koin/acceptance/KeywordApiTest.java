@@ -1,6 +1,8 @@
 package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,12 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.community.articles.model.Article;
+import in.koreatech.koin.domain.community.articles.model.Board;
 import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.fixture.ArticleFixture;
+import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.KeywordFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
@@ -39,6 +45,12 @@ public class KeywordApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @Autowired
+    private BoardFixture boardFixture;
+
+    @Autowired
+    private ArticleFixture articleFixture;
 
     @Test
     void 알림_키워드_추가() {
@@ -240,5 +252,37 @@ public class KeywordApiTest extends AcceptanceTest {
                   ]
                 }
             """);
+    }
+
+    @Test
+    void 공지사항이_올라오고_해당_키워드를_갖고_있는_사용자가_있을_경우_알림이_발송된다() {
+        Student student1 = userFixture.준호_학생();
+        Student student2 = userFixture.성빈_학생();
+
+        Board board = boardFixture.자유게시판();
+
+        List<Integer> articleIds = new ArrayList<>();
+
+        for (int i = 1; i <= 5; i++) {
+            Article article = articleFixture.자유글_3("수강신청" + i, student2.getUser(), board);
+            articleIds.add(article.getId());
+        }
+
+        keywordFixture.키워드1("수강신청1", student2.getUser());
+
+        RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+            {
+                "update_notification": %s
+            }
+            """.formatted(articleIds.toString()))
+            .when()
+            .post("/articles/keyword/notification")
+            .then()
+            .statusCode(HttpStatus.OK.value());
+
+        verify(articleKeywordEventListener).onKeywordDetectedRequest(any());
     }
 }
