@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
@@ -255,7 +256,7 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 공지사항이_올라오고_해당_키워드를_갖고_있는_사용자가_있을_경우_알림이_발송된다() {
+    void 새로운_공지사항이_올라오고_해당_키워드를_갖고_있는_사용자가_있을_경우_알림이_발송된다() {
         Student student1 = userFixture.준호_학생();
         Student student2 = userFixture.성빈_학생();
 
@@ -268,7 +269,7 @@ public class KeywordApiTest extends AcceptanceTest {
             articleIds.add(article.getId());
         }
 
-        keywordFixture.키워드1("수강신청1", student2.getUser());
+        keywordFixture.키워드1("수강신청1", student1.getUser());
 
         RestAssured
             .given()
@@ -284,5 +285,37 @@ public class KeywordApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value());
 
         verify(articleKeywordEventListener).onKeywordDetectedRequest(any());
+    }
+
+    @Test
+    void 새로운_공지사항이_올라오고_해당_키워드를_갖고_있는_사용자가_없으면_알림이_발송되지_않는다() {
+        Student student1 = userFixture.준호_학생();
+        Student student2 = userFixture.성빈_학생();
+
+        Board board = boardFixture.자유게시판();
+
+        List<Integer> articleIds = new ArrayList<>();
+
+        for (int i = 1; i <= 5; i++) {
+            Article article = articleFixture.자유글_3("수강신청" + i, student2.getUser(), board);
+            articleIds.add(article.getId());
+        }
+
+        keywordFixture.키워드1("수강신청6", student1.getUser());
+
+        RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .body("""
+            {
+                "update_notification": %s
+            }
+            """.formatted(articleIds.toString()))
+            .when()
+            .post("/articles/keyword/notification")
+            .then()
+            .statusCode(HttpStatus.OK.value());
+
+        verify(articleKeywordEventListener, never()).onKeywordDetectedRequest(any());
     }
 }
