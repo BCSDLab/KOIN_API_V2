@@ -50,7 +50,7 @@ public class TimetableLecture extends BaseEntity {
     @Column(name = "professor", length = 30)
     private String professor;
 
-    @Size(max = 255)
+    @Size(max = 2)
     @NotNull
     @Column(name = "grades", nullable = false)
     private String grades = "0";
