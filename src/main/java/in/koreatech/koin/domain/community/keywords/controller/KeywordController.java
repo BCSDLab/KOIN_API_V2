@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordCreateReque
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsSuggestionResponse;
+import in.koreatech.koin.domain.community.keywords.dto.KeywordNotificationRequest;
 import in.koreatech.koin.domain.community.keywords.service.KeywordService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -59,5 +60,13 @@ public class KeywordController implements KeywordApi{
     ) {
         ArticleKeywordsSuggestionResponse response = keywordService.suggestKeywords(userId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/notification")
+    public ResponseEntity<Void> pushDetectKeywordNotification(
+        @Valid @RequestBody KeywordNotificationRequest request
+    ) {
+        keywordService.sendDetectKeywordNotification(request);
+        return ResponseEntity.ok().build();
     }
 }

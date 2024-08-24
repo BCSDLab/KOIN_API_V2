@@ -13,6 +13,7 @@ import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordCreateReque
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsSuggestionResponse;
+import in.koreatech.koin.domain.community.keywords.dto.KeywordNotificationRequest;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -79,5 +80,11 @@ public interface KeywordApi {
     @GetMapping("/articles/keyword/suggestions")
     ResponseEntity<ArticleKeywordsSuggestionResponse> suggestKeywords(
         @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @Operation(summary = "키워드 알림 전송", hidden = true)
+    @PostMapping("/notification")
+    ResponseEntity<Void> pushDetectKeywordNotification(
+        @Valid @RequestBody KeywordNotificationRequest request
     );
 }

@@ -36,4 +36,6 @@ public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Int
         ORDER BY k.createdAt DESC
         """)
     List<Object[]> findTop15Keywords(Pageable pageable);
+
+    List<ArticleKeyword> findAll(Pageable pageable);
 }

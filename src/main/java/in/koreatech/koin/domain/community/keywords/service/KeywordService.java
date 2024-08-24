@@ -1,21 +1,27 @@
 package in.koreatech.koin.domain.community.keywords.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.community.articles.model.Article;
+import in.koreatech.koin.domain.community.articles.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordCreateRequest;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsSuggestionResponse;
+import in.koreatech.koin.domain.community.keywords.dto.KeywordNotificationRequest;
 import in.koreatech.koin.domain.community.keywords.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keywords.model.ArticleKeyword;
+import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordDetectedEvent;
 import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordRepository;
@@ -32,10 +38,13 @@ import lombok.RequiredArgsConstructor;
 public class KeywordService {
 
     private static final int ARTICLE_KEYWORD_LIMIT = 10;
+    private static final int KEYWORD_BATCH_SIZE = 100;
 
+    private final ApplicationEventPublisher eventPublisher;
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
     private final ArticleKeywordRepository articleKeywordRepository;
     private final ArticleKeywordSuggestRepository articleKeywordSuggestRepository;
+    private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
 
     @Transactional
@@ -102,6 +111,52 @@ public class KeywordService {
 
         return ArticleKeywordsSuggestionResponse.from(hotKeywords, userKeywords);
     }
+
+    public void sendDetectKeywordNotification(KeywordNotificationRequest request) {
+        List<Integer> updateNotificationIds = request.updateNotification();
+
+        if(!updateNotificationIds.isEmpty()) {
+            List<Article> articles = new ArrayList<>();
+
+            for (Integer id : updateNotificationIds) {
+                articles.add(articleRepository.getById(id));
+            }
+
+            List<ArticleKeywordDetectedEvent> detectedEvents = matchKeyword(articles);
+
+            if (!detectedEvents.isEmpty()) {
+                for (ArticleKeywordDetectedEvent event : detectedEvents) {
+                    eventPublisher.publishEvent(event);
+                }
+            }
+        }
+    }
+
+    private List<ArticleKeywordDetectedEvent> matchKeyword(List<Article> articles) {
+        List<ArticleKeywordDetectedEvent> detectedEvents = new ArrayList<>();
+        int offset = 0;
+        boolean hasMoreKeywords = true;
+
+        while (hasMoreKeywords) {
+            Pageable pageable = PageRequest.of(offset / KEYWORD_BATCH_SIZE, KEYWORD_BATCH_SIZE);
+            List<ArticleKeyword> keywords = articleKeywordRepository.findAll(pageable);
+
+            if (keywords.isEmpty()) {
+                hasMoreKeywords = false;
+            } else {
+                for (Article article : articles) {
+                    String title = article.getTitle();
+                    for (ArticleKeyword keyword : keywords) {
+                        if (title.contains(keyword.getKeyword())) {
+                            detectedEvents.add(new ArticleKeywordDetectedEvent(article.getId(), keyword));
+                        }
+                    }
+                }
+                offset += KEYWORD_BATCH_SIZE;
+            }
+        }
+        return detectedEvents;
+    };
 
     @Transactional
     public void fetchTopKeywordsFromLastWeek() {
