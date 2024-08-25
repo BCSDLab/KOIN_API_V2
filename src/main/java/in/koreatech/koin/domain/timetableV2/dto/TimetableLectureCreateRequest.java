@@ -38,7 +38,7 @@ public record TimetableLectureCreateRequest(
         List<Integer> classTime,
 
         @Schema(description = "강의 장소", example = "도서관", requiredMode = NOT_REQUIRED)
-        @Size(max = 30, message = "강의 징소의 최대 글자는 30글자입니다.")
+        @Size(max = 30, message = "강의 장소의 최대 글자는 30글자입니다.")
         String classPlace,
 
         @Schema(description = "교수명", example = "이강환", requiredMode = NOT_REQUIRED)
