@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,6 +62,15 @@ public class AbtestController implements AbtestApi {
     ) {
         AbtestResponse response = abtestService.putAbtest(abtestId, request);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAbtest(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @PathVariable("id") Integer abtestId
+    ) {
+        abtestService.deleteAbtest(abtestId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping

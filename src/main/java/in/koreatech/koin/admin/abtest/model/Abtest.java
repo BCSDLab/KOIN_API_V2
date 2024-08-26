@@ -99,6 +99,7 @@ public class Abtest extends BaseEntity {
         this.status = status;
     }
 
+    // TODO: 리팩토링
     public AbtestVariable assignVariable(List<AbtestVariableCount> cacheCounts) {
         Map<Integer, Integer> dbCount = abtestVariables.stream()
             .collect(Collectors.toMap(AbtestVariable::getId, AbtestVariable::getCount));

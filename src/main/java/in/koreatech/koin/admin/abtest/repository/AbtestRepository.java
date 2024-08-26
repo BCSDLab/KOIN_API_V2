@@ -29,4 +29,6 @@ public interface AbtestRepository extends Repository<Abtest, Integer> {
     Long countBy();
 
     Page<Abtest> findAll(Pageable pageable);
+
+    void deleteById(Integer abtestId);
 }

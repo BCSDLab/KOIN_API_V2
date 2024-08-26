@@ -135,6 +135,16 @@ public class AbtestService {
             variableIpTemplateRepository.deleteByVariableId(abtestVariable.getId()));
     }
 
+    @Transactional
+    public void deleteAbtest(Integer abtestId) {
+        abtestRepository.findById(abtestId).ifPresent(saved -> {
+            saved.getAbtestVariables()
+                .forEach(abtestVariable -> abtestVariableCountRepository.deleteById(abtestVariable.getId()));
+            resetVariableIpCache(saved);
+            abtestRepository.deleteById(abtestId);
+        });
+    }
+
     public AbtestsResponse getAbtests(Integer page, Integer limit) {
         Long title = abtestRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, title.intValue());

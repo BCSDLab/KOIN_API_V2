@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,6 +67,20 @@ public interface AbtestApi {
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer abtestId,
         @RequestBody @Valid AbtestRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "(ADMIN) 실험 삭제")
+    @DeleteMapping("/{id}")
+    ResponseEntity<Void> deleteAbtest(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @PathVariable("id") Integer abtestId
     );
 
     @ApiResponses(
