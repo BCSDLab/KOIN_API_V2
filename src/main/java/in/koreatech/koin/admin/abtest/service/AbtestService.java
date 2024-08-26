@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
+import in.koreatech.koin.admin.abtest.dto.AbtestDevicesResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
@@ -34,6 +35,7 @@ import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
 import in.koreatech.koin.admin.abtest.repository.VariableIpRepository;
 import in.koreatech.koin.admin.abtest.repository.VariableIpTemplateRepository;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.model.Criteria;
 import in.koreatech.koin.global.useragent.UserAgentInfo;
@@ -279,5 +281,10 @@ public class AbtestService {
 
     public AbtestUsersResponse getUsersByName(String userName) {
         return AbtestUsersResponse.from(userRepository.findAllByName(userName));
+    }
+
+    public AbtestDevicesResponse getDevicesByUserId(Integer userId) {
+        User saved = userRepository.getById(userId);
+        return AbtestDevicesResponse.from(deviceRepository.findAllByUserId(saved.getId()));
     }
 }

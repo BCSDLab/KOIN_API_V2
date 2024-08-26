@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
+import in.koreatech.koin.admin.abtest.dto.AbtestDevicesResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
@@ -143,6 +144,21 @@ public interface AbtestApi {
     ResponseEntity<AbtestUsersResponse> getUsersByName(
         @Auth(permit = {ADMIN}) Integer adminId,
         @RequestParam(value = "name") String userName
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "(ADMIN) 유저 id로 디바이스 목록 조회")
+    @GetMapping("/user/{userId}/device")
+    ResponseEntity<AbtestDevicesResponse> getDevicesByUserId(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @PathVariable(value = "userId") Integer userId
     );
 
     @ApiResponses(

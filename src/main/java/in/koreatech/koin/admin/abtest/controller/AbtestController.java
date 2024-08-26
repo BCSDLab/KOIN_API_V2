@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
+import in.koreatech.koin.admin.abtest.dto.AbtestDevicesResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
@@ -110,6 +111,15 @@ public class AbtestController implements AbtestApi {
         @RequestParam(value = "name") String userName
     ) {
         AbtestUsersResponse response = abtestService.getUsersByName(userName);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/user/{userId}/device")
+    public ResponseEntity<AbtestDevicesResponse> getDevicesByUserId(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @PathVariable(value = "userId") Integer userId
+    ) {
+        AbtestDevicesResponse response = abtestService.getDevicesByUserId(userId);
         return ResponseEntity.ok(response);
     }
 
