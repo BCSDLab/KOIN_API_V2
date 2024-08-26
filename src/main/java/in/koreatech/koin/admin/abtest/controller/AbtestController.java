@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
+import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
@@ -90,6 +91,16 @@ public class AbtestController implements AbtestApi {
     ) {
         AbtestResponse response = abtestService.getAbtest(abtestId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/close/{id}")
+    public ResponseEntity<Void> closeAbtest(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @PathVariable("id") Integer abtestId,
+        @RequestBody @Valid AbtestCloseRequest abtestCloseRequest
+    ) {
+        abtestService.closeAbtest(abtestId, abtestCloseRequest);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/me")

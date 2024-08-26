@@ -5,6 +5,6 @@ import lombok.Getter;
 @Getter
 public enum AbtestStatus {
     IN_PROGRESS,
-    CLOSE,
+    CLOSED,
     ;
 }

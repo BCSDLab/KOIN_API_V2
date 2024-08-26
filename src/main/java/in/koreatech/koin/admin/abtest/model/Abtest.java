@@ -166,7 +166,8 @@ public class Abtest extends BaseEntity {
         this.description = description;
     }
 
-    private void updateVariables(List<AbtestRequest.InnerVariableRequest> requestVariables, EntityManager entityManager) {
+    private void updateVariables(List<AbtestRequest.InnerVariableRequest> requestVariables,
+        EntityManager entityManager) {
         abtestVariables.removeIf(abtestVariable ->
             requestVariables.stream().noneMatch(requestVariable ->
                 requestVariable.name().equals(abtestVariable.getName())
@@ -208,5 +209,16 @@ public class Abtest extends BaseEntity {
 
     public String getWinnerName() {
         return winner != null ? winner.getName() : null;
+    }
+
+    public void close(String winnerName) {
+        status = AbtestStatus.CLOSED;
+        if (winnerName != null) {
+            winner = abtestVariables.stream()
+                .filter(abtestVariable -> abtestVariable.getName().equals(winnerName))
+                .findAny()
+                .orElseThrow(() -> AbtestNotIncludeVariableException.withDetail(
+                    "abtest name: " + title + ", winner name: " + winnerName));
+        }
     }
 }

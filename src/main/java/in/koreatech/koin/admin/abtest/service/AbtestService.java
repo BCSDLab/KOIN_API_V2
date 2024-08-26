@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
+import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
@@ -87,7 +88,7 @@ public class AbtestService {
             entityManager
         );
         syncCacheCountToDB(foundAbtest);
-        resetVariableIpCache(foundAbtest);
+        deleteVariableIpCache(foundAbtest);
         modifyVariableByRate(foundAbtest);
         return AbtestResponse.from(foundAbtest);
     }
@@ -130,7 +131,7 @@ public class AbtestService {
         }
     }
 
-    private void resetVariableIpCache(Abtest abtest) {
+    private void deleteVariableIpCache(Abtest abtest) {
         abtest.getAbtestVariables().forEach(abtestVariable ->
             variableIpTemplateRepository.deleteByVariableId(abtestVariable.getId()));
     }
@@ -138,11 +139,16 @@ public class AbtestService {
     @Transactional
     public void deleteAbtest(Integer abtestId) {
         abtestRepository.findById(abtestId).ifPresent(saved -> {
-            saved.getAbtestVariables()
-                .forEach(abtestVariable -> abtestVariableCountRepository.deleteById(abtestVariable.getId()));
-            resetVariableIpCache(saved);
+            syncCacheCountToDB(saved);
+            deleteCacheCount(saved);
+            deleteVariableIpCache(saved);
             abtestRepository.deleteById(abtestId);
         });
+    }
+
+    private void deleteCacheCount(Abtest abtest) {
+        abtest.getAbtestVariables()
+            .forEach(abtestVariable -> abtestVariableCountRepository.deleteById(abtestVariable.getId()));
     }
 
     public AbtestsResponse getAbtests(Integer page, Integer limit) {
@@ -156,6 +162,15 @@ public class AbtestService {
 
     public AbtestResponse getAbtest(Integer abtestId) {
         return AbtestResponse.from(abtestRepository.getById(abtestId));
+    }
+
+    @Transactional
+    public void closeAbtest(Integer abtestId, AbtestCloseRequest abtestCloseRequest) {
+        Abtest abtest = abtestRepository.getById(abtestId);
+        abtest.close(abtestCloseRequest.winnerName());
+        syncCacheCountToDB(abtest);
+        deleteCacheCount(abtest);
+        deleteVariableIpCache(abtest);
     }
 
     @Transactional

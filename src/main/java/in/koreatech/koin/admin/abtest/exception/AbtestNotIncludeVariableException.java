@@ -1,8 +1,8 @@
 package in.koreatech.koin.admin.abtest.exception;
 
-import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 
-public class AbtestNotIncludeVariableException extends KoinIllegalStateException {
+public class AbtestNotIncludeVariableException extends KoinIllegalArgumentException {
 
     private static final String DEFAULT_MESSAGE = "요청된 AB테스트 내에 실험군이 존재하지 않습니다.";
 
