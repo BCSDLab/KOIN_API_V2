@@ -153,19 +153,19 @@ public class Abtest extends BaseEntity {
     }
 
     public void update(String displayTitle, String creater, String team, String title, String description,
-        List<AbtestRequest.InnerVariableRequest> variables) {
+        List<AbtestRequest.InnerVariableRequest> variables, EntityManager entityManager) {
         if (!this.title.equals(title)) {
             throw AbtestTitleIllegalArgumentException.withDetail("실험 title은 변경할 수 없습니다.");
         }
         vaildateVariables(variables);
-        updateVariables(variables);
+        updateVariables(variables, entityManager);
         this.displayTitle = displayTitle;
         this.creator = creater;
         this.team = team;
         this.description = description;
     }
 
-    private void updateVariables(List<AbtestRequest.InnerVariableRequest> requestVariables) {
+    private void updateVariables(List<AbtestRequest.InnerVariableRequest> requestVariables, EntityManager entityManager) {
         abtestVariables.removeIf(abtestVariable ->
             requestVariables.stream().noneMatch(requestVariable ->
                 requestVariable.name().equals(abtestVariable.getName())
@@ -188,6 +188,7 @@ public class Abtest extends BaseEntity {
                 abtestVariables.add(newVariable);
             }
         });
+        entityManager.flush();
     }
 
     private static void vaildateVariables(List<AbtestRequest.InnerVariableRequest> variables) {

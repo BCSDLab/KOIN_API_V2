@@ -26,6 +26,7 @@ import in.koreatech.koin.admin.abtest.model.redis.VariableIp;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
+import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableCustomRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
@@ -44,14 +45,15 @@ public class AbtestService {
 
     private final EntityManager entityManager;
     private final AbtestVariableCountRepository abtestVariableCountRepository;
-    private final VariableIpRepository variableIpRepository;
     private final AbtestRepository abtestRepository;
     private final AbtestVariableRepository abtestVariableRepository;
     private final AccessHistoryRepository accessHistoryRepository;
     private final AccessHistoryAbtestVariableRepository accessHistoryAbtestVariableRepository;
     private final DeviceRepository deviceRepository;
     private final UserRepository userRepository;
+    private final VariableIpRepository variableIpRepository;
     private final VariableIpTemplateRepository variableIpTemplateRepository;
+    private final AccessHistoryAbtestVariableCustomRepository accessHistoryAbtestVariableCustomRepository;
 
     @Transactional
     public AbtestResponse createAbtest(AbtestRequest request) {
@@ -81,16 +83,51 @@ public class AbtestService {
             request.team(),
             request.title(),
             request.description(),
-            request.variables()
+            request.variables(),
+            entityManager
         );
-
         syncCacheCountToDB(foundAbtest);
         resetVariableIpCache(foundAbtest);
-
-        // 수정된 비율에 따라 MySQL map Table 업데이트
-
-
+        modifyVariableByRate(foundAbtest);
         return AbtestResponse.from(foundAbtest);
+    }
+
+    private void modifyVariableByRate(Abtest abtest) {
+        List<AbtestVariable> abtestVariables = abtest.getAbtestVariables();
+        int totalRecords = abtestVariables.stream().mapToInt(AbtestVariable::getCount).sum();
+
+        for (AbtestVariable variable : abtestVariables) {
+            int targetCount = totalRecords * variable.getRate() / 100;
+            int currentCount = variable.getCount();
+
+            if (currentCount < targetCount) {
+                int recordsToAdd = targetCount - currentCount;
+
+                for (AbtestVariable otherVariable : abtestVariables) {
+                    if (otherVariable.getId().equals(variable.getId())) {
+                        continue;
+                    }
+
+                    int availableToMove = otherVariable.getCount() - (totalRecords * otherVariable.getRate() / 100);
+
+                    if (availableToMove > 0) {
+                        int moveCount = Math.min(recordsToAdd, availableToMove);
+
+                        List<Integer> idsToMove =
+                            accessHistoryAbtestVariableCustomRepository.findIdsToMove(otherVariable.getId(), moveCount);
+                        accessHistoryAbtestVariableCustomRepository.updateVariableIds(idsToMove, variable.getId());
+
+                        otherVariable.addCount(-idsToMove.size());
+                        variable.addCount(idsToMove.size());
+                        recordsToAdd -= idsToMove.size();
+
+                        if (recordsToAdd <= 0) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void resetVariableIpCache(Abtest abtest) {
