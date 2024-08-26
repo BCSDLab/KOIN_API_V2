@@ -13,6 +13,7 @@ import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
+import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
 import in.koreatech.koin.admin.abtest.exception.AbtestAlreadyExistException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotAssignedUserException;
@@ -274,5 +275,9 @@ public class AbtestService {
             abtestVariableCount.resetCount();
         });
         abtestVariableCountRepository.saveAll(cacheCount);
+    }
+
+    public AbtestUsersResponse getUsersByName(String userName) {
+        return AbtestUsersResponse.from(userRepository.findAllByName(userName));
     }
 }

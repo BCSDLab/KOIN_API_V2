@@ -18,6 +18,7 @@ import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
+import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
 import in.koreatech.koin.admin.abtest.service.AbtestService;
 import in.koreatech.koin.global.auth.Auth;
@@ -101,6 +102,15 @@ public class AbtestController implements AbtestApi {
     ) {
         abtestService.closeAbtest(abtestId, abtestCloseRequest);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<AbtestUsersResponse> getUsersByName(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @RequestParam(value = "name") String userName
+    ) {
+        AbtestUsersResponse response = abtestService.getUsersByName(userName);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/me")

@@ -61,5 +61,7 @@ public interface UserRepository extends Repository<User, Integer> {
 
     List<User> findAllByDeviceTokenIsNotNull();
 
+    List<User> findAllByName(String name);
+
     Optional<User> findByPhoneNumber(String phoneNumber);
 }

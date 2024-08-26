@@ -17,6 +17,7 @@ import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
+import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
@@ -128,6 +129,20 @@ public interface AbtestApi {
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer abtestId,
         @RequestBody @Valid AbtestCloseRequest abtestCloseRequest
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "(ADMIN) 이름으로 유저 목록 조회")
+    @GetMapping("/user")
+    ResponseEntity<AbtestUsersResponse> getUsersByName(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @RequestParam(value = "name") String userName
     );
 
     @ApiResponses(
