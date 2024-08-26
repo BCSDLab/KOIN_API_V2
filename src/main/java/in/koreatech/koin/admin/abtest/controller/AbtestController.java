@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.admin.abtest.dto.AbtestAdminAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestDevicesResponse;
@@ -121,6 +122,16 @@ public class AbtestController implements AbtestApi {
     ) {
         AbtestDevicesResponse response = abtestService.getDevicesByUserId(userId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/move")
+    public ResponseEntity<Void> assignAbtestVariableByAdmin(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @PathVariable(value = "id") Integer abtestId,
+        @RequestBody @Valid AbtestAdminAssignRequest abtestAdminAssignRequest
+    ) {
+        abtestService.assignVariableByAdmin(abtestId, abtestAdminAssignRequest);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/me")

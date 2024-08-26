@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.admin.abtest.dto.AbtestAdminAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestDevicesResponse;
@@ -168,14 +169,15 @@ public class AbtestService {
     }
 
     @Transactional
-    public void closeAbtest(Integer abtestId, AbtestCloseRequest abtestCloseRequest) {
+    public void closeAbtest(Integer abtestId, AbtestCloseRequest request) {
         Abtest abtest = abtestRepository.getById(abtestId);
-        abtest.close(abtestCloseRequest.winnerName());
+        abtest.close(request.winnerName());
         syncCacheCountToDB(abtest);
         deleteCacheCount(abtest);
         deleteVariableIpCache(abtest);
     }
 
+    //TODO: 리팩토링
     @Transactional
     public String assignVariable(UserAgentInfo userAgentInfo, String ipAddress, Integer userId,
         AbtestAssignRequest request) {
@@ -286,5 +288,12 @@ public class AbtestService {
     public AbtestDevicesResponse getDevicesByUserId(Integer userId) {
         User saved = userRepository.getById(userId);
         return AbtestDevicesResponse.from(deviceRepository.findAllByUserId(saved.getId()));
+    }
+
+    @Transactional
+    public void assignVariableByAdmin(Integer abtestId, AbtestAdminAssignRequest request) {
+        Abtest abtest = abtestRepository.getById(abtestId);
+        AccessHistory accessHistory = accessHistoryRepository.getByDeviceId(request.deviceId());
+        abtest.assignVariableByAdmin(accessHistory, request.variableName());
     }
 }

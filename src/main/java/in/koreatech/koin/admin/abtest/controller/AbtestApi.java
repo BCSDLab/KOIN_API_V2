@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.admin.abtest.dto.AbtestAdminAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestDevicesResponse;
@@ -155,10 +156,26 @@ public interface AbtestApi {
         }
     )
     @Operation(summary = "(ADMIN) 유저 id로 디바이스 목록 조회")
-    @GetMapping("/user/{userId}/device")
+    @GetMapping("/user/{id}/device")
     ResponseEntity<AbtestDevicesResponse> getDevicesByUserId(
         @Auth(permit = {ADMIN}) Integer adminId,
-        @PathVariable(value = "userId") Integer userId
+        @PathVariable(value = "id") Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "(ADMIN) 실험군 수동 편입")
+    @PostMapping("/{id}/move")
+    ResponseEntity<Void> assignAbtestVariableByAdmin(
+        @Auth(permit = {ADMIN}) Integer adminId,
+        @PathVariable(value = "id") Integer abtestId,
+        @RequestBody @Valid AbtestAdminAssignRequest abtestAdminAssignRequest
     );
 
     @ApiResponses(

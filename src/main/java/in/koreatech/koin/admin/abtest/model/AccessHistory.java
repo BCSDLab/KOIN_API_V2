@@ -75,4 +75,11 @@ public class AccessHistory extends BaseEntity {
             .map(AccessHistoryAbtestVariable::getVariable)
             .anyMatch(abtestVariable -> Objects.equals(abtestVariable.getId(), variableId));
     }
+
+    public void addVariable(AbtestVariable variable) {
+        accessHistoryAbtestVariables.add(AccessHistoryAbtestVariable.builder()
+            .accessHistory(this)
+            .variable(variable)
+            .build());
+    }
 }

@@ -214,11 +214,32 @@ public class Abtest extends BaseEntity {
     public void close(String winnerName) {
         status = AbtestStatus.CLOSED;
         if (winnerName != null) {
-            winner = abtestVariables.stream()
-                .filter(abtestVariable -> abtestVariable.getName().equals(winnerName))
-                .findAny()
-                .orElseThrow(() -> AbtestNotIncludeVariableException.withDetail(
-                    "abtest name: " + title + ", winner name: " + winnerName));
+            winner = getVariableByName(winnerName);
         }
+    }
+
+    public void assignVariableByAdmin(AccessHistory accessHistory, String variableName) {
+        resetExistVariable(accessHistory);
+        AbtestVariable variable = getVariableByName(variableName);
+        accessHistory.addVariable(variable);
+        variable.addCount(1);
+    }
+
+    private AbtestVariable getVariableByName(String variableName) {
+        return abtestVariables.stream()
+            .filter(abtestVariable -> abtestVariable.getName().equals(variableName))
+            .findAny()
+            .orElseThrow(() -> AbtestNotIncludeVariableException.withDetail(
+                "abtest name: " + title + ", winner name: " + variableName));
+    }
+
+    private void resetExistVariable(AccessHistory accessHistory) {
+        accessHistory.getAccessHistoryAbtestVariables().removeIf(map -> {
+            boolean shouldRemove = map.getVariable().getAbtest().getId().equals(id);
+            if (shouldRemove) {
+                map.getVariable().addCount(-1);
+            }
+            return shouldRemove;
+        });
     }
 }
