@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.community.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
+import in.koreatech.koin.domain.community.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.domain.community.model.ArticleKeyword;
@@ -40,6 +41,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class CommunityService {
 
+    private static final int NOTICE_BOARD_ID = 4;
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final Sort ARTICLES_SORT = Sort.by(Sort.Direction.DESC, "id");
 
@@ -51,13 +53,28 @@ public class CommunityService {
     private final ArticleKeywordRepository articleKeywordRepository;
 
     @Transactional
-    public ArticleResponse getArticle(Integer userId, Integer articleId, String ipAddress) {
+    public ArticleResponse getArticle(Integer userId, Integer boardId, Integer articleId, String ipAddress) {
         Article article = articleRepository.getById(articleId);
         if (isHittable(articleId, userId, ipAddress)) {
             article.increaseHit();
         }
+        Board board = getBoard(boardId, article);
+        Article prevArticle = articleRepository.getPreviousArticle(board, article);
+        Article nextArticle = articleRepository.getNextArticle(board, article);
+        article.setPrevNextArticles(prevArticle, nextArticle);
         article.getComment().forEach(comment -> comment.updateAuthority(userId));
         return ArticleResponse.of(article);
+    }
+
+    private Board getBoard(Integer boardId, Article article) {
+        if (boardId == null) {
+            boardId = article.getBoard().getId();
+        }
+        if (!Objects.equals(boardId, article.getBoard().getId())
+            && (!article.getBoard().isNotice() || boardId != NOTICE_BOARD_ID)) {
+            throw ArticleBoardMisMatchException.withDetail("boardId: " + boardId + ", articleId: " + article.getId());
+        }
+        return boardRepository.getById(boardId);
     }
 
     private boolean isHittable(Integer articleId, Integer userId, String ipAddress) {

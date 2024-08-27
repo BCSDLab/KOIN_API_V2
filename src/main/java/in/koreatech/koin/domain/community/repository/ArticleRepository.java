@@ -6,10 +6,14 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.community.exception.ArticleNotFoundException;
 import in.koreatech.koin.domain.community.model.Article;
+import in.koreatech.koin.domain.community.model.Board;
+import in.koreatech.koin.domain.community.model.BoardTag;
 
 public interface ArticleRepository extends Repository<Article, Integer> {
 
@@ -36,4 +40,34 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Page<Article> findAllByIsNoticeAndTitleContaining(Boolean isNotice, String query, PageRequest pageRequest);
 
     Long countBy();
+
+    @Query(value = "SELECT * FROM articles a WHERE a.id < :articleId AND a.is_notice = true "
+        + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
+    Optional<Article> findPreviousNoticeArticle(@Param("articleId") Integer articleId);
+
+    @Query(value = "SELECT * FROM articles a WHERE a.id < :articleId AND a.board_id = :boardId "
+        + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
+    Optional<Article> findPreviousArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
+
+    @Query(value = "SELECT * FROM articles a WHERE a.id > :articleId AND a.is_notice = true "
+        + "ORDER BY a.id ASC LIMIT 1", nativeQuery = true)
+    Optional<Article> findNextNoticeArticle(@Param("articleId") Integer articleId);
+
+    @Query(value = "SELECT * FROM articles a WHERE a.id > :articleId AND a.board_id = :boardId "
+        + "ORDER BY a.id ASC LIMIT 1", nativeQuery = true)
+    Optional<Article> findNextArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
+
+    default Article getPreviousArticle(Board board, Article article) {
+        if (board.isNotice() && board.getTag().equals(BoardTag.공지사항.getTag())) {
+            return findPreviousNoticeArticle(article.getId()).orElse(null);
+        }
+        return findPreviousArticle(article.getId(), board.getId()).orElse(null);
+    }
+
+    default Article getNextArticle(Board board, Article article) {
+        if (board.isNotice() && board.getTag().equals(BoardTag.공지사항.getTag())) {
+            return findNextNoticeArticle(article.getId()).orElse(null);
+        }
+        return findNextArticle(article.getId(), board.getId()).orElse(null);
+    }
 }
