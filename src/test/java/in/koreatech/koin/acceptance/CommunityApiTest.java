@@ -92,6 +92,8 @@ class CommunityApiTest extends AcceptanceTest {
                     "content": "<p>내용</p>",
                     "nickname": "준호",
                     "hit": 1,
+                    "prev_id": null,
+                    "next_id": 2,
                     "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
@@ -134,6 +136,8 @@ class CommunityApiTest extends AcceptanceTest {
                     "content": "<p>내용</p>",
                     "nickname": "준호",
                     "hit": 2,
+                    "prev_id": null,
+                    "next_id": 2,
                     "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
