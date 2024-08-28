@@ -1,6 +1,7 @@
 package in.koreatech.koin.admin.abtest.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
 import in.koreatech.koin.admin.abtest.exception.AbtestAlreadyExistException;
 import in.koreatech.koin.admin.abtest.exception.AbtestAssignedUserException;
+import in.koreatech.koin.admin.abtest.exception.AbtestDuplicatedVariableException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotAssignedUserException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotInProgressUserException;
 import in.koreatech.koin.admin.abtest.model.Abtest;
@@ -314,14 +316,21 @@ public class AbtestService {
 
     @Transactional
     public void assignVariableByAdmin(Integer abtestId, AbtestAdminAssignRequest request) {
-        // TODO: 이미 거기 편입되어 있으면 예외 반환
         Abtest abtest = abtestRepository.getById(abtestId);
         AccessHistory accessHistory = accessHistoryRepository.getByDeviceId(request.deviceId());
         AbtestVariable beforeVariable = abtest.findVariableByAccessHistory(accessHistory);
         AbtestVariable afterVariable = abtest.getVariableByName(request.variableName());
+        validateDuplicatedVariables(beforeVariable, afterVariable);
         abtest.assignVariableByAdmin(accessHistory, request.variableName());
         abtestVariableIpRepository.deleteByVariableIdAndIp(beforeVariable.getId(), accessHistory.getPublicIp());
         variableIpCacheSave(afterVariable, accessHistory.getPublicIp());
+    }
+
+    private static void validateDuplicatedVariables(AbtestVariable beforeVariable, AbtestVariable afterVariable) {
+        if (Objects.equals(beforeVariable.getId(), afterVariable.getId())) {
+            throw AbtestDuplicatedVariableException.withDetail("beforeVariable id: " + beforeVariable.getId()
+                + ", afterVariable id: " + afterVariable.getId());
+        }
     }
 
     private void validateAbtestStatus(Abtest abtest) {
