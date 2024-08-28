@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.community.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -57,11 +58,14 @@ public record ArticlesResponse(
         @Schema(description = "제목", example = "제목", requiredMode = REQUIRED)
         String title,
 
-        @Schema(description = "작성자 닉네임", example = "닉네임", requiredMode = REQUIRED)
-        String nickname,
+        @Schema(description = "작성자", example = "닉네임", requiredMode = REQUIRED)
+        String author,
 
         @Schema(description = "조회수", example = "1", requiredMode = REQUIRED)
         int hit,
+
+        @Schema(description = "등록 일자", example = "2024-08-28", requiredMode = REQUIRED)
+        @JsonFormat(pattern = "yyyy-MM-dd") LocalDate registeredAt,
 
         @Schema(description = "생성 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
@@ -75,8 +79,9 @@ public record ArticlesResponse(
                 article.getId(),
                 article.getBoard().getId(),
                 article.getTitle(),
-                article.getNickname(),
+                article.getAuthor(),
                 article.getHit(),
+                article.getRegisteredAt(),
                 article.getCreatedAt(),
                 article.getUpdatedAt()
             );

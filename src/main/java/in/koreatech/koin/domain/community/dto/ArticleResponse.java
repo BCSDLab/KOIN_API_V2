@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.community.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -26,11 +27,14 @@ public record ArticleResponse(
     @Schema(description = "내용", example = "내용", requiredMode = REQUIRED)
     String content,
 
-    @Schema(description = "작성자 닉네임", example = "닉네임", requiredMode = REQUIRED)
-    String nickname,
+    @Schema(description = "작성자", example = "닉네임", requiredMode = REQUIRED)
+    String author,
 
     @Schema(description = "조회수", example = "1", requiredMode = REQUIRED)
     Integer hit,
+
+    @Schema(description = "등록 일자", example = "2024-08-28", requiredMode = REQUIRED)
+    @JsonFormat(pattern = "yyyy-MM-dd") LocalDate registeredAt,
 
     @Schema(description = "이전 게시글 ID", example = "1")
     Integer prevId,
@@ -51,8 +55,9 @@ public record ArticleResponse(
             article.getBoard().getId(),
             article.getTitle(),
             article.getContent(),
-            article.getNickname(),
+            article.getAuthor(),
             article.getHit(),
+            article.getRegisteredAt(),
             article.getPrevId(),
             article.getNextId(),
             article.getCreatedAt(),

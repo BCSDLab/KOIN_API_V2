@@ -20,8 +20,6 @@ import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.service.CommunityService;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
-import in.koreatech.koin.global.ipaddress.IpAddress;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -33,12 +31,10 @@ public class CommunityController implements CommunityApi {
 
     @GetMapping("/articles/{id}")
     public ResponseEntity<ArticleResponse> getArticle(
-        @UserId Integer userId,
         @RequestParam(required = false) Integer boardId,
-        @PathVariable("id") Integer articleId,
-        @IpAddress String ipAddress
+        @PathVariable("id") Integer articleId
     ) {
-        ArticleResponse foundArticle = communityService.getArticle(userId, boardId, articleId, ipAddress);
+        ArticleResponse foundArticle = communityService.getArticle(boardId, articleId);
         return ResponseEntity.ok().body(foundArticle);
     }
 
