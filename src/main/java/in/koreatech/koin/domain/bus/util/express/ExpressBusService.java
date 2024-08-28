@@ -26,29 +26,39 @@ import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusTimetable;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
-import in.koreatech.koin.global.domain.callcontoller.CallControllable;
+import in.koreatech.koin.global.domain.callcontoller.CallController;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class ExpressBusService implements CallControllable<ExpressBusClient> {
+public class ExpressBusService {
 
     private final List<ExpressBusClient> expressBusTypes;
     private final List<ExpressBusClient> apiCallListByRatio = new ArrayList<>();
     private final ExpressBusCacheRepository expressBusCacheRepository;
+    private final CallController<ExpressBusClient> callController;
 
     public void storeRemainTimeByRatio() {
-        ExpressBusClient selectedBusClient = getInstanceByRatio();
-        selectedBusClient.storeRemainTime();
-    }
-
-    @Override
-    public ExpressBusClient getInstanceByRatio() {
-        if (apiCallListByRatio.isEmpty()) {
-            apiCallListByRatio.addAll(generateApiCallListByRatio(expressBusTypes));
+        ExpressBusClient selectedBus = callController.getInstanceByRatio(expressBusTypes, apiCallListByRatio);
+        List<ExpressBusClient> fallBackableTypes = new ArrayList<>(expressBusTypes);
+        while (true) {
+            try {
+                System.out.println("호출할 버스: " + selectedBus);
+                selectedBus.storeRemainTime();
+                System.out.println("성공!");
+                break;
+            } catch (CallNotPermittedException e) {
+                System.out.println("다른 API를 호출합니다.(서킷브레이커)");
+                selectedBus = callController.fallBack(true, selectedBus, fallBackableTypes);
+            } catch (IndexOutOfBoundsException e) {
+                throw new RuntimeException("호출할 수 있는 버스 API가 없습니다.");
+            } catch (Exception e) {
+                System.out.println("다른 API를 호출합니다.(일반)");
+                selectedBus = callController.fallBack(false, selectedBus, fallBackableTypes);
+            }
         }
-        return selectCallApi(apiCallListByRatio);
     }
 
     public SingleBusTimeResponse searchBusTime(

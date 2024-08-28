@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
@@ -28,7 +29,7 @@ public class StaticExpressBusClient extends ExpressBusClient {
         super(expressBusCacheRepository, versionRepository, clock);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void storeRemainTime() {
         for (BusStation depart : BusStation.values()) {
             for (BusStation arrival : BusStation.values()) {
