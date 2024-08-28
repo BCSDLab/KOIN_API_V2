@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.keywords.repository;
+package in.koreatech.koin.domain.community.keyword.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin.domain.community.keywords.exception.ArticleKeywordUserMapNotFoundException;
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordUserMap;
+import in.koreatech.koin.domain.community.keyword.exception.ArticleKeywordUserMapNotFoundException;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 
 public interface ArticleKeywordUserMapRepository extends Repository<ArticleKeywordUserMap, Integer> {
 

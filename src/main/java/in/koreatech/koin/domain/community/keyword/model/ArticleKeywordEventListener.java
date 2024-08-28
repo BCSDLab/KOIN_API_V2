@@ -1,21 +1,18 @@
-package in.koreatech.koin.domain.community.keywords.model;
+package in.koreatech.koin.domain.community.keyword.model;
 
 import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD_DETECT;
 import static in.koreatech.koin.global.fcm.MobileAppPath.KEYWORD;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.notification.model.Notification;
 import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
-import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.keywords.model;
+package in.koreatech.koin.domain.community.keyword.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import in.koreatech.koin.domain.community.keywords.exception.KeywordDuplicationException;
+import in.koreatech.koin.domain.community.keyword.exception.KeywordDuplicationException;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

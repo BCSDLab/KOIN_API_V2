@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.keywords.service;
+package in.koreatech.koin.domain.community.keyword.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,19 +14,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.community.articles.model.Article;
 import in.koreatech.koin.domain.community.articles.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordCreateRequest;
-import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordResponse;
-import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsResponse;
-import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsSuggestionResponse;
-import in.koreatech.koin.domain.community.keywords.dto.KeywordNotificationRequest;
-import in.koreatech.koin.domain.community.keywords.exception.KeywordLimitExceededException;
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeyword;
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordDetectedEvent;
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordUserMap;
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggestCache;
-import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordUserMapRepository;
-import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordSuggestRepository;
+import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordCreateRequest;
+import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordResponse;
+import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsResponse;
+import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsSuggestionResponse;
+import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
+import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordDetectedEvent;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;

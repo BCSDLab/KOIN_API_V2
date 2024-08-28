@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.keywords.exception;
+package in.koreatech.koin.domain.community.keyword.exception;
 
 import in.koreatech.koin.global.exception.KoinException;
 

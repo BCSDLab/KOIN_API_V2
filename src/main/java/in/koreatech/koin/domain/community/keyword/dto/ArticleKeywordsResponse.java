@@ -1,11 +1,11 @@
-package in.koreatech.koin.domain.community.keywords.dto;
+package in.koreatech.koin.domain.community.keyword.dto;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordUserMap;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record ArticleKeywordsResponse (

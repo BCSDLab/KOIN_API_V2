@@ -1,15 +1,9 @@
 package in.koreatech.koin.fixture;
 
-import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.community.articles.model.Article;
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeyword;
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.articles.model.Board;
-import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.articles.repository.ArticleRepository;
 import in.koreatech.koin.domain.user.model.User;
 

@@ -1,10 +1,10 @@
-package in.koreatech.koin.domain.community.keywords.repository;
+package in.koreatech.koin.domain.community.keyword.repository;
 
 import java.util.List;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggestCache;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 
 public interface ArticleKeywordSuggestRepository extends Repository<ArticleKeywordSuggestCache, String> {
 

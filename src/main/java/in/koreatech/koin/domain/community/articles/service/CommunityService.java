@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,26 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.community.articles.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.articles.model.ArticleSearchLog;
 import in.koreatech.koin.domain.community.articles.repository.ArticleSearchLogRepository;
-import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordCreateRequest;
-import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.articles.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.articles.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.articles.dto.HotArticleItemResponse;
-import in.koreatech.koin.domain.community.keywords.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.articles.model.Article;
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeyword;
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.articles.model.ArticleViewLog;
 import in.koreatech.koin.domain.community.articles.model.Board;
 import in.koreatech.koin.domain.community.articles.model.BoardTag;
-import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.articles.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.articles.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.articles.repository.BoardRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
@@ -154,12 +144,12 @@ public class CommunityService {
     public ArticleHotKeywordResponse getArticlesHotKeyword(Integer count) {
         LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
         Pageable pageable = PageRequest.of(0, count);
-        List<Object[]> results = articleSearchLogRepository.findTopKeywords(oneDayAgo, pageable);
+        List<String> topKeywords = articleSearchLogRepository.findTopKeywords(oneDayAgo, pageable);
 
-        if (results.isEmpty()) {
-            results = articleSearchLogRepository.findTopKeywordsByLatest(pageable);
+        if (topKeywords == null || topKeywords.isEmpty()) {
+            topKeywords = articleSearchLogRepository.findTopKeywordsByLatest(pageable);
         }
 
-        return ArticleHotKeywordResponse.from(results);
+        return ArticleHotKeywordResponse.from(topKeywords);
     }
 }

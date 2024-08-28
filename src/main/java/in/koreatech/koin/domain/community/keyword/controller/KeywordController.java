@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.keywords.controller;
+package in.koreatech.koin.domain.community.keyword.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordCreateRequest;
-import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordResponse;
-import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsResponse;
-import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordsSuggestionResponse;
-import in.koreatech.koin.domain.community.keywords.dto.KeywordNotificationRequest;
-import in.koreatech.koin.domain.community.keywords.service.KeywordService;
+import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordCreateRequest;
+import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordResponse;
+import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsResponse;
+import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsSuggestionResponse;
+import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
+import in.koreatech.koin.domain.community.keyword.service.KeywordService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

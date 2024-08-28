@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.keywords.repository;
+package in.koreatech.koin.domain.community.keyword.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeyword;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 
 public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Integer> {
 

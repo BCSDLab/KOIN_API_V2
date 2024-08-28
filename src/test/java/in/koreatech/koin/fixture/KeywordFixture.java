@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeyword;
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordUserMap;
-import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.keywords.repository.ArticleKeywordUserMapRepository;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.user.model.User;
 
 @Component

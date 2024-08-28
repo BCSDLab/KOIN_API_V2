@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.keywords.dto;
+package in.koreatech.koin.domain.community.keyword.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

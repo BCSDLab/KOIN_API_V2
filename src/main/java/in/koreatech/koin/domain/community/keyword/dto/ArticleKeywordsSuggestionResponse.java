@@ -1,11 +1,11 @@
-package in.koreatech.koin.domain.community.keywords.dto;
+package in.koreatech.koin.domain.community.keyword.dto;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import in.koreatech.koin.domain.community.keywords.model.ArticleKeywordSuggestCache;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record ArticleKeywordsSuggestionResponse(

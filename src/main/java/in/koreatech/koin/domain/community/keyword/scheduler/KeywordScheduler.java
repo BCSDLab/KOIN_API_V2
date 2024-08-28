@@ -1,9 +1,9 @@
-package in.koreatech.koin.domain.community.keywords.scheduler;
+package in.koreatech.koin.domain.community.keyword.scheduler;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.community.keywords.service.KeywordService;
+import in.koreatech.koin.domain.community.keyword.service.KeywordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

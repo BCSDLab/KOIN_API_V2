@@ -17,19 +17,19 @@ public interface ArticleSearchLogRepository extends Repository<ArticleSearchLog,
     Optional<ArticleSearchLog> findByKeywordAndIpAddress(String query, String ipAddress);
 
     @Query("""
-        SELECT log.keyword, COUNT(log.keyword) AS keywordCount
+        SELECT log.keyword
         FROM ArticleSearchLog log
         WHERE log.updatedAt >= :oneDayAgo
         GROUP BY log.keyword
         ORDER BY COUNT(log.keyword) DESC
         """)
-    List<Object[]> findTopKeywords(LocalDateTime oneDayAgo, Pageable pageable);
+    List<String> findTopKeywords(LocalDateTime oneDayAgo, Pageable pageable);
 
     @Query("""
-        SELECT log.keyword, COUNT(log.keyword) AS keywordCount, MAX(log.updatedAt) AS latestUpdate
+        SELECT log.keyword
         FROM ArticleSearchLog log
         GROUP BY log.keyword
-        ORDER BY latestUpdate DESC, keywordCount DESC
+        ORDER BY MAX(log.updatedAt) DESC, COUNT(log.keyword) DESC
         """)
-    List<Object[]> findTopKeywordsByLatest(Pageable pageable);
+    List<String> findTopKeywordsByLatest(Pageable pageable);
 }

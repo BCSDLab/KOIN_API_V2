@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.keywords.model;
+package in.koreatech.koin.domain.community.keyword.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;

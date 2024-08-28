@@ -13,15 +13,11 @@ public record ArticleHotKeywordResponse (
     """)
     List<String> keywords
 ) {
-    public static ArticleHotKeywordResponse from(List<Object[]> results) {
+    public static ArticleHotKeywordResponse from(List<String> results) {
         if (results == null || results.isEmpty()) {
             return new ArticleHotKeywordResponse(Collections.emptyList());
         }
 
-        List<String> keywords = results.stream()
-            .map(result -> (String) result[0])
-            .collect(Collectors.toList());
-
-        return new ArticleHotKeywordResponse(keywords);
+        return new ArticleHotKeywordResponse(results);
     }
 }

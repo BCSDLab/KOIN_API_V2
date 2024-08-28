@@ -1,25 +1,18 @@
 package in.koreatech.koin.domain.community.articles.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.community.articles.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.articles.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.articles.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.articles.dto.HotArticleItemResponse;
-import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordCreateRequest;
-import in.koreatech.koin.domain.community.keywords.dto.ArticleKeywordResponse;
-import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,7 +22,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) Community: 커뮤니티", description = "커뮤니티 정보를 관리한다")
 public interface CommunityApi {

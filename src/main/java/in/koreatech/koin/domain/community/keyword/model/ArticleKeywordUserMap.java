@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.keywords.model;
+package in.koreatech.koin.domain.community.keyword.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
