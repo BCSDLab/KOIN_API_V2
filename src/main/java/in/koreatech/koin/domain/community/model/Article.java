@@ -105,6 +105,12 @@ public class Article extends BaseEntity {
     @Transient
     private String contentSummary;
 
+    @Transient
+    private Integer prevId;
+
+    @Transient
+    private Integer nextId;
+
     @PostPersist
     @PostLoad
     public void updateContentSummary() {
@@ -122,6 +128,15 @@ public class Article extends BaseEntity {
 
     public void increaseHit() {
         hit++;
+    }
+
+    public void setPrevNextArticles(Article prev, Article next) {
+        if (prev != null) {
+            prevId = prev.getId();
+        }
+        if (next != null) {
+            nextId = next.getId();
+        }
     }
 
     @Builder

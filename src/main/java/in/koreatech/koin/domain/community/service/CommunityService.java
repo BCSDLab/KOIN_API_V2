@@ -17,13 +17,13 @@ import in.koreatech.koin.domain.community.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
+import in.koreatech.koin.domain.community.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.model.Article;
 import in.koreatech.koin.domain.community.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.model.ArticleViewLog;
 import in.koreatech.koin.domain.community.model.Board;
-import in.koreatech.koin.domain.community.model.BoardTag;
 import in.koreatech.koin.domain.community.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.repository.ArticleRepository;
@@ -40,6 +40,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class CommunityService {
 
+    public static final int NOTICE_BOARD_ID = 4;
+
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final Sort ARTICLES_SORT = Sort.by(Sort.Direction.DESC, "id");
 
@@ -51,13 +53,28 @@ public class CommunityService {
     private final ArticleKeywordRepository articleKeywordRepository;
 
     @Transactional
-    public ArticleResponse getArticle(Integer userId, Integer articleId, String ipAddress) {
+    public ArticleResponse getArticle(Integer userId, Integer boardId, Integer articleId, String ipAddress) {
         Article article = articleRepository.getById(articleId);
         if (isHittable(articleId, userId, ipAddress)) {
             article.increaseHit();
         }
+        Board board = getBoard(boardId, article);
+        Article prevArticle = articleRepository.getPreviousArticle(board, article);
+        Article nextArticle = articleRepository.getNextArticle(board, article);
+        article.setPrevNextArticles(prevArticle, nextArticle);
         article.getComment().forEach(comment -> comment.updateAuthority(userId));
         return ArticleResponse.of(article);
+    }
+
+    private Board getBoard(Integer boardId, Article article) {
+        if (boardId == null) {
+            boardId = article.getBoard().getId();
+        }
+        if (!Objects.equals(boardId, article.getBoard().getId())
+            && (!article.getBoard().isNotice() || boardId != NOTICE_BOARD_ID)) {
+            throw ArticleBoardMisMatchException.withDetail("boardId: " + boardId + ", articleId: " + article.getId());
+        }
+        return boardRepository.getById(boardId);
     }
 
     private boolean isHittable(Integer articleId, Integer userId, String ipAddress) {
@@ -88,12 +105,10 @@ public class CommunityService {
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
-
-        if (isFullNoticeBoard(board)) {
-            Page<Article> articles = articleRepository.findAllByIsNotice(true, pageRequest);
+        if (boardId == NOTICE_BOARD_ID) {
+            Page<Article> articles = articleRepository.findAllByBoardIsNoticeIsTrue(pageRequest);
             return ArticlesResponse.of(articles, criteria);
         }
-
         Page<Article> articles = articleRepository.findAllByBoardId(boardId, pageRequest);
         return ArticlesResponse.of(articles, criteria);
     }
@@ -112,16 +127,12 @@ public class CommunityService {
         Page<Article> articles;
         if (boardId == null) {
             articles = articleRepository.findAllByTitleContaining(query, pageRequest);
-        } else if (isFullNoticeBoard(boardRepository.getById(boardId))) {
-            articles = articleRepository.findAllByIsNoticeAndTitleContaining(true, query, pageRequest);
+        } else if (boardId == NOTICE_BOARD_ID) {
+            articles = articleRepository.findAllByBoardIsNoticeIsTrueAndTitleContaining(query, pageRequest);
         } else {
             articles = articleRepository.findAllByBoardIdAndTitleContaining(boardId, query, pageRequest);
         }
         return ArticlesResponse.of(articles, criteria);
-    }
-
-    private boolean isFullNoticeBoard(Board board) {
-        return board.isNotice() && Objects.equals(board.getTag(), BoardTag.공지사항.getTag());
     }
 
     @Transactional
