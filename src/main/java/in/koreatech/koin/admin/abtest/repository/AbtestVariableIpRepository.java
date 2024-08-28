@@ -14,7 +14,13 @@ public interface AbtestVariableIpRepository extends Repository<AbtestVariableIp,
 
     Optional<AbtestVariableIp> findById(String id);
 
+    void deleteById(String id);
+
     default Optional<AbtestVariableIp> findByVariableIdAndIp(Integer variableId, String ip) {
         return findById(variableId + DELIMITER + ip);
+    }
+
+    default void deleteByVariableIdAndIp(Integer variableId, String ip) {
+        deleteById(variableId + DELIMITER + ip);
     }
 }

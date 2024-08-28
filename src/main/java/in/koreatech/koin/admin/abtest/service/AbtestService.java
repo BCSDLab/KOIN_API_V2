@@ -314,9 +314,14 @@ public class AbtestService {
 
     @Transactional
     public void assignVariableByAdmin(Integer abtestId, AbtestAdminAssignRequest request) {
+        // TODO: 이미 거기 편입되어 있으면 예외 반환
         Abtest abtest = abtestRepository.getById(abtestId);
         AccessHistory accessHistory = accessHistoryRepository.getByDeviceId(request.deviceId());
+        AbtestVariable beforeVariable = abtest.findVariableByAccessHistory(accessHistory);
+        AbtestVariable afterVariable = abtest.getVariableByName(request.variableName());
         abtest.assignVariableByAdmin(accessHistory, request.variableName());
+        abtestVariableIpRepository.deleteByVariableIdAndIp(beforeVariable.getId(), accessHistory.getPublicIp());
+        variableIpCacheSave(afterVariable, accessHistory.getPublicIp());
     }
 
     private void validateAbtestStatus(Abtest abtest) {

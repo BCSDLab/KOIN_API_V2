@@ -220,7 +220,7 @@ public class Abtest extends BaseEntity {
         variable.addCount(1);
     }
 
-    private AbtestVariable getVariableByName(String variableName) {
+    public AbtestVariable getVariableByName(String variableName) {
         return abtestVariables.stream()
             .filter(abtestVariable -> abtestVariable.getName().equals(variableName))
             .findAny()
@@ -229,12 +229,16 @@ public class Abtest extends BaseEntity {
     }
 
     private void resetExistVariable(AccessHistory accessHistory) {
-        accessHistory.getAccessHistoryAbtestVariables().removeIf(map -> {
-            boolean shouldRemove = map.getVariable().getAbtest().getId().equals(id);
-            if (shouldRemove) {
-                map.getVariable().addCount(-1);
-            }
-            return shouldRemove;
-        });
+        AbtestVariable variable = findVariableByAccessHistory(accessHistory);
+        variable.addCount(-1);
+        accessHistory.removeVariable(variable);
+    }
+
+    public AbtestVariable findVariableByAccessHistory(AccessHistory accessHistory) {
+        return accessHistory.getAccessHistoryAbtestVariables().stream()
+            .filter(map -> map.getAccessHistory().getId().equals(accessHistory.getId()))
+            .map(AccessHistoryAbtestVariable::getVariable)
+            .findAny()
+            .orElseThrow(() -> AbtestNotIncludeVariableException.withDetail("abtest name: " + title));
     }
 }
