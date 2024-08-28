@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@RedisHash("AbTestCount")
+@RedisHash("AbtestVariableCount")
 public class AbtestVariableCount {
 
     @Id

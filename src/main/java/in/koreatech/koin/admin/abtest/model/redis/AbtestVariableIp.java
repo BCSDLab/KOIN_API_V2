@@ -10,16 +10,10 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@RedisHash("VariableIp")
-public class VariableIp {
+@RedisHash("AbtestVariableIp")
+public class AbtestVariableIp {
 
-    /**
-     * MEMO
-     * 특정 실험에서 특정 아이피의 실험군을 조회하고자 한다면?
-     * 해당 실험에 속한 모든 실험군을 stream으로 순회하며 각각에 대해
-     * variableId:ip 꼴로 variableIpRepository.existsById(String id) 한다.
-     * -> findByVariableIdAndIp()
-     */
+    public static final String DELIMITER = "/";
 
     private static final long CACHE_EXPIRE_DAYS = 3L;
 
@@ -30,14 +24,14 @@ public class VariableIp {
     private final Long expiration;
 
     @Builder
-    private VariableIp(String id, Long expiration) {
+    private AbtestVariableIp(String id, Long expiration) {
         this.id = id;
         this.expiration = expiration;
     }
 
-    public static VariableIp of(Integer variableId, String ip) {
-        return VariableIp.builder()
-            .id(variableId + ":" + ip)
+    public static AbtestVariableIp of(Integer variableId, String ip) {
+        return AbtestVariableIp.builder()
+            .id(variableId + DELIMITER + ip)
             .expiration(CACHE_EXPIRE_DAYS)
             .build();
     }

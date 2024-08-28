@@ -26,16 +26,16 @@ import in.koreatech.koin.admin.abtest.model.AbtestVariable;
 import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
-import in.koreatech.koin.admin.abtest.model.redis.VariableIp;
+import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableIp;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRepository;
+import in.koreatech.koin.admin.abtest.repository.AbtestVariableIpRepository;
+import in.koreatech.koin.admin.abtest.repository.AbtestVariableIpTemplateRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableCustomRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
-import in.koreatech.koin.admin.abtest.repository.VariableIpRepository;
-import in.koreatech.koin.admin.abtest.repository.VariableIpTemplateRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.model.Criteria;
@@ -56,8 +56,8 @@ public class AbtestService {
     private final AccessHistoryAbtestVariableRepository accessHistoryAbtestVariableRepository;
     private final DeviceRepository deviceRepository;
     private final UserRepository userRepository;
-    private final VariableIpRepository variableIpRepository;
-    private final VariableIpTemplateRepository variableIpTemplateRepository;
+    private final AbtestVariableIpRepository abtestVariableIpRepository;
+    private final AbtestVariableIpTemplateRepository abtestVariableIpTemplateRepository;
     private final AccessHistoryAbtestVariableCustomRepository accessHistoryAbtestVariableCustomRepository;
 
     @Transactional
@@ -137,7 +137,7 @@ public class AbtestService {
 
     private void deleteVariableIpCache(Abtest abtest) {
         abtest.getAbtestVariables().forEach(abtestVariable ->
-            variableIpTemplateRepository.deleteByVariableId(abtestVariable.getId()));
+            abtestVariableIpTemplateRepository.deleteByVariableId(abtestVariable.getId()));
     }
 
     @Transactional
@@ -236,7 +236,7 @@ public class AbtestService {
     }
 
     private void variableIpCacheSave(AbtestVariable variable, String ipAddress) {
-        variableIpRepository.save(VariableIp.of(variable.getId(), ipAddress));
+        abtestVariableIpRepository.save(AbtestVariableIp.of(variable.getId(), ipAddress));
     }
 
     @Transactional
@@ -244,7 +244,7 @@ public class AbtestService {
         Abtest abtest = abtestRepository.getByTitle(title);
         Optional<AbtestVariable> cacheVariable = abtest.getAbtestVariables().stream()
             .filter(abtestVariable ->
-                variableIpRepository.findByVariableIdAndIp(abtestVariable.getId(), ipAddress).isPresent())
+                abtestVariableIpRepository.findByVariableIdAndIp(abtestVariable.getId(), ipAddress).isPresent())
             .findAny();
 
         if (cacheVariable.isEmpty()) {
@@ -254,7 +254,7 @@ public class AbtestService {
                 .findVariableByAbtestId(abtest.getId())
                 .orElseThrow(() -> AbtestNotAssignedUserException.withDetail("abtestId: " + abtest.getId() + ", "
                     + "publicIp: " + ipAddress));
-            variableIpRepository.save(VariableIp.of(dbVariable.getId(), ipAddress));
+            abtestVariableIpRepository.save(AbtestVariableIp.of(dbVariable.getId(), ipAddress));
             return dbVariable.getName();
         }
 

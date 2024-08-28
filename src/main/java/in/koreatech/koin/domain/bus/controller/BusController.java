@@ -11,9 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.admin.abtest.model.redis.VariableIp;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRepository;
-import in.koreatech.koin.admin.abtest.repository.VariableIpRepository;
+import in.koreatech.koin.admin.abtest.repository.AbtestVariableIpRepository;
 import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
@@ -34,7 +33,7 @@ public class BusController implements BusApi {
     private final BusService busService;
     // TODO: 지우기
     private final AbtestVariableCountRepository abtestVariableCountRepository;
-    private final VariableIpRepository variableIpRepository;
+    private final AbtestVariableIpRepository abtestVariableIpRepository;
 
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
