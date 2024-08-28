@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.community.articles.model.Article;
-import in.koreatech.koin.domain.community.articles.model.Board;
-import in.koreatech.koin.domain.community.articles.model.Comment;
-import in.koreatech.koin.domain.community.articles.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.articles.repository.CommentRepository;
+import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.article.model.Comment;
+import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
+import in.koreatech.koin.domain.community.article.repository.CommentRepository;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;

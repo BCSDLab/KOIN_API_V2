@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.articles.repository;
+package in.koreatech.koin.domain.community.article.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,8 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.community.articles.exception.ArticleNotFoundException;
-import in.koreatech.koin.domain.community.articles.model.Article;
+import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
+import in.koreatech.koin.domain.community.article.model.Article;
 
 public interface ArticleRepository extends Repository<Article, Integer> {
 

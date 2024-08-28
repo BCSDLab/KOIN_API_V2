@@ -1,9 +1,7 @@
-package in.koreatech.koin.domain.community.articles.model;
+package in.koreatech.koin.domain.community.article.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
-
-import java.time.LocalDateTime;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;

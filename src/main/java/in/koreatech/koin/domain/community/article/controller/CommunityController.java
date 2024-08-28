@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.articles.controller;
+package in.koreatech.koin.domain.community.article.controller;
 
 import java.util.List;
 
@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.community.articles.dto.ArticleHotKeywordResponse;
-import in.koreatech.koin.domain.community.articles.dto.ArticleResponse;
-import in.koreatech.koin.domain.community.articles.dto.ArticlesResponse;
-import in.koreatech.koin.domain.community.articles.dto.HotArticleItemResponse;
-import in.koreatech.koin.domain.community.articles.service.CommunityService;
+import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
+import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
+import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
+import in.koreatech.koin.domain.community.article.service.CommunityService;
 import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import lombok.RequiredArgsConstructor;

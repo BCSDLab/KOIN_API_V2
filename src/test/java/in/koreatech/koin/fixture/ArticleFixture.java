@@ -2,9 +2,9 @@ package in.koreatech.koin.fixture;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.community.articles.model.Article;
-import in.koreatech.koin.domain.community.articles.model.Board;
-import in.koreatech.koin.domain.community.articles.repository.ArticleRepository;
+import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.user.model.User;
 
 @Component

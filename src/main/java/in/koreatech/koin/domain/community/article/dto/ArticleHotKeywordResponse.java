@@ -1,9 +1,8 @@
 
-package in.koreatech.koin.domain.community.articles.dto;
+package in.koreatech.koin.domain.community.article.dto;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.articles.controller;
+package in.koreatech.koin.domain.community.article.controller;
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.community.articles.dto.ArticleHotKeywordResponse;
-import in.koreatech.koin.domain.community.articles.dto.ArticleResponse;
-import in.koreatech.koin.domain.community.articles.dto.ArticlesResponse;
-import in.koreatech.koin.domain.community.articles.dto.HotArticleItemResponse;
+import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
+import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
+import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
 import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;

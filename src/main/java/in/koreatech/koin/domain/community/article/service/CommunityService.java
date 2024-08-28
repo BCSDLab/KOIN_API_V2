@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.articles.service;
+package in.koreatech.koin.domain.community.article.service;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -13,19 +13,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.community.articles.dto.ArticleHotKeywordResponse;
-import in.koreatech.koin.domain.community.articles.model.ArticleSearchLog;
-import in.koreatech.koin.domain.community.articles.repository.ArticleSearchLogRepository;
-import in.koreatech.koin.domain.community.articles.dto.ArticleResponse;
-import in.koreatech.koin.domain.community.articles.dto.ArticlesResponse;
-import in.koreatech.koin.domain.community.articles.dto.HotArticleItemResponse;
-import in.koreatech.koin.domain.community.articles.model.Article;
-import in.koreatech.koin.domain.community.articles.model.ArticleViewLog;
-import in.koreatech.koin.domain.community.articles.model.Board;
-import in.koreatech.koin.domain.community.articles.model.BoardTag;
-import in.koreatech.koin.domain.community.articles.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.articles.repository.ArticleViewLogRepository;
-import in.koreatech.koin.domain.community.articles.repository.BoardRepository;
+import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
+import in.koreatech.koin.domain.community.article.model.ArticleSearchLog;
+import in.koreatech.koin.domain.community.article.repository.ArticleSearchLogRepository;
+import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
+import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
+import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.ArticleViewLog;
+import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.article.model.BoardTag;
+import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
+import in.koreatech.koin.domain.community.article.repository.ArticleViewLogRepository;
+import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;

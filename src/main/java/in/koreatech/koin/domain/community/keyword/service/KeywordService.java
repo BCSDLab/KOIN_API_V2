@@ -12,8 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.community.articles.model.Article;
-import in.koreatech.koin.domain.community.articles.repository.ArticleRepository;
+import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordCreateRequest;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsResponse;

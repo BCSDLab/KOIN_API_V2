@@ -1,10 +1,10 @@
-package in.koreatech.koin.domain.community.articles.repository;
+package in.koreatech.koin.domain.community.article.repository;
 
 import java.util.List;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.community.articles.model.Comment;
+import in.koreatech.koin.domain.community.article.model.Comment;
 
 public interface CommentRepository extends Repository<Comment, Integer> {
 

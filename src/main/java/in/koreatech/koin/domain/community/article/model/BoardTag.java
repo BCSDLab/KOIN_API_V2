@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.articles.model;
+package in.koreatech.koin.domain.community.article.model;
 
 import lombok.Getter;
 
