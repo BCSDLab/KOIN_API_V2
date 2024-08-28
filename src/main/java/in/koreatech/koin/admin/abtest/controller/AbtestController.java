@@ -24,9 +24,7 @@ import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
 import in.koreatech.koin.admin.abtest.service.AbtestService;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
-import in.koreatech.koin.global.useragent.UserAgent;
 import in.koreatech.koin.global.useragent.UserAgentInfo;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -38,16 +36,6 @@ import lombok.RequiredArgsConstructor;
 public class AbtestController implements AbtestApi {
 
     private final AbtestService abtestService;
-
-    // TODO: 지우기
-    @GetMapping("/test")
-    public ResponseEntity<Void> test(
-        @UserAgent UserAgentInfo userAgentInfo,
-        @IpAddress String ipAddress,
-        @UserId Integer userId
-    ) {
-        return ResponseEntity.ok().build();
-    }
 
     @PostMapping
     public ResponseEntity<AbtestResponse> createAbtest(
