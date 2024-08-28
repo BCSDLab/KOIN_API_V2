@@ -36,6 +36,7 @@ public interface CommunityApi {
     @GetMapping("/articles/{id}")
     ResponseEntity<ArticleResponse> getArticle(
         @UserId Integer userId,
+        @RequestParam(required = false) Integer boardId,
         @Parameter(in = PATH) @PathVariable("id") Integer articleId,
         @IpAddress String ipAddress
     );

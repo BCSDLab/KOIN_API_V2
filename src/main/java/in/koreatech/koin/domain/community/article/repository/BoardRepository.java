@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
+import in.koreatech.koin.domain.community.article.exception.BoardNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Board;
 
 public interface BoardRepository extends Repository<Board, Integer> {
@@ -14,6 +14,6 @@ public interface BoardRepository extends Repository<Board, Integer> {
 
     default Board getById(Integer boardId) {
         return findById(boardId).orElseThrow(
-            () -> ArticleNotFoundException.withDetail("boardId: " + boardId));
+            () -> BoardNotFoundException.withDetail("boardId: " + boardId));
     }
 }

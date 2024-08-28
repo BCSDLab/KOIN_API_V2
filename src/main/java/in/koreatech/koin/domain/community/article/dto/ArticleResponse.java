@@ -14,10 +14,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(SnakeCaseStrategy.class)
 public record ArticleResponse(
 
-    @Schema(description = "게시글 고유 ID", example = "1", requiredMode = REQUIRED)
+    @Schema(description = "게시글 고유 ID", example = "2", requiredMode = REQUIRED)
     Integer id,
 
-    @Schema(description = "게시판 고유 ID", example = "1", requiredMode = REQUIRED)
+    @Schema(description = "게시판 고유 ID", example = "4", requiredMode = REQUIRED)
     Integer boardId,
 
     @Schema(description = "제목", example = "제목", requiredMode = REQUIRED)
@@ -30,7 +30,13 @@ public record ArticleResponse(
     String nickname,
 
     @Schema(description = "조회수", example = "1", requiredMode = REQUIRED)
-    int hit,
+    Integer hit,
+
+    @Schema(description = "이전 게시글 ID", example = "1")
+    Integer prevId,
+
+    @Schema(description = "다음 게시글 ID", example = "3")
+    Integer nextId,
 
     @Schema(description = "생성 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
@@ -47,6 +53,8 @@ public record ArticleResponse(
             article.getContent(),
             article.getNickname(),
             article.getHit(),
+            article.getPrevId(),
+            article.getNextId(),
             article.getCreatedAt(),
             article.getUpdatedAt()
         );

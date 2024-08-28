@@ -28,10 +28,11 @@ public class CommunityController implements CommunityApi {
     @GetMapping("/{id}")
     public ResponseEntity<ArticleResponse> getArticle(
         @UserId Integer userId,
+        @RequestParam(required = false) Integer boardId,
         @PathVariable("id") Integer articleId,
         @IpAddress String ipAddress
     ) {
-        ArticleResponse foundArticle = communityService.getArticle(userId, articleId, ipAddress);
+        ArticleResponse foundArticle = communityService.getArticle(userId, boardId, articleId, ipAddress);
         return ResponseEntity.ok().body(foundArticle);
     }
 
