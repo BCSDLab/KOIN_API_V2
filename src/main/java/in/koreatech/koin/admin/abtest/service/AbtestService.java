@@ -20,6 +20,7 @@ import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
 import in.koreatech.koin.admin.abtest.exception.AbtestAlreadyExistException;
 import in.koreatech.koin.admin.abtest.exception.AbtestAssignedUserException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotAssignedUserException;
+import in.koreatech.koin.admin.abtest.exception.AbtestNotInProgressUserException;
 import in.koreatech.koin.admin.abtest.model.Abtest;
 import in.koreatech.koin.admin.abtest.model.AbtestStatus;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
@@ -81,8 +82,9 @@ public class AbtestService {
 
     @Transactional
     public AbtestResponse putAbtest(Integer abtestId, AbtestRequest request) {
-        Abtest foundAbtest = abtestRepository.getById(abtestId);
-        foundAbtest.update(
+        Abtest abtest = abtestRepository.getById(abtestId);
+        validateAbtestStatus(abtest);
+        abtest.update(
             request.displayTitle(),
             request.creater(),
             request.team(),
@@ -91,10 +93,10 @@ public class AbtestService {
             request.variables(),
             entityManager
         );
-        syncCacheCountToDB(foundAbtest);
-        deleteVariableIpCache(foundAbtest);
-        modifyVariableByRate(foundAbtest);
-        return AbtestResponse.from(foundAbtest);
+        syncCacheCountToDB(abtest);
+        deleteVariableIpCache(abtest);
+        modifyVariableByRate(abtest);
+        return AbtestResponse.from(abtest);
     }
 
     private void modifyVariableByRate(Abtest abtest) {
@@ -171,6 +173,7 @@ public class AbtestService {
     @Transactional
     public void closeAbtest(Integer abtestId, AbtestCloseRequest request) {
         Abtest abtest = abtestRepository.getById(abtestId);
+        validateAbtestStatus(abtest);
         abtest.close(request.winnerName());
         syncCacheCountToDB(abtest);
         deleteCacheCount(abtest);
@@ -181,6 +184,7 @@ public class AbtestService {
     public String assignVariable(UserAgentInfo userAgentInfo, String ipAddress, Integer userId,
         AbtestAssignRequest request) {
         Abtest abtest = abtestRepository.getByTitle(request.title());
+        validateAbtestStatus(abtest);
         validateAssignedUser(abtest, ipAddress);
         List<AbtestVariableCount> cacheCount = loadCacheCount(abtest);
         AbtestVariable variable = abtest.findAssignVariable(cacheCount);
@@ -313,5 +317,11 @@ public class AbtestService {
         Abtest abtest = abtestRepository.getById(abtestId);
         AccessHistory accessHistory = accessHistoryRepository.getByDeviceId(request.deviceId());
         abtest.assignVariableByAdmin(accessHistory, request.variableName());
+    }
+
+    private void validateAbtestStatus(Abtest abtest) {
+        if (abtest.getStatus() != AbtestStatus.IN_PROGRESS) {
+            throw AbtestNotInProgressUserException.withDetail("abtestId: " + abtest.getId());
+        }
     }
 }
