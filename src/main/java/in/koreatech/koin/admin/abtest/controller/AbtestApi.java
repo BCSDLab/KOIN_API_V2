@@ -198,7 +198,7 @@ public interface AbtestApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "(NORMAL) 실험군 자동 편입")
+    @Operation(summary = "(NORMAL) 실험군 최초 편입")
     @PostMapping("/assign")
     ResponseEntity<String> assignAbtestVariable(
         @UserAgent UserAgentInfo userAgentInfo,
