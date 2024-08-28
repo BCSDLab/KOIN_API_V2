@@ -23,4 +23,8 @@ public class AbtestVariableCount {
     public void resetCount() {
         count = 0;
     }
+
+    public void addCount() {
+        count += 1;
+    }
 }

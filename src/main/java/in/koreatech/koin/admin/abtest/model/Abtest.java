@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
+import in.koreatech.koin.admin.abtest.exception.AbtestAssignException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotIncludeVariableException;
 import in.koreatech.koin.admin.abtest.exception.AbtestTitleIllegalArgumentException;
 import in.koreatech.koin.admin.abtest.exception.AbtestVariableIllegalArgumentException;
@@ -99,42 +100,36 @@ public class Abtest extends BaseEntity {
         this.status = status;
     }
 
-    // TODO: 리팩토링
-    public AbtestVariable assignVariable(List<AbtestVariableCount> cacheCounts) {
-        Map<Integer, Integer> dbCount = abtestVariables.stream()
+    public AbtestVariable findAssignVariable(List<AbtestVariableCount> cacheCounts) {
+        // dbCount와 cacheCount를 병합하여 현재 카운트를 계산
+        Map<Integer, Integer> currentCounts = abtestVariables.stream()
             .collect(Collectors.toMap(AbtestVariable::getId, AbtestVariable::getCount));
-        Map<Integer, Integer> cacheCount = cacheCounts.stream()
-            .collect(Collectors.toMap(AbtestVariableCount::getVariableId, AbtestVariableCount::getCount));
-        Map<Integer, Integer> count = merge(dbCount, cacheCount, 1);
-        int totalCount = count.values().stream().mapToInt(Integer::intValue).sum();
 
-        Map<Integer, Integer> nowRate = count.entrySet().stream()
-            .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue() / totalCount * 100))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        Map<Integer, Integer> dbRate = abtestVariables.stream()
-            .collect(Collectors.toMap(AbtestVariable::getId, AbtestVariable::getRate));
-        Map<Integer, Integer> differenceRate = merge(dbRate, nowRate, -1);
-        int targetVariable = differenceRate.entrySet().stream()
+        cacheCounts.forEach(count -> currentCounts.merge(
+            count.getVariableId(),
+            count.getCount(),
+            Integer::sum
+        ));
+
+        // 총 레코드 수 계산
+        int totalCount = currentCounts.values().stream().mapToInt(Integer::intValue).sum();
+
+        // 각 변수의 차이 계산하여 가장 큰 차이를 갖는 변수 선택
+        int targetVariable = abtestVariables.stream()
+            .map(variable -> {
+                int currentRate = currentCounts.get(variable.getId()) * 100 / totalCount;
+                int difference = variable.getRate() - currentRate;
+                return new AbstractMap.SimpleEntry<>(variable.getId(), difference);
+            })
             .max(Map.Entry.comparingByValue())
-            .orElseThrow(() -> AbtestNotIncludeVariableException.withDetail("abtest name: " + title))
+            .orElseThrow(() -> AbtestAssignException.withDetail("abtest name: " + title))
             .getKey();
 
+        // 타겟 변수 반환
         return abtestVariables.stream()
-            .filter(abtestVariable -> abtestVariable.getId() == targetVariable)
+            .filter(variable -> variable.getId() == targetVariable)
             .findAny()
-            .get();
-    }
-
-    /**
-     * 두 Map에서 동일한 key를 가지는 value를 합치는 함수. 단, 1번째 매개변수로 들어온 Map에 merge하기 때문에 side effect 존재.
-     * @param m1 병합할 Map 1 (병합 결과가 기록되는 곳)
-     * @param m2 병합할 Map 2
-     * @param weight 가중치. 병합 시 m2에 weight만큼 곱하여 더함
-     * @return 병합된 Map(m1) 반환
-     */
-    private Map<Integer, Integer> merge(Map<Integer, Integer> m1, Map<Integer, Integer> m2, int weight) {
-        m2.forEach((key, value) -> m1.merge(key, weight * value, Integer::sum));
-        return m1;
+            .orElseThrow(() -> AbtestAssignException.withDetail("abtest name: " + title));
     }
 
     public void setVariables(List<AbtestRequest.InnerVariableRequest> variables, EntityManager entityManager) {

@@ -18,12 +18,12 @@ import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
 import in.koreatech.koin.admin.abtest.exception.AbtestAlreadyExistException;
+import in.koreatech.koin.admin.abtest.exception.AbtestAssignedUserException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotAssignedUserException;
 import in.koreatech.koin.admin.abtest.model.Abtest;
 import in.koreatech.koin.admin.abtest.model.AbtestStatus;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
 import in.koreatech.koin.admin.abtest.model.AccessHistory;
-import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
 import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 import in.koreatech.koin.admin.abtest.model.redis.VariableIp;
@@ -177,18 +177,29 @@ public class AbtestService {
         deleteVariableIpCache(abtest);
     }
 
-    //TODO: 리팩토링
     @Transactional
     public String assignVariable(UserAgentInfo userAgentInfo, String ipAddress, Integer userId,
         AbtestAssignRequest request) {
         Abtest abtest = abtestRepository.getByTitle(request.title());
-        List<AbtestVariableCount> cacheCount = abtest.getAbtestVariables().stream()
-            .map(abtestVariable -> abtestVariableCountRepository.getById(abtestVariable.getId()))
-            .toList();
-        // 편입 대상이 되는 변수 선정
-        AbtestVariable variable = abtest.assignVariable(cacheCount);
+        validateAssignedUser(abtest, ipAddress);
+        List<AbtestVariableCount> cacheCount = loadCacheCount(abtest);
+        AbtestVariable variable = abtest.findAssignVariable(cacheCount);
+        createDeviceIfNotExists(userId, userAgentInfo);
+        AccessHistory accessHistory = findOrCreateAccessHistory(ipAddress);
+        mapDeviceToAccessHistory(userId, accessHistory);
+        accessHistory.addAbtestVariable(variable);
+        countCacheUpdate(variable);
+        variableIpCacheSave(variable, ipAddress);
+        return variable.getName();
+    }
 
-        // 로그인 유저에게 디바이스가 없으면 생성
+    private List<AbtestVariableCount> loadCacheCount(Abtest abtest) {
+        return abtest.getAbtestVariables().stream()
+            .map(abtestVariable -> abtestVariableCountRepository.findOrCreateIfNotExists(abtestVariable.getId()))
+            .toList();
+    }
+
+    private void createDeviceIfNotExists(Integer userId, UserAgentInfo userAgentInfo) {
         if (userId != null && deviceRepository.findByUserId(userId).isEmpty()) {
             deviceRepository.save(
                 Device.builder()
@@ -198,38 +209,34 @@ public class AbtestService {
                     .build()
             );
         }
+    }
 
-        // 연결 기록 없으면 생성
-        if (accessHistoryRepository.findByPublicIp(ipAddress).isEmpty()) {
-            AccessHistory accessHistory = AccessHistory.builder()
-                .publicIp(ipAddress)
-                .build();
-            accessHistoryRepository.save(accessHistory);
-        }
+    private AccessHistory findOrCreateAccessHistory(String ipAddress) {
+        return accessHistoryRepository.findByPublicIp(ipAddress).orElseGet(() ->
+            accessHistoryRepository.save(
+                AccessHistory.builder()
+                    .publicIp(ipAddress)
+                    .build()
+            ));
+    }
 
-        // 로그인 유저가 연결기록 - 디바이스 매핑이 안되어있으면 매핑 진행
-        AccessHistory accessHistory = accessHistoryRepository.getByPublicIp(ipAddress);
+    private void mapDeviceToAccessHistory(Integer userId, AccessHistory accessHistory) {
         if (userId != null) {
             Device device = deviceRepository.getByUserId(userId);
             if (accessHistoryRepository.findByDevice(device).isEmpty()) {
                 accessHistory.connectDevice(device);
             }
         }
+    }
 
-        // 연결 이력 - 변수 연결
-        // TODO: 연관관계 편입 메서드로 분리하기
-        if (!accessHistory.hasVariable(variable.getId())) {
-            AccessHistoryAbtestVariable saved = accessHistoryAbtestVariableRepository.save(
-                AccessHistoryAbtestVariable.builder()
-                    .accessHistory(accessHistory)
-                    .variable(variable)
-                    .build()
-            );
-            accessHistory.getAccessHistoryAbtestVariables().add(saved);
-            variable.getAccessHistoryAbtestVariables().add(saved);
-        }
-        // TODO: 캐싱해두기
-        return variable.getName();
+    private void countCacheUpdate(AbtestVariable variable) {
+        AbtestVariableCount countCache = abtestVariableCountRepository.getById(variable.getId());
+        countCache.addCount();
+        abtestVariableCountRepository.save(countCache);
+    }
+
+    private void variableIpCacheSave(AbtestVariable variable, String ipAddress) {
+        variableIpRepository.save(VariableIp.of(variable.getId(), ipAddress));
     }
 
     @Transactional
@@ -252,6 +259,17 @@ public class AbtestService {
         }
 
         return cacheVariable.get().getName();
+    }
+
+    private void validateAssignedUser(Abtest abtest, String ipAddress) {
+        Optional<AccessHistory> accessHistory = accessHistoryRepository.findByPublicIp(ipAddress);
+        if (accessHistory.isEmpty()) {
+            return;
+        }
+        if (abtest.getAbtestVariables().stream()
+            .anyMatch(abtestVariable -> accessHistory.get().hasVariable(abtestVariable.getId()))) {
+            throw AbtestAssignedUserException.withDetail("abtestId: " + abtest.getId() + ", publicIp: " + ipAddress);
+        }
     }
 
     @Transactional

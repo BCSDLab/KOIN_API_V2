@@ -21,6 +21,15 @@ public interface AbtestVariableCountRepository extends CrudRepository<AbtestVari
             AbtestVariableCountNotFoundException.withDetail("abtestVariableCount id: " + id));
     }
 
+    default AbtestVariableCount findOrCreateIfNotExists(Integer id) {
+        return findById(id).orElseGet(() ->
+            save(AbtestVariableCount.builder()
+                .variableId(id)
+                .count(0)
+                .build())
+        );
+    }
+
     // 사용 메서드 기록용 주석. 쿼리 최적화를 위해 사용. 실제 재정의 시 에러 발생
     // List<AbtestCount> saveAll(List<AbtestCount> abtestCounts);
 }

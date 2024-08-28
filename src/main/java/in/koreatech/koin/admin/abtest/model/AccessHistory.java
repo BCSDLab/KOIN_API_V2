@@ -70,16 +70,27 @@ public class AccessHistory extends BaseEntity {
         this.device = device;
     }
 
-    public boolean hasVariable(Integer variableId) {
-        return accessHistoryAbtestVariables.stream()
-            .map(AccessHistoryAbtestVariable::getVariable)
-            .anyMatch(abtestVariable -> Objects.equals(abtestVariable.getId(), variableId));
-    }
-
     public void addVariable(AbtestVariable variable) {
         accessHistoryAbtestVariables.add(AccessHistoryAbtestVariable.builder()
             .accessHistory(this)
             .variable(variable)
             .build());
+    }
+
+    public void addAbtestVariable(AbtestVariable variable) {
+        if (!hasVariable(variable.getId())) {
+            AccessHistoryAbtestVariable saved = AccessHistoryAbtestVariable.builder()
+                .accessHistory(this)
+                .variable(variable)
+                .build();
+            this.accessHistoryAbtestVariables.add(saved);
+            variable.getAccessHistoryAbtestVariables().add(saved);
+        }
+    }
+
+    public boolean hasVariable(Integer variableId) {
+        return accessHistoryAbtestVariables.stream()
+            .map(AccessHistoryAbtestVariable::getVariable)
+            .anyMatch(abtestVariable -> Objects.equals(abtestVariable.getId(), variableId));
     }
 }
