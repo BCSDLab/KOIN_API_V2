@@ -67,7 +67,7 @@ public class NotificationFactory {
         );
     }
 
-    public Notification generateDetectKeywordNotification(
+    public Notification generateKeywordNotification(
         MobileAppPath path,
         String schemeUri,
         String keywordName,

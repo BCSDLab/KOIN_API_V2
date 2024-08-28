@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
+import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 
 public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Integer> {
@@ -21,21 +22,23 @@ public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Int
     Optional<ArticleKeyword> findById(Integer id);
 
     @Query("""
-        SELECT k.id, k.keyword, COUNT(u) AS keyword_count
+        SELECT new in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult(k.id, k.keyword, COUNT(u))
         FROM ArticleKeywordUserMap u
         JOIN u.articleKeyword k
         WHERE k.lastUsedAt >= :oneWeekAgo
         GROUP BY k.id, k.keyword
-        ORDER BY keyword_count DESC
+        ORDER BY COUNT(u) DESC
         """)
-    List<Object[]> findTopKeywordsInLastWeek(LocalDateTime oneWeekAgo, Pageable pageable);
+    List<ArticleKeywordResult> findTopKeywordsInLastWeek(LocalDateTime oneWeekAgo, Pageable pageable);
 
     @Query("""
-        SELECT k.id, k.keyword
+        SELECT new in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult(k.id, k.keyword, COUNT(u))
         FROM ArticleKeyword k
+        LEFT JOIN k.articleKeywordUserMaps u
+        GROUP BY k.id, k.keyword
         ORDER BY k.createdAt DESC
         """)
-    List<Object[]> findTop15Keywords(Pageable pageable);
+    List<ArticleKeywordResult> findTop15Keywords(Pageable pageable);
 
     List<ArticleKeyword> findAll(Pageable pageable);
 }

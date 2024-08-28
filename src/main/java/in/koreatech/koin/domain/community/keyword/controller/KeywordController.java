@@ -63,10 +63,10 @@ public class KeywordController implements KeywordApi{
     }
 
     @PostMapping("/notification")
-    public ResponseEntity<Void> pushDetectKeywordNotification(
+    public ResponseEntity<Void> pushKeywordNotification(
         @Valid @RequestBody KeywordNotificationRequest request
     ) {
-        keywordService.sendDetectKeywordNotification(request);
+        keywordService.sendKeywordNotification(request);
         return ResponseEntity.ok().build();
     }
 }

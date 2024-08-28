@@ -125,7 +125,7 @@ public class KeywordApiTest extends AcceptanceTest {
         String token = userFixture.getToken(student.getUser());
         ArticleKeywordUserMap articleKeywordUserMap = keywordFixture.키워드1("수강 신청", student.getUser());
 
-        var response = RestAssured
+        RestAssured
             .given()
             .header("Authorization", "Bearer " + token)
             .pathParam("id", articleKeywordUserMap.getId())
@@ -284,7 +284,7 @@ public class KeywordApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        verify(articleKeywordEventListener).onKeywordDetectedRequest(any());
+        verify(articleKeywordEventListener).onKeywordRequest(any());
     }
 
     @Test
@@ -316,6 +316,6 @@ public class KeywordApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value());
 
-        verify(articleKeywordEventListener, never()).onKeywordDetectedRequest(any());
+        verify(articleKeywordEventListener, never()).onKeywordRequest(any());
     }
 }

@@ -84,7 +84,7 @@ public interface KeywordApi {
 
     @Operation(summary = "키워드 알림 전송", hidden = true)
     @PostMapping("/notification")
-    ResponseEntity<Void> pushDetectKeywordNotification(
+    ResponseEntity<Void> pushKeywordNotification(
         @Valid @RequestBody KeywordNotificationRequest request
     );
 }

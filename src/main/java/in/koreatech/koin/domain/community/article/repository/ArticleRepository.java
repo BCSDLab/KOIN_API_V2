@@ -34,6 +34,8 @@ public interface ArticleRepository extends Repository<Article, Integer> {
                 "articleId: " + articleId));
     }
 
+
+
     Page<Article> findAllByBoardIdAndTitleContaining(Integer boardId, String query, PageRequest pageRequest);
 
     Page<Article> findAllByTitleContaining(String query, PageRequest pageRequest);

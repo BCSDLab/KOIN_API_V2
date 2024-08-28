@@ -16,7 +16,7 @@ public class ArticleKeywordSuggestCache {
     private Integer count;
 
     @Builder
-    public ArticleKeywordSuggestCache(Integer hotKeywordId, String keyword, Integer count) {
+    private ArticleKeywordSuggestCache(Integer hotKeywordId, String keyword, Integer count) {
         this.hotKeywordId = hotKeywordId;
         this.keyword = keyword;
         this.count = count;

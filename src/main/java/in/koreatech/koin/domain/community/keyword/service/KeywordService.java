@@ -2,8 +2,10 @@ package in.koreatech.koin.domain.community.keyword.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -12,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordCreateRequest;
@@ -21,7 +24,7 @@ import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsSuggestionR
 import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordDetectedEvent;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
@@ -49,12 +52,7 @@ public class KeywordService {
 
     @Transactional
     public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
-        String keyword = request.keyword().trim().toLowerCase();
-
-        if (keyword.contains(" ")) {
-            throw new KoinIllegalArgumentException("키워드에 공백을 포함할 수 없습니다.");
-        }
-
+        String keyword = validateAndGetKeyword(request.keyword());
         if (articleKeywordUserMapRepository.countByUserId(userId) >= ARTICLE_KEYWORD_LIMIT) {
             throw KeywordLimitExceededException.withDetail("userId: " + userId);
         }
@@ -96,23 +94,24 @@ public class KeywordService {
 
     public ArticleKeywordsResponse getMyKeywords(Integer userId) {
         List<ArticleKeywordUserMap> articleKeywordUserMaps = articleKeywordUserMapRepository.findAllByUserId(userId);
-
-        if (articleKeywordUserMaps.isEmpty()) {
-            return new ArticleKeywordsResponse(0, List.of());
-        }
-
         return ArticleKeywordsResponse.from(articleKeywordUserMaps);
     }
 
     public ArticleKeywordsSuggestionResponse suggestKeywords(Integer userId) {
         List<ArticleKeywordSuggestCache> hotKeywords = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc();
+        List<String> userKeywords = Optional.ofNullable(articleKeywordUserMapRepository.findAllKeywordbyUserId(userId))
+            .orElse(Collections.emptyList());
 
-        List<String> userKeywords = articleKeywordUserMapRepository.findAllKeywordbyUserId(userId);
+        List<String> suggestions = hotKeywords.stream()
+            .map(ArticleKeywordSuggestCache::getKeyword)
+            .filter(keyword -> !userKeywords.contains(keyword))
+            .limit(5)
+            .collect(Collectors.toList());
 
-        return ArticleKeywordsSuggestionResponse.from(hotKeywords, userKeywords);
+        return ArticleKeywordsSuggestionResponse.from(suggestions);
     }
 
-    public void sendDetectKeywordNotification(KeywordNotificationRequest request) {
+    public void sendKeywordNotification(KeywordNotificationRequest request) {
         List<Integer> updateNotificationIds = request.updateNotification();
 
         if(!updateNotificationIds.isEmpty()) {
@@ -122,55 +121,65 @@ public class KeywordService {
                 articles.add(articleRepository.getById(id));
             }
 
-            List<ArticleKeywordDetectedEvent> detectedEvents = matchKeyword(articles);
+            List<ArticleKeywordEvent> keywordEvents = matchKeyword(articles);
 
-            if (!detectedEvents.isEmpty()) {
-                for (ArticleKeywordDetectedEvent event : detectedEvents) {
+            if (!keywordEvents.isEmpty()) {
+                for (ArticleKeywordEvent event : keywordEvents) {
                     eventPublisher.publishEvent(event);
                 }
             }
         }
     }
 
-    private List<ArticleKeywordDetectedEvent> matchKeyword(List<Article> articles) {
-        List<ArticleKeywordDetectedEvent> detectedEvents = new ArrayList<>();
-        int offset = 0;
-        boolean hasMoreKeywords = true;
+    private String validateAndGetKeyword(String keyword) {
+        if (keyword.contains(" ")) {
+            throw new KoinIllegalArgumentException("키워드에 공백을 포함할 수 없습니다.");
+        }
+        return keyword.trim().toLowerCase();
+    }
 
-        while (hasMoreKeywords) {
+    private List<ArticleKeywordEvent> matchKeyword(List<Article> articles) {
+        List<ArticleKeywordEvent> keywordEvents = new ArrayList<>();
+        int offset = 0;
+
+        while (true) {
             Pageable pageable = PageRequest.of(offset / KEYWORD_BATCH_SIZE, KEYWORD_BATCH_SIZE);
             List<ArticleKeyword> keywords = articleKeywordRepository.findAll(pageable);
 
             if (keywords.isEmpty()) {
-                hasMoreKeywords = false;
-            } else {
-                for (Article article : articles) {
-                    String title = article.getTitle();
-                    for (ArticleKeyword keyword : keywords) {
-                        if (title.contains(keyword.getKeyword())) {
-                            detectedEvents.add(new ArticleKeywordDetectedEvent(article.getId(), keyword));
-                        }
+                break;
+            }
+
+            for (Article article : articles) {
+                String title = article.getTitle();
+                for (ArticleKeyword keyword : keywords) {
+                    if (title.contains(keyword.getKeyword())) {
+                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword));
                     }
                 }
-                offset += KEYWORD_BATCH_SIZE;
             }
+            offset += KEYWORD_BATCH_SIZE;
         }
-        return detectedEvents;
-    };
+
+        return keywordEvents;
+    }
 
     @Transactional
     public void fetchTopKeywordsFromLastWeek() {
         Pageable top15 = PageRequest.of(0, 15);
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
-        List<Object[]> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeek(oneWeekAgo, top15);
+        List<ArticleKeywordResult> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeek(oneWeekAgo, top15);
 
+        if(topKeywords.isEmpty()) {
+            topKeywords = articleKeywordRepository.findTop15Keywords(top15);
+        }
         List<ArticleKeywordSuggestCache> hotKeywords = topKeywords.stream()
             .map(result -> ArticleKeywordSuggestCache.builder()
-                .hotKeywordId((Integer) result[0])
-                .keyword((String) result[1])
-                .count(((Long) result[2]).intValue())
+                .hotKeywordId(result.hotKeywordId())
+                .keyword(result.keyword())
+                .count(result.count().intValue())
                 .build())
-            .collect(Collectors.toList());
+            .toList();
 
         articleKeywordSuggestRepository.deleteAll();
 

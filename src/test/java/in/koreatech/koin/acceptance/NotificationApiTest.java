@@ -105,7 +105,7 @@ class NotificationApiTest extends AcceptanceTest {
                              ]
                          },
                          {
-                             "type": "ARTICLE_KEYWORD_DETECT",
+                             "type": "ARTICLE_KEYWORD",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s
@@ -216,7 +216,7 @@ class NotificationApiTest extends AcceptanceTest {
                              ]
                          },
                          {
-                             "type": "ARTICLE_KEYWORD_DETECT",
+                             "type": "ARTICLE_KEYWORD",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s
@@ -316,7 +316,7 @@ class NotificationApiTest extends AcceptanceTest {
                              ]
                          },
                          {
-                             "type": "ARTICLE_KEYWORD_DETECT",
+                             "type": "ARTICLE_KEYWORD",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s
@@ -434,7 +434,7 @@ class NotificationApiTest extends AcceptanceTest {
                              ]
                          },
                          {
-                             "type": "ARTICLE_KEYWORD_DETECT",
+                             "type": "ARTICLE_KEYWORD",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s
@@ -554,7 +554,7 @@ class NotificationApiTest extends AcceptanceTest {
                              ]
                          },
                          {
-                             "type": "ARTICLE_KEYWORD_DETECT",
+                             "type": "ARTICLE_KEYWORD",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s

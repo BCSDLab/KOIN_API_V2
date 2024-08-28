@@ -34,7 +34,7 @@ public class ArticleSearchLog extends BaseEntity {
     private String ipAddress;
 
     @Builder
-    public ArticleSearchLog(Integer id, String keyword, String ipAddress) {
+    private ArticleSearchLog(Integer id, String keyword, String ipAddress) {
         this.id = id;
         this.keyword = keyword;
         this.ipAddress = ipAddress;
