@@ -33,14 +33,14 @@ public class ShopEventListener {
         List<Notification> notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailType(SHOP_EVENT, null)
             .stream()
-            .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
+            .filter(subscribe -> subscribe.getDevice().getFcmToken() != null)
             .map(subscribe -> notificationFactory.generateShopEventCreateNotification(
                 SHOP,
                 schemeUri,
                 event.thumbnailImage(),
                 event.shopName(),
                 event.title(),
-                subscribe.getUser()
+                subscribe.getDevice()
             )).toList();
         notificationService.push(notifications);
     }

@@ -2,7 +2,7 @@ package in.koreatech.koin.global.domain.notification.model;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.Device;
 import in.koreatech.koin.global.fcm.MobileAppPath;
 
 @Component
@@ -14,7 +14,7 @@ public class NotificationFactory {
         String imageUrl,
         String shopName,
         String title,
-        User target
+        Device device
     ) {
         return new Notification(
             path,
@@ -23,7 +23,7 @@ public class NotificationFactory {
             "%s".formatted(title),
             imageUrl,
             NotificationType.MESSAGE,
-            target
+            device
         );
     }
 
@@ -31,7 +31,7 @@ public class NotificationFactory {
         MobileAppPath path,
         String schemeUri,
         String place,
-        User target
+        Device device
     ) {
         return new Notification(
             path,
@@ -40,7 +40,7 @@ public class NotificationFactory {
             "다른 코너 메뉴도 확인해보세요",
             null,
             NotificationType.MESSAGE,
-            target
+            device
         );
     }
 
@@ -54,7 +54,7 @@ public class NotificationFactory {
         MobileAppPath path,
         String schemeUri,
         String imageUrl,
-        User target
+        Device device
     ) {
         return new Notification(
             path,
@@ -63,7 +63,7 @@ public class NotificationFactory {
             "사진 보러 가기 \uD83D\uDE0B",
             imageUrl,
             NotificationType.MESSAGE,
-            target
+            device
         );
     }
 }

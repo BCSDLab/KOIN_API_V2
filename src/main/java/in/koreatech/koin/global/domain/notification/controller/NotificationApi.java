@@ -14,6 +14,9 @@ import in.koreatech.koin.global.domain.notification.dto.NotificationPermitReques
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
+import in.koreatech.koin.global.ipaddress.IpAddress;
+import in.koreatech.koin.global.useragent.UserAgent;
+import in.koreatech.koin.global.useragent.UserAgentInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -37,7 +40,8 @@ public interface NotificationApi {
     @Operation(summary = "푸쉬알림 동의 여부 조회")
     @GetMapping("/notification")
     ResponseEntity<NotificationStatusResponse> checkNotificationStatus(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
+        @IpAddress String ipAddress
     );
 
     @ApiResponses(
@@ -53,6 +57,8 @@ public interface NotificationApi {
     @PostMapping("/notification")
     ResponseEntity<Void> permitNotification(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
+        @UserAgent UserAgentInfo userAgentInfo,
+        @IpAddress String ipAddress,
         @Valid @RequestBody NotificationPermitRequest request
     );
 
@@ -69,6 +75,7 @@ public interface NotificationApi {
     @PostMapping("/notification/subscribe")
     ResponseEntity<Void> permitNotificationSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
+        @IpAddress String ipAddress,
         @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     );
 
@@ -85,6 +92,7 @@ public interface NotificationApi {
     @PostMapping("/notification/subscribe/detail")
     ResponseEntity<Void> permitNotificationDetailSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
+        @IpAddress String ipAddress,
         @RequestParam(value = "detail_type") NotificationDetailSubscribeType notificationSubscribeType
     );
 
@@ -100,7 +108,8 @@ public interface NotificationApi {
     @Operation(summary = "푸쉬알림 거절")
     @DeleteMapping("/notification")
     ResponseEntity<Void> rejectNotification(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
+        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
+        @IpAddress String ipAddress
     );
 
     @ApiResponses(
@@ -116,6 +125,7 @@ public interface NotificationApi {
     @DeleteMapping("/notification/subscribe")
     ResponseEntity<Void> rejectNotificationSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
+        @IpAddress String ipAddress,
         @RequestParam(value = "type") NotificationSubscribeType notificationSubscribeType
     );
 
@@ -132,6 +142,7 @@ public interface NotificationApi {
     @DeleteMapping("/notification/subscribe/detail")
     ResponseEntity<Void> rejectNotificationDetailSubscribe(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId,
+        @IpAddress String ipAddress,
         @RequestParam(value = "detail_type") NotificationDetailSubscribeType notificationSubscribeType
     );
 }

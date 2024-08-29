@@ -24,7 +24,9 @@ import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
 import in.koreatech.koin.admin.abtest.service.AbtestService;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
+import in.koreatech.koin.global.useragent.UserAgent;
 import in.koreatech.koin.global.useragent.UserAgentInfo;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -133,10 +135,10 @@ public class AbtestController implements AbtestApi {
 
     @PostMapping("/assign")
     public ResponseEntity<String> assignAbtestVariable(
-        UserAgentInfo userAgentInfo,
-        String ipAddress,
-        Integer userId,
-        AbtestAssignRequest abtestAssignRequest
+        @UserAgent UserAgentInfo userAgentInfo,
+        @IpAddress String ipAddress,
+        @UserId Integer userId,
+        @RequestBody @Valid AbtestAssignRequest abtestAssignRequest
     ) {
         String response = abtestService.assignVariable(userAgentInfo, ipAddress, userId, abtestAssignRequest);
         return ResponseEntity.ok(response);

@@ -2,11 +2,7 @@ package in.koreatech.koin.admin.abtest.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.ColumnDefault;
-
+import in.koreatech.koin.domain.user.model.AccessHistory;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,11 +14,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Entity

@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.abtest.model;
+package in.koreatech.koin.domain.user.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.CreatedDate;
 
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -78,5 +77,13 @@ public class Device extends BaseEntity {
         this.type = type;
         this.fcmToken = fcmToken;
         this.lastAccessedAt = lastAccessedAt;
+    }
+
+    public void permitNotification(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    public void rejectNotification() {
+        this.fcmToken = null;
     }
 }

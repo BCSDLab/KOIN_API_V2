@@ -34,15 +34,15 @@ public class CoopEventListener {
         String schemeUri = String.format("%s?id=%s", DINING.name(), event.id());
         var notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailType(DINING_SOLD_OUT, null).stream()
-            .filter(subscribe -> notificationSubscribeRepository.findByUserIdAndSubscribeTypeAndDetailType(
-                subscribe.getUser().getId(), DINING_SOLD_OUT, detailType).isPresent()
+            .filter(subscribe -> notificationSubscribeRepository.findByDeviceIdAndSubscribeTypeAndDetailType(
+                subscribe.getDevice().getId(), DINING_SOLD_OUT, detailType).isPresent()
             )
-            .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
+            .filter(subscribe -> subscribe.getDevice().getFcmToken() != null)
             .map(subscribe -> notificationFactory.generateSoldOutNotification(
                 DINING,
                 schemeUri,
                 event.place(),
-                subscribe.getUser()
+                subscribe.getDevice()
             )).toList();
         notificationService.push(notifications);
     }
@@ -52,12 +52,12 @@ public class CoopEventListener {
         String schemeUri = String.format("%s?id=%s", DINING.name(), event.id());
         var notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailType(DINING_IMAGE_UPLOAD, null).stream()
-            .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
+            .filter(subscribe -> subscribe.getDevice().getFcmToken() != null)
             .map(subscribe -> notificationFactory.generateDiningImageUploadNotification(
                 DINING,
                 schemeUri,
                 event.imageUrl(),
-                subscribe.getUser()
+                subscribe.getDevice()
             )).toList();
 
         notificationService.push(notifications);

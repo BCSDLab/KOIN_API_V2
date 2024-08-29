@@ -5,7 +5,11 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.exception.UserNotFoundException;
+import in.koreatech.koin.domain.user.model.AccessHistory;
+import in.koreatech.koin.domain.user.model.Device;
+import in.koreatech.koin.domain.user.repository.AccessHistoryRepository;
+import in.koreatech.koin.domain.user.repository.DeviceRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.exception.NotificationNotPermitException;
@@ -16,6 +20,7 @@ import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeT
 import in.koreatech.koin.global.domain.notification.repository.NotificationRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.fcm.FcmClient;
+import in.koreatech.koin.global.useragent.UserAgentInfo;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -26,6 +31,8 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final FcmClient fcmClient;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
+    private final DeviceRepository deviceRepository;
+    private final AccessHistoryRepository accessHistoryRepository;
 
     public void push(List<Notification> notifications) {
         for (Notification notification : notifications) {
@@ -35,7 +42,7 @@ public class NotificationService {
 
     public void push(Notification notification) {
         notificationRepository.save(notification);
-        String deviceToken = notification.getUser().getDeviceToken();
+        String deviceToken = notification.getDevice().getFcmToken();
         fcmClient.sendMessage(
             deviceToken,
             notification.getTitle(),
@@ -47,55 +54,55 @@ public class NotificationService {
         );
     }
 
-    public NotificationStatusResponse checkNotification(Integer userId) {
-        User user = userRepository.getById(userId);
-        boolean isPermit = user.getDeviceToken() != null;
-        List<NotificationSubscribe> subscribeList = notificationSubscribeRepository.findAllByUserId(userId);
+    public NotificationStatusResponse checkNotification(Integer userId, String ipAddress) {
+        userRepository.getById(userId);
+        Device device = accessHistoryRepository.getByPublicIp(ipAddress).getDevice();
+        boolean isPermit = device.getFcmToken() != null;
+        List<NotificationSubscribe> subscribeList = notificationSubscribeRepository.findAllByDeviceId(device.getId());
         return NotificationStatusResponse.of(isPermit, subscribeList);
     }
 
     @Transactional
-    public void permitNotification(Integer userId, String deviceToken) {
-        User user = userRepository.getById(userId);
-        user.permitNotification(deviceToken);
+    public void permitNotification(Integer userId, UserAgentInfo userAgentInfo, String ipAddress, String deviceToken) {
+        AccessHistory accessHistory = findOrCreateAccessHistory(ipAddress);
+        Device device = createDeviceIfNotExists(userId, userAgentInfo, accessHistory);
+        device.permitNotification(deviceToken);
     }
 
     @Transactional
-    public void permitNotificationSubscribe(Integer userId, NotificationSubscribeType subscribeType) {
-        User user = userRepository.getById(userId);
-        if (user.getDeviceToken() == null) {
-            throw NotificationNotPermitException.withDetail("user.deviceToken: null");
-        }
+    public void permitNotificationSubscribe(Integer userId, String ipAddress, NotificationSubscribeType subscribeType) {
+        userRepository.getById(userId);
+        Device device = accessHistoryRepository.getByPublicIp(ipAddress).getDevice();
+        validateFcmToken(device);
         if (notificationSubscribeRepository
-            .findByUserIdAndSubscribeTypeAndDetailType(userId, subscribeType, null).isPresent()) {
+            .findByDeviceIdAndSubscribeTypeAndDetailType(device.getId(), subscribeType, null).isPresent()) {
             return;
         }
         NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
-            .user(user)
+            .device(device)
             .subscribeType(subscribeType)
             .build();
         notificationSubscribeRepository.save(notificationSubscribe);
     }
 
     @Transactional
-    public void permitNotificationDetailSubscribe(Integer userId, NotificationDetailSubscribeType detailType) {
-        User user = userRepository.getById(userId);
+    public void permitNotificationDetailSubscribe(Integer userId,
+        String ipAddress, NotificationDetailSubscribeType detailType) {
+        userRepository.getById(userId);
+        Device device = accessHistoryRepository.getByPublicIp(ipAddress).getDevice();
         NotificationSubscribeType type = NotificationSubscribeType.getParentType(detailType);
-
-        if (user.getDeviceToken() == null) {
-            throw NotificationNotPermitException.withDetail("user.deviceToken: null");
+        validateFcmToken(device);
+        if (notificationSubscribeRepository
+            .findByDeviceIdAndSubscribeTypeAndDetailType(device.getId(), type, null).isEmpty()) {
+            throw NotificationNotPermitException.withDetail("deviceId: " + device.getId() + ", type: " + type);
         }
         if (notificationSubscribeRepository
-            .findByUserIdAndSubscribeTypeAndDetailType(userId, type, null).isEmpty()) {
-            throw NotificationNotPermitException.withDetail("userId: " + userId + ", type: " + type);
-        }
-        if (notificationSubscribeRepository
-            .findByUserIdAndSubscribeTypeAndDetailType(userId, type, detailType).isPresent()) {
+            .findByDeviceIdAndSubscribeTypeAndDetailType(device.getId(), type, detailType).isPresent()) {
             return;
         }
 
         NotificationSubscribe detailSubscribe = NotificationSubscribe.builder()
-            .user(user)
+            .device(device)
             .subscribeType(type)
             .detailType(detailType)
             .build();
@@ -103,40 +110,70 @@ public class NotificationService {
     }
 
     @Transactional
-    public void rejectNotification(Integer userId) {
-        User user = userRepository.getById(userId);
-        user.rejectNotification();
+    public void rejectNotification(Integer userId, String ipAddress) {
+        userRepository.getById(userId);
+        Device device = accessHistoryRepository.getByPublicIp(ipAddress).getDevice();
+        device.rejectNotification();
     }
 
     @Transactional
-    public void rejectNotificationByType(Integer userId, NotificationSubscribeType subscribeType) {
-        User user = userRepository.getById(userId);
-        if (user.getDeviceToken() == null) {
-            throw NotificationNotPermitException.withDetail("user.deviceToken: null");
-        }
+    public void rejectNotificationByType(Integer userId, String ipAddress, NotificationSubscribeType subscribeType) {
+        userRepository.getById(userId);
+        Device device = accessHistoryRepository.getByPublicIp(ipAddress).getDevice();
+        validateFcmToken(device);
         if (notificationSubscribeRepository
-            .findByUserIdAndSubscribeTypeAndDetailType(userId, subscribeType, null).isEmpty()) {
+            .findByDeviceIdAndSubscribeTypeAndDetailType(device.getId(), subscribeType, null).isEmpty()) {
             return;
         }
-        notificationSubscribeRepository.deleteByUserIdAndSubscribeTypeAndDetailType(userId, subscribeType, null);
+        notificationSubscribeRepository.deleteByDeviceIdAndSubscribeTypeAndDetailType(device.getId(), subscribeType, null);
     }
 
     @Transactional
-    public void rejectNotificationDetailSubscribe(Integer userId, NotificationDetailSubscribeType detailType) {
-        User user = userRepository.getById(userId);
+    public void rejectNotificationDetailSubscribe(Integer userId,
+        String ipAddress, NotificationDetailSubscribeType detailType) {
+        userRepository.getById(userId);
         NotificationSubscribeType type = NotificationSubscribeType.getParentType(detailType);
-
-        if (user.getDeviceToken() == null) {
-            throw NotificationNotPermitException.withDetail("user.deviceToken: null");
+        Device device = accessHistoryRepository.getByPublicIp(ipAddress).getDevice();
+        validateFcmToken(device);
+        if (notificationSubscribeRepository
+            .findByDeviceIdAndSubscribeTypeAndDetailType(device.getId(), type, null).isEmpty()) {
+            throw NotificationNotPermitException.withDetail("deviceId: " + device.getId() + ", type: " + type);
         }
         if (notificationSubscribeRepository
-            .findByUserIdAndSubscribeTypeAndDetailType(userId, type, null).isEmpty()) {
-            throw NotificationNotPermitException.withDetail("userId: " + userId + ", type: " + type);
-        }
-        if (notificationSubscribeRepository
-            .findByUserIdAndSubscribeTypeAndDetailType(userId, type, detailType).isEmpty()) {
+            .findByDeviceIdAndSubscribeTypeAndDetailType(device.getId(), type, detailType).isEmpty()) {
             return;
         }
-        notificationSubscribeRepository.deleteByUserIdAndSubscribeTypeAndDetailType(userId, type, detailType);
+        notificationSubscribeRepository.deleteByDeviceIdAndSubscribeTypeAndDetailType(device.getId(), type, detailType);
+    }
+
+    private static void validateFcmToken(Device device) {
+        if (device.getFcmToken() == null) {
+            throw NotificationNotPermitException.withDetail("user.deviceToken: null");
+        }
+    }
+
+    public AccessHistory findOrCreateAccessHistory(String ipAddress) {
+        return accessHistoryRepository.findByPublicIp(ipAddress).orElseGet(() ->
+            accessHistoryRepository.save(
+                AccessHistory.builder()
+                    .publicIp(ipAddress)
+                    .build()
+            ));
+    }
+
+    public Device createDeviceIfNotExists(Integer userId, UserAgentInfo userAgentInfo, AccessHistory accessHistory) {
+        if (userRepository.findById(userId).isEmpty()) {
+            throw UserNotFoundException.withDetail("userId: " + userId);
+        }
+        Device device = deviceRepository.findByUserId(userId).orElseGet(() ->
+            deviceRepository.save(
+                Device.builder()
+                    .user(userRepository.getById(userId))
+                    .model(userAgentInfo.getModel())
+                    .type(userAgentInfo.getType())
+                    .build()
+            ));
+        accessHistory.connectDevice(device);
+        return device;
     }
 }

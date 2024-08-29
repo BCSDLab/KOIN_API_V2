@@ -3,7 +3,6 @@ package in.koreatech.koin.acceptance;
 import static in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType.LUNCH;
 import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
 import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.user.model.Device;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.fixture.UserFixture;
@@ -36,6 +36,7 @@ class NotificationApiTest extends AcceptanceTest {
     private UserRepository userRepository;
 
     User user;
+    Device device;
     String userToken;
     String deviceToken;
 
@@ -45,7 +46,7 @@ class NotificationApiTest extends AcceptanceTest {
         userToken = userFixture.getToken(user);
         deviceToken = "testToken";
     }
-
+//TODO: 테스트 Device Fixture 적용
     @Test
     @DisplayName("알림 구독 내역을 조회한다.")
     void getNotificationSubscribe() {

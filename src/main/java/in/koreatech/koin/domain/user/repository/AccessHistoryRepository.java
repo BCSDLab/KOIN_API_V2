@@ -1,12 +1,12 @@
-package in.koreatech.koin.admin.abtest.repository;
+package in.koreatech.koin.domain.user.repository;
 
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.admin.abtest.exception.AccessHistoryNotFoundException;
-import in.koreatech.koin.admin.abtest.model.AccessHistory;
-import in.koreatech.koin.admin.abtest.model.Device;
+import in.koreatech.koin.domain.user.exception.AccessHistoryNotFoundException;
+import in.koreatech.koin.domain.user.model.AccessHistory;
+import in.koreatech.koin.domain.user.model.Device;
 
 public interface AccessHistoryRepository extends Repository<AccessHistory, Integer> {
 

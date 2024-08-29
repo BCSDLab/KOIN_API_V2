@@ -26,8 +26,6 @@ import in.koreatech.koin.admin.abtest.exception.AbtestNotInProgressUserException
 import in.koreatech.koin.admin.abtest.model.Abtest;
 import in.koreatech.koin.admin.abtest.model.AbtestStatus;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
-import in.koreatech.koin.admin.abtest.model.AccessHistory;
-import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableIp;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
@@ -37,10 +35,12 @@ import in.koreatech.koin.admin.abtest.repository.AbtestVariableIpTemplateReposit
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableCustomRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableRepository;
-import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
-import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
+import in.koreatech.koin.domain.user.model.AccessHistory;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.AccessHistoryRepository;
+import in.koreatech.koin.domain.user.repository.DeviceRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import in.koreatech.koin.global.model.Criteria;
 import in.koreatech.koin.global.useragent.UserAgentInfo;
 import jakarta.persistence.EntityManager;
@@ -62,6 +62,7 @@ public class AbtestService {
     private final AbtestVariableIpRepository abtestVariableIpRepository;
     private final AbtestVariableIpTemplateRepository abtestVariableIpTemplateRepository;
     private final AccessHistoryAbtestVariableCustomRepository accessHistoryAbtestVariableCustomRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public AbtestResponse createAbtest(AbtestRequest request) {
@@ -190,9 +191,10 @@ public class AbtestService {
         validateAssignedUser(abtest, ipAddress);
         List<AbtestVariableCount> cacheCount = loadCacheCount(abtest);
         AbtestVariable variable = abtest.findAssignVariable(cacheCount);
-        createDeviceIfNotExists(userId, userAgentInfo);
-        AccessHistory accessHistory = findOrCreateAccessHistory(ipAddress);
-        mapDeviceToAccessHistory(userId, accessHistory);
+        AccessHistory accessHistory = notificationService.findOrCreateAccessHistory(ipAddress);
+        if (userRepository.findById(userId).isPresent()) {
+            notificationService.createDeviceIfNotExists(userId, userAgentInfo, accessHistory);
+        }
         accessHistory.addAbtestVariable(variable);
         countCacheUpdate(variable);
         variableIpCacheSave(variable, ipAddress);
@@ -203,36 +205,6 @@ public class AbtestService {
         return abtest.getAbtestVariables().stream()
             .map(abtestVariable -> abtestVariableCountRepository.findOrCreateIfNotExists(abtestVariable.getId()))
             .toList();
-    }
-
-    private void createDeviceIfNotExists(Integer userId, UserAgentInfo userAgentInfo) {
-        if (userId != null && deviceRepository.findByUserId(userId).isEmpty()) {
-            deviceRepository.save(
-                Device.builder()
-                    .user(userRepository.getById(userId))
-                    .model(userAgentInfo.getModel())
-                    .type(userAgentInfo.getType())
-                    .build()
-            );
-        }
-    }
-
-    private AccessHistory findOrCreateAccessHistory(String ipAddress) {
-        return accessHistoryRepository.findByPublicIp(ipAddress).orElseGet(() ->
-            accessHistoryRepository.save(
-                AccessHistory.builder()
-                    .publicIp(ipAddress)
-                    .build()
-            ));
-    }
-
-    private void mapDeviceToAccessHistory(Integer userId, AccessHistory accessHistory) {
-        if (userId != null) {
-            Device device = deviceRepository.getByUserId(userId);
-            if (accessHistoryRepository.findByDevice(device).isEmpty()) {
-                accessHistory.connectDevice(device);
-            }
-        }
     }
 
     private void countCacheUpdate(AbtestVariable variable) {

@@ -1,8 +1,5 @@
 package in.koreatech.koin.fixture;
 
-import static in.koreatech.koin.domain.user.model.UserGender.MAN;
-import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -10,15 +7,13 @@ import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.admin.abtest.model.Abtest;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
-import in.koreatech.koin.admin.abtest.model.AccessHistory;
-import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
-import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableRepository;
-import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
-import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
-import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.AccessHistory;
+import in.koreatech.koin.domain.user.model.Device;
+import in.koreatech.koin.domain.user.repository.AccessHistoryRepository;
+import in.koreatech.koin.domain.user.repository.DeviceRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 
 @Component
