@@ -949,6 +949,40 @@ class AdminShopApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("어드민이 특정 상점의 메뉴를 여러옵션을 가진 메뉴로 수정한다. - 가격 옵션이 비어있거나 null이면 400 에러 발생")
+    void modifyManyOptionMenuWithEmptyOptionPrices() {
+        // given
+        Menu menu = menuFixture.짜장면_옵션메뉴(shop_마슬랜, menuCategory_메인);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token_admin)
+            .pathParam("shopId", shop_마슬랜.getId())
+            .pathParam("menuId", menu.getId())
+            .contentType(ContentType.JSON)
+            .body(String.format("""
+        {
+          "category_ids": [
+            %d, %d
+          ],
+          "description": "테스트메뉴입니다.",
+          "image_urls": [
+            "https://fixed-testimage.com/수정된짜장면.png"
+          ],
+          "is_single": false,
+          "name": "짜장면",
+          "option_prices": []
+        }
+        """, menuCategory_메인.getId(), menuCategory_사이드.getId()))
+            .when()
+            .put("/admin/shops/{shopId}/menus/{menuId}")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
+
+
+    @Test
     @DisplayName("어드민이 상점을 삭제한다.")
     void deleteShop() {
         Shop shop = shopFixture.영업중이_아닌_신전_떡볶이(owner_현수);
