@@ -4,12 +4,14 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.community.model.Article;
+import in.koreatech.koin.domain.community.model.ArticleAttachment;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -32,6 +34,9 @@ public record ArticleResponse(
 
     @Schema(description = "조회수", example = "1", requiredMode = REQUIRED)
     Integer hit,
+
+    @Schema(description = "첨부 파일")
+    List<InnerArticleAttachmentResponse> attachments,
 
     @Schema(description = "등록 일자", example = "2024-08-28", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd") LocalDate registeredAt,
@@ -57,11 +62,44 @@ public record ArticleResponse(
             article.getContent(),
             article.getAuthor(),
             article.getHit(),
+            article.getAttachments().stream()
+                .map(InnerArticleAttachmentResponse::from)
+                .toList(),
             article.getRegisteredAt(),
             article.getPrevId(),
             article.getNextId(),
             article.getCreatedAt(),
             article.getUpdatedAt()
         );
+    }
+
+    @JsonNaming(value = SnakeCaseStrategy.class)
+    private record InnerArticleAttachmentResponse(
+
+        @Schema(description = "파일 고유 ID", example = "1", requiredMode = REQUIRED)
+        Integer id,
+
+        @Schema(description = "파일 이름", example = "이미지.png", requiredMode = REQUIRED)
+        String name,
+
+        @Schema(description = "파일 url", requiredMode = REQUIRED)
+        String url,
+
+        @Schema(description = "생성 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+
+        @Schema(description = "수정 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
+    ) {
+
+        public static InnerArticleAttachmentResponse from(ArticleAttachment attachment) {
+            return new InnerArticleAttachmentResponse(
+                attachment.getId(),
+                attachment.getName(),
+                attachment.getUrl(),
+                attachment.getCreatedAt(),
+                attachment.getUpdatedAt()
+            );
+        }
     }
 }

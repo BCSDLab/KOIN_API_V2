@@ -67,13 +67,12 @@ public class Article extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    @Column(name = "article_num")
+    @Column(name = "article_num", nullable = false)
     private Integer articleNum;
 
     @Column(name = "url", nullable = false)
     private String url;
 
-    @Size(max = 255)
     @Column(name = "registered_at")
     private LocalDate registeredAt;
 

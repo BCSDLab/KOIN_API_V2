@@ -51,7 +51,7 @@ public class CommunityService {
     @Transactional
     public ArticleResponse getArticle(Integer boardId, Integer articleId) {
         Article article = articleRepository.getById(articleId);
-        article.increaseHit();
+        // article.increaseHit();
         Board board = getBoard(boardId, article);
         Article prevArticle = articleRepository.getPreviousArticle(board, article);
         Article nextArticle = articleRepository.getNextArticle(board, article);
