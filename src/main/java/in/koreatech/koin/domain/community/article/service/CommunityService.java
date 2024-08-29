@@ -15,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
-import in.koreatech.koin.domain.community.article.model.ArticleSearchLog;
+import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
+import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchLogRepository;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
@@ -27,7 +28,10 @@ import in.koreatech.koin.domain.community.article.model.BoardTag;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
+import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
+import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
@@ -37,7 +41,6 @@ import lombok.RequiredArgsConstructor;
 public class CommunityService {
 
     public static final int NOTICE_BOARD_ID = 4;
-
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final Sort ARTICLES_SORT = Sort.by(Sort.Direction.DESC, "id");
 
@@ -46,6 +49,8 @@ public class CommunityService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
     private final ArticleSearchLogRepository articleSearchLogRepository;
+    private final ArticleSearchKeywordIpMapRepository articleSearchKeywordIpMapRepository;
+    private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
 
     @Transactional
     public ArticleResponse getArticle(Integer userId, Integer boardId, Integer articleId, String ipAddress) {
@@ -118,6 +123,10 @@ public class CommunityService {
 
     @Transactional
     public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit, String ipAddress) {
+        if(query.length() >= 100) {
+            throw new KoinIllegalArgumentException("검색어의 최대 길이를 초과했습니다.");
+        }
+
         Criteria criteria = Criteria.of(page, limit);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
         Page<Article> articles;
@@ -134,38 +143,93 @@ public class CommunityService {
         return ArticlesResponse.of(articles, criteria);
     }
 
-    private void saveOrUpdateSearchLog(String keyword, String ipAddress) {
-        if (keyword == null || keyword.trim().isEmpty()) {
+    public ArticleHotKeywordResponse getArticlesHotKeyword(Integer count) {
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
+        Pageable pageable = PageRequest.of(0, count);
+
+        List<String> topKeywords = articleSearchKeywordRepository.findTopKeywords(oneWeekAgo, pageable);
+
+        if (topKeywords == null || topKeywords.isEmpty()) {
+            topKeywords = articleSearchKeywordRepository.findTopKeywordsByLatest(pageable);
+        }
+
+        return ArticleHotKeywordResponse.from(topKeywords);
+    }
+
+    private void saveOrUpdateSearchLog(String query, String ipAddress) {
+        if (query == null || query.trim().isEmpty()) {
             return;
         }
 
-        Optional<ArticleSearchLog> existingLog = articleSearchLogRepository.findByKeywordAndIpAddress(keyword, ipAddress);
+        String[] keywords = query.split("\\s+");
 
-        if (existingLog.isPresent()) {
-            articleSearchLogRepository.save(existingLog.get());
-        } else {
-            ArticleSearchLog newLog = ArticleSearchLog.builder()
-                .keyword(keyword)
-                .ipAddress(ipAddress)
-                .build();
-            articleSearchLogRepository.save(newLog);
+        for (String keywordStr : keywords) {
+            ArticleSearchKeyword keyword = getOrCreateKeyword(keywordStr);
+            ArticleSearchKeywordIpMap map = getOrCreateKeywordIpMap(keyword, ipAddress);
+
+            updateKeywordWeight(keyword, map);
         }
     }
+
+    private ArticleSearchKeyword getOrCreateKeyword(String keywordStr) {
+        return articleSearchKeywordRepository.findByKeyword(keywordStr)
+            .orElseGet(() -> {
+                ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
+                    .keyword(keywordStr)
+                    .weight(1.0)
+                    .lastSearchedAt(LocalDateTime.now())
+                    .totalSearch(1)
+                    .build();
+                articleSearchKeywordRepository.save(newKeyword);
+                return newKeyword;
+            });
+    }
+
+    private ArticleSearchKeywordIpMap getOrCreateKeywordIpMap(ArticleSearchKeyword keyword, String ipAddress) {
+        return articleSearchKeywordIpMapRepository.findByArticleSearchKeywordAndIpAddress(keyword, ipAddress)
+            .orElseGet(() -> {
+                ArticleSearchKeywordIpMap newMap = ArticleSearchKeywordIpMap.builder()
+                    .articleSearchKeyword(keyword)
+                    .ipAddress(ipAddress)
+                    .searchCount(1)
+                    .build();
+                articleSearchKeywordIpMapRepository.save(newMap);
+                return newMap;
+            });
+    }
+
+    private void updateKeywordWeight(ArticleSearchKeyword keyword, ArticleSearchKeywordIpMap map) {
+        map.incrementSearchCount();
+        double additionalWeight = calculateAdditionalWeight(map.getSearchCount());
+        keyword.updateWeight(keyword.getWeight() + additionalWeight);
+        articleSearchKeywordRepository.save(keyword);
+    }
+
+    private double calculateAdditionalWeight(int searchCount) {
+        return (searchCount <= 5) ? 1.0 / Math.pow(2, searchCount - 1) : 1.0 / Math.pow(2, 4);
+    }
+
 
     private boolean isFullNoticeBoard(Board board) {
         return board.isNotice() && Objects.equals(board.getTag(), BoardTag.공지사항.getTag());
     }
 
+    @Transactional
+    public void resetWeightsAndCounts() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime sixHoursThirtyMinutesAgo = now.minusHours(6).minusMinutes(30);
 
-    public ArticleHotKeywordResponse getArticlesHotKeyword(Integer count) {
-        LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
-        Pageable pageable = PageRequest.of(0, count);
-        List<String> topKeywords = articleSearchLogRepository.findTopKeywords(oneDayAgo, pageable);
+        List<ArticleSearchKeyword> keywordsToUpdate = articleSearchKeywordRepository.findByCreatedAtBetween(
+            sixHoursThirtyMinutesAgo, now);
+        List<ArticleSearchKeywordIpMap> ipMapsToUpdate = articleSearchKeywordIpMapRepository.findByCreatedAtBetween(
+            sixHoursThirtyMinutesAgo, now);
 
-        if (topKeywords == null || topKeywords.isEmpty()) {
-            topKeywords = articleSearchLogRepository.findTopKeywordsByLatest(pageable);
+        for (ArticleSearchKeyword keyword : keywordsToUpdate) {
+            keyword.resetWeight();
         }
 
-        return ArticleHotKeywordResponse.from(topKeywords);
+        for (ArticleSearchKeywordIpMap ipMap : ipMapsToUpdate) {
+            ipMap.resetSearchCount();
+        }
     }
 }

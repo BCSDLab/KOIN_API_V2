@@ -9,6 +9,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,35 +18,39 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "article_search_logs", indexes = {
-    @Index(name = "idx_keyword", columnList = "keyword"),
-    @Index(name = "idx_created_at", columnList = "created_at")
+@Table(name = "article_search_keyword_ip_map", indexes = {
+    @Index(name = "idx_ip_address", columnList = "ipAddress")
 })
 @NoArgsConstructor(access = PROTECTED)
-public class ArticleSearchLog extends BaseEntity {
+public class ArticleSearchKeywordIpMap extends BaseEntity {
+
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)
-    private String keyword;
+    @ManyToOne
+    @JoinColumn(name = "keyword_id", nullable = false)
+    private ArticleSearchKeyword articleSearchKeyword;
 
     @Column(nullable = false)
     private String ipAddress;
 
     @Column(nullable = false)
-    private Double weight;
+    private Integer searchCount;
 
     @Builder
-    private ArticleSearchLog(Integer id, String keyword, String ipAddress, Double weight) {
-        this.id = id;
-        this.keyword = keyword;
+    private ArticleSearchKeywordIpMap(ArticleSearchKeyword articleSearchKeyword, String ipAddress, Integer searchCount) {
+        this.articleSearchKeyword = articleSearchKeyword;
         this.ipAddress = ipAddress;
-        this.weight = weight;
+        this.searchCount = searchCount;
     }
 
-    public void updateWeight(Double newWeight) {
-        this.weight = newWeight;
+    public void incrementSearchCount() {
+        this.searchCount++;
+    }
+
+    public void resetSearchCount() {
+        this.searchCount = 0;
     }
 }
