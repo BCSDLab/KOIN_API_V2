@@ -17,7 +17,6 @@ import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
-import in.koreatech.koin.domain.community.article.repository.ArticleSearchLogRepository;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
@@ -48,7 +47,6 @@ public class CommunityService {
     private final ArticleViewLogRepository articleViewLogRepository;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
-    private final ArticleSearchLogRepository articleSearchLogRepository;
     private final ArticleSearchKeywordIpMapRepository articleSearchKeywordIpMapRepository;
     private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
 
