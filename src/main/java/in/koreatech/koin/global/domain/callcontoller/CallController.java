@@ -16,8 +16,6 @@ public class CallController<T> {
     private static final Class<CallControlInfo> CALL_CONTROL_ANNOTATION = CallControlInfo.class;
     private static final String RATIO = "ratio";
 
-    private final FallBack<T> fallBack;
-
     public T getInstanceByRatio(List<T> clientTypes, List<T> apiCallListByRatio) {
         if (apiCallListByRatio.isEmpty()) {
             apiCallListByRatio.addAll(generateApiCallListByRatio(clientTypes));
@@ -35,12 +33,8 @@ public class CallController<T> {
     private List<T> generateApiCallListByRatio(List<T> childTypes) {
         List<T> callListByRatio = new ArrayList<>();
         childTypes.sort(Comparator.comparingInt(this::getChildRatio).reversed());
-        childTypes.stream().forEach(child -> {
-            System.out.println("타입순서: " + child);
-        });
         childTypes.forEach(
             child -> {
-                System.out.println(child + " 삽입!");
                 int ratio = getChildRatio(child);
                 for (int i = 0; i < ratio; i++) {
                     callListByRatio.add(child);
@@ -54,7 +48,8 @@ public class CallController<T> {
         return (int)ReflectionUtils.getAnnotationValue(child, CALL_CONTROL_ANNOTATION, RATIO);
     }
 
-    public T fallBack(boolean hasCircuitBreaker, T failedType, List<T> fallBackableTypes) {
-        return fallBack.getOtherType(hasCircuitBreaker, failedType, fallBackableTypes);
+    public T fallBack(T failedType, List<T> fallBackableTypes) {
+        fallBackableTypes.remove(failedType);
+        return fallBackableTypes.get(0);
     }
 }

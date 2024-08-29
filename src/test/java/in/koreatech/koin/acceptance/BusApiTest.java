@@ -1,7 +1,9 @@
 package in.koreatech.koin.acceptance;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -29,6 +31,7 @@ import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
+import in.koreatech.koin.domain.bus.util.express.ExpressBusService;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
@@ -51,6 +54,9 @@ class BusApiTest extends AcceptanceTest {
 
     @Autowired
     private ExpressBusCacheRepository expressBusCacheRepository;
+
+    @Autowired
+    private ExpressBusService expressBusService;
 
     @BeforeEach
     void setup() {
@@ -364,5 +370,37 @@ class BusApiTest extends AcceptanceTest {
                     "updated_at": "2024-01-15 12:00:00"
                 }
                 """);
+    }
+
+    @Test
+    @DisplayName("시외버스 Open Api를 호출한다. - 정상적으로 호출 되는 경우")
+    void callExpressBusOpenApiSucceed() {
+        expressBusService.storeRemainTimeByRatio();
+
+        verify(publicExpressBusClient, times(1)).storeRemainTime();
+        verify(tmoneyExpressBusClient, never()).storeRemainTime();
+    }
+
+    @Test
+    @DisplayName("시외버스 Open Api를 호출한다. - 호출에 실패하여 대체되는 경우")
+    void callExpressBusOpenApiFallBacked() {
+        doThrow(RuntimeException.class).when(publicExpressBusClient).storeRemainTime();
+
+        expressBusService.storeRemainTimeByRatio();
+
+        verify(publicExpressBusClient, times(1)).storeRemainTime();
+        verify(tmoneyExpressBusClient, times(1)).storeRemainTime();
+    }
+
+    @Test
+    @DisplayName("시외버스 Open Api를 호출한다. - 모든 api의 호출이 실패한 경우")
+    void callExpressBusOpenApiFailed() {
+        doThrow(RuntimeException.class).when(publicExpressBusClient).storeRemainTime();
+        doThrow(RuntimeException.class).when(tmoneyExpressBusClient).storeRemainTime();
+        doThrow(RuntimeException.class).when(staticExpressBusClient).storeRemainTime();
+
+        assertThatThrownBy(() -> {
+            expressBusService.storeRemainTimeByRatio();
+        }).isInstanceOf(IndexOutOfBoundsException.class);
     }
 }

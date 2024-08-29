@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
@@ -27,9 +28,10 @@ import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusTimetable;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.global.domain.callcontoller.CallController;
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -45,18 +47,13 @@ public class ExpressBusService {
         List<ExpressBusClient> fallBackableTypes = new ArrayList<>(expressBusTypes);
         while (true) {
             try {
-                System.out.println("호출할 버스: " + selectedBus);
                 selectedBus.storeRemainTime();
-                System.out.println("성공!");
                 break;
-            } catch (CallNotPermittedException e) {
-                System.out.println("다른 API를 호출합니다.(서킷브레이커)");
-                selectedBus = callController.fallBack(true, selectedBus, fallBackableTypes);
             } catch (IndexOutOfBoundsException e) {
-                throw new RuntimeException("호출할 수 있는 버스 API가 없습니다.");
+                throw new BusOpenApiException("호출할 수 있는 버스 API가 없습니다.");
             } catch (Exception e) {
-                System.out.println("다른 API를 호출합니다.(일반)");
-                selectedBus = callController.fallBack(false, selectedBus, fallBackableTypes);
+                log.warn(String.format("%s 호출 중 문제가 발생했습니다.", selectedBus));
+                selectedBus = callController.fallBack(selectedBus, fallBackableTypes);
             }
         }
     }
