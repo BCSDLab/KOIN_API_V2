@@ -70,6 +70,7 @@ public class AccessHistory extends BaseEntity {
 
     public void connectDevice(Device device) {
         this.device = device;
+        device.setAccessHistory(this);
     }
 
     public void addVariable(AbtestVariable variable) {

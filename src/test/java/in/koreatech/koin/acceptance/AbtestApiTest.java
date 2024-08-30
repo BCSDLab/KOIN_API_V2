@@ -59,7 +59,7 @@ class AbtestApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + adminToken)
+            .header("Authorization", "Bearer " + adminToken)
             .body(String.format("""
                 {
                   "display_title": "사장님 전화번호 회원가입 실험",
@@ -128,7 +128,7 @@ class AbtestApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + adminToken)
+            .header("Authorization", "Bearer " + adminToken)
             .when()
             .get("/abtest/{id}", abtest.getId())
             .then()
@@ -171,7 +171,7 @@ class AbtestApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + adminToken)
+            .header("Authorization", "Bearer " + adminToken)
             .when()
             .get("/abtest")
             .then()
@@ -221,7 +221,7 @@ class AbtestApiTest extends AcceptanceTest {
             .contentType(ContentType.JSON)
             .queryParam("page", 2)
             .queryParam("limit", 8)
-            .header("Authorization", "Bearer" + adminToken)
+            .header("Authorization", "Bearer " + adminToken)
             .when()
             .get("/abtest")
             .then()
@@ -267,7 +267,7 @@ class AbtestApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + adminToken)
+            .header("Authorization", "Bearer " + adminToken)
             .body(String.format("""
                 {
                   "display_title": "식단_UI_실험",
@@ -329,7 +329,8 @@ class AbtestApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + adminToken)
+            .header("Authorization", "Bearer " + adminToken)
+            .log().all()
             .when()
             .delete("/abtest/{id}", abtest.getId())
             .then()
@@ -350,7 +351,7 @@ class AbtestApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + adminToken)
+            .header("Authorization", "Bearer " + adminToken)
             .body(String.format("""
                 {
                   "winner_name": "%s"
@@ -375,7 +376,7 @@ class AbtestApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + adminToken)
+            .header("Authorization", "Bearer " + adminToken)
             .queryParam("name", student.getUser().getName())
             .when()
             .get("/abtest/user")
@@ -413,7 +414,7 @@ class AbtestApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + adminToken)
+            .header("Authorization", "Bearer " + adminToken)
             .pathParam("userId", student.getUser().getId())
             .when()
             .get("/abtest/user/{userId}/device")
@@ -454,7 +455,7 @@ class AbtestApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + adminToken)
+            .header("Authorization", "Bearer " + adminToken)
             .body(String.format("""
                 {
                   "device_id": %d,

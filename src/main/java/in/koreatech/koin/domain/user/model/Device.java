@@ -86,4 +86,8 @@ public class Device extends BaseEntity {
     public void rejectNotification() {
         this.fcmToken = null;
     }
+
+    public void setAccessHistory(AccessHistory accessHistory) {
+        this.accessHistory = accessHistory;
+    }
 }
