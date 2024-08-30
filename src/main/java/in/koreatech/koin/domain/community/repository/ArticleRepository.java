@@ -20,7 +20,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Article save(Article article);
 
-    Page<Article> findAllByBoardIsNoticeIsTrue(Pageable pageable);
+    Page<Article> findAllByIsNoticeIsTrue(Pageable pageable);
 
     Optional<Article> findById(Integer articleId);
 
@@ -38,13 +38,12 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Page<Article> findAllByTitleContaining(String query, PageRequest pageRequest);
 
-    Page<Article> findAllByBoardIsNoticeIsTrueAndTitleContaining(String query, PageRequest pageRequest);
+    Page<Article> findAllByIsNoticeIsTrueAndTitleContaining(String query, PageRequest pageRequest);
 
     Long countBy();
 
     @Query(value = "SELECT * FROM articles a "
-        + "JOIN boards b ON a.board_id = b.id "
-        + "WHERE a.id < :articleId AND b.is_notice = true "
+        + "WHERE a.id < :articleId AND a.is_notice = true "
         + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
     Optional<Article> findPreviousNoticeArticle(@Param("articleId") Integer articleId);
 
@@ -54,8 +53,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Optional<Article> findPreviousArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
 
     @Query(value = "SELECT * FROM articles a "
-        + "JOIN boards b ON a.board_id = b.id "
-        + "WHERE a.id < :articleId AND b.is_notice = true "
+        + "WHERE a.id > :articleId AND a.is_notice = true "
         + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
     Optional<Article> findNextNoticeArticle(@Param("articleId") Integer articleId);
 

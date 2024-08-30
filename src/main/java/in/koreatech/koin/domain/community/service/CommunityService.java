@@ -106,7 +106,7 @@ public class CommunityService {
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
         if (boardId == NOTICE_BOARD_ID) {
-            Page<Article> articles = articleRepository.findAllByBoardIsNoticeIsTrue(pageRequest);
+            Page<Article> articles = articleRepository.findAllByIsNoticeIsTrue(pageRequest);
             return ArticlesResponse.of(articles, criteria);
         }
         Page<Article> articles = articleRepository.findAllByBoardId(boardId, pageRequest);
@@ -128,7 +128,7 @@ public class CommunityService {
         if (boardId == null) {
             articles = articleRepository.findAllByTitleContaining(query, pageRequest);
         } else if (boardId == NOTICE_BOARD_ID) {
-            articles = articleRepository.findAllByBoardIsNoticeIsTrueAndTitleContaining(query, pageRequest);
+            articles = articleRepository.findAllByIsNoticeIsTrueAndTitleContaining(query, pageRequest);
         } else {
             articles = articleRepository.findAllByBoardIdAndTitleContaining(boardId, query, pageRequest);
         }
