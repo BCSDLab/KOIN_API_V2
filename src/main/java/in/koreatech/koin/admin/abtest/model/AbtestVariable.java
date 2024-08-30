@@ -88,4 +88,8 @@ public class AbtestVariable extends BaseEntity {
         this.displayName = displayName;
         this.rate = rate;
     }
+
+    public void close() {
+        accessHistoryAbtestVariables.clear();
+    }
 }

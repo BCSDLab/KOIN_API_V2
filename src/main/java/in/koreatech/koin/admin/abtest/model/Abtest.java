@@ -113,6 +113,9 @@ public class Abtest extends BaseEntity {
 
         // 총 레코드 수 계산
         int totalCount = currentCounts.values().stream().mapToInt(Integer::intValue).sum();
+        if (totalCount == 0) {
+            return abtestVariables.get(0);
+        }
 
         // 각 변수의 차이 계산하여 가장 큰 차이를 갖는 변수 선택
         int targetVariable = abtestVariables.stream()
@@ -131,6 +134,7 @@ public class Abtest extends BaseEntity {
             .findAny()
             .orElseThrow(() -> AbtestAssignException.withDetail("abtest name: " + title));
     }
+
 
     public void setVariables(List<AbtestVariable> variables, EntityManager entityManager) {
         validateVariables(variables);
@@ -210,6 +214,7 @@ public class Abtest extends BaseEntity {
         if (winnerName != null) {
             winner = getVariableByName(winnerName);
         }
+        abtestVariables.forEach(AbtestVariable::close);
     }
 
     public void assignVariableByAdmin(AccessHistory accessHistory, String variableName) {

@@ -5,12 +5,11 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.AccessHistory;
 import in.koreatech.koin.domain.user.model.Device;
 import in.koreatech.koin.domain.user.repository.AccessHistoryRepository;
-import in.koreatech.koin.domain.user.repository.DeviceRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.domain.notification.dto.NotificationStatusResponse;
 import in.koreatech.koin.global.domain.notification.exception.NotificationNotPermitException;
 import in.koreatech.koin.global.domain.notification.model.Notification;
@@ -27,11 +26,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NotificationService {
 
+    private final UserService userService;
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
     private final FcmClient fcmClient;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
-    private final DeviceRepository deviceRepository;
     private final AccessHistoryRepository accessHistoryRepository;
 
     public void push(List<Notification> notifications) {
@@ -64,8 +63,8 @@ public class NotificationService {
 
     @Transactional
     public void permitNotification(Integer userId, UserAgentInfo userAgentInfo, String ipAddress, String deviceToken) {
-        AccessHistory accessHistory = findOrCreateAccessHistory(ipAddress);
-        Device device = createDeviceIfNotExists(userId, userAgentInfo, accessHistory);
+        AccessHistory accessHistory = userService.findOrCreateAccessHistory(ipAddress);
+        Device device = userService.createDeviceIfNotExists(userId, userAgentInfo, accessHistory);
         device.permitNotification(deviceToken);
     }
 
@@ -150,30 +149,5 @@ public class NotificationService {
         if (device.getFcmToken() == null) {
             throw NotificationNotPermitException.withDetail("user.deviceToken: null");
         }
-    }
-
-    public AccessHistory findOrCreateAccessHistory(String ipAddress) {
-        return accessHistoryRepository.findByPublicIp(ipAddress).orElseGet(() ->
-            accessHistoryRepository.save(
-                AccessHistory.builder()
-                    .publicIp(ipAddress)
-                    .build()
-            ));
-    }
-
-    public Device createDeviceIfNotExists(Integer userId, UserAgentInfo userAgentInfo, AccessHistory accessHistory) {
-        if (userRepository.findById(userId).isEmpty()) {
-            throw UserNotFoundException.withDetail("userId: " + userId);
-        }
-        Device device = deviceRepository.findByUserId(userId).orElseGet(() ->
-            deviceRepository.save(
-                Device.builder()
-                    .user(userRepository.getById(userId))
-                    .model(userAgentInfo.getModel())
-                    .type(userAgentInfo.getType())
-                    .build()
-            ));
-        accessHistory.connectDevice(device);
-        return device;
     }
 }

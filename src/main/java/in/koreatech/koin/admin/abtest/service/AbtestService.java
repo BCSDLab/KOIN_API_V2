@@ -40,6 +40,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.AccessHistoryRepository;
 import in.koreatech.koin.domain.user.repository.DeviceRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import in.koreatech.koin.global.model.Criteria;
 import in.koreatech.koin.global.useragent.UserAgentInfo;
@@ -62,6 +63,7 @@ public class AbtestService {
     private final AbtestVariableIpTemplateRepository abtestVariableIpTemplateRepository;
     private final AccessHistoryAbtestVariableCustomRepository accessHistoryAbtestVariableCustomRepository;
     private final NotificationService notificationService;
+    private final UserService userService;
 
     @Transactional
     public AbtestResponse createAbtest(AbtestRequest request) {
@@ -80,6 +82,7 @@ public class AbtestService {
         );
         List<AbtestVariable> abtestVariables = request.variables().stream()
             .map(variable -> AbtestVariable.builder()
+                .displayName(variable.displayName())
                 .name(variable.name())
                 .rate(variable.rate())
                 .abtest(saved)
@@ -211,9 +214,9 @@ public class AbtestService {
         validateAssignedUser(abtest, ipAddress);
         List<AbtestVariableCount> cacheCount = loadCacheCount(abtest);
         AbtestVariable variable = abtest.findAssignVariable(cacheCount);
-        AccessHistory accessHistory = notificationService.findOrCreateAccessHistory(ipAddress);
+        AccessHistory accessHistory = userService.findOrCreateAccessHistory(ipAddress);
         if (userRepository.findById(userId).isPresent()) {
-            notificationService.createDeviceIfNotExists(userId, userAgentInfo, accessHistory);
+            userService.createDeviceIfNotExists(userId, userAgentInfo, accessHistory);
         }
         accessHistory.addAbtestVariable(variable);
         countCacheUpdate(variable);
