@@ -793,6 +793,39 @@ class OwnerShopApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("사장님이 단일 메뉴로 수정한다. - 가격 옵션이 null이 아니면 400 에러")
+    void modifySingleMenuWithEmptyOptionPrices() {
+        // given
+        Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
+
+        RestAssured
+            .given()
+            .header("Authorization", "Bearer " + token_현수)
+            .contentType(ContentType.JSON)
+            .body(String.format("""
+        {
+          "category_ids": [
+            %d
+          ],
+          "description": "테스트메뉴수정",
+          "image_urls": [
+            "https://test-image.net/테스트메뉴.jpeg"
+          ],
+          "is_single": true,
+          "name": "짜장면2",
+          "single_price": 10000,
+          "option_prices": []
+        }
+        """, shopCategory_일반.getId()))
+            .when()
+            .put("/owner/shops/menus/{menuId}", menu.getId())
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
+    }
+
+
+    @Test
     @DisplayName("권한이 없는 상점 사장님이 특정 카테고리 조회한다.")
     void ownerCannotQueryOtherCategoriesWithoutPermission() {
         // given
