@@ -2,10 +2,7 @@ package in.koreatech.koin.fixture;
 
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
-import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -370,6 +367,15 @@ public final class UserFixture {
         return coopRepository.save(coop);
     }
 
+    public String 맥북userAgent헤더() {
+        return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/123.45 (KHTML, like Gecko) Chrome/127.0.0"
+            + ".0 Safari/123.45, sec-fetch-dest=empty}";
+    }
+
+    public String 아이피() {
+        return "127.0.0.1";
+    }
+
     public String getToken(User user) {
         return jwtProvider.createToken(user);
     }
@@ -393,7 +399,6 @@ public final class UserFixture {
         private Boolean isDeleted;
         private String resetToken;
         private LocalDateTime resetExpiredAt;
-        private String deviceToken;
 
         public UserFixtureBuilder password(String password) {
             this.password = passwordEncoder.encode(password);
@@ -460,16 +465,10 @@ public final class UserFixture {
             return this;
         }
 
-        public UserFixtureBuilder deviceToken(String deviceToken) {
-            this.deviceToken = deviceToken;
-            return this;
-        }
-
         public User build() {
             return userRepository.save(
                 User.builder()
                     .phoneNumber(phoneNumber)
-                    .deviceToken(deviceToken)
                     .lastLoggedAt(lastLoggedAt)
                     .isAuthed(isAuthed)
                     .resetExpiredAt(resetExpiredAt)

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +22,14 @@ import in.koreatech.koin.domain.user.model.Device;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.AbtestFixture;
+import in.koreatech.koin.fixture.DeviceFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
-public class AbtestApiTest extends AcceptanceTest {
+class AbtestApiTest extends AcceptanceTest {
 
     @Autowired
     private AbtestFixture abtestFixture;
@@ -36,18 +38,28 @@ public class AbtestApiTest extends AcceptanceTest {
     private UserFixture userFixture;
 
     @Autowired
+    private DeviceFixture deviceFixture;
+
+    @Autowired
     private AbtestRepository abtestRepository;
+
+    private User admin;
+    private String adminToken;
+
+    @BeforeEach
+    void setUp() {
+        admin = userFixture.코인_운영자();
+        adminToken = userFixture.getToken(admin);
+    }
 
     @Test
     @DisplayName("실험을 생성한다.")
     void createAbtest() {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
 
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + token)
+            .header("Authorization", "Bearer" + adminToken)
             .body(String.format("""
                 {
                   "display_title": "사장님 전화번호 회원가입 실험",
@@ -111,14 +123,12 @@ public class AbtestApiTest extends AcceptanceTest {
     @Test
     @DisplayName("실험을 단건 조회한다.")
     void getAbtest() {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
         Abtest abtest = abtestFixture.식단_UI_실험();
 
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + token)
+            .header("Authorization", "Bearer" + adminToken)
             .when()
             .get("/abtest/{id}", abtest.getId())
             .then()
@@ -155,15 +165,13 @@ public class AbtestApiTest extends AcceptanceTest {
     @Test
     @DisplayName("실험 목록을 조회한다.")
     void getAbtests() {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
         Abtest abtest1 = abtestFixture.식단_UI_실험();
         Abtest abtest2 = abtestFixture.주변상점_UI_실험();
 
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + token)
+            .header("Authorization", "Bearer" + adminToken)
             .when()
             .get("/abtest")
             .then()
@@ -204,8 +212,6 @@ public class AbtestApiTest extends AcceptanceTest {
     @Test
     @DisplayName("실험 목록을 조회한다. - 페이지네이션")
     void getAbtestsWithPaging() {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
         for (int i = 0; i < 10; i++) {
             abtestFixture.식단_UI_실험();
         }
@@ -215,7 +221,7 @@ public class AbtestApiTest extends AcceptanceTest {
             .contentType(ContentType.JSON)
             .queryParam("page", 2)
             .queryParam("limit", 8)
-            .header("Authorization", "Bearer" + token)
+            .header("Authorization", "Bearer" + adminToken)
             .when()
             .get("/abtest")
             .then()
@@ -256,14 +262,12 @@ public class AbtestApiTest extends AcceptanceTest {
     @Test
     @DisplayName("실험을 수정한다.")
     void putAbtest() {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
         Abtest abtest = abtestFixture.식단_UI_실험();
 
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + token)
+            .header("Authorization", "Bearer" + adminToken)
             .body(String.format("""
                 {
                   "display_title": "식단_UI_실험",
@@ -320,17 +324,16 @@ public class AbtestApiTest extends AcceptanceTest {
     @Test
     @DisplayName("실험을 삭제한다.")
     void deleteAbtest() {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
         Abtest abtest = abtestFixture.식단_UI_실험();
 
         RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + token)
+            .header("Authorization", "Bearer" + adminToken)
             .when()
             .delete("/abtest/{id}", abtest.getId())
             .then()
+            .log().all()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
@@ -340,8 +343,6 @@ public class AbtestApiTest extends AcceptanceTest {
     @Test
     @DisplayName("실험을 종료한다.")
     void closeAbtest() {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
         Abtest abtest = abtestFixture.식단_UI_실험();
 
         String winner = "A";
@@ -349,7 +350,7 @@ public class AbtestApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + token)
+            .header("Authorization", "Bearer" + adminToken)
             .body(String.format("""
                 {
                   "winner_name": "%s"
@@ -368,15 +369,13 @@ public class AbtestApiTest extends AcceptanceTest {
     @Test
     @DisplayName("(실험군 수동편입) 이름으로 유저 목록을 조회한다.")
     void getUsersByUserName() {
-        User adminUser = userFixture.코인_운영자();
         Student student = userFixture.성빈_학생();
         Owner owner = userFixture.성빈_사장님();
-        String token = userFixture.getToken(adminUser);
 
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + token)
+            .header("Authorization", "Bearer" + adminToken)
             .queryParam("name", student.getUser().getName())
             .when()
             .get("/abtest/user")
@@ -406,16 +405,15 @@ public class AbtestApiTest extends AcceptanceTest {
     @Test
     @DisplayName("(실험군 수동편입) 유저 ID로 기기 목록을 조회한다.")
     void getDevicesByUserId() {
-        User adminUser = userFixture.코인_운영자();
+
         Student student = userFixture.성빈_학생();
-        Device device1 = abtestFixture.아이폰(student.getUser().getId());
-        Device device2 = abtestFixture.갤럭시(student.getUser().getId());
-        String token = userFixture.getToken(adminUser);
+        Device device1 = deviceFixture.아이폰(student.getUser().getId(), "111.0.0.0", "123");
+        Device device2 = deviceFixture.갤럭시(student.getUser().getId(), "111.0.0.1", "456");
 
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + token)
+            .header("Authorization", "Bearer" + adminToken)
             .pathParam("userId", student.getUser().getId())
             .when()
             .get("/abtest/user/{userId}/device")
@@ -431,7 +429,6 @@ public class AbtestApiTest extends AcceptanceTest {
                     "id": %d,
                     "type": "mobile",
                     "model" : "아이폰14",
-                    "os": "ios 17",
                     "last_logged_at": "2024-08-06 14:46:00"
                     },
                   "devices": [
@@ -439,7 +436,6 @@ public class AbtestApiTest extends AcceptanceTest {
                     "id": %d,
                     "type": "mobile",
                     "model" : "갤럭시24",
-                    "os": "android 17",
                     "last_logged_at": "2024-08-06 14:46:00"
                     }
                   ]
@@ -450,16 +446,15 @@ public class AbtestApiTest extends AcceptanceTest {
     @Test
     @DisplayName("특정 유저의 실험군을 수동으로 편입시킨다.")
     void moveAbtestVariable() {
-        User adminUser = userFixture.코인_운영자();
+
         Student student = userFixture.성빈_학생();
-        Device device = abtestFixture.아이폰(student.getUser().getId());
+        Device device = deviceFixture.아이폰(student.getUser().getId(), "111.0.0.0", "123");
         Abtest abtest = abtestFixture.식단_UI_실험();
-        String token = userFixture.getToken(adminUser);
 
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer" + token)
+            .header("Authorization", "Bearer" + adminToken)
             .body(String.format("""
                 {
                   "device_id": %d,
@@ -486,7 +481,7 @@ public class AbtestApiTest extends AcceptanceTest {
     @DisplayName("자신의 실험군을 조회한다.")
     void getMyAbtestVariable() {
         Student student = userFixture.성빈_학생();
-        Device device = abtestFixture.아이폰(student.getUser().getId());
+        Device device = deviceFixture.아이폰(student.getUser().getId(), "111.0.0.0", "123");
         Abtest abtest = abtestFixture.식단_UI_실험();
         String token = userFixture.getToken(student.getUser());
 
@@ -513,8 +508,9 @@ public class AbtestApiTest extends AcceptanceTest {
     @DisplayName("(실험군 자동 편입)실험군에 최초로 편입된다.")
     void assignAbtest() {
         Student student = userFixture.성빈_학생();
-        Device device1 = abtestFixture.아이폰(student.getUser().getId());
-        Device device2 = abtestFixture.갤럭시(student.getUser().getId());
+
+        Device device1 = deviceFixture.아이폰(student.getUser().getId(), "111.0.0.0", "123");
+        Device device2 = deviceFixture.갤럭시(student.getUser().getId(), "111.0.0.1", "456");
         Abtest abtest = abtestFixture.식단_UI_실험();
 
         var response1 = RestAssured
