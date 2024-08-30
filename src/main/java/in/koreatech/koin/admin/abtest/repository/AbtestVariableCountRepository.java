@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 
-import in.koreatech.koin.admin.abtest.exception.AbtestVariableCountNotFoundException;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 
 public interface AbtestVariableCountRepository extends CrudRepository<AbtestVariableCount, Integer> {
@@ -15,11 +14,6 @@ public interface AbtestVariableCountRepository extends CrudRepository<AbtestVari
     AbtestVariableCount save(AbtestVariableCount abtestVariableCount);
 
     Optional<AbtestVariableCount> findById(Integer id);
-
-    default AbtestVariableCount getById(Integer id) {
-        return findById(id).orElseThrow(() ->
-            AbtestVariableCountNotFoundException.withDetail("abtestVariableCount id: " + id));
-    }
 
     default AbtestVariableCount findOrCreateIfNotExists(Integer id) {
         return findById(id).orElseGet(() ->

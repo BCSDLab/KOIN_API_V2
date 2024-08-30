@@ -28,7 +28,7 @@ CREATE TABLE `abtest_variable`
     `name`         varchar(255) NOT NULL,
     `display_name` varchar(255) NOT NULL,
     `rate`         int unsigned NOT NULL,
-    `count`        int unsigned NOT NULL DEFAULT '0',
+    `count`        int NOT NULL DEFAULT '0',
     `is_before`    tinyint(1) NOT NULL DEFAULT '0',
     `created_at`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

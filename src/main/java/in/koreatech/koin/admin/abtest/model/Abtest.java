@@ -233,16 +233,18 @@ public class Abtest extends BaseEntity {
     }
 
     private void resetExistVariable(AccessHistory accessHistory) {
-        AbtestVariable variable = findVariableByAccessHistory(accessHistory);
-        variable.addCount(-1);
-        accessHistory.removeVariable(variable);
+        Optional<AbtestVariable> variable = findVariableByAccessHistory(accessHistory);
+        if (variable.isEmpty()) {
+            return;
+        }
+        variable.get().addCount(-1);
+        accessHistory.removeVariable(variable.get());
     }
 
-    public AbtestVariable findVariableByAccessHistory(AccessHistory accessHistory) {
+    public Optional<AbtestVariable> findVariableByAccessHistory(AccessHistory accessHistory) {
         return accessHistory.getAccessHistoryAbtestVariables().stream()
             .filter(map -> map.getAccessHistory().getId().equals(accessHistory.getId()))
             .map(AccessHistoryAbtestVariable::getVariable)
-            .findAny()
-            .orElseThrow(() -> AbtestNotIncludeVariableException.withDetail("abtest name: " + title));
+            .findAny();
     }
 }

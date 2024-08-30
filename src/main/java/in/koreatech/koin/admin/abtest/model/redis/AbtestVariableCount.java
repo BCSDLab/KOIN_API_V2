@@ -27,4 +27,8 @@ public class AbtestVariableCount {
     public void addCount() {
         count += 1;
     }
+
+    public void minusCount() {
+        count -= 1;
+    }
 }

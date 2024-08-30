@@ -173,6 +173,10 @@ public class UserService {
             );
             accessHistory.connectDevice(device);
         }
-        return accessHistory.getDevice();
+        Device device = accessHistory.getDevice();
+        if (!Objects.equals(device.getUser().getId(), userId)) {
+            device.changeUser(userRepository.getById(userId));
+        }
+        return device;
     }
 }

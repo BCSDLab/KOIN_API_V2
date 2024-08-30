@@ -41,6 +41,7 @@ import in.koreatech.koin.domain.user.repository.AccessHistoryRepository;
 import in.koreatech.koin.domain.user.repository.DeviceRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.UserService;
+import in.koreatech.koin.global.auth.UserIdContext;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import in.koreatech.koin.global.model.Criteria;
 import in.koreatech.koin.global.useragent.UserAgentInfo;
@@ -64,6 +65,7 @@ public class AbtestService {
     private final AccessHistoryAbtestVariableCustomRepository accessHistoryAbtestVariableCustomRepository;
     private final NotificationService notificationService;
     private final UserService userService;
+    private final UserIdContext userIdContext;
 
     @Transactional
     public AbtestResponse createAbtest(AbtestRequest request) {
@@ -211,17 +213,29 @@ public class AbtestService {
         if (winner.isPresent()) {
             return winner.get();
         }
-        validateAssignedUser(abtest, ipAddress);
+        validateAssignedUser(abtest, ipAddress, userId);
         List<AbtestVariableCount> cacheCount = loadCacheCount(abtest);
         AbtestVariable variable = abtest.findAssignVariable(cacheCount);
         AccessHistory accessHistory = userService.findOrCreateAccessHistory(ipAddress);
         if (userRepository.findById(userId).isPresent()) {
             userService.createDeviceIfNotExists(userId, userAgentInfo, accessHistory);
         }
+        removeBeforeUserCache(ipAddress, accessHistory, abtest);
         accessHistory.addAbtestVariable(variable);
         countCacheUpdate(variable);
         variableIpCacheSave(variable, ipAddress);
         return variable.getName();
+    }
+
+    // 기기를 다른 사용자가 사용한 이력이 있는 경우 기존 사용자의 캐시를 삭제
+    private void removeBeforeUserCache(String ipAddress, AccessHistory accessHistory, Abtest abtest) {
+        for (AbtestVariable removeVariable : accessHistory.getVariableBy(abtest)) {
+            abtestVariableIpRepository.deleteByVariableIdAndIp(removeVariable.getId(), ipAddress);
+            AbtestVariableCount countCache = abtestVariableCountRepository.findOrCreateIfNotExists(
+                removeVariable.getId());
+            countCache.minusCount();
+            abtestVariableCountRepository.save(countCache);
+        }
     }
 
     private List<AbtestVariableCount> loadCacheCount(Abtest abtest) {
@@ -231,7 +245,7 @@ public class AbtestService {
     }
 
     private void countCacheUpdate(AbtestVariable variable) {
-        AbtestVariableCount countCache = abtestVariableCountRepository.getById(variable.getId());
+        AbtestVariableCount countCache = abtestVariableCountRepository.findOrCreateIfNotExists(variable.getId());
         countCache.addCount();
         abtestVariableCountRepository.save(countCache);
     }
@@ -267,9 +281,9 @@ public class AbtestService {
         return cacheVariable.get().getName();
     }
 
-    private void validateAssignedUser(Abtest abtest, String ipAddress) {
+    private void validateAssignedUser(Abtest abtest, String ipAddress, Integer userId) {
         Optional<AccessHistory> accessHistory = accessHistoryRepository.findByPublicIp(ipAddress);
-        if (accessHistory.isEmpty()) {
+        if (accessHistory.isEmpty() || !Objects.equals(accessHistory.get().getDevice().getUser().getId(), userId)) {
             return;
         }
         if (abtest.getAbtestVariables().stream()
@@ -319,17 +333,23 @@ public class AbtestService {
         Abtest abtest = abtestRepository.getById(abtestId);
         validateAbtestInProgress(abtest);
         AccessHistory accessHistory = accessHistoryRepository.getByDeviceId(request.deviceId());
-        AbtestVariable beforeVariable = abtest.findVariableByAccessHistory(accessHistory);
+        Optional<AbtestVariable> beforeVariable = abtest.findVariableByAccessHistory(accessHistory);
         AbtestVariable afterVariable = abtest.getVariableByName(request.variableName());
         validateDuplicatedVariables(beforeVariable, afterVariable);
         abtest.assignVariableByAdmin(accessHistory, request.variableName());
-        abtestVariableIpRepository.deleteByVariableIdAndIp(beforeVariable.getId(), accessHistory.getPublicIp());
+        beforeVariable.ifPresent(
+            abtestVariable -> abtestVariableIpRepository.deleteByVariableIdAndIp(abtestVariable.getId(),
+                accessHistory.getPublicIp()));
         variableIpCacheSave(afterVariable, accessHistory.getPublicIp());
     }
 
-    private static void validateDuplicatedVariables(AbtestVariable beforeVariable, AbtestVariable afterVariable) {
-        if (Objects.equals(beforeVariable.getId(), afterVariable.getId())) {
-            throw AbtestDuplicatedVariableException.withDetail("beforeVariable id: " + beforeVariable.getId()
+    private static void validateDuplicatedVariables(Optional<AbtestVariable> beforeVariable,
+        AbtestVariable afterVariable) {
+        if (beforeVariable.isEmpty()) {
+            return;
+        }
+        if (Objects.equals(beforeVariable.get().getId(), afterVariable.getId())) {
+            throw AbtestDuplicatedVariableException.withDetail("beforeVariable id: " + beforeVariable.get().getId()
                 + ", afterVariable id: " + afterVariable.getId());
         }
     }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import in.koreatech.koin.admin.abtest.model.Abtest;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
 import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -80,15 +81,22 @@ public class AccessHistory extends BaseEntity {
             .build());
     }
 
+    public List<AbtestVariable> getVariableBy(Abtest abtest) {
+        return accessHistoryAbtestVariables.stream()
+            .map(AccessHistoryAbtestVariable::getVariable)
+            .filter(abtestVariable -> abtestVariable.getAbtest().equals(abtest))
+            .toList();
+    }
+
     public void addAbtestVariable(AbtestVariable variable) {
-        if (!hasVariable(variable.getId())) {
-            AccessHistoryAbtestVariable saved = AccessHistoryAbtestVariable.builder()
-                .accessHistory(this)
-                .variable(variable)
-                .build();
-            this.accessHistoryAbtestVariables.add(saved);
-            variable.getAccessHistoryAbtestVariables().add(saved);
-        }
+        accessHistoryAbtestVariables.removeIf(map -> map.getVariable().getAbtest().equals(variable.getAbtest()));
+
+        AccessHistoryAbtestVariable saved = AccessHistoryAbtestVariable.builder()
+            .accessHistory(this)
+            .variable(variable)
+            .build();
+        accessHistoryAbtestVariables.add(saved);
+        variable.getAccessHistoryAbtestVariables().add(saved);
     }
 
     public boolean hasVariable(Integer variableId) {

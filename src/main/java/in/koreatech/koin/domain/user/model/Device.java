@@ -90,4 +90,8 @@ public class Device extends BaseEntity {
     public void setAccessHistory(AccessHistory accessHistory) {
         this.accessHistory = accessHistory;
     }
+
+    public void changeUser(User user) {
+        this.user = user;
+    }
 }
