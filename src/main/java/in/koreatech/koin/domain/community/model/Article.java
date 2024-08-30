@@ -64,6 +64,10 @@ public class Article extends BaseEntity {
     private int hit;
 
     @NotNull
+    @Column(name = "koin_hit", nullable = false)
+    private int koinHit;
+
+    @NotNull
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
@@ -90,8 +94,8 @@ public class Article extends BaseEntity {
     @Transient
     private Integer nextId;
 
-    public void increaseHit() {
-        hit++;
+    public void increaseKoinHit() {
+        koinHit++;
     }
 
     public void setPrevNextArticles(Article prev, Article next) {
@@ -110,6 +114,7 @@ public class Article extends BaseEntity {
         String content,
         String author,
         Integer hit,
+        Integer koinHit,
         boolean isDeleted,
         Integer articleNum,
         String url,
@@ -122,6 +127,7 @@ public class Article extends BaseEntity {
         this.content = content;
         this.author = author;
         this.hit = hit;
+        this.koinHit = koinHit;
         this.isDeleted = isDeleted;
         this.articleNum = articleNum;
         this.url = url;
