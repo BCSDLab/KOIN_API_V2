@@ -2,6 +2,7 @@ package in.koreatech.koin.global.config;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
@@ -9,14 +10,19 @@ import jakarta.persistence.Converter;
 @Converter
 public class LocalDateAttributeConverter implements AttributeConverter<LocalDate, String> {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+        .appendPattern("yyyy-MM-dd")
+        .optionalStart()
+        .appendPattern(" HH:mm:ss")
+        .optionalEnd()
+        .toFormatter();
 
     @Override
-    public String convertToDatabaseColumn(LocalDate localDateTime) {
-        if (localDateTime == null) {
+    public String convertToDatabaseColumn(LocalDate localDate) {
+        if (localDate == null) {
             return null;
         }
-        return localDateTime.format(formatter);
+        return localDate.format(formatter);
     }
 
     @Override
