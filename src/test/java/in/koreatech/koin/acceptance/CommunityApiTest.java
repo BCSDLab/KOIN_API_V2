@@ -106,7 +106,6 @@ class CommunityApiTest extends AcceptanceTest {
                     "registered_at": "2024-01-15",
                     "prev_id": null,
                     "next_id": 2,
-                    "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
                 """);
@@ -138,7 +137,6 @@ class CommunityApiTest extends AcceptanceTest {
                             "author": "작성자2",
                             "hit": 1,
                             "registered_at": "2024-01-15",
-                            "created_at": "2024-01-15 12:00:00",
                             "updated_at": "2024-01-15 12:00:00"
                         },
                         {
@@ -148,7 +146,6 @@ class CommunityApiTest extends AcceptanceTest {
                             "author": "작성자1",
                             "hit": 1,
                             "registered_at": "2024-01-15",
-                            "created_at": "2024-01-15 12:00:00",
                             "updated_at": "2024-01-15 12:00:00"
                         }
                     ],
@@ -326,7 +323,6 @@ class CommunityApiTest extends AcceptanceTest {
                             "author": "작성자1",
                             "hit": 1,
                             "registered_at": "2024-01-15",
-                            "created_at": "2024-01-15 12:00:00",
                             "updated_at": "2024-01-15 12:00:00"
                         }
                     ],
@@ -364,7 +360,6 @@ class CommunityApiTest extends AcceptanceTest {
                                "author": "작성자1",
                                "hit": 1,
                                "registered_at": "2024-01-15",
-                               "created_at": "2024-01-15 12:00:00",
                                "updated_at": "2024-01-15 12:00:00"
                            }
                        ],
@@ -415,7 +410,6 @@ class CommunityApiTest extends AcceptanceTest {
                         "author": "BCSD",
                         "hit": 7,
                         "registered_at": "2024-01-15",
-                        "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00"
                     },
                     {
@@ -425,7 +419,6 @@ class CommunityApiTest extends AcceptanceTest {
                         "author": "BCSD",
                         "hit": 6,
                         "registered_at": "2024-01-15",
-                        "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00"
                     },
                     {
@@ -435,7 +428,6 @@ class CommunityApiTest extends AcceptanceTest {
                         "author": "BCSD",
                         "hit": 5,
                         "registered_at": "2024-01-15",
-                        "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00"
                     },
                     {
@@ -445,7 +437,6 @@ class CommunityApiTest extends AcceptanceTest {
                         "author": "작성자2",
                         "hit": 1,
                         "registered_at": "2024-01-15",
-                        "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00"
                     },
                     {
@@ -455,7 +446,6 @@ class CommunityApiTest extends AcceptanceTest {
                         "author": "작성자1",
                         "hit": 1,
                         "registered_at": "2024-01-15",
-                        "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00"
                     }
                 ]
@@ -486,7 +476,6 @@ class CommunityApiTest extends AcceptanceTest {
                                "author": "작성자2",
                                "hit": 1,
                                "registered_at": "2024-01-15",
-                               "created_at": "2024-01-15 12:00:00",
                                "updated_at": "2024-01-15 12:00:00"
                            },
                            {
@@ -496,7 +485,6 @@ class CommunityApiTest extends AcceptanceTest {
                                "author": "작성자1",
                                "hit": 1,
                                "registered_at": "2024-01-15",
-                               "created_at": "2024-01-15 12:00:00",
                                "updated_at": "2024-01-15 12:00:00"
                            }
                        ],

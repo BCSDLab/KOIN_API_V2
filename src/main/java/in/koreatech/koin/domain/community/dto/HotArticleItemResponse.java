@@ -33,9 +33,6 @@ public record HotArticleItemResponse(
     @Schema(description = "등록 일자", example = "2024-08-28", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd") LocalDate registeredAt,
 
-    @Schema(description = "생성 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
-
     @Schema(description = "수정 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
 ) {
@@ -48,7 +45,6 @@ public record HotArticleItemResponse(
             article.getAuthor(),
             article.getHit(),
             article.getRegisteredAt(),
-            article.getCreatedAt(),
             article.getUpdatedAt()
         );
     }

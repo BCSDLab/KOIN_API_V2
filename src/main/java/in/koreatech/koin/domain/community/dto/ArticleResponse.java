@@ -38,17 +38,14 @@ public record ArticleResponse(
     @Schema(description = "첨부 파일")
     List<InnerArticleAttachmentResponse> attachments,
 
-    @Schema(description = "등록 일자", example = "2024-08-28", requiredMode = REQUIRED)
-    @JsonFormat(pattern = "yyyy-MM-dd") LocalDate registeredAt,
-
     @Schema(description = "이전 게시글 ID", example = "1")
     Integer prevId,
 
     @Schema(description = "다음 게시글 ID", example = "3")
     Integer nextId,
 
-    @Schema(description = "생성 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+    @Schema(description = "등록 일자", example = "2024-08-28", requiredMode = REQUIRED)
+    @JsonFormat(pattern = "yyyy-MM-dd") LocalDate registeredAt,
 
     @Schema(description = "수정 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
@@ -65,10 +62,9 @@ public record ArticleResponse(
             article.getAttachments().stream()
                 .map(InnerArticleAttachmentResponse::from)
                 .toList(),
-            article.getRegisteredAt(),
             article.getPrevId(),
             article.getNextId(),
-            article.getCreatedAt(),
+            article.getRegisteredAt(),
             article.getUpdatedAt()
         );
     }
