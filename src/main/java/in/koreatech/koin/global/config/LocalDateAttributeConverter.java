@@ -11,10 +11,10 @@ import jakarta.persistence.Converter;
 public class LocalDateAttributeConverter implements AttributeConverter<LocalDate, String> {
 
     private static final DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-        .appendPattern("yyyy-MM-dd")
-        .optionalStart()
-        .appendPattern(" HH:mm:ss")
-        .optionalEnd()
+        .appendPattern("[yyyy-MM-dd HH:mm:ss]")
+        .appendPattern("[yyyy-MM-dd]")
+        .appendPattern("[yy.MM.dd HH:mm:ss]")
+        .appendPattern("[yy.MM.dd]")
         .toFormatter();
 
     @Override
