@@ -44,21 +44,21 @@ public class Article extends BaseEntity {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id", nullable = false)
+    @JoinColumn(name = "board_id", nullable = false, updatable = false)
     private Board board;
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, updatable = false)
     private String title;
 
     @NotNull
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, updatable = false)
     private String content;
 
     @Size(max = 50)
     @NotNull
-    @Column(name = "author", nullable = false, length = 50)
+    @Column(name = "author", nullable = false, length = 50, updatable = false)
     private String author;
 
     @NotNull
@@ -70,17 +70,17 @@ public class Article extends BaseEntity {
     private int koinHit;
 
     @NotNull
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "is_deleted", nullable = false, updatable = false)
     private boolean isDeleted = false;
 
-    @Column(name = "article_num", nullable = false)
+    @Column(name = "article_num", nullable = false, updatable = false)
     private Integer articleNum;
 
-    @Column(name = "url", nullable = false)
+    @Column(name = "url", nullable = false, updatable = false)
     private String url;
 
     @Convert(converter = LocalDateAttributeConverter.class)
-    @Column(name = "registered_at", columnDefinition = "VARCHAR(255)")
+    @Column(name = "registered_at", columnDefinition = "VARCHAR(255)", updatable = false)
     private LocalDate registeredAt;
 
     @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -88,7 +88,7 @@ public class Article extends BaseEntity {
     private List<ArticleAttachment> attachments = new ArrayList<>();
 
     @NotNull
-    @Column(name = "is_notice", nullable = false)
+    @Column(name = "is_notice", nullable = false, updatable = false)
     private boolean isNotice = false;
 
     @Transient
