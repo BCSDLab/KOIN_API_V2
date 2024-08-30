@@ -22,7 +22,8 @@ import in.koreatech.koin.admin.abtest.exception.AbtestAlreadyExistException;
 import in.koreatech.koin.admin.abtest.exception.AbtestAssignedUserException;
 import in.koreatech.koin.admin.abtest.exception.AbtestDuplicatedVariableException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotAssignedUserException;
-import in.koreatech.koin.admin.abtest.exception.AbtestNotInProgressUserException;
+import in.koreatech.koin.admin.abtest.exception.AbtestNotInProgressException;
+import in.koreatech.koin.admin.abtest.exception.AbtestWinnerNotDecidedException;
 import in.koreatech.koin.admin.abtest.model.Abtest;
 import in.koreatech.koin.admin.abtest.model.AbtestStatus;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
@@ -86,7 +87,7 @@ public class AbtestService {
     @Transactional
     public AbtestResponse putAbtest(Integer abtestId, AbtestRequest request) {
         Abtest abtest = abtestRepository.getById(abtestId);
-        validateAbtestStatus(abtest);
+        validateAbtestInProgress(abtest);
         abtest.update(
             request.displayTitle(),
             request.creater(),
@@ -176,7 +177,7 @@ public class AbtestService {
     @Transactional
     public void closeAbtest(Integer abtestId, AbtestCloseRequest request) {
         Abtest abtest = abtestRepository.getById(abtestId);
-        validateAbtestStatus(abtest);
+        validateAbtestInProgress(abtest);
         abtest.close(request.winnerName());
         syncCacheCountToDB(abtest);
         deleteCacheCount(abtest);
@@ -187,7 +188,10 @@ public class AbtestService {
     public String assignVariable(UserAgentInfo userAgentInfo, String ipAddress, Integer userId,
         AbtestAssignRequest request) {
         Abtest abtest = abtestRepository.getByTitle(request.title());
-        validateAbtestStatus(abtest);
+        Optional<String> winner = returnWinnerIfClosed(abtest);
+        if (winner.isPresent()) {
+            return winner.get();
+        }
         validateAssignedUser(abtest, ipAddress);
         List<AbtestVariableCount> cacheCount = loadCacheCount(abtest);
         AbtestVariable variable = abtest.findAssignVariable(cacheCount);
@@ -220,6 +224,11 @@ public class AbtestService {
     @Transactional
     public String getMyVariable(String title, String ipAddress) {
         Abtest abtest = abtestRepository.getByTitle(title);
+        Optional<String> winner = returnWinnerIfClosed(abtest);
+        if (winner.isPresent()) {
+            return winner.get();
+        }
+
         Optional<AbtestVariable> cacheVariable = abtest.getAbtestVariables().stream()
             .filter(abtestVariable ->
                 abtestVariableIpRepository.findByVariableIdAndIp(abtestVariable.getId(), ipAddress).isPresent())
@@ -289,6 +298,7 @@ public class AbtestService {
     @Transactional
     public void assignVariableByAdmin(Integer abtestId, AbtestAdminAssignRequest request) {
         Abtest abtest = abtestRepository.getById(abtestId);
+        validateAbtestInProgress(abtest);
         AccessHistory accessHistory = accessHistoryRepository.getByDeviceId(request.deviceId());
         AbtestVariable beforeVariable = abtest.findVariableByAccessHistory(accessHistory);
         AbtestVariable afterVariable = abtest.getVariableByName(request.variableName());
@@ -305,9 +315,19 @@ public class AbtestService {
         }
     }
 
-    private void validateAbtestStatus(Abtest abtest) {
+    private static void validateAbtestInProgress(Abtest abtest) {
         if (abtest.getStatus() != AbtestStatus.IN_PROGRESS) {
-            throw AbtestNotInProgressUserException.withDetail("abtestId: " + abtest.getId());
+            throw AbtestNotInProgressException.withDetail("abtestId: " + abtest.getId());
         }
+    }
+
+    private static Optional<String> returnWinnerIfClosed(Abtest abtest) {
+        if (abtest.getStatus() == AbtestStatus.CLOSED) {
+            if (abtest.getWinner() != null) {
+                return Optional.of(abtest.getWinnerName());
+            }
+            throw AbtestWinnerNotDecidedException.withDetail("abtestId: " + abtest.getId());
+        }
+        return Optional.empty();
     }
 }
