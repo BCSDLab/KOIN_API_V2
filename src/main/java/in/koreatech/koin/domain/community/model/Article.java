@@ -10,8 +10,10 @@ import java.util.List;
 
 import org.hibernate.annotations.Where;
 
+import in.koreatech.koin.global.config.LocalDateAttributeConverter;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -77,6 +79,7 @@ public class Article extends BaseEntity {
     @Column(name = "url", nullable = false)
     private String url;
 
+    @Convert(converter = LocalDateAttributeConverter.class)
     @Column(name = "registered_at")
     private LocalDate registeredAt;
 
