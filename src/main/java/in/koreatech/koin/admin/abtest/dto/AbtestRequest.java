@@ -19,7 +19,7 @@ public record AbtestRequest(
     String displayTitle,
 
     @Schema(description = "실험 생성자 이름", example = "홍길동", requiredMode = REQUIRED)
-    String creater,
+    String creator,
 
     @Schema(description = "팀명", example = "campus", requiredMode = REQUIRED)
     String team,

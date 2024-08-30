@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.exception.AbtestAssignException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotIncludeVariableException;
 import in.koreatech.koin.admin.abtest.exception.AbtestTitleIllegalArgumentException;
@@ -133,15 +132,15 @@ public class Abtest extends BaseEntity {
             .orElseThrow(() -> AbtestAssignException.withDetail("abtest name: " + title));
     }
 
-    public void setVariables(List<AbtestRequest.InnerVariableRequest> variables, EntityManager entityManager) {
-        vaildateVariables(variables);
+    public void setVariables(List<AbtestVariable> variables, EntityManager entityManager) {
+        validateVariables(variables);
         List<AbtestVariable> saved = variables.stream()
             .map(request ->
                 AbtestVariable.builder()
                     .abtest(this)
-                    .displayName(request.displayName())
-                    .rate(request.rate())
-                    .name(request.name())
+                    .displayName(request.getDisplayName())
+                    .rate(request.getRate())
+                    .name(request.getName())
                     .build()
             ).toList();
         abtestVariables.clear();
@@ -149,39 +148,38 @@ public class Abtest extends BaseEntity {
         abtestVariables.addAll(saved);
     }
 
-    public void update(String displayTitle, String creater, String team, String title, String description,
-        List<AbtestRequest.InnerVariableRequest> variables, EntityManager entityManager) {
-        if (!this.title.equals(title)) {
+    public void update(Abtest requestedAbtest, EntityManager entityManager) {
+        if (!title.equals(requestedAbtest.title)) {
             throw AbtestTitleIllegalArgumentException.withDetail("실험 title은 변경할 수 없습니다.");
         }
-        vaildateVariables(variables);
-        updateVariables(variables, entityManager);
-        this.displayTitle = displayTitle;
-        this.creator = creater;
-        this.team = team;
-        this.description = description;
+        validateVariables(requestedAbtest.abtestVariables);
+        updateVariables(requestedAbtest.abtestVariables, entityManager);
+        displayTitle = requestedAbtest.displayTitle;
+        creator = requestedAbtest.creator;
+        team = requestedAbtest.team;
+        description = requestedAbtest.description;
     }
 
-    private void updateVariables(List<AbtestRequest.InnerVariableRequest> requestVariables,
+    private void updateVariables(List<AbtestVariable> requestVariables,
         EntityManager entityManager) {
         abtestVariables.removeIf(abtestVariable ->
             requestVariables.stream().noneMatch(requestVariable ->
-                requestVariable.name().equals(abtestVariable.getName())
+                requestVariable.getName().equals(abtestVariable.getName())
             ));
 
         requestVariables.forEach(requestVariable -> {
             Optional<AbtestVariable> variable = abtestVariables.stream()
-                .filter(abtestVariable -> abtestVariable.getName().equals(requestVariable.name()))
+                .filter(abtestVariable -> abtestVariable.getName().equals(requestVariable.getName()))
                 .findAny();
             if (variable.isPresent()) {
-                variable.get().update(requestVariable.displayName(), requestVariable.rate());
+                variable.get().update(requestVariable.getDisplayName(), requestVariable.getRate());
             }
             if (variable.isEmpty()) {
                 AbtestVariable newVariable = AbtestVariable.builder()
                     .abtest(this)
-                    .displayName(requestVariable.displayName())
-                    .rate(requestVariable.rate())
-                    .name(requestVariable.name())
+                    .displayName(requestVariable.getDisplayName())
+                    .rate(requestVariable.getRate())
+                    .name(requestVariable.getName())
                     .build();
                 abtestVariables.add(newVariable);
             }
@@ -189,14 +187,14 @@ public class Abtest extends BaseEntity {
         entityManager.flush();
     }
 
-    private static void vaildateVariables(List<AbtestRequest.InnerVariableRequest> variables) {
-        int sum = variables.stream().mapToInt(AbtestRequest.InnerVariableRequest::rate).sum();
+    private static void validateVariables(List<AbtestVariable> variables) {
+        int sum = variables.stream().mapToInt(AbtestVariable::getRate).sum();
         if (sum != 100) {
             throw AbtestVariableIllegalArgumentException.withDetail("실험군 비율 합이 100이 아닙니다. rate sum: " + sum);
         }
 
         int distinctSize = variables.stream()
-            .map(variable -> variable.name())
+            .map(variable -> variable.getName())
             .distinct().toList().size();
         if (distinctSize != variables.size()) {
             throw AbtestVariableIllegalArgumentException.withDetail("실험군 간의 변수명(name)이 중복됩니다.");

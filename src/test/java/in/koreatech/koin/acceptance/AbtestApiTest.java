@@ -63,7 +63,7 @@ class AbtestApiTest extends AcceptanceTest {
             .body(String.format("""
                 {
                   "display_title": "사장님 전화번호 회원가입 실험",
-                  "creater": "송선권",
+                  "creator": "송선권",
                   "team": "campus",
                   "title": "business.register.phone_number",
                   "variables": [
@@ -96,7 +96,7 @@ class AbtestApiTest extends AcceptanceTest {
                 {
                   "id": 1,
                   "display_title": "사장님 전화번호 회원가입 실험",
-                  "creater": "송선권",
+                  "creator": "송선권",
                   "team": "campus",
                   "title": "business.register.phone_number",
                   "variables": [
@@ -140,7 +140,7 @@ class AbtestApiTest extends AcceptanceTest {
                 {
                   "id": 1,
                   "display_title": "식단_UI_실험",
-                  "creater": "송선권",
+                  "creator": "송선권",
                   "team": "campus",
                   "title": "dining_ui_test",
                   "status": "IN_PROGRESS",

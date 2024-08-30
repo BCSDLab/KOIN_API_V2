@@ -35,7 +35,6 @@ import in.koreatech.koin.admin.abtest.repository.AbtestVariableIpRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableIpTemplateRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableCustomRepository;
-import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableRepository;
 import in.koreatech.koin.domain.user.model.AccessHistory;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.AccessHistoryRepository;
@@ -57,7 +56,6 @@ public class AbtestService {
     private final AbtestRepository abtestRepository;
     private final AbtestVariableRepository abtestVariableRepository;
     private final AccessHistoryRepository accessHistoryRepository;
-    private final AccessHistoryAbtestVariableRepository accessHistoryAbtestVariableRepository;
     private final DeviceRepository deviceRepository;
     private final UserRepository userRepository;
     private final AbtestVariableIpRepository abtestVariableIpRepository;
@@ -75,12 +73,19 @@ public class AbtestService {
                 .title(request.title())
                 .displayTitle(request.displayTitle())
                 .description(request.description())
-                .creator(request.creater())
+                .creator(request.creator())
                 .team(request.team())
                 .status(AbtestStatus.IN_PROGRESS)
                 .build()
         );
-        saved.setVariables(request.variables(), entityManager);
+        List<AbtestVariable> abtestVariables = request.variables().stream()
+            .map(variable -> AbtestVariable.builder()
+                .name(variable.name())
+                .rate(variable.rate())
+                .abtest(saved)
+                .build())
+            .toList();
+        saved.setVariables(abtestVariables, entityManager);
         return AbtestResponse.from(saved);
     }
 
@@ -88,22 +93,33 @@ public class AbtestService {
     public AbtestResponse putAbtest(Integer abtestId, AbtestRequest request) {
         Abtest abtest = abtestRepository.getById(abtestId);
         validateAbtestInProgress(abtest);
-        abtest.update(
-            request.displayTitle(),
-            request.creater(),
-            request.team(),
-            request.title(),
-            request.description(),
-            request.variables(),
-            entityManager
-        );
+        // TODO: 실험 수정 시 기존 변수가 사라지면 map까지 전부 사라져서 편입된 사용자들이 지워지는 문제 고치기
         syncCacheCountToDB(abtest);
         deleteVariableIpCache(abtest);
-        modifyVariableByRate(abtest);
+        Abtest requestedAbtest = Abtest.builder()
+            .title(request.title())
+            .displayTitle(request.displayTitle())
+            .description(request.description())
+            .creator(request.creator())
+            .team(request.team())
+            .status(AbtestStatus.IN_PROGRESS)
+            .build();
+        List<AbtestVariable> requestedAbtestVariables = request.variables().stream()
+            .map(variable -> AbtestVariable.builder()
+                .abtest(requestedAbtest)
+                .displayName(variable.displayName())
+                .name(variable.name())
+                .rate(variable.rate())
+                .build())
+            .toList();
+        requestedAbtest.setVariables(requestedAbtestVariables, entityManager);
+        modifyVariableByRate(abtest, requestedAbtest);
+        abtest.update(requestedAbtest, entityManager);
         return AbtestResponse.from(abtest);
     }
 
-    private void modifyVariableByRate(Abtest abtest) {
+    //TODO: 수정 필요, 고장나있음
+    private void modifyVariableByRate(Abtest abtest, Abtest requestedAbtest) {
         List<AbtestVariable> abtestVariables = abtest.getAbtestVariables();
         int totalRecords = abtestVariables.stream().mapToInt(AbtestVariable::getCount).sum();
 
