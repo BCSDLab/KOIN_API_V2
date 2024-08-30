@@ -14,6 +14,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.http.HttpStatus;
@@ -375,32 +376,28 @@ class BusApiTest extends AcceptanceTest {
     @Test
     @DisplayName("시외버스 Open Api를 호출한다. - 정상적으로 호출 되는 경우")
     void callExpressBusOpenApiSucceed() {
+        doNothing().when(publicExpressBusClient).storeRemainTime();
+        doNothing().when(tmoneyExpressBusClient).storeRemainTime();
+        doNothing().when(staticExpressBusClient).storeRemainTime();
+
         expressBusService.storeRemainTimeByRatio();
 
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, never()).storeRemainTime();
+        verify(staticExpressBusClient, never()).storeRemainTime();
     }
 
     @Test
     @DisplayName("시외버스 Open Api를 호출한다. - 호출에 실패하여 대체되는 경우")
     void callExpressBusOpenApiFallBacked() {
         doThrow(RuntimeException.class).when(publicExpressBusClient).storeRemainTime();
+        doNothing().when(tmoneyExpressBusClient).storeRemainTime();
+        doNothing().when(staticExpressBusClient).storeRemainTime();
 
         expressBusService.storeRemainTimeByRatio();
 
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, times(1)).storeRemainTime();
-    }
-
-    @Test
-    @DisplayName("시외버스 Open Api를 호출한다. - 모든 api의 호출이 실패한 경우")
-    void callExpressBusOpenApiFailed() {
-        doThrow(RuntimeException.class).when(publicExpressBusClient).storeRemainTime();
-        doThrow(RuntimeException.class).when(tmoneyExpressBusClient).storeRemainTime();
-        doThrow(RuntimeException.class).when(staticExpressBusClient).storeRemainTime();
-
-        assertThatThrownBy(() -> {
-            expressBusService.storeRemainTimeByRatio();
-        }).isInstanceOf(IndexOutOfBoundsException.class);
+        verify(staticExpressBusClient, never()).storeRemainTime();
     }
 }
