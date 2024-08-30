@@ -162,51 +162,41 @@ public class CommunityService {
         String[] keywords = query.split("\\s+");
 
         for (String keywordStr : keywords) {
-            ArticleSearchKeyword keyword = getOrCreateKeyword(keywordStr);
-            ArticleSearchKeywordIpMap map = getOrCreateKeywordIpMap(keyword, ipAddress);
+            ArticleSearchKeyword keyword = articleSearchKeywordRepository.findByKeyword(keywordStr)
+                .orElseGet(() -> {
+                    ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
+                        .keyword(keywordStr)
+                        .weight(1.0)
+                        .lastSearchedAt(LocalDateTime.now())
+                        .totalSearch(1)
+                        .build();
+                    articleSearchKeywordRepository.save(newKeyword);
+                    return newKeyword;
+                });
 
-            updateKeywordWeight(keyword, map);
+            ArticleSearchKeywordIpMap map = articleSearchKeywordIpMapRepository.findByArticleSearchKeywordAndIpAddress(keyword, ipAddress)
+                .orElseGet(() -> {
+                    ArticleSearchKeywordIpMap newMap = ArticleSearchKeywordIpMap.builder()
+                        .articleSearchKeyword(keyword)
+                        .ipAddress(ipAddress)
+                        .searchCount(1)
+                        .build();
+                    articleSearchKeywordIpMapRepository.save(newMap);
+                    return newMap;
+                });
+
+            updateKeywordWeightAndCount(keyword, map);
         }
     }
 
-    private ArticleSearchKeyword getOrCreateKeyword(String keywordStr) {
-        return articleSearchKeywordRepository.findByKeyword(keywordStr)
-            .orElseGet(() -> {
-                ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
-                    .keyword(keywordStr)
-                    .weight(1.0)
-                    .lastSearchedAt(LocalDateTime.now())
-                    .totalSearch(1)
-                    .build();
-                articleSearchKeywordRepository.save(newKeyword);
-                return newKeyword;
-            });
-    }
-
-    private ArticleSearchKeywordIpMap getOrCreateKeywordIpMap(ArticleSearchKeyword keyword, String ipAddress) {
-        return articleSearchKeywordIpMapRepository.findByArticleSearchKeywordAndIpAddress(keyword, ipAddress)
-            .orElseGet(() -> {
-                ArticleSearchKeywordIpMap newMap = ArticleSearchKeywordIpMap.builder()
-                    .articleSearchKeyword(keyword)
-                    .ipAddress(ipAddress)
-                    .searchCount(1)
-                    .build();
-                articleSearchKeywordIpMapRepository.save(newMap);
-                return newMap;
-            });
-    }
-
-    private void updateKeywordWeight(ArticleSearchKeyword keyword, ArticleSearchKeywordIpMap map) {
+    private void updateKeywordWeightAndCount(ArticleSearchKeyword keyword, ArticleSearchKeywordIpMap map) {
         map.incrementSearchCount();
-        double additionalWeight = calculateAdditionalWeight(map.getSearchCount());
+        double additionalWeight = (map.getSearchCount() <= 5)
+            ? 1.0 / Math.pow(2, map.getSearchCount() - 1)
+            : 1.0 / Math.pow(2, 4);
         keyword.updateWeight(keyword.getWeight() + additionalWeight);
         articleSearchKeywordRepository.save(keyword);
     }
-
-    private double calculateAdditionalWeight(int searchCount) {
-        return (searchCount <= 5) ? 1.0 / Math.pow(2, searchCount - 1) : 1.0 / Math.pow(2, 4);
-    }
-
 
     private boolean isFullNoticeBoard(Board board) {
         return board.isNotice() && Objects.equals(board.getTag(), BoardTag.공지사항.getTag());

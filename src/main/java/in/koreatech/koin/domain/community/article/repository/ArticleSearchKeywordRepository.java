@@ -11,6 +11,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
 
 public interface ArticleSearchKeywordRepository extends Repository<ArticleSearchKeyword, Integer> {
+
     void save(ArticleSearchKeyword keyword);
 
     Optional<ArticleSearchKeyword> findByKeyword(String keywordStr);

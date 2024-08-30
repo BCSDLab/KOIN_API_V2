@@ -41,6 +41,7 @@ import lombok.RequiredArgsConstructor;
 public class KeywordService {
 
     private static final int ARTICLE_KEYWORD_LIMIT = 10;
+    private static final int ARTICLE_KEYWORD_SUGGEST_LIMIT = 5;
     private static final int KEYWORD_BATCH_SIZE = 100;
 
     private final ApplicationEventPublisher eventPublisher;
@@ -105,7 +106,7 @@ public class KeywordService {
         List<String> suggestions = hotKeywords.stream()
             .map(ArticleKeywordSuggestCache::getKeyword)
             .filter(keyword -> !userKeywords.contains(keyword))
-            .limit(5)
+            .limit(ARTICLE_KEYWORD_SUGGEST_LIMIT)
             .collect(Collectors.toList());
 
         return ArticleKeywordsSuggestionResponse.from(suggestions);
@@ -132,7 +133,7 @@ public class KeywordService {
     }
 
     private String validateAndGetKeyword(String keyword) {
-        if (keyword.contains(" ")) {
+        if (keyword.contains(" ") || keyword.contains("\n")) {
             throw new KoinIllegalArgumentException("키워드에 공백을 포함할 수 없습니다.");
         }
         return keyword.trim().toLowerCase();

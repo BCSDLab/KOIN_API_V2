@@ -24,7 +24,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 public class ArticleSearchKeywordIpMap extends BaseEntity {
 
-
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;

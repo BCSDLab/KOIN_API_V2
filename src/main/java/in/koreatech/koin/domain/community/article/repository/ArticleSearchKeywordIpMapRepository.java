@@ -10,6 +10,7 @@ import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
 
 public interface ArticleSearchKeywordIpMapRepository extends Repository<ArticleSearchKeywordIpMap, Integer> {
+
     void save(ArticleSearchKeywordIpMap map);
 
     Optional<ArticleSearchKeywordIpMap> findByArticleSearchKeywordAndIpAddress(ArticleSearchKeyword keyword, String ipAddress);
