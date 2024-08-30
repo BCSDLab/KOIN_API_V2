@@ -80,6 +80,10 @@ public class Article extends BaseEntity {
     @JoinColumn(name = "article_id", updatable = false)
     private List<ArticleAttachment> attachments = new ArrayList<>();
 
+    @NotNull
+    @Column(name = "is_notice", nullable = false)
+    private boolean isNotice = false;
+
     @Transient
     private Integer prevId;
 
@@ -110,7 +114,8 @@ public class Article extends BaseEntity {
         Integer articleNum,
         String url,
         LocalDate registeredAt,
-        List<ArticleAttachment> attachments
+        List<ArticleAttachment> attachments,
+        boolean isNotice
     ) {
         this.board = board;
         this.title = title;
@@ -122,5 +127,6 @@ public class Article extends BaseEntity {
         this.url = url;
         this.registeredAt = registeredAt;
         this.attachments = attachments;
+        this.isNotice = isNotice;
     }
 }
