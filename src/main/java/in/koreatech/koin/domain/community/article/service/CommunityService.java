@@ -41,6 +41,7 @@ public class CommunityService {
 
     public static final int NOTICE_BOARD_ID = 4;
     private static final int HOT_ARTICLE_LIMIT = 10;
+    private static final int MAXIMUM_SEARCH_LENGTH = 100;
     private static final Sort ARTICLES_SORT = Sort.by(Sort.Direction.DESC, "id");
 
     private final ArticleRepository articleRepository;
@@ -121,7 +122,7 @@ public class CommunityService {
 
     @Transactional
     public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit, String ipAddress) {
-        if(query.length() >= 100) {
+        if(query.length() >= MAXIMUM_SEARCH_LENGTH) {
             throw new KoinIllegalArgumentException("검색어의 최대 길이를 초과했습니다.");
         }
 
