@@ -109,9 +109,11 @@ public class UserController implements UserApi {
 
     @PostMapping("/user/refresh")
     public ResponseEntity<UserTokenRefreshResponse> refresh(
+        @IpAddress String ipAddress,
+        @UserAgent UserAgentInfo userAgentInfo,
         @RequestBody @Valid UserTokenRefreshRequest request
     ) {
-        UserTokenRefreshResponse tokenGroupResponse = userService.refresh(request);
+        UserTokenRefreshResponse tokenGroupResponse = userService.refresh(ipAddress, userAgentInfo, request);
         return ResponseEntity.created(URI.create("/"))
             .body(tokenGroupResponse);
     }

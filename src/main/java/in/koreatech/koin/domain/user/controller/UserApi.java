@@ -148,6 +148,8 @@ public interface UserApi {
     @Operation(summary = "토큰 갱신")
     @PostMapping("/user/refresh")
     ResponseEntity<UserTokenRefreshResponse> refresh(
+        @IpAddress String ipAddress,
+        @UserAgent UserAgentInfo userAgentInfo,
         @RequestBody @Valid UserTokenRefreshRequest request
     );
 

@@ -94,4 +94,9 @@ public class Device extends BaseEntity {
     public void changeUser(User user) {
         this.user = user;
     }
+
+    public void setModelInfo(String model, String type) {
+        this.model = model;
+        this.type = type;
+    }
 }

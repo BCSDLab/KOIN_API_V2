@@ -90,15 +90,20 @@ public class UserService {
         userTokenRepository.deleteById(userId);
     }
 
-    public UserTokenRefreshResponse refresh(UserTokenRefreshRequest request) {
+    @Transactional
+    public UserTokenRefreshResponse refresh(String ipAddress, UserAgentInfo userAgentInfo,
+        UserTokenRefreshRequest request) {
         String userId = getUserId(request.refreshToken());
         UserToken userToken = userTokenRepository.getById(Integer.parseInt(userId));
         if (!Objects.equals(userToken.getRefreshToken(), request.refreshToken())) {
             throw new KoinIllegalArgumentException("refresh token이 일치하지 않습니다.", "request: " + request);
         }
         User user = userRepository.getById(userToken.getId());
-
         String accessToken = jwtProvider.createToken(user);
+
+        AccessHistory accessHistory = findOrCreateAccessHistory(ipAddress);
+        createDeviceIfNotExists(user.getId(), userAgentInfo, accessHistory);
+
         return UserTokenRefreshResponse.of(accessToken, userToken.getRefreshToken());
     }
 
@@ -177,6 +182,9 @@ public class UserService {
             accessHistory.connectDevice(device);
         }
         Device device = accessHistory.getDevice();
+        if (device.getModel() == null || device.getType() == null) {
+            device.setModelInfo(userAgentInfo.getModel(), userAgentInfo.getType());
+        }
         if (!Objects.equals(device.getUser().getId(), userId)) {
             device.changeUser(userRepository.getById(userId));
         }
