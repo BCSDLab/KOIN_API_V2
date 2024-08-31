@@ -99,4 +99,8 @@ public class Device extends BaseEntity {
         this.model = model;
         this.type = type;
     }
+
+    public void updateLastAccessedAt() {
+        this.lastAccessedAt = LocalDateTime.now();
+    }
 }
