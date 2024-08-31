@@ -6,7 +6,7 @@ FROM `notification` n
 WHERE d.id IS NULL;
 
 INSERT INTO `device` (user_id, model, type, fcm_token, last_accessed_at, created_at, updated_at)
-SELECT DISTINCT n.user_id, 'default_model', 'default_type', u.device_token, NOW(), NOW(), NOW()
+SELECT DISTINCT n.user_id, null, null, u.device_token, NOW(), NOW(), NOW()
 FROM `notification_subscribe` n
          LEFT JOIN `device` d ON n.user_id = d.user_id
          JOIN `users` u ON n.user_id = u.id
