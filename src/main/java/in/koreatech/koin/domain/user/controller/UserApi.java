@@ -1,8 +1,6 @@
 package in.koreatech.koin.domain.user.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,6 +28,9 @@ import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
 import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.host.ServerURL;
+import in.koreatech.koin.global.ipaddress.IpAddress;
+import in.koreatech.koin.global.useragent.UserAgent;
+import in.koreatech.koin.global.useragent.UserAgentInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -100,6 +101,8 @@ public interface UserApi {
     @Operation(summary = "로그인")
     @PostMapping("/user/login")
     ResponseEntity<UserLoginResponse> login(
+        @IpAddress String ipAddress,
+        @UserAgent UserAgentInfo userAgentInfo,
         @RequestBody @Valid UserLoginRequest request
     );
 
@@ -114,6 +117,8 @@ public interface UserApi {
     @Operation(summary = "학생 로그인")
     @PostMapping("/student/login")
     ResponseEntity<StudentLoginResponse> studentLogin(
+        @IpAddress String ipAddress,
+        @UserAgent UserAgentInfo userAgentInfo,
         @RequestBody @Valid StudentLoginRequest request
     );
 

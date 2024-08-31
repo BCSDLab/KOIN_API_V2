@@ -17,6 +17,9 @@ import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.service.CoopService;
 import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.ipaddress.IpAddress;
+import in.koreatech.koin.global.useragent.UserAgent;
+import in.koreatech.koin.global.useragent.UserAgentInfo;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -47,9 +50,11 @@ public class CoopController implements CoopApi {
 
     @PostMapping("/login")
     public ResponseEntity<CoopLoginResponse> coopLogin(
+        @IpAddress String ipAddress,
+        @UserAgent UserAgentInfo userAgentInfo,
         @RequestBody @Valid CoopLoginRequest request
     ) {
-        CoopLoginResponse response = coopService.coopLogin(request);
+        CoopLoginResponse response = coopService.coopLogin(ipAddress, userAgentInfo, request);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }

@@ -61,7 +61,7 @@ public class UserService {
     private final AccessHistoryRepository accessHistoryRepository;
 
     @Transactional
-    public UserLoginResponse login(UserLoginRequest request) {
+    public UserLoginResponse login(String ipAddress, UserAgentInfo userAgentInfo, UserLoginRequest request) {
         User user = userRepository.getByEmail(request.email());
         Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findById(request.email());
 
@@ -78,6 +78,9 @@ public class UserService {
         UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
         user.updateLastLoggedTime(LocalDateTime.now());
         User saved = userRepository.save(user);
+
+        AccessHistory accessHistory = findOrCreateAccessHistory(ipAddress);
+        createDeviceIfNotExists(user.getId(), userAgentInfo, accessHistory);
 
         return UserLoginResponse.of(accessToken, savedToken.getRefreshToken(), saved.getUserType().getValue());
     }
