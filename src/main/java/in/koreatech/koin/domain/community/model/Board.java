@@ -31,11 +31,6 @@ public class Board extends BaseEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @Size(max = 10)
-    @NotNull
-    @Column(name = "tag", nullable = false, length = 10, unique = true)
-    private String tag;
-
     @Size(max = 50)
     @NotNull
     @Column(name = "name", nullable = false, length = 50)
@@ -60,32 +55,24 @@ public class Board extends BaseEntity {
     @Column(name = "parent_id")
     private Integer parentId;
 
-    @NotNull
-    @Column(name = "seq", nullable = false)
-    private Integer seq;
-
     public List<Board> getChildren() {
         return new ArrayList<>();
     }
 
     @Builder
     private Board(
-        String tag,
         String name,
         boolean isAnonymous,
         Integer articleCount,
         boolean isDeleted,
         boolean isNotice,
-        Integer parentId,
-        Integer seq
+        Integer parentId
     ) {
-        this.tag = tag;
         this.name = name;
         this.isAnonymous = isAnonymous;
         this.articleCount = articleCount;
         this.isDeleted = isDeleted;
         this.isNotice = isNotice;
         this.parentId = parentId;
-        this.seq = seq;
     }
 }

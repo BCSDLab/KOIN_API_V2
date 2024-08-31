@@ -19,8 +19,6 @@ import in.koreatech.koin.domain.community.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.dto.HotArticleItemResponse;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
-import in.koreatech.koin.global.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -42,9 +40,8 @@ public interface CommunityApi {
     @Operation(summary = "게시글 단건 조회")
     @GetMapping("/articles/{id}")
     ResponseEntity<ArticleResponse> getArticle(
-        @UserId Integer userId,
-        @Parameter(in = PATH) @PathVariable("id") Integer articleId,
-        @IpAddress String ipAddress
+        @RequestParam(required = false) Integer boardId,
+        @Parameter(in = PATH) @PathVariable("id") Integer articleId
     );
 
     @ApiResponses(
