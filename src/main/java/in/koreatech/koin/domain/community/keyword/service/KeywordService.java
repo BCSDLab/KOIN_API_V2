@@ -41,7 +41,6 @@ import lombok.RequiredArgsConstructor;
 public class KeywordService {
 
     private static final int ARTICLE_KEYWORD_LIMIT = 10;
-    private static final int ARTICLE_KEYWORD_SUGGEST_LIMIT = 5;
     private static final int KEYWORD_BATCH_SIZE = 100;
 
     private final ApplicationEventPublisher eventPublisher;
@@ -98,15 +97,11 @@ public class KeywordService {
         return ArticleKeywordsResponse.from(articleKeywordUserMaps);
     }
 
-    public ArticleKeywordsSuggestionResponse suggestKeywords(Integer userId) {
+    public ArticleKeywordsSuggestionResponse suggestKeywords() {
         List<ArticleKeywordSuggestCache> hotKeywords = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc();
-        List<String> userKeywords = Optional.ofNullable(articleKeywordUserMapRepository.findAllKeywordbyUserId(userId))
-            .orElse(Collections.emptyList());
 
         List<String> suggestions = hotKeywords.stream()
             .map(ArticleKeywordSuggestCache::getKeyword)
-            .filter(keyword -> !userKeywords.contains(keyword))
-            .limit(ARTICLE_KEYWORD_SUGGEST_LIMIT)
             .collect(Collectors.toList());
 
         return ArticleKeywordsSuggestionResponse.from(suggestions);
@@ -171,7 +166,7 @@ public class KeywordService {
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
         List<ArticleKeywordResult> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeek(oneWeekAgo, top15);
 
-        if(topKeywords.isEmpty()) {
+        if(topKeywords.size() < 15) {
             topKeywords = articleKeywordRepository.findTop15Keywords(top15);
         }
         List<ArticleKeywordSuggestCache> hotKeywords = topKeywords.stream()

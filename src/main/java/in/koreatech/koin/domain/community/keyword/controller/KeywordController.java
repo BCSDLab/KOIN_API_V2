@@ -56,9 +56,8 @@ public class KeywordController implements KeywordApi{
 
     @GetMapping("/suggestions")
     public ResponseEntity<ArticleKeywordsSuggestionResponse> suggestKeywords(
-        @Auth(permit = {STUDENT}) Integer userId
     ) {
-        ArticleKeywordsSuggestionResponse response = keywordService.suggestKeywords(userId);
+        ArticleKeywordsSuggestionResponse response = keywordService.suggestKeywords();
         return ResponseEntity.ok(response);
     }
 
