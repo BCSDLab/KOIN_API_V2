@@ -217,7 +217,7 @@ public class AbtestService {
         List<AbtestVariableCount> cacheCount = loadCacheCount(abtest);
         AbtestVariable variable = abtest.findAssignVariable(cacheCount);
         AccessHistory accessHistory = userService.findOrCreateAccessHistory(ipAddress);
-        if (userRepository.findById(userId).isPresent()) {
+        if (userId != null && userRepository.findById(userId).isPresent()) {
             userService.createDeviceIfNotExists(userId, userAgentInfo, accessHistory);
         }
         removeBeforeUserCache(ipAddress, accessHistory, abtest);
