@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,18 +13,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
-import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
-import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
-import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
+import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
+import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
+import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
@@ -39,7 +38,7 @@ public class CommunityService {
     public static final int NOTICE_BOARD_ID = 4;
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final int MAXIMUM_SEARCH_LENGTH = 100;
-    private static final Sort ARTICLES_SORT = Sort.by(Sort.Direction.DESC, "id");
+    private static final Sort ARTICLES_SORT = Sort.by(Sort.Direction.DESC, "registeredAt");
 
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
