@@ -35,7 +35,7 @@ public class ArticleSearchKeyword extends BaseEntity {
     @Column(nullable = false)
     private double weight;
 
-    @Column(name = "last_searched_at")
+    @Column(name = "last_searched_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastSearchedAt;
 
     @Column(name = "total_searches", nullable = false)
