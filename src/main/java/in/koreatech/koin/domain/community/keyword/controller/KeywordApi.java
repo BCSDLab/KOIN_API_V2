@@ -79,7 +79,6 @@ public interface KeywordApi {
     @Operation(summary = "알림 키워드 추천")
     @GetMapping("/articles/keyword/suggestions")
     ResponseEntity<ArticleKeywordsSuggestionResponse> suggestKeywords(
-        @Auth(permit = {STUDENT}) Integer userId
     );
 
     @Operation(summary = "키워드 알림 전송", hidden = true)
