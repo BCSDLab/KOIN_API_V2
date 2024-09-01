@@ -3,6 +3,8 @@ package in.koreatech.koin.acceptance;
 import static in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED;
 import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
 
@@ -128,6 +130,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                         .isEqualTo("https://static.koreatech.in/example.png");
                     softly.assertThat(shopReview.getMenus().get(0).getMenuName()).isEqualTo("치킨");
                     softly.assertThat(shopReview.getMenus().get(1).getMenuName()).isEqualTo("피자");
+                    verify(reviewEventListener).onReviewRegister(any());
                 }
             );
         });
@@ -195,6 +198,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                         .isEqualTo("https://static.koreatech.in/example.png");
                     softly.assertThat(shopReview.getMenus().get(0).getMenuName()).isEqualTo("치킨");
                     softly.assertThat(shopReview.getMenus().get(1).getMenuName()).isEqualTo("피자");
+                    verify(reviewEventListener).onReviewRegister(any());
                 }
             );
         });
@@ -581,6 +585,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                     softly.assertThat(shopReviewReport2.get().getTitle()).isEqualTo("스팸");
                     softly.assertThat(shopReviewReport2.get().getContent()).isEqualTo("광고가 포함된 리뷰입니다.");
                     softly.assertThat(shopReviewReport2.get().getReportStatus()).isEqualTo(UNHANDLED);
+                    verify(reviewEventListener).onReviewReportRegister(any());
                 }
             );
         });
