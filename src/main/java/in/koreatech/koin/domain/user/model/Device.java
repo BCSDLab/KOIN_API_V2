@@ -56,7 +56,7 @@ public class Device extends BaseEntity {
     private String fcmToken;
 
     @NotNull
-    @Column(name = "last_accessed_at", nullable = false)
+    @Column(name = "last_accessed_at", nullable = false, columnDefinition = "TIMESTAMP")
     @CreatedDate
     private LocalDateTime lastAccessedAt;
 
