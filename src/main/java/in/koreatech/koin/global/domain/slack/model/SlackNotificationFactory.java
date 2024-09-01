@@ -11,15 +11,18 @@ public class SlackNotificationFactory {
     private static final String MARKDOWN_ADMIN_PAGE_URL_FORMAT = "<%s|Admin page 바로가기>";
 
     private final String adminPageUrl;
+    private final String adminReviewPageUrl;
     private final String ownerEventNotificationUrl;
     private final String eventNotificationUrl;
 
     public SlackNotificationFactory(
         @Value("${koin.admin.url}") String adminPageUrl,
+        @Value("${koin.admin.url}") String adminReviewPageUrl,
         @Value("${slack.koin_event_notify_url}") String eventNotificationUrl,
         @Value("${slack.koin_owner_event_notify_url}") String ownerEventNotificationUrl
     ) {
         this.adminPageUrl = adminPageUrl;
+        this.adminReviewPageUrl = adminReviewPageUrl;
         this.eventNotificationUrl = eventNotificationUrl;
         this.ownerEventNotificationUrl = ownerEventNotificationUrl;
     }
@@ -133,6 +136,55 @@ public class SlackNotificationFactory {
             .text(String.format("""
                 `%s(%s)님이 탈퇴하셨습니다.`
                 """, email, userType.getDescription())
+            )
+            .build();
+    }
+
+    /**
+     * 상점 리뷰 등록 알림
+     */
+    public SlackNotification generateReviewRegisterNotification(
+        String shop,
+        String content,
+        Integer rating
+    ) {
+        return SlackNotification.builder()
+            .slackUrl(eventNotificationUrl)
+            .text(String.format("""
+                `%s에 새로운 리뷰가 등록되었습니다.`
+                내용: `%s`
+                별점: `%d`
+                %s
+                """,
+                shop,
+                content,
+                rating,
+                String.format(
+                    MARKDOWN_ADMIN_PAGE_URL_FORMAT,
+                    adminReviewPageUrl
+                ))
+            )
+            .build();
+    }
+
+    /**
+     * 상점 리뷰 신고 알림
+     */
+    public SlackNotification generateReviewReportNotification(
+        String shop
+    ) {
+        return SlackNotification.builder()
+            .slackUrl(eventNotificationUrl)
+            .text(String.format("""
+                `%s의 리뷰가 신고되었습니다.`
+                `신고를 처리해주세요!!`
+                %s
+                """,
+                shop,
+                String.format(
+                    MARKDOWN_ADMIN_PAGE_URL_FORMAT,
+                    adminReviewPageUrl
+                ))
             )
             .build();
     }
