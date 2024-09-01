@@ -565,11 +565,11 @@ class CommunityApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response).isEqualTo("""
                 {
                   "keywords": [
-                    "검색어8",
-                    "검색어7",
-                    "검색어6",
+                    "검색어4",
                     "검색어5",
-                    "검색어4"
+                    "검색어6",
+                    "검색어7",
+                    "검색어8"
                   ]
                 }
             """);
