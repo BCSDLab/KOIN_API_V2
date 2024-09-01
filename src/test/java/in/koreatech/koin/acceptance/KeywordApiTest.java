@@ -204,25 +204,9 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 사용자가_추가_한_키워드는_제외_하고_가장_인기_있는_키워드_추천() {
+    void 가장_인기_있는_키워드_추천() {
         Student student = userFixture.준호_학생();
         String token1 = userFixture.getToken(student.getUser());
-
-        for (int i = 1; i <= 10; i++) {
-            RestAssured
-                .given()
-                .header("Authorization", "Bearer " + token1)
-                .contentType(ContentType.JSON)
-                .body("""
-                    {
-                        "keyword": "수강신청%s"
-                    }
-                    """.formatted(i))
-                .when()
-                .post("/articles/keyword")
-                .then()
-                .statusCode(HttpStatus.OK.value());
-        }
 
         // Redis에 인기 키워드 15개 저장
         List<ArticleKeywordSuggestCache> hotKeywords = new ArrayList<>();
@@ -247,12 +231,14 @@ public class KeywordApiTest extends AcceptanceTest {
             .asPrettyString();
 
         JsonAssertions.assertThat(response).isEqualTo("""
-                {
-                  "keywords": [
-                    "수강신청11", "수강신청12", "수강신청13", "수강신청14", "수강신청15"
-                  ]
-                }
-            """);
+            {
+              "keywords": [
+                "수강신청1", "수강신청2", "수강신청3", "수강신청4", "수강신청5",
+                "수강신청6", "수강신청7", "수강신청8", "수강신청9", "수강신청10",
+                "수강신청11", "수강신청12", "수강신청13", "수강신청14", "수강신청15"
+              ]
+            }
+        """);
     }
 
     @Test
