@@ -38,7 +38,10 @@ public class CommunityService {
     public static final int NOTICE_BOARD_ID = 4;
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final int MAXIMUM_SEARCH_LENGTH = 100;
-    private static final Sort ARTICLES_SORT = Sort.by(Sort.Direction.DESC, "registeredAt");
+    private static final Sort ARTICLES_SORT = Sort.by(
+        Sort.Order.desc("registeredAt"),
+        Sort.Order.desc("id")
+    );
 
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
