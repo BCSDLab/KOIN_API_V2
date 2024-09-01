@@ -283,7 +283,7 @@ public class AbtestService {
 
     private void validateAssignedUser(Abtest abtest, String ipAddress, Integer userId) {
         Optional<AccessHistory> accessHistory = accessHistoryRepository.findByPublicIp(ipAddress);
-        if (accessHistory.isEmpty() || !Objects.equals(accessHistory.get().getDevice().getUser().getId(), userId)) {
+        if (accessHistory.isEmpty() || (userId != null && !Objects.equals(accessHistory.get().getDevice().getUser().getId(), userId))) {
             return;
         }
         if (abtest.getAbtestVariables().stream()
