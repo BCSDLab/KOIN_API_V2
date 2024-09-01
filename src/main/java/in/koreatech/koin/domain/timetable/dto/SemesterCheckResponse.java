@@ -7,6 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.timetable.model.Semester;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -20,10 +21,12 @@ public record SemesterCheckResponse(
     List<String> semesters
 ) {
 
-    public static SemesterCheckResponse of(Integer userId, List<String> semesters) {
+    public static SemesterCheckResponse of(Integer userId, List<Semester> semesters) {
         return new SemesterCheckResponse(
             userId,
-            semesters
+            semesters.stream()
+                .map(Semester::getSemester)
+                .toList()
         );
     }
 }

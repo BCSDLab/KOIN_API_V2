@@ -204,10 +204,13 @@ class TimetableApiTest extends AcceptanceTest {
     @Test
     @DisplayName("모든 학기를 조회한다.")
     void findAllSemesters() {
-        semesterFixture.semester("20221");
-        semesterFixture.semester("20222");
+        semesterFixture.semester("20241");
+        semesterFixture.semester("20242");
+        semesterFixture.semester("2024-여름");
         semesterFixture.semester("20231");
         semesterFixture.semester("20232");
+        semesterFixture.semester("2023-여름");
+        semesterFixture.semester("2023-겨울");
 
         var response = RestAssured
             .given()
@@ -221,20 +224,32 @@ class TimetableApiTest extends AcceptanceTest {
             .isEqualTo("""
                 [
                     {
-                        "id": 4,
-                        "semester": "20232"
+                        "id": 2,
+                        "semester": "20242"
                     },
                     {
                         "id": 3,
-                        "semester": "20231"
-                    },
-                    {
-                        "id": 2,
-                        "semester": "20222"
+                        "semester": "2024-여름"
                     },
                     {
                         "id": 1,
-                        "semester": "20221"
+                        "semester": "20241"
+                    },
+                    {
+                        "id": 7,
+                        "semester": "2023-겨울"
+                    },
+                    {
+                        "id": 5,
+                        "semester": "20232"
+                    },
+                    {
+                        "id": 6,
+                        "semester": "2023-여름"
+                    },
+                    {
+                        "id": 4,
+                        "semester": "20231"
                     }
                 ]
                 """);
