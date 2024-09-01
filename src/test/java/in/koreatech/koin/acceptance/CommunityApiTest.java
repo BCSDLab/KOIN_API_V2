@@ -2,6 +2,9 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,8 +50,8 @@ class CommunityApiTest extends AcceptanceTest {
     void givenBeforeEach() {
         student = userFixture.준호_학생();
         board = boardFixture.자유게시판();
-        article1 = articleFixture.자유글_1(student.getUser(), board);
-        article2 = articleFixture.자유글_2(student.getUser(), board);
+        article1 = articleFixture.자유글_1(board);
+        article2 = articleFixture.자유글_2(board);
     }
 
     @Test
@@ -80,55 +83,20 @@ class CommunityApiTest extends AcceptanceTest {
                     "board_id": 1,
                     "title": "자유 글의 제목입니다",
                     "content": "<p>내용</p>",
-                    "nickname": "준호",
+                    "author": "작성자1",
                     "hit": 1,
+                    "attachments": [
+                        {
+                            "id": 1,
+                            "name": "첨부파일1.png",
+                            "url": "https://example.com",
+                            "created_at": "2024-01-15 12:00:00",
+                            "updated_at": "2024-01-15 12:00:00"
+                        }
+                    ],
+                    "registered_at": "2024-01-15",
                     "prev_id": null,
                     "next_id": 2,
-                    "created_at": "2024-01-15 12:00:00",
-                    "updated_at": "2024-01-15 12:00:00"
-                }
-                """);
-    }
-
-    @Test
-    @DisplayName("특정 게시글을 단일 조회한다. - 댓글 작성자가 본인이면 수정 및 제거 권한이 부여된다.")
-    void getArticleAuthorizationComment() {
-        // given
-        String token = userFixture.getToken(student.getUser());
-
-        Comment request = Comment.builder()
-            .article(article1)
-            .content("댓글")
-            .userId(1)
-            .nickname("BCSD")
-            .isDeleted(false)
-            .build();
-
-        Comment comment = commentRepository.save(request);
-        comment.updateAuthority(student.getUser().getId());
-
-        // when then
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/articles/{articleId}", article1.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                {
-                    "id": 1,
-                    "board_id": 1,
-                    "title": "자유 글의 제목입니다",
-                    "content": "<p>내용</p>",
-                    "nickname": "준호",
-                    "hit": 2,
-                    "prev_id": null,
-                    "next_id": 2,
-                    "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
                 """);
@@ -157,18 +125,18 @@ class CommunityApiTest extends AcceptanceTest {
                             "id": 2,
                             "board_id": 1,
                             "title": "자유 글2의 제목입니다",
-                            "nickname": "준호",
+                            "author": "작성자2",
                             "hit": 1,
-                            "created_at": "2024-01-15 12:00:00",
+                            "registered_at": "2024-01-15",
                             "updated_at": "2024-01-15 12:00:00"
                         },
                         {
                             "id": 1,
                             "board_id": 1,
                             "title": "자유 글의 제목입니다",
-                            "nickname": "준호",
+                            "author": "작성자1",
                             "hit": 1,
-                            "created_at": "2024-01-15 12:00:00",
+                            "registered_at": "2024-01-15",
                             "updated_at": "2024-01-15 12:00:00"
                         }
                     ],
@@ -256,21 +224,18 @@ class CommunityApiTest extends AcceptanceTest {
     @DisplayName("게시글들을 페이지네이션하여 조회한다. - limit가 50 이상이면 한 번에 50 게시글 조회")
     void getArticlesByPagination_over50Limit() {
         // given
-        for (int i = 0; i < 60; i++) {
+        for (int i = 3; i < 63; i++) { // unique 중복 처리
             Article article = Article.builder()
                 .board(board)
                 .title("제목")
                 .content("<p>내용</p>")
-                .user(student.getUser())
-                .nickname("BCSD")
+                .author("BCSD")
                 .hit(14)
-                .ip("123.21.234.321")
-                .isSolved(false)
+                .koinHit(0)
                 .isDeleted(false)
-                .commentCount((byte)2)
-                .meta(null)
-                .isNotice(false)
-                .noticeArticleId(null)
+                .articleNum(i)
+                .url("https://example.com")
+                .registeredAt(LocalDate.of(2024, 1, 15))
                 .build();
             articleRepository.save(article);
         }
@@ -294,21 +259,18 @@ class CommunityApiTest extends AcceptanceTest {
     @DisplayName("게시글들을 페이지네이션하여 조회한다. - 페이지, limit가 주어지지 않으면 1 페이지 10 게시글 조회")
     void getArticlesByPagination_default() {
         // given
-        for (int i = 0; i < 10; i++) {
+        for (int i = 3; i < 13; i++) { // unique 중복 처리
             Article article = Article.builder()
                 .board(board)
                 .title("제목")
                 .content("<p>내용</p>")
-                .user(student.getUser())
-                .nickname("BCSD")
+                .author("BCSD")
                 .hit(14)
-                .ip("123.21.234.321")
-                .isSolved(false)
+                .koinHit(0)
                 .isDeleted(false)
-                .commentCount((byte)2)
-                .meta(null)
-                .isNotice(false)
-                .noticeArticleId(null)
+                .articleNum(i)
+                .url("https://example.com")
+                .registeredAt(LocalDate.of(2024, 1, 15))
                 .build();
             articleRepository.save(article);
         }
@@ -349,9 +311,9 @@ class CommunityApiTest extends AcceptanceTest {
                             "id": 1,
                             "board_id": 1,
                             "title": "자유 글의 제목입니다",
-                            "nickname": "준호",
+                            "author": "작성자1",
                             "hit": 1,
-                            "created_at": "2024-01-15 12:00:00",
+                            "registered_at": "2024-01-15",
                             "updated_at": "2024-01-15 12:00:00"
                         }
                     ],
@@ -386,9 +348,9 @@ class CommunityApiTest extends AcceptanceTest {
                                "id": 1,
                                "board_id": 1,
                                "title": "자유 글의 제목입니다",
-                               "nickname": "준호",
+                               "author": "작성자1",
                                "hit": 1,
-                               "created_at": "2024-01-15 12:00:00",
+                               "registered_at": "2024-01-15",
                                "updated_at": "2024-01-15 12:00:00"
                            }
                        ],
@@ -409,16 +371,13 @@ class CommunityApiTest extends AcceptanceTest {
                 .board(board)
                 .title(String.format("Article %d", i))
                 .content("<p>내용</p>")
-                .user(student.getUser())
-                .nickname("BCSD")
+                .author("BCSD")
                 .hit(i)
-                .ip("123.21.234.321")
-                .isSolved(false)
+                .koinHit(0)
                 .isDeleted(false)
-                .commentCount((byte)2)
-                .meta(null)
-                .isNotice(false)
-                .noticeArticleId(null)
+                .articleNum(i)
+                .url("https://example.com")
+                .registeredAt(LocalDate.of(2024, 1, 15))
                 .build()
             );
         }
@@ -439,45 +398,45 @@ class CommunityApiTest extends AcceptanceTest {
                         "id": 5,
                         "board_id": 1,
                         "title": "Article 7",
-                        "nickname": "BCSD",
+                        "author": "BCSD",
                         "hit": 7,
-                        "created_at": "2024-01-15 12:00:00",
+                        "registered_at": "2024-01-15",
                         "updated_at": "2024-01-15 12:00:00"
                     },
                     {
                         "id": 4,
                         "board_id": 1,
                         "title": "Article 6",
-                        "nickname": "BCSD",
+                        "author": "BCSD",
                         "hit": 6,
-                        "created_at": "2024-01-15 12:00:00",
+                        "registered_at": "2024-01-15",
                         "updated_at": "2024-01-15 12:00:00"
                     },
                     {
                         "id": 3,
                         "board_id": 1,
                         "title": "Article 5",
-                        "nickname": "BCSD",
+                        "author": "BCSD",
                         "hit": 5,
-                        "created_at": "2024-01-15 12:00:00",
+                        "registered_at": "2024-01-15",
                         "updated_at": "2024-01-15 12:00:00"
                     },
                     {
                         "id": 2,
                         "board_id": 1,
                         "title": "자유 글2의 제목입니다",
-                        "nickname": "준호",
+                        "author": "작성자2",
                         "hit": 1,
-                        "created_at": "2024-01-15 12:00:00",
+                        "registered_at": "2024-01-15",
                         "updated_at": "2024-01-15 12:00:00"
                     },
                     {
                         "id": 1,
                         "board_id": 1,
                         "title": "자유 글의 제목입니다",
-                        "nickname": "준호",
+                        "author": "작성자1",
                         "hit": 1,
-                        "created_at": "2024-01-15 12:00:00",
+                        "registered_at": "2024-01-15",
                         "updated_at": "2024-01-15 12:00:00"
                     }
                 ]
@@ -505,18 +464,18 @@ class CommunityApiTest extends AcceptanceTest {
                                "id": 2,
                                "board_id": 1,
                                "title": "자유 글2의 제목입니다",
-                               "nickname": "준호",
+                               "author": "작성자2",
                                "hit": 1,
-                               "created_at": "2024-01-15 12:00:00",
+                               "registered_at": "2024-01-15",
                                "updated_at": "2024-01-15 12:00:00"
                            },
                            {
                                "id": 1,
                                "board_id": 1,
                                "title": "자유 글의 제목입니다",
-                               "nickname": "준호",
+                               "author": "작성자1",
                                "hit": 1,
-                               "created_at": "2024-01-15 12:00:00",
+                               "registered_at": "2024-01-15",
                                "updated_at": "2024-01-15 12:00:00"
                            }
                        ],
@@ -530,18 +489,20 @@ class CommunityApiTest extends AcceptanceTest {
 
     @Test
     void 사용자들이_많이_검색_한_키워드_추천() {
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 4; i <= 14; i++) {
             Article article = Article.builder()
                 .board(board)
-                .title("검색어%s 관련 게시글".formatted(i))
-                .content("검색어%s 관련 내용".formatted(i))
-                .user(student.getUser())
-                .nickname("준호")
-                .hit(0)
-                .ip("127.0.0.1")
-                .isSolved(false)
+                .title("제목%s".formatted(i))
+                .content("<p>내용333</p>")
+                .author("작성자3")
+                .hit(1)
+                .koinHit(1)
                 .isDeleted(false)
-                .commentCount((byte)0)
+                .articleNum(i)
+                .url("https://example3.com")
+                .attachments(List.of())
+                .registeredAt(LocalDate.of(2024, 1, 15))
+                .isNotice(false)
                 .build();
 
             articleRepository.save(article);
@@ -551,7 +512,7 @@ class CommunityApiTest extends AcceptanceTest {
         String ipAddress2 = "192.168.1.2";
         String ipAddress3 = "192.168.1.3";
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 4; i < 9; i++) {
             RestAssured
                 .given()
                 .queryParam("query", "검색어" + i)
@@ -577,7 +538,7 @@ class CommunityApiTest extends AcceptanceTest {
                 .statusCode(HttpStatus.OK.value());
         }
 
-        for (int i = 5; i < 10; i++) {
+        for (int i = 9; i < 14; i++) {
             RestAssured
                 .given()
                 .queryParam("query", "검색어" + i)
@@ -604,11 +565,11 @@ class CommunityApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response).isEqualTo("""
                 {
                   "keywords": [
-                    "검색어4",
-                    "검색어3",
-                    "검색어2",
-                    "검색어1",
-                    "검색어0"
+                    "검색어8",
+                    "검색어7",
+                    "검색어6",
+                    "검색어5",
+                    "검색어4"
                   ]
                 }
             """);

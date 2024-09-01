@@ -1,17 +1,19 @@
 package in.koreatech.koin.domain.community.article.model;
 
+import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.Where;
-import org.jsoup.Jsoup;
 
-import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.global.config.LocalDateAttributeConverter;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -19,10 +21,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -31,79 +32,64 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "articles")
+@Table(name = "koreatech_articles", uniqueConstraints = {
+    @UniqueConstraint(name = "ux_koreatech_article", columnNames = {"board_id", "article_num"})
+})
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
 public class Article extends BaseEntity {
-
-    private static final int SUMMARY_MIN_LENGTH = 0;
-    private static final int SUMMARY_MAX_LENGTH = 100;
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id", nullable = false)
+    @JoinColumn(name = "board_id", nullable = false, updatable = false)
     private Board board;
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, updatable = false)
     private String title;
 
     @NotNull
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, updatable = false)
     private String content;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 
     @Size(max = 50)
     @NotNull
-    @Column(name = "nickname", nullable = false, length = 50)
-    private String nickname;
+    @Column(name = "author", nullable = false, length = 50, updatable = false)
+    private String author;
 
     @NotNull
     @Column(name = "hit", nullable = false)
     private int hit;
 
-    @Size(max = 45)
     @NotNull
-    @Column(name = "ip", nullable = false, length = 45)
-    private String ip;
+    @Column(name = "koin_hit", nullable = false)
+    private int koinHit;
 
     @NotNull
-    @Column(name = "is_solved", nullable = false)
-    private boolean isSolved = false;
-
-    @NotNull
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "is_deleted", nullable = false, updatable = false)
     private boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY)
-    private List<Comment> comment = new ArrayList<>();
+    @Column(name = "article_num", nullable = false, updatable = false)
+    private Integer articleNum;
+
+    @Column(name = "url", nullable = false, updatable = false)
+    private String url;
+
+    @Convert(converter = LocalDateAttributeConverter.class)
+    @Column(name = "registered_at", columnDefinition = "VARCHAR(255)", updatable = false)
+    private LocalDate registeredAt;
+
+    @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "article_id", updatable = false)
+    private List<ArticleAttachment> attachments = new ArrayList<>();
 
     @NotNull
-    @Column(name = "comment_count", nullable = false)
-    private Byte commentCount;
-
-    @Column(name = "meta")
-    private String meta;
-
-    @NotNull
-    @Column(name = "is_notice", nullable = false)
+    @Column(name = "is_notice", nullable = false, updatable = false)
     private boolean isNotice = false;
-
-    @Column(name = "notice_article_id", unique = true)
-    private Integer noticeArticleId;
-
-    @Transient
-    private String summary;
-
-    @Transient
-    private String contentSummary;
 
     @Transient
     private Integer prevId;
@@ -111,23 +97,8 @@ public class Article extends BaseEntity {
     @Transient
     private Integer nextId;
 
-    @PostPersist
-    @PostLoad
-    public void updateContentSummary() {
-        if (content == null) {
-            contentSummary = "";
-            return;
-        }
-        String parseResult = Jsoup.parse(content).text().replace("&nbsp", "").strip();
-        if (parseResult.length() < SUMMARY_MAX_LENGTH) {
-            contentSummary = parseResult;
-            return;
-        }
-        contentSummary = parseResult.substring(SUMMARY_MIN_LENGTH, SUMMARY_MAX_LENGTH);
-    }
-
-    public void increaseHit() {
-        hit++;
+    public void increaseKoinHit() {
+        koinHit++;
     }
 
     public void setPrevNextArticles(Article prev, Article next) {
@@ -144,29 +115,27 @@ public class Article extends BaseEntity {
         Board board,
         String title,
         String content,
-        User user,
-        String nickname,
+        String author,
         Integer hit,
-        String ip,
-        boolean isSolved,
+        Integer koinHit,
         boolean isDeleted,
-        Byte commentCount,
-        String meta,
-        boolean isNotice,
-        Integer noticeArticleId
+        Integer articleNum,
+        String url,
+        LocalDate registeredAt,
+        List<ArticleAttachment> attachments,
+        boolean isNotice
     ) {
         this.board = board;
         this.title = title;
         this.content = content;
-        this.user = user;
-        this.nickname = nickname;
+        this.author = author;
         this.hit = hit;
-        this.ip = ip;
-        this.isSolved = isSolved;
+        this.koinHit = koinHit;
         this.isDeleted = isDeleted;
-        this.commentCount = commentCount;
-        this.meta = meta;
+        this.articleNum = articleNum;
+        this.url = url;
+        this.registeredAt = registeredAt;
+        this.attachments = attachments;
         this.isNotice = isNotice;
-        this.noticeArticleId = noticeArticleId;
     }
 }

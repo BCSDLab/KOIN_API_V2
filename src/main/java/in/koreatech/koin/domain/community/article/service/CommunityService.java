@@ -21,11 +21,8 @@ import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.article.model.Article;
-import in.koreatech.koin.domain.community.article.model.ArticleViewLog;
 import in.koreatech.koin.domain.community.article.model.Board;
-import in.koreatech.koin.domain.community.article.model.BoardTag;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.article.repository.ArticleViewLogRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
@@ -45,23 +42,19 @@ public class CommunityService {
     private static final Sort ARTICLES_SORT = Sort.by(Sort.Direction.DESC, "id");
 
     private final ArticleRepository articleRepository;
-    private final ArticleViewLogRepository articleViewLogRepository;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
     private final ArticleSearchKeywordIpMapRepository articleSearchKeywordIpMapRepository;
     private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
 
     @Transactional
-    public ArticleResponse getArticle(Integer userId, Integer boardId, Integer articleId, String ipAddress) {
+    public ArticleResponse getArticle(Integer boardId, Integer articleId) {
         Article article = articleRepository.getById(articleId);
-        if (isHittable(articleId, userId, ipAddress)) {
-            article.increaseHit();
-        }
+        // article.increaseHit();
         Board board = getBoard(boardId, article);
         Article prevArticle = articleRepository.getPreviousArticle(board, article);
         Article nextArticle = articleRepository.getNextArticle(board, article);
         article.setPrevNextArticles(prevArticle, nextArticle);
-        article.getComment().forEach(comment -> comment.updateAuthority(userId));
         return ArticleResponse.of(article);
     }
 
@@ -76,36 +69,13 @@ public class CommunityService {
         return boardRepository.getById(boardId);
     }
 
-    private boolean isHittable(Integer articleId, Integer userId, String ipAddress) {
-        if (userId == null) {
-            return false;
-        }
-        LocalDateTime now = LocalDateTime.now();
-        Optional<ArticleViewLog> foundLog = articleViewLogRepository.findByArticleIdAndUserId(articleId, userId);
-        if (foundLog.isEmpty()) {
-            articleViewLogRepository.save(
-                ArticleViewLog.builder()
-                    .article(articleRepository.getById(articleId))
-                    .user(userRepository.getById(userId))
-                    .ip(ipAddress)
-                    .build()
-            );
-            return true;
-        }
-        if (now.isAfter(foundLog.get().getExpiredAt())) {
-            foundLog.get().updateExpiredTime();
-            return true;
-        }
-        return false;
-    }
-
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit) {
         Long total = articleRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
         if (boardId == NOTICE_BOARD_ID) {
-            Page<Article> articles = articleRepository.findAllByBoardIsNoticeIsTrue(pageRequest);
+            Page<Article> articles = articleRepository.findAllByIsNoticeIsTrue(pageRequest);
             return ArticlesResponse.of(articles, criteria);
         }
         Page<Article> articles = articleRepository.findAllByBoardId(boardId, pageRequest);
@@ -132,7 +102,7 @@ public class CommunityService {
         if (boardId == null) {
             articles = articleRepository.findAllByTitleContaining(query, pageRequest);
         } else if (boardId == NOTICE_BOARD_ID) {
-            articles = articleRepository.findAllByBoardIsNoticeIsTrueAndTitleContaining(query, pageRequest);
+            articles = articleRepository.findAllByIsNoticeIsTrueAndTitleContaining(query, pageRequest);
         } else {
             articles = articleRepository.findAllByBoardIdAndTitleContaining(boardId, query, pageRequest);
         }
@@ -190,28 +160,45 @@ public class CommunityService {
         }
     }
 
+    /*
+     * 추가될 가중치를 계산합니다. 검색 횟수(map.getSearchCount())에 따라 가중치를 다르게 부여합니다:
+     * - 검색 횟수가 5회 이하인 경우: 1.0 / 2^(검색 횟수 - 1)
+     *   예:
+     *     첫 번째 검색: 1.0
+     *     두 번째 검색: 0.5
+     *     세 번째 검색: 0.25
+     *     네 번째 검색: 0.125
+     *     다섯 번째 검색: 0.0625
+     * - 검색 횟수가 5회를 초과하면: 1.0 / 2^4 (즉, 0.0625) 고정 가중치를 부여합니다.
+     * - 검색 횟수가 10회를 초과할 경우: 추가 가중치를 부여하지 않습니다.
+     */
     private void updateKeywordWeightAndCount(ArticleSearchKeyword keyword, ArticleSearchKeywordIpMap map) {
         map.incrementSearchCount();
-        double additionalWeight = (map.getSearchCount() <= 5)
-            ? 1.0 / Math.pow(2, map.getSearchCount() - 1)
-            : 1.0 / Math.pow(2, 4);
+        double additionalWeight = 0.0;
+
+        if (map.getSearchCount() <= 5) {
+            additionalWeight = 1.0 / Math.pow(2, map.getSearchCount() - 1);
+        } else if (map.getSearchCount() <= 10) {
+            additionalWeight = 1.0 / Math.pow(2, 4);
+        }
+
+        if (map.getSearchCount() <= 10) {
+            keyword.updateWeight(keyword.getWeight() + additionalWeight);
+        }
+
         keyword.updateWeight(keyword.getWeight() + additionalWeight);
         articleSearchKeywordRepository.save(keyword);
-    }
-
-    private boolean isFullNoticeBoard(Board board) {
-        return board.isNotice() && Objects.equals(board.getTag(), BoardTag.공지사항.getTag());
     }
 
     @Transactional
     public void resetWeightsAndCounts() {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime sixHoursThirtyMinutesAgo = now.minusHours(6).minusMinutes(30);
+        LocalDateTime before = now.minusHours(6).minusMinutes(30);
 
         List<ArticleSearchKeyword> keywordsToUpdate = articleSearchKeywordRepository.findByCreatedAtBetween(
-            sixHoursThirtyMinutesAgo, now);
+            before, now);
         List<ArticleSearchKeywordIpMap> ipMapsToUpdate = articleSearchKeywordIpMapRepository.findByCreatedAtBetween(
-            sixHoursThirtyMinutesAgo, now);
+            before, now);
 
         for (ArticleSearchKeyword keyword : keywordsToUpdate) {
             keyword.resetWeight();
