@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewsResponse;
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
+import in.koreatech.koin.domain.shop.model.ReviewRegisterEvent;
+import in.koreatech.koin.domain.shop.model.ReviewReportEvent;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopReview;
 import in.koreatech.koin.domain.shop.model.ShopReviewImage;
@@ -53,6 +56,7 @@ public class ShopReviewService {
     private final ShopReviewReportRepository shopReviewReportRepository;
     private final ShopReviewReportCategoryRepository shopReviewReportCategoryRepository;
     private final StudentRepository studentRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     private final EntityManager entityManager;
 
@@ -101,6 +105,7 @@ public class ShopReviewService {
                 .menuName(menuName)
                 .build());
         }
+        eventPublisher.publishEvent(ReviewRegisterEvent.from(savedShopReview));
     }
 
     @Transactional
@@ -146,6 +151,7 @@ public class ShopReviewService {
                     .build()
             );
         }
+        eventPublisher.publishEvent(new ReviewReportEvent(shopReview.getShop().getName()));
     }
 
     public ShopReviewReportCategoryResponse getReviewReportCategories() {
