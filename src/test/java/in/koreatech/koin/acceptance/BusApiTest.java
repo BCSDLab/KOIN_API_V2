@@ -2,6 +2,9 @@ package in.koreatech.koin.acceptance;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -9,15 +12,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
@@ -37,15 +40,6 @@ import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.fixture.BusFixture;
 import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
-
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 @SuppressWarnings("NonAsciiCharacters")
 class BusApiTest extends AcceptanceTest {
@@ -62,7 +56,7 @@ class BusApiTest extends AcceptanceTest {
     @Autowired
     private ExpressBusCacheRepository expressBusCacheRepository;
 
-    @BeforeEach
+    @BeforeAll
     void setup() {
         busFixture.버스_시간표_등록();
         busFixture.시내버스_시간표_등록();

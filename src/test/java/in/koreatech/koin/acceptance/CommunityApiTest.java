@@ -5,11 +5,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.community.article.model.Article;
@@ -23,6 +27,12 @@ import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.amazonaws.services.detective.model.StringFilter;
+import com.fasterxml.jackson.databind.JsonNode;
 
 @SuppressWarnings("NonAsciiCharacters")
 class CommunityApiTest extends AcceptanceTest {
@@ -46,7 +56,7 @@ class CommunityApiTest extends AcceptanceTest {
     Board board;
     Article article1, article2;
 
-    @BeforeEach
+    @BeforeAll
     void givenBeforeEach() {
         student = userFixture.준호_학생();
         board = boardFixture.자유게시판();
@@ -55,8 +65,8 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("특정 게시글을 단일 조회한다.")
-    void getArticle() {
+    @Transactional
+    void 특정_게시글을_단일_조회한다() throws Exception {
         // given
         Comment request = Comment.builder()
             .article(article1)
@@ -67,17 +77,12 @@ class CommunityApiTest extends AcceptanceTest {
             .build();
         commentRepository.save(request);
 
-        // when then
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/articles/{articleId}", article1.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/articles/{articleId}", article1.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "id": 1,
                     "board_id": 1,
@@ -99,26 +104,22 @@ class CommunityApiTest extends AcceptanceTest {
                     "next_id": 2,
                     "updated_at": "2024-01-15 12:00:00"
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("게시글들을 페이지네이션하여 조회한다.")
-    void getArticlesByPagination() {
+    @Transactional
+    void 게시글들을_페이지네이션하여_조회한다() throws Exception {
         // when then
-        var response = RestAssured
-            .given()
-            .when()
-            .param("boardId", board.getId())
-            .param("page", 1)
-            .param("limit", 10)
-            .get("/articles")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/articles")
+                    .param("boardId", String.valueOf(board.getId()))
+                    .param("page", String.valueOf(1))
+                    .param("limit", String.valueOf(10))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "articles": [
                         {
@@ -145,84 +146,83 @@ class CommunityApiTest extends AcceptanceTest {
                     "total_page": 1,
                     "current_page": 1
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 페이지가 0이면 1 페이지 조회")
-    void getArticlesByPagination_0Page() {
+    @Transactional
+    void 게시글들을_페이지네이션하여_조회한다_페이지가_0이면_1_페이지_조회() throws Exception {
         // when then
-        var response = RestAssured
-            .given()
-            .when()
-            .param("boardId", board.getId())
-            .param("page", 0L)
-            .param("limit", 1)
-            .get("/articles")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        MvcResult result = mockMvc.perform(
+                get("/articles")
+                    .param("boardId", String.valueOf(board.getId()))
+                    .param("page", String.valueOf(1))
+                    .param("limit", String.valueOf(0L))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
 
-        assertThat(response.jsonPath().getInt("articles[0].id")).isEqualTo(article2.getId());
+        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
+
+        assertThat(jsonNode.get("articles")).hasSize(1);
     }
 
     @Test
-    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 페이지가 음수이면 1 페이지 조회")
-    void getArticlesByPagination_lessThan0Pages() {
+    @Transactional
+    void 게시글들을_페이지네이션하여_조회한다_페이지가_음수이면_1_페이지_조회() throws Exception {
+        MvcResult result = mockMvc.perform(
+                get("/articles")
+                    .param("boardId", String.valueOf(board.getId()))
+                    .param("page", String.valueOf(-10L))
+                    .param("limit", String.valueOf(1))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
+
+        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
+        assertThat(jsonNode.get("articles").get(0).get("id")).isEqualTo(article2.getId());
+    }
+
+    @Test
+    @Transactional
+    void 게시글들을_페이지네이션하여_조회한다_limit가_0_이면_한_번에_1_게시글_조회() throws Exception {
         // when then
-        var response = RestAssured
-            .given()
-            .when()
-            .param("boardId", board.getId())
-            .param("page", -10L)
-            .param("limit", 1)
-            .get("/articles")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        MvcResult result = mockMvc.perform(
+                get("/articles")
+                    .param("boardId", String.valueOf(board.getId()))
+                    .param("page", String.valueOf(1))
+                    .param("limit", String.valueOf(0L))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
 
-        assertThat(response.jsonPath().getInt("articles[0].id")).isEqualTo(article2.getId());
+        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
+        assertThat(jsonNode.get("articles")).hasSize(1);
     }
 
     @Test
-    @DisplayName("게시글들을 페이지네이션하여 조회한다. - limit가 0 이면 한 번에 1 게시글 조회")
-    void getArticlesByPagination_1imit() {
-        // when then
-        var response = RestAssured
-            .given()
-            .when()
-            .param("boardId", board.getId())
-            .param("page", 1)
-            .param("limit", 0L)
-            .get("/articles")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+    @Transactional
+    void 게시글들을_페이지네이션하여_조회한다_limit가_음수이면_한_번에_1_게시글_조회() throws Exception {
+        MvcResult result = mockMvc.perform(
+                get("/articles")
+                    .param("boardId", String.valueOf(board.getId()))
+                    .param("page", String.valueOf(1))
+                    .param("limit", String.valueOf(-10L))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
 
-        assertThat(response.jsonPath().getList("articles")).hasSize(1);
+        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
+        assertThat(jsonNode.get("articles")).hasSize(1);
     }
 
     @Test
-    @DisplayName("게시글들을 페이지네이션하여 조회한다. - limit가 음수이면 한 번에 1 게시글 조회")
-    void getArticlesByPagination_lessThan0Limit() {
-        // when then
-        var response = RestAssured
-            .given()
-            .when()
-            .param("boardId", board.getId())
-            .param("page", 1)
-            .param("limit", -10L)
-            .get("/articles")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        assertThat(response.jsonPath().getList("articles")).hasSize(1);
-    }
-
-    @Test
-    @DisplayName("게시글들을 페이지네이션하여 조회한다. - limit가 50 이상이면 한 번에 50 게시글 조회")
-    void getArticlesByPagination_over50Limit() {
+    @Transactional
+    void 게시글들을_페이지네이션하여_조회한다_limit가_50_이상이면_한_번에_50_게시글_조회() throws Exception {
         // given
         for (int i = 3; i < 63; i++) { // unique 중복 처리
             Article article = Article.builder()
@@ -240,24 +240,23 @@ class CommunityApiTest extends AcceptanceTest {
             articleRepository.save(article);
         }
 
-        // when then
-        var response = RestAssured
-            .given()
-            .when()
-            .param("boardId", board.getId())
-            .param("page", 1)
-            .param("limit", 100L)
-            .get("/articles")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        MvcResult result = mockMvc.perform(
+                get("/articles")
+                    .param("boardId", String.valueOf(board.getId()))
+                    .param("page", String.valueOf(1))
+                    .param("limit", String.valueOf(100L))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
 
-        assertThat(response.jsonPath().getList("articles")).hasSize(50);
+        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
+        assertThat(jsonNode.get("articles")).hasSize(50);
     }
 
     @Test
-    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 페이지, limit가 주어지지 않으면 1 페이지 10 게시글 조회")
-    void getArticlesByPagination_default() {
+    @Transactional
+    void 게시글들을_페이지네이션하여_조회한다_페이지_limit가_주어지지_않으면_1_페이지_10_게시글_조회() throws Exception {
         // given
         for (int i = 3; i < 13; i++) { // unique 중복 처리
             Article article = Article.builder()
@@ -275,37 +274,31 @@ class CommunityApiTest extends AcceptanceTest {
             articleRepository.save(article);
         }
 
-        // when then
-        var response = RestAssured
-            .given()
-            .when()
-            .param("boardId", board.getId())
-            .get("/articles")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        MvcResult result = mockMvc.perform(
+                get("/articles")
+                    .param("boardId", String.valueOf(board.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
 
-        assertThat(response.jsonPath().getList("articles")).hasSize(10);
-
+        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
+        assertThat(jsonNode.get("articles")).hasSize(10);
     }
 
     @Test
-    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 특정 페이지 조회")
-    void getArticlesByPagination_pageTest() {
-        var response = RestAssured
-            .given()
-            .when()
-            .param("boardId", board.getId())
-            .param("page", 2)
-            .param("limit", 1)
-            .get("/articles")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                {
+    @Transactional
+    void 게시글들을_페이지네이션하여_조회한다_특정_페이지_조회() throws Exception {
+        MvcResult result = mockMvc.perform(
+                get("/articles")
+                    .param("boardId", String.valueOf(board.getId()))
+                    .param("page", String.valueOf(2))
+                    .param("limit", String.valueOf(1))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+               {
                     "articles": [
                         {
                             "id": 1,
@@ -321,28 +314,25 @@ class CommunityApiTest extends AcceptanceTest {
                    "current_count": 1,
                    "total_page": 2,
                    "current_page": 2
-                }
-                """);
+               }
+               """))
+            .andReturn();
     }
 
     @Test
-    @DisplayName("게시글들을 페이지네이션하여 조회한다. - 최대 페이지를 초과한 요청이 들어오면 마지막 페이지를 반환한다.")
-    void getArticlesByPagination_overMaxPageNotFound() {
+    @Transactional
+    void 게시글들을_페이지네이션하여_조회한다_최대_페이지를_초과한_요청이_들어오면_마지막_페이지를_반환한다() throws Exception {
         // when then
-        var response = RestAssured
-            .given()
-            .when()
-            .param("boardId", board.getId())
-            .param("page", 10000L)
-            .param("limit", 1)
-            .get("/articles")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                   {
+        MvcResult result = mockMvc.perform(
+                get("/articles")
+                    .param("boardId", String.valueOf(board.getId()))
+                    .param("page", String.valueOf(10000L))
+                    .param("limit", String.valueOf(1))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+               {
                        "articles": [
                            {
                                "id": 1,
@@ -359,12 +349,13 @@ class CommunityApiTest extends AcceptanceTest {
                        "total_page": 2,
                        "current_page": 2
                    }
-                """);
+               """))
+            .andReturn();
     }
 
     @Test
-    @DisplayName("인기많은 게시글 목록을 조회한다.")
-    void getHotArticles() {
+    @Transactional
+    void 인기많은_게시글_목록을_조회한다() throws Exception {
         // given
         for (int i = 5; i <= 7; i++) {
             articleRepository.save(Article.builder()
@@ -382,18 +373,13 @@ class CommunityApiTest extends AcceptanceTest {
             );
         }
 
-        // when then
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/articles/hot")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                [
+        mockMvc.perform(
+                get("/articles/hot")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+               [
                     {
                         "id": 5,
                         "board_id": 1,
@@ -440,25 +426,22 @@ class CommunityApiTest extends AcceptanceTest {
                         "updated_at": "2024-01-15 12:00:00"
                     }
                 ]
-                """);
+               """))
+            .andReturn();
     }
 
     @Test
-    @DisplayName("게시글을 검색한다.")
-    void searchNoticeArticles() {
-        var response = RestAssured
-            .given()
-            .when()
-            .queryParam("query", "자유")
-            .queryParam("board", 1)
-            .get("/articles/search")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                   {
+    @Transactional
+    void 게시글을_검색한다() throws Exception {
+        mockMvc.perform(
+                get("/articles/search")
+                    .queryParam("query", "자유")
+                    .queryParam("board", String.valueOf(1))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+               {
                        "articles": [
                            {
                                "id": 2,
@@ -484,11 +467,11 @@ class CommunityApiTest extends AcceptanceTest {
                        "total_page": 1,
                        "current_page": 1
                    }
-                """);
+               """));
     }
 
     @Test
-    void 사용자들이_많이_검색_한_키워드_추천() {
+    void 사용자들이_많이_검색_한_키워드_추천() throws Exception {
         for (int i = 4; i <= 14; i++) {
             Article article = Article.builder()
                 .board(board)
@@ -513,57 +496,50 @@ class CommunityApiTest extends AcceptanceTest {
         String ipAddress3 = "192.168.1.3";
 
         for (int i = 4; i < 9; i++) {
-            RestAssured
-                .given()
-                .queryParam("query", "검색어" + i)
-                .queryParam("board", 1)
-                .queryParam("page", 1)
-                .queryParam("limit", 10)
-                .queryParam("ipAddress", ipAddress1)
-                .when()
-                .get("/articles/search")
-                .then()
-                .statusCode(HttpStatus.OK.value());
+            mockMvc.perform(
+                    get("/articles/search")
+                        .queryParam("query", "검색어" + i)
+                        .queryParam("board", String.valueOf(1))
+                        .queryParam("page", String.valueOf(1))
+                        .queryParam("limit", String.valueOf(10))
+                        .queryParam("ipAddress", ipAddress1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
 
-            RestAssured
-                .given()
-                .queryParam("query", "검색어" + i)
-                .queryParam("board", 1)
-                .queryParam("page", 1)
-                .queryParam("limit", 10)
-                .queryParam("ipAddress", ipAddress2)
-                .when()
-                .get("/articles/search")
-                .then()
-                .statusCode(HttpStatus.OK.value());
+            mockMvc.perform(
+                    get("/articles/search")
+                        .queryParam("query", "검색어" + i)
+                        .queryParam("board", String.valueOf(1))
+                        .queryParam("page", String.valueOf(1))
+                        .queryParam("limit", String.valueOf(10))
+                        .queryParam("ipAddress", ipAddress2)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
         }
 
         for (int i = 9; i < 14; i++) {
-            RestAssured
-                .given()
-                .queryParam("query", "검색어" + i)
-                .queryParam("board", 1)
-                .queryParam("page", 1)
-                .queryParam("limit", 10)
-                .queryParam("ipAddress", ipAddress3)
-                .when()
-                .get("/articles/search")
-                .then()
-                .statusCode(HttpStatus.OK.value());
+            mockMvc.perform(
+                    get("/articles/search")
+                        .queryParam("query", "검색어" + i)
+                        .queryParam("board", String.valueOf(1))
+                        .queryParam("page", String.valueOf(1))
+                        .queryParam("limit", String.valueOf(10))
+                        .queryParam("ipAddress", ipAddress3)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
         }
 
-        var response = RestAssured
-            .given()
-            .queryParam("count", 5)
-            .when()
-            .get("/articles/hot/keyword")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .asPrettyString();
-
-        JsonAssertions.assertThat(response).isEqualTo("""
-                {
+        mockMvc.perform(
+                get("/articles/hot/keyword")
+                    .queryParam("count", String.valueOf(5))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+               {
                   "keywords": [
                     "검색어4",
                     "검색어5",
@@ -571,7 +547,7 @@ class CommunityApiTest extends AcceptanceTest {
                     "검색어7",
                     "검색어8"
                   ]
-                }
-            """);
+               }
+               """));
     }
 }
