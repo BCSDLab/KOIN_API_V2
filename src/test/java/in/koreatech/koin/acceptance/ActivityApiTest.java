@@ -1,16 +1,18 @@
 package in.koreatech.koin.acceptance;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.fixture.ActivityFixture;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
 class ActivityApiTest extends AcceptanceTest {
@@ -19,8 +21,8 @@ class ActivityApiTest extends AcceptanceTest {
     protected ActivityFixture activityFixture;
 
     @Test
-    @DisplayName("BCSD Lab 활동 내역을 조회한다.")
-    void getActivities() {
+    @Transactional
+    void BCSD_Lab_활동_내역을_조회한다() throws Exception {
         activityFixture.builder()
             .title("BCSD/KAP 통합")
             .description("BCSD와 KAP가 통합되었습니다.")
@@ -48,17 +50,13 @@ class ActivityApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        var response = RestAssured
-            .given()
-            .when()
-            .param("year", 2019)
-            .get("/activities")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+            get("/activities")
+                .param("year", "2019")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "Activities": [
                         {
@@ -88,12 +86,12 @@ class ActivityApiTest extends AcceptanceTest {
                         }
                     ]
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("BCSD Lab 활동 내역을 조회한다. - 파라미터가 없는 경우 전체조회")
-    void getActivitiesWithoutYear() {
+    @Transactional
+    void BCSD_Lab_활동_내역을_조회한다_파라미터가_없는_경우_전체조회() throws Exception {
         activityFixture.builder()
             .title("BCSD/KAP 통합")
             .description("BCSD와 KAP가 통합되었습니다.")
@@ -121,16 +119,12 @@ class ActivityApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/activities")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/activities")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "Activities": [
                         {
@@ -172,6 +166,6 @@ class ActivityApiTest extends AcceptanceTest {
                         }
                     ]
                 }
-                """);
+                """));
     }
 }

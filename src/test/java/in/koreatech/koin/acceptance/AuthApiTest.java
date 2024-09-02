@@ -1,12 +1,18 @@
 package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
@@ -32,7 +38,7 @@ class AuthApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("사용자가 로그인을 수행한다")
-    void userLoginSuccess() {
+    void 사용자가_로그인을_수행한다() throws Exception {
         User user = userFixture.builder()
             .password("1234")
             .nickname("주노")
@@ -44,25 +50,26 @@ class AuthApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        var response = RestAssured
-            .given()
-            .body("""
-                {
-                  "email": "test@koreatech.ac.kr",
-                  "password": "1234"
-                }
-                """)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/user/login")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        MvcResult result = mockMvc.perform(
+                post("/user/login")
+                    .content("""
+                    {
+                      "email": "test@koreatech.ac.kr",
+                      "password": "1234"
+                    }
+                    """
+                    )
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        result.getResponse().
 
         User userResult = userRepository.findById(user.getId()).get();
         UserToken token = tokenRepository.findById(userResult.getId()).get();
 
-        JsonAssertions.assertThat(response.asPrettyString())
+        JsonAssertions.assertThat(mvcResult.getResponse().getContentAsString())
             .isEqualTo(String.format("""
                     {
                         "token": "%s",
@@ -70,7 +77,7 @@ class AuthApiTest extends AcceptanceTest {
                         "user_type": "%s"
                     }
                     """,
-                response.jsonPath().getString("token"),
+                ,
                 token.getRefreshToken(),
                 user.getUserType().name()
             ));

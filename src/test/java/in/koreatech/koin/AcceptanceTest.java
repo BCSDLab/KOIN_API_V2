@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -41,6 +42,9 @@ public abstract class AcceptanceTest {
 
     private static final String ROOT = "test";
     private static final String ROOT_PASSWORD = "1234";
+
+    @Autowired
+    public MockMvc mockMvc;
 
     @LocalServerPort
     protected int port;
