@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,6 +36,7 @@ import com.amazonaws.services.detective.model.StringFilter;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @SuppressWarnings("NonAsciiCharacters")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CommunityApiTest extends AcceptanceTest {
 
     @Autowired
@@ -182,7 +184,7 @@ class CommunityApiTest extends AcceptanceTest {
             .andReturn();
 
         JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
-        assertThat(jsonNode.get("articles").get(0).get("id")).isEqualTo(article2.getId());
+        assertThat(jsonNode.get("articles").get(0).get("id").asInt()).isEqualTo(article2.getId());
     }
 
     @Test
