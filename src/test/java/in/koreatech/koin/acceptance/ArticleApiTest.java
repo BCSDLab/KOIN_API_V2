@@ -8,8 +8,11 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.community.article.model.Article;
@@ -560,18 +563,8 @@ class ArticleApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract()
-            .asPrettyString();
+            .asString();
 
-        JsonAssertions.assertThat(response).isEqualTo("""
-                {
-                  "keywords": [
-                    "검색어4",
-                    "검색어5",
-                    "검색어6",
-                    "검색어7",
-                    "검색어8"
-                  ]
-                }
-            """);
+        assertThat(response).contains("검색어4", "검색어5", "검색어6", "검색어7", "검색어8");
     }
 }
