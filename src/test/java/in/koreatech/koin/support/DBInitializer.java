@@ -50,11 +50,13 @@ public class DBInitializer {
     }
 
     private void truncate() {
-        setForeignKeyCheck(OFF);
+        // setForeignKeyCheck(OFF);
         for (String tableName : tableNames) {
-            entityManager.createNativeQuery(String.format("TRUNCATE TABLE %s", tableName)).executeUpdate();
+            //ALTER TABLE shop_menu_categories AUTO_INCREMENT = 1
+            // entityManager.createNativeQuery(String.format("TRUNCATE TABLE %s", tableName)).executeUpdate();
+            entityManager.createNativeQuery(String.format("ALTER TABLE %s AUTO_INCREMENT = 1", tableName)).executeUpdate();
         }
-        setForeignKeyCheck(ON);
+        // setForeignKeyCheck(ON);
     }
 
     private void setForeignKeyCheck(int mode) {

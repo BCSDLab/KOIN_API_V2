@@ -6,6 +6,7 @@ import java.time.Clock;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -27,12 +28,13 @@ import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.shop.model.ShopEventListener;
 import in.koreatech.koin.domain.user.model.StudentEventListener;
-import in.koreatech.koin.util.TestCircuitBreakerClient;
 import in.koreatech.koin.support.DBInitializer;
+import in.koreatech.koin.util.TestCircuitBreakerClient;
 import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@AutoConfigureMockMvc
 @Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class, TestRedisConfiguration.class})
 @ActiveProfiles("test")
 public abstract class AcceptanceTest {
@@ -93,18 +95,18 @@ public abstract class AcceptanceTest {
 
     static {
         mySqlContainer = (MySQLContainer)new MySQLContainer("mysql:8.0.29")
-                .withDatabaseName("test")
-                .withUsername(ROOT)
-                .withPassword(ROOT_PASSWORD)
-                .withCommand("--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci");
+            .withDatabaseName("test")
+            .withUsername(ROOT)
+            .withPassword(ROOT_PASSWORD)
+            .withCommand("--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci");
 
         redisContainer = new GenericContainer<>(
-                DockerImageName.parse("redis:7.0.9"))
-                .withExposedPorts(6379);
+            DockerImageName.parse("redis:7.0.9"))
+            .withExposedPorts(6379);
 
         mongoContainer = new GenericContainer<>(
-                DockerImageName.parse("mongo:6.0.14"))
-                .withExposedPorts(27017);
+            DockerImageName.parse("mongo:6.0.14"))
+            .withExposedPorts(27017);
 
         mySqlContainer.start();
         redisContainer.start();
