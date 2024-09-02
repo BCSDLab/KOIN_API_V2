@@ -55,7 +55,7 @@ public record AdminModifyShopRequest(
         [ "https://static.koreatech.in/example.png" ]
         """, requiredMode = NOT_REQUIRED)
     @UniqueUrl(message = "이미지 URL은 중복될 수 없습니다.")
-    @NotBlankElement
+    @NotBlankElement(message = "null이거나 빈 요소가 존재할 수 없습니다.")
     List<String> imageUrls,
 
     @Schema(description = "이름", example = "수신반점", requiredMode = REQUIRED)

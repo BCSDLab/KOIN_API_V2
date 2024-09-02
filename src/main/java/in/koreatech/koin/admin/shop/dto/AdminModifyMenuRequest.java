@@ -35,7 +35,7 @@ public record AdminModifyMenuRequest(
         """, description = "이미지 URL 리스트", requiredMode = NOT_REQUIRED)
     @Size(max = 3, message = "이미지는 최대 3개까지 입력 가능합니다.")
     @UniqueUrl(message = "이미지 URL은 중복될 수 없습니다.")
-    @NotBlankElement(message = "이미지 URL은 필수입니다.")
+    @NotBlankElement(message = "null이거나 빈 요소가 존재할 수 없습니다.")
     List<String> imageUrls,
 
     @Schema(example = "true", description = "단일 메뉴 여부", requiredMode = REQUIRED)

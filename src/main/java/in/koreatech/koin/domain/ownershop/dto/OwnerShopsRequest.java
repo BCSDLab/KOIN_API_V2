@@ -51,7 +51,7 @@ public record OwnerShopsRequest(
         [ "https://testimage.com" ]
         """, requiredMode = REQUIRED)
     @UniqueUrl(message = "이미지 URL은 중복될 수 없습니다.")
-    @NotBlankElement(message = "빈 요소가 존재합니다.")
+    @NotBlankElement(message = "null이거나 빈 요소가 존재할 수 없습니다.")
     List<String> imageUrls,
 
     @Schema(description = "가게명", example = "써니 숯불 도시락", requiredMode = REQUIRED)

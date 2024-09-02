@@ -37,7 +37,7 @@ public record ModifyReviewRequest(
     List<String> imageUrls,
 
     @Schema(example = "[\"치킨\", \"피자\"]", description = "메뉴 이름", requiredMode = REQUIRED)
-    @NotBlankElement(message = "빈 요소가 존재합니다.")
+    @NotBlankElement(message = "null이거나 빈 요소가 존재할 수 없습니다.")
     List<String> menuNames
 ) {
     @JsonCreator
