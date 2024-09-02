@@ -16,8 +16,8 @@ public class SlackNotificationFactory {
     private final String eventNotificationUrl;
 
     public SlackNotificationFactory(
-        @Value("${koin.admin.url}") String adminPageUrl,
-        @Value("${koin.admin.url}") String adminReviewPageUrl,
+        @Value("${koin.admin.shop.url}") String adminPageUrl,
+        @Value("${koin.admin.review.url}") String adminReviewPageUrl,
         @Value("${slack.koin_event_notify_url}") String eventNotificationUrl,
         @Value("${slack.koin_owner_event_notify_url}") String ownerEventNotificationUrl
     ) {

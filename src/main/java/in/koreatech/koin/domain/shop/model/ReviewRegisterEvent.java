@@ -5,6 +5,7 @@ public record ReviewRegisterEvent(
     String content,
     Integer rating
 ) {
+
     public static ReviewRegisterEvent from(ShopReview shopReview) {
         return new ReviewRegisterEvent(
             shopReview.getShop().getName(),
