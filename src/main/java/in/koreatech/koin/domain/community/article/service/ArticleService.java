@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CommunityService {
+public class ArticleService {
 
     public static final int NOTICE_BOARD_ID = 4;
     private static final int HOT_ARTICLE_LIMIT = 10;

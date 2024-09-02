@@ -25,7 +25,7 @@ import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
-class CommunityApiTest extends AcceptanceTest {
+class ArticleApiTest extends AcceptanceTest {
 
     @Autowired
     private ArticleRepository articleRepository;

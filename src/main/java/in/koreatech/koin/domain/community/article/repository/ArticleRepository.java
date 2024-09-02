@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.community.article.repository;
 
-import static in.koreatech.koin.domain.community.article.service.CommunityService.NOTICE_BOARD_ID;
+import static in.koreatech.koin.domain.community.article.service.ArticleService.NOTICE_BOARD_ID;
 
 import java.util.List;
 import java.util.Optional;
