@@ -80,7 +80,7 @@ public class Article extends BaseEntity {
     private String url;
 
     @Convert(converter = LocalDateAttributeConverter.class)
-    @Column(name = "registered_at", columnDefinition = "VARCHAR(255)", updatable = false)
+    @Column(name = "registered_at", columnDefinition = "DATETIME", updatable = false)
     private LocalDate registeredAt;
 
     @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
