@@ -15,6 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
@@ -36,8 +39,15 @@ import in.koreatech.koin.fixture.BusFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
 @SuppressWarnings("NonAsciiCharacters")
-@TestConfiguration
 class BusApiTest extends AcceptanceTest {
 
     @Autowired
@@ -59,21 +69,18 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
-    void getNextShuttleBusRemainTime() {
-        var response = RestAssured
-            .given()
-            .when()
-            .param("bus_type", "shuttle")
-            .param("depart", "koreatech")
-            .param("arrival", "terminal")
-            .get("/bus")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+    @Transactional
+    void 다음_셔틀버스까지_남은_시간을_조회한다() throws Exception {
 
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/bus")
+                    .param("bus_type", "shuttle")
+                    .param("depart", "koreatech")
+                    .param("arrival", "terminal")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "bus_type": "shuttle",
                     "now_bus": {
@@ -82,12 +89,12 @@ class BusApiTest extends AcceptanceTest {
                     },
                     "next_bus": null
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("다음 시내버스까지 남은 시간을 조회한다. - Redis 캐시 히트")
-    void getNextCityBusRemainTimeRedis() {
+    @Transactional
+    void 다음_시내버스까지_남은_시간을_조회한다_Redis_캐시_히트() throws Exception {
         final long remainTime = 600L;
         final long busNumber = 400;
         BusType busType = BusType.CITY;
@@ -115,19 +122,15 @@ class BusApiTest extends AcceptanceTest {
             )
         );
 
-        var response = RestAssured
-            .given()
-            .when()
-            .param("bus_type", busType.getName())
-            .param("depart", depart.name())
-            .param("arrival", arrival.name())
-            .get("/bus")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/bus")
+                    .param("bus_type", busType.getName())
+                    .param("depart", depart.name())
+                    .param("arrival", arrival.name())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "bus_type": "city",
                     "now_bus": {
@@ -136,33 +139,34 @@ class BusApiTest extends AcceptanceTest {
                     },
                     "next_bus": null
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("셔틀버스의 코스 정보들을 조회한다.")
-    void getBusCourses() {
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/bus/courses")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+    @Transactional
+    void 셔틀버스의_코스_정보들을_조회한다() throws Exception {
+
+        MvcResult result = mockMvc.perform(
+                get("/bus/courses")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
 
         assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getList("").size()).isEqualTo(1);
-                softly.assertThat(response.body().jsonPath().getString("[0].bus_type")).isEqualTo("shuttle");
-                softly.assertThat(response.body().jsonPath().getString("[0].direction")).isEqualTo("from");
-                softly.assertThat(response.body().jsonPath().getString("[0].region")).isEqualTo("천안");
+                JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
+                softly.assertThat(jsonNode.size()).isEqualTo(1);
+                softly.assertThat(jsonNode.get(0).get("bus_type").asText()).isEqualTo("shuttle");
+                softly.assertThat(jsonNode.get(0).get("direction").asText()).isEqualTo("from");
+                softly.assertThat(jsonNode.get(0).get("region").asText()).isEqualTo("천안");
             }
         );
     }
 
     @Test
-    @DisplayName("다음 셔틀버스까지 남은 시간을 조회한다.")
-    void getSearchTimetable() {
+    @Transactional
+    void 다음_셔틀버스까지_남은_시간을_조회한다2() throws Exception {
         versionRepository.save(
             Version.builder()
                 .version("test_version")
@@ -200,21 +204,22 @@ class BusApiTest extends AcceptanceTest {
         );
         expressBusCacheRepository.save(expressBusCache);
 
-        var response = RestAssured
-            .given()
-            .when()
-            .param("date", requestedAt.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-            .param("time", requestedAt.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")))
-            .param("depart", depart.name())
-            .param("arrival", arrival.name())
-            .get("/bus/search")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        MvcResult result = mockMvc.perform(
+                get("/bus/search")
+                    .param("date", requestedAt.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                    .param("time", requestedAt.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")))
+                    .param("depart", depart.name())
+                    .param("arrival", arrival.name())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
 
         SoftAssertions.assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getList("", SingleBusTimeResponse.class))
+                JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
+                List<SingleBusTimeResponse> actualResponseList = JsonAssertions.convertToList(jsonNode, SingleBusTimeResponse.class);
+                softly.assertThat(actualResponseList)
                     .containsExactly(
                         new SingleBusTimeResponse("express", LocalTime.parse(arrivalTime)),
                         new SingleBusTimeResponse("shuttle", LocalTime.parse(arrivalTime)),
@@ -225,8 +230,8 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("시내버스 시간표를 조회한다 - 지원하지 않음")
-    void getCityBusTimetable() {
+    @Transactional
+    void 시내버스_시간표를_조회한다_지원하지_않음() throws Exception {
         Version version = Version.builder()
             .version("test_version")
             .type(VersionType.CITY.getValue())
@@ -236,19 +241,15 @@ class BusApiTest extends AcceptanceTest {
         Long busNumber = 400L;
         String direction = "종합터미널";
 
-        var response = RestAssured
-            .given()
-            .when()
-            .param("bus_number", busNumber)
-            .param("direction", direction)
-            .get("/bus/timetable/city")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                {
+        mockMvc.perform(
+                get("/bus/timetable/city")
+                    .param("bus_number", String.valueOf(busNumber))
+                    .param("direction", direction)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                  {
                     "bus_info": {
                         "arrival_node": "종합터미널",
                         "depart_node": "병천3리",
@@ -265,27 +266,23 @@ class BusApiTest extends AcceptanceTest {
                         }
                     ],
                     "updated_at": "2024-07-19 19:00:00"
-                }
-                """);
+                  }
+            """));
     }
 
     @Test
-    @DisplayName("셔틀버스 시간표를 조회한다.")
-    void getShuttleBusTimetable() {
-        var response = RestAssured
-            .given()
-            .when()
-            .param("bus_type", "shuttle")
-            .param("direction", "from")
-            .param("region", "천안")
-            .get("/bus/timetable")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                [
+    @Transactional
+    void 셔틀버스_시간표를_조회한다() throws Exception {
+        mockMvc.perform(
+                get("/bus/timetable")
+                    .param("bus_type", "shuttle")
+                    .param("direction", "from")
+                    .param("region", "천안")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                  [
                     {
                         "route_name": "주중",
                         "arrival_info": [
@@ -308,12 +305,12 @@ class BusApiTest extends AcceptanceTest {
                         ]
                     }
                 ]
-                """);
+            """));
     }
 
     @Test
-    @DisplayName("셔틀버스 시간표를 조회한다(업데이트 시각 포함).")
-    void getShuttleBusTimetableWithUpdatedAt() {
+    @Transactional
+    void 셔틀버스_시간표를_조회한다_업데이트_시각_포함() throws Exception {
         Version version = Version.builder()
             .version("test_version")
             .type(VersionType.SHUTTLE.getValue())
@@ -324,20 +321,16 @@ class BusApiTest extends AcceptanceTest {
         String direction = "from";
         String region = "천안";
 
-        var response = RestAssured
-            .given()
-            .when()
-            .param("bus_type", busType.getName())
-            .param("direction", direction)
-            .param("region", region)
-            .get("/bus/timetable/v2")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                {
+        mockMvc.perform(
+                get("/bus/timetable/v2")
+                    .param("bus_type", busType.getName())
+                    .param("direction", direction)
+                    .param("region", region)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                  {
                     "bus_timetables": [
                         {
                             "route_name": "주중",
@@ -363,6 +356,6 @@ class BusApiTest extends AcceptanceTest {
                     ],
                     "updated_at": "2024-01-15 12:00:00"
                 }
-                """);
+            """));
     }
 }

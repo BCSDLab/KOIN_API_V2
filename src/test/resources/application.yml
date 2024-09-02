@@ -30,6 +30,9 @@ spring:
 server:
   tomcat:
     max-http-form-post-size: 10MB
+  servlet:
+    encoding:
+      force-response: true
 
 logging:
   level:
