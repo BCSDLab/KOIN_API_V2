@@ -41,8 +41,6 @@ import in.koreatech.koin.domain.user.repository.AccessHistoryRepository;
 import in.koreatech.koin.domain.user.repository.DeviceRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.UserService;
-import in.koreatech.koin.global.auth.UserIdContext;
-import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import in.koreatech.koin.global.model.Criteria;
 import in.koreatech.koin.global.useragent.UserAgentInfo;
 import jakarta.persistence.EntityManager;
@@ -63,9 +61,7 @@ public class AbtestService {
     private final AbtestVariableIpRepository abtestVariableIpRepository;
     private final AbtestVariableIpTemplateRepository abtestVariableIpTemplateRepository;
     private final AccessHistoryAbtestVariableCustomRepository accessHistoryAbtestVariableCustomRepository;
-    private final NotificationService notificationService;
     private final UserService userService;
-    private final UserIdContext userIdContext;
 
     @Transactional
     public AbtestResponse createAbtest(AbtestRequest request) {
@@ -100,6 +96,7 @@ public class AbtestService {
         validateAbtestInProgress(abtest);
         // TODO: 실험 수정 시 기존 변수가 사라지면 map까지 전부 사라져서 편입된 사용자들이 지워지는 문제 고치기
         syncCacheCountToDB(abtest);
+        deleteCountCache(abtest);
         deleteVariableIpCache(abtest);
         Abtest requestedAbtest = Abtest.builder()
             .title(request.title())
@@ -171,13 +168,13 @@ public class AbtestService {
     public void deleteAbtest(Integer abtestId) {
         abtestRepository.findById(abtestId).ifPresent(saved -> {
             syncCacheCountToDB(saved);
-            deleteCacheCount(saved);
+            deleteCountCache(saved);
             deleteVariableIpCache(saved);
             abtestRepository.deleteById(abtestId);
         });
     }
 
-    private void deleteCacheCount(Abtest abtest) {
+    private void deleteCountCache(Abtest abtest) {
         abtest.getAbtestVariables()
             .forEach(abtestVariable -> abtestVariableCountRepository.deleteById(abtestVariable.getId()));
     }
@@ -201,7 +198,7 @@ public class AbtestService {
         validateAbtestInProgress(abtest);
         abtest.close(request.winnerName());
         syncCacheCountToDB(abtest);
-        deleteCacheCount(abtest);
+        deleteCountCache(abtest);
         deleteVariableIpCache(abtest);
     }
 
@@ -257,6 +254,7 @@ public class AbtestService {
     @Transactional
     public String getMyVariable(String title, String ipAddress) {
         Abtest abtest = abtestRepository.getByTitle(title);
+        syncCacheCountToDB(abtest);
         Optional<String> winner = returnWinnerIfClosed(abtest);
         if (winner.isPresent()) {
             return winner.get();
@@ -295,15 +293,19 @@ public class AbtestService {
     @Transactional
     public void syncCacheCountToDB() {
         List<AbtestVariableCount> cacheCount = abtestVariableCountRepository.findAll();
+        cacheCount.removeIf(Objects::isNull);
         cacheCount.forEach(abtestVariableCount -> {
-            AbtestVariable variable = abtestVariableRepository.getById(abtestVariableCount.getVariableId());
-            variable.addCount(abtestVariableCount.getCount());
+            Optional<AbtestVariable> variable = abtestVariableRepository.findById(abtestVariableCount.getVariableId());
+            if (variable.isEmpty()) {
+                abtestVariableCountRepository.deleteById(abtestVariableCount.getVariableId());
+                return;
+            }
+            variable.get().addCount(abtestVariableCount.getCount());
             abtestVariableCount.resetCount();
         });
         abtestVariableCountRepository.saveAll(cacheCount);
     }
 
-    @Transactional
     public void syncCacheCountToDB(Abtest abtest) {
         List<AbtestVariableCount> cacheCount = abtest.getAbtestVariables().stream()
             .map(AbtestVariable::getId)
