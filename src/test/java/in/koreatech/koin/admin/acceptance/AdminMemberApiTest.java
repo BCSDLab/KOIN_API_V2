@@ -1,7 +1,5 @@
 package in.koreatech.koin.admin.acceptance;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -48,9 +48,6 @@ public abstract class AcceptanceTest {
     private static final String ROOT_PASSWORD = "1234";
 
     @Autowired
-    private WebApplicationContext webApplicationContext;
-
-    @Autowired
     public MockMvc mockMvc;
 
     @LocalServerPort

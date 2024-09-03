@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -239,7 +240,7 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andReturn();
-        verify(coopEventListener, never()).onDiningSoldOutRequest(any());
+        verify(coopEventListener).onDiningSoldOutRequest(any());
     }
 
     @Test
@@ -422,7 +423,7 @@ class DiningApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
-        verify(coopEventListener, never()).onDiningSoldOutRequest(any());
+        verify(coopEventListener).onDiningImageUploadRequest(any());
     }
 
     @Test
@@ -546,5 +547,4 @@ class DiningApiTest extends AcceptanceTest {
                 """))
             .andReturn();
     }
-
 }
