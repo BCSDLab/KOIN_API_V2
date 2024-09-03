@@ -6,15 +6,21 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -37,6 +43,8 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 public class AdminUserApiTest extends AcceptanceTest {
 
     @Autowired
@@ -67,8 +75,7 @@ public class AdminUserApiTest extends AcceptanceTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
-    @DisplayName("관리자가 학생 리스트를 파라미터가 없이 조회한다.(페이지네이션)")
-    void getStudentsWithoutParameterAdmin() {
+    void 관리자가_학생_리스트를_파라미터가_없이_조회한다_페이지네이션() throws Exception {
         Student student = userFixture.준호_학생();
         User adminUser = userFixture.코인_운영자();
 
@@ -83,6 +90,13 @@ public class AdminUserApiTest extends AcceptanceTest {
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
+
+        mockMvc.perform(
+            get("/admin/students")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk());
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""

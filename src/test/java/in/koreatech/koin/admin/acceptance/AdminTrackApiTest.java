@@ -1,10 +1,15 @@
 package in.koreatech.koin.admin.acceptance;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.member.repository.AdminTechStackRepository;
@@ -17,10 +22,10 @@ import in.koreatech.koin.fixture.MemberFixture;
 import in.koreatech.koin.fixture.TechStackFixture;
 import in.koreatech.koin.fixture.TrackFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 public class AdminTrackApiTest extends AcceptanceTest {
 
     @Autowired
@@ -42,24 +47,19 @@ public class AdminTrackApiTest extends AcceptanceTest {
     private AdminTechStackRepository adminTechStackRepository;
 
     @Test
-    @DisplayName("관리자가 BCSDLab 트랙 정보를 조회한다. - 관리자가 아니면 403 반환")
-    void findTracksAdminNoAuth() {
+    void 관리자가_BCSDLab_트랙_정보를_조회한다_관리자가_아니면_403_반환() throws Exception {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/admin/tracks")
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
+        mockMvc.perform(
+                get("/admin/tracks")
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("관리자가 BCSDLab 트랙 정보를 조회한다.")
-    void findTracks() {
+    void 관리자가_BCSDLab_트랙_정보를_조회한다() throws Exception {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
@@ -67,17 +67,12 @@ public class AdminTrackApiTest extends AcceptanceTest {
         trackFixture.frontend();
         trackFixture.ios();
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/admin/tracks")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/admin/tracks")
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 [
                     {
                         "id": 1,
@@ -104,33 +99,27 @@ public class AdminTrackApiTest extends AcceptanceTest {
                         "updated_at": "2024-01-15 12:00:00"
                     }
                 ]
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("관리자가 BCSDLab 트랙 정보를 생성한다.")
-    void createTrack() {
+    void 관리자가_BCSDLab_트랙_정보를_생성한다() throws Exception {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body("""
-                {
-                  "name": "BackEnd",
-                  "headcount": 20
-                }
-                """)
-            .when()
-            .post("/admin/tracks")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                post("/admin/tracks")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                          "name": "BackEnd",
+                          "headcount": 20
+                        }
+                        """)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "id": 1,
                     "name": "BackEnd",
@@ -139,37 +128,32 @@ public class AdminTrackApiTest extends AcceptanceTest {
                     "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("관리자가 BCSDLab 트랙 정보를 생성한다. - 이미 있는 트랙명이면 409반환")
-    void createTrackDuplication() {
+    void 관리자가_BCSDLab_트랙_정보를_생성한다_이미_있는_트랙명이면_409_반환() throws Exception {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
         trackFixture.backend();
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body("""
-                {
-                  "name": "BackEnd",
-                  "headcount": 20
-                }
-                """)
-            .when()
-            .post("/admin/tracks")
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value())
-            .extract();
+        mockMvc.perform(
+                post("/admin/tracks")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                          "name": "BackEnd",
+                          "headcount": 20
+                        }
+                        """)
+            )
+            .andExpect(status().isConflict());
     }
 
     @Test
-    @DisplayName("관리자가 BCSDLab 트랙 단건 정보를 조회한다.")
-    void findTrack() {
+    void 관리자가_BCSDLab_트랙_단거_정보를_조회한다() throws Exception {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
@@ -180,17 +164,12 @@ public class AdminTrackApiTest extends AcceptanceTest {
         techStackFixture.java(backend);
         techStackFixture.adobeFlash(backend); //삭제된 기술스택
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/admin/tracks/{id}", backend.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/admin/tracks/{id}", backend.getId())
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "TrackName": "BackEnd",
                      "Members": [
@@ -242,35 +221,29 @@ public class AdminTrackApiTest extends AcceptanceTest {
                          }
                      ]
                  }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("관리자가 BCSDLab 트랙 정보를 수정한다.")
-    void updateTrack() {
+    void 관리자가_BCSDLab_트랙_정보를_수정한다() throws Exception {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
         Track backEnd = trackFixture.backend();
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body("""
-                {
-                  "name": "frontEnd",
-                  "headcount": 20
-                }
-                """)
-            .when()
-            .put("/admin/tracks/{id}", backEnd.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                put("/admin/tracks/{id}", backEnd.getId())
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                          "name": "frontEnd",
+                          "headcount": 20
+                        }
+                        """)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "id": 1,
                     "name": "frontEnd",
@@ -279,50 +252,42 @@ public class AdminTrackApiTest extends AcceptanceTest {
                     "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("관리자가 BCSDLab 트랙 정보를 수정한다. - 이미 있는 트랙명이면 409반환")
-    void updateTrackDuplication() {
+    void 관리자가_BCSDLab_트랙_정보를_수정한다_이미_있는_트랙명이면_409_반환() throws Exception {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
         Track backEnd = trackFixture.backend();
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body("""
-                {
-                  "name": "BackEnd",
-                  "headcount": 20
-                }
-                """)
-            .when()
-            .put("/admin/tracks/{id}", backEnd.getId())
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value())
-            .extract();
+        mockMvc.perform(
+                put("/admin/tracks/{id}", backEnd.getId())
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                          "name": "BackEnd",
+                          "headcount": 20
+                        }
+                        """)
+            )
+            .andExpect(status().isConflict());
     }
 
     @Test
-    @DisplayName("관리자가 BCSDLab 트랙 정보를 삭제한다.")
-    void deleteTrack() {
+    void 관리자가_BCSDLab_트랙_정보를_삭제한다() throws Exception {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
         Track backEnd = trackFixture.backend();
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .delete("/admin/tracks/{id}", backEnd.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                delete("/admin/tracks/{id}", backEnd.getId())
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk());
 
         Track updatedTrack = adminTrackRepository.getById(backEnd.getId());
 
@@ -334,34 +299,28 @@ public class AdminTrackApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("관리자가 BCSDLab 기술스택 정보를 생성한다.")
-    void createTechStack() {
+    void 관리자가_BCSDLab_기술스택_정보를_생성한다() throws Exception {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
         trackFixture.frontend();
         Track backEnd = trackFixture.backend();
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body("""
-                {
-                    "image_url": "https://url.com",
-                    "name": "Spring",
-                    "description": "스프링은 웹 프레임워크이다"
-                }
-                """)
-            .when()
-            .queryParam("trackName", backEnd.getName())
-            .post("/admin/techStacks")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                post("/admin/techStacks")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "image_url": "https://url.com",
+                            "name": "Spring",
+                            "description": "스프링은 웹 프레임워크이다"
+                        }
+                        """)
+                    .param("trackName", backEnd.getName())
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "id": 1,
                     "image_url": "https://url.com",
@@ -372,39 +331,33 @@ public class AdminTrackApiTest extends AcceptanceTest {
                     "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("관리자가 BCSDLab 기술스택 정보를 수정한다.")
-    void updateTechStack() {
+    void 관리자가_BCSDLab_기술스택_정보를_수정한다() throws Exception {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
         TechStack java = techStackFixture.java(trackFixture.frontend());
         Track backEnd = trackFixture.backend();
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body("""
-                {
-                    "image_url": "https://java.com",
-                    "name": "JAVA",
-                    "description": "java의 TrackID를 BackEnd로 수정한다.",
-                    "is_deleted": true
-                }
-                """)
-            .when()
-            .queryParam("trackName", backEnd.getName())
-            .put("/admin/techStacks/{id}", java.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                put("/admin/techStacks/{id}", java.getId())
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "image_url": "https://java.com",
+                            "name": "JAVA",
+                            "description": "java의 TrackID를 BackEnd로 수정한다.",
+                            "is_deleted": true
+                        }
+                        """)
+                    .param("trackName", backEnd.getName())
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "id": 1,
                     "image_url": "https://java.com",
@@ -415,26 +368,23 @@ public class AdminTrackApiTest extends AcceptanceTest {
                     "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15 12:00:00"
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("관리자가 기술스택 정보를 삭제한다.")
-    void deleteTechStack() {
+    void 관리자가_기술스택_정보를_삭제한다() throws Exception {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
         Track backEnd = trackFixture.backend();
         TechStack java = techStackFixture.java(backEnd);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .delete("/admin/techStacks/{id}", java.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                delete("/admin/techStacks/{id}", java.getId())
+                    .header("Authorization", "Bearer " + token)
+
+            )
+            .andExpect(status().isOk());
 
         TechStack updatedtechStack = adminTechStackRepository.getById(java.getId());
 
