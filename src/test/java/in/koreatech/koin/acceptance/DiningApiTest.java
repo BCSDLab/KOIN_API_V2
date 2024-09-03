@@ -2,7 +2,6 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -20,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
@@ -239,6 +239,11 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andReturn();
+        CoopEventListener event = new DiningImageUploadEvent(A코너_점심.getId(), imageUrl);
+        .publishEvent(event);
+
+        // 이벤트 리스너가 호출되었는지 검증
+        verify(coopEventListener).onDiningImageUploadRequest(any(DiningImageUploadEvent.class));
         verify(coopEventListener).onDiningSoldOutRequest(any());
     }
 
