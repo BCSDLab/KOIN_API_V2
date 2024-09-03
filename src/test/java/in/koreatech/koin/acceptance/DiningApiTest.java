@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -12,7 +13,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +115,6 @@ class DiningApiTest extends AcceptanceTest {
     @Test
     @Transactional
     void 날짜_비어있다_오늘_날짜를_받아_조회한다() throws Exception {
-
         mockMvc.perform(
                 get("/dinings")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -260,7 +259,6 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andReturn();
-
         verify(coopEventListener, never()).onDiningSoldOutRequest(any());
     }
 
@@ -423,6 +421,7 @@ class DiningApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
+
         verify(coopEventListener).onDiningImageUploadRequest(any());
     }
 

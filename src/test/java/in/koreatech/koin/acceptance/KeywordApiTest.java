@@ -271,7 +271,6 @@ public class KeywordApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
-
         verify(articleKeywordEventListener, never()).onKeywordRequest(any());
     }
 }

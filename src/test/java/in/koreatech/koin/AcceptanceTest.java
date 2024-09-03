@@ -1,5 +1,7 @@
 package in.koreatech.koin;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import java.time.Clock;
@@ -12,10 +14,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -127,5 +131,13 @@ public abstract class AcceptanceTest {
             RestAssured.port = port;
         }
         dataInitializer.clear();
+    }
+
+    public void testEvent(Runnable runnable) {
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        runnable.run();
+        TestTransaction.start();
+        TestTransaction.flagForRollback();
     }
 }
