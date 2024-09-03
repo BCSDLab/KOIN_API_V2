@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.article.service;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -56,6 +57,7 @@ public class ArticleService {
     private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
     private final ArticleHitRepository articleHitRepository;
     private final HotArticleRepository hotArticleRepository;
+    private final Clock clock;
 
     @Transactional
     public ArticleResponse getArticle(Integer boardId, Integer articleId) {
@@ -99,7 +101,7 @@ public class ArticleService {
             .collect(Collectors.toList());
         if (cacheList.size() < HOT_ARTICLE_LIMIT) {
             List<Article> highestHitArticles = articleRepository.findAllHotArticles(
-                LocalDate.now().minusDays(HOT_ARTICLE_BEFORE_DAYS), HOT_ARTICLE_LIMIT);
+                LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS), HOT_ARTICLE_LIMIT);
             cacheList.addAll(highestHitArticles);
             return cacheList.stream().limit(HOT_ARTICLE_LIMIT)
                 .map(HotArticleItemResponse::from)
@@ -234,7 +236,7 @@ public class ArticleService {
         List<ArticleHit> articleHits = articleHitRepository.findAll();
         articleHitRepository.deleteAll();
         List<Article> allArticles =
-            articleRepository.findAllByRegisteredAtIsAfter(LocalDate.now().minusDays(HOT_ARTICLE_BEFORE_DAYS));
+            articleRepository.findAllByRegisteredAtIsAfter(LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS));
         articleHitRepository.saveAll(allArticles.stream().map(ArticleHit::from).toList());
 
         Map<Integer, Integer> articlesIdWithHit = new HashMap<>();
