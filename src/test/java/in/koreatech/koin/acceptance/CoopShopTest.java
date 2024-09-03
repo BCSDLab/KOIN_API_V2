@@ -1,19 +1,24 @@
 package in.koreatech.koin.acceptance;
 
-import static io.restassured.RestAssured.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.fixture.CoopShopFixture;
-import in.koreatech.koin.support.JsonAssertions;
 
 @SuppressWarnings("NonAsciiCharacters")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CoopShopTest extends AcceptanceTest {
 
     @Autowired
@@ -25,26 +30,22 @@ class CoopShopTest extends AcceptanceTest {
     private CoopShop 학생식당;
     private CoopShop 세탁소;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
         학생식당 = coopShopFixture.학생식당();
         세탁소 = coopShopFixture.세탁소();
     }
 
     @Test
-    public void getCoopShops() {
-        var response = given()
-            .when()
-            .get("/coopshop")
-            .then()
-            .log().all()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(
-                """
-                    [
+    @Transactional
+    void 생협의_모든_상점을_조회한다() throws Exception {
+        mockMvc.perform(
+                get("/coopshop")
+                    .contentType(MediaType.ALL.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                [
                         {
                             "id": 1,
                             "name": "학생식당",
@@ -104,24 +105,19 @@ class CoopShopTest extends AcceptanceTest {
                             "updated_at" : "2024-01-15"
                         }
                     ]
-                    """
-            );
+                """));
     }
 
     @Test
-    public void getCoopShop() {
-        var response = given()
-            .when()
-            .get("/coopshop/1")
-            .then()
-            .log().all()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(
-                """
-                    {
+    @Transactional
+    void 생협의_상점을_조회한다() throws Exception {
+        mockMvc.perform(
+                get("/coopshop/1")
+                    .contentType(MediaType.ALL.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
                         "id": 1,
                         "name": "학생식당",
                         "semester" : "하계방학",
@@ -155,9 +151,7 @@ class CoopShopTest extends AcceptanceTest {
                         "location": "학생회관 1층",
                         "remarks": "공휴일 휴무",
                         "updated_at" : "2024-01-15"
-                    }
-                    """
-            );
-
+                }
+                """));
     }
 }

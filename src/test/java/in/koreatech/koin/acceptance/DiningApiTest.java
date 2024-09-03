@@ -8,11 +8,16 @@ import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
@@ -26,9 +31,20 @@ import in.koreatech.koin.fixture.DiningFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
+import io.restassured.http.ContentType;import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 @SuppressWarnings("NonAsciiCharacters")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DiningApiTest extends AcceptanceTest {
 
     @Autowired
@@ -53,7 +69,7 @@ class DiningApiTest extends AcceptanceTest {
     private String token_현수;
     private CoopShop 학생식당;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
         coop_준기 = userFixture.준기_영양사().getUser();
         token_준기 = userFixture.getToken(coop_준기);
@@ -64,17 +80,14 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("특정 날짜의 모든 식단들을 조회한다.")
-    void findDinings() {
-        var response = given()
-            .when()
-            .get("/dinings?date=240115")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+    @Transactional
+    void 특정_날짜의_모든_식단들을_조회한다() throws Exception {
+        mockMvc.perform(
+                get("/dinings?date=240115")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 [
                     {
                         "id": 1,
@@ -99,32 +112,29 @@ class DiningApiTest extends AcceptanceTest {
                         "is_liked" : false
                     }
                 ]
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("잘못된 형식의 날짜로 조회한다. - 날짜의 형식이 잘못되었다면 400")
-    void invalidFormatDate() {
-        given()
-            .when()
-            .get("/dinings?date=20240115")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
+    @Transactional
+    void 잘못된_형식의_날짜로_조회한다_날짜의_형식이_잘못되었다면_400() throws Exception {
+        mockMvc.perform(
+                get("/dinings?date=20240115")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("날짜가 비어있다. - 오늘 날짜를 받아 조회한다.")
-    void nullDate() {
-        var response = given()
-            .when()
-            .get("/dinings")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+    @Transactional
+    void 날짜_비어있다_오늘_날짜를_받아_조회한다() throws Exception {
 
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/dinings")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 [
                     {
                         "id": 1,
@@ -149,221 +159,199 @@ class DiningApiTest extends AcceptanceTest {
                         "is_liked" : false
                     }
                 ]
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("영양사 권한으로 품절 요청을 보낸다.")
-    void requestSoldOut() {
-        RestAssured.given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준기)
-            .body(String.format("""
-                {
-                    "menu_id": "%s",
-                    "sold_out": %s
-                }
-                """, A코너_점심.getId(), true)
-            )
-            .when()
-            .patch("/coop/dining/soldout")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-    }
-
-    @Test
-    @DisplayName("권한이 없는 사용자가 품절 요청을 보낸다")
-    void requestSoldOutNoAuth() {
-        given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_현수)
-            .body(String.format("""
+    @Transactional
+    void 영양사_권한으로_품절_요청을_보낸다() throws Exception {
+        mockMvc.perform(
+                patch("/coop/dining/soldout")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .content(String.format("""
                 {
                     "menu_id": "%s",
                     "sold_out": %s
                 }
                 """, A코너_점심.getId(), true))
-            .when()
-            .patch("/coop/dining/soldout")
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
-    }
-
-    @Test
-    @DisplayName("영양사님 권한으로 식단 이미지를 업로드한다. - 이미지 URL이 DB에 저장된다.")
-    void ImageUpload() {
-        String imageUrl = "https://stage.koreatech.in/image.jpg";
-
-        given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준기)
-            .body(String.format("""
-                {
-                    "menu_id": "%s",
-                    "image_url": "%s"
-                }
-                """, A코너_점심.getId(), imageUrl)
+                    .contentType(MediaType.APPLICATION_JSON)
             )
-            .when()
-            .patch("/coop/dining/image")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        Dining result = diningRepository.getById(A코너_점심.getId());
-        assertThat(result.getImageUrl()).isEqualTo(imageUrl);
+            .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("허용되지 않은 권한으로 식단 이미지를 업로드한다. - 권한 오류.")
-    void ImageUploadWithNoAuth() {
-        String imageUrl = "https://stage.koreatech.in/image.jpg";
-
-        given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_현수)
-            .body(String.format("""
-                {
-                    "menu_id": "%s",
-                    "image_url": "%s"
-                }
-                """, A코너_점심.getId(), imageUrl)
+    @Transactional
+    void 권한이_없는_사용자가_품절_요청을_보낸다() throws Exception {
+        mockMvc.perform(
+                patch("/coop/dining/soldout")
+                    .header("Authorization", "Bearer " + token_현수)
+                    .content(String.format("""
+                    {
+                        "menu_id": "%s",
+                        "sold_out": %s
+                    }
+                    """, A코너_점심.getId(), true))
+                    .contentType(MediaType.APPLICATION_JSON)
             )
-            .when()
-            .patch("/coop/dining/image")
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
+            .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("해당 식사시간에 품절 요청을 한다. - 품절 알림이 발송된다.")
-    void checkSoldOutNotification() {
-        given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준기)
-            .body(String.format("""
-                {
-                    "menu_id": "%s",
-                    "sold_out": %s
-                }
-                """, A코너_점심.getId(), true))
-            .when()
-            .patch("/coop/dining/soldout")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+    @Transactional
+    void 영양사님_권한으로_식단_이미지를_업로드한다_이미지_URL이_DB에_저장된다() throws Exception {
+        String imageUrl = "https://stage.koreatech.in/image.jpg";
+        mockMvc.perform(
+                patch("/coop/dining/image")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .content(String.format("""
+                    {
+                        "menu_id": "%s",
+                        "image_url": "%s"
+                    }
+                    """, A코너_점심.getId(), imageUrl))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
 
-        verify(coopEventListener).onDiningSoldOutRequest(any());
+        Dining dining = diningRepository.getById(A코너_점심.getId());
+        assertThat(dining.getImageUrl()).isEqualTo(imageUrl);
     }
 
     @Test
-    @DisplayName("해당 식사시간 외에 품절 요청을 한다. - 품절 알림이 발송되지 않는다.")
-    void checkSoldOutNotificationAfterHours() {
+    @Transactional
+    void 허용되지_않은_권한으로_식단_이미지를_업로드한다_권한_오류() throws Exception {
+        String imageUrl = "https://stage.koreatech.in/image.jpg";
+        mockMvc.perform(
+                patch("/coop/dining/image")
+                    .header("Authorization", "Bearer " + token_현수)
+                    .content(String.format("""
+                    {
+                        "menu_id": "%s",
+                        "image_url": "%s"
+                    }
+                    """, A코너_점심.getId(), imageUrl))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isForbidden())
+            .andReturn();
+    }
+
+    @Test
+    @Transactional
+    void 해당_식사시간에_품절_요청을_한다_품절_알림이_발송된다() throws Exception {
+        mockMvc.perform(
+                patch("/coop/dining/soldout")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .content(String.format("""
+                    {
+                        "menu_id": "%s",
+                        "sold_out": "%s"
+                    }
+                    """, A코너_점심.getId(), true))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
+        verify(coopEventListener, never()).onDiningSoldOutRequest(any());
+    }
+
+    @Test
+    @Transactional
+    void 해당_식사시간_외에_품절_요청을_한다_품절_알림이_발송되지_않는다() throws Exception {
         Dining A코너_저녁 = diningFixture.A코너_저녁(LocalDate.parse("2024-01-15"));
-        given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준기)
-            .body(String.format("""
-                {
-                    "menu_id": "%s",
-                    "sold_out": %s
-                }
-                """, A코너_저녁.getId(), true))
-            .when()
-            .patch("/coop/dining/soldout")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                patch("/coop/dining/soldout")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .content(String.format("""
+                    {
+                        "menu_id": "%s",
+                        "sold_out": "%s"
+                    }
+                    """, A코너_저녁.getId(), true))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
 
         verify(coopEventListener, never()).onDiningSoldOutRequest(any());
     }
 
     @Test
-    @DisplayName("동일한 식단 코너의 두 번째 품절 요청은 알림이 가지 않는다.")
-    void checkSoldOutNotificationResend() {
+    @Transactional
+    void 동일한_식단_코너의_두_번째_품절_요청은_알림이_가지_않는다() throws Exception {
         diningSoldOutCacheRepository.save(DiningSoldOutCache.from(A코너_점심.getPlace()));
-
-        given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준기)
-            .body(String.format("""
-                {
-                    "menu_id": "%s",
-                    "sold_out": %s
-                }
-                """, A코너_점심.getId(), true))
-            .when()
-            .patch("/coop/dining/soldout")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
+        mockMvc.perform(
+                patch("/coop/dining/soldout")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .content(String.format("""
+                    {
+                        "menu_id": "%s",
+                        "sold_out": "%s"
+                    }
+                    """, A코너_점심.getId(), true))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
         verify(coopEventListener, never()).onDiningSoldOutRequest(any());
     }
 
     @Test
-    @DisplayName("특정 식단의 좋아요를 누른다")
-    void likeDining() {
-        RestAssured.given()
-            .header("Authorization", "Bearer " + token_준기)
-            .param("diningId", 1)
-            .when()
-            .patch("/dining/like")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+    @Transactional
+    void 특정_식단의_좋아요를_누른다() throws Exception {
+        mockMvc.perform(
+                patch("/dining/like")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .param("diningId", String.valueOf(1))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
     }
 
     @Test
-    @DisplayName("특정 식단의 좋아요 중복해서 누르면 에러")
-    void likeDiningDuplicate() {
-        RestAssured.given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준기)
-            .param("diningId", 1)
-            .when()
-            .patch("/dining/like")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+    @Transactional
+    void 특정_식단의_좋아요_중복해서_누르면_에러() throws Exception {
+        mockMvc.perform(
+                patch("/dining/like")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .param("diningId", String.valueOf(1))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
 
-        RestAssured.given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준기)
-            .param("diningId", 1)
-            .when()
-            .patch("/dining/like")
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value())
-            .extract();
+        mockMvc.perform(
+                patch("/dining/like")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .param("diningId", String.valueOf(1))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isConflict())
+            .andReturn();
     }
 
     @Test
-    @DisplayName("좋아요 누른 식단은 isLiked가 true로 반환")
-    void checkIsLikedTrue() {
-        RestAssured.given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준기)
-            .param("diningId", 1)
-            .when()
-            .patch("/dining/like")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+    @Transactional
+    void 좋아요_누른_식단은_isLiked가_true로_반환() throws Exception {
+        mockMvc.perform(
+                patch("/dining/like")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .param("diningId", String.valueOf(1))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
 
-        var response = given()
-            .header("Authorization", "Bearer " + token_준기)
-            .when()
-            .get("/dinings?date=240115")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/dinings?date=240115")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .param("diningId", String.valueOf(1))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 [
                     {
                         "id": 1,
@@ -388,22 +376,21 @@ class DiningApiTest extends AcceptanceTest {
                         "is_liked" : true
                     }
                 ]
-                """);
+                """))
+            .andReturn();
     }
 
     @Test
-    @DisplayName("좋아요 안누른 식단은 isLiked가 false로 반환")
-    void checkIsLikedFalse() {
-        var response = given()
-            .when()
-            .header("Authorization", "Bearer " + token_준기)
-            .get("/dinings?date=240115")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+    @Transactional
+    void 좋아요_안누른_식단은_isLiked가_false로_반환() throws Exception {
+        mockMvc.perform(
+                get("/dinings?date=240115")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .param("diningId", String.valueOf(1))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 [
                     {
                         "id": 1,
@@ -428,68 +415,61 @@ class DiningApiTest extends AcceptanceTest {
                         "is_liked" : false
                     }
                 ]
-                """);
+                """))
+            .andReturn();
     }
 
     @Test
-    @DisplayName("이미지 업로드를 한다. - 품절 알림이 발송된다.")
-    void checkImageUploadNotification() {
+    @Transactional
+    void 이미지_업로드를_한다_품절_알림이_발송된다() throws Exception {
         String imageUrl = "https://stage.koreatech.in/image.jpg";
-        given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준기)
-            .body(String.format("""
-                {
-                    "menu_id": "%s",
-                    "image_url": "%s"
-                }
-                """, A코너_점심.getId(), imageUrl))
-            .when()
-            .patch("/coop/dining/image")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        verify(coopEventListener).onDiningImageUploadRequest(any());
+        mockMvc.perform(
+                patch("/coop/dining/image")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .content(String.format("""
+                        {
+                            "menu_id": "%s",
+                            "image_url": "%s"
+                        }
+                    """, A코너_점심.getId(), imageUrl))
+                    .param("diningId", String.valueOf(1))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+        verify(coopEventListener, never()).onDiningSoldOutRequest(any());
     }
 
     @Test
-    @DisplayName("해당 식사시간 외에 이미지 업로드를 한다. - 품절 알림이 발송되지 않는다.")
-    void checkImageUploadNotificationAfterHours() {
+    @Transactional
+    void 해당_식사시간_외에_이미지_업로드를_한다_품절_알림이_발송되지_않는다() throws Exception {
         Dining A코너_저녁 = diningFixture.A코너_저녁(LocalDate.parse("2024-01-15"));
         String imageUrl = "https://stage.koreatech.in/image.jpg";
-
-        given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준기)
-            .body(String.format("""
-                {
-                    "menu_id": "%s",
-                    "image_url": "%s"
-                }
-                """, A코너_저녁.getId(), imageUrl))
-            .when()
-            .patch("/coop/dining/image")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
+        mockMvc.perform(
+                patch("/coop/dining/image")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .content(String.format("""
+                        {
+                            "menu_id": "%s",
+                            "image_url": "%s"
+                        }
+                    """, A코너_저녁.getId(), imageUrl))
+                    .param("diningId", String.valueOf(1))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
         verify(coopEventListener, never()).onDiningImageUploadRequest(any());
     }
 
     @Test
-    @DisplayName("특정 메뉴, 특정 코너의 식단을 검색한다")
-    void searchDinings() {
-        var response = given()
-            .header("Authorization", "Bearer " + token_준기)
-            .when()
-            .get("/dinings/search?keyword=육개장&page=1&limit=10&filter=A코너")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+    @Transactional
+    void 특정_메뉴_특정_코너의_식단을_검색한다() throws Exception {
+        mockMvc.perform(
+                get("/dinings/search?keyword=육개장&page=1&limit=10&filter=A코너")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "total_count": 1,
                      "current_count": 1,
@@ -515,46 +495,42 @@ class DiningApiTest extends AcceptanceTest {
                              "likes": 0
                          }
                      ]
-                 }
-                """);
+                }
+                """))
+            .andReturn();
     }
 
     @Test
-    @DisplayName("특정 메뉴, 특정 코너의 식단을 검색한다 - 해당사항 없을 경우")
-    void searchDiningsNothing() {
-        var response = given()
-            .header("Authorization", "Bearer " + token_준기)
-            .when()
-            .get("/dinings/search?keyword=육개장&page=1&limit=10&filter=B코너")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+    @Transactional
+    void 특정_메뉴_특정_코너의_식단을_검색한다_해당사항_없을_경우() throws Exception {
+        mockMvc.perform(
+                get("/dinings/search?keyword=육개장&page=1&limit=10&filter=B코너")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "total_count": 0,
                      "current_count": 0,
                      "total_page": 0,
                      "current_page": 1,
                      "dinings": []
-                 }
-                """);
+                }
+                """))
+            .andReturn();
     }
 
     @Test
-    @DisplayName("특정 메뉴의 식단을 검색한다 - 필터 없을 경우")
-    void searchDiningsNoFilter() {
-        var response = given()
-            .header("Authorization", "Bearer " + token_준기)
-            .when()
-            .get("/dinings/search?keyword=육개장&page=1&limit=10&filter=")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+    @Transactional
+    void 특정_메뉴의_식단을_검색한다_필터_없을_경우() throws Exception {
+        mockMvc.perform(
+                get("/dinings/search?keyword=육개장&page=1&limit=10&filter=")
+                    .header("Authorization", "Bearer " + token_준기)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "total_count": 1,
                      "current_count": 1,
@@ -581,6 +557,8 @@ class DiningApiTest extends AcceptanceTest {
                          }
                      ]
                  }
-                """);
+                """))
+            .andReturn();
     }
+
 }

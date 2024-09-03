@@ -30,6 +30,7 @@ spring:
 server:
   tomcat:
     max-http-form-post-size: 10MB
+#  MockMvc이용하면 한글 깨지는 문제 해결하는 설정
   servlet:
     encoding:
       force-response: true
