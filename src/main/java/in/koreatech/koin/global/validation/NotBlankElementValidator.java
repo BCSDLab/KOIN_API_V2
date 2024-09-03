@@ -14,6 +14,9 @@ public class NotBlankElementValidator implements ConstraintValidator<NotBlankEle
 
     @Override
     public boolean isValid(List<String> elements, ConstraintValidatorContext context) {
-        return elements != null && elements.stream().allMatch(it -> it != null && !it.isBlank());
+        if (elements == null) {
+            elements = List.of();
+        }
+        return elements.stream().noneMatch(it -> it == null || it.isBlank());
     }
 }

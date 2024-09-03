@@ -17,7 +17,7 @@ import jakarta.validation.Payload;
 @Retention(RUNTIME)
 public @interface NotBlankElement {
 
-    String message() default "null이거나 빈 요소가 존재합니다.";
+    String message() default "빈 요소가 존재합니다.";
 
     Class<?>[] groups() default {};
 
