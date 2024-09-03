@@ -1,9 +1,13 @@
 package in.koreatech.koin.domain.community.article.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,11 +25,13 @@ import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
 import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.article.model.redis.ArticleHit;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
-import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +42,7 @@ import lombok.RequiredArgsConstructor;
 public class ArticleService {
 
     public static final int NOTICE_BOARD_ID = 4;
+    private static final int HOT_ARTICLE_BEFORE_DAYS = 30;
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final int MAXIMUM_SEARCH_LENGTH = 100;
     private static final Sort ARTICLES_SORT = Sort.by(
@@ -45,14 +52,16 @@ public class ArticleService {
 
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
-    private final UserRepository userRepository;
     private final ArticleSearchKeywordIpMapRepository articleSearchKeywordIpMapRepository;
     private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
+    private final ArticleHitRepository articleHitRepository;
+    private final HotArticleRepository hotArticleRepository;
 
     @Transactional
     public ArticleResponse getArticle(Integer boardId, Integer articleId) {
         Article article = articleRepository.getById(articleId);
-        // article.increaseHit();
+        //TODO: 추후(Device 관련 로직 구현 후) 조회수 증가 제한 로직 부가 필요
+        article.increaseKoinHit();
         Board board = getBoard(boardId, article);
         Article prevArticle = articleRepository.getPreviousArticle(board, article);
         Article nextArticle = articleRepository.getNextArticle(board, article);
@@ -85,16 +94,24 @@ public class ArticleService {
     }
 
     public List<HotArticleItemResponse> getHotArticles() {
-        PageRequest pageRequest = PageRequest.of(0, HOT_ARTICLE_LIMIT, ARTICLES_SORT);
-        return articleRepository.findAll(pageRequest).stream()
-            .sorted(Comparator.comparing(Article::getHit).reversed())
-            .map(HotArticleItemResponse::from)
-            .toList();
+        List<Article> cacheList = hotArticleRepository.getHotArticles(HOT_ARTICLE_LIMIT).stream()
+            .map(articleRepository::getById)
+            .collect(Collectors.toList());
+        if (cacheList.size() < HOT_ARTICLE_LIMIT) {
+            List<Article> highestHitArticles = articleRepository.findAllHotArticles(
+                LocalDate.now().minusDays(HOT_ARTICLE_BEFORE_DAYS), HOT_ARTICLE_LIMIT);
+            cacheList.addAll(highestHitArticles);
+            return cacheList.stream().limit(HOT_ARTICLE_LIMIT)
+                .map(HotArticleItemResponse::from)
+                .toList();
+        }
+        return cacheList.stream().map(HotArticleItemResponse::from).toList();
     }
 
     @Transactional
-    public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit, String ipAddress) {
-        if(query.length() >= MAXIMUM_SEARCH_LENGTH) {
+    public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit,
+        String ipAddress) {
+        if (query.length() >= MAXIMUM_SEARCH_LENGTH) {
             throw new KoinIllegalArgumentException("검색어의 최대 길이를 초과했습니다.");
         }
 
@@ -147,7 +164,8 @@ public class ArticleService {
                     return newKeyword;
                 });
 
-            ArticleSearchKeywordIpMap map = articleSearchKeywordIpMapRepository.findByArticleSearchKeywordAndIpAddress(keyword, ipAddress)
+            ArticleSearchKeywordIpMap map = articleSearchKeywordIpMapRepository.findByArticleSearchKeywordAndIpAddress(
+                    keyword, ipAddress)
                 .orElseGet(() -> {
                     ArticleSearchKeywordIpMap newMap = ArticleSearchKeywordIpMap.builder()
                         .articleSearchKeyword(keyword)
@@ -209,5 +227,27 @@ public class ArticleService {
         for (ArticleSearchKeywordIpMap ipMap : ipMapsToUpdate) {
             ipMap.resetSearchCount();
         }
+    }
+
+    @Transactional
+    public void updateHotArticles() {
+        List<ArticleHit> articleHits = articleHitRepository.findAll();
+        articleHitRepository.deleteAll();
+        List<Article> allArticles =
+            articleRepository.findAllByRegisteredAtIsAfter(LocalDate.now().minusDays(HOT_ARTICLE_BEFORE_DAYS));
+        articleHitRepository.saveAll(allArticles.stream().map(ArticleHit::from).toList());
+
+        Map<Integer, Integer> articlesIdWithHit = new HashMap<>();
+        for (Article article : allArticles) {
+            Optional<ArticleHit> cache = articleHits.stream()
+                .filter(articleHit -> articleHit.getId().equals(article.getId()))
+                .findAny();
+            int beforeArticleHit = cache.isPresent() ? cache.get().getHit() : 0;
+            if (article.getHit() - beforeArticleHit <= 0) {
+                continue;
+            }
+            articlesIdWithHit.put(article.getId(), article.getHit() - beforeArticleHit);
+        }
+        hotArticleRepository.saveArticlesWithHitToRedis(articlesIdWithHit, HOT_ARTICLE_LIMIT);
     }
 }

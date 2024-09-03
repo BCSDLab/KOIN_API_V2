@@ -14,6 +14,15 @@ public class ArticleScheduler {
 
     private final ArticleService articleService;
 
+    @Scheduled(cron = "0 0 6 * * *")
+    public void updateHotArticles() {
+        try {
+            articleService.updateHotArticles();
+        } catch (Exception e) {
+            log.error("인기 게시글 업데이트 중에 오류가 발생했습니다.", e);
+        }
+    }
+
     @Scheduled(cron = "0 0 0/6 * * *")
     public void resetOldKeywordsAndIpMaps() {
         try {

@@ -101,6 +101,10 @@ public class Article extends BaseEntity {
         koinHit++;
     }
 
+    public int getHit() {
+        return hit + koinHit;
+    }
+
     public void setPrevNextArticles(Article prev, Article next) {
         if (prev != null) {
             prevId = prev.getId();

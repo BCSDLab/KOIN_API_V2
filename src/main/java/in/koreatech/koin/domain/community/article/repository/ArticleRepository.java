@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.community.article.repository;
 
 import static in.koreatech.koin.domain.community.article.service.ArticleService.NOTICE_BOARD_ID;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,4 +76,11 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         }
         return findNextArticle(article.getId(), board.getId()).orElse(null);
     }
+
+    @Query(value = "SELECT * FROM koreatech_articles a WHERE a.registered_at > :registeredAt "
+        + "ORDER BY (a.hit + a.koin_hit) DESC, a.registered_at DESC, a.id DESC "
+        + "LIMIT :limit", nativeQuery = true)
+    List<Article> findAllHotArticles(@Param("registeredAt") LocalDate registeredAt, @Param("limit") int limit);
+
+    List<Article> findAllByRegisteredAtIsAfter(LocalDate localDate);
 }
