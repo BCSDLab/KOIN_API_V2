@@ -243,10 +243,10 @@ public class ArticleService {
                 .filter(articleHit -> articleHit.getId().equals(article.getId()))
                 .findAny();
             int beforeArticleHit = cache.isPresent() ? cache.get().getHit() : 0;
-            if (article.getHit() - beforeArticleHit <= 0) {
+            if (article.getTotalHit() - beforeArticleHit <= 0) {
                 continue;
             }
-            articlesIdWithHit.put(article.getId(), article.getHit() - beforeArticleHit);
+            articlesIdWithHit.put(article.getId(), article.getTotalHit() - beforeArticleHit);
         }
         hotArticleRepository.saveArticlesWithHitToRedis(articlesIdWithHit, HOT_ARTICLE_LIMIT);
     }

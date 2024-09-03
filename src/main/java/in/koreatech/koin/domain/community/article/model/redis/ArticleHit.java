@@ -25,7 +25,7 @@ public class ArticleHit {
     public static ArticleHit from(Article article) {
         return ArticleHit.builder()
             .id(article.getId())
-            .hit(article.getHit())
+            .hit(article.getTotalHit())
             .build();
     }
 }

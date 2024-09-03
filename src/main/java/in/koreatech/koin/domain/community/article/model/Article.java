@@ -107,7 +107,7 @@ public class Article extends BaseEntity {
         koinHit++;
     }
 
-    public int getHit() {
+    public int getTotalHit() {
         return hit + koinHit;
     }
 
