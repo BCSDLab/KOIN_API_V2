@@ -71,7 +71,7 @@ public class NotificationFactory {
         MobileAppPath path,
         String schemeUri,
         String keywordName,
-        User target
+        Device device
     ) {
         return new Notification(
             path,
@@ -80,7 +80,7 @@ public class NotificationFactory {
             "%s 공지가 등록되었습니다.".formatted(keywordName),
             null,
             NotificationType.MESSAGE,
-            target
+            device
         );
     }
 }
