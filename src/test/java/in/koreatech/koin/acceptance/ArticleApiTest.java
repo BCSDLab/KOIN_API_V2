@@ -8,13 +8,11 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.config.FixedDate;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.model.Comment;
@@ -28,7 +26,7 @@ import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
-class CommunityApiTest extends AcceptanceTest {
+class ArticleApiTest extends AcceptanceTest {
 
     @Autowired
     private ArticleRepository articleRepository;
@@ -87,7 +85,7 @@ class CommunityApiTest extends AcceptanceTest {
                     "title": "자유 글의 제목입니다",
                     "content": "<p>내용</p>",
                     "author": "작성자1",
-                    "hit": 1,
+                    "hit": 3,
                     "attachments": [
                         {
                             "id": 1,
@@ -129,7 +127,7 @@ class CommunityApiTest extends AcceptanceTest {
                             "board_id": 1,
                             "title": "자유 글2의 제목입니다",
                             "author": "작성자2",
-                            "hit": 1,
+                            "hit": 2,
                             "registered_at": "2024-01-15",
                             "updated_at": "2024-01-15 12:00:00"
                         },
@@ -138,7 +136,7 @@ class CommunityApiTest extends AcceptanceTest {
                             "board_id": 1,
                             "title": "자유 글의 제목입니다",
                             "author": "작성자1",
-                            "hit": 1,
+                            "hit": 2,
                             "registered_at": "2024-01-15",
                             "updated_at": "2024-01-15 12:00:00"
                         }
@@ -315,7 +313,7 @@ class CommunityApiTest extends AcceptanceTest {
                             "board_id": 1,
                             "title": "자유 글의 제목입니다",
                             "author": "작성자1",
-                            "hit": 1,
+                            "hit": 2,
                             "registered_at": "2024-01-15",
                             "updated_at": "2024-01-15 12:00:00"
                         }
@@ -352,7 +350,7 @@ class CommunityApiTest extends AcceptanceTest {
                                "board_id": 1,
                                "title": "자유 글의 제목입니다",
                                "author": "작성자1",
-                               "hit": 1,
+                               "hit": 2,
                                "registered_at": "2024-01-15",
                                "updated_at": "2024-01-15 12:00:00"
                            }
@@ -366,6 +364,7 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
+    @FixedDate(year = 2024, month = 1, day = 20)
     @DisplayName("인기많은 게시글 목록을 조회한다.")
     void getHotArticles() {
         // given
@@ -429,7 +428,7 @@ class CommunityApiTest extends AcceptanceTest {
                         "board_id": 1,
                         "title": "자유 글2의 제목입니다",
                         "author": "작성자2",
-                        "hit": 1,
+                        "hit": 2,
                         "registered_at": "2024-01-15",
                         "updated_at": "2024-01-15 12:00:00"
                     },
@@ -438,7 +437,7 @@ class CommunityApiTest extends AcceptanceTest {
                         "board_id": 1,
                         "title": "자유 글의 제목입니다",
                         "author": "작성자1",
-                        "hit": 1,
+                        "hit": 2,
                         "registered_at": "2024-01-15",
                         "updated_at": "2024-01-15 12:00:00"
                     }
@@ -468,7 +467,7 @@ class CommunityApiTest extends AcceptanceTest {
                                "board_id": 1,
                                "title": "자유 글2의 제목입니다",
                                "author": "작성자2",
-                               "hit": 1,
+                               "hit": 2,
                                "registered_at": "2024-01-15",
                                "updated_at": "2024-01-15 12:00:00"
                            },
@@ -477,7 +476,7 @@ class CommunityApiTest extends AcceptanceTest {
                                "board_id": 1,
                                "title": "자유 글의 제목입니다",
                                "author": "작성자1",
-                               "hit": 1,
+                               "hit": 2,
                                "registered_at": "2024-01-15",
                                "updated_at": "2024-01-15 12:00:00"
                            }
