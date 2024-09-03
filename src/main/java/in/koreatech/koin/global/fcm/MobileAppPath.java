@@ -8,6 +8,7 @@ public enum MobileAppPath {
     LOGIN("login", "login"),
     SHOP("shop", "shop"),
     DINING("dining", "dining"),
+    KEYWORD("keyword", "keyword")
     ;
 
     private final String android;

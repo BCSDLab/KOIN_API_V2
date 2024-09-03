@@ -66,4 +66,21 @@ public class NotificationFactory {
             device
         );
     }
+
+    public Notification generateKeywordNotification(
+        MobileAppPath path,
+        String schemeUri,
+        String keywordName,
+        User target
+    ) {
+        return new Notification(
+            path,
+            schemeUri,
+            "공지사항이 등록됐어요!",
+            "%s 공지가 등록되었습니다.".formatted(keywordName),
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
 }

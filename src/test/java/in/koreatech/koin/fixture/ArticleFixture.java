@@ -1,20 +1,15 @@
 package in.koreatech.koin.fixture;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.community.model.Article;
-import in.koreatech.koin.domain.community.model.ArticleAttachment;
-import in.koreatech.koin.domain.community.model.ArticleKeyword;
-import in.koreatech.koin.domain.community.model.ArticleKeywordUserMap;
-import in.koreatech.koin.domain.community.model.Board;
-import in.koreatech.koin.domain.community.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.repository.ArticleKeywordUserMapRepository;
-import in.koreatech.koin.domain.community.repository.ArticleRepository;
+import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.ArticleAttachment;
+import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.user.model.User;
 
 @Component
@@ -22,16 +17,10 @@ import in.koreatech.koin.domain.user.model.User;
 public class ArticleFixture {
 
     private final ArticleRepository articleRepository;
-    private final ArticleKeywordRepository articleKeywordRepository;
-    private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
 
     public ArticleFixture(
-        ArticleRepository articleRepository,
-        ArticleKeywordRepository articleKeywordRepository,
-        ArticleKeywordUserMapRepository articleKeywordUserMapRepository) {
+        ArticleRepository articleRepository) {
         this.articleRepository = articleRepository;
-        this.articleKeywordRepository = articleKeywordRepository;
-        this.articleKeywordUserMapRepository = articleKeywordUserMapRepository;
     }
 
     public Article 자유글_1(Board board) {
@@ -79,17 +68,22 @@ public class ArticleFixture {
         );
     }
 
-    public ArticleKeywordUserMap 키워드1(String keyword, User user) {
-        ArticleKeyword articleKeyword = articleKeywordRepository.save(ArticleKeyword.builder()
-                .keyword(keyword)
-                .lastUsedAt(LocalDateTime.now())
-                .build());
-
-        ArticleKeywordUserMap articleKeywordUserMap = ArticleKeywordUserMap.builder()
-            .articleKeyword(articleKeyword)
-            .user(user)
-            .build();
-
-        return articleKeywordUserMapRepository.save(articleKeywordUserMap);
+    public Article 자유글_3(String title, Board board, Integer articleNum) {
+        return articleRepository.save(
+            Article.builder()
+                .board(board)
+                .title(title)
+                .content("<p>내용333</p>")
+                .author("작성자3")
+                .hit(1)
+                .koinHit(1)
+                .isDeleted(false)
+                .articleNum(articleNum)
+                .url("https://example3.com")
+                .attachments(List.of())
+                .registeredAt(LocalDate.of(2024, 1, 15))
+                .isNotice(false)
+                .build()
+        );
     }
 }
