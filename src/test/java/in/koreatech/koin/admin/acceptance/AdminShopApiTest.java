@@ -41,8 +41,8 @@ import in.koreatech.koin.fixture.ShopFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AdminShopApiTest extends AcceptanceTest {
 
     @Autowired
