@@ -50,13 +50,17 @@ public class DBInitializer {
     }
 
     private void truncate() {
-        // setForeignKeyCheck(OFF);
+        setForeignKeyCheck(OFF);
         for (String tableName : tableNames) {
-            //ALTER TABLE shop_menu_categories AUTO_INCREMENT = 1
-            // entityManager.createNativeQuery(String.format("TRUNCATE TABLE %s", tableName)).executeUpdate();
+            entityManager.createNativeQuery(String.format("TRUNCATE TABLE %s", tableName)).executeUpdate();
+        }
+        setForeignKeyCheck(ON);
+    }
+
+    private void initIncrement() {
+        for (String tableName : tableNames) {
             entityManager.createNativeQuery(String.format("ALTER TABLE %s AUTO_INCREMENT = 1", tableName)).executeUpdate();
         }
-        // setForeignKeyCheck(ON);
     }
 
     private void setForeignKeyCheck(int mode) {
@@ -64,7 +68,7 @@ public class DBInitializer {
     }
 
     @Transactional
-    public void clear() {
+    public void clearAndTruncate() {
         if (tableNames.isEmpty()) {
             findDatabaseTableNames();
         }
@@ -76,5 +80,25 @@ public class DBInitializer {
         for (String collectionName : mongoTemplate.getCollectionNames()) {
             mongoTemplate.remove(new Query(), collectionName);
         }
+    }
+
+    @Transactional
+    public void clearAndInitIncrement() {
+        if (tableNames.isEmpty()) {
+            findDatabaseTableNames();
+        }
+        entityManager.clear();
+        initIncrement();
+        // Redis 초기화
+        redisTemplate.getConnectionFactory().getConnection().flushAll();
+        // Mongo 초기화
+        for (String collectionName : mongoTemplate.getCollectionNames()) {
+            mongoTemplate.remove(new Query(), collectionName);
+        }
+    }
+
+    private void clear() {
+
+
     }
 }

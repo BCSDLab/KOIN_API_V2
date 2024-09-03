@@ -1,13 +1,12 @@
 package in.koreatech.koin;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import java.time.Clock;
 
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,9 +20,6 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -51,6 +47,9 @@ public abstract class AcceptanceTest {
 
     private static final String ROOT = "test";
     private static final String ROOT_PASSWORD = "1234";
+
+    @Autowired
+    public ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public MockMvc mockMvc;
@@ -134,14 +133,19 @@ public abstract class AcceptanceTest {
         if (RestAssured.port == RestAssured.UNDEFINED_PORT) {
             RestAssured.port = port;
         }
-        dataInitializer.clear();
+        dataInitializer.clearAndInitIncrement();
     }
 
-    public void testEvent(Runnable runnable) {
+    public void clearTable() {
+        if (RestAssured.port == RestAssured.UNDEFINED_PORT) {
+            RestAssured.port = port;
+        }
+        dataInitializer.clearAndTruncate();
+    }
+
+    public void forceVerify(Runnable runnable) {
         TestTransaction.flagForCommit();
         TestTransaction.end();
         runnable.run();
-        TestTransaction.start();
-        TestTransaction.flagForRollback();
     }
 }
