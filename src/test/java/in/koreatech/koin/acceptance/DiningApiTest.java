@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +31,7 @@ import in.koreatech.koin.fixture.UserFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 class DiningApiTest extends AcceptanceTest {
 
     @Autowired
@@ -67,7 +67,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 특정_날짜의_모든_식단들을_조회한다() throws Exception {
         mockMvc.perform(
                 get("/dinings?date=240115")
@@ -103,7 +102,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 잘못된_형식의_날짜로_조회한다_날짜의_형식이_잘못되었다면_400() throws Exception {
         mockMvc.perform(
                 get("/dinings?date=20240115")
@@ -113,9 +111,7 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 날짜_비어있다_오늘_날짜를_받아_조회한다() throws Exception {
-
         mockMvc.perform(
                 get("/dinings")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -150,7 +146,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 영양사_권한으로_품절_요청을_보낸다() throws Exception {
         mockMvc.perform(
                 patch("/coop/dining/soldout")
@@ -167,7 +162,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 권한이_없는_사용자가_품절_요청을_보낸다() throws Exception {
         mockMvc.perform(
                 patch("/coop/dining/soldout")
@@ -184,7 +178,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 영양사님_권한으로_식단_이미지를_업로드한다_이미지_URL이_DB에_저장된다() throws Exception {
         String imageUrl = "https://stage.koreatech.in/image.jpg";
         mockMvc.perform(
@@ -200,13 +193,11 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andReturn();
-
         Dining dining = diningRepository.getById(A코너_점심.getId());
         assertThat(dining.getImageUrl()).isEqualTo(imageUrl);
     }
 
     @Test
-    @Transactional
     void 허용되지_않은_권한으로_식단_이미지를_업로드한다_권한_오류() throws Exception {
         String imageUrl = "https://stage.koreatech.in/image.jpg";
         mockMvc.perform(
@@ -225,7 +216,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 해당_식사시간에_품절_요청을_한다_품절_알림이_발송된다() throws Exception {
         mockMvc.perform(
                 patch("/coop/dining/soldout")
@@ -240,11 +230,13 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andReturn();
-        verify(coopEventListener).onDiningSoldOutRequest(any());
+
+        forceVerify(() -> verify(coopEventListener).onDiningSoldOutRequest(any()));
+        clearTable();
+        setUp();
     }
 
     @Test
-    @Transactional
     void 해당_식사시간_외에_품절_요청을_한다_품절_알림이_발송되지_않는다() throws Exception {
         Dining A코너_저녁 = diningFixture.A코너_저녁(LocalDate.parse("2024-01-15"));
         mockMvc.perform(
@@ -260,12 +252,12 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andReturn();
-
-        verify(coopEventListener, never()).onDiningSoldOutRequest(any());
+        forceVerify(() -> verify(coopEventListener, never()).onDiningSoldOutRequest(any()));
+        clearTable();
+        setUp();
     }
 
     @Test
-    @Transactional
     void 동일한_식단_코너의_두_번째_품절_요청은_알림이_가지_않는다() throws Exception {
         diningSoldOutCacheRepository.save(DiningSoldOutCache.from(A코너_점심.getPlace()));
         mockMvc.perform(
@@ -281,11 +273,12 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andReturn();
-        verify(coopEventListener, never()).onDiningSoldOutRequest(any());
+        forceVerify(() -> verify(coopEventListener, never()).onDiningSoldOutRequest(any()));
+        clearTable();
+        setUp();
     }
 
     @Test
-    @Transactional
     void 특정_식단의_좋아요를_누른다() throws Exception {
         mockMvc.perform(
                 patch("/dining/like")
@@ -298,7 +291,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 특정_식단의_좋아요_중복해서_누르면_에러() throws Exception {
         mockMvc.perform(
                 patch("/dining/like")
@@ -320,7 +312,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 좋아요_누른_식단은_isLiked가_true로_반환() throws Exception {
         mockMvc.perform(
                 patch("/dining/like")
@@ -368,7 +359,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 좋아요_안누른_식단은_isLiked가_false로_반환() throws Exception {
         mockMvc.perform(
                 get("/dinings?date=240115")
@@ -407,7 +397,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 이미지_업로드를_한다_품절_알림이_발송된다() throws Exception {
         String imageUrl = "https://stage.koreatech.in/image.jpg";
         mockMvc.perform(
@@ -423,11 +412,12 @@ class DiningApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
-        verify(coopEventListener).onDiningImageUploadRequest(any());
+        forceVerify(() -> verify(coopEventListener).onDiningImageUploadRequest(any()));
+        clearTable();
+        setUp();
     }
 
     @Test
-    @Transactional
     void 해당_식사시간_외에_이미지_업로드를_한다_품절_알림이_발송되지_않는다() throws Exception {
         Dining A코너_저녁 = diningFixture.A코너_저녁(LocalDate.parse("2024-01-15"));
         String imageUrl = "https://stage.koreatech.in/image.jpg";
@@ -444,11 +434,12 @@ class DiningApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
-        verify(coopEventListener, never()).onDiningImageUploadRequest(any());
+        forceVerify(() -> verify(coopEventListener, never()).onDiningImageUploadRequest(any()));
+        clearTable();
+        setUp();
     }
 
     @Test
-    @Transactional
     void 특정_메뉴_특정_코너의_식단을_검색한다() throws Exception {
         mockMvc.perform(
                 get("/dinings/search?keyword=육개장&page=1&limit=10&filter=A코너")
@@ -488,7 +479,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 특정_메뉴_특정_코너의_식단을_검색한다_해당사항_없을_경우() throws Exception {
         mockMvc.perform(
                 get("/dinings/search?keyword=육개장&page=1&limit=10&filter=B코너")
@@ -509,7 +499,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 특정_메뉴의_식단을_검색한다_필터_없을_경우() throws Exception {
         mockMvc.perform(
                 get("/dinings/search?keyword=육개장&page=1&limit=10&filter=")
