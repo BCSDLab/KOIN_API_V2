@@ -18,6 +18,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -32,9 +33,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "koreatech_articles", uniqueConstraints = {
-    @UniqueConstraint(name = "ux_koreatech_article", columnNames = {"board_id", "article_num"})
-})
+@Table(name = "koreatech_articles",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "ux_koreatech_article", columnNames = {"board_id", "article_num"})
+    },
+    indexes = {
+        @Index(name = "idx_registered_at_id", columnList = "registered_at DESC, id DESC")
+    }
+)
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
 public class Article extends BaseEntity {
