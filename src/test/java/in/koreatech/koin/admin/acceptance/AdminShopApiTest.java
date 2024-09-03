@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -312,7 +311,6 @@ class AdminShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("어드민이 특정 상점의 특정 메뉴를 조회한다.")
     void 어드민이_특정_상점의_특정_메뉴를_조회한다() throws Exception {
         // given
         Menu menu = menuFixture.짜장면_옵션메뉴(shop_마슬랜, menuCategory_메인);
