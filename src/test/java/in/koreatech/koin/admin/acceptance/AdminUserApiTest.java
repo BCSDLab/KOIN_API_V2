@@ -6,16 +6,23 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.ArrayList;
 
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
@@ -33,10 +40,10 @@ import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.fixture.ShopFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 public class AdminUserApiTest extends AcceptanceTest {
 
     @Autowired
@@ -67,25 +74,19 @@ public class AdminUserApiTest extends AcceptanceTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
-    @DisplayName("관리자가 학생 리스트를 파라미터가 없이 조회한다.(페이지네이션)")
-    void getStudentsWithoutParameterAdmin() {
+    void 관리자가_학생_리스트를_파라미터가_없이_조회한다_페이지네이션() throws Exception {
         Student student = userFixture.준호_학생();
         User adminUser = userFixture.코인_운영자();
 
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .when()
-            .get("/admin/students")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/admin/students")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "current_count": 1,
                      "current_page": 1,
@@ -102,12 +103,11 @@ public class AdminUserApiTest extends AcceptanceTest {
                      "total_count": 1,
                      "total_page": 1
                  }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("관리자가 학생 리스트를 페이지 수와 limit으로 조회한다.(페이지네이션)")
-    void getStudentsWithPageAndLimitAdmin() {
+    void 관리자가_학생_리스트를_페이지_수와_limits으로_조회한다_페이지네이션() throws Exception {
         for (int i = 0; i < 11; i++) {
             Student student = Student.builder()
                 .studentNumber("2019136135")
@@ -137,20 +137,14 @@ public class AdminUserApiTest extends AcceptanceTest {
 
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .queryParam("page", 2)
-            .queryParam("limit", 10)
-            .when()
-            .get("/admin/students")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/admin/students")
+                    .header("Authorization", "Bearer " + token)
+                    .param("page", "2")
+                    .param("limit", "10")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "current_count": 1,
                      "current_page": 2,
@@ -167,31 +161,25 @@ public class AdminUserApiTest extends AcceptanceTest {
                      "total_count": 11,
                      "total_page": 2
                  }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("관리자가 학생 리스트를 닉네임으로 조회한다.(페이지네이션)")
-    void getStudentsWithNicknameAdmin() {
+    void 관리자가_학생_리스트를_닉네임으로_조회한다_페이지네이션() throws Exception {
         Student student1 = userFixture.성빈_학생();
         Student student2 = userFixture.준호_학생();
         User adminUser = userFixture.코인_운영자();
 
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .when()
-            .queryParam("nickname", "준호")
-            .get("/admin/students")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/admin/students")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .param("nickname", "준호")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "current_count": 1,
                      "current_page": 1,
@@ -208,120 +196,99 @@ public class AdminUserApiTest extends AcceptanceTest {
                      "total_count": 1,
                      "total_page": 1
                  }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("관리자가 로그인 한다.")
-    void adminLogin() {
+    void 관리자가_로그인_한다() throws Exception {
         User adminUser = userFixture.코인_운영자();
         String email = adminUser.getEmail();
         String password = "1234";
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .body("""
-                {
-                  "email" : "%s",
-                  "password" : "%s"
-                }
-                """.formatted(email, password))
-            .when()
-            .post("/admin/user/login")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/admin/user/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                          "email" : "%s",
+                          "password" : "%s"
+                        }
+                        """.formatted(email, password))
+            )
+            .andExpect(status().isCreated());
     }
 
     @Test
-    @DisplayName("관리자가 로그인 한다. - 관리자가 아니면 404 반환")
-    void adminLoginNoAuth() {
+    void 관리자가_로그인_한다_관리자가_아니면_404_반환() throws Exception {
         Student student = userFixture.준호_학생();
         String email = student.getUser().getEmail();
         String password = "1234";
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .body("""
-                {
-                  "email" : "%s",
-                  "password" : "%s"
-                }
-                """.formatted(email, password))
-            .when()
-            .post("/admin/user/login")
-            .then()
-            .statusCode(HttpStatus.NOT_FOUND.value())
-            .extract();
+        mockMvc.perform(
+                post("/admin/user/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                          "email" : "%s",
+                          "password" : "%s"
+                        }
+                        """.formatted(email, password))
+            )
+            .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("관리자가 로그아웃한다")
-    void adminLogout() {
+    void 관리자가_로그아웃한다() throws Exception {
         User adminUser = userFixture.코인_운영자();
 
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/admin/user/logout")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                post("/admin/user/logout")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("관리자가 액세스 토큰 재발급 한다")
-    void adminRefresh() {
+    void 관리자가_액세스_토큰_재발급_한다() throws Exception {
         User adminUser = userFixture.코인_운영자();
         String email = adminUser.getEmail();
         String password = "1234";
 
         String token = userFixture.getToken(adminUser);
 
-        var loginResponse = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .body("""
-                {
-                  "email" : "%s",
-                  "password" : "%s"
-                }
-                """.formatted(email, password))
-            .when()
-            .post("/admin/user/login")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract()
-            .response();
+        MvcResult result = mockMvc.perform(
+                post("/admin/user/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                          "email" : "%s",
+                          "password" : "%s"
+                        }
+                        """.formatted(email, password))
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
 
-        String refreshToken = loginResponse.jsonPath().getString("refresh_token");
+        JsonNode loginJsonNode = JsonAssertions.convertJsonNode(result);
 
-        var refreshResponse = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
-                {
-                  "refresh_token" : "%s"
-                }
-                """.formatted(refreshToken))
-            .when()
-            .post("/admin/user/refresh")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/admin/user/refresh")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                          "refresh_token" : "%s"
+                        }
+                        """.formatted(loginJsonNode.get("refresh_token").asText()))
+            )
+            .andExpect(status().isCreated());
     }
 
-
     @Test
-    @DisplayName("관리자가 사장님 권한 요청을 허용한다.")
-    void allowOwnerPermission() {
+    void 관리자가_사장님_권한_요청을_허용한다() throws Exception {
         Owner owner = userFixture.철수_사장님();
         Shop shop = shopFixture.마슬랜(null);
 
@@ -335,15 +302,11 @@ public class AdminUserApiTest extends AcceptanceTest {
 
         ownerShopRedisRepository.save(ownerShop);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .pathParam("id", owner.getUser().getId())
-            .put("/admin/owner/{id}/authed")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                put("/admin/owner/{id}/authed", owner.getUser().getId())
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk());
 
         //영속성 컨테스트 동기화
         Owner updatedOwner = adminOwnerRepository.getById(owner.getId());
@@ -359,44 +322,32 @@ public class AdminUserApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("관리자가 특정 학생 정보를 조회한다. - 관리자가 아니면 403 반환")
-    void studentUpdateAdminNoAuth() {
+    void 관리자가_특정_학생_정보를_조회한다_관리자가_아니면_403_반환() throws Exception {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .when()
-            .pathParam("id", student.getUser().getId())
-            .get("/admin/users/student/{id}")
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
+        mockMvc.perform(
+                get("/admin/users/student/{id}", student.getUser().getId())
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("관리자가 특정 학생 정보를 조회한다.")
-    void studentGetAdmin() {
+    void 관리자가_특정_학생_정보를_조회한다() throws Exception {
         Student student = userFixture.준호_학생();
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .when()
-            .pathParam("id", student.getUser().getId())
-            .get("/admin/users/student/{id}")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/admin/users/student/{id}", student.getUser().getId())
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "anonymous_nickname": "익명",
                     "created_at": "2024-01-15 12:00:00",
@@ -414,38 +365,45 @@ public class AdminUserApiTest extends AcceptanceTest {
                     "updated_at": "2024-01-15 12:00:00",
                     "user_type": "STUDENT"
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("관리자가 특정 학생 정보를 수정한다.")
-    void studentUpdateAdmin() {
+    void 관리자가_특정_학생_정보를_수정한다() throws Exception {
         Student student = userFixture.준호_학생();
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
-                  {
-                    "gender" : 1,
-                    "major" : "기계공학부",
-                    "name" : "서정빈",
-                    "password" : "0c4be6acaba1839d3433c1ccf04e1eec4d1fa841ee37cb019addc269e8bc1b77",
-                    "nickname" : "duehee",
-                    "phone_number" : "01023456789",
-                    "student_number" : "2019136136"
-                  }
-                """)
-            .when()
-            .pathParam("id", student.getUser().getId())
-            .put("/admin/users/student/{id}")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                put("/admin/users/student/{id}", student.getUser().getId())
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                          {
+                            "gender" : 1,
+                            "major" : "기계공학부",
+                            "name" : "서정빈",
+                            "password" : "0c4be6acaba1839d3433c1ccf04e1eec4d1fa841ee37cb019addc269e8bc1b77",
+                            "nickname" : "duehee",
+                            "phone_number" : "01023456789",
+                            "student_number" : "2019136136"
+                          }
+                        """)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
+                    "anonymous_nickname": "익명",
+                    "email": "juno@koreatech.ac.kr",
+                    "gender": 1,
+                    "major": "기계공학부",
+                    "name": "서정빈",
+                    "nickname": "duehee",
+                    "phone_number": "01023456789",
+                    "student_number": "2019136136"
+                }
+                """));
 
         transactionTemplate.executeWithoutResult(status -> {
             Student result = adminStudentRepository.getById(student.getId());
@@ -458,43 +416,22 @@ public class AdminUserApiTest extends AcceptanceTest {
                 }
             );
         });
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                {
-                    "anonymous_nickname": "익명",
-                    "email": "juno@koreatech.ac.kr",
-                    "gender": 1,
-                    "major": "기계공학부",
-                    "name": "서정빈",
-                    "nickname": "duehee",
-                    "phone_number": "01023456789",
-                    "student_number": "2019136136"
-                }
-                """);
     }
 
     @Test
-    @DisplayName("관리자가 특정 사장을 조회한다.")
-    void getOwnerAdmin() {
+    void 관리자가_특정_사장을_조회한다() throws Exception {
         Owner owner = userFixture.현수_사장님();
         Shop shop = shopFixture.마슬랜(owner);
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .pathParam("id", owner.getUser().getId())
-            .get("/admin/users/owner/{id}")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(
+                get("/admin/users/owner/{id}", owner.getUser().getId())
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                 {
                     "id": 1,
                     "email": "hysoo@naver.com",
@@ -516,39 +453,31 @@ public class AdminUserApiTest extends AcceptanceTest {
                     "updated_at" : "2024-01-15 12:00:00",
                     "last_logged_at" : null
                 }
-                """, shop.getId()
-            ));
+                """, shop.getId())));
     }
 
     @Test
-    @DisplayName("관리자가 특정 사장을 수정한다.")
-    void updateOwner() {
+    void 관리자가_특정_사장을_수정한다() throws Exception {
         Owner owner = userFixture.현수_사장님();
         Shop shop = shopFixture.마슬랜(owner);
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
-                  {
-                    "company_registration_number" : "123-45-67190",
-                    "grant_shop" : "false",
-                    "grant_event" : "false"
-                  }
-                """)
-            .when()
-            .pathParam("id", owner.getUser().getId())
-            .put("/admin/users/owner/{id}")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                put("/admin/users/owner/{id}", owner.getUser().getId())
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                          {
+                            "company_registration_number" : "123-45-67190",
+                            "grant_shop" : "false",
+                            "grant_event" : "false"
+                          }
+                        """)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "company_registration_number" : "123-45-67190",
                     "email" : "hysoo@naver.com",
@@ -559,12 +488,11 @@ public class AdminUserApiTest extends AcceptanceTest {
                     "nickname" : "현수",
                     "phone_number" : "01098765432"
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("관리자가 가입 신청한 사장님 리스트 조회한다.")
-    void getNewOwnersAdmin() {
+    void 관리자가_가입_신청한_사장님_리스트_조회한다() throws Exception {
         Owner owner = userFixture.철수_사장님();
         Shop shop = shopFixture.마슬랜(null);
 
@@ -572,26 +500,21 @@ public class AdminUserApiTest extends AcceptanceTest {
         String token = userFixture.getToken(adminUser);
 
         OwnerShop ownerShop = OwnerShop.builder()
-                .ownerId(owner.getId())
-                .shopId(shop.getId())
-                .build();
+            .ownerId(owner.getId())
+            .shopId(shop.getId())
+            .build();
 
         ownerShopRedisRepository.save(ownerShop);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .param("searchType", "NAME")
-            .param("query", "철수")
-            .param("sort", "CREATED_AT_DESC")
-            .get("/admin/users/new-owners")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(
+                get("/admin/users/new-owners")
+                    .header("Authorization", "Bearer " + token)
+                    .param("searchType", "NAME")
+                    .param("query", "철수")
+                    .param("sort", "CREATED_AT_DESC")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "total_count": 1,
                     "current_count": 1,
@@ -609,14 +532,11 @@ public class AdminUserApiTest extends AcceptanceTest {
                         }
                     ]
                 }
-                """
-            ));
+                """));
     }
 
     @Test
-    @DisplayName("관리자가 가입 신청한 사장님 리스트 조회한다 - V2")
-    void getNewOwnersAdminV2() {
-
+    void 관리자가_가입_신청한_사장님_리스트_조회한다_V2() throws Exception {
         for (int i = 0; i < 11; i++) {
             User user = User.builder()
                 .password(passwordEncoder.encode("1234"))
@@ -659,29 +579,20 @@ public class AdminUserApiTest extends AcceptanceTest {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/admin/users/new-owners")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getInt("total_count")).isEqualTo(11);
-                softly.assertThat(response.body().jsonPath().getInt("current_count")).isEqualTo(10);
-                softly.assertThat(response.body().jsonPath().getInt("total_page")).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getInt("current_page")).isEqualTo(1);
-                softly.assertThat(response.body().jsonPath().getList("owners").size()).isEqualTo(10);
-            }
-        );
+        mockMvc.perform(
+                get("/admin/users/new-owners")
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.total_count").value(11))
+            .andExpect(jsonPath("$.current_count").value(10))
+            .andExpect(jsonPath("$.total_page").value(2))
+            .andExpect(jsonPath("$.current_page").value(1))
+            .andExpect(jsonPath("$.owners.length()").value(10));
     }
 
     @Test
-    @DisplayName("관리자가 가입 사장님 리스트 조회한다")
-    void getOwnersAdmin() {
+    void 관리자가_가입_사장님_리스트_조회한다() throws Exception {
         for (int i = 0; i < 11; i++) {
             User user = User.builder()
                 .password(passwordEncoder.encode("1234"))
@@ -724,72 +635,50 @@ public class AdminUserApiTest extends AcceptanceTest {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/admin/users/owners")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                get("/admin/users/owners")
+                    .header("Authorization", "Bearer " + token)
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getInt("total_count")).isEqualTo(11);
-                softly.assertThat(response.body().jsonPath().getInt("current_count")).isEqualTo(10);
-                softly.assertThat(response.body().jsonPath().getInt("total_page")).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getInt("current_page")).isEqualTo(1);
-                softly.assertThat(response.body().jsonPath().getList("owners").size()).isEqualTo(10);
-            }
-        );
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.total_count").value(11))
+            .andExpect(jsonPath("$.current_count").value(10))
+            .andExpect(jsonPath("$.total_page").value(2))
+            .andExpect(jsonPath("$.current_page").value(1))
+            .andExpect(jsonPath("$.owners.length()").value(10));
     }
 
     @Test
-    @DisplayName("관리자가 회원을 조회한다.")
-    void getUser() {
+    void 관리자가_회원을_조회한다() throws Exception {
         Student student = userFixture.준호_학생();
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .pathParam("id", student.getUser().getId())
-            .get("/admin/users/{id}")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("nickname")).isEqualTo("준호");
-                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo("테스트용_준호");
-                softly.assertThat(response.body().jsonPath().getString("phoneNumber")).isEqualTo("01012345678");
-                softly.assertThat(response.body().jsonPath().getString("email")).isEqualTo("juno@koreatech.ac.kr");
-            }
-        );
+        mockMvc.perform(
+                get("/admin/users/{id}", student.getUser().getId())
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.nickname").value("준호"))
+            .andExpect(jsonPath("$.name").value("테스트용_준호"))
+            .andExpect(jsonPath("$.phoneNumber").value("01012345678"))
+            .andExpect(jsonPath("$.email").value("juno@koreatech.ac.kr"));
     }
 
     @Test
-    @DisplayName("관리자가 회원을 삭제한다.")
-    void deleteUser() {
+    void 관리자가_회원을_삭제한다() throws Exception {
         Student student = userFixture.준호_학생();
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .when()
-            .pathParam("id", student.getUser().getId())
-            .delete("/admin/users/{id}")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                delete("/admin/users/{id}", student.getUser().getId())
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
 
         assertThat(adminUserRepository.findById(student.getId())).isNotPresent();
     }
