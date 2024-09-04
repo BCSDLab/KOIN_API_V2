@@ -42,6 +42,7 @@ public class NotificationService {
             notification.getMessage(),
             notification.getImageUrl(),
             notification.getMobileAppPath(),
+            notification.getSchemeUri(),
             notification.getType()
         );
     }

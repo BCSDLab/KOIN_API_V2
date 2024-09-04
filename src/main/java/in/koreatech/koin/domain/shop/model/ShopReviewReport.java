@@ -62,4 +62,8 @@ public class ShopReviewReport extends BaseEntity {
         this.reportStatus = reportStatus;
         this.userId = userId;
     }
+
+    public void modifyReportStatus(ReportStatus reportStatus) {
+        this.reportStatus = reportStatus;
+    }
 }

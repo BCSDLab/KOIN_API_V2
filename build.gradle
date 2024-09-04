@@ -78,6 +78,15 @@ dependencies {
     // resilience4j
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.1.0'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+}
+
+clean {
+    delete file('src/main/generated')
 }
 
 tasks.named('bootBuildImage') {

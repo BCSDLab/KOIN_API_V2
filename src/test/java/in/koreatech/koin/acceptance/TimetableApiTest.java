@@ -48,6 +48,8 @@ class TimetableApiTest extends AcceptanceTest {
     @Test
     @DisplayName("특정 학기 강의를 조회한다")
     void getSemesterLecture() {
+        semesterFixture.semester("20192");
+        semesterFixture.semester("20201");
         String semester = "20201";
         lectureFixture.HRD_개론(semester);
         lectureFixture.건축구조의_이해_및_실습("20192");
@@ -88,6 +90,7 @@ class TimetableApiTest extends AcceptanceTest {
     @Test
     @DisplayName("특정 학기 강의들을 조회한다")
     void getSemesterLectures() {
+        semesterFixture.semester("20201");
         String semester = "20201";
         lectureFixture.HRD_개론(semester);
         lectureFixture.건축구조의_이해_및_실습(semester);
@@ -178,12 +181,36 @@ class TimetableApiTest extends AcceptanceTest {
     }
 
     @Test
+    @DisplayName("계절학기를 조회하면 빈 리스트로 반환한다.")
+    void getSeasonLecture() {
+        semesterFixture.semester("20241");
+        semesterFixture.semester("20242");
+        semesterFixture.semester("2024-여름");
+        semesterFixture.semester("2024-겨울");
+
+        var Response = RestAssured
+                .given()
+                .when()
+                .param("semester_date", "2024-여름")
+                .get("/lectures")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+
+        JsonAssertions.assertThat(Response.asPrettyString())
+                .isEqualTo("[]");
+    }
+
+    @Test
     @DisplayName("모든 학기를 조회한다.")
     void findAllSemesters() {
-        semesterFixture.semester("20221");
-        semesterFixture.semester("20222");
+        semesterFixture.semester("20241");
+        semesterFixture.semester("20242");
+        semesterFixture.semester("2024-여름");
         semesterFixture.semester("20231");
         semesterFixture.semester("20232");
+        semesterFixture.semester("2023-여름");
+        semesterFixture.semester("2023-겨울");
 
         var response = RestAssured
             .given()
@@ -197,20 +224,32 @@ class TimetableApiTest extends AcceptanceTest {
             .isEqualTo("""
                 [
                     {
-                        "id": 4,
-                        "semester": "20232"
+                        "id": 2,
+                        "semester": "20242"
                     },
                     {
                         "id": 3,
-                        "semester": "20231"
-                    },
-                    {
-                        "id": 2,
-                        "semester": "20222"
+                        "semester": "2024-여름"
                     },
                     {
                         "id": 1,
-                        "semester": "20221"
+                        "semester": "20241"
+                    },
+                    {
+                        "id": 7,
+                        "semester": "2023-겨울"
+                    },
+                    {
+                        "id": 5,
+                        "semester": "20232"
+                    },
+                    {
+                        "id": 6,
+                        "semester": "2023-여름"
+                    },
+                    {
+                        "id": 4,
+                        "semester": "20231"
                     }
                 ]
                 """);

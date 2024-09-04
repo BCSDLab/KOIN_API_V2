@@ -6,12 +6,10 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 import in.koreatech.koin.domain.shop.model.ShopReview;
-import io.lettuce.core.dynamic.annotation.Param;
 
 public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
 
@@ -31,67 +29,13 @@ public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
             .orElseThrow(() -> ReviewNotFoundException.withDetail(String.format("reviewId: %s", reviewId)));
     }
 
-    @Query("""
-           SELECT sr FROM ShopReview sr 
-           WHERE sr.shop.id = :shopId 
-           AND sr.isDeleted = false
-           AND sr.reviewer.id = :studentId
-           AND NOT EXISTS (
-               SELECT r FROM ShopReviewReport r 
-               WHERE r.review.id = sr.id 
-               AND r.reportStatus != 'DISMISSED'
-           )
-           """)
-    List<ShopReview> findAllMyReviewsByShopIdNotContainReportedAndIsDeletedFalse(
-        @Param("shopId") Integer shopId,
-        @Param("studentId") Integer studentId,
-        Sort sort
-    );
+    List<ShopReview> findByShopIdAndReviewerIdAndIsDeletedFalse(Integer shopId, Integer studentId, Sort sort);
 
-    @Query("""
-           SELECT sr FROM ShopReview sr 
-           WHERE sr.shop.id = :shopId 
-           AND sr.isDeleted = false
-           AND NOT EXISTS (
-               SELECT r FROM ShopReviewReport r 
-               WHERE r.review.id = sr.id 
-               AND r.reportStatus != 'DISMISSED'
-           )
-           """)
-    Page<ShopReview> findAllByShopIdNotContainReportedAndIsDeletedFalse(
-        @Param("shopId") Integer shopId,
-        Pageable pageable
-    );
+    Page<ShopReview> findByShopIdAndIsDeletedFalse(Integer shopId, Pageable pageable);
 
-    @Query("""
-       SELECT COUNT(sr) FROM ShopReview sr 
-       WHERE sr.shop.id = :shopId
-       AND sr.isDeleted = false 
-       AND NOT EXISTS (
-           SELECT r FROM ShopReviewReport r 
-           WHERE r.review.id = sr.id 
-           AND r.reportStatus != 'DISMISSED'
-       )
-       """)
-    Integer countByShopIdNotContainReportedAndIsDeletedFalse(
-        @Param("shopId") Integer shopId
-        );
+    Integer countByShopIdAndIsDeletedFalse(Integer shopId);
 
-    @Query("""
-           SELECT COUNT(sr) FROM ShopReview sr 
-           WHERE sr.shop.id = :shopId 
-           AND sr.isDeleted = false
-           AND NOT EXISTS (
-               SELECT r FROM ShopReviewReport r 
-               WHERE r.review.id = sr.id 
-               AND r.reportStatus != 'DISMISSED'
-               )
-           AND sr.rating = :rating
-           """)
-    Integer countReviewRatingNotContainReportedAndIsDeletedFalse(
-        @Param("shopId") Integer shopId,
-        @Param("rating") Integer rating
-    );
+    Integer countByShopIdAndRatingAndIsDeletedFalse(Integer shopId, Integer rating);
 
     Optional<ShopReview> findById(Integer reviewId);
 }

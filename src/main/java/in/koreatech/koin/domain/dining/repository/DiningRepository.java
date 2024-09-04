@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.coop.exception.MenuNotFoundException;
@@ -26,4 +28,9 @@ public interface DiningRepository extends Repository<Dining, Integer> {
     List<Dining> findAllByDateAndType(LocalDate date, DiningType type);
 
     boolean existsByDateAndTypeAndImageUrlIsNotNull(LocalDate date, DiningType type);
+
+    Long count();
+
+    Page<Dining> findAllByMenuContainingAndPlaceInAndDateAfter(String keyword, List<String> diningPlaces,
+        LocalDate oneYearAgo, Pageable pageable);
 }

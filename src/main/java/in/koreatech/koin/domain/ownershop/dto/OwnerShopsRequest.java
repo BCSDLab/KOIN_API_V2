@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.Shop;
+import in.koreatech.koin.global.validation.NotBlankElement;
 import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
 import in.koreatech.koin.global.validation.ValidDayOfWeek;
@@ -50,6 +51,8 @@ public record OwnerShopsRequest(
         [ "https://testimage.com" ]
         """, requiredMode = REQUIRED)
     @UniqueUrl(message = "이미지 URL은 중복될 수 없습니다.")
+    @NotNull(message = "이미지 URL은 null일 수 없습니다.")
+    @NotBlankElement(message = "빈 요소가 존재할 수 없습니다.")
     List<String> imageUrls,
 
     @Schema(description = "가게명", example = "써니 숯불 도시락", requiredMode = REQUIRED)
@@ -57,7 +60,7 @@ public record OwnerShopsRequest(
     String name,
 
     @Schema(description = "요일별 운영 시간과 휴무 여부", requiredMode = REQUIRED)
-    @Size(min = 7, max = 7, message = "The list must contain exactly 7 elements.")
+    @Size(min = 7, max = 7, message = "요일별 운영 시간은 7개여야 합니다.")
     @NotNull
     @Valid
     List<InnerOpenRequest> open,

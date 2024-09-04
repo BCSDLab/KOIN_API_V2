@@ -52,12 +52,12 @@ public class DiningFixture {
         );
     }
 
-    public Dining A코스_점심(LocalDate date) {
+    public Dining A코너_점심(LocalDate date) {
         return diningRepository.save(
             Dining.builder()
                 .date(date)
                 .type(LUNCH)
-                .place("A코스")
+                .place("A코너")
                 .priceCard(6000)
                 .priceCash(6000)
                 .kcal(881)
@@ -68,12 +68,12 @@ public class DiningFixture {
         );
     }
 
-    public Dining A코스_저녁(LocalDate date) {
+    public Dining A코너_저녁(LocalDate date) {
         return diningRepository.save(
             Dining.builder()
                 .date(date)
                 .type(DINNER)
-                .place("A코스")
+                .place("A코너")
                 .priceCard(6000)
                 .priceCash(6000)
                 .kcal(881)
@@ -84,12 +84,12 @@ public class DiningFixture {
         );
     }
 
-    public Dining B코스_점심(LocalDate date) {
+    public Dining B코너_점심(LocalDate date) {
         return diningRepository.save(
             Dining.builder()
                 .date(date)
                 .type(LUNCH)
-                .place("B코스")
+                .place("B코너")
                 .priceCard(6000)
                 .priceCash(6000)
                 .kcal(881)

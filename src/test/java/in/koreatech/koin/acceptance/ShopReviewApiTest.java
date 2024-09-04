@@ -3,6 +3,8 @@ package in.koreatech.koin.acceptance;
 import static in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED;
 import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
 
@@ -128,9 +130,36 @@ class ShopReviewApiTest extends AcceptanceTest {
                         .isEqualTo("https://static.koreatech.in/example.png");
                     softly.assertThat(shopReview.getMenus().get(0).getMenuName()).isEqualTo("치킨");
                     softly.assertThat(shopReview.getMenus().get(1).getMenuName()).isEqualTo("피자");
+                    verify(reviewEventListener).onReviewRegister(any());
                 }
             );
         });
+    }
+
+    @Test
+    void 리뷰를_등록할_때_메뉴명을_공백으로_입력하면_예외가_발생한다() {
+        var response = RestAssured
+            .given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token_준호)
+            .body(String.format("""
+                {
+                  "rating": 4,
+                  "content": "정말 맛있어요~!",
+                  "image_urls": [
+                    "https://static.koreatech.in/example.png"
+                  ],
+                  "menu_names": [
+                    " "
+                  ]
+                }
+                """))
+            .when()
+            .pathParam("shopId", 신전_떡볶이.getId())
+            .post("/shops/{shopId}/reviews")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .extract();
     }
 
     @Test
@@ -169,6 +198,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                         .isEqualTo("https://static.koreatech.in/example.png");
                     softly.assertThat(shopReview.getMenus().get(0).getMenuName()).isEqualTo("치킨");
                     softly.assertThat(shopReview.getMenus().get(1).getMenuName()).isEqualTo("피자");
+                    verify(reviewEventListener).onReviewRegister(any());
                 }
             );
         });
@@ -262,6 +292,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": true,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },
                          {
@@ -277,6 +308,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          }
                        ]
@@ -298,8 +330,7 @@ class ShopReviewApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("신고된 리뷰를 제외한 모든 리뷰를 조회할 수 있다.")
-    void getReviewWithoutReportedReviews() {
+    void 신고된_리뷰는_is_reported_가_true_이다() {
         ShopReviewReport shopReviewReport = shopReviewReportFixture.리뷰_신고(준호_학생, 익명_학생_리뷰, UNHANDLED);
         var response = RestAssured
             .given()
@@ -317,8 +348,8 @@ class ShopReviewApiTest extends AcceptanceTest {
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo(String.format("""
                     {
-                       "total_count": 1,
-                       "current_count": 1,
+                       "total_count": 2,
+                       "current_count": 2,
                        "total_page": 1,
                        "current_page": 1,
                        "statistics": {
@@ -327,7 +358,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            "1": 0,
                            "2": 0,
                            "3": 0,
-                           "4": 1,
+                           "4": 2,
                            "5": 0
                          }
                        },
@@ -345,6 +376,23 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": true,
                            "is_modified": false,
+                           "is_reported": false,
+                           "created_at": "2024-01-15"
+                         },
+                         {
+                           "review_id": %d,
+                           "rating": %d,
+                           "nick_name": "%s",
+                           "content": "%s",
+                           "image_urls": [
+                             "%s"
+                           ],
+                           "menu_names": [
+                             "%s"
+                           ],
+                           "is_mine": false,
+                           "is_modified": false,
+                           "is_reported": true,
                            "created_at": "2024-01-15"
                          }
                        ]
@@ -355,7 +403,13 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getReviewer().getUser().getNickname(),
                 준호_학생_리뷰.getContent(),
                 준호_학생_리뷰.getImages().get(0).getImageUrls(),
-                준호_학생_리뷰.getMenus().get(0).getMenuName())
+                준호_학생_리뷰.getMenus().get(0).getMenuName(),
+                익명_학생_리뷰.getId(),
+                익명_학생_리뷰.getRating(),
+                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
+                익명_학생_리뷰.getContent(),
+                익명_학생_리뷰.getImages().get(0).getImageUrls(),
+                익명_학생_리뷰.getMenus().get(0).getMenuName())
             );
     }
 
@@ -405,6 +459,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },
                          {
@@ -420,6 +475,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          }
                        ]
@@ -529,6 +585,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                     softly.assertThat(shopReviewReport2.get().getTitle()).isEqualTo("스팸");
                     softly.assertThat(shopReviewReport2.get().getContent()).isEqualTo("광고가 포함된 리뷰입니다.");
                     softly.assertThat(shopReviewReport2.get().getReportStatus()).isEqualTo(UNHANDLED);
+                    verify(reviewEventListener).onReviewReportRegister(any());
                 }
             );
         });
@@ -561,7 +618,7 @@ class ShopReviewApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 신고가_반려된_리뷰는_포함해서_모든_리뷰를_조회한다() {
+    void 신고가_반려된_리뷰는_is_reported_가_false_이다() {
         ShopReviewReport shopReviewReport = shopReviewReportFixture.리뷰_신고(준호_학생, 익명_학생_리뷰, DISMISSED);
         var response = RestAssured
             .given()
@@ -607,6 +664,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": true,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },{ 
                            "review_id": %d,
@@ -621,6 +679,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          }
                        ]
@@ -728,6 +787,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-08-07"
                          },
                          {
@@ -743,6 +803,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },
                          {
@@ -758,6 +819,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          }
                        ]
@@ -831,6 +893,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },
                          {
@@ -846,6 +909,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },
                          {
@@ -861,6 +925,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-08-07"
                          }
                        ]
@@ -934,6 +999,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },
                          {
@@ -949,6 +1015,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },
                          {
@@ -964,6 +1031,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          }
                        ]
@@ -1037,6 +1105,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },
                          {
@@ -1052,6 +1121,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          },
                          {
@@ -1067,6 +1137,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                            ],
                            "is_mine": false,
                            "is_modified": false,
+                           "is_reported": false,
                            "created_at": "2024-01-15"
                          }
                        ]
@@ -1364,4 +1435,5 @@ class ShopReviewApiTest extends AcceptanceTest {
                 리뷰_5점.getMenus().get(0).getMenuName())
             );
     }
+
 }

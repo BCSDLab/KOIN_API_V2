@@ -14,7 +14,8 @@ import lombok.Getter;
 public enum NotificationSubscribeType {
     SHOP_EVENT(List.of()),
     DINING_SOLD_OUT(List.of(BREAKFAST, LUNCH, DINNER)),
-    DINING_IMAGE_UPLOAD(List.of())
+    DINING_IMAGE_UPLOAD(List.of()),
+    ARTICLE_KEYWORD(List.of())
     ;
 
     private final List<NotificationDetailSubscribeType> detailTypes;

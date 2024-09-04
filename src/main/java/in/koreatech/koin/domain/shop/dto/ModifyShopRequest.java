@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.global.validation.NotBlankElement;
 import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
 import in.koreatech.koin.global.validation.ValidDayOfWeek;
@@ -50,6 +51,8 @@ public record ModifyShopRequest(
         [ "https://static.koreatech.in/example.png" ]
         """, requiredMode = NOT_REQUIRED)
     @UniqueUrl(message = "이미지 URL은 중복될 수 없습니다.")
+    @NotNull(message = "이미지 URL은 null일 수 없습니다.")
+    @NotBlankElement(message = "빈 요소가 존재할 수 없습니다.")
     List<String> imageUrls,
 
     @Schema(example = "수신반점", description = "이름", requiredMode = REQUIRED)

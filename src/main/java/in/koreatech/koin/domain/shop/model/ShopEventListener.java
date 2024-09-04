@@ -29,12 +29,14 @@ public class ShopEventListener {
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onShopEventCreate(EventArticleCreateShopEvent event) {
+        String schemeUri = String.format("%s?id=%s", SHOP.name(), event.shopId());
         List<Notification> notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailType(SHOP_EVENT, null)
             .stream()
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .map(subscribe -> notificationFactory.generateShopEventCreateNotification(
                 SHOP,
+                schemeUri,
                 event.thumbnailImage(),
                 event.shopName(),
                 event.title(),

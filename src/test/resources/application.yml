@@ -61,7 +61,10 @@ s3:
 
 koin:
   admin:
-    url: https://admin-url-path.com
+    shop:
+      url: https://admin-url-path.com
+    review:
+      url: https://admin-url-path.com
 
 cors:
   allowedOrigins:

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ import in.koreatech.koin.domain.shop.dto.ShopReviewReportRequest;
 import in.koreatech.koin.domain.shop.dto.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.ShopReviewsResponse;
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
+import in.koreatech.koin.domain.shop.model.ReviewRegisterEvent;
+import in.koreatech.koin.domain.shop.model.ReviewReportEvent;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopReview;
 import in.koreatech.koin.domain.shop.model.ShopReviewImage;
@@ -53,18 +56,25 @@ public class ShopReviewService {
     private final ShopReviewReportRepository shopReviewReportRepository;
     private final ShopReviewReportCategoryRepository shopReviewReportCategoryRepository;
     private final StudentRepository studentRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     private final EntityManager entityManager;
 
-    public ShopReviewsResponse getReviewsByShopId(Integer shopId, Integer userId, Integer page, Integer limit, ReviewsSortCriteria sortBy) {
-        Integer total = shopReviewRepository.countByShopIdNotContainReportedAndIsDeletedFalse(shopId);
+    public ShopReviewsResponse getReviewsByShopId(
+        Integer shopId,
+        Integer userId,
+        Integer page,
+        Integer limit,
+        ReviewsSortCriteria sortBy
+    ) {
+        Integer total = shopReviewRepository.countByShopIdAndIsDeletedFalse(shopId);
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(
             criteria.getPage(),
             criteria.getLimit(),
             sortBy.getSort()
         );
-        Page<ShopReview> result = shopReviewRepository.findAllByShopIdNotContainReportedAndIsDeletedFalse(
+        Page<ShopReview> result = shopReviewRepository.findByShopIdAndIsDeletedFalse(
             shopId,
             pageRequest
         );
@@ -95,6 +105,7 @@ public class ShopReviewService {
                 .menuName(menuName)
                 .build());
         }
+        eventPublisher.publishEvent(ReviewRegisterEvent.from(savedShopReview));
     }
 
     @Transactional
@@ -140,6 +151,7 @@ public class ShopReviewService {
                     .build()
             );
         }
+        eventPublisher.publishEvent(new ReviewReportEvent(shopReview.getShop().getName()));
     }
 
     public ShopReviewReportCategoryResponse getReviewReportCategories() {
@@ -156,24 +168,22 @@ public class ShopReviewService {
             5, 0
         ));
         for (Integer rating : ratings.keySet()) {
-            Integer count = shopReviewRepository.countReviewRatingNotContainReportedAndIsDeletedFalse(shopId, rating);
+            Integer count = shopReviewRepository.countByShopIdAndRatingAndIsDeletedFalse(shopId, rating);
             ratings.put(rating, count);
         }
         return ratings;
     }
 
-    public ShopReviewResponse getReviewByReviewId(Integer shopId, Integer reviewId, Integer studentId) {
+    public ShopReviewResponse getReviewByReviewId(Integer shopId, Integer reviewId) {
         ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(reviewId);
-        if (!Objects.equals(shopReview.getShop().getId(), shopId) ||
-            !Objects.equals(shopReview.getReviewer().getId(), studentId)
-        ) {
+        if (!Objects.equals(shopReview.getShop().getId(), shopId)) {
             throw ReviewNotFoundException.withDetail("해당 상점의 리뷰가 아닙니다.");
         }
         return ShopReviewResponse.from(shopReview);
     }
 
     public ShopMyReviewsResponse getMyReviewsByShopId(Integer shopId, Integer studentId, ReviewsSortCriteria sortBy) {
-        List<ShopReview> reviews = shopReviewRepository.findAllMyReviewsByShopIdNotContainReportedAndIsDeletedFalse(
+        List<ShopReview> reviews = shopReviewRepository.findByShopIdAndReviewerIdAndIsDeletedFalse(
             shopId,
             studentId,
             sortBy.getSort()

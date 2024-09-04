@@ -8,6 +8,7 @@ import java.util.Optional;
 import in.koreatech.koin.global.exception.RequestTooFastException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.OptimisticLockException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +16,6 @@ import in.koreatech.koin.domain.timetable.dto.LectureResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableCreateRequest;
 import in.koreatech.koin.domain.timetable.dto.TimetableResponse;
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
-import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
@@ -42,13 +42,11 @@ public class TimetableService {
     private final EntityManager entityManager;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
+        semesterRepositoryV2.getBySemester(semester);
         List<Lecture> lectures = lectureRepositoryV2.findBySemester(semester);
-        if (lectures.isEmpty()) {
-            throw SemesterNotFoundException.withDetail(semester);
-        }
         return lectures.stream()
-                .map(LectureResponse::from)
-                .toList();
+            .map(LectureResponse::from)
+            .toList();
     }
 
     @Transactional
@@ -56,18 +54,18 @@ public class TimetableService {
         Semester semester = semesterRepositoryV2.getBySemester(request.semester());
         List<TimetableLecture> timetableLectures = new ArrayList<>();
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
-                semester.getId());
+            semester.getId());
 
         for (TimetableCreateRequest.InnerTimetableRequest timeTable : request.timetable()) {
             Lecture lecture = lectureRepositoryV2.getBySemesterAndCodeAndLectureClass(request.semester(),
-                    timeTable.code(), timeTable.lectureClass());
+                timeTable.code(), timeTable.lectureClass());
             TimetableLecture timetableLecture = TimetableLecture.builder()
-                    .classPlace(timeTable.classPlace())
-                    .grades("0")
-                    .memo(timeTable.memo())
-                    .lecture(lecture)
-                    .timetableFrame(timetableFrame)
-                    .build();
+                .classPlace(timeTable.classPlace())
+                .grades("0")
+                .memo(timeTable.memo())
+                .lecture(lecture)
+                .timetableFrame(timetableFrame)
+                .build();
 
             timetableLectures.add(timetableLectureRepositoryV2.save(timetableLecture));
         }
@@ -79,7 +77,7 @@ public class TimetableService {
     public TimetableResponse updateTimetables(Integer userId, TimetableUpdateRequest request) {
         Semester semester = semesterRepositoryV2.getBySemester(request.semester());
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
-                semester.getId());
+            semester.getId());
         for (TimetableUpdateRequest.InnerTimetableRequest timetableRequest : request.timetable()) {
             TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
             timetableLecture.update(timetableRequest);
@@ -93,22 +91,23 @@ public class TimetableService {
         Semester semester = semesterRepositoryV2.getBySemester(semesterRequest);
         User user = userRepository.getById(userId);
 
-        Optional<TimetableFrame> timetableFrame = timetableFrameRepositoryV2.findByUserIdAndSemesterIdAndIsMainTrue(userId,
-                semester.getId());
+        Optional<TimetableFrame> timetableFrame = timetableFrameRepositoryV2.findByUserIdAndSemesterIdAndIsMainTrue(
+            userId, semester.getId());
 
         if (timetableFrame.isEmpty()) {
             TimetableFrame newTimetableFrame = TimetableFrame
-                    .builder()
-                    .user(user)
-                    .semester(semester)
-                    .name("시간표1")
-                    .isMain(true)
-                    .isDeleted(false)
-                    .build();
+                .builder()
+                .user(user)
+                .semester(semester)
+                .name("시간표1")
+                .isMain(true)
+                .isDeleted(false)
+                .build();
             timetableFrameRepositoryV2.save(newTimetableFrame);
         }
 
-        TimetableFrame frame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId, semester.getId());
+        TimetableFrame frame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
+            semester.getId());
 
         return getTimetableResponse(userId, frame);
     }
@@ -133,37 +132,38 @@ public class TimetableService {
         int totalGrades = 0;
 
         List<TimetableLecture> timetableLectures = timetableLectureRepositoryV2.findAllByTimetableFrameId(
-                timetableFrame.getId());
+            timetableFrame.getId());
         grades = timetableLectures.stream()
-                .mapToInt(lecture -> Integer.parseInt(lecture.getLecture().getGrades()))
-                .sum();
+            .filter(lecture -> lecture.getLecture() != null)
+            .mapToInt(lecture -> Integer.parseInt(lecture.getLecture().getGrades()))
+            .sum();
 
         for (TimetableFrame timetableFrames : timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId)) {
             totalGrades += timetableLectureRepositoryV2.findAllByTimetableFrameId(timetableFrames.getId()).stream()
-                    .filter(lecture -> lecture.getLecture() != null)
-                    .mapToInt(lecture -> Integer.parseInt(lecture.getLecture().getGrades()))
-                    .sum();
+                .filter(lecture -> lecture.getLecture() != null)
+                .mapToInt(lecture -> Integer.parseInt(lecture.getLecture().getGrades()))
+                .sum();
         }
 
         return TimetableResponse.of(timetableLectures, timetableFrame, grades, totalGrades);
     }
 
     private TimetableResponse getTimetableResponse(Integer userId, TimetableFrame timetableFrame,
-                                                   List<TimetableLecture> timetableLectures) {
+        List<TimetableLecture> timetableLectures) {
         int grades = 0;
         int totalGrades = 0;
 
         if (timetableFrame.isMain()) {
             grades = timetableLectures.stream()
-                    .filter(lecture -> lecture.getLecture() != null)
-                    .mapToInt(lecture -> Integer.parseInt(lecture.getLecture().getGrades()))
-                    .sum();
+                .filter(lecture -> lecture.getLecture() != null)
+                .mapToInt(lecture -> Integer.parseInt(lecture.getLecture().getGrades()))
+                .sum();
         }
         for (TimetableFrame timetableFrames : timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId)) {
             totalGrades += timetableLectureRepositoryV2.findAllByTimetableFrameId(timetableFrames.getId()).stream()
-                    .filter(lecture -> lecture.getLecture() != null)
-                    .mapToInt(lecture -> Integer.parseInt(lecture.getLecture().getGrades()))
-                    .sum();
+                .filter(lecture -> lecture.getLecture() != null)
+                .mapToInt(lecture -> Integer.parseInt(lecture.getLecture().getGrades()))
+                .sum();
         }
 
         return TimetableResponse.of(timetableLectures, timetableFrame, grades, totalGrades);

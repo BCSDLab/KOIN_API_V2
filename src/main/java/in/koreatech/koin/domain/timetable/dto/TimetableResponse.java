@@ -73,22 +73,41 @@ public record TimetableResponse(
 
         public static List<InnerTimetableResponse> from(List<TimetableLecture> timetableLectures) {
             return timetableLectures.stream()
-                .map(timeTableLecture -> new InnerTimetableResponse(
-                        timeTableLecture.getId(),
-                        timeTableLecture.getLecture().getRegularNumber(),
-                        timeTableLecture.getLecture().getCode(),
-                        timeTableLecture.getLecture().getDesignScore(),
-                        parseIntegerClassTimesFromString(timeTableLecture.getLecture().getClassTime()),
-                        timeTableLecture.getClassPlace(),
-                        timeTableLecture.getMemo(),
-                        timeTableLecture.getLecture().getGrades(),
-                        timeTableLecture.getLecture().getName(),
-                        timeTableLecture.getLecture().getLectureClass(),
-                        timeTableLecture.getLecture().getTarget(),
-                        timeTableLecture.getLecture().getProfessor(),
-                        timeTableLecture.getLecture().getDepartment()
-                    )
-                )
+                .map(timeTableLecture -> {
+                    if (timeTableLecture.getLecture() == null) {
+                        return new InnerTimetableResponse(
+                            timeTableLecture.getId(),
+                            null,
+                            null,
+                            null,
+                            null,
+                            timeTableLecture.getClassPlace(),
+                            timeTableLecture.getMemo(),
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                        );
+                    } else {
+                        return new InnerTimetableResponse(
+                            timeTableLecture.getId(),
+                            timeTableLecture.getLecture().getRegularNumber(),
+                            timeTableLecture.getLecture().getCode(),
+                            timeTableLecture.getLecture().getDesignScore(),
+                            parseIntegerClassTimesFromString(timeTableLecture.getLecture().getClassTime()),
+                            timeTableLecture.getClassPlace(),
+                            timeTableLecture.getMemo(),
+                            timeTableLecture.getLecture().getGrades(),
+                            timeTableLecture.getLecture().getName(),
+                            timeTableLecture.getLecture().getLectureClass(),
+                            timeTableLecture.getLecture().getTarget(),
+                            timeTableLecture.getLecture().getProfessor(),
+                            timeTableLecture.getLecture().getDepartment()
+                        );
+                    }
+                })
                 .toList();
         }
     }

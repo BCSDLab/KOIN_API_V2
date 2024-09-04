@@ -189,8 +189,7 @@ public interface ShopApi {
     @GetMapping("/shops/{shopId}/reviews/{reviewId}")
     ResponseEntity<ShopReviewResponse> getReview(
         @Parameter(in = PATH) @PathVariable Integer shopId,
-        @Parameter(in = PATH) @PathVariable Integer reviewId,
-        @Auth(permit = {STUDENT}) Integer studentId
+        @Parameter(in = PATH) @PathVariable Integer reviewId
     );
 
     @ApiResponses(
