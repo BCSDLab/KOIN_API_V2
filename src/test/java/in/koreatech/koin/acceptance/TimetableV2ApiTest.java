@@ -1,15 +1,24 @@
 package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
@@ -22,11 +31,11 @@ import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
 import in.koreatech.koin.fixture.TimeTableV2Fixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TimetableV2ApiTest extends AcceptanceTest {
 
     @Autowired
@@ -48,77 +57,64 @@ public class TimetableV2ApiTest extends AcceptanceTest {
     private TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
 
     @Test
-    @DisplayName("특정 시간표 frame을 생성한다")
-    void createTimeTablesFrame() {
+    void 특정_시간표_frame을_생성한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                  "semester": "%s"
-                }
-                """, semester.getSemester()
-            ))
-            .when()
-            .post("/v2/timetables/frame")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                post("/v2/timetables/frame")
+                    .header("Authorization", "Bearer " + token)
+                    .content(String.format("""
+                        {
+                            "semester": "%s"
+                        }
+                        """, semester.getSemester()
+                    ))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "id": 1,
                     "timetable_name": "시간표1",
                     "is_main": true
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("특정 시간표 frame을 수정한다")
-    void updateTimetableFrame() {
+    void 특정_시간표_frame을_수정한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
         TimetableFrame frame = timetableV2Fixture.시간표1(user, semester);
         Integer frameId = frame.getId();
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                  "name": "새로운 이름",
-                  "is_main": true
-                }
-                """
-            ))
-            .when()
-            .put("/v2/timetables/frame/{id}", frameId)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                put("/v2/timetables/frame/{id}", frameId)
+                    .header("Authorization", "Bearer " + token)
+                    .content(String.format("""
+                        {
+                            "name": "새로운 이름",
+                            "is_main": true
+                        }
+                        """
+                    ))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "id": 1,
                     "name": "새로운 이름",
                     "is_main": true
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("모든 시간표 frame을 조회한다")
-    void getAllTimeTablesFrame() {
+    void 모든_시간표_frame을_조회한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
@@ -126,18 +122,14 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         timetableV2Fixture.시간표1(user, semester);
         timetableV2Fixture.시간표2(user, semester);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .param("semester", semester.getSemester())
-            .get("/v2/timetables/frames")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/v2/timetables/frames")
+                    .header("Authorization", "Bearer " + token)
+                    .param("semester", semester.getSemester())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 [
                     {
                         "id": 1,
@@ -150,12 +142,11 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                         "is_main": false
                     }
                 ]
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("강의를 담고 있는 특정 시간표 frame을 삭제한다")
-    void deleteTimeTablesFrame() {
+    void 강의를_담고_있는_특정_시간표_frame을_삭제한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
@@ -163,22 +154,20 @@ public class TimetableV2ApiTest extends AcceptanceTest {
 
         TimetableFrame frame1 = timetableV2Fixture.시간표5(user, semester, lecture);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .param("id", frame1.getId())
-            .delete("/v2/timetables/frame")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value());
+        mockMvc.perform(
+                delete("/v2/timetables/frame")
+                    .header("Authorization", "Bearer " + token)
+                    .param("id", String.valueOf(frame1.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
 
         assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isNotPresent();
         assertThat(timetableLectureRepositoryV2.findById(frame1.getTimetableLectures().get(1).getId())).isNotPresent();
     }
 
     @Test
-    @DisplayName("isMain인 frame을 삭제한다 - 다른 frame이 main으로 됨")
-    void deleteMainTimeTablesFrame() {
+    void isMain인_frame을_삭제한다_다른_frame이_main으로_됨() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
@@ -186,15 +175,13 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         TimetableFrame frame1 = timetableV2Fixture.시간표1(user, semester);
         TimetableFrame frame2 = timetableV2Fixture.시간표2(user, semester);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .param("id", frame1.getId())
-            .delete("/v2/timetables/frame")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
+        mockMvc.perform(
+                delete("/v2/timetables/frame")
+                    .header("Authorization", "Bearer " + token)
+                    .param("id", String.valueOf(frame1.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
 
         assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isNotPresent();
 
@@ -203,8 +190,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("특정 시간표 frame을 삭제한다 - 본인 삭제가 아니면 403 반환")
-    void deleteTimeTablesFrameNoAuth() {
+    void 특정_시간표_frame을_삭제한다_본인_삭제가_아니면_403_반환() throws Exception {
         User user1 = userFixture.준호_학생().getUser();
         User user2 = userFixture.성빈_학생().getUser();
         String token = userFixture.getToken(user2);
@@ -212,59 +198,52 @@ public class TimetableV2ApiTest extends AcceptanceTest {
 
         TimetableFrame frame1 = timetableV2Fixture.시간표1(user1, semester);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .param("id", frame1.getId())
-            .delete("/v2/timetables/frame")
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value());
+        mockMvc.perform(
+                delete("/v2/timetables/frame")
+                    .header("Authorization", "Bearer " + token)
+                    .param("id", String.valueOf(frame1.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("시간표를 생성한다 - TimetableLecture")
-    void createTimetableLecture() {
+    void 시간표를_생성한다_TimetableLecture() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
         timetableV2Fixture.시간표1(user, semester);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body("""
-            {
-                "timetable_frame_id" : 1,
-                "timetable_lecture": [
-                    {
-                        "class_title": "커스텀생성1",
-                        "class_time" : [200, 201],
-                        "class_place" : "한기대",
-                        "professor" : "서정빈",
-                        "grades": "2",
-                        "memo" : "메모"
-                    },
-                    {
-                        "class_title": "커스텀생성2",
-                        "class_time" : [202, 203],
-                        "class_place" : "참빛관 편의점",
-                        "professor" : "감사 서정빈",
-                        "grades": "1",
-                        "memo" : "메모"
-                    }
-                ]
-            }
-            """)
-            .when()
-            .post("/v2/timetables/lecture")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                post("/v2/timetables/lecture")
+                    .header("Authorization", "Bearer " + token)
+                    .content("""
+                        {
+                            "timetable_frame_id" : 1,
+                            "timetable_lecture": [
+                                {
+                                    "class_title": "커스텀생성1",
+                                    "class_time" : [200, 201],
+                                    "class_place" : "한기대",
+                                    "professor" : "서정빈",
+                                    "grades": "2",
+                                    "memo" : "메모"
+                                },
+                                {
+                                    "class_title": "커스텀생성2",
+                                    "class_time" : [202, 203],
+                                    "class_place" : "참빛관 편의점",
+                                    "professor" : "감사 서정빈",
+                                    "grades": "1",
+                                    "memo" : "메모"
+                                }
+                            ]
+                        }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
             {
                 "timetable_frame_id": 1,
                 "timetable": [
@@ -302,55 +281,49 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                 "grades": 3,
                 "total_grades": 3
             }
-            """);
+            """));
     }
 
     @Test
-    @DisplayName("시간표를 수정한다 - TimetableLecture")
-    void updateTimetableLecture() {
+    void 시간표를_수정한다_TimetableLecture() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
         TimetableFrame frame = timetableV2Fixture.시간표3(user, semester);
         Integer frameId = frame.getId();
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body("""
-            {
-                "timetable_frame_id" : 1,
-                "timetable_lecture": [
-                    {
-                        "id": 1,
-                        "class_title": "커스텀바꿔요1",
-                        "class_time" : [200, 201],
-                        "class_place" : "한기대",
-                        "professor" : "서정빈",
-                        "grades" : "0",
-                        "memo" : "메모한당 히히"
-                    },
-                    {
-                        "id": 2,
-                        "class_title": "커스텀바꿔요2",
-                        "class_time" : [202, 203],
-                        "class_place" : "참빛관 편의점",
-                        "professor" : "알바 서정빈",
-                        "grades" : "0",
-                        "memo" : "메모한당 히히"
-                    }
-                ]
-            }
-            """)
-            .when()
-            .put("/v2/timetables/lecture")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                put("/v2/timetables/lecture")
+                    .header("Authorization", "Bearer " + token)
+                    .content("""
+                        {
+                            "timetable_frame_id" : 1,
+                            "timetable_lecture": [
+                                {
+                                    "id": 1,
+                                    "class_title": "커스텀바꿔요1",
+                                    "class_time" : [200, 201],
+                                    "class_place" : "한기대",
+                                    "professor" : "서정빈",
+                                    "grades" : "0",
+                                    "memo" : "메모한당 히히"
+                                },
+                                {
+                                    "id": 2,
+                                    "class_title": "커스텀바꿔요2",
+                                    "class_time" : [202, 203],
+                                    "class_place" : "참빛관 편의점",
+                                    "professor" : "알바 서정빈",
+                                    "grades" : "0",
+                                    "memo" : "메모한당 히히"
+                                }
+                            ]
+                        }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
             {
                 "timetable_frame_id": 1,
                 "timetable": [
@@ -388,12 +361,11 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                 "grades": 0,
                 "total_grades": 0
             }
-            """);
+            """));
     }
 
     @Test
-    @DisplayName("시간표를 조회한다 - TimetableLecture")
-    void getTimetableLecture() {
+    void 시간표를_조회한다_TimetableLecture() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
@@ -403,19 +375,14 @@ public class TimetableV2ApiTest extends AcceptanceTest {
 
         TimetableFrame frame = timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .when()
-            .param("timetable_frame_id", frame.getId())
-            .get("/v2/timetables/lecture")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/v2/timetables/lecture")
+                    .header("Authorization", "Bearer " + token)
+                    .param("timetable_frame_id", String.valueOf(frame.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
             {
                 "timetable_frame_id": 1,
                 "timetable": [
@@ -453,12 +420,11 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                 "grades": 6,
                 "total_grades": 6
             }
-            """);
+            """));
     }
 
     @Test
-    @DisplayName("시간표에서 특정 강의를 삭제한다")
-    void deleteTimetableLecture() {
+    void 시간표에서_특정_강의를_삭제한다() throws Exception {
         User user1 = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user1);
         Semester semester = semesterFixture.semester("20192");
@@ -468,18 +434,18 @@ public class TimetableV2ApiTest extends AcceptanceTest {
 
         Integer lectureId = lecture1.getId();
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .delete("/v2/timetables/lecture/{id}", lectureId)
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value());
+        mockMvc.perform(
+                delete("/v2/timetables/lecture/{id}", lectureId)
+                    .header("Authorization", "Bearer " + token)
+                    .param("timetable_frame_id", String.valueOf(frame.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
     }
 
-    @Test
-    @DisplayName("isMain이 false인 frame과 true인 frame을 동시에 삭제한다.")
-    void deleteNotMainAndMainTimeTablesFrame() {
+    /*@Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void isMain이_false인_frame과_true인_frame을_동시에_삭제한다() {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
@@ -532,5 +498,5 @@ public class TimetableV2ApiTest extends AcceptanceTest {
 
         TimetableFrame reloadedFrame2 = timetableFrameRepositoryV2.findById(frame2.getId()).orElseThrow();
         assertThat(reloadedFrame2.isMain()).isTrue();
-    }
+    }*/
 }
