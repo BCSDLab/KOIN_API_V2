@@ -11,9 +11,9 @@ import lombok.Getter;
 
 @Getter
 @RedisHash("AbtestVariableIp")
-public class AbtestVariableIp {
+public class AbtestVariableAssign {
 
-    public static final String DELIMITER = "/";
+    public static final String DELIMITER = ":";
 
     private static final long CACHE_EXPIRE_DAYS = 3L;
 
@@ -24,25 +24,16 @@ public class AbtestVariableIp {
     private final Long expiration;
 
     @Builder
-    private AbtestVariableIp(String id, Long expiration) {
+    private AbtestVariableAssign(String id, Long expiration) {
         this.id = id;
         this.expiration = expiration;
     }
 
-    public static AbtestVariableIp of(Integer variableId, String ip) {
-        return AbtestVariableIp.builder()
-            .id(variableId + DELIMITER + ip)
+    //TODO: 이제 해야할거: VariableIp 캐시를 어떻게 Ip 제거하고 variableId, accessHistoryId로 유지할지 고민해보기
+    public static AbtestVariableAssign of(Integer variableId, Integer accessHistoryId) {
+        return AbtestVariableAssign.builder()
+            .id(variableId + DELIMITER + accessHistoryId)
             .expiration(CACHE_EXPIRE_DAYS)
             .build();
     }
-
-/*
-    public int getVariableIdByIp(String ipAddress) {
-        return ips.entrySet().stream()
-            .filter(entry -> Objects.equals(entry.getValue(), ipAddress))
-            .findAny()
-            .orElseThrow()
-            .getKey();
-    }
-*/
 }

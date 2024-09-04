@@ -2,10 +2,13 @@ package in.koreatech.koin.domain.user.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import org.springframework.data.annotation.CreatedDate;
 
 import in.koreatech.koin.admin.abtest.model.Abtest;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
@@ -23,7 +26,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,13 +45,13 @@ public class AccessHistory extends BaseEntity {
     @JoinColumn(name = "device_id")
     private Device device;
 
-    @Size(max = 45)
-    @NotNull
-    @Column(name = "public_ip", nullable = false, length = 45)
-    private String publicIp;
-
     @OneToMany(mappedBy = "accessHistory", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<AccessHistoryAbtestVariable> accessHistoryAbtestVariables = new ArrayList<>();
+
+    @NotNull
+    @Column(name = "last_accessed_at", nullable = false, columnDefinition = "TIMESTAMP")
+    @CreatedDate
+    private LocalDateTime lastAccessedAt;
 
     public Optional<AbtestVariable> findVariableByAbtestId(int abtestId) {
         return accessHistoryAbtestVariables.stream()
@@ -62,11 +64,11 @@ public class AccessHistory extends BaseEntity {
     private AccessHistory(
         Integer id,
         Device device,
-        String publicIp
+        LocalDateTime lastAccessedAt
     ) {
         this.id = id;
         this.device = device;
-        this.publicIp = publicIp;
+        this.lastAccessedAt = lastAccessedAt;
     }
 
     public void connectDevice(Device device) {

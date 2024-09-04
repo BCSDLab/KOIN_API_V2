@@ -27,12 +27,12 @@ import in.koreatech.koin.admin.abtest.exception.AbtestWinnerNotDecidedException;
 import in.koreatech.koin.admin.abtest.model.Abtest;
 import in.koreatech.koin.admin.abtest.model.AbtestStatus;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
+import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableAssign;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
-import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableIp;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
+import in.koreatech.koin.admin.abtest.repository.AbtestVariableAssignRepository;
+import in.koreatech.koin.admin.abtest.repository.AbtestVariableAssignTemplateRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRepository;
-import in.koreatech.koin.admin.abtest.repository.AbtestVariableIpRepository;
-import in.koreatech.koin.admin.abtest.repository.AbtestVariableIpTemplateRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableCustomRepository;
 import in.koreatech.koin.domain.user.model.AccessHistory;
@@ -58,8 +58,8 @@ public class AbtestService {
     private final AccessHistoryRepository accessHistoryRepository;
     private final DeviceRepository deviceRepository;
     private final UserRepository userRepository;
-    private final AbtestVariableIpRepository abtestVariableIpRepository;
-    private final AbtestVariableIpTemplateRepository abtestVariableIpTemplateRepository;
+    private final AbtestVariableAssignRepository abtestVariableAssignRepository;
+    private final AbtestVariableAssignTemplateRepository abtestVariableAssignTemplateRepository;
     private final AccessHistoryAbtestVariableCustomRepository accessHistoryAbtestVariableCustomRepository;
     private final UserService userService;
 
@@ -161,7 +161,7 @@ public class AbtestService {
 
     private void deleteVariableIpCache(Abtest abtest) {
         abtest.getAbtestVariables().forEach(abtestVariable ->
-            abtestVariableIpTemplateRepository.deleteByVariableId(abtestVariable.getId()));
+            abtestVariableAssignTemplateRepository.deleteAllByVariableId(abtestVariable.getId()));
     }
 
     @Transactional
@@ -203,8 +203,7 @@ public class AbtestService {
     }
 
     @Transactional
-    public String assignVariable(UserAgentInfo userAgentInfo, String ipAddress, Integer userId,
-        AbtestAssignRequest request) {
+    public String assignVariable(UserAgentInfo userAgentInfo, Integer userId, AbtestAssignRequest request) {
         Abtest abtest = abtestRepository.getByTitle(request.title());
         Optional<String> winner = returnWinnerIfClosed(abtest);
         if (winner.isPresent()) {
@@ -227,7 +226,7 @@ public class AbtestService {
     // 기기를 다른 사용자가 사용한 이력이 있는 경우 기존 사용자의 캐시를 삭제
     private void removeBeforeUserCache(String ipAddress, AccessHistory accessHistory, Abtest abtest) {
         for (AbtestVariable removeVariable : accessHistory.getVariableBy(abtest)) {
-            abtestVariableIpRepository.deleteByVariableIdAndIp(removeVariable.getId(), ipAddress);
+            abtestVariableAssignRepository.deleteByVariableIdAndIp(removeVariable.getId(), ipAddress);
             AbtestVariableCount countCache = abtestVariableCountRepository.findOrCreateIfNotExists(
                 removeVariable.getId());
             countCache.minusCount();
@@ -248,7 +247,7 @@ public class AbtestService {
     }
 
     private void variableIpCacheSave(AbtestVariable variable, String ipAddress) {
-        abtestVariableIpRepository.save(AbtestVariableIp.of(variable.getId(), ipAddress));
+        abtestVariableAssignRepository.save(AbtestVariableAssign.of(variable.getId(), ipAddress));
     }
 
     @Transactional
@@ -262,17 +261,17 @@ public class AbtestService {
 
         Optional<AbtestVariable> cacheVariable = abtest.getAbtestVariables().stream()
             .filter(abtestVariable ->
-                abtestVariableIpRepository.findByVariableIdAndIp(abtestVariable.getId(), ipAddress).isPresent())
+                abtestVariableAssignRepository.findByVariableIdAndIp(abtestVariable.getId(), ipAddress).isPresent())
             .findAny();
 
         if (cacheVariable.isEmpty()) {
-            AbtestVariable dbVariable = accessHistoryRepository.findByPublicIp(ipAddress)
+            AbtestVariable dbVariable = accessHistoryRepository.findById(ipAddress)
                 .orElseThrow(() -> AbtestNotAssignedUserException.withDetail("abtestId: " + abtest.getId() + ", "
                     + "publicIp: " + ipAddress))
                 .findVariableByAbtestId(abtest.getId())
                 .orElseThrow(() -> AbtestNotAssignedUserException.withDetail("abtestId: " + abtest.getId() + ", "
                     + "publicIp: " + ipAddress));
-            abtestVariableIpRepository.save(AbtestVariableIp.of(dbVariable.getId(), ipAddress));
+            abtestVariableAssignRepository.save(AbtestVariableAssign.of(dbVariable.getId(), ipAddress));
             return dbVariable.getName();
         }
 
@@ -280,7 +279,7 @@ public class AbtestService {
     }
 
     private void validateAssignedUser(Abtest abtest, String ipAddress, Integer userId) {
-        Optional<AccessHistory> accessHistory = accessHistoryRepository.findByPublicIp(ipAddress);
+        Optional<AccessHistory> accessHistory = accessHistoryRepository.findById(ipAddress);
         if (accessHistory.isEmpty() || (userId != null && !Objects.equals(accessHistory.get().getDevice().getUser().getId(), userId))) {
             return;
         }
@@ -340,7 +339,7 @@ public class AbtestService {
         validateDuplicatedVariables(beforeVariable, afterVariable);
         abtest.assignVariableByAdmin(accessHistory, request.variableName());
         beforeVariable.ifPresent(
-            abtestVariable -> abtestVariableIpRepository.deleteByVariableIdAndIp(abtestVariable.getId(),
+            abtestVariable -> abtestVariableAssignRepository.deleteByVariableIdAndIp(abtestVariable.getId(),
                 accessHistory.getPublicIp()));
         variableIpCacheSave(afterVariable, accessHistory.getPublicIp());
     }

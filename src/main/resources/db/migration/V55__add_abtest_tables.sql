@@ -4,8 +4,6 @@ CREATE TABLE `device`
     `user_id`          int unsigned NOT NULL,
     `model`            varchar(100)       DEFAULT NULL,
     `type`               varchar(100)       DEFAULT NULL,
-    `fcm_token`        varchar(255)       DEFAULT NULL,
-    `last_accessed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `created_at`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
@@ -15,7 +13,7 @@ CREATE TABLE `access_history`
 (
     `id`          int unsigned NOT NULL AUTO_INCREMENT,
     `device_id`   int unsigned DEFAULT NULL,
-    `public_ip`   varchar(45) NOT NULL,
+    `last_accessed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `created_at`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)

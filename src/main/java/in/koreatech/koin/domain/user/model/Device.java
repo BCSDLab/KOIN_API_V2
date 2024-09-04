@@ -2,10 +2,6 @@ package in.koreatech.koin.domain.user.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.LocalDateTime;
-
-import org.springframework.data.annotation.CreatedDate;
-
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -51,40 +47,19 @@ public class Device extends BaseEntity {
     @Column(name = "type", length = 100)
     private String type;
 
-    @Size(max = 255)
-    @Column(name = "fcm_token")
-    private String fcmToken;
-
-    @NotNull
-    @Column(name = "last_accessed_at", nullable = false, columnDefinition = "TIMESTAMP")
-    @CreatedDate
-    private LocalDateTime lastAccessedAt;
-
     @Builder
     private Device(
         Integer id,
         AccessHistory accessHistory,
         User user,
         String model,
-        String type,
-        String fcmToken,
-        LocalDateTime lastAccessedAt
+        String type
     ) {
         this.id = id;
         this.accessHistory = accessHistory;
         this.user = user;
         this.model = model;
         this.type = type;
-        this.fcmToken = fcmToken;
-        this.lastAccessedAt = lastAccessedAt;
-    }
-
-    public void permitNotification(String fcmToken) {
-        this.fcmToken = fcmToken;
-    }
-
-    public void rejectNotification() {
-        this.fcmToken = null;
     }
 
     public void setAccessHistory(AccessHistory accessHistory) {
@@ -98,9 +73,5 @@ public class Device extends BaseEntity {
     public void setModelInfo(String model, String type) {
         this.model = model;
         this.type = type;
-    }
-
-    public void updateLastAccessedAt() {
-        this.lastAccessedAt = LocalDateTime.now();
     }
 }
