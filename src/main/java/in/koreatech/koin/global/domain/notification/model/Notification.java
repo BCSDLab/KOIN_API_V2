@@ -5,7 +5,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.domain.user.model.Device;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import in.koreatech.koin.global.fcm.MobileAppPath;
 import jakarta.persistence.Column;
@@ -50,8 +50,8 @@ public class Notification extends BaseEntity {
     private NotificationType type;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "device_id", nullable = false)
-    private Device device;
+    @JoinColumn(name = "users_id", nullable = false)
+    private User user;
 
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
@@ -63,7 +63,7 @@ public class Notification extends BaseEntity {
         String message,
         String imageUrl,
         NotificationType type,
-        Device device
+        User user
     ) {
         this.mobileAppPath = appPath;
         this.schemeUri = schemeUri;
@@ -71,7 +71,7 @@ public class Notification extends BaseEntity {
         this.message = message;
         this.imageUrl = imageUrl;
         this.type = type;
-        this.device = device;
+        this.user = user;
     }
 
     public void read() {

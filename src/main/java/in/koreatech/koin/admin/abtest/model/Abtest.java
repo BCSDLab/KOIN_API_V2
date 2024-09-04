@@ -14,7 +14,6 @@ import in.koreatech.koin.admin.abtest.exception.AbtestNotIncludeVariableExceptio
 import in.koreatech.koin.admin.abtest.exception.AbtestTitleIllegalArgumentException;
 import in.koreatech.koin.admin.abtest.exception.AbtestVariableIllegalArgumentException;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
-import in.koreatech.koin.domain.user.model.AccessHistory;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

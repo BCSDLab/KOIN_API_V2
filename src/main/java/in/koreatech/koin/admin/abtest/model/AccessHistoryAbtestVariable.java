@@ -2,7 +2,6 @@ package in.koreatech.koin.admin.abtest.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.domain.user.model.AccessHistory;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

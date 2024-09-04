@@ -35,10 +35,10 @@ import in.koreatech.koin.admin.abtest.repository.AbtestVariableAssignTemplateRep
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableCustomRepository;
-import in.koreatech.koin.domain.user.model.AccessHistory;
+import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.AccessHistoryRepository;
-import in.koreatech.koin.domain.user.repository.DeviceRepository;
+import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
+import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.model.Criteria;

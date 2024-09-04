@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
-import in.koreatech.koin.domain.user.model.AccessHistory;
+import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)

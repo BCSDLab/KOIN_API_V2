@@ -1,6 +1,8 @@
 package in.koreatech.koin.domain.user.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.*;
+import static in.koreatech.koin.domain.user.model.UserType.COOP;
+import static in.koreatech.koin.domain.user.model.UserType.OWNER;
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.net.URI;
 
@@ -38,9 +40,6 @@ import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.host.ServerURL;
-import in.koreatech.koin.global.ipaddress.IpAddress;
-import in.koreatech.koin.global.useragent.UserAgent;
-import in.koreatech.koin.global.useragent.UserAgentInfo;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -79,22 +78,18 @@ public class UserController implements UserApi {
 
     @PostMapping("/user/login")
     public ResponseEntity<UserLoginResponse> login(
-        @IpAddress String ipAddress,
-        @UserAgent UserAgentInfo userAgentInfo,
         @RequestBody @Valid UserLoginRequest request
     ) {
-        UserLoginResponse response = userService.login(ipAddress, userAgentInfo, request);
+        UserLoginResponse response = userService.login(request);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }
 
     @PostMapping("/student/login")
     public ResponseEntity<StudentLoginResponse> studentLogin(
-        @IpAddress String ipAddress,
-        @UserAgent UserAgentInfo userAgentInfo,
         @RequestBody @Valid StudentLoginRequest request
     ) {
-        StudentLoginResponse response = studentService.studentLogin(ipAddress, userAgentInfo, request);
+        StudentLoginResponse response = studentService.studentLogin(request);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }
@@ -109,11 +104,9 @@ public class UserController implements UserApi {
 
     @PostMapping("/user/refresh")
     public ResponseEntity<UserTokenRefreshResponse> refresh(
-        @IpAddress String ipAddress,
-        @UserAgent UserAgentInfo userAgentInfo,
         @RequestBody @Valid UserTokenRefreshRequest request
     ) {
-        UserTokenRefreshResponse tokenGroupResponse = userService.refresh(ipAddress, userAgentInfo, request);
+        UserTokenRefreshResponse tokenGroupResponse = userService.refresh(request);
         return ResponseEntity.created(URI.create("/"))
             .body(tokenGroupResponse);
     }

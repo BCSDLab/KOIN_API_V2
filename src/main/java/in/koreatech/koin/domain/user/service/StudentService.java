@@ -4,6 +4,9 @@ import java.time.Clock;
 import java.util.Optional;
 import java.util.UUID;
 
+import in.koreatech.koin.domain.user.model.*;
+import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import org.joda.time.LocalDateTime;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,16 +26,6 @@ import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.user.exception.StudentNumberNotValidException;
-import in.koreatech.koin.domain.user.model.AccessHistory;
-import in.koreatech.koin.domain.user.model.Student;
-import in.koreatech.koin.domain.user.model.StudentDepartment;
-import in.koreatech.koin.domain.user.model.StudentEmailRequestEvent;
-import in.koreatech.koin.domain.user.model.StudentRegisterEvent;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
-import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
@@ -44,7 +37,6 @@ import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
 import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.domain.email.service.MailService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
-import in.koreatech.koin.global.useragent.UserAgentInfo;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -61,7 +53,6 @@ public class StudentService {
     private final Clock clock;
     private final UserTokenRepository userTokenRepository;
     private final JwtProvider jwtProvider;
-    private final UserService userService;
 
     public StudentResponse getStudent(Integer userId) {
         Student student = studentRepository.getById(userId);
@@ -69,8 +60,7 @@ public class StudentService {
     }
 
     @Transactional
-    public StudentLoginResponse studentLogin(String ipAddress, UserAgentInfo userAgentInfo,
-        StudentLoginRequest request) {
+    public StudentLoginResponse studentLogin(StudentLoginRequest request) {
         User user = userRepository.getByEmail(request.email());
         Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findById(request.email());
 
@@ -86,9 +76,6 @@ public class StudentService {
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
         UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
         user.updateLastLoggedTime(java.time.LocalDateTime.now());
-
-        AccessHistory accessHistory = userService.findOrCreateAccessHistory(ipAddress);
-        userService.createDeviceIfNotExists(user.getId(), userAgentInfo, accessHistory);
 
         return StudentLoginResponse.of(accessToken, savedToken.getRefreshToken());
     }

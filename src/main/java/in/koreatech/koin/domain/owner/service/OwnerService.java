@@ -47,7 +47,7 @@ import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRep
 import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
-import in.koreatech.koin.domain.user.model.AccessHistory;
+import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;

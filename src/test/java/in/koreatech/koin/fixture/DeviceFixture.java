@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.user.model.AccessHistory;
-import in.koreatech.koin.domain.user.model.Device;
-import in.koreatech.koin.domain.user.repository.AccessHistoryRepository;
-import in.koreatech.koin.domain.user.repository.DeviceRepository;
+import in.koreatech.koin.admin.abtest.model.AccessHistory;
+import in.koreatech.koin.admin.abtest.model.Device;
+import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
+import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 
 @Component

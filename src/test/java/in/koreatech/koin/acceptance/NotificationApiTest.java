@@ -12,16 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.user.model.Device;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.AccessHistoryRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.fixture.DeviceFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubscribeType;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
+import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
@@ -32,32 +30,20 @@ class NotificationApiTest extends AcceptanceTest {
     private NotificationSubscribeRepository notificationSubscribeRepository;
 
     @Autowired
-    private DeviceFixture deviceFixture;
-
-    @Autowired
     private UserFixture userFixture;
 
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private AccessHistoryRepository accessHistoryRepository;
-
     User user;
-    Device device;
     String userToken;
     String deviceToken;
-    String ipAddress;
-    String userAgent;
 
     @BeforeEach
     void setUp() {
         user = userFixture.준호_학생().getUser();
         userToken = userFixture.getToken(user);
         deviceToken = "testToken";
-        ipAddress = userFixture.아이피();
-        device = deviceFixture.갤럭시(user.getId(), ipAddress, deviceToken);
-        userAgent = userFixture.맥북userAgent헤더();
     }
 
     @Test
@@ -66,7 +52,7 @@ class NotificationApiTest extends AcceptanceTest {
         //given
         NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
             .subscribeType(SHOP_EVENT)
-            .device(device)
+            .user(user)
             .build();
 
         notificationSubscribeRepository.save(notificationSubscribe);
@@ -75,15 +61,13 @@ class NotificationApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .when()
             .get("/notification")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.asPrettyString())
+        JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 {
                     "is_permit": false,
@@ -139,8 +123,6 @@ class NotificationApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .body(String.format("""
                 {
                   "device_token": "%s"
@@ -153,8 +135,8 @@ class NotificationApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.CREATED.value())
             .extract();
 
-        Device result = accessHistoryRepository.getByPublicIp(ipAddress).getDevice();
-        assertThat(result.getFcmToken()).isEqualTo(deviceToken);
+        User result = userRepository.getById(user.getId());
+        assertThat(result.getDeviceToken()).isEqualTo(deviceToken);
     }
 
     @Test
@@ -164,8 +146,6 @@ class NotificationApiTest extends AcceptanceTest {
 
         RestAssured.given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .body(String.format("""
                 {
                   "device_token": "%s"
@@ -181,8 +161,6 @@ class NotificationApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .contentType(ContentType.JSON)
             .queryParam("type", notificationType)
             .when()
@@ -194,15 +172,13 @@ class NotificationApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .when()
             .get("/notification")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.asPrettyString())
+        JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 {
                      "is_permit": true,
@@ -259,8 +235,6 @@ class NotificationApiTest extends AcceptanceTest {
 
         RestAssured.given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .body(String.format("""
                 {
                   "device_token": "%s"
@@ -276,8 +250,6 @@ class NotificationApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .contentType(ContentType.JSON)
             .queryParam("type", notificationType)
             .when()
@@ -289,8 +261,6 @@ class NotificationApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .contentType(ContentType.JSON)
             .queryParam("detail_type", notificationDetailType)
             .when()
@@ -302,15 +272,13 @@ class NotificationApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .when()
             .get("/notification")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.asPrettyString())
+        JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 {
                      "is_permit": true,
@@ -362,21 +330,19 @@ class NotificationApiTest extends AcceptanceTest {
     @Test
     @DisplayName("전체 알림 구독을 취소한다. - 디바이스 토큰을 삭제한다.")
     void deleteDeviceToken() {
-        device.permitNotification(deviceToken);
+        user.permitNotification(deviceToken);
 
         RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .when()
             .delete("/notification")
             .then()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .extract();
 
-        Device result = accessHistoryRepository.getByPublicIp(ipAddress).getDevice();
-        assertThat(result.getFcmToken()).isNull();
+        User result = userRepository.getById(user.getId());
+        assertThat(result.getDeviceToken()).isNull();
     }
 
     @Test
@@ -384,12 +350,12 @@ class NotificationApiTest extends AcceptanceTest {
     void unsubscribeNotificationType() {
         var SubscribeShopEvent = NotificationSubscribe.builder()
             .subscribeType(SHOP_EVENT)
-            .device(device)
+            .user(user)
             .build();
 
         var SubscribeDiningSoldOut = NotificationSubscribe.builder()
             .subscribeType(NotificationSubscribeType.DINING_SOLD_OUT)
-            .device(device)
+            .user(user)
             .build();
 
         notificationSubscribeRepository.save(SubscribeShopEvent);
@@ -399,8 +365,6 @@ class NotificationApiTest extends AcceptanceTest {
 
         RestAssured.given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .body(String.format("""
                 {
                   "device_token": "%s"
@@ -416,8 +380,6 @@ class NotificationApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .queryParam("type", notificationType)
             .when()
             .delete("/notification/subscribe")
@@ -428,15 +390,13 @@ class NotificationApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .when()
             .get("/notification")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.asPrettyString())
+        JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 {
                      "is_permit": true,
@@ -490,19 +450,19 @@ class NotificationApiTest extends AcceptanceTest {
     void unsubscribeNotificationDetailType() {
         var SubscribeDiningSoldOut = NotificationSubscribe.builder()
             .subscribeType(NotificationSubscribeType.DINING_SOLD_OUT)
-            .device(device)
+            .user(user)
             .build();
 
         var SubscribeBreakfast = NotificationSubscribe.builder()
             .detailType(NotificationDetailSubscribeType.BREAKFAST)
             .subscribeType(NotificationSubscribeType.DINING_SOLD_OUT)
-            .device(device)
+            .user(user)
             .build();
 
         var SubscribeLunch = NotificationSubscribe.builder()
             .detailType(NotificationDetailSubscribeType.LUNCH)
             .subscribeType(NotificationSubscribeType.DINING_SOLD_OUT)
-            .device(device)
+            .user(user)
             .build();
 
         notificationSubscribeRepository.save(SubscribeDiningSoldOut);
@@ -514,8 +474,6 @@ class NotificationApiTest extends AcceptanceTest {
 
         RestAssured.given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .body(String.format("""
                 {
                   "device_token": "%s"
@@ -531,8 +489,6 @@ class NotificationApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .contentType(ContentType.JSON)
             .queryParam("type", notificationType)
             .when()
@@ -544,8 +500,6 @@ class NotificationApiTest extends AcceptanceTest {
         RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .queryParam("detail_type", notificationDetailType)
             .when()
             .delete("/notification/subscribe/detail")
@@ -556,15 +510,13 @@ class NotificationApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .header("Authorization", "Bearer " + userToken)
-            .header("User-Agent", userAgent)
-            .header("X-Forwarded-For", ipAddress)
             .when()
             .get("/notification")
             .then()
             .statusCode(HttpStatus.OK.value())
             .extract();
 
-        assertThat(response.asPrettyString())
+        JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
                 {
                      "is_permit": true,

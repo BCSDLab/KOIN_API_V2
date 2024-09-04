@@ -18,17 +18,22 @@ public interface NotificationSubscribeRepository extends Repository<Notification
         NotificationDetailSubscribeType detailType
     );
 
-    Optional<NotificationSubscribe> findByDeviceIdAndSubscribeTypeAndDetailType(
+    Optional<NotificationSubscribe> findByUserIdAndSubscribeTypeAndDetailType(
         Integer userId,
         NotificationSubscribeType type,
         NotificationDetailSubscribeType detailType
     );
 
-    void deleteByDeviceIdAndSubscribeTypeAndDetailType(
+    void deleteByUserIdAndSubscribeTypeAndDetailType(
         Integer userId,
         NotificationSubscribeType type,
         NotificationDetailSubscribeType detailType
     );
 
-    List<NotificationSubscribe> findAllByDeviceId(Integer userId);
+    List<NotificationSubscribe> findAllByUserId(Integer userId);
+
+    List<NotificationSubscribe> findByUserIdAndSubscribeType(
+        Integer userId,
+        NotificationSubscribeType type
+    );
 }

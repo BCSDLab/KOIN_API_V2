@@ -44,7 +44,7 @@ import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
-import in.koreatech.koin.domain.user.model.AccessHistory;
+import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.StudentDepartment;
 import in.koreatech.koin.domain.user.model.User;

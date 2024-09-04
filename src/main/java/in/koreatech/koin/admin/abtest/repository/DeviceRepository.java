@@ -1,10 +1,10 @@
-package in.koreatech.koin.domain.user.repository;
+package in.koreatech.koin.admin.abtest.repository;
 
 import java.util.List;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.user.model.Device;
+import in.koreatech.koin.admin.abtest.model.Device;
 
 public interface DeviceRepository extends Repository<Device, Integer> {
     Device save(Device device);

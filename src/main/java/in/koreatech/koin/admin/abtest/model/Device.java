@@ -1,7 +1,8 @@
-package in.koreatech.koin.domain.user.model;
+package in.koreatech.koin.admin.abtest.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

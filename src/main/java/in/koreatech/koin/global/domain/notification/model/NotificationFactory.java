@@ -2,7 +2,7 @@ package in.koreatech.koin.global.domain.notification.model;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.user.model.Device;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.fcm.MobileAppPath;
 
 @Component
@@ -14,7 +14,7 @@ public class NotificationFactory {
         String imageUrl,
         String shopName,
         String title,
-        Device device
+        User target
     ) {
         return new Notification(
             path,
@@ -23,7 +23,7 @@ public class NotificationFactory {
             "%s".formatted(title),
             imageUrl,
             NotificationType.MESSAGE,
-            device
+            target
         );
     }
 
@@ -31,7 +31,7 @@ public class NotificationFactory {
         MobileAppPath path,
         String schemeUri,
         String place,
-        Device device
+        User target
     ) {
         return new Notification(
             path,
@@ -40,7 +40,7 @@ public class NotificationFactory {
             "다른 코너 메뉴도 확인해보세요",
             null,
             NotificationType.MESSAGE,
-            device
+            target
         );
     }
 
@@ -54,7 +54,7 @@ public class NotificationFactory {
         MobileAppPath path,
         String schemeUri,
         String imageUrl,
-        Device device
+        User target
     ) {
         return new Notification(
             path,
@@ -63,7 +63,7 @@ public class NotificationFactory {
             "사진 보러 가기 \uD83D\uDE0B",
             imageUrl,
             NotificationType.MESSAGE,
-            device
+            target
         );
     }
 
@@ -71,7 +71,7 @@ public class NotificationFactory {
         MobileAppPath path,
         String schemeUri,
         String keywordName,
-        Device device
+        User target
     ) {
         return new Notification(
             path,
@@ -80,7 +80,7 @@ public class NotificationFactory {
             "%s 공지가 등록되었습니다.".formatted(keywordName),
             null,
             NotificationType.MESSAGE,
-            device
+            target
         );
     }
 }

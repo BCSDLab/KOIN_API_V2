@@ -89,6 +89,9 @@ public class User extends BaseEntity {
     @Column(name = "reset_expired_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime resetExpiredAt;
 
+    @Column(name = "device_token", nullable = true)
+    private String deviceToken;
+
     @Builder
     private User(
         String password,
@@ -103,7 +106,8 @@ public class User extends BaseEntity {
         String profileImageUrl,
         Boolean isDeleted,
         String resetToken,
-        LocalDateTime resetExpiredAt
+        LocalDateTime resetExpiredAt,
+        String deviceToken
     ) {
         this.password = password;
         this.nickname = nickname;
@@ -118,10 +122,19 @@ public class User extends BaseEntity {
         this.isDeleted = isDeleted;
         this.resetToken = resetToken;
         this.resetExpiredAt = resetExpiredAt;
+        this.deviceToken = deviceToken;
     }
 
     public boolean isSamePassword(PasswordEncoder passwordEncoder, String password) {
         return passwordEncoder.matches(password, this.password);
+    }
+
+    public void permitNotification(String deviceToken) {
+        this.deviceToken = deviceToken;
+    }
+
+    public void rejectNotification() {
+        this.deviceToken = null;
     }
 
     public void updateLastLoggedTime(LocalDateTime lastLoggedTime) {

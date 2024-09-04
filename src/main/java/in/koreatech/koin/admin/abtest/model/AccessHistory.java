@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.model;
+package in.koreatech.koin.admin.abtest.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -10,9 +10,6 @@ import java.util.Optional;
 
 import org.springframework.data.annotation.CreatedDate;
 
-import in.koreatech.koin.admin.abtest.model.Abtest;
-import in.koreatech.koin.admin.abtest.model.AbtestVariable;
-import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
