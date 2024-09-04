@@ -484,22 +484,21 @@ class OwnerShopApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated());
-
-        System.out.println("####test#####");
-        System.out.println(menuRepository.findAll());
-        Menu menu = menuRepository.getById(1);
-        assertSoftly(
-            softly -> {
-                List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
-                List<MenuOption> menuOptions = menu.getMenuOptions();
-                List<MenuImage> menuImages = menu.getMenuImages();
-                softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
-                softly.assertThat(menu.getName()).isEqualTo("짜장면");
-                softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
-                softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
-                softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
-            }
-        );
+        transactionTemplate.executeWithoutResult(execute -> {
+            Menu menu = menuRepository.getById(1);
+            assertSoftly(
+                softly -> {
+                    List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
+                    List<MenuOption> menuOptions = menu.getMenuOptions();
+                    List<MenuImage> menuImages = menu.getMenuImages();
+                    softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
+                    softly.assertThat(menu.getName()).isEqualTo("짜장면");
+                    softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
+                    softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
+                    softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
+                }
+            );
+        });
     }
 
     @Test
