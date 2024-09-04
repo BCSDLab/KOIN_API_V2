@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -28,6 +29,7 @@ import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEventListener;
 import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
+import in.koreatech.koin.domain.shop.model.ReviewEventListener;
 import in.koreatech.koin.domain.shop.model.ShopEventListener;
 import in.koreatech.koin.domain.user.model.StudentEventListener;
 import in.koreatech.koin.support.DBInitializer;
@@ -45,6 +47,9 @@ public abstract class AcceptanceTest {
     private static final String ROOT_PASSWORD = "1234";
 
     @Autowired
+    public ApplicationEventPublisher eventPublisher;
+
+    @Autowired
     public MockMvc mockMvc;
 
     @LocalServerPort
@@ -52,6 +57,9 @@ public abstract class AcceptanceTest {
 
     @MockBean
     protected OwnerEventListener ownerEventListener;
+
+    @MockBean
+    protected ReviewEventListener reviewEventListener;
 
     @MockBean
     protected StudentEventListener studentEventListener;
@@ -123,14 +131,19 @@ public abstract class AcceptanceTest {
         if (RestAssured.port == RestAssured.UNDEFINED_PORT) {
             RestAssured.port = port;
         }
-        dataInitializer.clear();
+        dataInitializer.clearAndInitIncrement();
     }
 
-    public void testEvent(Runnable runnable) {
+    public void clearTable() {
+        if (RestAssured.port == RestAssured.UNDEFINED_PORT) {
+            RestAssured.port = port;
+        }
+        dataInitializer.clearAndTruncate();
+    }
+
+    public void forceVerify(Runnable runnable) {
         TestTransaction.flagForCommit();
         TestTransaction.end();
         runnable.run();
-        TestTransaction.start();
-        TestTransaction.flagForRollback();
     }
 }

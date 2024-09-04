@@ -6,11 +6,14 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -40,6 +43,8 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AdminShopApiTest extends AcceptanceTest {
 
     @Autowired
@@ -82,7 +87,7 @@ class AdminShopApiTest extends AcceptanceTest {
     private MenuCategory menuCategory_메인;
     private MenuCategory menuCategory_사이드;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
         admin = userFixture.코인_운영자();
         token_admin = userFixture.getToken(admin);
