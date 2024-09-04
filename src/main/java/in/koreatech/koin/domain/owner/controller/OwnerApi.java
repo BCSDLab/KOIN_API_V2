@@ -28,9 +28,6 @@ import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.ipaddress.IpAddress;
-import in.koreatech.koin.global.useragent.UserAgent;
-import in.koreatech.koin.global.useragent.UserAgentInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -69,8 +66,6 @@ public interface OwnerApi {
     @Operation(summary = "사장님 로그인")
     @PostMapping("/owner/login")
     ResponseEntity<OwnerLoginResponse> ownerLogin(
-        @IpAddress String ipAddress,
-        @UserAgent UserAgentInfo userAgentInfo,
         @RequestBody @Valid OwnerLoginRequest request
     );
 

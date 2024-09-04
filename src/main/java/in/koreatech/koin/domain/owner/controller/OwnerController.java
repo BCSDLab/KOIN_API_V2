@@ -32,9 +32,6 @@ import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
 import in.koreatech.koin.domain.owner.service.OwnerService;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.ipaddress.IpAddress;
-import in.koreatech.koin.global.useragent.UserAgent;
-import in.koreatech.koin.global.useragent.UserAgentInfo;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -78,11 +75,9 @@ public class OwnerController implements OwnerApi {
 
     @PostMapping("/owner/login")
     public ResponseEntity<OwnerLoginResponse> ownerLogin(
-        @IpAddress String ipAddress,
-        @UserAgent UserAgentInfo userAgentInfo,
         @RequestBody @Valid OwnerLoginRequest request
     ) {
-        OwnerLoginResponse response = ownerService.ownerLogin(ipAddress, userAgentInfo, request);
+        OwnerLoginResponse response = ownerService.ownerLogin(request);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }

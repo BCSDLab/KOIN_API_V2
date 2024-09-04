@@ -47,12 +47,10 @@ import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRep
 import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.repository.ShopRepository;
-import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
-import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
@@ -61,7 +59,6 @@ import in.koreatech.koin.global.domain.email.service.MailService;
 import in.koreatech.koin.global.domain.random.model.CertificateNumberGenerator;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.naver.service.NaverSmsService;
-import in.koreatech.koin.global.useragent.UserAgentInfo;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -81,7 +78,6 @@ public class OwnerService {
     private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
     private final NaverSmsService naverSmsService;
     private final UserTokenRepository userTokenRepository;
-    private final UserService userService;
 
     public OwnerResponse getOwner(Integer ownerId) {
         Owner foundOwner = ownerRepository.getById(ownerId);
@@ -90,7 +86,7 @@ public class OwnerService {
     }
 
     @Transactional
-    public OwnerLoginResponse ownerLogin(String ipAddress, UserAgentInfo userAgentInfo, OwnerLoginRequest request) {
+    public OwnerLoginResponse ownerLogin(OwnerLoginRequest request) {
         Owner owner = ownerRepository.getByAccount(request.account());
         User user = owner.getUser();
 
@@ -106,9 +102,6 @@ public class OwnerService {
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
         UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
         user.updateLastLoggedTime(LocalDateTime.now());
-
-        AccessHistory accessHistory = userService.findOrCreateAccessHistory(ipAddress);
-        userService.createDeviceIfNotExists(user.getId(), userAgentInfo, accessHistory);
 
         return OwnerLoginResponse.of(accessToken, savedToken.getRefreshToken());
     }

@@ -22,14 +22,11 @@ import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
-import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
-import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
-import in.koreatech.koin.global.useragent.UserAgentInfo;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -46,7 +43,6 @@ public class CoopService {
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-    private final UserService userService;
 
     @Transactional
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
@@ -80,7 +76,7 @@ public class CoopService {
     }
 
     @Transactional
-    public CoopLoginResponse coopLogin(String ipAddress, UserAgentInfo userAgentInfo, CoopLoginRequest request) {
+    public CoopLoginResponse coopLogin(CoopLoginRequest request) {
         Coop coop = coopRepository.getByCoopId(request.id());
         User user = coop.getUser();
 
@@ -92,9 +88,6 @@ public class CoopService {
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
         UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
         user.updateLastLoggedTime(LocalDateTime.now());
-
-        AccessHistory accessHistory = userService.findOrCreateAccessHistory(ipAddress);
-        userService.createDeviceIfNotExists(user.getId(), userAgentInfo, accessHistory);
 
         return CoopLoginResponse.of(accessToken, savedToken.getRefreshToken());
     }

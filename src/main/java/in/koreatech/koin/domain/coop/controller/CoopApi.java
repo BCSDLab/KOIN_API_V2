@@ -13,9 +13,6 @@ import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.ipaddress.IpAddress;
-import in.koreatech.koin.global.useragent.UserAgent;
-import in.koreatech.koin.global.useragent.UserAgentInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -69,10 +66,8 @@ public interface CoopApi {
         }
     )
     @Operation(summary = "영양사 로그인")
-    @PostMapping("/login")
+    @PostMapping("/coop/login")
     ResponseEntity<CoopLoginResponse> coopLogin(
-        @IpAddress String ipAddress,
-        @UserAgent UserAgentInfo userAgentInfo,
         @RequestBody @Valid CoopLoginRequest request
     );
 }

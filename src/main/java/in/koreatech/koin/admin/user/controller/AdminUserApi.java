@@ -13,25 +13,22 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
-import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
-import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
-import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
+import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
+import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
+import in.koreatech.koin.admin.user.dto.OwnersCondition;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
-import in.koreatech.koin.admin.user.dto.OwnersCondition;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.ipaddress.IpAddress;
-import in.koreatech.koin.global.useragent.UserAgent;
-import in.koreatech.koin.global.useragent.UserAgentInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -74,8 +71,6 @@ public interface AdminUserApi {
     @Operation(summary = "어드민 로그인")
     @PostMapping("/admin/user/login")
     ResponseEntity<AdminLoginResponse> adminLogin(
-        @IpAddress String ipAddress,
-        @UserAgent UserAgentInfo userAgentInfo,
         @RequestBody @Valid AdminLoginRequest request
     );
 
