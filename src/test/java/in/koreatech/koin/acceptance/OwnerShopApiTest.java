@@ -116,6 +116,7 @@ class OwnerShopApiTest extends AcceptanceTest {
     @Test
     void 사장님의_가게_목록을_조회한다() throws Exception {
         // given
+        shopFixture.배달_안되는_신전_떡볶이(owner_현수);
         mockMvc.perform(
                 get("/owner/shops")
                     .header("Authorization", "Bearer " + token_현수)
@@ -218,18 +219,19 @@ class OwnerShopApiTest extends AcceptanceTest {
 
         List<Shop> shops = shopRepository.findAllByOwnerId(owner_현수.getId());
         Shop result = shops.get(1);
-        assertSoftly(
-            softly -> {
-                softly.assertThat(result.getAddress()).isEqualTo("대전광역시 유성구 대학로 291");
-                softly.assertThat(result.getDeliveryPrice()).isEqualTo(4000);
-                softly.assertThat(result.getDescription()).isEqualTo("테스트 상점2입니다.");
-                softly.assertThat(result.getName()).isEqualTo("테스트 상점2");
-                softly.assertThat(result.getShopImages()).hasSize(3);
-                softly.assertThat(result.getShopOpens()).hasSize(7);
-                softly.assertThat(result.getShopCategories()).hasSize(1);
-            }
-        );
-
+        transactionTemplate.executeWithoutResult(execute -> {
+            assertSoftly(
+                softly -> {
+                    softly.assertThat(result.getAddress()).isEqualTo("대전광역시 유성구 대학로 291");
+                    softly.assertThat(result.getDeliveryPrice()).isEqualTo(4000);
+                    softly.assertThat(result.getDescription()).isEqualTo("테스트 상점2입니다.");
+                    softly.assertThat(result.getName()).isEqualTo("테스트 상점2");
+                    softly.assertThat(result.getShopImages()).hasSize(3);
+                    softly.assertThat(result.getShopOpens()).hasSize(7);
+                    softly.assertThat(result.getShopCategories()).hasSize(1);
+                }
+            );
+        });
     }
 
     @Test
@@ -432,23 +434,14 @@ class OwnerShopApiTest extends AcceptanceTest {
                           "image_urls": [
                             "https://test-image.com/짜장면.jpg"
                           ],
-                          "is_single": false,
+                          "is_single": true,
                           "name": "짜장면",
-                          "option_prices": [
-                            {
-                              "option": "중",
-                              "price": 10000
-                            },
-                            {
-                              "option": "소",
-                              "price": 5000
-                            }
-                          ]
+                          "option_prices": null,
+                          "single_price": 10000
                         }
                         """, menuCategory.getId()))
             )
             .andExpect(status().isCreated());
-
         transactionTemplate.executeWithoutResult(status -> {
             Menu menu = menuRepository.getById(1);
             assertSoftly(
@@ -491,30 +484,32 @@ class OwnerShopApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated());
-        transactionTemplate.executeWithoutResult(status -> {
-            Menu menu = menuRepository.getById(1);
-            assertSoftly(
-                softly -> {
-                    List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
-                    List<MenuOption> menuOptions = menu.getMenuOptions();
-                    List<MenuImage> menuImages = menu.getMenuImages();
-                    softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
-                    softly.assertThat(menu.getName()).isEqualTo("짜장면");
-                    softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
-                    softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
-                    softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
-                }
-            );
-        });
+
+        System.out.println("####test#####");
+        System.out.println(menuRepository.findAll());
+        Menu menu = menuRepository.getById(1);
+        assertSoftly(
+            softly -> {
+                List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
+                List<MenuOption> menuOptions = menu.getMenuOptions();
+                List<MenuImage> menuImages = menu.getMenuImages();
+                softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
+                softly.assertThat(menu.getName()).isEqualTo("짜장면");
+                softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
+                softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
+                softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
+            }
+        );
     }
 
     @Test
     void 사장님이_메뉴_카테고리를_추가한다() throws Exception {
+        menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
         mockMvc.perform(
                 post("/owner/shops/{id}/menus/categories", shop_마슬랜.getId())
                     .header("Authorization", "Bearer " + token_현수)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .contentType("""
+                    .content("""
                         {
                            "name": "대박메뉴"
                         }
@@ -560,12 +555,9 @@ class OwnerShopApiTest extends AcceptanceTest {
                     List<MenuImage> menuImages = result.getMenuImages();
                     softly.assertThat(result.getDescription()).isEqualTo("테스트메뉴수정");
                     softly.assertThat(result.getName()).isEqualTo("짜장면2");
-
                     softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.net/테스트메뉴.jpeg");
                     softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(2);
-
                     softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
-
                 }
             );
         });
@@ -748,6 +740,7 @@ class OwnerShopApiTest extends AcceptanceTest {
 
     @Test
     void 권한이_없는_상점_사장님이_특정_메뉴_조회한다() throws Exception {
+        menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
         // given
         mockMvc.perform(
                 get("/owner/shops/menus/{menuId}", 1)
@@ -821,7 +814,9 @@ class OwnerShopApiTest extends AcceptanceTest {
                 softly.assertThat(eventArticle.getEndDate()).isEqualTo(endDate);
             }
         );
-        verify(shopEventListener, times(1)).onShopEventCreate(any());
+        forceVerify(() -> verify(shopEventListener, times(1)).onShopEventCreate(any()));
+        clearTable();
+        setUp();
     }
 
     @Test
@@ -848,22 +843,20 @@ class OwnerShopApiTest extends AcceptanceTest {
                         endDate)
                     )
             )
-            .andExpect(status().isNoContent());
+            .andExpect(status().isCreated());
 
-        transactionTemplate.executeWithoutResult(status -> {
-            EventArticle result = eventArticleRepository.getById(eventArticle.getId());
-            assertSoftly(
-                softly -> {
-                    softly.assertThat(result.getShop().getId()).isEqualTo(1);
-                    softly.assertThat(result.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
-                    softly.assertThat(result.getContent()).isEqualTo("테스트 이벤트입니다.");
-                    softly.assertThat(result.getThumbnailImages().get(0).getThumbnailImage())
-                        .isEqualTo("https://test.com/test1.jpg");
-                    softly.assertThat(result.getStartDate()).isEqualTo(startDate);
-                    softly.assertThat(result.getEndDate()).isEqualTo(endDate);
-                }
-            );
-        });
+        EventArticle result = eventArticleRepository.getById(eventArticle.getId());
+        assertSoftly(
+            softly -> {
+                softly.assertThat(result.getShop().getId()).isEqualTo(1);
+                softly.assertThat(result.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
+                softly.assertThat(result.getContent()).isEqualTo("테스트 이벤트입니다.");
+                softly.assertThat(result.getThumbnailImages().get(0).getThumbnailImage())
+                    .isEqualTo("https://test.com/test1.jpg");
+                softly.assertThat(result.getStartDate()).isEqualTo(startDate);
+                softly.assertThat(result.getEndDate()).isEqualTo(endDate);
+            }
+        );
     }
 
     @Test
@@ -886,7 +879,7 @@ class OwnerShopApiTest extends AcceptanceTest {
     void 이미지_url의_요소가_공백인_채로_상점을_수정하면_400에러가_반환된다() throws Exception {
         // given
         mockMvc.perform(
-                get("/owner/shops/{shopId}", shop_마슬랜.getId())
+                put("/owner/shops/{shopId}", shop_마슬랜.getId())
                     .header("Authorization", "Bearer " + token_현수)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(String.format("""
