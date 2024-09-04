@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.Menu;
-import in.koreatech.koin.domain.shop.model.ReportStatus;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopReview;
 import in.koreatech.koin.domain.user.model.Student;
@@ -72,8 +70,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("옵션이 하나 있는 상점의 메뉴를 조회한다.")
-    void findMenuSingleOption() {
+    void 옵션이_하나_있는_상점의_메뉴를_조회한다() {
         // given
         Menu menu = menuFixture.짜장면_단일메뉴(마슬랜, menuCategoryFixture.메인메뉴(마슬랜));
 
@@ -109,8 +106,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("옵션이 여러 개 있는 상점의 메뉴를 조회한다.")
-    void findMenuMultipleOption() {
+    void 옵션이_여러_개_있는_상점의_메뉴를_조회한다() {
         // given
         Menu menu = menuFixture.짜장면_옵션메뉴(마슬랜, menuCategoryFixture.메인메뉴(마슬랜));
 
@@ -190,8 +186,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("상점의 메뉴 카테고리들을 조회한다.")
-    void findShopMenuCategories() {
+    void 상점의_메뉴_카테고리들을_조회한다() {
         // given
         menuCategoryFixture.사이드메뉴(마슬랜);
         menuCategoryFixture.세트메뉴(마슬랜);
@@ -228,8 +223,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("특정 상점 조회")
-    void getShop() {
+    void 특정_상점_조회() {
         // given
         menuCategoryFixture.사이드메뉴(마슬랜);
         menuCategoryFixture.세트메뉴(마슬랜);
@@ -243,59 +237,58 @@ class ShopApiTest extends AcceptanceTest {
 
         JsonAssertions.assertThat(response.asPrettyString())
             .isEqualTo("""
-                {
-                    "address": "천안시 동남구 병천면 1600",
-                    "delivery": true,
-                    "delivery_price": 3000,
-                    "description": "마슬랜 치킨입니다.",
-                    "id": 1,
-                    "image_urls": [
-                        "https://test-image.com/마슬랜.png",
-                        "https://test-image.com/마슬랜2.png"
-                    ],
-                    "menu_categories": [
-                        {
-                            "id": 2,
-                            "name": "세트 메뉴"
-                        },
-                        {
-                            "id": 1,
-                            "name": "사이드 메뉴"
-                        }                        
-                    ],
-                    "name": "마슬랜 치킨",
-                    "open": [
-                        {
-                            "day_of_week": "MONDAY",
-                            "closed": false,
-                            "open_time": "00:00",
-                            "close_time": "21:00"
-                        },
-                        {
-                            "day_of_week": "FRIDAY",
-                            "closed": false,
-                            "open_time": "00:00",
-                            "close_time": "00:00"
-                        }
-                    ],
-                    "pay_bank": true,
-                    "pay_card": true,
-                    "phone": "010-7574-1212",
-                    "shop_categories": [
-                       
-                    ],
-                    "updated_at": "2024-01-15",
-                    "is_event": false,
-                    "bank": "국민",
-                    "account_number": "01022595923"
-                }
-                """
+                 {
+                     "address": "천안시 동남구 병천면 1600",
+                     "delivery": true,
+                     "delivery_price": 3000,
+                     "description": "마슬랜 치킨입니다.",
+                     "id": 1,
+                     "image_urls": [
+                         "https://test-image.com/마슬랜.png",
+                         "https://test-image.com/마슬랜2.png"
+                     ],
+                     "menu_categories": [
+                         {
+                             "id": 2,
+                             "name": "세트 메뉴"
+                         },
+                         {
+                             "id": 1,
+                             "name": "사이드 메뉴"
+                         }
+                     ],
+                     "name": "마슬랜 치킨",
+                     "open": [
+                         {
+                             "day_of_week": "MONDAY",
+                             "closed": false,
+                             "open_time": "00:00",
+                             "close_time": "21:00"
+                         },
+                         {
+                             "day_of_week": "FRIDAY",
+                             "closed": false,
+                             "open_time": "00:00",
+                             "close_time": "00:00"
+                         }
+                     ],
+                     "pay_bank": true,
+                     "pay_card": true,
+                     "phone": "010-7574-1212",
+                     "shop_categories": [
+                       \s
+                     ],
+                     "updated_at": "2024-01-15",
+                     "is_event": false,
+                     "bank": "국민",
+                     "account_number": "01022595923"
+                 }
+                \s"""
             );
     }
 
     @Test
-    @DisplayName("특정 상점 모든 메뉴 조회")
-    void getShopMenus() {
+    void 특정_상점_모든_메뉴_조회() {
         menuFixture.짜장면_단일메뉴(마슬랜, menuCategoryFixture.추천메뉴(마슬랜));
         menuFixture.짜장면_옵션메뉴(마슬랜, menuCategoryFixture.세트메뉴(마슬랜));
         var response = RestAssured
@@ -366,8 +359,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("모든 상점 조회")
-    void getAllShop() {
+    void 모든_상점_조회() {
         // given
         shopFixture.영업중이_아닌_신전_떡볶이(owner);
         var response = RestAssured
@@ -477,8 +469,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("상점들의 모든 카테고리를 조회한다.")
-    void getAllShopCategories() {
+    void 상점들의_모든_카테고리를_조회한다() {
         // given
         shopCategoryFixture.카테고리_일반음식();
         shopCategoryFixture.카테고리_치킨();
@@ -511,8 +502,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("특정 상점의 이벤트들을 조회한다.")
-    void getShopEvents() {
+    void 특정_상점의_이벤트들을_조회한다() {
         eventArticleFixture.할인_이벤트(
             마슬랜,
             LocalDate.now(clock).minusDays(3),
@@ -568,8 +558,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("이벤트 진행중인 상점의 정보를 조회한다.")
-    void getShopWithEvents() {
+    void 이벤트_진행중인_상점의_정보를_조회한다() {
         eventArticleFixture.할인_이벤트(
             마슬랜,
             LocalDate.now(clock).minusDays(3),
@@ -593,8 +582,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("이벤트 진행중이지 않은 상점의 정보를 조회한다.")
-    void getShopWithoutEvents() {
+    void 이벤트_진행중이지_않은_상점의_정보를_조회한다() {
         eventArticleFixture.할인_이벤트(
             마슬랜,
             LocalDate.now(clock).plusDays(3),
@@ -619,8 +607,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("이벤트 베너 조회")
-    void ownerShopDeleteEvent() {
+    void 이벤트_베너_조회() {
         eventArticleFixture.참여_이벤트(
             마슬랜,
             LocalDate.now(clock),
