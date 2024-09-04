@@ -1,7 +1,6 @@
 CREATE TABLE course_type
 (
     id         INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    year       VARCHAR(255) NOT NULL,
     name       VARCHAR(255) NOT NULL,
     is_deleted tinyint               DEFAULT 0,
     created_at timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,

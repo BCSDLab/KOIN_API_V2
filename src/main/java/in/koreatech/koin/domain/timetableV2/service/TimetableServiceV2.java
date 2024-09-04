@@ -196,31 +196,4 @@ public class TimetableServiceV2 {
                 semesterId);
         mainTimetableFrame.cancelMain();
     }
-
-    public void calculateCredit(Integer userId) {
-        Student student = studentRepository.getById(userId);
-        List<StandardGraduationRequirements> standardGraduationRequirements =
-                standardGraduationRequirementsRepository.findByYearAndDepartment(student.getStudentNumber().substring(0, 4),
-                        student.getDepartment());
-        for (StandardGraduationRequirements standardGraduationRequirement : standardGraduationRequirements) {
-            Integer standardGraduationRequirementId = standardGraduationRequirement.getId();
-            List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(student.getUser().getId());
-            for (TimetableFrame timetableFrame : timetableFrames) {
-                List<TimetableLecture> timetableLectures = timetableLectureRepositoryV2
-                        .findAllByStandardGraduationRequirementsIdAndTimetableFrameId(standardGraduationRequirementId, timetableFrame.getId());
-                int grades = timetableLectures.stream()
-                        .mapToInt(timeTableLecture -> {
-                            if (timeTableLecture.getLecture() != null) {
-                                return Integer.parseInt(timeTableLecture.getLecture().getGrades());
-                            } else {
-                                return Integer.parseInt(timeTableLecture.getGrades());
-                            }
-                        })
-                        .sum();
-                Optional<StudentCourseCalculation> studentCourseCalculation = studentCourseCalculationRepository
-                        .findByUserIdAndStandardGraduationRequirementsId(userId, standardGraduationRequirementId);
-                studentCourseCalculation.ifPresent(courseCalculation -> courseCalculation.calculateCompletedGrades(grades));
-            }
-        }
-    }
 }
