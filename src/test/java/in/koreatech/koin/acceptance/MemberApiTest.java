@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,7 @@ class MemberApiTest extends AcceptanceTest {
 
     @BeforeAll
     void setUp() {
+        clearTable();
         backend = trackRepository.save(
             Track.builder()
                 .name("BackEnd")
@@ -62,40 +65,12 @@ class MemberApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(content().json("""
-                {
-                    "lands": [
-                        {
-                            "internal_name": "신",
-                            "monthly_fee": "100",
-                            "latitude": 37.555,
-                            "charter_fee": "1000",
-                            "name": "신안빌",
-                            "id": 1,
-                            "longitude": 126.555,
-                            "room_type": "원룸"
-                        },
-                        {
-                            "internal_name": "에",
-                            "monthly_fee": "100",
-                            "latitude": 37.555,
-                            "charter_fee": "1000",
-                            "name": "에듀윌",
-                            "id": 2,
-                            "longitude": 126.555,
-                            "room_type": "원룸"
-                        }
-                    ]
-                }
-                """))
             .andReturn();
 
-        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
-
-        JsonAssertions.assertThat(result.getRequest().getContentAsString())
-            .isEqualTo(String.format("""
+        JsonAssertions.assertThat(result.getResponse().getContentAsString())
+            .isEqualTo("""
                     {
-                        "id": %d,
+                        "id": 1,
                         "name": "최준호",
                         "student_number": "2019136135",
                         "track": "BackEnd",
@@ -103,13 +78,10 @@ class MemberApiTest extends AcceptanceTest {
                         "email": "testjuno@gmail.com",
                         "image_url": "https://imagetest.com/juno.jpg",
                         "is_deleted": false,
-                        "created_at": "%s",
-                        "updated_at": "%s"
-                    }""",
-                member.getId(),
-                jsonNode.get("created_at").asText(),
-                jsonNode.get("updated_at").asText()
-            ));
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
+                    }"""
+            );
     }
 
     @Test

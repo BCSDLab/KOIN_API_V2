@@ -4,6 +4,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import java.time.Clock;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,9 +48,6 @@ public abstract class AcceptanceTest {
 
     private static final String ROOT = "test";
     private static final String ROOT_PASSWORD = "1234";
-
-    @Autowired
-    public ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public MockMvc mockMvc;
@@ -133,6 +131,7 @@ public abstract class AcceptanceTest {
         if (RestAssured.port == RestAssured.UNDEFINED_PORT) {
             RestAssured.port = port;
         }
+        // dataInitializer.clearAndTruncate();
         dataInitializer.clearAndInitIncrement();
     }
 

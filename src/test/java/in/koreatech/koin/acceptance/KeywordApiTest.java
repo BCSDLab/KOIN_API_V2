@@ -13,11 +13,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -35,6 +38,7 @@ import in.koreatech.koin.fixture.KeywordFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class KeywordApiTest extends AcceptanceTest {
 
@@ -64,12 +68,12 @@ public class KeywordApiTest extends AcceptanceTest {
 
     @BeforeAll
     void setup() {
+        clearTable();
         준호_학생 = userFixture.준호_학생();
         token = userFixture.getToken(준호_학생.getUser());
     }
 
     @Test
-    @Transactional
     void 알림_키워드_추가() throws Exception {
         mockMvc.perform(
                 post("/articles/keyword")
@@ -91,7 +95,6 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 알림_키워드_10개_넘게_추가시_400에러() throws Exception {
         for (int i = 0; i < 10; i++) {
             mockMvc.perform(
@@ -120,7 +123,6 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 알림_키워드_삭제() throws Exception {
         ArticleKeywordUserMap articleKeywordUserMap = keywordFixture.키워드1("수강 신청", 준호_학생.getUser());
 
@@ -136,7 +138,6 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 자신의_알림_키워드_조회() throws Exception {
         ArticleKeywordUserMap articleKeywordUserMap1 = keywordFixture.키워드1("수강신청", 준호_학생.getUser());
         ArticleKeywordUserMap articleKeywordUserMap2 = keywordFixture.키워드1("장학금", 준호_학생.getUser());
@@ -170,7 +171,6 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 사용자_아무_것도_추가_안_했을_때_자신의_알림_키워드_조회_빈_리스트_반환() throws Exception {
         mockMvc.perform(
                 get("/articles/keyword/me")
@@ -187,7 +187,6 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 가장_인기_있는_키워드_추천() throws Exception {
         // Redis에 인기 키워드 15개 저장
         List<ArticleKeywordSuggestCache> hotKeywords = new ArrayList<>();
@@ -218,7 +217,6 @@ public class KeywordApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 새로운_공지사항이_올라오고_해당_키워드를_갖고_있는_사용자가_있을_경우_알림이_발송된다() throws Exception {
         Board board = boardFixture.자유게시판();
 
@@ -242,7 +240,9 @@ public class KeywordApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
-        verify(articleKeywordEventListener).onKeywordRequest(any());
+        forceVerify(() -> verify(articleKeywordEventListener).onKeywordRequest(any()));
+        clearTable();
+        setup();
     }
 
     @Test
@@ -271,6 +271,8 @@ public class KeywordApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
-        verify(articleKeywordEventListener, never()).onKeywordRequest(any());
+        forceVerify(() -> verify(articleKeywordEventListener, never()).onKeywordRequest(any()));
+        clearTable();
+        setup();
     }
 }

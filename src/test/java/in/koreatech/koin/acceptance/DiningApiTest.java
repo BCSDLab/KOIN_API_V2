@@ -11,11 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -30,8 +33,8 @@ import in.koreatech.koin.fixture.DiningFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DiningApiTest extends AcceptanceTest {
 
     @Autowired
@@ -58,6 +61,7 @@ class DiningApiTest extends AcceptanceTest {
 
     @BeforeAll
     void setUp() {
+        clearTable();
         coop_준기 = userFixture.준기_영양사().getUser();
         token_준기 = userFixture.getToken(coop_준기);
         owner_현수 = userFixture.현수_사장님().getUser();
@@ -103,6 +107,7 @@ class DiningApiTest extends AcceptanceTest {
 
     @Test
     void 잘못된_형식의_날짜로_조회한다_날짜의_형식이_잘못되었다면_400() throws Exception {
+
         mockMvc.perform(
                 get("/dinings?date=20240115")
                     .contentType(MediaType.APPLICATION_JSON)

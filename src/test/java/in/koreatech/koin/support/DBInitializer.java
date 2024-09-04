@@ -89,12 +89,6 @@ public class DBInitializer {
         }
         entityManager.clear();
         initIncrement();
-        // Redis 초기화
-        redisTemplate.getConnectionFactory().getConnection().flushAll();
-        // Mongo 초기화
-        for (String collectionName : mongoTemplate.getCollectionNames()) {
-            mongoTemplate.remove(new Query(), collectionName);
-        }
     }
 
     private void clear() {

@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.fixture.ActivityFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ActivityApiTest extends AcceptanceTest {
 
@@ -23,7 +26,6 @@ class ActivityApiTest extends AcceptanceTest {
     protected ActivityFixture activityFixture;
 
     @Test
-    @Transactional
     void BCSD_Lab_활동_내역을_조회한다() throws Exception {
         activityFixture.builder()
             .title("BCSD/KAP 통합")
@@ -92,7 +94,6 @@ class ActivityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void BCSD_Lab_활동_내역을_조회한다_파라미터가_없는_경우_전체조회() throws Exception {
         activityFixture.builder()
             .title("BCSD/KAP 통합")
