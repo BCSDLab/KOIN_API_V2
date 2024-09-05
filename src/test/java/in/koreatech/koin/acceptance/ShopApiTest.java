@@ -2,6 +2,9 @@ package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED;
 import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -70,20 +73,13 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 옵션이_하나_있는_상점의_메뉴를_조회한다() {
+    void 옵션이_하나_있는_상점의_메뉴를_조회한다() throws Exception {
         // given
         Menu menu = menuFixture.짜장면_단일메뉴(마슬랜, menuCategoryFixture.메인메뉴(마슬랜));
-
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
+            ).andExpect(status().isOk())
+            .andExpect(content().json(("""
                 {
                     "id": 1,
                     "shop_id": 1,
@@ -101,12 +97,12 @@ class ShopApiTest extends AcceptanceTest {
                         "https://test.com/짜장면22.jpg"
                     ]
                 }
-                """
+                """))
             );
     }
 
     @Test
-    void 옵션이_여러_개_있는_상점의_메뉴를_조회한다() {
+    void 옵션이_여러_개_있는_상점의_메뉴를_조회한다() throws Exception {
         // given
         Menu menu = menuFixture.짜장면_옵션메뉴(마슬랜, menuCategoryFixture.메인메뉴(마슬랜));
 
@@ -186,7 +182,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 상점의_메뉴_카테고리들을_조회한다() {
+    void 상점의_메뉴_카테고리들을_조회한다() throws Exception {
         // given
         menuCategoryFixture.사이드메뉴(마슬랜);
         menuCategoryFixture.세트메뉴(마슬랜);
@@ -223,7 +219,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 특정_상점_조회() {
+    void 특정_상점_조회() throws Exception {
         // given
         menuCategoryFixture.사이드메뉴(마슬랜);
         menuCategoryFixture.세트메뉴(마슬랜);
@@ -288,7 +284,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 특정_상점_모든_메뉴_조회() {
+    void 특정_상점_모든_메뉴_조회() throws Exception {
         menuFixture.짜장면_단일메뉴(마슬랜, menuCategoryFixture.추천메뉴(마슬랜));
         menuFixture.짜장면_옵션메뉴(마슬랜, menuCategoryFixture.세트메뉴(마슬랜));
         var response = RestAssured
@@ -359,7 +355,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 모든_상점_조회() {
+    void 모든_상점_조회() throws Exception {
         // given
         shopFixture.영업중이_아닌_신전_떡볶이(owner);
         var response = RestAssured
@@ -469,7 +465,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 상점들의_모든_카테고리를_조회한다() {
+    void 상점들의_모든_카테고리를_조회한다() throws Exception {
         // given
         shopCategoryFixture.카테고리_일반음식();
         shopCategoryFixture.카테고리_치킨();
@@ -502,7 +498,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 특정_상점의_이벤트들을_조회한다() {
+    void 특정_상점의_이벤트들을_조회한다() throws Exception {
         eventArticleFixture.할인_이벤트(
             마슬랜,
             LocalDate.now(clock).minusDays(3),
@@ -558,7 +554,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 이벤트_진행중인_상점의_정보를_조회한다() {
+    void 이벤트_진행중인_상점의_정보를_조회한다() throws Exception {
         eventArticleFixture.할인_이벤트(
             마슬랜,
             LocalDate.now(clock).minusDays(3),
@@ -582,7 +578,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 이벤트_진행중이지_않은_상점의_정보를_조회한다() {
+    void 이벤트_진행중이지_않은_상점의_정보를_조회한다() throws Exception {
         eventArticleFixture.할인_이벤트(
             마슬랜,
             LocalDate.now(clock).plusDays(3),
@@ -607,7 +603,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 이벤트_베너_조회() {
+    void 이벤트_베너_조회() throws Exception {
         eventArticleFixture.참여_이벤트(
             마슬랜,
             LocalDate.now(clock),
@@ -650,7 +646,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 리뷰_평점순으로_정렬하여_모든_상점을_조회한다() {
+    void 리뷰_평점순으로_정렬하여_모든_상점을_조회한다() throws Exception {
         // given
         Shop 영업중인_티바 = shopFixture.영업중인_티바(owner);
         shopReviewFixture.리뷰_4점(익명_학생, 영업중인_티바);
@@ -766,7 +762,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 리뷰_개수순으로_정렬하여_모든_상점을_조회한다() {
+    void 리뷰_개수순으로_정렬하여_모든_상점을_조회한다() throws Exception {
         // given
         Shop 영업중인_티바 = shopFixture.영업중인_티바(owner);
         shopReviewFixture.리뷰_4점(익명_학생, 영업중인_티바);
@@ -885,7 +881,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 리뷰_개수가_많아도_영업중이_아니라면_정렬_우선순위가_낮은_상태로_모든_상점을_조회한다() {
+    void 리뷰_개수가_많아도_영업중이_아니라면_정렬_우선순위가_낮은_상태로_모든_상점을_조회한다() throws Exception {
         // given
         Shop 영업중이_아닌_신전떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(owner);
         shopReviewFixture.리뷰_4점(익명_학생, 영업중이_아닌_신전떡볶이);
@@ -1004,7 +1000,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 운영중인_상점만_필터하여_모든_상점을_조회한다() {
+    void 운영중인_상점만_필터하여_모든_상점을_조회한다() throws Exception {
         // given
         Shop 영업중이_아닌_신전떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(owner);
         shopReviewFixture.리뷰_4점(익명_학생, 영업중이_아닌_신전떡볶이);
@@ -1064,7 +1060,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 배달_가능한_상점만_필터하여_모든_상점을_조회한다() {
+    void 배달_가능한_상점만_필터하여_모든_상점을_조회한다() throws Exception {
         // given
         Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
         shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
@@ -1124,7 +1120,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 배달_가능하고_영업중인_상점만_필터하여_모든_상점을_조회한다() {
+    void 배달_가능하고_영업중인_상점만_필터하여_모든_상점을_조회한다() throws Exception {
         // given
         Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
         shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
@@ -1187,7 +1183,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 영업중인_상점만_필터하여_리뷰_개수_순으로_모든_상점을_조회한다() {
+    void 영업중인_상점만_필터하여_리뷰_개수_순으로_모든_상점을_조회한다() throws Exception {
         // given
         Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
         shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
@@ -1309,7 +1305,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 신고된_리뷰의_내용도_반영해서_모든_상점을_조회한다() {
+    void 신고된_리뷰의_내용도_반영해서_모든_상점을_조회한다() throws Exception {
         // given
         Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
         ShopReview 리뷰_4점 = shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
@@ -1426,7 +1422,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 신고_반려된_리뷰는_반영된_상태로_모든_상점을_조회한다() {
+    void 신고_반려된_리뷰는_반영된_상태로_모든_상점을_조회한다() throws Exception {
         // given
         Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
         ShopReview 리뷰_4점 = shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
