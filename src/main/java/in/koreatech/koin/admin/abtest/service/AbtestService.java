@@ -211,7 +211,7 @@ public class AbtestService {
         if (winnerResponse.isPresent()) {
             return AbtestAssignResponse.of(winnerResponse.get(), accessHistory);
         }
-        validateAssignedUser(abtest, accessHistoryId, userId);
+        validateAssignedUser(abtest, accessHistory.getId(), userId);
         List<AbtestVariableCount> cacheCount = loadCacheCount(abtest);
         AbtestVariable variable = abtest.findAssignVariable(cacheCount);
         if (userId != null) {
@@ -282,7 +282,8 @@ public class AbtestService {
 
     private void validateAssignedUser(Abtest abtest, Integer accessHistoryId, Integer userId) {
         AccessHistory accessHistory = accessHistoryRepository.getById(accessHistoryId);
-        if (userId != null && !Objects.equals(accessHistory.getDevice().getUser().getId(), userId)) {
+        if (userId != null && accessHistory.getDevice() != null
+            && !Objects.equals(accessHistory.getDevice().getUser().getId(), userId)) {
             return;
         }
         if (abtest.getAbtestVariables().stream()

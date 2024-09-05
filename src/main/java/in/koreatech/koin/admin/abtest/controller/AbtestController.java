@@ -138,7 +138,7 @@ public class AbtestController implements AbtestApi {
 
     @PostMapping("/assign")
     public ResponseEntity<AbtestAssignResponse> assignAbtestVariable(
-        @RequestHeader("accessHistoryId") Integer accessHistoryId,
+        @RequestHeader(value = "accessHistoryId", required = false) Integer accessHistoryId,
         @UserAgent UserAgentInfo userAgentInfo,
         @UserId Integer userId,
         @RequestBody @Valid AbtestAssignRequest abtestAssignRequest

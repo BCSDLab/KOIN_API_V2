@@ -10,7 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@RedisHash("AbtestVariableIp")
+@RedisHash("AbtestVariableAssign")
 public class AbtestVariableAssign {
 
     public static final String DELIMITER = ":";
