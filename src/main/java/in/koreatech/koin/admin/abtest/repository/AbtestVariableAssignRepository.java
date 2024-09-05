@@ -16,11 +16,12 @@ public interface AbtestVariableAssignRepository extends Repository<AbtestVariabl
 
     void deleteById(String id);
 
-    default Optional<AbtestVariableAssign> findByVariableIdAndIp(Integer variableId, Integer accessHistoryId) {
+    default Optional<AbtestVariableAssign> findByVariableIdAndAccessHistoryId(Integer variableId,
+        Integer accessHistoryId) {
         return findById(variableId + DELIMITER + accessHistoryId);
     }
 
-    default void deleteByVariableIdAndIp(Integer variableId, Integer accessHistoryId) {
+    default void deleteByVariableIdAndAccessHistoryId(Integer variableId, Integer accessHistoryId) {
         deleteById(variableId + DELIMITER + accessHistoryId);
     }
 }

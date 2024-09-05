@@ -14,11 +14,11 @@ public interface AccessHistoryRepository extends Repository<AccessHistory, Integ
     Optional<AccessHistory> findById(Integer id);
 
     Optional<AccessHistory> findByDeviceId(Integer deviceId);
-/*
-    default AccessHistory getByPublicIp(String publicIp) {
-        return findById(publicIp).orElseThrow(() ->
-            AccessHistoryNotFoundException.withDetail("publicIp: " + publicIp));
-    }*/
+
+    default AccessHistory getById(Integer accessHistoryId) {
+        return findById(accessHistoryId).orElseThrow(() ->
+            AccessHistoryNotFoundException.withDetail("accessHistoryId: " + accessHistoryId));
+    }
 
     default AccessHistory getByDeviceId(Integer deviceId) {
         return findByDeviceId(deviceId).orElseThrow(() ->

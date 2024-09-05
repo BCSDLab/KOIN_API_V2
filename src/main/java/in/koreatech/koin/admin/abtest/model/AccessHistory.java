@@ -109,4 +109,8 @@ public class AccessHistory extends BaseEntity {
             accessHistoryAbtestVariable -> accessHistoryAbtestVariable.getVariable().equals(variable)
         );
     }
+
+    public void updateLastAccessedAt() {
+        this.lastAccessedAt = LocalDateTime.now();
+    }
 }

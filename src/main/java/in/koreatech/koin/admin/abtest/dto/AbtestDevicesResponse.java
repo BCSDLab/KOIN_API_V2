@@ -40,7 +40,7 @@ public record AbtestDevicesResponse(
                 device.getId(),
                 device.getType(),
                 device.getModel(),
-                device.getLastAccessedAt().toLocalDate());
+                device.getAccessHistory().getLastAccessedAt().toLocalDate());
         }
     }
 }

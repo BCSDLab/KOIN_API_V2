@@ -29,7 +29,6 @@ public class AbtestVariableAssign {
         this.expiration = expiration;
     }
 
-    //TODO: 이제 해야할거: VariableIp 캐시를 어떻게 Ip 제거하고 variableId, accessHistoryId로 유지할지 고민해보기
     public static AbtestVariableAssign of(Integer variableId, Integer accessHistoryId) {
         return AbtestVariableAssign.builder()
             .id(variableId + DELIMITER + accessHistoryId)

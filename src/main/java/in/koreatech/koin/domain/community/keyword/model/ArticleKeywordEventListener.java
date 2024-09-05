@@ -32,14 +32,14 @@ public class ArticleKeywordEventListener {
         List<Notification> notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailType(ARTICLE_KEYWORD, null)
             .stream()
-            .filter(subscribe -> subscribe.getDevice().getFcmToken() != null)
+            .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .filter(subscribe -> event.keyword().getArticleKeywordUserMaps().stream()
-                .anyMatch(map -> map.getUser().getId().equals(subscribe.getDevice().getFcmToken())))
+                .anyMatch(map -> map.getUser().getId().equals(subscribe.getUser().getDeviceToken())))
             .map(subscribe -> notificationFactory.generateKeywordNotification(
                 KEYWORD,
                 schemeUri,
                 event.keyword().getKeyword(),
-                subscribe.getDevice()
+                subscribe.getUser()
             )).toList();
 
         notificationService.push(notifications);
