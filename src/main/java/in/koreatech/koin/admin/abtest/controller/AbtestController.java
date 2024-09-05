@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +26,6 @@ import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
 import in.koreatech.koin.admin.abtest.service.AbtestService;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
-import in.koreatech.koin.global.ipaddress.IpAddress;
 import in.koreatech.koin.global.useragent.UserAgent;
 import in.koreatech.koin.global.useragent.UserAgentInfo;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -126,21 +126,22 @@ public class AbtestController implements AbtestApi {
 
     @GetMapping("/me")
     public ResponseEntity<String> getMyAbtestVariable(
-        @IpAddress String ipAddress,
+        @RequestHeader("accessHistoryId") Integer accessHistoryId,
+        @UserId Integer userId,
         @RequestParam(name = "title") String title
     ) {
-        String response = abtestService.getMyVariable(title, ipAddress);
+        String response = abtestService.getMyVariable(accessHistoryId, userId, title);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/assign")
     public ResponseEntity<String> assignAbtestVariable(
+        @RequestHeader("accessHistoryId") Integer accessHistoryId,
         @UserAgent UserAgentInfo userAgentInfo,
-        @IpAddress String ipAddress,
         @UserId Integer userId,
         @RequestBody @Valid AbtestAssignRequest abtestAssignRequest
     ) {
-        String response = abtestService.assignVariable(userAgentInfo, ipAddress, userId, abtestAssignRequest);
+        String response = abtestService.assignVariable(accessHistoryId, userAgentInfo, userId, abtestAssignRequest);
         return ResponseEntity.ok(response);
     }
 }

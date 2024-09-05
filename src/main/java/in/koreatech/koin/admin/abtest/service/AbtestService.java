@@ -27,6 +27,7 @@ import in.koreatech.koin.admin.abtest.exception.AbtestWinnerNotDecidedException;
 import in.koreatech.koin.admin.abtest.model.Abtest;
 import in.koreatech.koin.admin.abtest.model.AbtestStatus;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
+import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableAssign;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
@@ -35,10 +36,9 @@ import in.koreatech.koin.admin.abtest.repository.AbtestVariableAssignTemplateRep
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableCustomRepository;
-import in.koreatech.koin.admin.abtest.model.AccessHistory;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.model.Criteria;
@@ -203,7 +203,8 @@ public class AbtestService {
     }
 
     @Transactional
-    public String assignVariable(UserAgentInfo userAgentInfo, Integer userId, AbtestAssignRequest request) {
+    public String assignVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo, Integer userId,
+        AbtestAssignRequest request) {
         Abtest abtest = abtestRepository.getByTitle(request.title());
         Optional<String> winner = returnWinnerIfClosed(abtest);
         if (winner.isPresent()) {
@@ -251,7 +252,7 @@ public class AbtestService {
     }
 
     @Transactional
-    public String getMyVariable(String title, String ipAddress) {
+    public String getMyVariable(Integer accessHistoryId, Integer userId, String title) {
         Abtest abtest = abtestRepository.getByTitle(title);
         syncCacheCountToDB(abtest);
         Optional<String> winner = returnWinnerIfClosed(abtest);

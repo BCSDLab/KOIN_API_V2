@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -23,7 +24,6 @@ import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
-import in.koreatech.koin.global.ipaddress.IpAddress;
 import in.koreatech.koin.global.useragent.UserAgent;
 import in.koreatech.koin.global.useragent.UserAgentInfo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -188,7 +188,8 @@ public interface AbtestApi {
     @Operation(summary = "(NORMAL) 자신의 실험군 조회")
     @GetMapping("/me")
     ResponseEntity<String> getMyAbtestVariable(
-        @IpAddress String ipAddress,
+        @RequestHeader("accessHistoryId") Integer accessHistoryId,
+        @UserId Integer userId,
         @RequestParam(name = "title") String title
     );
 
@@ -202,8 +203,8 @@ public interface AbtestApi {
     @Operation(summary = "(NORMAL) 실험군 최초 편입")
     @PostMapping("/assign")
     ResponseEntity<String> assignAbtestVariable(
+        @RequestHeader("accessHistoryId") Integer accessHistoryId,
         @UserAgent UserAgentInfo userAgentInfo,
-        @IpAddress String ipAddress,
         @UserId Integer userId,
         @RequestBody @Valid AbtestAssignRequest abtestAssignRequest
     );
