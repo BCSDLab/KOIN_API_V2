@@ -127,7 +127,7 @@ public class AbtestController implements AbtestApi {
 
     @GetMapping("/me")
     public ResponseEntity<String> getMyAbtestVariable(
-        @RequestHeader("accessHistoryId") Integer accessHistoryId,
+        @RequestHeader("access_history_id") Integer accessHistoryId,
         @UserAgent UserAgentInfo userAgentInfo,
         @UserId Integer userId,
         @RequestParam(name = "title") String title
@@ -138,7 +138,7 @@ public class AbtestController implements AbtestApi {
 
     @PostMapping("/assign")
     public ResponseEntity<AbtestAssignResponse> assignAbtestVariable(
-        @RequestHeader(value = "accessHistoryId", required = false) Integer accessHistoryId,
+        @RequestHeader(value = "access_history_id", required = false) Integer accessHistoryId,
         @UserAgent UserAgentInfo userAgentInfo,
         @UserId Integer userId,
         @RequestBody @Valid AbtestAssignRequest abtestAssignRequest
