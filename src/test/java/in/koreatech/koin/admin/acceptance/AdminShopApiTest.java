@@ -206,7 +206,6 @@ class AdminShopApiTest extends AcceptanceTest {
                 .isDeleted(false)
                 .build();
             adminShopCategoryRepository.save(request);
-            System.out.println(i);
         }
 
         mockMvc.perform(

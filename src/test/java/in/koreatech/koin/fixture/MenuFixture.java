@@ -74,7 +74,6 @@ public class MenuFixture {
     }
 
     public Menu 짜장면_단일메뉴(Shop shop, MenuCategory menuCategory) {
-
         Menu menu = menuRepository.save(
             Menu.builder()
                 .shopId(shop.getId())
