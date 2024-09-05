@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.restassured.response.Response;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,11 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Autowired
     private SemesterFixture semesterFixture;
+
+    @BeforeAll
+    void setup() {
+        clear();
+    }
 
     @Test
     void 특정_학기_강의를_조회한다() throws Exception {

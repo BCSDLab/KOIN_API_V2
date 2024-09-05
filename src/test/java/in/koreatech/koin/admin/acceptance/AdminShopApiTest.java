@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.assertj.core.api.SoftAssertions;
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -39,11 +40,15 @@ import in.koreatech.koin.fixture.MenuFixture;
 import in.koreatech.koin.fixture.ShopCategoryFixture;
 import in.koreatech.koin.fixture.ShopFixture;
 import in.koreatech.koin.fixture.UserFixture;
+import jakarta.persistence.EntityManager;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AdminShopApiTest extends AcceptanceTest {
+
+    @Autowired
+    EntityManager entityManager;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -87,6 +92,7 @@ class AdminShopApiTest extends AcceptanceTest {
 
     @BeforeAll
     void setUp() {
+        clear();
         admin = userFixture.코인_운영자();
         token_admin = userFixture.getToken(admin);
         owner_현수 = userFixture.현수_사장님();
@@ -422,7 +428,6 @@ class AdminShopApiTest extends AcceptanceTest {
             .andExpect(status().isCreated());
 
         Shop savedShop = adminShopRepository.getById(2);
-
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(savedShop.getAddress()).isEqualTo("대전광역시 유성구 대학로 291");
             softly.assertThat(savedShop.getDeliveryPrice()).isEqualTo(4000);
@@ -496,21 +501,19 @@ class AdminShopApiTest extends AcceptanceTest {
             )
             .andExpect(status().isCreated());
 
-        transactionTemplate.executeWithoutResult(status -> {
-            Menu menu = adminMenuRepository.getById(1);
-            assertSoftly(
-                softly -> {
-                    List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
-                    List<MenuOption> menuOptions = menu.getMenuOptions();
-                    List<MenuImage> menuImages = menu.getMenuImages();
-                    softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
-                    softly.assertThat(menu.getName()).isEqualTo("짜장면");
-                    softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
-                    softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
-                    softly.assertThat(menuOptions).hasSize(2);
-                }
-            );
-        });
+        Menu menu = adminMenuRepository.getById(1);
+        assertSoftly(
+            softly -> {
+                List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
+                List<MenuOption> menuOptions = menu.getMenuOptions();
+                List<MenuImage> menuImages = menu.getMenuImages();
+                softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
+                softly.assertThat(menu.getName()).isEqualTo("짜장면");
+                softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
+                softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
+                softly.assertThat(menuOptions).hasSize(2);
+            }
+        );
     }
 
     @Test
@@ -540,23 +543,22 @@ class AdminShopApiTest extends AcceptanceTest {
             )
             .andExpect(status().isCreated());
 
-        transactionTemplate.executeWithoutResult(status -> {
-            Menu menu = adminMenuRepository.getById(1);
-            assertSoftly(
-                softly -> {
-                    List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
-                    List<MenuOption> menuOptions = menu.getMenuOptions();
-                    List<MenuImage> menuImages = menu.getMenuImages();
-                    softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
-                    softly.assertThat(menu.getName()).isEqualTo("짜장면");
+        Menu menu = adminMenuRepository.getById(1);
+        assertSoftly(
+            softly -> {
+                List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
+                List<MenuOption> menuOptions = menu.getMenuOptions();
+                List<MenuImage> menuImages = menu.getMenuImages();
+                System.out.println("transaction test");
+                softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
+                softly.assertThat(menu.getName()).isEqualTo("짜장면");
 
-                    softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
-                    softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
+                softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
+                softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
 
-                    softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
-                }
-            );
-        });
+                softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
+            }
+        );
     }
 
     @Test

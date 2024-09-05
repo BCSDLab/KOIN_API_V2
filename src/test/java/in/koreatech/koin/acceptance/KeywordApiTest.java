@@ -13,14 +13,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -68,7 +65,7 @@ public class KeywordApiTest extends AcceptanceTest {
 
     @BeforeAll
     void setup() {
-        clearTable();
+        clear();
         준호_학생 = userFixture.준호_학생();
         token = userFixture.getToken(준호_학생.getUser());
     }
@@ -241,7 +238,7 @@ public class KeywordApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
         forceVerify(() -> verify(articleKeywordEventListener).onKeywordRequest(any()));
-        clearTable();
+        clear();
         setup();
     }
 
@@ -272,7 +269,7 @@ public class KeywordApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
         forceVerify(() -> verify(articleKeywordEventListener, never()).onKeywordRequest(any()));
-        clearTable();
+        clear();
         setup();
     }
 }

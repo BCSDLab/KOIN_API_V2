@@ -4,20 +4,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.member.model.Member;
@@ -25,7 +18,6 @@ import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.domain.member.repository.TrackRepository;
 import in.koreatech.koin.fixture.MemberFixture;
 import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -43,7 +35,7 @@ class MemberApiTest extends AcceptanceTest {
 
     @BeforeAll
     void setUp() {
-        clearTable();
+        clear();
         backend = trackRepository.save(
             Track.builder()
                 .name("BackEnd")

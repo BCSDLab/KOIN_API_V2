@@ -16,6 +16,7 @@ import java.util.Optional;
 import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
 import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,11 @@ class UserApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @BeforeAll
+    void setup() {
+        clear();
+    }
 
     @Test
     void 학생이_로그인을_진행한다_구_API_user_login() throws Exception {

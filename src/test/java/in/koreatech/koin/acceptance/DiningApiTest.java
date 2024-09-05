@@ -11,14 +11,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -61,7 +58,7 @@ class DiningApiTest extends AcceptanceTest {
 
     @BeforeAll
     void setUp() {
-        clearTable();
+        clear();
         coop_준기 = userFixture.준기_영양사().getUser();
         token_준기 = userFixture.getToken(coop_준기);
         owner_현수 = userFixture.현수_사장님().getUser();
@@ -237,7 +234,7 @@ class DiningApiTest extends AcceptanceTest {
             .andReturn();
 
         forceVerify(() -> verify(coopEventListener).onDiningSoldOutRequest(any()));
-        clearTable();
+        clear();
         setUp();
     }
 
@@ -258,7 +255,7 @@ class DiningApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andReturn();
         forceVerify(() -> verify(coopEventListener, never()).onDiningSoldOutRequest(any()));
-        clearTable();
+        clear();
         setUp();
     }
 
@@ -279,7 +276,7 @@ class DiningApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andReturn();
         forceVerify(() -> verify(coopEventListener, never()).onDiningSoldOutRequest(any()));
-        clearTable();
+        clear();
         setUp();
     }
 
@@ -418,7 +415,7 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
         forceVerify(() -> verify(coopEventListener).onDiningImageUploadRequest(any()));
-        clearTable();
+        clear();
         setUp();
     }
 
@@ -440,7 +437,7 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
         forceVerify(() -> verify(coopEventListener, never()).onDiningImageUploadRequest(any()));
-        clearTable();
+        clear();
         setUp();
     }
 

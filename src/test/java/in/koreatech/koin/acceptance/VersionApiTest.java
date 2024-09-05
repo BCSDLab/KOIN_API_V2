@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,11 @@ class VersionApiTest extends AcceptanceTest {
 
     @Autowired
     private VersionRepository versionRepository;
+
+    @BeforeAll
+    void setup() {
+        clear();
+    }
 
     @Test
     void 버전_타입을_통해_버전_정보를_조회한다() throws Exception {

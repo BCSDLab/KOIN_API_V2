@@ -4,17 +4,13 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import java.time.Clock;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -37,7 +33,6 @@ import in.koreatech.koin.domain.shop.model.ShopEventListener;
 import in.koreatech.koin.domain.user.model.StudentEventListener;
 import in.koreatech.koin.support.DBInitializer;
 import in.koreatech.koin.util.TestCircuitBreakerClient;
-import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -127,19 +122,12 @@ public abstract class AcceptanceTest {
     }
 
     @BeforeEach
-    void delete() {
-        if (RestAssured.port == RestAssured.UNDEFINED_PORT) {
-            RestAssured.port = port;
-        }
-        // dataInitializer.clearAndTruncate();
-        dataInitializer.clearAndInitIncrement();
+    void initIncrement() {
+        dataInitializer.initIncrement();
     }
 
-    public void clearTable() {
-        if (RestAssured.port == RestAssured.UNDEFINED_PORT) {
-            RestAssured.port = port;
-        }
-        dataInitializer.clearAndTruncate();
+    public void clear() {
+        dataInitializer.clear();
     }
 
     public void forceVerify(Runnable runnable) {

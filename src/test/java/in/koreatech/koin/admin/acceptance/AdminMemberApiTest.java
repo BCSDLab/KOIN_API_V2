@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,11 @@ public class AdminMemberApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminMemberRepository adminMemberRepository;
+
+    @BeforeAll
+    void setup() {
+        clear();
+    }
 
     @Test
     void BCSDLab_회원들의_정보를_조회한다() throws Exception {

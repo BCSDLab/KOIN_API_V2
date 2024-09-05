@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +73,11 @@ public class AdminUserApiTest extends AcceptanceTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @BeforeAll
+    void setup() {
+        clear();
+    }
 
     @Test
     void 관리자가_학생_리스트를_파라미터가_없이_조회한다_페이지네이션() throws Exception {

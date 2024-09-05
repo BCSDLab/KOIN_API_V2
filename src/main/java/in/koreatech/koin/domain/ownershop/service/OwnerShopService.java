@@ -188,14 +188,14 @@ public class OwnerShopService {
                 .menuCategory(menuCategory)
                 .menu(savedMenu)
                 .build();
-            menuCategoryMapRepository.save(menuCategoryMap);
+            savedMenu.getMenuCategoryMaps().add(menuCategoryMap);
         }
         for (String imageUrl : createMenuRequest.imageUrls()) {
             MenuImage menuImage = MenuImage.builder()
                 .imageUrl(imageUrl)
                 .menu(savedMenu)
                 .build();
-            menuImageRepository.save(menuImage);
+            savedMenu.getMenuImages().add(menuImage);
         }
         if (createMenuRequest.optionPrices() == null) {
             MenuOption menuOption = MenuOption.builder()
@@ -203,7 +203,7 @@ public class OwnerShopService {
                 .price(createMenuRequest.singlePrice())
                 .menu(menu)
                 .build();
-            menuDetailRepository.save(menuOption);
+            savedMenu.getMenuOptions().add(menuOption);
         } else {
             for (var option : createMenuRequest.optionPrices()) {
                 MenuOption menuOption = MenuOption.builder()
@@ -211,7 +211,7 @@ public class OwnerShopService {
                     .price(option.price())
                     .menu(menu)
                     .build();
-                menuDetailRepository.save(menuOption);
+                savedMenu.getMenuOptions().add(menuOption);
             }
         }
     }

@@ -38,7 +38,12 @@ server:
 logging:
   level:
     org:
+      springframework:
+        transaction: DEBUG  # 스프링 트랜잭션 관련 로그 출력
       hibernate:
+        engine:
+          transaction:
+            internal: TRACE  # Hibernate 트랜잭션 로그 상세 출력
         type:
           descriptor:
             sql: trace
