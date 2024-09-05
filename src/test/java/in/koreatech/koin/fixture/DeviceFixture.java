@@ -29,15 +29,13 @@ public class DeviceFixture {
 
     public Device 아이폰(Integer userId, String publicIp, String fcmToken) {
         AccessHistory accessHistory = AccessHistory.builder()
-            .publicIp(publicIp)
+            .lastAccessedAt(LocalDateTime.of(2024, 8, 6, 14, 46))
             .build();
         Device device = Device.builder()
             .accessHistory(accessHistory)
             .user(userRepository.getById(userId))
             .model("아이폰14")
             .type("mobile")
-            .fcmToken(fcmToken)
-            .lastAccessedAt(LocalDateTime.of(2024, 8, 6, 14, 46))
             .build();
         accessHistory.connectDevice(device);
         return deviceRepository.save(device);
@@ -45,15 +43,13 @@ public class DeviceFixture {
 
     public Device 갤럭시(Integer userId, String publicIp, String fcmToken) {
         AccessHistory accessHistory = AccessHistory.builder()
-                .publicIp(publicIp)
-                .build();
+            .lastAccessedAt(LocalDateTime.of(2024, 8, 6, 14, 46))
+            .build();
         Device device = Device.builder()
             .accessHistory(accessHistory)
             .user(userRepository.getById(userId))
             .model("갤럭시24")
             .type("mobile")
-            .fcmToken(fcmToken)
-            .lastAccessedAt(LocalDateTime.of(2024, 8, 6, 14, 46))
             .build();
         accessHistory.connectDevice(device);
         return deviceRepository.save(device);

@@ -16,9 +16,9 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.abtest.model.Abtest;
 import in.koreatech.koin.admin.abtest.model.AbtestVariable;
 import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
+import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.AbtestFixture;
@@ -489,7 +489,6 @@ class AbtestApiTest extends AcceptanceTest {
         var response = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("X-Forwarded-For", device.getAccessHistory().getPublicIp())
             .queryParam("title", abtest.getTitle())
             .when()
             .get("/abtest/me")
@@ -517,7 +516,6 @@ class AbtestApiTest extends AcceptanceTest {
         var response1 = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("X-Forwarded-For", device1.getAccessHistory().getPublicIp())
             .body(String.format("""
                 {
                   "title": "dining_ui_test"
@@ -532,7 +530,6 @@ class AbtestApiTest extends AcceptanceTest {
         var response2 = RestAssured
             .given()
             .contentType(ContentType.JSON)
-            .header("X-Forwarded-For", device2.getAccessHistory().getPublicIp())
             .body(String.format("""
                 {
                   "title": "dining_ui_test"
