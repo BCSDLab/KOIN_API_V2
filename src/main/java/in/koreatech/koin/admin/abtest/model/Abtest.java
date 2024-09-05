@@ -134,21 +134,19 @@ public class Abtest extends BaseEntity {
             .orElseThrow(() -> AbtestAssignException.withDetail("abtest name: " + title));
     }
 
-
     public void setVariables(List<AbtestVariable> variables, EntityManager entityManager) {
         validateVariables(variables);
-        List<AbtestVariable> saved = variables.stream()
-            .map(request ->
+        abtestVariables.clear();
+        entityManager.flush();
+        abtestVariables.addAll(
+            variables.stream().map(request ->
                 AbtestVariable.builder()
                     .abtest(this)
                     .displayName(request.getDisplayName())
                     .rate(request.getRate())
                     .name(request.getName())
                     .build()
-            ).toList();
-        abtestVariables.clear();
-        entityManager.flush();
-        abtestVariables.addAll(saved);
+            ).toList());
     }
 
     public void update(Abtest requestedAbtest, EntityManager entityManager) {
