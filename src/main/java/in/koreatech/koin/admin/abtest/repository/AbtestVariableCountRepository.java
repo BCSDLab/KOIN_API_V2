@@ -23,7 +23,4 @@ public interface AbtestVariableCountRepository extends CrudRepository<AbtestVari
                 .build())
         );
     }
-
-    // 사용 메서드 기록용 주석. 쿼리 최적화를 위해 사용. 실제 재정의 시 에러 발생
-    // List<AbtestCount> saveAll(List<AbtestCount> abtestCounts);
 }

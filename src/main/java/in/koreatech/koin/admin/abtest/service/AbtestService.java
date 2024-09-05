@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestAdminAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
+import in.koreatech.koin.admin.abtest.dto.AbtestAssignResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestDevicesResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
@@ -202,24 +203,25 @@ public class AbtestService {
     }
 
     @Transactional
-    public String assignVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo, Integer userId,
+    public AbtestAssignResponse assignVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo, Integer userId,
         AbtestAssignRequest request) {
         Abtest abtest = abtestRepository.getByTitle(request.title());
-        Optional<String> winner = returnWinnerIfClosed(abtest);
-        if (winner.isPresent()) {
-            return winner.get();
+        AccessHistory accessHistory = findOrCreateAccessHistory(accessHistoryId);
+        Optional<AbtestVariable> winnerResponse = returnWinnerIfClosed(abtest);
+        if (winnerResponse.isPresent()) {
+            return AbtestAssignResponse.of(winnerResponse.get(), accessHistory);
         }
         validateAssignedUser(abtest, accessHistoryId, userId);
         List<AbtestVariableCount> cacheCount = loadCacheCount(abtest);
         AbtestVariable variable = abtest.findAssignVariable(cacheCount);
-        AccessHistory accessHistory = accessHistoryRepository.getById(accessHistoryId);
         if (userId != null) {
             createDeviceIfNotExists(userId, userAgentInfo, accessHistory, abtest);
         }
         accessHistory.addAbtestVariable(variable);
         countCacheUpdate(variable);
         variableAssignCacheSave(variable, accessHistory.getId());
-        return variable.getName();
+        accessHistory.updateLastAccessedAt();
+        return AbtestAssignResponse.of(variable, accessHistory);
     }
 
     // 기기를 다른 사용자가 사용한 이력이 있는 경우 기존 사용자의 캐시를 삭제
@@ -251,21 +253,22 @@ public class AbtestService {
     }
 
     @Transactional
-    public String getMyVariable(Integer accessHistoryId, Integer userId, String title) {
+    public String getMyVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo, Integer userId, String title) {
         Abtest abtest = abtestRepository.getByTitle(title);
         AccessHistory accessHistory = accessHistoryRepository.getById(accessHistoryId);
         syncCacheCountToDB(abtest);
-        Optional<String> winner = returnWinnerIfClosed(abtest);
+        Optional<AbtestVariable> winner = returnWinnerIfClosed(abtest);
         if (winner.isPresent()) {
-            return winner.get();
+            return winner.get().getName();
         }
-
+        if (userId != null) {
+            createDeviceIfNotExists(userId, userAgentInfo, accessHistory, abtest);
+        }
         Optional<AbtestVariable> cacheVariable = abtest.getAbtestVariables().stream()
             .filter(abtestVariable ->
                 abtestVariableAssignRepository.findByVariableIdAndAccessHistoryId(abtestVariable.getId(),
                     accessHistory.getId()).isPresent())
             .findAny();
-
         if (cacheVariable.isEmpty()) {
             AbtestVariable dbVariable = accessHistory.findVariableByAbtestId(abtest.getId())
                 .orElseThrow(() -> AbtestNotAssignedUserException.withDetail("abtestId: " + abtest.getId() + ", "
@@ -273,7 +276,7 @@ public class AbtestService {
             abtestVariableAssignRepository.save(AbtestVariableAssign.of(dbVariable.getId(), accessHistory.getId()));
             return dbVariable.getName();
         }
-
+        accessHistory.updateLastAccessedAt();
         return cacheVariable.get().getName();
     }
 
@@ -362,14 +365,21 @@ public class AbtestService {
         }
     }
 
-    private static Optional<String> returnWinnerIfClosed(Abtest abtest) {
+    private static Optional<AbtestVariable> returnWinnerIfClosed(Abtest abtest) {
         if (abtest.getStatus() == AbtestStatus.CLOSED) {
             if (abtest.getWinner() != null) {
-                return Optional.of(abtest.getWinnerName());
+                return Optional.of(abtest.getWinner());
             }
             throw AbtestWinnerNotDecidedException.withDetail("abtestId: " + abtest.getId());
         }
         return Optional.empty();
+    }
+
+    public AccessHistory findOrCreateAccessHistory(Integer id) {
+        if (id == null) {
+            return accessHistoryRepository.save(AccessHistory.builder().build());
+        }
+        return accessHistoryRepository.getById(id);
     }
 
     private void createDeviceIfNotExists(Integer userId, UserAgentInfo userAgentInfo,
@@ -393,6 +403,5 @@ public class AbtestService {
             device.changeUser(userRepository.getById(userId));
             removeBeforeUserCache(accessHistory, abtest);
         }
-        accessHistory.updateLastAccessedAt();
     }
 }

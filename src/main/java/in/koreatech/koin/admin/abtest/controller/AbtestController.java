@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestAdminAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
+import in.koreatech.koin.admin.abtest.dto.AbtestAssignResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestDevicesResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
@@ -127,21 +128,22 @@ public class AbtestController implements AbtestApi {
     @GetMapping("/me")
     public ResponseEntity<String> getMyAbtestVariable(
         @RequestHeader("accessHistoryId") Integer accessHistoryId,
+        @UserAgent UserAgentInfo userAgentInfo,
         @UserId Integer userId,
         @RequestParam(name = "title") String title
     ) {
-        String response = abtestService.getMyVariable(accessHistoryId, userId, title);
+        String response = abtestService.getMyVariable(accessHistoryId, userAgentInfo, userId, title);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/assign")
-    public ResponseEntity<String> assignAbtestVariable(
+    public ResponseEntity<AbtestAssignResponse> assignAbtestVariable(
         @RequestHeader("accessHistoryId") Integer accessHistoryId,
         @UserAgent UserAgentInfo userAgentInfo,
         @UserId Integer userId,
         @RequestBody @Valid AbtestAssignRequest abtestAssignRequest
     ) {
-        String response = abtestService.assignVariable(accessHistoryId, userAgentInfo, userId, abtestAssignRequest);
+        AbtestAssignResponse response = abtestService.assignVariable(accessHistoryId, userAgentInfo, userId, abtestAssignRequest);
         return ResponseEntity.ok(response);
     }
 }

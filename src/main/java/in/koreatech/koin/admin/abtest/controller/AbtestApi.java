@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.abtest.dto.AbtestAdminAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
+import in.koreatech.koin.admin.abtest.dto.AbtestAssignResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.AbtestDevicesResponse;
 import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
@@ -189,6 +190,7 @@ public interface AbtestApi {
     @GetMapping("/me")
     ResponseEntity<String> getMyAbtestVariable(
         @RequestHeader("accessHistoryId") Integer accessHistoryId,
+        @UserAgent UserAgentInfo userAgentInfo,
         @UserId Integer userId,
         @RequestParam(name = "title") String title
     );
@@ -202,7 +204,7 @@ public interface AbtestApi {
     )
     @Operation(summary = "(NORMAL) 실험군 최초 편입")
     @PostMapping("/assign")
-    ResponseEntity<String> assignAbtestVariable(
+    ResponseEntity<AbtestAssignResponse> assignAbtestVariable(
         @RequestHeader("accessHistoryId") Integer accessHistoryId,
         @UserAgent UserAgentInfo userAgentInfo,
         @UserId Integer userId,
