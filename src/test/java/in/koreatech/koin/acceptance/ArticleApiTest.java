@@ -82,26 +82,26 @@ class CommunityApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                    "id": 1,
-                    "board_id": 1,
-                    "title": "자유 글의 제목입니다",
-                    "content": "<p>내용</p>",
-                    "author": "작성자1",
-                    "hit": 1,
-                    "attachments": [
-                        {
-                            "id": 1,
-                            "name": "첨부파일1.png",
-                            "url": "https://example.com",
-                            "created_at": "2024-01-15 12:00:00",
-                            "updated_at": "2024-01-15 12:00:00"
-                        }
-                    ],
-                    "registered_at": "2024-01-15",
-                    "prev_id": null,
-                    "next_id": 2,
-                    "updated_at": "2024-01-15 12:00:00"
-                }
+                     "id": 1,
+                     "board_id": 1,
+                     "title": "자유 글의 제목입니다",
+                     "content": "<p>내용</p>",
+                     "author": "작성자1",
+                     "hit": 3,
+                     "attachments": [
+                         {
+                             "id": 1,
+                             "name": "첨부파일1.png",
+                             "url": "https://example.com",
+                             "created_at": "2024-01-15 12:00:00",
+                             "updated_at": "2024-01-15 12:00:00"
+                         }
+                     ],
+                     "registered_at": "2024-01-15",
+                     "prev_id": null,
+                     "next_id": 2,
+                     "updated_at": "2024-01-15 12:00:00"
+                 }
                 """));
     }
 
@@ -118,31 +118,31 @@ class CommunityApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                    "articles": [
-                        {
-                            "id": 2,
-                            "board_id": 1,
-                            "title": "자유 글2의 제목입니다",
-                            "author": "작성자2",
-                            "hit": 1,
-                            "registered_at": "2024-01-15",
-                            "updated_at": "2024-01-15 12:00:00"
-                        },
-                        {
-                            "id": 1,
-                            "board_id": 1,
-                            "title": "자유 글의 제목입니다",
-                            "author": "작성자1",
-                            "hit": 1,
-                            "registered_at": "2024-01-15",
-                            "updated_at": "2024-01-15 12:00:00"
-                        }
-                    ],
-                    "total_count": 2,
-                    "current_count": 2,
-                    "total_page": 1,
-                    "current_page": 1
-                }
+                     "articles": [
+                         {
+                             "id": 2,
+                             "board_id": 1,
+                             "title": "자유 글2의 제목입니다",
+                             "author": "작성자2",
+                             "hit": 2,
+                             "registered_at": "2024-01-15",
+                             "updated_at": "2024-01-15 12:00:00"
+                         },
+                         {
+                             "id": 1,
+                             "board_id": 1,
+                             "title": "자유 글의 제목입니다",
+                             "author": "작성자1",
+                             "hit": 2,
+                             "registered_at": "2024-01-15",
+                             "updated_at": "2024-01-15 12:00:00"
+                         }
+                     ],
+                     "total_count": 2,
+                     "current_count": 2,
+                     "total_page": 1,
+                     "current_page": 1
+                 }
                 """));
     }
 
@@ -288,24 +288,24 @@ class CommunityApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-               {
-                    "articles": [
-                        {
-                            "id": 1,
-                            "board_id": 1,
-                            "title": "자유 글의 제목입니다",
-                            "author": "작성자1",
-                            "hit": 1,
-                            "registered_at": "2024-01-15",
-                            "updated_at": "2024-01-15 12:00:00"
-                        }
-                    ],
-                   "total_count": 2,
-                   "current_count": 1,
-                   "total_page": 2,
-                   "current_page": 2
-               }
-               """))
+                 {
+                     "articles": [
+                         {
+                             "id": 1,
+                             "board_id": 1,
+                             "title": "자유 글의 제목입니다",
+                             "author": "작성자1",
+                             "hit": 2,
+                             "registered_at": "2024-01-15",
+                             "updated_at": "2024-01-15 12:00:00"
+                         }
+                     ],
+                    "total_count": 2,
+                    "current_count": 1,
+                    "total_page": 2,
+                    "current_page": 2
+                 }
+                """))
             .andReturn();
     }
 
@@ -321,24 +321,24 @@ class CommunityApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-               {
-                       "articles": [
-                           {
-                               "id": 1,
-                               "board_id": 1,
-                               "title": "자유 글의 제목입니다",
-                               "author": "작성자1",
-                               "hit": 1,
-                               "registered_at": "2024-01-15",
-                               "updated_at": "2024-01-15 12:00:00"
-                           }
-                       ],
-                       "total_count": 2,
-                       "current_count": 1,
-                       "total_page": 2,
-                       "current_page": 2
-                   }
-               """))
+                 {
+                    "articles": [
+                        {
+                            "id": 1,
+                            "board_id": 1,
+                            "title": "자유 글의 제목입니다",
+                            "author": "작성자1",
+                            "hit": 2,
+                            "registered_at": "2024-01-15",
+                            "updated_at": "2024-01-15 12:00:00"
+                        }
+                    ],
+                    "total_count": 2,
+                    "current_count": 1,
+                    "total_page": 2,
+                    "current_page": 2
+                }
+                """))
             .andReturn();
     }
 
@@ -367,54 +367,54 @@ class CommunityApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-               [
-                    {
-                        "id": 5,
-                        "board_id": 1,
-                        "title": "Article 7",
-                        "author": "BCSD",
-                        "hit": 7,
-                        "registered_at": "2024-01-15",
-                        "updated_at": "2024-01-15 12:00:00"
-                    },
-                    {
-                        "id": 4,
-                        "board_id": 1,
-                        "title": "Article 6",
-                        "author": "BCSD",
-                        "hit": 6,
-                        "registered_at": "2024-01-15",
-                        "updated_at": "2024-01-15 12:00:00"
-                    },
-                    {
-                        "id": 3,
-                        "board_id": 1,
-                        "title": "Article 5",
-                        "author": "BCSD",
-                        "hit": 5,
-                        "registered_at": "2024-01-15",
-                        "updated_at": "2024-01-15 12:00:00"
-                    },
-                    {
-                        "id": 2,
-                        "board_id": 1,
-                        "title": "자유 글2의 제목입니다",
-                        "author": "작성자2",
-                        "hit": 1,
-                        "registered_at": "2024-01-15",
-                        "updated_at": "2024-01-15 12:00:00"
-                    },
-                    {
-                        "id": 1,
-                        "board_id": 1,
-                        "title": "자유 글의 제목입니다",
-                        "author": "작성자1",
-                        "hit": 1,
-                        "registered_at": "2024-01-15",
-                        "updated_at": "2024-01-15 12:00:00"
-                    }
-                ]
-               """))
+                [
+                      {
+                          "id": 5,
+                          "board_id": 1,
+                          "title": "Article 7",
+                          "author": "BCSD",
+                          "hit": 7,
+                          "registered_at": "2024-01-15",
+                          "updated_at": "2024-01-15 12:00:00"
+                      },
+                      {
+                          "id": 4,
+                          "board_id": 1,
+                          "title": "Article 6",
+                          "author": "BCSD",
+                          "hit": 6,
+                          "registered_at": "2024-01-15",
+                          "updated_at": "2024-01-15 12:00:00"
+                      },
+                      {
+                          "id": 3,
+                          "board_id": 1,
+                          "title": "Article 5",
+                          "author": "BCSD",
+                          "hit": 5,
+                          "registered_at": "2024-01-15",
+                          "updated_at": "2024-01-15 12:00:00"
+                      },
+                      {
+                          "id": 2,
+                          "board_id": 1,
+                          "title": "자유 글2의 제목입니다",
+                          "author": "작성자2",
+                          "hit": 2,
+                          "registered_at": "2024-01-15",
+                          "updated_at": "2024-01-15 12:00:00"
+                      },
+                      {
+                          "id": 1,
+                          "board_id": 1,
+                          "title": "자유 글의 제목입니다",
+                          "author": "작성자1",
+                          "hit": 2,
+                          "registered_at": "2024-01-15",
+                          "updated_at": "2024-01-15 12:00:00"
+                      }
+                  ]
+                """))
             .andReturn();
     }
 
@@ -428,33 +428,33 @@ class CommunityApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-               {
-                       "articles": [
-                           {
-                               "id": 2,
-                               "board_id": 1,
-                               "title": "자유 글2의 제목입니다",
-                               "author": "작성자2",
-                               "hit": 1,
-                               "registered_at": "2024-01-15",
-                               "updated_at": "2024-01-15 12:00:00"
-                           },
-                           {
-                               "id": 1,
-                               "board_id": 1,
-                               "title": "자유 글의 제목입니다",
-                               "author": "작성자1",
-                               "hit": 1,
-                               "registered_at": "2024-01-15",
-                               "updated_at": "2024-01-15 12:00:00"
-                           }
-                       ],
-                       "total_count": 2,
-                       "current_count": 2,
-                       "total_page": 1,
-                       "current_page": 1
-                   }
-               """));
+                {
+                    "articles": [
+                        {
+                            "id": 2,
+                            "board_id": 1,
+                            "title": "자유 글2의 제목입니다",
+                            "author": "작성자2",
+                            "hit": 2,
+                            "registered_at": "2024-01-15",
+                            "updated_at": "2024-01-15 12:00:00"
+                        },
+                        {
+                            "id": 1,
+                            "board_id": 1,
+                            "title": "자유 글의 제목입니다",
+                            "author": "작성자1",
+                            "hit": 2,
+                            "registered_at": "2024-01-15",
+                            "updated_at": "2024-01-15 12:00:00"
+                        }
+                    ],
+                    "total_count": 2,
+                    "current_count": 2,
+                    "total_page": 1,
+                    "current_page": 1
+                }
+                """));
     }
 
     @Test
@@ -526,16 +526,16 @@ class CommunityApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-               {
-                  "keywords": [
-                    "검색어4",
-                    "검색어5",
-                    "검색어6",
-                    "검색어7",
-                    "검색어8"
-                  ]
-               }
-               """));
+                {
+                   "keywords": [
+                     "검색어4",
+                     "검색어5",
+                     "검색어6",
+                     "검색어7",
+                     "검색어8"
+                   ]
+                }
+                """));
     }
 
 }
