@@ -78,15 +78,7 @@ public class AbtestService {
                 .status(AbtestStatus.IN_PROGRESS)
                 .build()
         );
-        List<AbtestVariable> abtestVariables = request.variables().stream()
-            .map(variable -> AbtestVariable.builder()
-                .displayName(variable.displayName())
-                .name(variable.name())
-                .rate(variable.rate())
-                .abtest(saved)
-                .build())
-            .toList();
-        saved.setVariables(abtestVariables, entityManager);
+        saved.setVariables(request.variables(), entityManager);
         return AbtestResponse.from(saved);
     }
 
@@ -94,72 +86,19 @@ public class AbtestService {
     public AbtestResponse putAbtest(Integer abtestId, AbtestRequest request) {
         Abtest abtest = abtestRepository.getById(abtestId);
         validateAbtestInProgress(abtest);
-        // TODO: 실험 수정 시 기존 변수가 사라지면 map까지 전부 사라져서 편입된 사용자들이 지워지는 문제 고치기
-        syncCacheCountToDB(abtest);
-        deleteCountCache(abtest);
-        deleteVariableIpCache(abtest);
-        Abtest requestedAbtest = Abtest.builder()
-            .title(request.title())
-            .displayTitle(request.displayTitle())
-            .description(request.description())
-            .creator(request.creator())
-            .team(request.team())
-            .status(AbtestStatus.IN_PROGRESS)
-            .build();
-        List<AbtestVariable> requestedAbtestVariables = request.variables().stream()
-            .map(variable -> AbtestVariable.builder()
-                .abtest(requestedAbtest)
-                .displayName(variable.displayName())
-                .name(variable.name())
-                .rate(variable.rate())
-                .build())
-            .toList();
-        requestedAbtest.setVariables(requestedAbtestVariables, entityManager);
-        modifyVariableByRate(abtest, requestedAbtest);
-        abtest.update(requestedAbtest, entityManager);
+        abtest.update(
+            request.displayTitle(),
+            request.creator(),
+            request.team(),
+            request.title(),
+            request.description(),
+            request.variables()
+        );
         return AbtestResponse.from(abtest);
     }
 
-    //TODO: 수정 필요, 고장나있음
-    private void modifyVariableByRate(Abtest abtest, Abtest requestedAbtest) {
-        List<AbtestVariable> abtestVariables = abtest.getAbtestVariables();
-        int totalRecords = abtestVariables.stream().mapToInt(AbtestVariable::getCount).sum();
 
-        for (AbtestVariable variable : abtestVariables) {
-            int targetCount = totalRecords * variable.getRate() / 100;
-            int currentCount = variable.getCount();
-
-            if (currentCount < targetCount) {
-                int recordsToAdd = targetCount - currentCount;
-
-                for (AbtestVariable otherVariable : abtestVariables) {
-                    if (otherVariable.getId().equals(variable.getId())) {
-                        continue;
-                    }
-
-                    int availableToMove = otherVariable.getCount() - (totalRecords * otherVariable.getRate() / 100);
-
-                    if (availableToMove > 0) {
-                        int moveCount = Math.min(recordsToAdd, availableToMove);
-
-                        List<Integer> idsToMove =
-                            accessHistoryAbtestVariableCustomRepository.findIdsToMove(otherVariable.getId(), moveCount);
-                        accessHistoryAbtestVariableCustomRepository.updateVariableIds(idsToMove, variable.getId());
-
-                        otherVariable.addCount(-idsToMove.size());
-                        variable.addCount(idsToMove.size());
-                        recordsToAdd -= idsToMove.size();
-
-                        if (recordsToAdd <= 0) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void deleteVariableIpCache(Abtest abtest) {
+    private void deleteVariableAssignCache(Abtest abtest) {
         abtest.getAbtestVariables().forEach(abtestVariable ->
             abtestVariableAssignTemplateRepository.deleteAllByVariableId(abtestVariable.getId()));
     }
@@ -169,7 +108,7 @@ public class AbtestService {
         abtestRepository.findById(abtestId).ifPresent(saved -> {
             syncCacheCountToDB(saved);
             deleteCountCache(saved);
-            deleteVariableIpCache(saved);
+            deleteVariableAssignCache(saved);
             abtestRepository.deleteById(abtestId);
         });
     }
@@ -199,7 +138,7 @@ public class AbtestService {
         abtest.close(request.winnerName());
         syncCacheCountToDB(abtest);
         deleteCountCache(abtest);
-        deleteVariableIpCache(abtest);
+        deleteVariableAssignCache(abtest);
     }
 
     @Transactional

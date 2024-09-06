@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
 import in.koreatech.koin.admin.abtest.exception.AbtestAssignException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotIncludeVariableException;
 import in.koreatech.koin.admin.abtest.exception.AbtestTitleIllegalArgumentException;
@@ -134,71 +135,64 @@ public class Abtest extends BaseEntity {
             .orElseThrow(() -> AbtestAssignException.withDetail("abtest name: " + title));
     }
 
-    public void setVariables(List<AbtestVariable> variables, EntityManager entityManager) {
-        validateVariables(variables);
-        abtestVariables.clear();
-        entityManager.flush();
-        abtestVariables.addAll(
-            variables.stream().map(request ->
+    public void setVariables(List<AbtestRequest.InnerVariableRequest> variables, EntityManager entityManager) {
+        vaildateVariables(variables);
+        List<AbtestVariable> saved = variables.stream()
+            .map(request ->
                 AbtestVariable.builder()
                     .abtest(this)
-                    .displayName(request.getDisplayName())
-                    .rate(request.getRate())
-                    .name(request.getName())
+                    .displayName(request.displayName())
+                    .rate(request.rate())
+                    .name(request.name())
                     .build()
-            ).toList());
+            ).toList();
+        abtestVariables.clear();
+        entityManager.flush();
+        abtestVariables.addAll(saved);
     }
 
-    public void update(Abtest requestedAbtest, EntityManager entityManager) {
-        if (!title.equals(requestedAbtest.title)) {
+    public void update(String displayTitle, String creator, String team, String title, String description,
+        List<AbtestRequest.InnerVariableRequest> variables) {
+        if (!this.title.equals(title)) {
             throw AbtestTitleIllegalArgumentException.withDetail("실험 title은 변경할 수 없습니다.");
         }
-        validateVariables(requestedAbtest.abtestVariables);
-        updateVariables(requestedAbtest.abtestVariables, entityManager);
-        displayTitle = requestedAbtest.displayTitle;
-        creator = requestedAbtest.creator;
-        team = requestedAbtest.team;
-        description = requestedAbtest.description;
+        vaildateVariables(variables);
+        validatePutVariables(this, variables);
+        updateVariables(variables);
+        this.displayTitle = displayTitle;
+        this.creator = creator;
+        this.team = team;
+        this.description = description;
     }
 
-    private void updateVariables(List<AbtestVariable> requestVariables,
-        EntityManager entityManager) {
-        abtestVariables.removeIf(abtestVariable ->
-            requestVariables.stream().noneMatch(requestVariable ->
-                requestVariable.getName().equals(abtestVariable.getName())
-            ));
-
-        requestVariables.forEach(requestVariable -> {
-            Optional<AbtestVariable> variable = abtestVariables.stream()
-                .filter(abtestVariable -> abtestVariable.getName().equals(requestVariable.getName()))
-                .findAny();
-            if (variable.isPresent()) {
-                variable.get().update(requestVariable.getDisplayName(), requestVariable.getRate());
-            }
-            if (variable.isEmpty()) {
-                AbtestVariable newVariable = AbtestVariable.builder()
-                    .abtest(this)
-                    .displayName(requestVariable.getDisplayName())
-                    .rate(requestVariable.getRate())
-                    .name(requestVariable.getName())
-                    .build();
-                abtestVariables.add(newVariable);
-            }
-        });
-        entityManager.flush();
-    }
-
-    private static void validateVariables(List<AbtestVariable> variables) {
-        int sum = variables.stream().mapToInt(AbtestVariable::getRate).sum();
+    private static void vaildateVariables(List<AbtestRequest.InnerVariableRequest> variables) {
+        int sum = variables.stream().mapToInt(AbtestRequest.InnerVariableRequest::rate).sum();
         if (sum != 100) {
             throw AbtestVariableIllegalArgumentException.withDetail("실험군 비율 합이 100이 아닙니다. rate sum: " + sum);
         }
 
         int distinctSize = variables.stream()
-            .map(variable -> variable.getName())
+            .map(AbtestRequest.InnerVariableRequest::name)
             .distinct().toList().size();
         if (distinctSize != variables.size()) {
             throw AbtestVariableIllegalArgumentException.withDetail("실험군 간의 변수명(name)이 중복됩니다.");
+        }
+    }
+
+    private void updateVariables(List<AbtestRequest.InnerVariableRequest> requestVariables) {
+        requestVariables.forEach(requestVariable -> {
+            AbtestVariable variable = abtestVariables.stream()
+                .filter(abtestVariable -> abtestVariable.getName().equals(requestVariable.name()))
+                .findAny()
+                .orElseThrow(() -> AbtestVariableIllegalArgumentException.withDetail(
+                    "abtest name: " + title + ", variable name: " + requestVariable.name()));
+            variable.update(requestVariable.displayName(), requestVariable.rate());
+        });
+    }
+
+    private void validatePutVariables(Abtest abtest, List<AbtestRequest.InnerVariableRequest> variables) {
+        if (abtest.getAbtestVariables().size() != variables.size()) {
+            throw AbtestVariableIllegalArgumentException.withDetail("실험군 개수는 수정될 수 없습니다.");
         }
     }
 
