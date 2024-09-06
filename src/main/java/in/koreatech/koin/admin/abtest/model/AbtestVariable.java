@@ -55,9 +55,6 @@ public class AbtestVariable extends BaseEntity {
     @Column(name = "count", nullable = false)
     private Integer count = 0;
 
-    @Column(name = "is_before", nullable = false)
-    private Boolean isBefore = false;
-
     @OneToMany(mappedBy = "variable", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<AccessHistoryAbtestVariable> accessHistoryAbtestVariables = new ArrayList<>();
 
@@ -68,8 +65,7 @@ public class AbtestVariable extends BaseEntity {
         String name,
         String displayName,
         Integer rate,
-        Integer count,
-        Boolean isBefore
+        Integer count
     ) {
         this.id = id;
         this.abtest = abtest;
@@ -77,7 +73,6 @@ public class AbtestVariable extends BaseEntity {
         this.displayName = displayName;
         this.rate = rate;
         this.count = count != null ? count : 0;
-        this.isBefore = isBefore != null ? isBefore : false;
     }
 
     public void addCount(int count) {
