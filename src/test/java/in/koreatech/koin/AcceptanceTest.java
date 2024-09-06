@@ -124,6 +124,7 @@ public abstract class AcceptanceTest {
     @BeforeEach
     void initIncrement() {
         dataInitializer.initIncrement();
+        dataInitializer.clearRedis();
     }
 
     public void clear() {

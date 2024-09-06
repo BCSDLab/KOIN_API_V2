@@ -29,13 +29,11 @@ public class MenuFixture {
     }
 
     public Menu 짜장면_옵션메뉴(Shop shop, MenuCategory menuCategory) {
-        Menu menu = menuRepository.save(
-            Menu.builder()
-                .shopId(shop.getId())
-                .name("짜장면")
-                .description("맛있는 짜장면")
-                .build()
-        );
+        Menu menu = Menu.builder()
+            .shopId(shop.getId())
+            .name("짜장면")
+            .description("맛있는 짜장면")
+            .build();
 
         menu.getMenuImages().addAll(
             List.of(
@@ -63,24 +61,21 @@ public class MenuFixture {
                     .build()
             )
         );
-        menu.getMenuCategoryMaps().add(
-            MenuCategoryMap.builder()
-                .menu(menu)
-                .menuCategory(menuCategory)
-                .build()
-        );
-
+        MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
+            .menu(menu)
+            .menuCategory(menuCategory)
+            .build();
+        menu.getMenuCategoryMaps().add(menuCategoryMap);
+        menuCategory.getMenuCategoryMaps().add(menuCategoryMap);
         return menuRepository.save(menu);
     }
 
     public Menu 짜장면_단일메뉴(Shop shop, MenuCategory menuCategory) {
-        Menu menu = menuRepository.save(
-            Menu.builder()
-                .shopId(shop.getId())
-                .name("짜장면")
-                .description("맛있는 짜장면")
-                .build()
-        );
+        Menu menu = Menu.builder()
+            .shopId(shop.getId())
+            .name("짜장면")
+            .description("맛있는 짜장면")
+            .build();
 
         menu.getMenuImages().addAll(
             List.of(
@@ -101,13 +96,12 @@ public class MenuFixture {
                 .price(7000)
                 .build()
         );
-        menu.getMenuCategoryMaps().add(
-            MenuCategoryMap.builder()
-                .menu(menu)
-                .menuCategory(menuCategory)
-                .build()
-        );
-
+        MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
+            .menu(menu)
+            .menuCategory(menuCategory)
+            .build();
+        menu.getMenuCategoryMaps().add(menuCategoryMap);
+        menuCategory.getMenuCategoryMaps().add(menuCategoryMap);
         return menuRepository.save(menu);
     }
 }

@@ -97,14 +97,14 @@ public class OwnerShopService {
                 .shop(savedShop)
                 .name(categoryName)
                 .build();
-            menuCategoryRepository.save(menuCategory);
+            savedShop.getMenuCategories().add(menuCategory);
         }
         for (String imageUrl : ownerShopsRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(savedShop)
                 .imageUrl(imageUrl)
                 .build();
-            shopImageRepository.save(shopImage);
+            savedShop.getShopImages().add(shopImage);
         }
         for (OwnerShopsRequest.InnerOpenRequest open : ownerShopsRequest.open()) {
             ShopOpen shopOpen = ShopOpen.builder()
@@ -114,7 +114,7 @@ public class OwnerShopService {
                 .dayOfWeek(open.dayOfWeek())
                 .closed(open.closed())
                 .build();
-            shopOpenRepository.save(shopOpen);
+            savedShop.getShopOpens().add(shopOpen);
         }
         List<ShopCategory> shopCategories = shopCategoryRepository.findAllByIdIn(ownerShopsRequest.categoryIds());
         for (ShopCategory shopCategory : shopCategories) {
@@ -122,7 +122,7 @@ public class OwnerShopService {
                 .shopCategory(shopCategory)
                 .shop(savedShop)
                 .build();
-            shopCategoryMapRepository.save(shopCategoryMap);
+            savedShop.getShopCategories().add(shopCategoryMap);
         }
     }
 

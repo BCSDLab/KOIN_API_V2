@@ -482,7 +482,6 @@ class OwnerApiTest extends AcceptanceTest {
     @Test
     void 사장님이_비밀번호_변경을_위한_인증번호_이메일을_전송을_요청한다() throws Exception {
         // given
-
         Owner owner = userFixture.현수_사장님();
         ownerRepository.save(owner);
         mockMvc.perform(

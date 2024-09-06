@@ -120,7 +120,6 @@ public class StudentService {
         }
 
         Student student = studentTemporaryStatus.get().toStudent(passwordEncoder);
-
         studentRepository.save(student);
         userRepository.save(student.getUser());
 

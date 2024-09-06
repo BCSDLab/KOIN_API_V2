@@ -73,7 +73,7 @@ public class DBInitializer {
         clearMongo();
     }
 
-    private void clearRedis() {
+    public void clearRedis() {
         redisTemplate.getConnectionFactory().getConnection().flushAll();
     }
 

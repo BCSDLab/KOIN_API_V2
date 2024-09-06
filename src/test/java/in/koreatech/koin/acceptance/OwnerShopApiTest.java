@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -217,8 +218,6 @@ class OwnerShopApiTest extends AcceptanceTest {
                     )
             )
             .andExpect(status().isCreated());
-        // entityManager.flush();
-        // entityManager.clear();
         List<Shop> shops = shopRepository.findAllByOwnerId(owner_현수.getId());
         Shop result = shops.get(1);
         assertSoftly(
@@ -230,6 +229,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                 softly.assertThat(result.getShopImages()).hasSize(3);
                 softly.assertThat(result.getShopOpens()).hasSize(7);
                 softly.assertThat(result.getShopCategories()).hasSize(1);
+                System.out.println("dsa");
             }
         );
     }
@@ -434,10 +434,18 @@ class OwnerShopApiTest extends AcceptanceTest {
                           "image_urls": [
                             "https://test-image.com/짜장면.jpg"
                           ],
-                          "is_single": true,
+                          "is_single": false,
                           "name": "짜장면",
-                          "option_prices": null,
-                          "single_price": 10000
+                          "option_prices": [
+                            {
+                              "option": "중",
+                              "price": 10000
+                            },
+                            {
+                              "option": "소",
+                              "price": 5000
+                            }
+                          ]
                         }
                         """, menuCategory.getId()))
             )

@@ -233,10 +233,8 @@ class ShopApiTest extends AcceptanceTest {
     void 특정_상점_모든_메뉴_조회() throws Exception {
         menuFixture.짜장면_단일메뉴(마슬랜, menuCategoryFixture.추천메뉴(마슬랜));
         menuFixture.짜장면_옵션메뉴(마슬랜, menuCategoryFixture.세트메뉴(마슬랜));
-        entityManager.flush();
-        entityManager.clear();
         mockMvc.perform(
-                get("/shops/{shopId}/menus", 마슬랜.getId())
+                get("/shops/{id}/menus", 마슬랜.getId())
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
@@ -537,8 +535,6 @@ class ShopApiTest extends AcceptanceTest {
     void 리뷰_평점순으로_정렬하여_모든_상점을_조회한다() throws Exception {
         Shop 영업중인_티바 = shopFixture.영업중인_티바(owner);
         shopReviewFixture.리뷰_4점(익명_학생, 영업중인_티바);
-        entityManager.flush();
-        entityManager.clear();
         boolean 마슬랜_영업여부 = true;
         boolean 티바_영업여부 = true;
         mockMvc.perform(
@@ -649,8 +645,6 @@ class ShopApiTest extends AcceptanceTest {
 
         shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
         shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
-        entityManager.flush();
-        entityManager.clear();
         // 2024-01-15 12:00 월요일 기준
         boolean 마슬랜_영업여부 = true;
         boolean 티바_영업여부 = true;
@@ -762,8 +756,6 @@ class ShopApiTest extends AcceptanceTest {
         shopReviewFixture.리뷰_4점(익명_학생, 영업중이_아닌_신전떡볶이);
 
         shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
-        entityManager.flush();
-        entityManager.clear();
         // 2024-01-15 12:00 월요일 기준
         boolean 신전떡볶이_영업여부 = false;
         boolean 마슬랜_영업여부 = true;
@@ -875,8 +867,6 @@ class ShopApiTest extends AcceptanceTest {
         shopReviewFixture.리뷰_4점(익명_학생, 영업중이_아닌_신전떡볶이);
 
         shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
-        entityManager.flush();
-        entityManager.clear();
 
         // 2024-01-15 12:00 월요일 기준
         boolean 마슬랜_영업여부 = true;
@@ -1039,8 +1029,6 @@ class ShopApiTest extends AcceptanceTest {
         shopFixture.영업중이_아닌_신전_떡볶이(owner);
 
         shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
-        entityManager.flush();
-        entityManager.clear();
         // 2024-01-15 12:00 월요일 기준
         boolean 신전_떡볶이_영업여부 = true;
         boolean 마슬랜_영업여부 = true;
@@ -1153,8 +1141,6 @@ class ShopApiTest extends AcceptanceTest {
         shopReviewReportFixture.리뷰_신고(익명_학생, 리뷰_4점, UNHANDLED);
 
         shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
-        entityManager.flush();
-        entityManager.clear();
         // 2024-01-15 12:00 월요일 기준
         boolean 신전_떡볶이_영업여부 = true;
         boolean 마슬랜_영업여부 = true;
@@ -1267,9 +1253,6 @@ class ShopApiTest extends AcceptanceTest {
 
         shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
         // 2024-01-15 12:00 월요일 기준
-        entityManager.flush();
-        entityManager.clear();
-        // entityManager.clear();  // 영속성 컨텍스트 초기화
         boolean 신전_떡볶이_영업여부 = true;
         boolean 마슬랜_영업여부 = true;
         mockMvc.perform(
