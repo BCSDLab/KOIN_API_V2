@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +42,7 @@ import in.koreatech.koin.fixture.BusFixture;
 import in.koreatech.koin.support.JsonAssertions;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BusApiTest extends AcceptanceTest {
 
@@ -60,12 +60,12 @@ class BusApiTest extends AcceptanceTest {
 
     @BeforeAll
     void setup() {
+        clear();
         busFixture.버스_시간표_등록();
         busFixture.시내버스_시간표_등록();
     }
 
     @Test
-    @Transactional
     void 다음_셔틀버스까지_남은_시간을_조회한다() throws Exception {
 
         mockMvc.perform(
@@ -89,7 +89,6 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 다음_시내버스까지_남은_시간을_조회한다_Redis_캐시_히트() throws Exception {
         final long remainTime = 600L;
         final long busNumber = 400;
@@ -139,7 +138,6 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 셔틀버스의_코스_정보들을_조회한다() throws Exception {
 
         MvcResult result = mockMvc.perform(
@@ -161,7 +159,6 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 다음_셔틀버스까지_남은_시간을_조회한다2() throws Exception {
         versionRepository.save(
             Version.builder()
@@ -226,7 +223,6 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 시내버스_시간표를_조회한다_지원하지_않음() throws Exception {
         Version version = Version.builder()
             .version("test_version")
@@ -267,7 +263,6 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 셔틀버스_시간표를_조회한다() throws Exception {
         mockMvc.perform(
                 get("/bus/timetable")
@@ -305,7 +300,6 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 셔틀버스_시간표를_조회한다_업데이트_시각_포함() throws Exception {
         Version version = Version.builder()
             .version("test_version")

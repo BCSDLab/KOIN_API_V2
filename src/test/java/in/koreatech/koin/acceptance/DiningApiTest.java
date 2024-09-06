@@ -30,8 +30,8 @@ import in.koreatech.koin.fixture.DiningFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DiningApiTest extends AcceptanceTest {
 
     @Autowired
@@ -58,6 +58,7 @@ class DiningApiTest extends AcceptanceTest {
 
     @BeforeAll
     void setUp() {
+        clear();
         coop_준기 = userFixture.준기_영양사().getUser();
         token_준기 = userFixture.getToken(coop_준기);
         owner_현수 = userFixture.현수_사장님().getUser();
@@ -103,6 +104,7 @@ class DiningApiTest extends AcceptanceTest {
 
     @Test
     void 잘못된_형식의_날짜로_조회한다_날짜의_형식이_잘못되었다면_400() throws Exception {
+
         mockMvc.perform(
                 get("/dinings?date=20240115")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -232,7 +234,7 @@ class DiningApiTest extends AcceptanceTest {
             .andReturn();
 
         forceVerify(() -> verify(coopEventListener).onDiningSoldOutRequest(any()));
-        clearTable();
+        clear();
         setUp();
     }
 
@@ -253,7 +255,7 @@ class DiningApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andReturn();
         forceVerify(() -> verify(coopEventListener, never()).onDiningSoldOutRequest(any()));
-        clearTable();
+        clear();
         setUp();
     }
 
@@ -274,7 +276,7 @@ class DiningApiTest extends AcceptanceTest {
             .andExpect(status().isOk())
             .andReturn();
         forceVerify(() -> verify(coopEventListener, never()).onDiningSoldOutRequest(any()));
-        clearTable();
+        clear();
         setUp();
     }
 
@@ -413,7 +415,7 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
         forceVerify(() -> verify(coopEventListener).onDiningImageUploadRequest(any()));
-        clearTable();
+        clear();
         setUp();
     }
 
@@ -435,7 +437,7 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
         forceVerify(() -> verify(coopEventListener, never()).onDiningImageUploadRequest(any()));
-        clearTable();
+        clear();
         setUp();
     }
 

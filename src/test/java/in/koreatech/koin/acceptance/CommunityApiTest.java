@@ -31,6 +31,7 @@ import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CommunityApiTest extends AcceptanceTest {
 
@@ -55,6 +56,7 @@ class CommunityApiTest extends AcceptanceTest {
 
     @BeforeAll
     void givenBeforeEach() {
+        clear();
         student = userFixture.준호_학생();
         board = boardFixture.자유게시판();
         article1 = articleFixture.자유글_1(board);
@@ -62,7 +64,6 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 특정_게시글을_단일_조회한다() throws Exception {
         // given
         Comment request = Comment.builder()
@@ -105,7 +106,6 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 게시글들을_페이지네이션하여_조회한다() throws Exception {
         // when then
         mockMvc.perform(
@@ -147,7 +147,6 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 게시글들을_페이지네이션하여_조회한다_페이지가_0이면_1_페이지_조회() throws Exception {
         // when then
         MvcResult result = mockMvc.perform(
@@ -166,7 +165,6 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 게시글들을_페이지네이션하여_조회한다_페이지가_음수이면_1_페이지_조회() throws Exception {
         MvcResult result = mockMvc.perform(
                 get("/articles")
@@ -183,7 +181,6 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 게시글들을_페이지네이션하여_조회한다_limit가_0_이면_한_번에_1_게시글_조회() throws Exception {
         // when then
         MvcResult result = mockMvc.perform(
@@ -201,7 +198,6 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 게시글들을_페이지네이션하여_조회한다_limit가_음수이면_한_번에_1_게시글_조회() throws Exception {
         MvcResult result = mockMvc.perform(
                 get("/articles")
@@ -218,7 +214,6 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 게시글들을_페이지네이션하여_조회한다_limit가_50_이상이면_한_번에_50_게시글_조회() throws Exception {
         // given
         for (int i = 3; i < 63; i++) { // unique 중복 처리
@@ -252,7 +247,6 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 게시글들을_페이지네이션하여_조회한다_페이지_limit가_주어지지_않으면_1_페이지_10_게시글_조회() throws Exception {
         // given
         for (int i = 3; i < 13; i++) { // unique 중복 처리
@@ -284,7 +278,6 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 게시글들을_페이지네이션하여_조회한다_특정_페이지_조회() throws Exception {
         MvcResult result = mockMvc.perform(
                 get("/articles")
@@ -317,7 +310,6 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 게시글들을_페이지네이션하여_조회한다_최대_페이지를_초과한_요청이_들어오면_마지막_페이지를_반환한다() throws Exception {
         // when then
         MvcResult result = mockMvc.perform(
@@ -351,7 +343,6 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 인기많은_게시글_목록을_조회한다() throws Exception {
         // given
         for (int i = 5; i <= 7; i++) {
@@ -428,7 +419,6 @@ class CommunityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 게시글을_검색한다() throws Exception {
         mockMvc.perform(
                 get("/articles/search")
@@ -547,4 +537,5 @@ class CommunityApiTest extends AcceptanceTest {
                }
                """));
     }
+
 }

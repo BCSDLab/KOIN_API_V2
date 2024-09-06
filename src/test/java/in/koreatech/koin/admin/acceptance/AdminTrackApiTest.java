@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,12 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminTechStackRepository adminTechStackRepository;
+
+    @BeforeAll
+    void setup() {
+        clear();
+    }
+
 
     @Test
     void 관리자가_BCSDLab_트랙_정보를_조회한다_관리자가_아니면_403_반환() throws Exception {

@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.http.MediaType;
@@ -18,11 +19,11 @@ import in.koreatech.koin.domain.dept.model.Dept;
 import in.koreatech.koin.support.JsonAssertions;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DeptApiTest extends AcceptanceTest {
 
     @Test
-    @Transactional
     void 학과_번호를_통해_학과_이름을_조회한다() throws Exception {
         Dept dept = Dept.COMPUTER_SCIENCE;
         mockMvc.perform(
@@ -40,7 +41,6 @@ class DeptApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 모든_학과_정보를_조회한다() throws Exception {
         //given
         final int DEPT_SIZE = Dept.values().length - 1;

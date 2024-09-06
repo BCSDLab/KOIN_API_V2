@@ -9,6 +9,7 @@ import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopReview;
 import in.koreatech.koin.domain.shop.model.ShopReviewImage;
 import in.koreatech.koin.domain.shop.model.ShopReviewMenu;
+import in.koreatech.koin.domain.shop.repository.ShopRepository;
 import in.koreatech.koin.domain.shop.repository.ShopReviewImageRepository;
 import in.koreatech.koin.domain.shop.repository.ShopReviewMenuRepository;
 import in.koreatech.koin.domain.shop.repository.ShopReviewRepository;
@@ -27,8 +28,8 @@ public class ShopReviewFixture {
         ShopReviewRepository shopReviewRepository,
         ShopReviewImageRepository shopReviewImageRepository,
         ShopReviewMenuRepository shopReviewMenuRepository,
-        Clock clock
-    ) {
+        Clock clock,
+        ShopRepository shopRepository) {
         this.shopReviewRepository = shopReviewRepository;
         this.shopReviewImageRepository = shopReviewImageRepository;
         this.shopReviewMenuRepository = shopReviewMenuRepository;
@@ -51,8 +52,9 @@ public class ShopReviewFixture {
             .menuName("피자")
             .review(shopReview)
             .build());
-        ShopReview savedShopReview = shopReviewRepository.save(shopReview);
-        return savedShopReview;
+        shopReviewRepository.save(shopReview);
+        shop.getReviews().add(shopReview);
+        return shopReview;
     }
 
     @FixedDate(year = 2024, month = 8, day = 7)

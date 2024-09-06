@@ -38,6 +38,7 @@ class AdminCoopShopTest extends AcceptanceTest {
 
     @BeforeAll
     void setUp() {
+        clear();
         학생식당 = coopShopFixture.학생식당();
         세탁소 = coopShopFixture.세탁소();
         admin = userFixture.코인_운영자();

@@ -5,7 +5,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +17,7 @@ import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.fixture.CoopShopFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CoopShopTest extends AcceptanceTest {
 
@@ -32,6 +32,7 @@ class CoopShopTest extends AcceptanceTest {
 
     @BeforeAll
     void setUp() {
+        clear();
         학생식당 = coopShopFixture.학생식당();
         세탁소 = coopShopFixture.세탁소();
     }

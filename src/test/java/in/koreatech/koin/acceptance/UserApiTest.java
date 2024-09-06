@@ -16,6 +16,7 @@ import java.util.Optional;
 import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
 import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,11 @@ class UserApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @BeforeAll
+    void setup() {
+        clear();
+    }
 
     @Test
     void 학생이_로그인을_진행한다_구_API_user_login() throws Exception {
@@ -527,26 +533,23 @@ class UserApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
 
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
+            Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
 
-                assertSoftly(
-                    softly -> {
-                        softly.assertThat(student).isNotNull();
-                        softly.assertThat(student.get().getNickname()).isEqualTo("koko");
-                        softly.assertThat(student.get().getName()).isEqualTo("김철수");
-                        softly.assertThat(student.get().getPhoneNumber()).isEqualTo("01000000000");
-                        softly.assertThat(student.get().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
-                        softly.assertThat(student.get().getStudentNumber()).isEqualTo("2021136012");
-                        softly.assertThat(student.get().getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
-                        verify(studentEventListener).onStudentEmailRequest(any());
-                    }
-                );
-            }
-        });
-    }
+            assertSoftly(
+                softly -> {
+                    softly.assertThat(student).isNotNull();
+                    softly.assertThat(student.get().getNickname()).isEqualTo("koko");
+                    softly.assertThat(student.get().getName()).isEqualTo("김철수");
+                    softly.assertThat(student.get().getPhoneNumber()).isEqualTo("01000000000");
+                    softly.assertThat(student.get().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
+                    softly.assertThat(student.get().getStudentNumber()).isEqualTo("2021136012");
+                    softly.assertThat(student.get().getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
+                    forceVerify(() -> verify(studentEventListener).onStudentEmailRequest(any()));
+                    clear();
+                    setup();
+                }
+            );
+}
 
     @Test
     void 이메일_요청을_확인_후_회원가입_이벤트가_발생하고_Redis에_저장된_정보가_삭제된다() throws Exception {
@@ -571,10 +574,9 @@ class UserApiTest extends AcceptanceTest {
 
 
         Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
-
         mockMvc.perform(
-                post("/user/authenticate")
-                    .param("auth_token", student.get().getAuthToken())
+                get("/user/authenticate")
+                    .queryParam("auth_token", student.get().getAuthToken())
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andReturn();
@@ -583,7 +585,9 @@ class UserApiTest extends AcceptanceTest {
         assertThat(studentRedisRepository.findById("koko123@koreatech.ac.kr")).isEmpty();
 
         assertThat(user.isAuthed()).isTrue();
-        verify(studentEventListener).onStudentRegister(any());
+        forceVerify(() -> verify(studentEventListener).onStudentRegister(any()));
+        clear();
+        setup();
     }
 
     @Test

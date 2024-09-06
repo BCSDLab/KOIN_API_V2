@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,6 +103,7 @@ class OwnerShopApiTest extends AcceptanceTest {
 
     @BeforeAll
     void setUp() {
+        clear();
         owner_현수 = userFixture.현수_사장님();
         token_현수 = userFixture.getToken(owner_현수.getUser());
         owner_준영 = userFixture.준영_사장님();
@@ -216,22 +218,20 @@ class OwnerShopApiTest extends AcceptanceTest {
                     )
             )
             .andExpect(status().isCreated());
-
         List<Shop> shops = shopRepository.findAllByOwnerId(owner_현수.getId());
         Shop result = shops.get(1);
-        transactionTemplate.executeWithoutResult(execute -> {
-            assertSoftly(
-                softly -> {
-                    softly.assertThat(result.getAddress()).isEqualTo("대전광역시 유성구 대학로 291");
-                    softly.assertThat(result.getDeliveryPrice()).isEqualTo(4000);
-                    softly.assertThat(result.getDescription()).isEqualTo("테스트 상점2입니다.");
-                    softly.assertThat(result.getName()).isEqualTo("테스트 상점2");
-                    softly.assertThat(result.getShopImages()).hasSize(3);
-                    softly.assertThat(result.getShopOpens()).hasSize(7);
-                    softly.assertThat(result.getShopCategories()).hasSize(1);
-                }
-            );
-        });
+        assertSoftly(
+            softly -> {
+                softly.assertThat(result.getAddress()).isEqualTo("대전광역시 유성구 대학로 291");
+                softly.assertThat(result.getDeliveryPrice()).isEqualTo(4000);
+                softly.assertThat(result.getDescription()).isEqualTo("테스트 상점2입니다.");
+                softly.assertThat(result.getName()).isEqualTo("테스트 상점2");
+                softly.assertThat(result.getShopImages()).hasSize(3);
+                softly.assertThat(result.getShopOpens()).hasSize(7);
+                softly.assertThat(result.getShopCategories()).hasSize(1);
+                System.out.println("dsa");
+            }
+        );
     }
 
     @Test
@@ -434,29 +434,35 @@ class OwnerShopApiTest extends AcceptanceTest {
                           "image_urls": [
                             "https://test-image.com/짜장면.jpg"
                           ],
-                          "is_single": true,
+                          "is_single": false,
                           "name": "짜장면",
-                          "option_prices": null,
-                          "single_price": 10000
+                          "option_prices": [
+                            {
+                              "option": "중",
+                              "price": 10000
+                            },
+                            {
+                              "option": "소",
+                              "price": 5000
+                            }
+                          ]
                         }
                         """, menuCategory.getId()))
             )
             .andExpect(status().isCreated());
-        transactionTemplate.executeWithoutResult(status -> {
-            Menu menu = menuRepository.getById(1);
-            assertSoftly(
-                softly -> {
-                    List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
-                    List<MenuOption> menuOptions = menu.getMenuOptions();
-                    List<MenuImage> menuImages = menu.getMenuImages();
-                    softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
-                    softly.assertThat(menu.getName()).isEqualTo("짜장면");
-                    softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
-                    softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
-                    softly.assertThat(menuOptions).hasSize(2);
-                }
-            );
-        });
+        Menu menu = menuRepository.getById(1);
+        assertSoftly(
+            softly -> {
+                List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
+                List<MenuOption> menuOptions = menu.getMenuOptions();
+                List<MenuImage> menuImages = menu.getMenuImages();
+                softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
+                softly.assertThat(menu.getName()).isEqualTo("짜장면");
+                softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
+                softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
+                softly.assertThat(menuOptions).hasSize(2);
+            }
+        );
     }
 
     @Test
@@ -814,7 +820,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             }
         );
         forceVerify(() -> verify(shopEventListener, times(1)).onShopEventCreate(any()));
-        clearTable();
+        clear();
         setUp();
     }
 

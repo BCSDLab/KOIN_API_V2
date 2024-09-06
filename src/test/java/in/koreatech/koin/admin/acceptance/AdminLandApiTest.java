@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.Before;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,11 @@ class AdminLandApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @BeforeAll
+    void setup() {
+        clear();
+    }
 
     @Test
     void 관리자_권한으로_복덕방_목록을_검색한다() throws Exception {

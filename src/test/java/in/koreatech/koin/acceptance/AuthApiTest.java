@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AuthApiTest extends AcceptanceTest {
 
@@ -36,7 +38,6 @@ class AuthApiTest extends AcceptanceTest {
     private UserTokenRepository tokenRepository;
 
     @Test
-    @Transactional
     void 사용자가_로그인을_수행한다() throws Exception {
         User user = userFixture.builder()
             .password("1234")
@@ -83,7 +84,6 @@ class AuthApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 사용자가_로그인_이후_로그아웃을_수행한다() throws Exception {
         User user = userFixture.builder()
             .password("1234")
@@ -122,7 +122,6 @@ class AuthApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 용자가_로그인_이후_refreshToken을_재발급한다() throws Exception {
         User user = userFixture.builder()
             .password("1234")

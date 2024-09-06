@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -30,6 +31,11 @@ class TrackApiTest extends AcceptanceTest {
 
     @Autowired
     private TechStackFixture techStackFixture;
+
+    @BeforeAll
+    void setup() {
+        clear();
+    }
 
     @Test
     void BCSDLab_트랙_정보를_조회한다() throws Exception {

@@ -12,6 +12,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,11 @@ public class TimetableV2ApiTest extends AcceptanceTest {
 
     @Autowired
     private TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
+
+    @BeforeAll
+    void setup() {
+        clear();
+    }
 
     @Test
     void 특정_시간표_frame을_생성한다() throws Exception {

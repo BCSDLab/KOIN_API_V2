@@ -16,6 +16,7 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.fixture.ActivityFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ActivityApiTest extends AcceptanceTest {
 
@@ -23,7 +24,6 @@ class ActivityApiTest extends AcceptanceTest {
     protected ActivityFixture activityFixture;
 
     @Test
-    @Transactional
     void BCSD_Lab_활동_내역을_조회한다() throws Exception {
         activityFixture.builder()
             .title("BCSD/KAP 통합")
@@ -92,7 +92,6 @@ class ActivityApiTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void BCSD_Lab_활동_내역을_조회한다_파라미터가_없는_경우_전체조회() throws Exception {
         activityFixture.builder()
             .title("BCSD/KAP 통합")

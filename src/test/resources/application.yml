@@ -7,6 +7,10 @@ spring:
   flyway:
     enabled: false
   jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
     hibernate:
       ddl-auto: create
   thymeleaf:
@@ -26,10 +30,24 @@ spring:
 server:
   tomcat:
     max-http-form-post-size: 10MB
-  #  MockMvc이용하면 한글 깨지는 문제 해결하는 설정
+#  MockMvc이용하면 한글 깨지는 문제 해결하는 설정
   servlet:
     encoding:
       force-response: true
+
+logging:
+  level:
+    org:
+      springframework:
+        transaction: DEBUG  # 스프링 트랜잭션 관련 로그 출력
+        orm.jpa.JpaTransactionManager: DEBUG
+      hibernate:
+        engine:
+          transaction:
+            internal: DEBUG  # Hibernate 트랜잭션 로그 상세 출력
+        type:
+          descriptor:
+            sql: trace
 
 swagger:
   server-url: http://localhost:8080
