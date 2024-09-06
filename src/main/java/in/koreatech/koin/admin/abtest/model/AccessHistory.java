@@ -2,6 +2,7 @@ package in.koreatech.koin.admin.abtest.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,7 +111,7 @@ public class AccessHistory extends BaseEntity {
         );
     }
 
-    public void updateLastAccessedAt() {
-        this.lastAccessedAt = LocalDateTime.now();
+    public void updateLastAccessedAt(Clock clock) {
+        this.lastAccessedAt = LocalDateTime.now(clock);
     }
 }

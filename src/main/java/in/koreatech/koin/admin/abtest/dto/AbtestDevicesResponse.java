@@ -21,6 +21,7 @@ public record AbtestDevicesResponse(
         return new AbtestDevicesResponse(devices.stream().map(InnerDeviceResponse::from).toList());
     }
 
+    @JsonNaming(SnakeCaseStrategy.class)
     private record InnerDeviceResponse(
         @Schema(description = "디바이스 ID", example = "1")
         Integer id,

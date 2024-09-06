@@ -23,7 +23,7 @@ public final class AbtestFixture {
             Abtest.builder()
                 .title("dining_ui_test")
                 .displayTitle("식단_UI_실험")
-                .description("식단_UI_실험")
+                .description("세부설명")
                 .creator("송선권")
                 .team("campus")
                 .status(AbtestStatus.IN_PROGRESS)
@@ -36,7 +36,6 @@ public final class AbtestFixture {
                 .displayName("실험군 A")
                 .rate(50)
                 .count(0)
-                .isBefore(false)
                 .build();
 
         AbtestVariable abtestVariable2 =
@@ -46,7 +45,6 @@ public final class AbtestFixture {
                 .displayName("실험군 B")
                 .rate(50)
                 .count(0)
-                .isBefore(false)
                 .build();
 
         abtest.getAbtestVariables().addAll(List.of(abtestVariable, abtestVariable2));
@@ -59,7 +57,7 @@ public final class AbtestFixture {
             Abtest.builder()
                 .title("shop_ui_test")
                 .displayTitle("주변상점_UI_실험")
-                .description("주변상점_UI_실험")
+                .description("세부설명")
                 .creator("송선권")
                 .team("campus")
                 .status(AbtestStatus.IN_PROGRESS)

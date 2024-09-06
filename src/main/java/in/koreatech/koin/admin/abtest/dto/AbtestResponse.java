@@ -3,8 +3,10 @@ package in.koreatech.koin.admin.abtest.dto;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -39,7 +41,13 @@ public record AbtestResponse(
     @Schema(description = "실험 내용", example = "식단 UI 변경에 따른 사용자 변화량 조사", requiredMode = NOT_REQUIRED)
     String description,
 
-    List<InnerVariableResponse> variables
+    List<InnerVariableResponse> variables,
+
+    @Schema(description = "생성 일자", example = "2023-01-04 12:00:01")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+
+    @Schema(description = "수정 일자", example = "2023-01-04 12:00:01")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
 ) {
 
     public static AbtestResponse from(Abtest abtest) {
@@ -54,7 +62,9 @@ public record AbtestResponse(
             abtest.getDescription(),
             abtest.getAbtestVariables().stream()
                 .map(InnerVariableResponse::from)
-                .toList()
+                .toList(),
+            abtest.getCreatedAt(),
+            abtest.getUpdatedAt()
         );
     }
 

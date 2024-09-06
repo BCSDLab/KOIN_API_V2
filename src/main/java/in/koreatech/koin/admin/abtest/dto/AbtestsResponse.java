@@ -65,6 +65,9 @@ public record AbtestsResponse(
         String team,
 
         @Schema(example = "식단 테스트", description = "AB테스트 제목", required = true)
+        String displayTitle,
+
+        @Schema(example = "dining_ui_test", description = "AB테스트 제목(변수명)", required = true)
         String title,
 
         @Schema(description = "생성 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
@@ -80,6 +83,7 @@ public record AbtestsResponse(
                 abtest.getWinnerName(),
                 abtest.getCreator(),
                 abtest.getTeam(),
+                abtest.getDisplayTitle(),
                 abtest.getTitle(),
                 abtest.getCreatedAt(),
                 abtest.getUpdatedAt()
