@@ -13,23 +13,23 @@ import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
-import in.koreatech.koin.domain.community.article.service.CommunityService;
+import in.koreatech.koin.domain.community.article.service.ArticleService;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/articles")
-public class CommunityController implements CommunityApi {
+public class ArticleController implements ArticleApi {
 
-    private final CommunityService communityService;
+    private final ArticleService articleService;
 
     @GetMapping("/{id}")
     public ResponseEntity<ArticleResponse> getArticle(
         @RequestParam(required = false) Integer boardId,
         @PathVariable("id") Integer articleId
     ) {
-        ArticleResponse foundArticle = communityService.getArticle(boardId, articleId);
+        ArticleResponse foundArticle = articleService.getArticle(boardId, articleId);
         return ResponseEntity.ok().body(foundArticle);
     }
 
@@ -39,13 +39,13 @@ public class CommunityController implements CommunityApi {
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit
     ) {
-        ArticlesResponse foundArticles = communityService.getArticles(boardId, page, limit);
+        ArticlesResponse foundArticles = articleService.getArticles(boardId, page, limit);
         return ResponseEntity.ok().body(foundArticles);
     }
 
     @GetMapping("/hot")
     public ResponseEntity<List<HotArticleItemResponse>> getHotArticles() {
-        List<HotArticleItemResponse> hotArticles = communityService.getHotArticles();
+        List<HotArticleItemResponse> hotArticles = articleService.getHotArticles();
         return ResponseEntity.ok().body(hotArticles);
     }
 
@@ -57,7 +57,7 @@ public class CommunityController implements CommunityApi {
         @RequestParam(required = false) Integer limit,
         @IpAddress String ipAddress
     ) {
-        ArticlesResponse foundArticles = communityService.searchArticles(query, boardId, page, limit, ipAddress);
+        ArticlesResponse foundArticles = articleService.searchArticles(query, boardId, page, limit, ipAddress);
         return ResponseEntity.ok().body(foundArticles);
     }
 
@@ -65,7 +65,7 @@ public class CommunityController implements CommunityApi {
     public ResponseEntity<ArticleHotKeywordResponse> getArticlesHotKeyword(
         @RequestParam Integer count
     ) {
-        ArticleHotKeywordResponse response = communityService.getArticlesHotKeyword(count);
+        ArticleHotKeywordResponse response = articleService.getArticlesHotKeyword(count);
         return ResponseEntity.ok().body(response);
     }
 }
