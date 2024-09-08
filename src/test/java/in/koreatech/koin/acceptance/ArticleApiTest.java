@@ -636,7 +636,7 @@ class ArticleApiTest extends AcceptanceTest {
                     .queryParam("boardId", 1)
                     .queryParam("page", 0)
                     .queryParam("limit", 10)
-                    .header("X-Forwarded-For", ipAddress)  // 각 요청에 다른 IP 주소 설정
+                    .header("X-Forwarded-For", ipAddress)
                     .when()
                     .get("articles/search");
                 responseList.add(response);
