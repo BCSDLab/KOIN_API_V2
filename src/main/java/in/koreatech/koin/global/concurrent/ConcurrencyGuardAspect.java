@@ -44,7 +44,7 @@ public class ConcurrencyGuardAspect {
             try {
                 lock.unlock();
             } catch (IllegalMonitorStateException e) {
-                log.warn("Redisson 락이 이미 해제되었습니다 lockName: ", lockName);
+                log.warn("Redisson 락이 이미 해제되었습니다 lockName: " + lockName);
             }
         }
     }
