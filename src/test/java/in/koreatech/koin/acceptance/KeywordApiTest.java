@@ -7,6 +7,11 @@ import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +20,15 @@ import org.springframework.http.HttpStatus;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordCreateRequest;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
+import in.koreatech.koin.domain.community.keyword.service.KeywordService;
 import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.KeywordFixture;
@@ -28,6 +36,7 @@ import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 
 @SuppressWarnings("NonAsciiCharacters")
 public class KeywordApiTest extends AcceptanceTest {
@@ -52,6 +61,9 @@ public class KeywordApiTest extends AcceptanceTest {
 
     @Autowired
     private ArticleFixture articleFixture;
+
+    @Autowired
+    private KeywordService keywordService;
 
     @Test
     void 알림_키워드_추가() {
@@ -303,5 +315,55 @@ public class KeywordApiTest extends AcceptanceTest {
             .statusCode(HttpStatus.OK.value());
 
         verify(articleKeywordEventListener, never()).onKeywordRequest(any());
+    }
+
+    @Test
+    void 키워드_생성_동시성_테스트() throws InterruptedException {
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        String keyword = "testKeyword";
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        CountDownLatch latch = new CountDownLatch(4);
+
+        List<Response> responseList = new ArrayList<>();
+
+        Runnable createKeywordTask = () -> {
+            Response response = RestAssured
+                .given()
+                .header("Authorization", "Bearer " + token)
+                .contentType(ContentType.JSON)
+                .body("""
+                {
+                    "keyword": "testKeyword"
+                }
+                """)
+                .when()
+                .post("/articles/keyword");
+            responseList.add(response);
+            latch.countDown();
+        };
+
+        for (int i = 0; i < 4; i++) {
+            executor.submit(createKeywordTask);
+        }
+
+        latch.await();
+
+        long successCount = responseList.stream()
+            .filter(response -> response.getStatusCode() == 200)
+            .count();
+
+        long conflictCount = responseList.stream()
+            .filter(response -> response.getStatusCode() == 409)
+            .count();
+
+        assertThat(successCount).isEqualTo(1);
+
+        assertThat(conflictCount).isEqualTo(3);
+
+        assertThat(articleKeywordRepository.findByKeyword(keyword)).isPresent();
+
+        executor.shutdown();
     }
 }

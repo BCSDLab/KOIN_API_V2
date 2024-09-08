@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
     @Index(name = "idx_ip_address", columnList = "ipAddress")
 },
     uniqueConstraints = {
-        @UniqueConstraint(name = "ux_keyword_ip", columnNames = {"keyword_id", "ipAddress"})  // 복합 유니크 제약 조건 추가
+        @UniqueConstraint(name = "ux_keyword_ip", columnNames = {"keyword_id", "ipAddress"})
     })
 @NoArgsConstructor(access = PROTECTED)
 public class ArticleSearchKeywordIpMap extends BaseEntity {

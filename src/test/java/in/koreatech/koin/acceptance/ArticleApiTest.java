@@ -3,7 +3,13 @@ package in.koreatech.koin.acceptance;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,12 +24,14 @@ import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.model.Comment;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.CommentRepository;
+import in.koreatech.koin.domain.community.article.service.ArticleService;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
 import io.restassured.RestAssured;
+import io.restassured.response.Response;
 
 @SuppressWarnings("NonAsciiCharacters")
 class ArticleApiTest extends AcceptanceTest {
@@ -42,6 +50,9 @@ class ArticleApiTest extends AcceptanceTest {
 
     @Autowired
     private BoardFixture boardFixture;
+
+    @Autowired
+    private ArticleService articleService;
 
     Student student;
     Board board;
@@ -565,5 +576,85 @@ class ArticleApiTest extends AcceptanceTest {
             .asString();
 
         assertThat(response).contains("검색어4", "검색어5", "검색어6", "검색어7", "검색어8");
+    }
+    @Test
+    void 같은_ip_동일한_query로_4개의_스레드가_동시에_검색시_동시성_제어() throws InterruptedException {
+        String query = "sameQuery";
+        String ipAddress = "127.0.0.1";
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        CountDownLatch latch = new CountDownLatch(4);
+
+        List<Response> responseList = new ArrayList<>();
+
+        Runnable searchTask = () -> {
+            Response response = RestAssured
+                .given()
+                .queryParam("query", query)
+                .queryParam("boardId", 1)
+                .queryParam("page", 0)
+                .queryParam("limit", 10)
+                .header("X-Forwarded-For", ipAddress)
+                .when()
+                .get("articles/search");
+            responseList.add(response);
+            latch.countDown();
+        };
+
+        for (int i = 0; i < 4; i++) {
+            executor.submit(searchTask);
+        }
+
+        latch.await();
+
+        long successCount = responseList.stream()
+            .filter(response -> response.getStatusCode() == 200)
+            .count();
+
+        assertThat(successCount).isEqualTo(4);
+
+        executor.shutdown();
+    }
+
+    @Test
+    @DisplayName("다른 IP에서 동일한 query로 4개의 스레드가 동시에 검색 요청 시 동시성 제어가 잘 되는지 테스트한다.")
+    void 다른_IP에서_동일한_쿼리로_동시에_검색시_동시성_처리() throws InterruptedException {
+        String query = "sameQuery";
+
+        List<String> ipAddresses = List.of("127.0.0.1", "192.168.0.1", "10.0.0.1", "172.16.0.1");
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        CountDownLatch latch = new CountDownLatch(4);
+
+        List<Response> responseList = new ArrayList<>();
+
+        for (int i = 0; i < 4; i++) {
+            String ipAddress = ipAddresses.get(i);
+            Runnable searchTask = () -> {
+                Response response = RestAssured
+                    .given()
+                    .queryParam("query", query)
+                    .queryParam("boardId", 1)
+                    .queryParam("page", 0)
+                    .queryParam("limit", 10)
+                    .header("X-Forwarded-For", ipAddress)  // 각 요청에 다른 IP 주소 설정
+                    .when()
+                    .get("articles/search");
+                responseList.add(response);
+                latch.countDown();
+            };
+
+            executor.submit(searchTask);
+        }
+
+        latch.await();
+
+        long successCount = responseList.stream()
+            .filter(response -> response.getStatusCode() == 200)
+            .count();
+
+        assertThat(successCount).isEqualTo(4);
+
+        executor.shutdown();
     }
 }
