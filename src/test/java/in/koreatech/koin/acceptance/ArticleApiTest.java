@@ -617,7 +617,6 @@ class ArticleApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("다른 IP에서 동일한 query로 4개의 스레드가 동시에 검색 요청 시 동시성 제어가 잘 되는지 테스트한다.")
     void 다른_IP에서_동일한_쿼리로_동시에_검색시_동시성_처리() throws InterruptedException {
         String query = "sameQuery";
 
