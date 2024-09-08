@@ -147,7 +147,7 @@ public class ArticleService {
         return ArticleHotKeywordResponse.from(topKeywords);
     }
 
-    public void saveOrUpdateSearchLog(String query, String ipAddress) {
+    private void saveOrUpdateSearchLog(String query, String ipAddress) {
         if (query == null || query.trim().isEmpty()) {
             return;
         }
