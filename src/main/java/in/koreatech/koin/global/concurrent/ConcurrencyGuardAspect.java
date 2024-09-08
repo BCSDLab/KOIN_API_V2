@@ -32,10 +32,7 @@ public class ConcurrencyGuardAspect {
         String lockName = getLockName(args, annotation);
         RLock lock = redissonClient.getLock(lockName);
 
-        log.warn("lockName: test" + lockName);
-
         try {
-            log.warn("tryLock");
             boolean available = lock.tryLock(annotation.waitTime(), annotation.leaseTime(), annotation.timeUnit());
 
             if (!available) {
