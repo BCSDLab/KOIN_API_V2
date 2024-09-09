@@ -3,6 +3,7 @@ package in.koreatech.koin.acceptance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.AfterAll;
@@ -45,14 +46,11 @@ class DeptApiTest extends AcceptanceTest {
         //given
         final int DEPT_SIZE = Dept.values().length - 1;
 
-        MvcResult result = mockMvc.perform(
+        mockMvc.perform(
                 get("/depts")
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andReturn();
-
-        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
-        assertThat(jsonNode).hasSize(DEPT_SIZE);
+            .andExpect(jsonPath("$.length()").value(DEPT_SIZE));
     }
 }

@@ -1,13 +1,16 @@
 package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -157,11 +160,8 @@ class ArticleApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.articles", hasSize(1)))
             .andReturn();
-
-        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
-
-        assertThat(jsonNode.get("articles")).hasSize(1);
     }
 
     @Test
@@ -174,10 +174,8 @@ class ArticleApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.articles[0].id", is(article2.getId())))
             .andReturn();
-
-        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
-        assertThat(jsonNode.get("articles").get(0).get("id").asInt()).isEqualTo(article2.getId());
     }
 
     @Test
@@ -191,10 +189,8 @@ class ArticleApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.articles", hasSize(1)))
             .andReturn();
-
-        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
-        assertThat(jsonNode.get("articles")).hasSize(1);
     }
 
     @Test
@@ -207,10 +203,8 @@ class ArticleApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.articles", hasSize(1)))
             .andReturn();
-
-        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
-        assertThat(jsonNode.get("articles")).hasSize(1);
     }
 
     @Test
@@ -240,10 +234,8 @@ class ArticleApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.articles", hasSize(50)))
             .andReturn();
-
-        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
-        assertThat(jsonNode.get("articles")).hasSize(50);
     }
 
     @Test
@@ -271,10 +263,8 @@ class ArticleApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.articles", hasSize(10)))
             .andReturn();
-
-        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
-        assertThat(jsonNode.get("articles")).hasSize(10);
     }
 
     @Test
@@ -537,5 +527,4 @@ class ArticleApiTest extends AcceptanceTest {
                 }
                 """));
     }
-
 }
