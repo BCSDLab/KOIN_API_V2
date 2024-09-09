@@ -1,29 +1,23 @@
 package in.koreatech.koin.acceptance;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 import java.util.Optional;
 
-import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
-import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -32,6 +26,8 @@ import in.koreatech.koin.domain.dept.model.Dept;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.fixture.UserFixture;

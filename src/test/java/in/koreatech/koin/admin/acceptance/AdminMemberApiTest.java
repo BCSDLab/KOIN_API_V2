@@ -1,8 +1,7 @@
 package in.koreatech.koin.admin.acceptance;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;

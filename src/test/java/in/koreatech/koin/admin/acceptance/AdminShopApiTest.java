@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.assertj.core.api.SoftAssertions;
-import org.hibernate.Hibernate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;

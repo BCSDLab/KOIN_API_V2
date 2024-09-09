@@ -2,10 +2,10 @@ package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,25 +62,11 @@ class AuthApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.token").isNotEmpty())
+            .andExpect(
+                jsonPath("$.refresh_token").value(tokenRepository.findById(user.getId()).get().getRefreshToken()))
+            .andExpect(jsonPath("$.user_type").value(user.getUserType().name()))
             .andReturn();
-
-        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
-
-        User userResult = userRepository.findById(user.getId()).get();
-        UserToken token = tokenRepository.findById(userResult.getId()).get();
-
-        JsonAssertions.assertThat(result.getResponse().getContentAsString())
-            .isEqualTo(String.format("""
-                    {
-                        "token": "%s",
-                        "refresh_token": "%s",
-                        "user_type": "%s"
-                    }
-                    """,
-                jsonNode.get("token").asText(),
-                token.getRefreshToken(),
-                user.getUserType().name()
-            ));
     }
 
     @Test

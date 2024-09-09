@@ -484,6 +484,10 @@ class DiningApiTest extends AcceptanceTest {
     void 특정_메뉴_특정_코너의_식단을_검색한다_해당사항_없을_경우() throws Exception {
         mockMvc.perform(
                 get("/dinings/search?keyword=육개장&page=1&limit=10&filter=B코너")
+                    .queryParam("keyword", "육개장")
+                    .queryParam("page", "1")
+                    .queryParam("limit", "10")
+                    .queryParam("filter", "B코너")
                     .header("Authorization", "Bearer " + token_준기)
                     .contentType(MediaType.APPLICATION_JSON)
             )

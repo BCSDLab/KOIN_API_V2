@@ -1,8 +1,7 @@
 package in.koreatech.koin.admin.acceptance;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -51,7 +50,6 @@ public class AdminTrackApiTest extends AcceptanceTest {
     void setup() {
         clear();
     }
-
 
     @Test
     void 관리자가_BCSDLab_트랙_정보를_조회한다_관리자가_아니면_403_반환() throws Exception {

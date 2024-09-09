@@ -127,11 +127,11 @@ public abstract class AcceptanceTest {
         dataInitializer.clearRedis();
     }
 
-    public void clear() {
+    protected void clear() {
         dataInitializer.clear();
     }
 
-    public void forceVerify(Runnable runnable) {
+    protected void forceVerify(Runnable runnable) {
         TestTransaction.flagForCommit();
         TestTransaction.end();
         runnable.run();

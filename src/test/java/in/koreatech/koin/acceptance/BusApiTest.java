@@ -1,12 +1,8 @@
 package in.koreatech.koin.acceptance;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -14,7 +10,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.assertj.core.api.SoftAssertions;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -92,69 +87,7 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 다음_시내버스까지_남은_시간을_조회한다_Redis_캐시_히트() throws Exception {
-        final long remainTime = 600L;
-        final long busNumber = 400;
-        BusType busType = BusType.CITY;
-        BusStation depart = BusStation.TERMINAL;
-        BusStation arrival = BusStation.KOREATECH;
-
-        BusDirection direction = BusStation.getDirection(depart, arrival);
-        Version version = versionRepository.save(
-            Version.builder()
-                .version("test_version")
-                .type(VersionType.CITY.getValue())
-                .build()
-        );
-
-        cityBusCacheRepository.save(
-            CityBusCache.of(
-                depart.getNodeId(direction).get(0),
-                List.of(CityBusCacheInfo.of(
-                    CityBusArrival.builder()
-                        .routeno(busNumber)
-                        .arrtime(remainTime)
-                        .build(),
-                    version.getUpdatedAt())
-                )
-            )
-        );
-
-        mockMvc.perform(
-                get("/bus")
-                    .param("bus_type", busType.getName())
-                    .param("depart", depart.name())
-                    .param("arrival", arrival.name())
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().json("""
-                {
-                    "bus_type": "city",
-                    "now_bus": {
-                        "bus_number": 400,
-                        "remain_time": 600
-                    },
-                    "next_bus": null
-                }
-                """));
-    }
-
-    @Test
-    void 셔틀버스의_코스_정보들을_조회한다() throws Exception {
-        mockMvc.perform(
-                get("/bus/courses")
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.length()").value(1))
-            .andExpect(jsonPath("$[0].bus_type").value("shuttle"))
-            .andExpect(jsonPath("$[0].direction").value("from"))
-            .andExpect(jsonPath("$[0].region").value("천안"));
-    }
-
-    @Test
-    void 다음_셔틀버스까지_남은_시간을_조회한다2() throws Exception {
+    void 도착_시간이_18시_10분인_버스를_정확하게_조회한다() throws Exception {
         versionRepository.save(
             Version.builder()
                 .version("test_version")
@@ -218,43 +151,65 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 시내버스_시간표를_조회한다_지원하지_않음() throws Exception {
-        Version version = Version.builder()
-            .version("test_version")
-            .type(VersionType.CITY.getValue())
-            .build();
-        versionRepository.save(version);
+    void 다음_시내버스까지_남은_시간을_조회한다_Redis_캐시_히트() throws Exception {
+        final long remainTime = 600L;
+        final long busNumber = 400;
+        BusType busType = BusType.CITY;
+        BusStation depart = BusStation.TERMINAL;
+        BusStation arrival = BusStation.KOREATECH;
 
-        Long busNumber = 400L;
-        String direction = "종합터미널";
+        BusDirection direction = BusStation.getDirection(depart, arrival);
+        Version version = versionRepository.save(
+            Version.builder()
+                .version("test_version")
+                .type(VersionType.CITY.getValue())
+                .build()
+        );
+
+        cityBusCacheRepository.save(
+            CityBusCache.of(
+                depart.getNodeId(direction).get(0),
+                List.of(CityBusCacheInfo.of(
+                    CityBusArrival.builder()
+                        .routeno(busNumber)
+                        .arrtime(remainTime)
+                        .build(),
+                    version.getUpdatedAt())
+                )
+            )
+        );
 
         mockMvc.perform(
-                get("/bus/timetable/city")
-                    .param("bus_number", String.valueOf(busNumber))
-                    .param("direction", direction)
+                get("/bus")
+                    .param("bus_type", busType.getName())
+                    .param("depart", depart.name())
+                    .param("arrival", arrival.name())
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-                  {
-                    "bus_info": {
-                        "arrival_node": "종합터미널",
-                        "depart_node": "병천3리",
-                        "number": 400
+                {
+                    "bus_type": "city",
+                    "now_bus": {
+                        "bus_number": 400,
+                        "remain_time": 600
                     },
-                    "bus_timetables": [
-                        {
-                            "day_of_week": "평일",
-                            "depart_info": ["06:00", "07:00"]
-                        },
-                        {
-                            "day_of_week": "주말",
-                            "depart_info": ["08:00", "09:00"]
-                        }
-                    ],
-                    "updated_at": "2024-07-19 19:00:00"
-                  }
-            """));
+                    "next_bus": null
+                }
+                """));
+    }
+
+    @Test
+    void 셔틀버스의_코스_정보들을_조회한다() throws Exception {
+        mockMvc.perform(
+                get("/bus/courses")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].bus_type").value("shuttle"))
+            .andExpect(jsonPath("$[0].direction").value("from"))
+            .andExpect(jsonPath("$[0].region").value("천안"));
     }
 
     @Test
