@@ -79,7 +79,6 @@ class TrackApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("BCSDLab 트랙 정보 단건 조회 - 삭제된 멤버는 조회하지 않는다.")
     void BCSDLab_트랙_정보_단건_조회_삭제된_멤버는_조회하지_않는다() throws Exception {
         Track track = trackFixture.backend();
         memberFixture.배진호(track); // 삭제된 멤버
