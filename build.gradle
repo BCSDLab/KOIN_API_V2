@@ -85,7 +85,7 @@ dependencies {
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
     // Redisson
-    implementation 'org.redisson:redisson-spring-boot-starter:3.17.4'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.35.0'
 }
 
 clean {
