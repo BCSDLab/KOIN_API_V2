@@ -122,7 +122,7 @@ class AuthApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 용자가_로그인_이후_refreshToken을_재발급한다() throws Exception {
+    void 사용자가_로그인_이후_refreshToken을_재발급한다() throws Exception {
         User user = userFixture.builder()
             .password("1234")
             .nickname("주노")

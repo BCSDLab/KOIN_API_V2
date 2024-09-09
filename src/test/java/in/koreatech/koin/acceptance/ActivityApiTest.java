@@ -24,7 +24,7 @@ class ActivityApiTest extends AcceptanceTest {
     protected ActivityFixture activityFixture;
 
     @Test
-    void BCSD_Lab_활동_내역을_조회한다() throws Exception {
+    void BCSDLab_활동_내역을_조회한다() throws Exception {
         activityFixture.builder()
             .title("BCSD/KAP 통합")
             .description("BCSD와 KAP가 통합되었습니다.")
@@ -92,7 +92,7 @@ class ActivityApiTest extends AcceptanceTest {
     }
 
     @Test
-    void BCSD_Lab_활동_내역을_조회한다_파라미터가_없는_경우_전체조회() throws Exception {
+    void BCSDLab_활동_내역을_조회한다_파라미터가_없는_경우_전체조회() throws Exception {
         activityFixture.builder()
             .title("BCSD/KAP 통합")
             .description("BCSD와 KAP가 통합되었습니다.")

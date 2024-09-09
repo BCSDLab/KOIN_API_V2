@@ -33,7 +33,7 @@ import in.koreatech.koin.support.JsonAssertions;
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CommunityApiTest extends AcceptanceTest {
+class ArticleApiTest extends AcceptanceTest {
 
     @Autowired
     private ArticleRepository articleRepository;
