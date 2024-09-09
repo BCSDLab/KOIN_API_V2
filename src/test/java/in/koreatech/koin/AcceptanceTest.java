@@ -22,11 +22,13 @@ import org.testcontainers.utility.DockerImageName;
 import in.koreatech.koin.config.TestJpaConfiguration;
 import in.koreatech.koin.config.TestRedisConfiguration;
 import in.koreatech.koin.config.TestTimeConfig;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEventListener;
 import in.koreatech.koin.domain.bus.util.express.PublicExpressBusClient;
 import in.koreatech.koin.domain.bus.util.express.StaticExpressBusClient;
 import in.koreatech.koin.domain.bus.util.express.TmoneyExpressBusClient;
 import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
+import in.koreatech.koin.domain.shop.model.ReviewEventListener;
 import in.koreatech.koin.domain.shop.model.ShopEventListener;
 import in.koreatech.koin.domain.user.model.StudentEventListener;
 import in.koreatech.koin.support.DBInitializer;
@@ -49,6 +51,9 @@ public abstract class AcceptanceTest {
     protected OwnerEventListener ownerEventListener;
 
     @MockBean
+    protected ReviewEventListener reviewEventListener;
+
+    @MockBean
     protected StudentEventListener studentEventListener;
 
     @MockBean
@@ -56,6 +61,9 @@ public abstract class AcceptanceTest {
 
     @MockBean
     protected CoopEventListener coopEventListener;
+
+    @MockBean
+    protected ArticleKeywordEventListener articleKeywordEventListener;
 
     @MockBean
     protected PublicExpressBusClient publicExpressBusClient;

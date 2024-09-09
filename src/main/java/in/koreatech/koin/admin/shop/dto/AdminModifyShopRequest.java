@@ -12,8 +12,10 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.global.validation.NotBlankElement;
 import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
+import in.koreatech.koin.global.validation.ValidDayOfWeek;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -53,6 +55,8 @@ public record AdminModifyShopRequest(
         [ "https://static.koreatech.in/example.png" ]
         """, requiredMode = NOT_REQUIRED)
     @UniqueUrl(message = "이미지 URL은 중복될 수 없습니다.")
+    @NotNull(message = "이미지 URL은 null일 수 없습니다.")
+    @NotBlankElement(message = "빈 요소가 존재할 수 없습니다.")
     List<String> imageUrls,
 
     @Schema(description = "이름", example = "수신반점", requiredMode = REQUIRED)
@@ -60,8 +64,10 @@ public record AdminModifyShopRequest(
     @Size(min = 1, max = 100, message = "가게명은 1자 이상, 15자 이하로 입력해주세요.")
     String name,
 
-    @Schema(description = "요일별 휴무 여부 및 장사 시간", requiredMode = NOT_REQUIRED)
+    @Schema(description = "요일별 운영 시간과 휴무 여부", requiredMode = REQUIRED)
+    @Size(min = 7, max = 7, message = "요일별 운영 시간은 7개여야 합니다.")
     @NotNull
+    @Valid
     List<InnerShopOpen> open,
 
     @Schema(description = "계좌 이체 가능 여부", example = "true", requiredMode = REQUIRED)
@@ -85,18 +91,14 @@ public record AdminModifyShopRequest(
     @Size(max = 20, message = "계좌번호는 20자 이내로 입력해주세요")
     String accountNumber
 ) {
-    public AdminModifyShopRequest {
-        if (imageUrls == null) {
-            imageUrls = List.of();
-        }
-    }
+
     @JsonNaming(value = SnakeCaseStrategy.class)
-    @Valid
     public record InnerShopOpen(
         @Schema(description = """
             요일 = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
             """, example = "MONDAY", requiredMode = REQUIRED)
         @NotNull(message = "요일은 필수입니다.")
+        @ValidDayOfWeek(message = "요일은 올바른 값이어야 합니다.")
         String dayOfWeek,
 
         @Schema(description = "휴무 여부", example = "false", requiredMode = REQUIRED)

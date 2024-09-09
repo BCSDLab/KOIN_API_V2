@@ -8,6 +8,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.global.validation.NotBlankElement;
+import in.koreatech.koin.global.validation.SingleMenuPrice;
 import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +18,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
+@SingleMenuPrice
 public record AdminModifyMenuRequest(
     @Schema(example = "[1, 2, 3]", description = "선택된 카테고리 고유 id 리스트", requiredMode = REQUIRED)
     @NotNull(message = "카테고리는 필수입니다.")
@@ -32,6 +35,8 @@ public record AdminModifyMenuRequest(
         """, description = "이미지 URL 리스트", requiredMode = NOT_REQUIRED)
     @Size(max = 3, message = "이미지는 최대 3개까지 입력 가능합니다.")
     @UniqueUrl(message = "이미지 URL은 중복될 수 없습니다.")
+    @NotNull(message = "이미지 URL은 null일 수 없습니다.")
+    @NotBlankElement(message = "빈 요소가 존재할 수 없습니다.")
     List<String> imageUrls,
 
     @Schema(example = "true", description = "단일 메뉴 여부", requiredMode = REQUIRED)
@@ -50,11 +55,7 @@ public record AdminModifyMenuRequest(
     @PositiveOrZero(message = "가격은 0원 이상이어야 합니다.")
     Integer singlePrice
 ) {
-    public AdminModifyMenuRequest {
-        if (imageUrls == null) {
-            imageUrls = List.of();
-        }
-    }
+
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerOptionPrice(
         @Schema(example = "대", description = "옵션명", requiredMode = REQUIRED)
