@@ -38,7 +38,6 @@ class CoopShopTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 생협의_모든_상점을_조회한다() throws Exception {
         mockMvc.perform(
                 get("/coopshop")
@@ -110,7 +109,6 @@ class CoopShopTest extends AcceptanceTest {
     }
 
     @Test
-    @Transactional
     void 생협의_상점을_조회한다() throws Exception {
         mockMvc.perform(
                 get("/coopshop/1")
