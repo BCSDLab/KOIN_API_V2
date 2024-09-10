@@ -1,7 +1,5 @@
 package in.koreatech.koin;
 
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-
 import java.time.Clock;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -35,7 +32,7 @@ import in.koreatech.koin.support.DBInitializer;
 import in.koreatech.koin.util.TestCircuitBreakerClient;
 import jakarta.persistence.EntityManager;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest
 @AutoConfigureMockMvc
 @Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class, TestRedisConfiguration.class})
 @ActiveProfiles("test")
@@ -46,9 +43,6 @@ public abstract class AcceptanceTest {
 
     @Autowired
     public MockMvc mockMvc;
-
-    @LocalServerPort
-    protected int port;
 
     @MockBean
     protected OwnerEventListener ownerEventListener;
