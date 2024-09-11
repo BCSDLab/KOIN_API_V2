@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
 
 public interface ShopCategoryMapRepository extends Repository<ShopCategoryMap, Integer> {
 

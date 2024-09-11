@@ -1,7 +1,7 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED;
-import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.DISMISSED;
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,10 +15,9 @@ import org.springframework.http.HttpStatus;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.shop.model.Menu;
-import in.koreatech.koin.domain.shop.model.ReportStatus;
-import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopReview;
+import in.koreatech.koin.domain.shop.model.menu.Menu;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.fixture.EventArticleFixture;
 import in.koreatech.koin.fixture.MenuCategoryFixture;

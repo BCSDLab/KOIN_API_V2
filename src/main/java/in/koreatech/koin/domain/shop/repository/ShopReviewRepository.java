@@ -9,7 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
-import in.koreatech.koin.domain.shop.model.ShopReview;
+import in.koreatech.koin.domain.shop.model.review.ShopReview;
 
 public interface ShopReviewRepository extends Repository<ShopReview, Integer> {
 

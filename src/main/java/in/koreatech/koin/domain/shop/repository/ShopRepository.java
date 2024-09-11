@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
-import in.koreatech.koin.domain.shop.model.Shop;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 
 public interface ShopRepository extends Repository<Shop, Integer> {
 

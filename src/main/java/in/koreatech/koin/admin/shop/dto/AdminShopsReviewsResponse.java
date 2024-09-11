@@ -3,7 +3,12 @@ package in.koreatech.koin.admin.shop.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import in.koreatech.koin.domain.shop.model.*;
+
+import in.koreatech.koin.domain.shop.model.review.ShopReview;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewImage;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewMenu;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Page;
@@ -12,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)

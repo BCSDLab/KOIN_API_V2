@@ -2,7 +2,7 @@ package in.koreatech.koin.fixture;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.shop.model.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
 
 @Component

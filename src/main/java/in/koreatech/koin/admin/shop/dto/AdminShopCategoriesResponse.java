@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.shop.model.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 

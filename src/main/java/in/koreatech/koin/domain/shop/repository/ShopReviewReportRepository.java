@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.shop.model.ShopReviewReport;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
 
 public interface ShopReviewReportRepository extends Repository<ShopReviewReport, Integer> {
 

@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.shop.model.Menu;
+import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.global.validation.NotBlankElement;
 import in.koreatech.koin.global.validation.SingleMenuPrice;
 import in.koreatech.koin.global.validation.UniqueId;

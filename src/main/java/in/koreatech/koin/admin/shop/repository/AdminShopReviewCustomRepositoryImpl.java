@@ -1,11 +1,11 @@
 package in.koreatech.koin.admin.shop.repository;
 
-import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import in.koreatech.koin.domain.shop.model.QShopReview;
-import in.koreatech.koin.domain.shop.model.ShopReview;
+import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

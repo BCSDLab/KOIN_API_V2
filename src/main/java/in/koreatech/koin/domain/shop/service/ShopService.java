@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.shop.service;
 
-import static in.koreatech.koin.domain.shop.dto.ShopsResponse.InnerShopResponse;
+import static in.koreatech.koin.domain.shop.dto.shop.ShopsResponse.InnerShopResponse;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -12,21 +12,21 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
-import in.koreatech.koin.domain.shop.dto.ShopCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.ShopEventsResponse;
-import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
-import in.koreatech.koin.domain.shop.dto.ShopResponse;
-import in.koreatech.koin.domain.shop.dto.ShopsFilterCriteria;
-import in.koreatech.koin.domain.shop.dto.ShopsResponse;
-import in.koreatech.koin.domain.shop.dto.ShopsResponseV2;
-import in.koreatech.koin.domain.shop.dto.ShopsSortCriteria;
-import in.koreatech.koin.domain.shop.model.Menu;
-import in.koreatech.koin.domain.shop.model.MenuCategory;
-import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
-import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopCategory;
+import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopEventsResponse;
+import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsResponseV2;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
+import in.koreatech.koin.domain.shop.model.menu.Menu;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.MenuRepository;

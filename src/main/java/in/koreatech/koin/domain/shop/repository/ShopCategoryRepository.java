@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.shop.exception.ShopCategoryNotFoundException;
-import in.koreatech.koin.domain.shop.model.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 
 public interface ShopCategoryRepository extends Repository<ShopCategory, Integer> {
 
