@@ -1,26 +1,35 @@
 package in.koreatech.koin.acceptance;
 
-import org.junit.jupiter.api.DisplayName;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class VersionApiTest extends AcceptanceTest {
 
     @Autowired
     private VersionRepository versionRepository;
 
+    @BeforeAll
+    void setup() {
+        clear();
+    }
+
     @Test
-    @DisplayName("버전 타입을 통해 버전 정보를 조회한다.")
-    void findVersionByType() {
+    void 버전_타입을_통해_버전_정보를_조회한다() throws Exception {
         Version version = versionRepository.save(
             Version.builder()
                 .version("1.0.0")
@@ -28,17 +37,12 @@ class VersionApiTest extends AcceptanceTest {
                 .build()
         );
 
-        // when then
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/versions/" + version.getType())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(
+                get("/versions/" + version.getType())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                 {
                     "id": %d,
                     "version": "1.0.0",
@@ -47,28 +51,24 @@ class VersionApiTest extends AcceptanceTest {
                     "updated_at": "2024-01-15"
                 }
                 """, version.getId()
-            ));
+            )));
     }
 
     @Test
-    @DisplayName("버전 타입을 통해 버전 정보를 조회한다. - 저장되지 않은 버전 타입을 요청한 경우 에러가 발생한다.")
-    void findVersionByTypeError() {
+    void 버전_타입을_통해_버전_정보를_조회한다_저장되지_않은_버전_타입을_요청한_경우_에러가_발생한다() throws Exception {
         VersionType failureType = VersionType.TIMETABLE;
-        RestAssured
-            .given()
-            .when()
-            .get("/versions/" + failureType.getValue())
-            .then()
-            .statusCode(HttpStatus.NOT_FOUND.value())
-            .extract();
-
         String undefinedType = "undefined";
-        RestAssured
-            .given()
-            .when()
-            .get("/versions/" + undefinedType)
-            .then()
-            .statusCode(HttpStatus.NOT_FOUND.value())
-            .extract();
+
+        mockMvc.perform(
+                get("/versions/" + failureType.getValue())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound());
+
+        mockMvc.perform(
+                get("/versions/" + undefinedType)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound());
     }
 }

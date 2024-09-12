@@ -6,24 +6,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
-import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -32,15 +26,16 @@ import in.koreatech.koin.domain.dept.model.Dept;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserApiTest extends AcceptanceTest {
 
     @Autowired
@@ -61,108 +56,93 @@ class UserApiTest extends AcceptanceTest {
     @Autowired
     private UserFixture userFixture;
 
+    @BeforeAll
+    void setup() {
+        clear();
+    }
+
     @Test
-    @DisplayName("학생이 로그인을 진행한다(구 API(/user/login))")
-    void login() {
+    void 학생이_로그인을_진행한다_구_API_user_login() throws Exception {
         Student student = userFixture.성빈_학생();
         String email = student.getUser().getEmail();
         String password = "1234";
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .body("""
-                {
-                  "email" : "%s",
-                  "password" : "%s"
-                }
-                """.formatted(email, password))
-            .when()
-            .post("/user/login")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/user/login")
+                    .content("""
+                        {
+                          "email" : "%s",
+                          "password" : "%s"
+                        }
+                        """.formatted(email, password))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
     }
 
     @Test
-    @DisplayName("학생이 로그인을 진행한다(신규 API(/student/login))")
-    void studentLogin() {
+    void 학생이_로그인을_진행한다_신규_API_student_login() throws Exception {
         Student student = userFixture.성빈_학생();
         String email = student.getUser().getEmail();
         String password = "1234";
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .body("""
-                {
-                  "email" : "%s",
-                  "password" : "%s"
-                }
-                """.formatted(email, password))
-            .when()
-            .post("/student/login")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/student/login")
+                    .content("""
+                        {
+                          "email" : "%s",
+                          "password" : "%s"
+                        }
+                        """.formatted(email, password))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
     }
 
     @Test
-    @DisplayName("영양사가 로그인을 진행한다")
-    void coopLogin() {
+    void 영양사가_로그인을_진행한다() throws Exception {
         Coop coop = userFixture.준기_영양사();
         String id = coop.getCoopId();
         String password = "1234";
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .body("""
-                {
-                  "id" : "%s",
-                  "password" : "%s"
-                }
-                """.formatted(id, password))
-            .when()
-            .post("/coop/login")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/coop/login")
+                    .content("""
+                        {
+                          "id" : "%s",
+                          "password" : "%s"
+                        }
+                        """.formatted(id, password))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
     }
 
     @Test
-    @DisplayName("올바른 영양사 계정인지 확인한다")
-    void coopCheckMe() {
+    void 올바른_영양사_계정인지_확인한다() throws Exception {
         Coop coop = userFixture.준기_영양사();
         String token = userFixture.getToken(coop.getUser());
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/user/coop/me")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                get("/user/coop/me")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("올바른 학생계정인지 확인한다")
-    void studentCheckMe() {
+    void 올바른_학생계정인지_확인한다() throws Exception {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/user/student/me")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/user/student/me")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "anonymous_nickname": "익명",
                     "email": "juno@koreatech.ac.kr",
@@ -173,70 +153,72 @@ class UserApiTest extends AcceptanceTest {
                     "phone_number": "01012345678",
                     "student_number": "2019136135"
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("올바른 학생계정인지 확인한다 - 토큰 정보가 올바르지 않으면  401")
-    void studentCheckMeUnAuthorized() {
+    void 올바른_학생계정인지_확인한다_토큰_정보가_올바르지_않으면_401() throws Exception {
         userFixture.준호_학생();
         String token = "invalidToken";
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/user/student/me")
-            .then()
-            .statusCode(HttpStatus.UNAUTHORIZED.value())
-            .extract();
+        mockMvc.perform(
+                get("/user/student/me")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("올바른 학생계정인지 확인한다 - 회원을 찾을 수 없으면 404")
-    void studentCheckMeNotFound() {
+    void 올바른_학생계정인지_확인한다_회원을_찾을_수_없으면_404() throws Exception {
         Student student = userFixture.준호_학생();
         String token = jwtProvider.createToken(student.getUser());
         transactionTemplate.executeWithoutResult(status ->
             studentRepository.deleteByUserId(student.getId())
         );
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/user/student/me")
-            .then()
-            .statusCode(HttpStatus.NOT_FOUND.value())
-            .extract();
+        mockMvc.perform(
+                get("/user/student/me")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("학생이 정보를 수정한다")
-    void studentUpdateMe() {
+    void 학생이_정보를_수정한다() throws Exception {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
-                  {
-                    "gender" : 1,
-                    "major" : "기계공학부",
-                    "name" : "서정빈",
-                    "password" : "0c4be6acaba1839d3433c1ccf04e1eec4d1fa841ee37cb019addc269e8bc1b77",
-                    "nickname" : "duehee",
-                    "phone_number" : "01023456789",
-                    "student_number" : "2019136136"
-                  }
-                """)
-            .when()
-            .put("/user/student/me")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                put("/user/student/me")
+                    .header("Authorization", "Bearer " + token)
+                    .content("""
+                        {
+                          "gender" : 1,
+                          "major" : "기계공학부",
+                          "name" : "서정빈",
+                          "password" : "0c4be6acaba1839d3433c1ccf04e1eec4d1fa841ee37cb019addc269e8bc1b77",
+                          "nickname" : "duehee",
+                          "phone_number" : "01023456789",
+                          "student_number" : "2019136136"
+                        }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
+                    "anonymous_nickname": "익명",
+                    "email": "juno@koreatech.ac.kr",
+                    "gender": 1,
+                    "major": "기계공학부",
+                    "name": "서정빈",
+                    "nickname": "duehee",
+                    "phone_number": "01023456789",
+                    "student_number": "2019136136"
+                }
+            """));
 
         transactionTemplate.executeWithoutResult(status -> {
             Student result = studentRepository.getById(student.getId());
@@ -250,33 +232,17 @@ class UserApiTest extends AcceptanceTest {
                 }
             );
         });
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
-                {
-                    "anonymous_nickname": "익명",
-                    "email": "juno@koreatech.ac.kr",
-                    "gender": 1,
-                    "major": "기계공학부",
-                    "name": "서정빈",
-                    "nickname": "duehee",
-                    "phone_number": "01023456789",
-                    "student_number": "2019136136"
-                }
-                """);
     }
 
     @Test
-    @DisplayName("학생이 정보를 수정한다 - 학번의 형식이 맞지 않으면 400")
-    void studentUpdateMeNotValidStudentNumber() {
+    void 학생이_정보를_수정한다_학번의_형식이_맞지_않으면_400() throws Exception {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
+        mockMvc.perform(
+                put("/user/student/me")
+                    .header("Authorization", "Bearer " + token)
+                    .content("""
                   {
                     "gender" : 0,
                     "major" : "메카트로닉스공학부",
@@ -286,24 +252,20 @@ class UserApiTest extends AcceptanceTest {
                     "student_number" : "201913613"
                   }
                 """)
-            .when()
-            .put("/user/student/me")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("학생이 정보를 수정한다 - 학부의 형식이 맞지 않으면 400")
-    void studentUpdateMeNotValidDepartment() {
+    void 학생이_정보를_수정한다_학부의_형식이_맞지_않으면_400() throws Exception {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
+        mockMvc.perform(
+                put("/user/student/me")
+                    .header("Authorization", "Bearer " + token)
+                    .content("""
                   {
                     "gender" : 0,
                     "major" : "경영학과",
@@ -313,24 +275,20 @@ class UserApiTest extends AcceptanceTest {
                     "student_number" : "2019136136"
                   }
                 """)
-            .when()
-            .put("/user/student/me")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("학생이 정보를 수정한다 - 토큰이 올바르지 않다면 401")
-    void studentUpdateMeUnAuthorized() {
+    void 학생이_정보를_수정한다_토큰이_올바르지_않다면_401() throws Exception {
         userFixture.준호_학생();
         String token = "invalidToken";
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
+        mockMvc.perform(
+                put("/user/student/me")
+                    .header("Authorization", "Bearer " + token)
+                    .content("""
                   {
                     "gender" : 0,
                     "major" : "메카트로닉스공학부",
@@ -340,27 +298,23 @@ class UserApiTest extends AcceptanceTest {
                     "student_number" : "2019136136"
                   }
                 """)
-            .when()
-            .put("/user/student/me")
-            .then()
-            .statusCode(HttpStatus.UNAUTHORIZED.value())
-            .extract();
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("학생이 정보를 수정한다 - 회원을 찾을 수 없다면 404")
-    void studentUpdateMeNotFound() {
+    void 학생이_정보를_수정한다_회원을_찾을_수_없다면_404() throws Exception {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
         transactionTemplate.executeWithoutResult(status ->
             studentRepository.deleteByUserId(student.getId())
         );
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
+        mockMvc.perform(
+                put("/user/student/me")
+                    .header("Authorization", "Bearer " + token)
+                    .content("""
                   {
                     "gender" : 0,
                     "major" : "메카트로닉스공학부",
@@ -370,25 +324,21 @@ class UserApiTest extends AcceptanceTest {
                     "student_number" : "2019136136"
                   }
                 """)
-            .when()
-            .put("/user/student/me")
-            .then()
-            .statusCode(HttpStatus.NOT_FOUND.value())
-            .extract();
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("학생이 정보를 수정한다 - 이미 있는 닉네임이라면 409")
-    void studentUpdateMeDuplicationNickname() {
+    void 학생이_정보를_수정한다_이미_있는_닉네임이라면_409() throws Exception {
         Student 준호 = userFixture.준호_학생();
         Student 성빈 = userFixture.성빈_학생();
         String token = userFixture.getToken(준호.getUser());
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
+        mockMvc.perform(
+                put("/user/student/me")
+                    .header("Authorization", "Bearer " + token)
+                    .content(String.format("""
                  {
                     "gender" : 0,
                     "major" : "테스트학과",
@@ -398,128 +348,101 @@ class UserApiTest extends AcceptanceTest {
                     "student_number" : "2019136136"
                  }
                 """, 성빈.getUser().getNickname()))
-            .when()
-            .put("/user/student/me")
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value())
-            .extract();
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isConflict());
     }
 
     @Test
-    @DisplayName("회원이 탈퇴한다")
-    void userWithdraw() {
+    void 회원이_탈퇴한다() throws Exception {
         Student student = userFixture.성빈_학생();
         String token = userFixture.getToken(student.getUser());
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .delete("/user")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
+        mockMvc.perform(
+                delete("/user")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
 
         assertThat(userRepository.findById(student.getId())).isNotPresent();
     }
 
     @Test
-    @DisplayName("이메일이 중복인지 확인한다")
-    void emailCheckExists() {
+    void 이메일이_중복인지_확인한다() throws Exception {
         String email = "notduplicated@koreatech.ac.kr";
 
-        RestAssured
-            .given()
-            .param("address", email)
-            .when()
-            .get("/user/check/email")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                get("/user/check/email")
+                    .param("address", email)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
 
         assertThat(userRepository.findByEmail(email)).isNotPresent();
     }
 
     @Test
-    @DisplayName("이메일이 중복인지 확인한다 - 파라미터에 이메일을 포함하지 않으면 400")
-    void emailCheckExistsNull() {
-        RestAssured
-            .when()
-            .get("/user/check/email")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
+    void 이메일이_중복인지_확인한다_파라미터에_이메일을_포함하지_않으면_400() throws Exception {
+        mockMvc.perform(
+                get("/user/check/email")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("이메일이 중복인지 확인한다 - 잘못된 이메일 형식이면 400")
-    void emailCheckExistsWrongFormat() {
+    void 이메일이_중복인지_확인한다_잘못된_이메일_형식이면_400() throws Exception {
         String email = "wrong email format";
 
-        RestAssured
-            .given()
-            .param("address", email)
-            .when()
-            .get("/user/check/email")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
+        mockMvc.perform(
+                get("/user/check/email")
+                    .param("address", email)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("이메일이 중복인지 확인한다 - 중복이면 422")
-    void emailCheckExistsAlreadyExists() {
+    void 이메일이_중복인지_확인한다_중복이면_422() throws Exception {
         User user = userFixture.성빈_학생().getUser();
 
-        var response = RestAssured
-            .given()
-            .param("address", user.getEmail())
-            .when()
-            .get("/user/check/email")
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value())
-            .extract();
-
-        assertThat(response.body().jsonPath().getString("message"))
-            .contains("존재하는 이메일입니다.");
+        mockMvc.perform(
+                get("/user/check/email")
+                    .param("address", user.getEmail())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.message").value("존재하는 이메일입니다."));
     }
 
     @Test
-    @DisplayName("닉네임 중복일때 상태코드 409를 반환한다.")
-    void checkDuplicationOfNicknameConflict() {
+    void 닉네임_중복일때_상태코드_409를_반환한다() throws Exception {
         User user = userFixture.성빈_학생().getUser();
 
-        var response = RestAssured
-            .given()
-            .when()
-            .param("nickname", user.getNickname())
-            .get("/user/check/nickname")
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value())
-            .extract();
-
-        assertThat(response.body().jsonPath().getString("message"))
-            .contains("이미 존재하는 닉네임입니다.");
+        mockMvc.perform(
+                get("/user/check/nickname")
+                    .param("nickname", user.getNickname())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.message").value("이미 존재하는 닉네임입니다."));
     }
 
     @Test
-    @DisplayName("닉네임 중복이 아닐시 상태코드 200을 반환한다.")
-    void checkDuplicationOfNickname() {
+    void 닉네임_중복이_아닐시_상태코드_200을_반환한다() throws Exception {
         User user = userFixture.성빈_학생().getUser();
 
-        RestAssured
-            .given()
-            .when()
-            .param("nickname", "철수")
-            .get("/user/check/nickname")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                get("/user/check/nickname")
+                    .param("nickname", "철수")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("닉네임 제약조건 위반시 상태코드 400를 반환한다.")
-    void checkDuplicationOfNicknameBadRequest() {
+    void 닉네임_제약조건_위반시_상태코드_400를_반환한다() throws Exception {
         User user = User.builder()
             .password("1234")
             .nickname("주노")
@@ -534,28 +457,23 @@ class UserApiTest extends AcceptanceTest {
 
         userRepository.save(user);
 
-        RestAssured
-            .given()
-            .when()
-            .param("nickname", "철".repeat(11))
-            .get("/user/check/nickname")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
+        mockMvc.perform(
+                get("/user/check/nickname")
+                    .param("nickname", "철".repeat(11))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
 
-        RestAssured
-            .given()
-            .when()
-            .param("nickname", "")
-            .get("/user/check/nickname")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
+        mockMvc.perform(
+                get("/user/check/nickname")
+                    .param("nickname", "")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("로그인된 사용자의 권한을 조회한다.")
-    void getAuth() {
+    void 로그인된_사용자의_권한을_조회한다() throws Exception {
         Student student = Student.builder()
             .studentNumber("2019136135")
             .anonymousNickname("익명")
@@ -579,248 +497,213 @@ class UserApiTest extends AcceptanceTest {
 
         studentRepository.save(student);
         String token = jwtProvider.createToken(student.getUser());
-
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/user/auth")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
         User user = student.getUser();
 
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getString("user_type"))
-                    .isEqualTo(user.getUserType().getValue());
-            }
-        );
+        mockMvc.perform(
+                get("/user/auth")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.user_type").value(user.getUserType().getValue()));
     }
 
     @Test
-    @DisplayName("학생 회원가입 후 학교 이메일요청 이벤트가 발생하고 Redis에 저장된다.")
-    void studentRegister() {
-        var response = RestAssured
-                .given()
-                .body("""
-                {
-                  "major": "컴퓨터공학부",
-                  "email": "koko123@koreatech.ac.kr",
-                  "name": "김철수",
-                  "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
-                  "nickname": "koko",
-                  "gender": "0",
-                  "is_graduated": false,
-                  "student_number": "2021136012",
-                  "phone_number": "01000000000"
-                }
-                """)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/user/student/register")
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .extract();
-
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
-
-                assertSoftly(
-                        softly -> {
-                            softly.assertThat(student).isNotNull();
-                            softly.assertThat(student.get().getNickname()).isEqualTo("koko");
-                            softly.assertThat(student.get().getName()).isEqualTo("김철수");
-                            softly.assertThat(student.get().getPhoneNumber()).isEqualTo("01000000000");
-                            softly.assertThat(student.get().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
-                            softly.assertThat(student.get().getStudentNumber()).isEqualTo("2021136012");
-                            softly.assertThat(student.get().getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
-                            verify(studentEventListener).onStudentEmailRequest(any());
+    void 학생_회원가입_후_학교_이메일요청_이벤트가_발생하고_Redis에_저장된다() throws Exception {
+        mockMvc.perform(
+                post("/user/student/register")
+                    .content("""
+                        {
+                          "major": "컴퓨터공학부",
+                          "email": "koko123@koreatech.ac.kr",
+                          "name": "김철수",
+                          "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
+                          "nickname": "koko",
+                          "gender": "0",
+                          "is_graduated": false,
+                          "student_number": "2021136012",
+                          "phone_number": "01000000000"
                         }
-                );
-            }
-        });
-    }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+            Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
+
+            assertSoftly(
+                softly -> {
+                    softly.assertThat(student).isNotNull();
+                    softly.assertThat(student.get().getNickname()).isEqualTo("koko");
+                    softly.assertThat(student.get().getName()).isEqualTo("김철수");
+                    softly.assertThat(student.get().getPhoneNumber()).isEqualTo("01000000000");
+                    softly.assertThat(student.get().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
+                    softly.assertThat(student.get().getStudentNumber()).isEqualTo("2021136012");
+                    softly.assertThat(student.get().getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
+                    forceVerify(() -> verify(studentEventListener).onStudentEmailRequest(any()));
+                    clear();
+                    setup();
+                }
+            );
+}
 
     @Test
-    @DisplayName("이메일 요청을 확인 후 회원가입 이벤트가 발생하고 Redis에 저장된 정보가 삭제된다.")
-    void authenticate() {
-        RestAssured
-                .given()
-                .body("""
-                {
-                  "major": "컴퓨터공학부",
-                  "email": "koko123@koreatech.ac.kr",
-                  "name": "김철수",
-                  "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
-                  "nickname": "koko",
-                  "gender": "0",
-                  "is_graduated": false,
-                  "student_number": "2021136012",
-                  "phone_number": "01000000000"
-                }
-                """)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/user/student/register")
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .extract();
+    void 이메일_요청을_확인_후_회원가입_이벤트가_발생하고_Redis에_저장된_정보가_삭제된다() throws Exception {
+        mockMvc.perform(
+                post("/user/student/register")
+                    .content("""
+                        {
+                          "major": "컴퓨터공학부",
+                          "email": "koko123@koreatech.ac.kr",
+                          "name": "김철수",
+                          "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
+                          "nickname": "koko",
+                          "gender": "0",
+                          "is_graduated": false,
+                          "student_number": "2021136012",
+                          "phone_number": "01000000000"
+                        }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
 
         Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
-
-        RestAssured
-                .given()
-                .param("auth_token", student.get().getAuthToken())
-                .when()
-                .get("/user/authenticate")
-                .then();
+        mockMvc.perform(
+                get("/user/authenticate")
+                    .queryParam("auth_token", student.get().getAuthToken())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andReturn();
 
         User user = userRepository.getByEmail("koko123@koreatech.ac.kr");
         assertThat(studentRedisRepository.findById("koko123@koreatech.ac.kr")).isEmpty();
 
         assertThat(user.isAuthed()).isTrue();
-        verify(studentEventListener).onStudentRegister(any());
+        forceVerify(() -> verify(studentEventListener).onStudentRegister(any()));
+        clear();
+        setup();
     }
 
     @Test
-    @DisplayName("회원 가입 필수 파라미터를 안넣을시 400에러코드를 반환한다.")
-    void studentRegisterBadRequest() {
-        RestAssured
-            .given()
-            .body("""
-                {
-                  "major": "컴퓨터공학부",
-                  "email": null,
-                  "name": "김철수",
-                  "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
-                  "nickname": "koko",
-                  "gender": "0",
-                  "is_graduated": false,
-                  "student_number": "2021136012",
-                  "phone_number": "01000000000"
-                }
-                """)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/user/student/register")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
+    void 회원_가입_필수_파라미터를_안넣을시_400에러코드를_반환한다() throws Exception {
+        mockMvc.perform(
+                post("/user/student/register")
+                    .content("""
+                        {
+                          "major": "컴퓨터공학부",
+                          "email": null,
+                          "name": "김철수",
+                          "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
+                          "nickname": "koko",
+                          "gender": "0",
+                          "is_graduated": false,
+                          "student_number": "2021136012",
+                          "phone_number": "01000000000"
+                        }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("한기대 이메일이 아닐시 400에러코드를 반환한다.")
-    void studentRegisterInvalid() {
-        RestAssured
-            .given()
-            .body("""
-                {
-                  "major": "컴퓨터공학부",
-                  "email": "koko123@gmail.com",
-                  "name": "김철수",
-                  "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
-                  "nickname": "koko",
-                  "gender": "0",
-                  "is_graduated": false,
-                  "student_number": "2021136012",
-                  "phone_number": "01000000000"
-                }
-                """)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/user/student/register")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
+    void 한기대_이메일이_아닐시_400에러코드를_반환한다() throws Exception {
+        mockMvc.perform(
+                post("/user/student/register")
+                    .content("""
+                        {
+                          "major": "컴퓨터공학부",
+                          "email": "koko123@gmail.com",
+                          "name": "김철수",
+                          "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
+                          "nickname": "koko",
+                          "gender": "0",
+                          "is_graduated": false,
+                          "student_number": "2021136012",
+                          "phone_number": "01000000000"
+                        }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("유효한 학번의 형식이 아닐시 400에러코드를 반환한다.")
-    void studentRegisterStudentNumberInvalid() {
-        RestAssured
-            .given()
-            .body("""
-                {
-                  "major": "컴퓨터공학부",
-                  "email": "koko123@gmail.com",
-                  "name": "김철수",
-                  "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
-                  "nickname": "koko",
-                  "gender": "0",
-                  "is_graduated": false,
-                  "student_number": "20211360123324231",
-                  "phone_number": "01000000000"
-                }
-                """)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/user/student/register")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
+    void 유효한_학번의_형식이_아닐시_400에러코드를_반환한다() throws Exception {
+        mockMvc.perform(
+                post("/user/student/register")
+                    .content("""
+                        {
+                          "major": "컴퓨터공학부",
+                          "email": "koko123@gmail.com",
+                          "name": "김철수",
+                          "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
+                          "nickname": "koko",
+                          "gender": "0",
+                          "is_graduated": false,
+                          "student_number": "20211360123324231",
+                          "phone_number": "01000000000"
+                        }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
 
-        RestAssured
-            .given()
-            .body("""
-                {
-                  "major": "컴퓨터공학부",
-                  "email": "koko123@gmail.com",
-                  "name": "김철수",
-                  "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
-                  "nickname": "koko",
-                  "gender": "0",
-                  "is_graduated": false,
-                  "student_number": "19911360123",
-                  "phone_number": "01000000000"
-                }
-                """)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/user/student/register")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
+        mockMvc.perform(
+                post("/user/student/register")
+                    .content("""
+                        {
+                          "major": "컴퓨터공학부",
+                          "email": "koko123@gmail.com",
+                          "name": "김철수",
+                          "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
+                          "nickname": "koko",
+                          "gender": "0",
+                          "is_graduated": false,
+                          "student_number": "19911360123",
+                          "phone_number": "01000000000"
+                        }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("사용자가 비밀번호를 통해 자신이 맞는지 인증한다.")
-    void userCheckPassword() {
+    void 사용자가_비밀번호를_통해_자신이_맞는지_인증한다() throws Exception {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
-                  {
-                    "password": "1234"
-                  }
-                """)
-            .when()
-            .post("/user/check/password")
-            .then()
-            .statusCode(HttpStatus.OK.value());
+        mockMvc.perform(
+                post("/user/check/password")
+                    .header("Authorization", "Bearer " + token)
+                    .content("""
+                      {
+                        "password": "1234"
+                      }
+                    """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("사용자가 비밀번호를 통해 자신이 맞는지 인증한다. - 비밀번호가 다르면 400 반환")
-    void userCheckPasswordInvalid() {
+    void 사용자가_비밀번호를_통해_자신이_맞는지_인증한다_비밀번호가_다르면_400_반환() throws Exception {
         Student student = userFixture.준호_학생();
         String token = userFixture.getToken(student.getUser());
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType(ContentType.JSON)
-            .body("""
-                  {
-                    "password": "1233"
-                  }
-                """)
-            .when()
-            .post("/user/check/password")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
+        mockMvc.perform(
+                post("/user/check/password")
+                    .header("Authorization", "Bearer " + token)
+                    .content("""
+                      {
+                        "password": "123"
+                      }
+                    """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 }

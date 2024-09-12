@@ -1,10 +1,16 @@
 package in.koreatech.koin.acceptance;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.member.model.Member;
@@ -12,9 +18,10 @@ import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.domain.member.repository.TrackRepository;
 import in.koreatech.koin.fixture.MemberFixture;
 import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MemberApiTest extends AcceptanceTest {
 
     @Autowired
@@ -26,8 +33,9 @@ class MemberApiTest extends AcceptanceTest {
     Track backend;
     Track frontend;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
+        clear();
         backend = trackRepository.save(
             Track.builder()
                 .name("BackEnd")
@@ -41,22 +49,20 @@ class MemberApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("BCSDLab 회원의 정보를 조회한다")
-    void getMember() {
+    void BCSDLab_회원의_정보를_조회한다() throws Exception {
         Member member = memberFixture.최준호(backend);
 
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/members/{id}", member.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        MvcResult result = mockMvc.perform(
+                get("/members/{id}", member.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
 
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        JsonAssertions.assertThat(result.getResponse().getContentAsString())
+            .isEqualTo("""
                     {
-                        "id": %d,
+                        "id": 1,
                         "name": "최준호",
                         "student_number": "2019136135",
                         "track": "BackEnd",
@@ -64,31 +70,23 @@ class MemberApiTest extends AcceptanceTest {
                         "email": "testjuno@gmail.com",
                         "image_url": "https://imagetest.com/juno.jpg",
                         "is_deleted": false,
-                        "created_at": "%s",
-                        "updated_at": "%s"
-                    }""",
-                member.getId(),
-                response.jsonPath().getString("created_at"),
-                response.jsonPath().getString("updated_at")
-            ));
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00"
+                    }"""
+            );
     }
 
     @Test
-    @DisplayName("BCSDLab 회원들의 정보를 조회한다")
-    void getMembers() {
+    void BCSDLab_회원들의_정보를_조회한다() throws Exception {
         memberFixture.최준호(backend);
         memberFixture.박한수(frontend);
 
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/members")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/members")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 [
                     {
                         "id": 1,
@@ -115,7 +113,6 @@ class MemberApiTest extends AcceptanceTest {
                         "updated_at": "2024-01-15 12:00:00"
                     }
                 ]
-                """
-            );
+                """));
     }
 }
