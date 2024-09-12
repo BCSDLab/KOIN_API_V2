@@ -5,7 +5,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalTime;
-import java.util.Comparator;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -13,9 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
-import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -86,12 +84,12 @@ public record BenefitShopsResponse(
                 shop.getDelivery(),
                 shop.getId(),
                 shop.getName(),
-                shop.getShopOpens().stream().sorted().map(InnerShopOpen::from).toList(),
+                null,//shop.getShopOpens().stream().sorted().map(InnerShopOpen::from).toList(),
                 shop.isPayBank(),
                 shop.isPayCard(),
                 shop.getPhone(),
-                isEvent,
-                isOpen,
+                true,
+                true,
                 Math.round(shop.getReviews().stream()
                     .filter(review -> !review.isDeleted())
                     .mapToInt(ShopReview::getRating)

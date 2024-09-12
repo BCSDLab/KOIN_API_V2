@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import in.koreatech.koin.domain.shop.model.article.EventArticle;
 import in.koreatech.koin.domain.shop.model.article.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
+import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")

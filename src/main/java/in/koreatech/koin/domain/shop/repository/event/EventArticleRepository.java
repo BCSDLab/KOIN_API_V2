@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.shop.repository;
+package in.koreatech.koin.domain.shop.repository.event;
 
 import java.time.LocalDate;
 import java.util.Optional;

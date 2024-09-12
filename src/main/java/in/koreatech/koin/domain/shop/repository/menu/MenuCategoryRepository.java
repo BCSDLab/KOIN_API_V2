@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.shop.repository;
+package in.koreatech.koin.domain.shop.repository.menu;
 
 import java.util.List;
 import java.util.Optional;

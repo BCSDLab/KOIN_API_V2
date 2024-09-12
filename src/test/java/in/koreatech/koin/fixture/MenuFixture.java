@@ -10,8 +10,8 @@ import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.menu.MenuImage;
 import in.koreatech.koin.domain.shop.model.menu.MenuOption;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.shop.repository.MenuCategoryMapRepository;
-import in.koreatech.koin.domain.shop.repository.MenuRepository;
+import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryMapRepository;
+import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")

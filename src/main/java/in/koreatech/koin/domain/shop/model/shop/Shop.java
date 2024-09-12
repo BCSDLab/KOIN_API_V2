@@ -35,6 +35,7 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -146,6 +147,12 @@ public class Shop extends BaseEntity {
     @Size(max = 20)
     @Column(name = "accountNumber", length = 20)
     private String accountNumber;
+
+    @Transient
+    Boolean isOpen;
+
+    @Transient
+    Boolean isEventActive;
 
     @Builder
     private Shop(

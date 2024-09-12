@@ -9,7 +9,6 @@ import in.koreatech.koin.domain.benefit.dto.BenefitCategoryResponse;
 import in.koreatech.koin.domain.benefit.dto.BenefitShopsResponse;
 import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
-import in.koreatech.koin.domain.benefit.repository.BenefitCategoryMapRepository;
 import in.koreatech.koin.domain.benefit.repository.BenefitCategoryRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 public class ShopBenefitService {
 
     private final BenefitCategoryRepository benefitCategoryRepository;
-    private final BenefitCategoryMapRepository benefitCategoryMapRepository;
 
     public BenefitCategoryResponse getBenefitCategories() {
         List<BenefitCategory> benefitCategories = benefitCategoryRepository.findAll();
@@ -27,7 +25,7 @@ public class ShopBenefitService {
     }
 
     public BenefitShopsResponse getBenefitShops(Integer benefitId) {
-        List<BenefitCategoryMap> benefitCategories = benefitCategoryMapRepository.findAllByBenefitCategoryId(benefitId);
-        return BenefitShopsResponse.from(benefitCategories);
+        // List<BenefitCategoryMap> benefitCategories = benefitCategoryMapRepository.findAllByBenefitCategoryId(benefitId);
+        return BenefitShopsResponse.from();
     }
 }

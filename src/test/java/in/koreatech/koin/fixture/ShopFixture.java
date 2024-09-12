@@ -12,7 +12,7 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.ShopImage;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
-import in.koreatech.koin.domain.shop.repository.ShopRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")

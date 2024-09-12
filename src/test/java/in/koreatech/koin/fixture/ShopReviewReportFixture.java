@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
-import in.koreatech.koin.domain.shop.repository.ShopReviewReportRepository;
+import in.koreatech.koin.domain.shop.repository.review.ShopReviewReportRepository;
 import in.koreatech.koin.domain.user.model.Student;
 
 @Component
