@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.domain.benefit.dto.BenefitCategoryResponse;
 import in.koreatech.koin.domain.benefit.dto.BenefitShopsResponse;
 import in.koreatech.koin.domain.benefit.service.ShopBenefitService;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -25,7 +24,7 @@ public class BenefitController implements BenefitApi {
 
     @GetMapping("/benefit/{id}/shops")
     public ResponseEntity<BenefitShopsResponse> getBenefitShops(
-        @PathParam("id") Integer benefitId
+        @PathVariable("id") Integer benefitId
     ) {
         BenefitShopsResponse benefitShopsResponse = shopBenefitService.getBenefitShops(benefitId);
         return ResponseEntity.ok(benefitShopsResponse);

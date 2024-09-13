@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "shop_benefit_categoriy_map")
+@Table(name = "shop_benefit_category_map")
 @NoArgsConstructor(access = PROTECTED)
 public class BenefitCategoryMap extends BaseEntity {
 

@@ -4,11 +4,11 @@ INSERT INTO shop_benefit_categories (title, detail) VALUES
 ('서비스 증정', '계좌이체하면 서비스를 주는 상점들을 모아뒀어요.'),
 ('가게까지 픽업', '사장님께서 직접 가게까지 데려다주시는 상점들을 모아뒀어요.');
 
-INSERT INTO shop_benefit_categoriy_map (shop_id, benefit_id) VALUES
-(10, 1),
+INSERT INTO shop_benefit_category_map (shop_id, benefit_id) VALUES
 (11, 1),
-(12, 2),
+(11, 1),
+(13, 2),
 (13, 3),
-(10, 3);
 (11, 3),
-(12, 4),
+(11, 3),
+(13, 4);

@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.benefit.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import in.koreatech.koin.domain.benefit.dto.BenefitCategoryResponse;
 import in.koreatech.koin.domain.benefit.dto.BenefitShopsResponse;
@@ -11,7 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.websocket.server.PathParam;
 
 @Tag(name = "(Normal) ShopBenefit: 상점 혜택", description = "상점 혜택 정보를 관리한다")
 public interface BenefitApi {
@@ -39,6 +39,6 @@ public interface BenefitApi {
     @Operation(summary = "특정 혜택 카테고리에 속하는 상점을 모두 조회한다.")
     @GetMapping("/benefit/{id}/shops")
     ResponseEntity<BenefitShopsResponse> getBenefitShops(
-        @PathParam("id") Integer benefitId
+        @PathVariable("id") Integer benefitId
     );
 }
