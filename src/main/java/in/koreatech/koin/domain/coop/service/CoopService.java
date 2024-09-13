@@ -71,7 +71,6 @@ public class CoopService {
         if (isOpened && !isImageExist) {
             eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getId(), dining.getImageUrl()));
         }
-
         dining.setImageUrl(imageRequest.imageUrl());
     }
 

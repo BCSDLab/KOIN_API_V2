@@ -43,7 +43,7 @@ public record HotArticleItemResponse(
             article.getBoard().getId(),
             article.getTitle(),
             article.getAuthor(),
-            article.getHit(),
+            article.getTotalHit(),
             article.getRegisteredAt(),
             article.getUpdatedAt()
         );

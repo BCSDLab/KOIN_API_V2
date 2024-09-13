@@ -111,14 +111,14 @@ public class AdminShopService {
                 .shop(savedShop)
                 .name(categoryName)
                 .build();
-            adminMenuCategoryRepository.save(menuCategory);
+            savedShop.getMenuCategories().add(menuCategory);
         }
         for (String imageUrl : adminCreateShopRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(savedShop)
                 .imageUrl(imageUrl)
                 .build();
-            adminShopImageRepository.save(shopImage);
+            savedShop.getShopImages().add(shopImage);
         }
         for (InnerShopOpen open : adminCreateShopRequest.open()) {
             ShopOpen shopOpen = ShopOpen.builder()
@@ -128,7 +128,7 @@ public class AdminShopService {
                 .dayOfWeek(open.dayOfWeek())
                 .closed(open.closed())
                 .build();
-            adminShopOpenRepository.save(shopOpen);
+            savedShop.getShopOpens().add(shopOpen);
         }
         List<ShopCategory> categories = adminShopCategoryRepository.findAllByIdIn(adminCreateShopRequest.categoryIds());
         for (ShopCategory shopCategory : categories) {
@@ -136,7 +136,7 @@ public class AdminShopService {
                 .shopCategory(shopCategory)
                 .shop(savedShop)
                 .build();
-            adminShopCategoryMapRepository.save(shopCategoryMap);
+            savedShop.getShopCategories().add(shopCategoryMap);
         }
     }
 
@@ -160,14 +160,14 @@ public class AdminShopService {
                 .menuCategory(menuCategory)
                 .menu(savedMenu)
                 .build();
-            adminMenuCategoryMapRepository.save(menuCategoryMap);
+            savedMenu.getMenuCategoryMaps().add(menuCategoryMap);
         }
         for (String imageUrl : adminCreateMenuRequest.imageUrls()) {
             MenuImage menuImage = MenuImage.builder()
                 .imageUrl(imageUrl)
                 .menu(savedMenu)
                 .build();
-            adminMenuImageRepository.save(menuImage);
+            savedMenu.getMenuImages().add(menuImage);
         }
         if (adminCreateMenuRequest.optionPrices() == null) {
             MenuOption menuOption = MenuOption.builder()
@@ -175,7 +175,7 @@ public class AdminShopService {
                 .price(adminCreateMenuRequest.singlePrice())
                 .menu(menu)
                 .build();
-            adminMenuDetailRepository.save(menuOption);
+            savedMenu.getMenuOptions().add(menuOption);
         } else {
             for (var option : adminCreateMenuRequest.optionPrices()) {
                 MenuOption menuOption = MenuOption.builder()
@@ -183,7 +183,7 @@ public class AdminShopService {
                     .price(option.price())
                     .menu(menu)
                     .build();
-                adminMenuDetailRepository.save(menuOption);
+                savedMenu.getMenuOptions().add(menuOption);
             }
         }
     }
