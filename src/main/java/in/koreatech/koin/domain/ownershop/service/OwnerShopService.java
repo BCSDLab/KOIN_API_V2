@@ -97,14 +97,14 @@ public class OwnerShopService {
                 .shop(savedShop)
                 .name(categoryName)
                 .build();
-            menuCategoryRepository.save(menuCategory);
+            savedShop.getMenuCategories().add(menuCategory);
         }
         for (String imageUrl : ownerShopsRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(savedShop)
                 .imageUrl(imageUrl)
                 .build();
-            shopImageRepository.save(shopImage);
+            savedShop.getShopImages().add(shopImage);
         }
         for (OwnerShopsRequest.InnerOpenRequest open : ownerShopsRequest.open()) {
             ShopOpen shopOpen = ShopOpen.builder()
@@ -114,7 +114,7 @@ public class OwnerShopService {
                 .dayOfWeek(open.dayOfWeek())
                 .closed(open.closed())
                 .build();
-            shopOpenRepository.save(shopOpen);
+            savedShop.getShopOpens().add(shopOpen);
         }
         List<ShopCategory> shopCategories = shopCategoryRepository.findAllByIdIn(ownerShopsRequest.categoryIds());
         for (ShopCategory shopCategory : shopCategories) {
@@ -122,7 +122,7 @@ public class OwnerShopService {
                 .shopCategory(shopCategory)
                 .shop(savedShop)
                 .build();
-            shopCategoryMapRepository.save(shopCategoryMap);
+            savedShop.getShopCategories().add(shopCategoryMap);
         }
     }
 
@@ -188,14 +188,14 @@ public class OwnerShopService {
                 .menuCategory(menuCategory)
                 .menu(savedMenu)
                 .build();
-            menuCategoryMapRepository.save(menuCategoryMap);
+            savedMenu.getMenuCategoryMaps().add(menuCategoryMap);
         }
         for (String imageUrl : createMenuRequest.imageUrls()) {
             MenuImage menuImage = MenuImage.builder()
                 .imageUrl(imageUrl)
                 .menu(savedMenu)
                 .build();
-            menuImageRepository.save(menuImage);
+            savedMenu.getMenuImages().add(menuImage);
         }
         if (createMenuRequest.optionPrices() == null) {
             MenuOption menuOption = MenuOption.builder()
@@ -203,7 +203,7 @@ public class OwnerShopService {
                 .price(createMenuRequest.singlePrice())
                 .menu(menu)
                 .build();
-            menuDetailRepository.save(menuOption);
+            savedMenu.getMenuOptions().add(menuOption);
         } else {
             for (var option : createMenuRequest.optionPrices()) {
                 MenuOption menuOption = MenuOption.builder()
@@ -211,7 +211,7 @@ public class OwnerShopService {
                     .price(option.price())
                     .menu(menu)
                     .build();
-                menuDetailRepository.save(menuOption);
+                savedMenu.getMenuOptions().add(menuOption);
             }
         }
     }

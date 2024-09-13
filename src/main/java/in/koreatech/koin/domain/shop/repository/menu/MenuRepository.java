@@ -21,4 +21,6 @@ public interface MenuRepository extends Repository<Menu, Integer> {
     }
 
     List<Menu> findAllByShopId(Integer shopId);
+
+    List<Menu> findAll();
 }

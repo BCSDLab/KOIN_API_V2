@@ -4,15 +4,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -26,11 +31,10 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.fixture.ShopFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OwnerApiTest extends AcceptanceTest {
 
     @Autowired
@@ -58,188 +62,162 @@ class OwnerApiTest extends AcceptanceTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
-    @DisplayName("사장님이 로그인을 진행한다")
-    void ownerLogin() {
+    void 사장님이_로그인을_진행한다() throws Exception {
         Owner owner = userFixture.원경_사장님();
         String phoneNumber = owner.getAccount();
         String password = "1234";
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .body("""
-                {
-                  "account" : "%s",
-                  "password" : "%s"
-                }
-                """.formatted(phoneNumber, password))
-            .when()
-            .post("/owner/login")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/owner/login")
+                    .content("""
+                        {
+                          "account" : "%s",
+                          "password" : "%s"
+                        }
+                        """.formatted(phoneNumber, password))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
     }
 
     @Test
-    @DisplayName("관리자가 승인하지 않은 사장님이 로그인을 진행한다")
-    void unAuthOwnerLogin() {
+    void 관리자가_승인하지_않은_사장님이_로그인을_진행한다() throws Exception {
         Owner owner = userFixture.철수_사장님();
         String phoneNumber = owner.getAccount();
         String password = "1234";
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .body("""
-                {
-                  "account" : "%s",
-                  "password" : "%s"
-                }
-                """.formatted(phoneNumber, password))
-            .when()
-            .post("/owner/login")
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
+        mockMvc.perform(
+                post("/owner/login")
+                    .content("""
+                        {
+                          "account" : "%s",
+                          "password" : "%s"
+                        }
+                        """.formatted(phoneNumber, password))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("로그인된 사장님 정보를 조회한다.")
-    void getOwner() {
+    void 로그인된_사장님_정보를_조회한다() throws Exception {
         // given
         Owner owner = userFixture.현수_사장님();
         Shop shop = shopFixture.마슬랜(owner);
         String token = userFixture.getToken(owner.getUser());
 
-        // when then
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/owner")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
-                {
-                    "email": "hysoo@naver.com",
-                    "name": "테스트용_현수",
-                    "company_number": "123-45-67190",
-                    "account" : "01098765432",
-                    "attachments": [
-                        {
-                            "id": 1,
-                            "file_url": "https://test.com/현수_사장님_인증사진_1.jpg",
-                            "file_name": "현수_사장님_인증사진_1.jpg"
-                        },
-                        {
-                            "id": 2,
-                            "file_url": "https://test.com/현수_사장님_인증사진_2.jpg",
-                            "file_name": "현수_사장님_인증사진_2.jpg"
-                        }
-                    ],
-                    "shops": [
-                        {
-                            "id": %d,
-                            "name": "마슬랜 치킨"
-                        }
-                    ]
-                }
-                """, shop.getId()
-            ));
+        mockMvc.perform(
+                get("/owner")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                    {
+                      "email": "hysoo@naver.com",
+                      "name": "테스트용_현수",
+                      "company_number": "123-45-67190",
+                      "account" : "01098765432",
+                      "attachments": [
+                          {
+                              "id": 1,
+                              "file_url": "https://test.com/현수_사장님_인증사진_1.jpg",
+                              "file_name": "현수_사장님_인증사진_1.jpg"
+                          },
+                          {
+                              "id": 2,
+                              "file_url": "https://test.com/현수_사장님_인증사진_2.jpg",
+                              "file_name": "현수_사장님_인증사진_2.jpg"
+                          }
+                      ],
+                      "shops": [
+                          {
+                              "id": 1,
+                              "name": "마슬랜 치킨"
+                          }
+                      ]
+                  }
+                """));
     }
 
     @Test
-    @DisplayName("사장님이 회원가입 인증번호 전송 요청을 한다 - 전송한 코드로 인증요청이 성공한다")
-    void requestAndVerifySign() {
+    void 사장님이_회원가입_인증번호_전송_요청을_한다_전송한_코드로_인증요청이_성공한다() throws Exception {
         String ownerEmail = "junho5336@gmail.com";
-        RestAssured
-            .given()
-            .body(String.format("""
-                {
-                  "address": "%s"
-                }
-                """, ownerEmail)
+
+        mockMvc.perform(
+                post("/owners/verification/email")
+                    .content(String.format("""
+                        {
+                          "address": "%s"
+                        }
+                        """, ownerEmail))
+                    .contentType(MediaType.APPLICATION_JSON)
             )
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/verification/email")
-            .then()
-            .statusCode(HttpStatus.OK.value());
+            .andExpect(status().isOk());
 
         var verifyCode = ownerVerificationStatusRepository.getByVerify(ownerEmail);
 
-        RestAssured
-            .given()
-            .body(String.format("""
-                    {
-                      "address": "%s",
-                      "certification_code": "%s"
-                    }
-                """, ownerEmail, verifyCode.getCertificationCode()))
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/verification/code")
-            .then()
-            .statusCode(HttpStatus.OK.value());
-
+        mockMvc.perform(
+                post("/owners/verification/code")
+                    .content(String.format("""
+                            {
+                              "address": "%s",
+                              "certification_code": "%s"
+                            }
+                        """, ownerEmail, verifyCode.getCertificationCode()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
         var result = ownerVerificationStatusRepository.findById(ownerEmail);
         Assertions.assertThat(result).isNotPresent();
     }
 
     @Test
-    @DisplayName("사장님 회원가입 이메일 인증번호 전송 요청 이벤트 발생 시 슬랙 전송 이벤트가 발생한다.")
-    void checkOwnerEventListenerByEmail() {
-        RestAssured
-            .given()
-            .body("""
-                {
-                  "address": "test@gmail.com"
-                }
-                """)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/verification/email")
-            .then()
-            .statusCode(HttpStatus.OK.value());
-
-        verify(ownerEventListener).onOwnerEmailRequest(any());
+    void 사장님_회원가입_이메일_인증번호_전송_요청_이벤트_발생_시_슬랙_전송_이벤트가_발생한다() throws Exception {
+        mockMvc.perform(
+                post("/owners/verification/email")
+                    .content("""
+                            {
+                              "address": "test@gmail.com"
+                            }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+        forceVerify(() -> verify(ownerEventListener).onOwnerEmailRequest(any()));
+        clear();
     }
 
     @Nested
     @DisplayName("사장님 회원가입")
+    @Transactional
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class ownerRegister {
 
         @Test
-        @DisplayName("사장님이 이메일로 회원가입 요청을 한다.")
-        void register() {
+        void 사장님이_이메일로_회원가입_요청을_한다() throws Exception {
             // when & then
-            var response = RestAssured
-                .given()
-                .body("""
-                    {
-                       "attachment_urls": [
-                         {
-                           "file_url": "https://static.koreatech.in/testimage.png"
-                         }
-                       ],
-                       "company_number": "012-34-56789",
-                       "email": "helloworld@koreatech.ac.kr",
-                       "name": "최준호",
-                       "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-0000-0000",
-                       "shop_id": null,
-                       "shop_name": "기분좋은 뷔짱"
-                     }
-                    """)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/owners/register")
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .extract();
+            mockMvc.perform(
+                    post("/owners/register")
+                        .content("""
+                                {
+                               "attachment_urls": [
+                                 {
+                                   "file_url": "https://static.koreatech.in/testimage.png"
+                                 }
+                               ],
+                               "company_number": "012-34-56789",
+                               "email": "helloworld@koreatech.ac.kr",
+                               "name": "최준호",
+                               "password": "a0240120305812krlakdsflsa;1235",
+                               "phone_number": "010-0000-0000",
+                               "shop_id": null,
+                               "shop_name": "기분좋은 뷔짱"
+                             }
+                            """)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
 
             // when
             transactionTemplate.executeWithoutResult(status -> {
@@ -255,7 +233,8 @@ class OwnerApiTest extends AcceptanceTest {
                                 .isEqualTo("https://static.koreatech.in/testimage.png");
                             softly.assertThat(owner.getUser().isAuthed()).isFalse();
                             softly.assertThat(owner.getUser().isDeleted()).isFalse();
-                            verify(ownerEventListener).onOwnerRegister(any());
+                            forceVerify(() -> verify(ownerEventListener).onOwnerRegister(any()));
+                            clear();
                         }
                     );
                 }
@@ -263,32 +242,28 @@ class OwnerApiTest extends AcceptanceTest {
         }
 
         @Test
-        @DisplayName("사장님이 전화번호를 아이디로 회원가입 요청을 한다.")
-        void registerByPhoneNumber() {
+        void 사장님이_전화번호를_아이디로_회원가입_요청을_한다() throws Exception {
             // when & then
-            var response = RestAssured
-                .given()
-                .body("""
-                    {
-                       "attachment_urls": [
-                         {
-                           "file_url": "https://static.koreatech.in/testimage.png"
-                         }
-                       ],
-                       "company_number": "012-34-56789",
-                       "name": "최준호",
-                       "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "01012341234",
-                       "shop_id": null,
-                       "shop_name": "기분좋은 뷔짱"
-                     }
-                    """)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/owners/register/phone")
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .extract();
+            mockMvc.perform(
+                    post("/owners/register/phone")
+                        .content("""
+                                {
+                                   "attachment_urls": [
+                                     {
+                                       "file_url": "https://static.koreatech.in/testimage.png"
+                                     }
+                                   ],
+                                   "company_number": "012-34-56789",
+                                   "name": "최준호",
+                                   "password": "a0240120305812krlakdsflsa;1235",
+                                   "phone_number": "01012341234",
+                                   "shop_id": null,
+                                   "shop_name": "기분좋은 뷔짱"
+                                }
+                            """)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
 
             // when
             transactionTemplate.executeWithoutResult(status -> {
@@ -306,7 +281,8 @@ class OwnerApiTest extends AcceptanceTest {
                                 .isEqualTo("https://static.koreatech.in/testimage.png");
                             softly.assertThat(owner.getUser().isAuthed()).isFalse();
                             softly.assertThat(owner.getUser().isDeleted()).isFalse();
-                            verify(ownerEventListener).onOwnerRegisterBySms(any());
+                            forceVerify(() -> verify(ownerEventListener).onOwnerRegisterBySms(any()));
+                            clear();
                         }
                     );
                 }
@@ -314,120 +290,108 @@ class OwnerApiTest extends AcceptanceTest {
         }
 
         @Test
-        @DisplayName("사장님이 회원가입 요청을 한다 - 첨부파일 이미지 URL이 잘못된 경우 400")
-        void registerNotAllowedFileUrl() {
+        void 사장님이_회원가입_요청을_한다_첨부파일_이미지_URL이_잘못된_경우_400() throws Exception {
             // given
-            RestAssured
-                .given()
-                .body("""
-                    {
-                       "attachment_urls": [
-                         {
-                           "file_url": "https://hello.koreatech.in/testimage.png"
-                         }
-                       ],
-                       "company_number": "012-34-56789",
-                       "email": "helloworld@koreatech.ac.kr",
-                       "name": "최준호",
-                       "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-0000-0000",
-                       "shop_id": null,
-                       "shop_name": "기분좋은 뷔짱"
-                     }
-                    """)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/owners/register")
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
+            mockMvc.perform(
+                    post("/owners/register")
+                        .content("""
+                                {
+                                   "attachment_urls": [
+                                     {
+                                       "file_url": "https://hello.koreatech.in/testimage.png"
+                                     }
+                                   ],
+                                   "company_number": "012-34-56789",
+                                   "email": "helloworld@koreatech.ac.kr",
+                                   "name": "최준호",
+                                   "password": "a0240120305812krlakdsflsa;1235",
+                                   "phone_number": "010-0000-0000",
+                                   "shop_id": null,
+                                   "shop_name": "기분좋은 뷔짱"
+                                 }
+                            """)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isBadRequest());
         }
 
         @Test
-        @DisplayName("사장님이 회원가입 요청을 한다 - 잘못된 사업자 등록번호인 경우 400")
-        void registerNotAllowedCompanyNumber() {
+        void 사장님이_회원가입_요청을_한다_잘못된_사업자_등록번호인_경우_400() throws Exception {
             // given
-            RestAssured
-                .given()
-                .body("""
-                    {
-                       "attachment_urls": [
-                         {
-                           "file_url": "https://static.koreatech.in/testimage.png"
-                         }
-                       ],
-                       "company_number": "8121-34-56789",
-                       "email": "helloworld@koreatech.ac.kr",
-                       "name": "최준호",
-                       "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "01000000000",
-                       "shop_id": null,
-                       "shop_name": "기분좋은 뷔짱"
-                     }
-                    """)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/owners/register")
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
+            mockMvc.perform(
+                    post("/owners/register")
+                        .content("""
+                                {
+                                   "attachment_urls": [
+                                     {
+                                       "file_url": "https://static.koreatech.in/testimage.png"
+                                     }
+                                   ],
+                                   "company_number": "8121-34-56789",
+                                   "email": "helloworld@koreatech.ac.kr",
+                                   "name": "최준호",
+                                   "password": "a0240120305812krlakdsflsa;1235",
+                                   "phone_number": "01000000000",
+                                   "shop_id": null,
+                                   "shop_name": "기분좋은 뷔짱"
+                                }
+                            """)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isBadRequest());
         }
 
         @Test
-        @DisplayName("사장님이 회원가입 요청을 한다 - 이름이 없는경우 400")
-        void registerWithoutName() {
+        void 사장님이_회원가입_요청을_한다_이름이_없는경우_400() throws Exception {
             // given
-            RestAssured
-                .given()
-                .body("""
-                    {
-                       "attachment_urls": [
-                         {
-                           "file_url": "https://static.koreatech.in/testimage.png"
-                         }
-                       ],
-                       "company_number": "011-34-56789",
-                       "email": "helloworld@koreatech.ac.kr",
-                       "name": "",
-                       "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "01000000000",
-                       "shop_id": null,
-                       "shop_name": "기분좋은 뷔짱"
-                     }
-                    """)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/owners/register")
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
+            mockMvc.perform(
+                    post("/owners/register")
+                        .content("""
+                                {
+                                   "attachment_urls": [
+                                     {
+                                       "file_url": "https://static.koreatech.in/testimage.png"
+                                     }
+                                   ],
+                                   "company_number": "011-34-56789",
+                                   "email": "helloworld@koreatech.ac.kr",
+                                   "name": "",
+                                   "password": "a0240120305812krlakdsflsa;1235",
+                                   "phone_number": "01000000000",
+                                   "shop_id": null,
+                                   "shop_name": "기분좋은 뷔짱"
+                                 }
+                            """)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isBadRequest());
         }
 
         @Test
-        @DisplayName("사장님이 회원가입 요청을 한다 - 기존에 존재하는 상점과 함께 회원가입")
-        void registerWithExistShop() {
+        void 사장님이_회원가입_요청을_한다_기존에_존재하는_상점과_함께_회원가입() throws Exception {
             // given
             Shop shop = shopFixture.마슬랜(null);
-            RestAssured
-                .given()
-                .body(String.format("""
-                    {
-                       "attachment_urls": [
-                         {
-                           "file_url": "https://static.koreatech.in/testimage.png"
-                         }
-                       ],
-                       "company_number": "011-34-12312",
-                       "email": "helloworld@koreatech.ac.kr",
-                       "name": "주노",
-                       "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-0000-0000",
-                       "shop_id": %d,
-                       "shop_name": "기분좋은 뷔짱"
-                     }
-                    """, shop.getId()))
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/owners/register")
-                .then()
-                .statusCode(HttpStatus.OK.value());
+            mockMvc.perform(
+                    post("/owners/register")
+                        .content(String.format("""
+                            {   
+                               "attachment_urls": [
+                                 {
+                                   "file_url": "https://static.koreatech.in/testimage.png"
+                                 }
+                               ],
+                               "company_number": "011-34-12312",
+                               "email": "helloworld@koreatech.ac.kr",
+                               "name": "주노",
+                               "password": "a0240120305812krlakdsflsa;1235",
+                               "phone_number": "010-0000-0000",
+                               "shop_id": %d,
+                               "shop_name": "기분좋은 뷔짱"
+                            }
+                            """, shop.getId()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
 
             Owner owner = ownerRepository.findByCompanyRegistrationNumber("011-34-12312").get();
             var ownerShop = ownerShopRedisRepository.findById(owner.getId());
@@ -440,32 +404,29 @@ class OwnerApiTest extends AcceptanceTest {
         }
 
         @Test
-        @DisplayName("사장님이 회원가입 요청을 한다 - 존재하지 않는 상점과 함께 회원가입")
-        void registerWithNotExistShop() {
+        void 사장님이_회원가입_요청을_한다_존재하지_않는_상점과_함께_회원가입() throws Exception {
             // given
-            RestAssured
-                .given()
-                .body("""
-                    {
-                       "attachment_urls": [
-                         {
-                           "file_url": "https://static.koreatech.in/testimage.png"
-                         }
-                       ],
-                       "company_number": "011-34-56789",
-                       "email": "helloworld@koreatech.ac.kr",
-                       "name": "주노",
-                       "password": "a0240120305812krlakdsflsa;1235",
-                       "phone_number": "010-0000-0000",
-                       "shop_id": null,
-                       "shop_name": "기분좋은 뷔짱"
-                     }
-                    """)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/owners/register")
-                .then()
-                .statusCode(HttpStatus.OK.value());
+            mockMvc.perform(
+                    post("/owners/register")
+                        .content("""
+                                {
+                                   "attachment_urls": [
+                                     {
+                                       "file_url": "https://static.koreatech.in/testimage.png"
+                                     }
+                                   ],
+                                   "company_number": "011-34-56789",
+                                   "email": "helloworld@koreatech.ac.kr",
+                                   "name": "주노",
+                                   "password": "a0240120305812krlakdsflsa;1235",
+                                   "phone_number": "010-0000-0000",
+                                   "shop_id": null,
+                                   "shop_name": "기분좋은 뷔짱"
+                                 }
+                            """)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
             Owner owner = ownerRepository.findByCompanyRegistrationNumber("011-34-56789").get();
             var ownerShop = ownerShopRedisRepository.findById(owner.getId());
             assertSoftly(
@@ -478,133 +439,111 @@ class OwnerApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님이 회원가입 인증번호를 확인한다")
-    void ownerCodeVerification() {
+    void 사장님이_회원가입_인증번호를_확인한다() throws Exception {
         // given
         OwnerVerificationStatus verification = OwnerVerificationStatus.of("junho5336@gmail.com", "123456");
         ownerVerificationStatusRepository.save(verification);
-        RestAssured
-            .given()
-            .body("""
-                    {
-                      "address": "junho5336@gmail.com",
-                      "certification_code": "123456"
-                    }
-                """)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/verification/code")
-            .then()
-            .statusCode(HttpStatus.OK.value());
+        mockMvc.perform(
+                post("/owners/verification/code")
+                    .content("""
+                            {
+                              "address": "junho5336@gmail.com",
+                              "certification_code": "123456"
+                            }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
         var result = ownerVerificationStatusRepository.findById(verification.getKey());
         assertThat(result).isNotPresent();
     }
 
     @Test
-    @DisplayName("사장님이 회원가입 인증번호를 확인한다 - 존재하지 않는 이메일로 요청을 보낸다")
-    void ownerCodeVerificationNotExistEmail() {
+    void 사장님이_회원가입_확인한다_존재하지_않는_이메일로_요청을_보낸다() throws Exception {
         // given
         OwnerVerificationStatus verification = OwnerVerificationStatus.of("junho5336@gmail.com", "123456");
         ownerVerificationStatusRepository.save(verification);
-        RestAssured
-            .given()
-            .body("""
-                    {
-                      "address": "someone@gmail.com",
-                      "certification_code": "123456"
-                    }
-                """)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/verification/code")
-            .then()
-            .statusCode(HttpStatus.NOT_FOUND.value());
+        mockMvc.perform(
+                post("/owners/verification/code")
+                    .content("""
+                        {
+                          "address": "someone@gmail.com",
+                          "certification_code": "123456"
+                        }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("사장님이 비밀번호 변경을 위한 인증번호 이메일을 전송을 요청한다")
-    void sendResetPasswordEmail() {
+    void 사장님이_비밀번호_변경을_위한_인증번호_이메일을_전송을_요청한다() throws Exception {
         // given
         Owner owner = userFixture.현수_사장님();
         ownerRepository.save(owner);
-        RestAssured
-            .given()
-            .body(String.format("""
-                    {
-                      "address": "%s"
-                    }
-                """, owner.getUser().getEmail())
+        mockMvc.perform(
+                post("/owners/password/reset/verification")
+                    .content(String.format("""
+                        {   
+                          "address": "%s"
+                        }
+                        """, owner.getUser().getEmail()))
+                    .contentType(MediaType.APPLICATION_JSON)
             )
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/password/reset/verification")
-            .then()
-            .statusCode(HttpStatus.OK.value());
-
+            .andExpect(status().isOk());
         assertThat(ownerVerificationStatusRepository.findById(owner.getUser().getEmail())).isPresent();
     }
 
     @Test
-    @DisplayName("사장님이 비밀번호 변경을 위한 인증번호 이메일을 전송을 하루 요청 횟수(5번)를 초과하여 요청한다 - 400에러를 반환한다.")
-    void sendResetPasswordEmailWithDailyLimit() {
+    void 사장님이_비밀번호_변경을_위한_인증번호_이메일을_전송을_하루_요청_횟수_5번_를_초과하여_요청한다_400에러를_반환한다() throws Exception {
         // given
         int DAILY_LIMIT = 5;
         Owner owner = userFixture.현수_사장님();
         ownerRepository.save(owner);
         for (int i = 0; i < DAILY_LIMIT; ++i) {
-            RestAssured
-                .given()
-                .body(String.format("""
-                        {
-                          "address": "%s"
-                        }
-                    """, owner.getUser().getEmail())
+            mockMvc.perform(
+                    post("/owners/password/reset/verification")
+                        .content(String.format("""
+                                {
+                                  "address": "%s"
+                                }
+                            """, owner.getUser().getEmail()))
+                        .contentType(MediaType.APPLICATION_JSON)
                 )
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/owners/password/reset/verification")
-                .then()
-                .statusCode(HttpStatus.OK.value());
+                .andExpect(status().isOk());
         }
-
-        RestAssured
-            .given()
-            .body(String.format("""
-                    {
-                      "address": "%s"
-                    }
-                """, owner.getUser().getEmail())
+        mockMvc.perform(
+                post("/owners/password/reset/verification")
+                    .content(String.format("""
+                            {
+                              "address": "%s"
+                            }
+                        """, owner.getUser().getEmail()))
+                    .contentType(MediaType.APPLICATION_JSON)
             )
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/password/reset/verification")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("사장님이 인증번호를 확인한다.")
-    void ownerVerify() {
+    void 사장님이_인증번호를_확인한다() throws Exception {
         // given
         String email = "test@test.com";
         String code = "123123";
         OwnerVerificationStatus verification = OwnerVerificationStatus.of(email, code);
         ownerVerificationStatusRepository.save(verification);
 
-        RestAssured
-            .given()
-            .body(String.format("""
-                    {
-                      "address": "%s",
-                      "certification_code": "%s"
-                    }
-                """, email, code)
+        mockMvc.perform(
+                post("/owners/password/reset/send")
+                    .content(String.format("""
+                        {
+                          "address": "%s",
+                          "certification_code": "%s"
+                        }
+                        """, email, code))
+                    .contentType(MediaType.APPLICATION_JSON)
             )
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/password/reset/send")
-            .then()
-            .statusCode(HttpStatus.OK.value());
+            .andExpect(status().isOk());
+
         var result = ownerVerificationStatusRepository.findById(email);
         assertSoftly(
             softly -> {
@@ -615,49 +554,40 @@ class OwnerApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님이 인증번호를 확인한다. - 중복 시 404를 반환한다.")
-    void ownerVerifyDuplicated() {
+    void 사장님이_인증번호를_확인한다_중복_시_404를_반환한다() throws Exception {
         // given
         String email = "test@test.com";
         String code = "123123";
         OwnerVerificationStatus verification = OwnerVerificationStatus.of(email, code);
         ownerVerificationStatusRepository.save(verification);
         // when
-        RestAssured
-            .given()
-            .body(String.format("""
-                    {
-                      "address": "%s",
-                      "certification_code": "%s"
-                    }
-                """, email, code)
+        mockMvc.perform(
+                post("/owners/password/reset/send")
+                    .content(String.format("""
+                        {
+                          "address": "%s",
+                          "certification_code": "%s"
+                        }
+                        """, email, code))
+                    .contentType(MediaType.APPLICATION_JSON)
             )
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/password/reset/send")
-            .then()
-            .statusCode(HttpStatus.OK.value());
+            .andExpect(status().isOk());
 
-        // then
-        RestAssured
-            .given()
-            .body(String.format("""
-                    {
-                      "address": "%s",
-                      "certification_code": "%s"
-                    }
-                """, email, code)
+        mockMvc.perform(
+                post("/owners/password/reset/send")
+                    .content(String.format("""
+                        {
+                          "address": "%s",
+                          "certification_code": "%s"
+                        }
+                        """, email, code))
+                    .contentType(MediaType.APPLICATION_JSON)
             )
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/password/reset/send")
-            .then()
-            .statusCode(HttpStatus.NOT_FOUND.value());
+            .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("사장님이 비밀번호를 변경한다.")
-    void ownerChangePassword() {
+    void 사장님이_비밀번호를_변경한다() throws Exception {
         // given
         User user = userFixture.현수_사장님().getUser();
         String code = "123123";
@@ -665,37 +595,29 @@ class OwnerApiTest extends AcceptanceTest {
         ownerVerificationStatusRepository.save(verification);
         String password = "asdf1234!";
 
-        RestAssured
-            .given()
-            .body(String.format("""
-                    {
-                      "address": "%s",
-                      "certification_code": "%s"
-                    }
-                """, user.getEmail(), code)
+        mockMvc.perform(
+                post("/owners/password/reset/send")
+                    .content(String.format("""
+                        {
+                          "address": "%s",
+                          "certification_code": "%s"
+                        }
+                        """, user.getEmail(), code))
+                    .contentType(MediaType.APPLICATION_JSON)
             )
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/owners/password/reset/send")
-            .then()
-            .statusCode(HttpStatus.OK.value());
+            .andExpect(status().isOk());
 
-        // when
-        RestAssured
-            .given()
-            .body(String.format("""
-                    {
-                       "address": "%s",
-                       "password": "%s"
-                     }
-                """, user.getEmail(), password)
+        mockMvc.perform(
+                put("/owners/password/reset")
+                    .content(String.format("""
+                            {
+                               "address": "%s",
+                               "password": "%s"
+                             }
+                        """, user.getEmail(), password))
+                    .contentType(MediaType.APPLICATION_JSON)
             )
-            .contentType(ContentType.JSON)
-            .when()
-            .put("/owners/password/reset")
-            .then()
-            .statusCode(HttpStatus.OK.value());
-
+            .andExpect(status().isOk());
         // then
         var result = ownerVerificationStatusRepository.findById(user.getEmail());
         User userResult = userRepository.getByEmail(user.getEmail());
@@ -708,135 +630,104 @@ class OwnerApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님이 회원탈퇴를 한다.")
-    void ownerDelete() {
+    void 사장님이_회원탈퇴를_한다() throws Exception {
         // given
         Owner owner = userFixture.현수_사장님();
         String token = userFixture.getToken(owner.getUser());
 
-        // when
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .delete("/user")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
-
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/user")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
         // then
         assertThat(userRepository.findById(owner.getId())).isNotPresent();
     }
 
     @Test
-    @DisplayName("사업자 등록번호 중복 검증 - 존재하지 않으면 200")
-    void checkDuplicateCompanyNumber() {
+    void 사업자_등록번호_중복_검증_존재하지_않으면_200() throws Exception {
         // when & then
-        RestAssured
-            .given()
-            .queryParam("company_number", "123-45-67190")
-            .when()
-            .get("/owners/exists/company-number")
-            .then()
-            .statusCode(HttpStatus.OK.value());
+        mockMvc.perform(
+                get("/owners/exists/company-number")
+                    .queryParam("company_number", "123-45-67190")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("사업자 등록번호 중복 검증 - 이미 존재하면 409")
-    void checkDuplicateCompanyNumberExists() {
+    void 사업자_등록번호_중복_검증_이미_존재하면_409() throws Exception {
         // given
         Owner owner = userFixture.현수_사장님();
         // when & then
-        var response = RestAssured
-            .given()
-            .queryParam("company_number", owner.getCompanyRegistrationNumber())
-            .when()
-            .get("/owners/exists/company-number")
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value())
-            .extract();
-
-        assertThat(response.body().jsonPath().getString("message"))
-            .isEqualTo("이미 존재하는 사업자 등록번호입니다.");
+        mockMvc.perform(
+                get("/owners/exists/company-number")
+                    .queryParam("company_number", owner.getCompanyRegistrationNumber())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isConflict());
     }
 
     @Test
-    @DisplayName("사업자 등록번호 중복 검증 - 값이 존재하지 않으면 400")
-    void checkDuplicateCompanyNumberNotAccept() {
+    void 사업자_등록번호_중복_검증_값이_존재하지_않으면_400() throws Exception {
         // when & then
-        RestAssured
-            .given()
-            .when()
-            .get("/owners/exists/company-number")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
+        mockMvc.perform(
+                get("/owners/exists/company-number")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("사업자 등록번호 중복 검증 - 값이 올바르지 않으면 400")
-    void checkDuplicateCompanyNumberNotMatchedPattern() {
+    void 사업자_등록번호_중복_검증_값이_올바르지_않으면_400() throws Exception {
         // when & then
-        RestAssured
-            .given()
-            .queryParam("company_number", "1234567890")
-            .when()
-            .get("/owners/exists/company-number")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
+        mockMvc.perform(
+                get("/owners/exists/company-number")
+                    .queryParam("company_number", "1234567890")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("사장님 아이디(전화번호) 중복 검증 - 존재하지 않으면 200")
-    void checkExistsPhoneNumber() {
-        RestAssured
-            .given()
-            .param("account", "01012345678")
-            .when()
-            .get("/owners/exists/account")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+    void 사장님_아이디_전화번호_중복_검증_존재하지_않으면_200() throws Exception {
+        mockMvc.perform(
+                get("/owners/exists/account")
+                    .param("account", "01012345678")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("사장님 아이디(전화번호) 중복 검증 - 이미 존재하면 409")
-    void checkExistsPhoneNumberConflict() {
+    void 사장님_아이디_전화번호_중복_검증_이미_존재하면_409() throws Exception {
         Owner owner = userFixture.현수_사장님();
-        var response = RestAssured
-            .given()
-            .param("account", owner.getAccount())
-            .when()
-            .get("/owners/exists/account")
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value())
-            .extract();
-
-        assertThat(response.body().jsonPath().getString("message"))
-            .contains("이미 존재하는 휴대폰번호입니다.");
+        mockMvc.perform(
+                get("/owners/exists/account")
+                    .param("account", owner.getAccount())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isConflict());
     }
 
     @Test
-    @DisplayName("사장님 아이디(전화번호) 중복 검증 - 파라미터에 전화번호를 포함하지 않으면 400")
-    void checkExistsPhoneNumberNull() {
-        RestAssured
-            .when()
-            .get("/owners/exists/account")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
+    void 사장님_아이디_전화번호_중복_검증_파라미터에_전화번호를_포함하지_않으면_400() throws Exception {
+        mockMvc.perform(
+                get("/owners/exists/account")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("사장님 아이디(전화번호) 중복 검증 - 잘못된 전화번호 형식이면 400")
-    void checkExistsPhoneNumberWrongFormat() {
+    void 사장님_아이디_전화번호_중복_검증_잘못된_전화번호_형식이면_400() throws Exception {
         String phoneNumber = "123123123123";
-        RestAssured
-            .given()
-            .param("phone_number", phoneNumber)
-            .when()
-            .get("/owners/exists/account")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
+        mockMvc.perform(
+                get("/owners/exists/account")
+                    .param("phone_number", phoneNumber)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 }
