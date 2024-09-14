@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AbtestCloseRequest(
-
     @NotNull(message = "승자 이름은 필수입니다.")
     @Schema(description = "승자 이름", example = "A")
     String winnerName

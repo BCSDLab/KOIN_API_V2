@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AbtestAssignResponse (
-
     @Schema(description = "편입된 변수")
     String variableName,
 

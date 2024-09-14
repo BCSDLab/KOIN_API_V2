@@ -34,7 +34,7 @@ public class ArticleKeywordEventListener {
             .stream()
             .filter(subscribe -> subscribe.getUser().getDeviceToken() != null)
             .filter(subscribe -> event.keyword().getArticleKeywordUserMaps().stream()
-                .anyMatch(map -> map.getUser().getId().equals(subscribe.getUser().getDeviceToken())))
+                .anyMatch(map -> map.getUser().getId().equals(subscribe.getUser().getId())))
             .map(subscribe -> notificationFactory.generateKeywordNotification(
                 KEYWORD,
                 schemeUri,

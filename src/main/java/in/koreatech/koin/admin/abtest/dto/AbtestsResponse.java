@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AbtestsResponse(
-
     @Schema(description = "AB테스트 목록", required = true)
     List<InnerAbtestResponse> tests,
 

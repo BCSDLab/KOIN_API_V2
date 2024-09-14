@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AbtestResponse(
-
     @Schema(description = "실험 ID", example = "1", requiredMode = REQUIRED)
     Integer id,
 
@@ -70,7 +69,6 @@ public record AbtestResponse(
 
     @JsonNaming(SnakeCaseStrategy.class)
     private record InnerVariableResponse(
-
         @Schema(description = "실험군 편입 비율", example = "33", requiredMode = REQUIRED)
         Integer rate,
 

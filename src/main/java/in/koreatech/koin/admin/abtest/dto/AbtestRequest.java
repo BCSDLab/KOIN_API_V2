@@ -13,7 +13,6 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AbtestRequest(
-
     @NotBlank(message = "실험명은 필수입니다.")
     @Schema(description = "실험명", example = "식단 UI 실험", requiredMode = REQUIRED)
     String displayTitle,
