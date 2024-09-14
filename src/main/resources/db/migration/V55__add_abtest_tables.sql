@@ -54,6 +54,8 @@ CREATE TABLE `abtest`
     `status`        varchar(50)  NOT NULL DEFAULT 'IN_PROGRESS',
     `created_at`    timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`    timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    constraint title_UNIQUE
+        unique (`title`)
 );
 

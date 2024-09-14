@@ -49,7 +49,7 @@ public class Abtest extends BaseEntity {
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, unique = true)
     private String title;
 
     @Size(max = 255)
