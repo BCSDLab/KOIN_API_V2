@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,4 +31,10 @@ public class BenefitCategory extends BaseEntity {
     @Size(min = 10, max = 100)
     @Column(name = "detail")
     String detail;
+
+    @Builder
+    public BenefitCategory(String title, String detail) {
+        this.title = title;
+        this.detail = detail;
+    }
 }

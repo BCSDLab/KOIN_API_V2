@@ -1,6 +1,7 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.shop.model.review.ReportStatus.*;
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.DISMISSED;
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -16,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
-import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.user.model.Student;

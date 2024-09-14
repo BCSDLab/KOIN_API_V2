@@ -24,6 +24,61 @@ public final class ShopFixture {
         this.shopRepository = shopRepository;
     }
 
+    public Shop 김밥천국(Owner owner) {
+        var shop = shopRepository.save(
+            Shop.builder()
+                .owner(owner)
+                .name("김밥천국")
+                .internalName("김천")
+                .chosung("김")
+                .phone("010-7574-1212")
+                .address("천안시 동남구 병천면 1600")
+                .description("김밥천국입니다.")
+                .delivery(true)
+                .deliveryPrice(3000)
+                .payCard(true)
+                .payBank(true)
+                .isDeleted(false)
+                .isEvent(false)
+                .remarks("비고")
+                .hit(0)
+                .bank("국민")
+                .accountNumber("01022595923")
+                .build()
+        );
+        shop.getShopImages().addAll(
+            List.of(
+                ShopImage.builder()
+                    .shop(shop)
+                    .imageUrl("https://test-image.com/김천1.png")
+                    .build(),
+                ShopImage.builder()
+                    .shop(shop)
+                    .imageUrl("https://test-image.com/김천2.png")
+                    .build()
+            )
+        );
+        shop.getShopOpens().addAll(
+            List.of(
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(21, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("MONDAY")
+                    .build(),
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(0, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("FRIDAY")
+                    .build()
+            )
+        );
+        return shopRepository.save(shop);
+    }
+
     public Shop 마슬랜(Owner owner) {
         var shop = shopRepository.save(
             Shop.builder()

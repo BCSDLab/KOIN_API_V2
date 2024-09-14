@@ -9,4 +9,6 @@ import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 public interface BenefitCategoryRepository extends Repository<BenefitCategory, Integer> {
 
     List<BenefitCategory> findAll();
+
+    BenefitCategory save(BenefitCategory benefitCategory);
 }

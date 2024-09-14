@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,4 +33,10 @@ public class BenefitCategoryMap extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "benefit_id", referencedColumnName = "id", nullable = false)
     private BenefitCategory benefitCategory;
+
+    @Builder
+    public BenefitCategoryMap(Shop shop, BenefitCategory benefitCategory) {
+        this.shop = shop;
+        this.benefitCategory = benefitCategory;
+    }
 }
