@@ -90,6 +90,8 @@ public abstract class AcceptanceTest {
         registry.add("spring.datasource.password", () -> ROOT_PASSWORD);
         registry.add("spring.data.redis.host", redisContainer::getHost);
         registry.add("spring.data.redis.port", () -> redisContainer.getMappedPort(6379).toString());
+        registry.add("spring.data.redis.password", () ->
+            System.getenv().getOrDefault("REDIS_PASSWORD", ""));
         registry.add("spring.data.mongodb.host", mongoContainer::getHost);
         registry.add("spring.data.mongodb.port", () -> mongoContainer.getMappedPort(27017).toString());
         registry.add("spring.data.mongodb.database", () -> "test");
