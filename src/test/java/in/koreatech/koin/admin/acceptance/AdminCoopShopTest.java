@@ -1,11 +1,13 @@
 package in.koreatech.koin.admin.acceptance;
 
-import static io.restassured.RestAssured.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
@@ -13,10 +15,10 @@ import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.CoopShopFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 class AdminCoopShopTest extends AcceptanceTest {
 
     @Autowired
@@ -33,8 +35,9 @@ class AdminCoopShopTest extends AcceptanceTest {
     private User admin;
     private String token_admin;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
+        clear();
         학생식당 = coopShopFixture.학생식당();
         세탁소 = coopShopFixture.세탁소();
         admin = userFixture.코인_운영자();
@@ -42,23 +45,16 @@ class AdminCoopShopTest extends AcceptanceTest {
     }
 
     @Test
-    public void getCoopShops() {
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_admin)
-            .when()
-            .param("page", 1)
-            .param("is_deleted", false)
-            .get("/admin/coopshop")
-            .then()
-            .log().all()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(
-                """
-                    {
+    void 생협의_모든_상점을_조회한다() throws Exception {
+        mockMvc.perform(
+                get("/admin/coopshop")
+                    .header("Authorization", "Bearer " + token_admin)
+                    .param("page", "1")
+                    .param("is_deleted", "false")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
                          "totalCount": 2,
                          "currentCount": 2,
                          "totalPage": 1,
@@ -124,25 +120,18 @@ class AdminCoopShopTest extends AcceptanceTest {
                              }
                          ]
                      }
-                    """
-            );
+                """));
     }
 
     @Test
-    public void getCoopShop() {
-        var response = given()
-            .header("Authorization", "Bearer " + token_admin)
-            .when()
-            .get("/coopshop/2")
-            .then()
-            .log().all()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(
-                """
-                    {
+    void 생협의_특정_상점을_조회한다() throws Exception {
+        mockMvc.perform(
+                get("/coopshop/2")
+                    .header("Authorization", "Bearer " + token_admin)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
                         "id": 2,
                         "name": "세탁소",
                         "semester": "학기",
@@ -164,8 +153,7 @@ class AdminCoopShopTest extends AcceptanceTest {
                         "location": "학생회관 2층",
                         "remarks": "연중무휴",
                         "updated_at" : "2024-01-15"
-                    }
-                    """
-            );
+                }
+                """));
     }
 }

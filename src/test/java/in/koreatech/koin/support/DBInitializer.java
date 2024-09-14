@@ -1,7 +1,5 @@
 package in.koreatech.koin.support;
 
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +22,7 @@ public class DBInitializer {
     private static final int ON = 1;
     private static final int COLUMN_INDEX = 1;
 
-    private final List<String> tableNames = new ArrayList<>();
+    private List<String> tableNames = new ArrayList<>();
 
     @Autowired
     private DataSource dataSource;
@@ -39,22 +37,25 @@ public class DBInitializer {
     private MongoTemplate mongoTemplate;
 
     private void findDatabaseTableNames() {
-        try (final Statement statement = dataSource.getConnection().createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SHOW TABLES");
-            while (resultSet.next()) {
-                final String tableName = resultSet.getString(COLUMN_INDEX);
-                tableNames.add(tableName);
-            }
-        } catch (Exception ignore) {
-        }
+        String sql = "SHOW TABLES";
+        tableNames = entityManager.createNativeQuery(sql).getResultList();
     }
 
-    private void truncate() {
+    private void truncateAllTable() {
         setForeignKeyCheck(OFF);
-        for (String tableName : tableNames) {
+        for (String tableName: tableNames) {
             entityManager.createNativeQuery(String.format("TRUNCATE TABLE %s", tableName)).executeUpdate();
         }
         setForeignKeyCheck(ON);
+    }
+
+    @Transactional
+    public void initIncrement() {
+        String sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'test' AND AUTO_INCREMENT >= 1";
+        List<String> dirtyTables = entityManager.createNativeQuery(sql).getResultList();
+        for (String tableName: dirtyTables) {
+            entityManager.createNativeQuery(String.format("ALTER TABLE %s AUTO_INCREMENT = 1", tableName)).executeUpdate();
+        }
     }
 
     private void setForeignKeyCheck(int mode) {
@@ -67,12 +68,16 @@ public class DBInitializer {
             findDatabaseTableNames();
         }
         entityManager.clear();
-        truncate();
-        // Redis 초기화
+        truncateAllTable();
+        clearRedis();
+        clearMongo();
+    }
+
+    public void clearRedis() {
         redisTemplate.getConnectionFactory().getConnection().flushAll();
-        // Mongo 초기화
-        for (String collectionName : mongoTemplate.getCollectionNames()) {
-            mongoTemplate.remove(new Query(), collectionName);
-        }
+    }
+
+    private void clearMongo() {
+        mongoTemplate.getCollectionNames().forEach(collectionName -> mongoTemplate.remove(new Query(), collectionName));
     }
 }

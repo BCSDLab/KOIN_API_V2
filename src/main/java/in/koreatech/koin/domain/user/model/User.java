@@ -46,7 +46,7 @@ public class User extends BaseEntity {
     private String nickname;
 
     @Size(max = 50)
-    @Column(name = "name", length = 50, unique = true)
+    @Column(name = "name", length = 50)
     private String name;
 
     @Size(max = 20)
