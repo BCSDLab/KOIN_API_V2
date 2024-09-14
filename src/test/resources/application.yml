@@ -55,6 +55,7 @@ swagger:
 slack:
   koin_event_notify_url: https://slack-weehookurl.com
   koin_owner_event_notify_url: https://slack-weehookurl.com
+  koin_shop_review_notify_url: https://slack-weehookurl.com
   logging:
     error: https://slack-weehookurl.com
 
