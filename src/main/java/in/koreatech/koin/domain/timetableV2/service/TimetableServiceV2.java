@@ -6,6 +6,7 @@ import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateReq
 import java.util.List;
 import java.util.Objects;
 
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +61,10 @@ public class TimetableServiceV2 {
         boolean isMain = timetableFrameUpdateRequest.isMain();
         if (isMain) {
             cancelMainTimetable(userId, semester.getId());
+        } else {
+            if (timeTableFrame.isMain()) {
+                throw new KoinIllegalArgumentException("메인 시간표는 필수입니다.");
+            }
         }
         timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.name(), isMain);
         return TimetableFrameUpdateResponse.from(timeTableFrame);
