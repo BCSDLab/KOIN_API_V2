@@ -4,12 +4,16 @@ import static in.koreatech.koin.global.domain.notification.model.NotificationDet
 import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.DINING_SOLD_OUT;
 import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.SHOP_EVENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
@@ -19,11 +23,10 @@ import in.koreatech.koin.global.domain.notification.model.NotificationDetailSubs
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribe;
 import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NotificationApiTest extends AcceptanceTest {
 
     @Autowired
@@ -39,16 +42,16 @@ class NotificationApiTest extends AcceptanceTest {
     String userToken;
     String deviceToken;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
+        clear();
         user = userFixture.준호_학생().getUser();
         userToken = userFixture.getToken(user);
         deviceToken = "testToken";
     }
 
     @Test
-    @DisplayName("알림 구독 내역을 조회한다.")
-    void getNotificationSubscribe() {
+    void 알림_구독_내역을_조회한다() throws Exception {
         //given
         NotificationSubscribe notificationSubscribe = NotificationSubscribe.builder()
             .subscribeType(SHOP_EVENT)
@@ -57,18 +60,13 @@ class NotificationApiTest extends AcceptanceTest {
 
         notificationSubscribeRepository.save(notificationSubscribe);
 
-        //when then
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .when()
-            .get("/notification")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        MvcResult result = mockMvc.perform(
+                get("/notification")
+                    .header("Authorization", "Bearer " + userToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "is_permit": false,
                     "subscribes": [
@@ -113,73 +111,66 @@ class NotificationApiTest extends AcceptanceTest {
                          }
                     ]
                 }
-                """);
+            """))
+            .andReturn();
     }
 
     @Test
-    @DisplayName("전체 알림을 구독한다. - 디바이스 토큰을 추가한다.")
-    void createDivceToken() {
+    void 전체_알림을_구독한다_디바이스_토큰을_추가한다() throws Exception {
         //when then
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .body(String.format("""
-                {
-                  "device_token": "%s"
-                }
-                """, deviceToken))
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/notification")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        MvcResult result = mockMvc.perform(
+                post("/notification")
+                    .content(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                    """, deviceToken))
+                    .header("Authorization", "Bearer " + userToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
 
-        User result = userRepository.getById(user.getId());
-        assertThat(result.getDeviceToken()).isEqualTo(deviceToken);
+        User resultUser = userRepository.getById(user.getId());
+        assertThat(resultUser.getDeviceToken()).isEqualTo(deviceToken);
     }
 
     @Test
-    @DisplayName("특정 알림을 구독한다.")
-    void subscribeNotificationType() {
+    void 특정_알림을_구독한다() throws Exception {
         String notificationType = SHOP_EVENT.name();
 
-        RestAssured.given()
-            .header("Authorization", "Bearer " + userToken)
-            .body(String.format("""
-                {
-                  "device_token": "%s"
-                }
-                """, deviceToken))
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/notification")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/notification")
+                    .content(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                    """, deviceToken))
+                    .header("Authorization", "Bearer " + userToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .contentType(ContentType.JSON)
-            .queryParam("type", notificationType)
-            .when()
-            .post("/notification/subscribe")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/notification/subscribe")
+                    .content(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                    """, deviceToken))
+                    .header("Authorization", "Bearer " + userToken)
+                    .queryParam("type", notificationType)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .when()
-            .get("/notification")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/notification")
+                    .header("Authorization", "Bearer " + userToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "is_permit": true,
                      "subscribes": [
@@ -224,62 +215,66 @@ class NotificationApiTest extends AcceptanceTest {
                          }
                      ]
                  }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("특정 세부알림을 구독한다.")
-    void subscribeNotificationDetailType() {
+    void 특정_세부알림을_구독한다() throws Exception {
         String notificationType = DINING_SOLD_OUT.name();
         String notificationDetailType = LUNCH.name();
 
-        RestAssured.given()
-            .header("Authorization", "Bearer " + userToken)
-            .body(String.format("""
-                {
-                  "device_token": "%s"
-                }
-                """, deviceToken))
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/notification")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/notification")
+                    .content(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                    """, deviceToken))
+                    .header("Authorization", "Bearer " + userToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .contentType(ContentType.JSON)
-            .queryParam("type", notificationType)
-            .when()
-            .post("/notification/subscribe")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/notification/subscribe")
+                    .queryParam("type", notificationType)
+                    .content(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                    """, deviceToken))
+                    .header("Authorization", "Bearer " + userToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .contentType(ContentType.JSON)
-            .queryParam("detail_type", notificationDetailType)
-            .when()
-            .post("/notification/subscribe/detail")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/notification/subscribe/detail")
+                    .queryParam("detail_type", notificationDetailType)
+                    .content(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                    """, deviceToken))
+                    .header("Authorization", "Bearer " + userToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .when()
-            .get("/notification")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                get("/notification")
+                    .queryParam("detail_type", notificationDetailType)
+                    .content(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                    """, deviceToken))
+                    .header("Authorization", "Bearer " + userToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
 
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
                 {
                      "is_permit": true,
                      "subscribes": [
@@ -324,30 +319,26 @@ class NotificationApiTest extends AcceptanceTest {
                          }
                      ]
                  }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("전체 알림 구독을 취소한다. - 디바이스 토큰을 삭제한다.")
-    void deleteDeviceToken() {
+    void 전체_알림_구독을_취소한다_디바이스_토큰을_삭제한다() throws Exception {
         user.permitNotification(deviceToken);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .when()
-            .delete("/notification")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
+        mockMvc.perform(
+                delete("/notification")
+                    .header("Authorization", "Bearer " + userToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
 
         User result = userRepository.getById(user.getId());
         assertThat(result.getDeviceToken()).isNull();
     }
 
     @Test
-    @DisplayName("특정 알림 구독을 취소한다.")
-    void unsubscribeNotificationType() {
+    void 특정_알림_구독을_취소한다() throws Exception {
         var SubscribeShopEvent = NotificationSubscribe.builder()
             .subscribeType(SHOP_EVENT)
             .user(user)
@@ -363,41 +354,39 @@ class NotificationApiTest extends AcceptanceTest {
 
         String notificationType = SHOP_EVENT.name();
 
-        RestAssured.given()
-            .header("Authorization", "Bearer " + userToken)
-            .body(String.format("""
-                {
-                  "device_token": "%s"
-                }
-                """, deviceToken))
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/notification")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/notification")
+                    .header("Authorization", "Bearer " + userToken)
+                    .content(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                    """, deviceToken))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .queryParam("type", notificationType)
-            .when()
-            .delete("/notification/subscribe")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
+        mockMvc.perform(
+                delete("/notification/subscribe")
+                    .header("Authorization", "Bearer " + userToken)
+                    .queryParam("type", notificationType)
+                    .content(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                    """, deviceToken))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .when()
-            .get("/notification")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                get("/notification")
+                    .header("Authorization", "Bearer " + userToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
 
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
                 {
                      "is_permit": true,
                      "subscribes": [
@@ -442,12 +431,12 @@ class NotificationApiTest extends AcceptanceTest {
                          }
                      ]
                  }
-                """);
+                """));
+        ;
     }
 
     @Test
-    @DisplayName("특정 세부 알림 구독을 취소한다.")
-    void unsubscribeNotificationDetailType() {
+    void 특정_세부_알림_구독을_취소한다() throws Exception {
         var SubscribeDiningSoldOut = NotificationSubscribe.builder()
             .subscribeType(NotificationSubscribeType.DINING_SOLD_OUT)
             .user(user)
@@ -472,52 +461,41 @@ class NotificationApiTest extends AcceptanceTest {
         String notificationType = DINING_SOLD_OUT.name();
         String notificationDetailType = LUNCH.name();
 
-        RestAssured.given()
-            .header("Authorization", "Bearer " + userToken)
-            .body(String.format("""
-                {
-                  "device_token": "%s"
-                }
-                """, deviceToken))
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/notification")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/notification")
+                    .header("Authorization", "Bearer " + userToken)
+                    .content(String.format("""
+                    {
+                      "device_token": "%s"
+                    }
+                    """, deviceToken))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .contentType(ContentType.JSON)
-            .queryParam("type", notificationType)
-            .when()
-            .post("/notification/subscribe")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                post("/notification/subscribe")
+                    .header("Authorization", "Bearer " + userToken)
+                    .queryParam("type", notificationType)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .queryParam("detail_type", notificationDetailType)
-            .when()
-            .delete("/notification/subscribe/detail")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
+        mockMvc.perform(
+                delete("/notification/subscribe/detail")
+                    .header("Authorization", "Bearer " + userToken)
+                    .queryParam("detail_type", notificationDetailType)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + userToken)
-            .when()
-            .get("/notification")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/notification")
+                    .header("Authorization", "Bearer " + userToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "is_permit": true,
                      "subscribes": [
@@ -562,6 +540,8 @@ class NotificationApiTest extends AcceptanceTest {
                          }
                      ]
                  }
-                """);
+                """));
     }
+
+
 }

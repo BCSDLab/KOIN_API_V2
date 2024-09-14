@@ -14,17 +14,20 @@ public class SlackNotificationFactory {
     private final String adminReviewPageUrl;
     private final String ownerEventNotificationUrl;
     private final String eventNotificationUrl;
+    private final String reviewNotificationUrl;
 
     public SlackNotificationFactory(
         @Value("${koin.admin.shop.url}") String adminPageUrl,
         @Value("${koin.admin.review.url}") String adminReviewPageUrl,
         @Value("${slack.koin_event_notify_url}") String eventNotificationUrl,
-        @Value("${slack.koin_owner_event_notify_url}") String ownerEventNotificationUrl
+        @Value("${slack.koin_owner_event_notify_url}") String ownerEventNotificationUrl,
+        @Value("${slack.koin_shop_review_notify_url}") String reviewNotificationUrl
     ) {
         this.adminPageUrl = adminPageUrl;
         this.adminReviewPageUrl = adminReviewPageUrl;
         this.eventNotificationUrl = eventNotificationUrl;
         this.ownerEventNotificationUrl = ownerEventNotificationUrl;
+        this.reviewNotificationUrl = reviewNotificationUrl;
     }
 
     /**
@@ -149,7 +152,7 @@ public class SlackNotificationFactory {
         Integer rating
     ) {
         return SlackNotification.builder()
-            .slackUrl(eventNotificationUrl)
+            .slackUrl(reviewNotificationUrl)
             .text(String.format("""
                 `%s에 새로운 리뷰가 등록되었습니다.`
                 내용: `%s`
@@ -174,7 +177,7 @@ public class SlackNotificationFactory {
         String shop
     ) {
         return SlackNotification.builder()
-            .slackUrl(eventNotificationUrl)
+            .slackUrl(reviewNotificationUrl)
             .text(String.format("""
                 `%s의 리뷰가 신고되었습니다.`
                 `신고를 처리해주세요!!`

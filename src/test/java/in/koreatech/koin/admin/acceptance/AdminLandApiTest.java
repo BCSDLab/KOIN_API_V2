@@ -2,14 +2,16 @@ package in.koreatech.koin.admin.acceptance;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
@@ -17,10 +19,10 @@ import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.LandFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 class AdminLandApiTest extends AcceptanceTest {
 
     @Autowired
@@ -32,9 +34,13 @@ class AdminLandApiTest extends AcceptanceTest {
     @Autowired
     private UserFixture userFixture;
 
+    @BeforeAll
+    void setup() {
+        clear();
+    }
+
     @Test
-    @DisplayName("관리자 권한으로 복덕방 목록을 검색한다.")
-    void getLands() {
+    void 관리자_권한으로_복덕방_목록을_검색한다() throws Exception {
         for (int i = 0; i < 11; i++) {
             Land request = Land.builder()
                 .internalName("복덕방" + i)
@@ -52,31 +58,22 @@ class AdminLandApiTest extends AcceptanceTest {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .param("page", 1)
-            .param("is_deleted", false)
-            .get("/admin/lands")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        assertSoftly(
-            softly -> {
-                softly.assertThat(response.body().jsonPath().getInt("total_count")).isEqualTo(11);
-                softly.assertThat(response.body().jsonPath().getInt("current_count")).isEqualTo(10);
-                softly.assertThat(response.body().jsonPath().getInt("total_page")).isEqualTo(2);
-                softly.assertThat(response.body().jsonPath().getInt("current_page")).isEqualTo(1);
-                softly.assertThat(response.body().jsonPath().getList("lands").size()).isEqualTo(10);
-            }
-        );
+        mockMvc.perform(
+                get("/admin/lands")
+                    .header("Authorization", "Bearer " + token)
+                    .param("page", "1")
+                    .param("is_deleted", "false")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.total_count").value(11))
+            .andExpect(jsonPath("$.current_count").value(10))
+            .andExpect(jsonPath("$.total_page").value(2))
+            .andExpect(jsonPath("$.current_page").value(1))
+            .andExpect(jsonPath("$.lands.length()").value(10));
     }
 
     @Test
-    @DisplayName("관리자 권한으로 복덕방을 추가한다.")
-    void postLands() {
+    void 관리자_권한으로_복덕방을_추가한다() throws Exception {
         String jsonBody = """
             {
                 "name": "금실타운",
@@ -108,16 +105,13 @@ class AdminLandApiTest extends AcceptanceTest {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body(jsonBody)
-            .when()
-            .post("/admin/lands")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract().asString();
+        mockMvc.perform(
+                post("/admin/lands")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonBody)
+            )
+            .andExpect(status().isCreated());
 
         Land savedLand = adminLandRepository.getByName("금실타운");
         assertNotNull(savedLand);
@@ -132,8 +126,7 @@ class AdminLandApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("관리자 권한으로 복덕방을 삭제한다.")
-    void deleteLand() {
+    void 관리자_권한으로_복덕방을_삭제한다() throws Exception {
         // 복덕방 생성
         Land request = Land.builder()
             .internalName("금실타운")
@@ -151,14 +144,11 @@ class AdminLandApiTest extends AcceptanceTest {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .delete("/admin/lands/{id}", landId)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                delete("/admin/lands/{id}", landId)
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk());
 
         Land deletedLand = adminLandRepository.getById(landId);
 
@@ -169,8 +159,7 @@ class AdminLandApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("관리자의 권한으로 특정 복덕방 정보를 조회한다.")
-    void getLand() {
+    void 관리자의_권한으로_특정_복덕방_정보를_조회한다() throws Exception {
         // 복덕방 생성
         Land request = Land.builder()
             .internalName("금실타운")
@@ -191,58 +180,52 @@ class AdminLandApiTest extends AcceptanceTest {
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/admin/lands/{id}", landId)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
-            {
-                "id": %d,
-                "name": "금실타운",
-                "internal_name": "금실타운",
-                "size": 9.0,
-                "room_type": "원룸",
-                "latitude": 37.555,
-                "longitude": 126.555,
-                "phone": null,
-                "image_urls": [],
-                "address": "가전리 123",
-                "description": "테스트용 복덕방",
-                "floor": null,
-                "deposit": null,
-                "monthly_fee": "100",
-                "charter_fee": "1000",
-                "management_fee": null,
-                "opt_closet": false,
-                "opt_tv": false,
-                "opt_microwave": false,
-                "opt_gas_range": false,
-                "opt_induction": false,
-                "opt_water_purifier": false,
-                "opt_air_conditioner": false,
-                "opt_washer": false,
-                "opt_bed": false,
-                "opt_bidet": false,
-                "opt_desk": false,
-                "opt_electronic_door_locks": false,
-                "opt_elevator": false,
-                "opt_refrigerator": false,
-                "opt_shoe_closet": false,
-                "opt_veranda": false,
-                "is_deleted": false
-            }
-            """, landId));
+        mockMvc.perform(
+                get("/admin/lands/{id}", landId)
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
+                {
+                    "id": %d,
+                    "name": "금실타운",
+                    "internal_name": "금실타운",
+                    "size": 9.0,
+                    "room_type": "원룸",
+                    "latitude": 37.555,
+                    "longitude": 126.555,
+                    "phone": null,
+                    "image_urls": [],
+                    "address": "가전리 123",
+                    "description": "테스트용 복덕방",
+                    "floor": null,
+                    "deposit": null,
+                    "monthly_fee": "100",
+                    "charter_fee": "1000",
+                    "management_fee": null,
+                    "opt_closet": false,
+                    "opt_tv": false,
+                    "opt_microwave": false,
+                    "opt_gas_range": false,
+                    "opt_induction": false,
+                    "opt_water_purifier": false,
+                    "opt_air_conditioner": false,
+                    "opt_washer": false,
+                    "opt_bed": false,
+                    "opt_bidet": false,
+                    "opt_desk": false,
+                    "opt_electronic_door_locks": false,
+                    "opt_elevator": false,
+                    "opt_refrigerator": false,
+                    "opt_shoe_closet": false,
+                    "opt_veranda": false,
+                    "is_deleted": false
+                }
+                """, landId)));
     }
 
     @Test
-    @DisplayName("관리자 권한으로 복덕방 정보를 수정한다.")
-    void updateLand() {
+    void 관리자_권한으로_복덕방_정보를_수정한다() throws Exception {
         Land land = landFixture.신안빌();
         Integer landId = land.getId();
 
@@ -277,16 +260,13 @@ class AdminLandApiTest extends AcceptanceTest {
             }
             """;
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body(jsonBody)
-            .when()
-            .put("/admin/lands/{id}", landId)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                put("/admin/lands/{id}", landId)
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonBody)
+            )
+            .andExpect(status().isOk());
 
         Land updatedLand = adminLandRepository.getById(landId);
 
@@ -319,22 +299,18 @@ class AdminLandApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("관리자 권한으로 복덕방 삭제를 취소한다.")
-    void undeleteLand() {
+    void 관리자_권한으로_복덕방_삭제를_취소한다() throws Exception {
         Land deletedLand = landFixture.삭제된_복덕방();
         Integer landId = deletedLand.getId();
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .post("/admin/lands/{id}/undelete", landId)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                post("/admin/lands/{id}/undelete", landId)
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk());
 
         Land undeletedLand = adminLandRepository.getById(landId);
 
@@ -344,5 +320,4 @@ class AdminLandApiTest extends AcceptanceTest {
             softly.assertThat(undeletedLand.isDeleted()).isFalse();
         });
     }
-
 }
