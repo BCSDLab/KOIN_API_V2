@@ -3,14 +3,19 @@ package in.koreatech.koin.acceptance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -26,11 +31,9 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.AbtestFixture;
 import in.koreatech.koin.fixture.DeviceFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 
-@SuppressWarnings("NonAsciiCharacters")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AbtestApiTest extends AcceptanceTest {
 
     @Autowired
@@ -54,55 +57,49 @@ class AbtestApiTest extends AcceptanceTest {
     private User admin;
     private String adminToken;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
+        clear();
         admin = userFixture.코인_운영자();
         adminToken = userFixture.getToken(admin);
     }
 
     @Test
-    @DisplayName("실험을 생성한다.")
-    void createAbtest() {
-
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + adminToken)
-            .body(String.format("""
-                {
-                  "display_title": "사장님 전화번호 회원가입 실험",
-                  "creator": "송선권",
-                  "team": "campus",
-                  "description": "세부설명",
-                  "status": "IN_PROGRESS",
-                  "title": "business.register.phone_number",
-                  "variables": [
-                    {
-                      "rate": 33,
-                      "display_name": "실험군 A",
-                      "name": "A"
-                    },
-                    {
-                      "rate": 33,
-                      "display_name": "실험군 B",
-                      "name": "B"
-                    },
-                    {
-                      "rate": 34,
-                      "display_name": "실험군 C",
-                      "name": "C"
-                    }
-                  ]
-                } 
-                """))
-            .when()
-            .post("/abtest")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+    void 실험을_생성한다() throws Exception {
+        mockMvc.perform(
+                post("/abtest")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + adminToken)
+                    .content("""
+                        {
+                          "display_title": "사장님 전화번호 회원가입 실험",
+                          "creator": "송선권",
+                          "team": "campus",
+                          "description": "세부설명",
+                          "status": "IN_PROGRESS",
+                          "title": "business.register.phone_number",
+                          "variables": [
+                            {
+                              "rate": 33,
+                              "display_name": "실험군 A",
+                              "name": "A"
+                            },
+                            {
+                              "rate": 33,
+                              "display_name": "실험군 B",
+                              "name": "B"
+                            },
+                            {
+                              "rate": 34,
+                              "display_name": "실험군 C",
+                              "name": "C"
+                            }
+                          ]
+                        }
+                        """)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                   "id": 1,
                   "display_title": "사장님 전화번호 회원가입 실험",
@@ -132,26 +129,20 @@ class AbtestApiTest extends AcceptanceTest {
                   "created_at": "2024-01-15 12:00:00",
                   "updated_at": "2024-01-15 12:00:00"
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("실험을 단건 조회한다.")
-    void getAbtest() {
+    void 실험을_단건_조회한다() throws Exception {
         Abtest abtest = abtestFixture.식단_UI_실험();
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + adminToken)
-            .when()
-            .get("/abtest/{id}", abtest.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(
+                get("/abtest/{id}", abtest.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + adminToken)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                   "id": 1,
                   "display_title": "식단_UI_실험",
@@ -176,27 +167,21 @@ class AbtestApiTest extends AcceptanceTest {
                   "created_at": "2024-01-15 12:00:00",
                   "updated_at": "2024-01-15 12:00:00"
                 }
-                """, abtest.getId()));
+                """));
     }
 
     @Test
-    @DisplayName("실험 목록을 조회한다.")
-    void getAbtests() {
+    void 실험_목록을_조회한다() throws Exception {
         Abtest abtest1 = abtestFixture.식단_UI_실험();
         Abtest abtest2 = abtestFixture.주변상점_UI_실험();
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + adminToken)
-            .when()
-            .get("/abtest")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(
+                get("/abtest")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + adminToken)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                   "total_count": 2,
                   "current_count": 2,
@@ -231,26 +216,18 @@ class AbtestApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("실험 목록을 조회한다. - 페이지네이션")
-    void getAbtestsWithPaging() {
+    void 실험_목록을_조회한다_페이지네이션() throws Exception {
         for (int i = 0; i < 10; i++) {
-            abtestFixture.식단_UI_실험();
+            abtestFixture.식단_UI_실험(i);
         }
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .queryParam("page", 2)
-            .queryParam("limit", 8)
-            .header("Authorization", "Bearer " + adminToken)
-            .when()
-            .get("/abtest")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(
+                get("/abtest?page=2&limit=8")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + adminToken)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                   "total_count": 10,
                   "current_count": 2,
@@ -263,7 +240,7 @@ class AbtestApiTest extends AcceptanceTest {
                       "creator": "송선권",
                       "team": "campus",
                       "display_title": "식단_UI_실험",
-                      "title": "dining_ui_test",
+                      "title": "dining_ui_test1",
                       "winner_name": null,
                       "created_at": "2024-01-15 12:00:00",
                       "updated_at": "2024-01-15 12:00:00"
@@ -274,7 +251,7 @@ class AbtestApiTest extends AcceptanceTest {
                       "creator": "송선권",
                       "team": "campus",
                       "display_title": "식단_UI_실험",
-                      "title": "dining_ui_test",
+                      "title": "dining_ui_test0",
                       "winner_name": null,
                       "created_at": "2024-01-15 12:00:00",
                       "updated_at": "2024-01-15 12:00:00"
@@ -285,48 +262,42 @@ class AbtestApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("실험을 수정한다.")
-    void putAbtest() {
+    void 실험을_수정한다() throws Exception {
         Abtest abtest = abtestFixture.식단_UI_실험();
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + adminToken)
-            .body(String.format("""
-                {
-                  "display_title": "식단_UI_실험",
-                  "creator": "김성재",
-                  "team": "user",
-                  "title": "dining_ui_test",
-                  "description": "세부설명2",
-                  "variables": [
-                    {
-                      "rate": 10,
-                      "display_name": "실험군 A",
-                      "name": "A"
-                    },
-                    {
-                      "rate": 90,
-                      "display_name": "실험군 B",
-                      "name": "B"
-                    }
-                  ],
-                  "created_at": "2024-01-15 12:00:00",
-                  "updated_at": "2024-01-15 12:00:00"
-                }
-                """))
-            .when()
-            .put("/abtest/{id}", abtest.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                put("/abtest/{id}", abtest.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + adminToken)
+                    .content("""
+                        {
+                          "display_title": "식단_UI_실험",
+                          "creator": "김성재",
+                          "team": "user",
+                          "title": "dining_ui_test",
+                          "description": "세부설명2",
+                          "variables": [
+                            {
+                              "rate": 10,
+                              "display_name": "실험군 A",
+                              "name": "A"
+                            },
+                            {
+                              "rate": 90,
+                              "display_name": "실험군 B",
+                              "name": "B"
+                            }
+                          ],
+                          "created_at": "2024-01-15 12:00:00",
+                          "updated_at": "2024-01-15 12:00:00"
+                        }
+                        """)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                   "id": 1,
-                 "display_title": "식단_UI_실험",
+                  "display_title": "식단_UI_실험",
                   "creator": "김성재",
                   "team": "user",
                   "title": "dining_ui_test",
@@ -348,48 +319,39 @@ class AbtestApiTest extends AcceptanceTest {
                   "created_at": "2024-01-15 12:00:00",
                   "updated_at": "2024-01-15 12:00:00"
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("실험을 삭제한다.")
-    void deleteAbtest() {
+    void 실험을_삭제한다() throws Exception {
         Abtest abtest = abtestFixture.식단_UI_실험();
 
-        RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + adminToken)
-            .log().all()
-            .when()
-            .delete("/abtest/{id}", abtest.getId())
-            .then()
-            .log().all()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
+        mockMvc.perform(
+                delete("/abtest/{id}", abtest.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + adminToken)
+            )
+            .andExpect(status().isNoContent());
 
         assertThat(abtestRepository.findById(abtest.getId())).isNotPresent();
     }
 
     @Test
-    @DisplayName("실험을 종료한다.")
-    void closeAbtest() {
+    void 실험을_종료한다() throws Exception {
         final Abtest abtest = abtestFixture.식단_UI_실험();
         String winner = "A";
 
-        RestAssured.given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + adminToken)
-            .body(String.format("""
-                {
-                  "winner_name": "%s"
-                }
-                """, winner))
-            .when()
-            .post("/abtest/close/{id}", abtest.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                post("/abtest/close/{id}", abtest.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + adminToken)
+                    .content(String.format("""
+                        {
+                          "winner_name": "%s"
+                        }
+                        """, winner))
+            )
+            .andExpect(status().isOk());
 
         transactionTemplate.executeWithoutResult(status -> {
             Abtest result = abtestRepository.getById(abtest.getId());
@@ -403,103 +365,85 @@ class AbtestApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("(실험군 수동편입) 이름으로 유저 목록을 조회한다.")
-    void getUsersByUserName() {
+    void 실험군_수동편입_이름으로_유저_목록을_조회한다() throws Exception {
         Student student = userFixture.성빈_학생();
         Owner owner = userFixture.성빈_사장님();
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + adminToken)
-            .queryParam("name", student.getUser().getName())
-            .when()
-            .get("/abtest/user")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(
+                get("/abtest/user")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + adminToken)
+                    .param("name", student.getUser().getName())
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                   "users": [
                     {
-                    "id": %d,
+                    "id": 2,
                     "name" : "박성빈",
                     "detail": "testsungbeen@koreatech.ac.kr"
                     },
                     {
-                    "id": %d,
+                    "id": 3,
                     "name" : "박성빈",
                     "detail": "01098765439"
                     }
                   ]
                 }
-                """, student.getUser().getId(), owner.getUser().getId()));
+                """));
     }
 
     @Test
-    @DisplayName("(실험군 수동편입) 유저 ID로 기기 목록을 조회한다.")
-    void getDevicesByUserId() {
+    void 실험군_수동편입_유저_ID로_기기_목록을_조회한다() throws Exception {
         Student student = userFixture.성빈_학생();
         Device device1 = deviceFixture.아이폰(student.getUser().getId());
         Device device2 = deviceFixture.갤럭시(student.getUser().getId());
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + adminToken)
-            .pathParam("userId", student.getUser().getId())
-            .when()
-            .get("/abtest/user/{userId}/device")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(
+                get("/abtest/user/{userId}/device", student.getUser().getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + adminToken)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                   "devices": [
                     {
-                    "id": %d,
+                    "id": 1,
                     "type": "mobile",
                     "model" : "아이폰14",
                     "last_accessed_at": "2024-01-15"
                     },
                     {
-                    "id": %d,
+                    "id": 2,
                     "type": "mobile",
                     "model" : "갤럭시24",
                     "last_accessed_at": "2024-01-15"
                     }
                   ]
                 }
-                """, device1.getId(), device2.getId()));
+                """));
     }
 
     @Test
-    @DisplayName("특정 유저의 실험군을 수동으로 편입시킨다.")
-    void moveAbtestVariable() {
+    void 특정_유저의_실험군을_수동으로_편입시킨다() throws Exception {
         Student student = userFixture.성빈_학생();
         Device device = deviceFixture.아이폰(student.getUser().getId());
         Abtest abtest = abtestFixture.식단_UI_실험();
 
-        RestAssured.given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + adminToken)
-            .body(String.format("""
-                {
-                  "device_id": %d,
-                  "variable_name": "A"
-                }
-                """, device.getId()))
-            .when()
-            .pathParam("id", abtest.getId())
-            .post("/abtest/{id}/move")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
+        mockMvc.perform(
+                post("/abtest/{id}/move", abtest.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + adminToken)
+                    .content(String.format("""
+                        {
+                          "device_id": %d,
+                          "variable_name": "A"
+                        }
+                        """, device.getId()))
+            )
+            .andExpect(status().isOk());
 
         transactionTemplate.executeWithoutResult(status -> {
             assertSoftly(
@@ -518,36 +462,31 @@ class AbtestApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("자신의 실험군을 조회한다.")
-    void getMyAbtestVariable() {
+    void 자신의_실험군을_조회한다() throws Exception {
         Student student = userFixture.성빈_학생();
         final Device device = deviceFixture.아이폰(student.getUser().getId());
         Abtest abtest = abtestFixture.식단_UI_실험();
 
-        RestAssured.given()
-            .contentType(ContentType.JSON)
-            .header("access_history_id", device.getAccessHistory().getId())
-            .body(String.format("""
-                {
-                  "title": "dining_ui_test"
-                }
-                """))
-            .when()
-            .post("/abtest/assign")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+            post("/abtest/assign")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("access_history_id", device.getAccessHistory().getId())
+                .content(String.format("""
+                    {
+                      "title": "dining_ui_test"
+                    }
+                    """))
+            );
 
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("access_history_id", device.getAccessHistory().getId())
-            .queryParam("title", abtest.getTitle())
-            .when()
-            .get("/abtest/me")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        MvcResult mvcResult = mockMvc.perform(
+                get("/abtest/me")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("access_history_id", device.getAccessHistory().getId())
+                    .param("title", abtest.getTitle())
+            )
+            .andExpect(status().isOk())
+            .andReturn();
+        String responseBody = mvcResult.getResponse().getContentAsString();
 
         transactionTemplate.executeWithoutResult(status -> {
             assertSoftly(
@@ -559,52 +498,46 @@ class AbtestApiTest extends AcceptanceTest {
                         .map(AccessHistoryAbtestVariable::getVariable)
                         .filter(var -> var.getAbtest().getTitle().equals(abtest.getTitle()))
                         .findAny();
-                    softly.assertThat(response.asPrettyString()).isEqualTo(variable.get().getName());
+                    softly.assertThat(responseBody).isEqualTo(variable.get().getName());
                 }
             );
         });
     }
 
     @Test
-    @DisplayName("(실험군 자동 편입)실험군에 최초로 편입된다.")
-    void assignAbtest() {
+    void 실험군_자동_편입_실험군에_최초로_편입된다() throws Exception {
         Student student = userFixture.성빈_학생();
         Device device1 = deviceFixture.아이폰(student.getUser().getId());
         Device device2 = deviceFixture.갤럭시(student.getUser().getId());
         Abtest abtest = abtestFixture.식단_UI_실험();
 
-        var response1 = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("access_history_id", device1.getAccessHistory().getId())
-            .body(String.format("""
-                {
-                  "title": "dining_ui_test"
-                }
-                """))
-            .when()
-            .post("/abtest/assign")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        MvcResult mvcResult = mockMvc.perform(
+                post("/abtest/assign")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("access_history_id", device1.getAccessHistory().getId())
+                    .content(String.format("""
+                        {
+                          "title": "dining_ui_test"
+                        }
+                        """))
+            )
+            .andExpect(status().isOk())
+            .andReturn();
+        String responseBody = mvcResult.getResponse().getContentAsString();
 
-        var response2 = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("access_history_id", device2.getAccessHistory().getId())
-            .body(String.format("""
-                {
-                  "title": "dining_ui_test"
-                }
-                """))
-            .when()
-            .post("/abtest/assign")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        String res1 = response1.asPrettyString();
-        String res2 = response2.asPrettyString();
-        assertNotEquals(res1, res2);
+        MvcResult mvcResult2 = mockMvc.perform(
+                post("/abtest/assign")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("access_history_id", device2.getAccessHistory().getId())
+                    .content(String.format("""
+                        {
+                          "title": "dining_ui_test"
+                        }
+                        """))
+            )
+            .andExpect(status().isOk())
+            .andReturn();
+        String responseBody2 = mvcResult2.getResponse().getContentAsString();
+        assertNotEquals(responseBody, responseBody2);
     }
 }
