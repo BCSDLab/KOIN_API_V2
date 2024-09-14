@@ -50,5 +50,10 @@
         <level>ERROR</level>
       </filter>
     </appender>
+
+    <root level="info">
+      <appender-ref ref="console"/>
+      <appender-ref ref="FILE"/>
+    </root>
   </springProfile>
 </configuration>
