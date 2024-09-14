@@ -4,6 +4,7 @@ import java.time.DateTimeException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.catalina.connector.ClientAbortException;
@@ -230,7 +231,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus httpStatus,
         String message
     ) {
-        var response = new ErrorResponse(httpStatus.value(), message);
+        String errorTraceId = UUID.randomUUID().toString();
+        log.warn("traceId: {}", errorTraceId);
+        var response = new ErrorResponse(httpStatus.value(), message, errorTraceId);
         return ResponseEntity.status(httpStatus).body(response);
     }
 

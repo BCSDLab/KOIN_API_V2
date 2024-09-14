@@ -30,6 +30,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
+
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
 
     implementation 'org.jsoup:jsoup:1.15.3'
