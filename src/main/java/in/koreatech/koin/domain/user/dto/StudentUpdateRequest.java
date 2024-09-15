@@ -15,7 +15,7 @@ public record StudentUpdateRequest(
     @Schema(description = "성별(남:0, 여:1)", example = "0", requiredMode = NOT_REQUIRED)
     UserGender gender,
 
-    @Schema(description = "[NOT UPDATE]신원(학생, 사장님)", example = "학생", requiredMode = NOT_REQUIRED)
+    @Schema(description = "[NOT UPDATE]신원(학생 = 0, 사장님 = 1)", example = "0", requiredMode = NOT_REQUIRED)
     Integer userIdentity,
 
     @Schema(description = "[NOT UPDATE]졸업 여부(true, false)", example = "false", requiredMode = NOT_REQUIRED)
