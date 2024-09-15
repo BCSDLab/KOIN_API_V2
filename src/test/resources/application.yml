@@ -23,9 +23,12 @@ spring:
 
   data:
     redis:
-      repositories:
-        enabled: true
-        keyspace-events: ON_STARTUP
+        host: localhost
+        port: 6379
+        password: ""
+        repositories:
+          enabled: true
+          keyspace-events: ON_STARTUP
 
 server:
   tomcat:
