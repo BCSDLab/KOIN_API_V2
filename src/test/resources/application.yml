@@ -23,9 +23,6 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: ""
       repositories:
         enabled: true
         keyspace-events: ON_STARTUP
@@ -33,7 +30,7 @@ spring:
 server:
   tomcat:
     max-http-form-post-size: 10MB
-#  MockMvc이용하면 한글 깨지는 문제 해결하는 설정
+  #  MockMvc이용하면 한글 깨지는 문제 해결하는 설정
   servlet:
     encoding:
       force-response: true
@@ -58,6 +55,7 @@ swagger:
 slack:
   koin_event_notify_url: https://slack-weehookurl.com
   koin_owner_event_notify_url: https://slack-weehookurl.com
+  koin_shop_review_notify_url: https://slack-weehookurl.com
   logging:
     error: https://slack-weehookurl.com
 
