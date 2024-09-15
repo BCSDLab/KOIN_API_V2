@@ -1,28 +1,20 @@
 package in.koreatech.koin.domain.version.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
-import static lombok.AccessLevel.PROTECTED;
 
 import java.time.Clock;
 import java.time.LocalDate;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
-@Entity
-@Table(name = "versions")
-@NoArgsConstructor(access = PROTECTED)
-public class Version extends BaseEntity {
+public class VersionHistory extends BaseEntity {
+
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -37,10 +29,14 @@ public class Version extends BaseEntity {
     @Column(name = "type", length = 50, unique = true)
     private String type;
 
+    @Column(name = "message", length = 255)
+    private String message;
+
     @Builder
-    private Version(@NotNull String version, @NotNull String type) {
+    private VersionHistory(@NotNull String version, @NotNull String type, String message) {
         this.version = version;
         this.type = type;
+        this.message = message;
     }
 
     public void update(Clock clock) {
