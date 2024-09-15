@@ -23,7 +23,6 @@ spring:
 
   data:
     redis:
-        password: ""
         repositories:
           enabled: true
           keyspace-events: ON_STARTUP
