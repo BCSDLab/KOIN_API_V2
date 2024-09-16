@@ -59,7 +59,7 @@ public class StudentTemporaryStatus {
 
     public static StudentTemporaryStatus of(StudentRegisterRequest request, String authToken) {
         return new StudentTemporaryStatus(request.email(), authToken, request.nickname(), request.name(), request.password(), request.gender(),
-                request.isGraduated(), request.department(), request.studentNumber(), request.phoneNumber());
+                request.isGraduated(), request.major(), request.studentNumber(), request.phoneNumber());
     }
 
     public Student toStudent(PasswordEncoder passwordEncoder) {
