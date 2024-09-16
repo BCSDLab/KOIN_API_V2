@@ -117,7 +117,6 @@ public class BenefitApiTest extends AcceptanceTest {
 
     @Test
     void 특정_혜택을_제공하는_모든_상점을_조회한다() throws Exception {
-
         mockMvc.perform(
                 get("/benefit/{id}/shops", 배달비_무료.getId())
             )
@@ -302,5 +301,4 @@ public class BenefitApiTest extends AcceptanceTest {
                 영업중인_티바.getId(),
                 영업중이_아닌_신전_떡볶이.getId())));
     }
-
 }
