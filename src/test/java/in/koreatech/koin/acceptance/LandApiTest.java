@@ -1,38 +1,38 @@
 package in.koreatech.koin.acceptance;
 
-import org.junit.jupiter.api.DisplayName;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.land.model.Land;
 import in.koreatech.koin.fixture.LandFixture;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LandApiTest extends AcceptanceTest {
 
     @Autowired
     private LandFixture landFixture;
 
     @Test
-    @DisplayName("복덕방 리스트를 조회한다.")
-    void getLands() {
+    void 복덕방_리스트를_조회한다() throws Exception {
         landFixture.신안빌();
         landFixture.에듀윌();
 
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/lands")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/lands")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "lands": [
                         {
@@ -57,24 +57,19 @@ class LandApiTest extends AcceptanceTest {
                         }
                     ]
                 }
-                    """);
+                """));
     }
 
     @Test
-    @DisplayName("복덕방을 단일 조회한다.")
-    void getLand() {
+    void 복덕방을_단일_조회한다() throws Exception {
         Land land = landFixture.에듀윌();
 
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/lands/{id}", land.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/lands/{id}", land.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "opt_electronic_door_locks": false,
                     "opt_tv": false,
@@ -116,6 +111,6 @@ class LandApiTest extends AcceptanceTest {
                     "permalink": "%EC%97%90",
                     "room_type": "원룸"
                 }
-                """);
+                """));
     }
 }

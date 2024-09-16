@@ -58,7 +58,7 @@ public record ArticleResponse(
             article.getTitle(),
             article.getContent(),
             article.getAuthor(),
-            article.getHit(),
+            article.getTotalHit(),
             article.getAttachments().stream()
                 .map(InnerArticleAttachmentResponse::from)
                 .toList(),

@@ -1,35 +1,26 @@
 package in.koreatech.koin.global.config;
 
+import java.sql.Date;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
+import java.util.Optional;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 @Converter
-public class LocalDateAttributeConverter implements AttributeConverter<LocalDate, String> {
-
-    private static final DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-        .appendPattern("[yyyy-MM-dd HH:mm:ss]")
-        .appendPattern("[yyyy-MM-dd]")
-        .appendPattern("[yy.MM.dd HH:mm:ss]")
-        .appendPattern("[yy.MM.dd]")
-        .toFormatter();
+public class LocalDateAttributeConverter implements AttributeConverter<LocalDate, Date> {
 
     @Override
-    public String convertToDatabaseColumn(LocalDate localDate) {
-        if (localDate == null) {
-            return null;
-        }
-        return localDate.format(formatter);
+    public Date convertToDatabaseColumn(LocalDate localDate) {
+        return Optional.ofNullable(localDate)
+            .map(Date::valueOf)
+            .orElse(null);
     }
 
     @Override
-    public LocalDate convertToEntityAttribute(String dbData) {
-        if (dbData == null) {
-            return null;
-        }
-        return LocalDate.parse(dbData, formatter);
+    public LocalDate convertToEntityAttribute(Date date) {
+        return Optional.ofNullable(date)
+            .map(Date::toLocalDate)
+            .orElse(null);
     }
 }

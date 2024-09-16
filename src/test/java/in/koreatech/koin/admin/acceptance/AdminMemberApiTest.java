@@ -1,12 +1,15 @@
 package in.koreatech.koin.admin.acceptance;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
@@ -15,10 +18,10 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.MemberFixture;
 import in.koreatech.koin.fixture.TrackFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 public class AdminMemberApiTest extends AcceptanceTest {
 
     @Autowired
@@ -33,28 +36,27 @@ public class AdminMemberApiTest extends AcceptanceTest {
     @Autowired
     private AdminMemberRepository adminMemberRepository;
 
+    @BeforeAll
+    void setup() {
+        clear();
+    }
+
     @Test
-    @DisplayName("BCSDLab 회원들의 정보를 조회한다")
-    void getMembers() {
+    void BCSDLab_회원들의_정보를_조회한다() throws Exception {
         memberFixture.최준호(trackFixture.backend());
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .param("page", 1)
-            .param("track", "BACKEND")
-            .param("is_deleted", false)
-            .get("/admin/members")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/admin/members")
+                    .header("Authorization", "Bearer " + token)
+                    .param("page", "1")
+                    .param("track", "BACKEND")
+                    .param("is_deleted", "false")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "total_count": 1,
                     "current_count": 1,
@@ -73,13 +75,11 @@ public class AdminMemberApiTest extends AcceptanceTest {
                         }
                     ]
                 }
-                """
-            );
+                """));
     }
 
     @Test
-    @DisplayName("관리자 권한으로 BCSDLab 회원을 추가한다.")
-    void postMember() {
+    void 관리자_권한으로_BCSDLab_회원을_추가한다() throws Exception {
         trackFixture.backend();
 
         User adminUser = userFixture.코인_운영자();
@@ -96,16 +96,13 @@ public class AdminMemberApiTest extends AcceptanceTest {
             }
             """;
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body(jsonBody)
-            .when()
-            .post("/admin/members")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract().asString();
+        mockMvc.perform(
+                post("/admin/members")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonBody)
+            )
+            .andExpect(status().isCreated());
 
         Member savedMember = adminMemberRepository.getByName("최준호");
 
@@ -121,24 +118,18 @@ public class AdminMemberApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("BCSDLab 회원 정보를 조회한다")
-    void getMember() {
+    void BCSDLab_회원_정보를_조회한다() throws Exception {
         memberFixture.최준호(trackFixture.backend());
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get("/admin/members/{id}", 1)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/admin/members/{id}", 1)
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "id": 1,
                     "name": "최준호",
@@ -149,27 +140,22 @@ public class AdminMemberApiTest extends AcceptanceTest {
                     "image_url": "https://imagetest.com/juno.jpg",
                     "is_deleted": false
                 }
-                """
-            );
+                """));
     }
 
     @Test
-    @DisplayName("BCSDLab 회원 정보를 삭제한다")
-    void deleteMember() {
+    void BCSDLab_회원_정보를_삭제한다() throws Exception {
         Member member = memberFixture.최준호(trackFixture.backend());
         Integer memberId = member.getId();
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .delete("/admin/members/{id}", memberId)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                delete("/admin/members/{id}", memberId)
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk());
 
         Member savedMember = adminMemberRepository.getById(memberId);
 
@@ -185,8 +171,7 @@ public class AdminMemberApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("BCSDLab 회원 정보를 수정한다")
-    void updateMember() {
+    void BCSDLab_회원_정보를_수정한다() throws Exception {
         Member member = memberFixture.최준호(trackFixture.backend());
         Integer memberId = member.getId();
 
@@ -204,16 +189,13 @@ public class AdminMemberApiTest extends AcceptanceTest {
             }
             """;
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body(jsonBody)
-            .when()
-            .put("/admin/members/{id}", memberId)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                put("/admin/members/{id}", memberId)
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonBody)
+            )
+            .andExpect(status().isOk());
 
         Member updatedMember = adminMemberRepository.getById(memberId);
 
@@ -229,8 +211,7 @@ public class AdminMemberApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("BCSDLab 회원 정보를 트랙과 함께 수정한다")
-    void updateMemberWithTrack() {
+    void BCSDLab_회원_정보를_트랙과_함께_수정한다() throws Exception {
         Member member = memberFixture.최준호(trackFixture.backend());
         trackFixture.frontend();
         Integer memberId = member.getId();
@@ -249,16 +230,13 @@ public class AdminMemberApiTest extends AcceptanceTest {
             }
             """;
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .contentType("application/json")
-            .body(jsonBody)
-            .when()
-            .put("/admin/members/{id}", memberId)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                put("/admin/members/{id}", memberId)
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonBody)
+            )
+            .andExpect(status().isOk());
 
         Member updatedMember = adminMemberRepository.getById(memberId);
 
@@ -274,22 +252,18 @@ public class AdminMemberApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("BCSDLab 회원 정보를 삭제를 취소한다")
-    void undeleteMember() {
+    void BCSDLab_회원_정보를_삭제를_취소한다() throws Exception {
         Member member = memberFixture.최준호_삭제(trackFixture.backend());
         Integer memberId = member.getId();
 
         User adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .post("/admin/members/{id}/undelete", memberId)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                post("/admin/members/{id}/undelete", memberId)
+                    .header("Authorization", "Bearer " + token)
+            )
+            .andExpect(status().isOk());
 
         Member savedMember = adminMemberRepository.getById(memberId);
 

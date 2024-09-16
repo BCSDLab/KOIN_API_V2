@@ -30,11 +30,21 @@ spring:
 server:
   tomcat:
     max-http-form-post-size: 10MB
+#  MockMvc이용하면 한글 깨지는 문제 해결하는 설정
+  servlet:
+    encoding:
+      force-response: true
 
 logging:
   level:
     org:
+      springframework:
+        transaction: DEBUG  # 스프링 트랜잭션 관련 로그 출력
+        orm.jpa.JpaTransactionManager: DEBUG
       hibernate:
+        engine:
+          transaction:
+            internal: DEBUG  # Hibernate 트랜잭션 로그 상세 출력
         type:
           descriptor:
             sql: trace
@@ -45,6 +55,7 @@ swagger:
 slack:
   koin_event_notify_url: https://slack-weehookurl.com
   koin_owner_event_notify_url: https://slack-weehookurl.com
+  koin_shop_review_notify_url: https://slack-weehookurl.com
   logging:
     error: https://slack-weehookurl.com
 
@@ -61,7 +72,10 @@ s3:
 
 koin:
   admin:
-    url: https://admin-url-path.com
+    shop:
+      url: https://admin-url-path.com
+    review:
+      url: https://admin-url-path.com
 
 cors:
   allowedOrigins:

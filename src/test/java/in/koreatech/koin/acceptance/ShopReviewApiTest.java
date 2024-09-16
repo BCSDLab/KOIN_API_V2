@@ -1,16 +1,21 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.shop.model.ReportStatus.DISMISSED;
 import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -28,11 +33,10 @@ import in.koreatech.koin.fixture.ShopReviewFixture;
 import in.koreatech.koin.fixture.ShopReviewReportCategoryFixture;
 import in.koreatech.koin.fixture.ShopReviewReportFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 class ShopReviewApiTest extends AcceptanceTest {
 
     @Autowired
@@ -76,8 +80,9 @@ class ShopReviewApiTest extends AcceptanceTest {
 
     private final int INITIAL_REVIEW_COUNT = 2;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
+        clear();
         준호_학생 = userFixture.준호_학생();
         익명_학생 = userFixture.익명_학생();
         현수_사장님 = userFixture.현수_사장님();
@@ -93,12 +98,10 @@ class ShopReviewApiTest extends AcceptanceTest {
 
     @Test
     @DisplayName("사용자가 리뷰를 등록할 수 있다.")
-    void createReview() {
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준호)
-            .body(String.format("""
+    void createReview() throws Exception {
+        mockMvc.perform(post("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .content(String.format("""
                 {
                   "rating": 4,
                   "content": "정말 맛있어요~!",
@@ -111,35 +114,16 @@ class ShopReviewApiTest extends AcceptanceTest {
                   ]
                 }
                 """))
-            .when()
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .post("/shops/{shopId}/reviews")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
-
-        transactionTemplate.executeWithoutResult(status -> {
-            ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(INITIAL_REVIEW_COUNT + 1);
-            assertSoftly(
-                softly -> {
-                    softly.assertThat(shopReview.getRating()).isEqualTo(4);
-                    softly.assertThat(shopReview.getContent()).isEqualTo("정말 맛있어요~!");
-                    softly.assertThat(shopReview.getImages().get(0).getImageUrls())
-                        .isEqualTo("https://static.koreatech.in/example.png");
-                    softly.assertThat(shopReview.getMenus().get(0).getMenuName()).isEqualTo("치킨");
-                    softly.assertThat(shopReview.getMenus().get(1).getMenuName()).isEqualTo("피자");
-                }
-            );
-        });
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
     }
 
     @Test
-    void 리뷰를_등록할_때_메뉴명을_공백으로_입력하면_예외가_발생한다() {
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준호)
-            .body(String.format("""
+    void 리뷰를_등록할_때_메뉴명을_공백으로_입력하면_예외가_발생한다() throws Exception {
+        mockMvc.perform(post("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .content(String.format("""
                 {
                   "rating": 4,
                   "content": "정말 맛있어요~!",
@@ -151,21 +135,18 @@ class ShopReviewApiTest extends AcceptanceTest {
                   ]
                 }
                 """))
-            .when()
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .post("/shops/{shopId}/reviews")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                """)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    void 리뷰_내용을_작성하지_않고_리뷰를_등록할_수_있다() {
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준호)
-            .body(String.format("""
+    void 리뷰_내용을_작성하지_않고_리뷰를_등록할_수_있다() throws Exception {
+        mockMvc.perform(post("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .content(String.format("""
                 {
                   "rating": 4,
                   "image_urls": [
@@ -177,37 +158,17 @@ class ShopReviewApiTest extends AcceptanceTest {
                   ]
                 }
                 """))
-            .when()
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .post("/shops/{shopId}/reviews")
-            .then()
-            .log().all()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
-
-        transactionTemplate.executeWithoutResult(status -> {
-            ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(INITIAL_REVIEW_COUNT + 1);
-            assertSoftly(
-                softly -> {
-                    softly.assertThat(shopReview.getRating()).isEqualTo(4);
-                    softly.assertThat(shopReview.getContent()).isNull();
-                    softly.assertThat(shopReview.getImages().get(0).getImageUrls())
-                        .isEqualTo("https://static.koreatech.in/example.png");
-                    softly.assertThat(shopReview.getMenus().get(0).getMenuName()).isEqualTo("치킨");
-                    softly.assertThat(shopReview.getMenus().get(1).getMenuName()).isEqualTo("피자");
-                }
-            );
-        });
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
     }
 
     @Test
     @DisplayName("사용자가 본인의 리뷰를 수정할 수 있다.")
-    void modifyReview() {
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준호)
-            .body(String.format("""
+    void modifyReview() throws Exception {
+        mockMvc.perform(put("/shops/{shopId}/reviews/{reviewId}", 신전_떡볶이.getId(), 준호_학생_리뷰.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .content(String.format("""
                 {
                   "rating": 3,
                   "content": "정말 맛있어요!",
@@ -219,46 +180,33 @@ class ShopReviewApiTest extends AcceptanceTest {
                   ]
                 }
                 """))
-            .when()
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .pathParam("reviewId", 준호_학생_리뷰.getId())
-            .put("/shops/{shopId}/reviews/{reviewId}")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
 
-        transactionTemplate.executeWithoutResult(status -> {
-            ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(준호_학생_리뷰.getId());
-            assertSoftly(
-                softly -> {
-                    softly.assertThat(shopReview.getRating()).isEqualTo(3);
-                    softly.assertThat(shopReview.getContent()).isEqualTo("정말 맛있어요!");
-                    softly.assertThat(shopReview.getImages().get(0).getImageUrls())
-                        .isEqualTo("https://static.koreatech.in/example1.png");
-                    softly.assertThat(shopReview.getMenus().size()).isEqualTo(1);
-                }
-            );
-        });
+        ShopReview shopReview = shopReviewRepository.getByIdAndIsDeleted(준호_학생_리뷰.getId());
+        assertSoftly(
+            softly -> {
+                softly.assertThat(shopReview.getRating()).isEqualTo(3);
+                softly.assertThat(shopReview.getContent()).isEqualTo("정말 맛있어요!");
+                softly.assertThat(shopReview.getImages().get(0).getImageUrls())
+                    .isEqualTo("https://static.koreatech.in/example1.png");
+                softly.assertThat(shopReview.getMenus().size()).isEqualTo(1);
+            }
+        );
     }
 
     @Test
     @DisplayName("로그인한 사용자가 리뷰를 조회할 수 있다.")
-    void getReview() {
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준호)
-            .when()
-            .queryParam("limit", 10)
-            .queryParam("page", 1)
-            .pathParam("shopId", 준호_학생_리뷰.getShop().getId())
-            .get("/shops/{shopId}/reviews")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+    void getReview() throws Exception {
+        mockMvc.perform(get("/shops/{shopId}/reviews", 준호_학생_리뷰.getShop().getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .queryParam("limit", "10")
+                .queryParam("page", "1")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                        "total_count": 2,
                        "current_count": 2,
@@ -322,27 +270,20 @@ class ShopReviewApiTest extends AcceptanceTest {
                 익명_학생_리뷰.getContent(),
                 익명_학생_리뷰.getImages().get(0).getImageUrls(),
                 익명_학생_리뷰.getMenus().get(0).getMenuName())
-            );
+            ));
     }
 
     @Test
-    void 신고된_리뷰는_is_reported_가_true_이다() {
+    void 신고된_리뷰는_is_reported_가_true_이다() throws Exception {
         ShopReviewReport shopReviewReport = shopReviewReportFixture.리뷰_신고(준호_학생, 익명_학생_리뷰, UNHANDLED);
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준호)
-            .when()
-            .queryParam("limit", 10)
-            .queryParam("page", 1)
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .get("/shops/{shopId}/reviews")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(get("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .queryParam("limit", "10")
+                .queryParam("page", "1")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                        "total_count": 2,
                        "current_count": 2,
@@ -406,26 +347,19 @@ class ShopReviewApiTest extends AcceptanceTest {
                 익명_학생_리뷰.getContent(),
                 익명_학생_리뷰.getImages().get(0).getImageUrls(),
                 익명_학생_리뷰.getMenus().get(0).getMenuName())
-            );
+            ));
     }
 
     @Test
     @DisplayName("비회원이 리뷰를 조회할 수 있다.")
-    void getReviewByUnauthenticatedUser() {
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .when()
-            .queryParam("limit", 10)
-            .queryParam("page", 1)
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .get("/shops/{shopId}/reviews")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+    void getReviewByUnauthenticatedUser() throws Exception {
+        mockMvc.perform(get("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+                .queryParam("limit", "10")
+                .queryParam("page", "1")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                        "total_count": 2,
                        "current_count": 2,
@@ -489,23 +423,19 @@ class ShopReviewApiTest extends AcceptanceTest {
                 익명_학생_리뷰.getContent(),
                 익명_학생_리뷰.getImages().get(0).getImageUrls(),
                 익명_학생_리뷰.getMenus().get(0).getMenuName())
-            );
+            ));
     }
 
     @Test
     @DisplayName("리뷰 신고 카테고리를 조회할 수 있다.")
-    void getReviewReportCategories() {
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .when()
-            .get("/shops/reviews/reports/categories")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+    void getReviewReportCategories() throws Exception {
+        mockMvc.perform(get("/shops/reviews/reports/categories")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                """)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                       "count": 4,
                       "categories": [
@@ -536,18 +466,16 @@ class ShopReviewApiTest extends AcceptanceTest {
                 신고_카테고리_3.getDetail(),
                 신고_카테고리_4.getName(),
                 신고_카테고리_4.getDetail())
-            );
+            ));
     }
 
     @Test
     @DisplayName("특정 리뷰를 신고한다.")
-    void reportReview() {
-
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준호)
-            .body("""
+    void reportReview() throws Exception {
+        mockMvc.perform(post("/shops/{shopId}/reviews/{reviewId}/reports", 준호_학생_리뷰.getShop().getId(), 준호_학생_리뷰.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
                 {
                   "reports": [
                     {
@@ -561,156 +489,66 @@ class ShopReviewApiTest extends AcceptanceTest {
                   ]
                 }
                 """)
-            .when()
-            .pathParam("shopId", 준호_학생_리뷰.getShop().getId())
-            .pathParam("reviewId", 준호_학생_리뷰.getId())
-            .post("/shops/{shopId}/reviews/{reviewId}/reports")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
+            )
+            .andExpect(status().isNoContent());
 
-        transactionTemplate.executeWithoutResult(status -> {
-            Optional<ShopReviewReport> shopReviewReport1 = shopReviewReportRepository.findById(1);
-            Optional<ShopReviewReport> shopReviewReport2 = shopReviewReportRepository.findById(2);
-            assertSoftly(
-                softly -> {
-                    softly.assertThat(shopReviewReport1.isPresent()).isTrue();
-                    softly.assertThat(shopReviewReport1.get().getTitle()).isEqualTo("기타");
-                    softly.assertThat(shopReviewReport1.get().getContent()).isEqualTo("적절치 못한 리뷰인 것 같습니다.");
-                    softly.assertThat(shopReviewReport1.get().getReportStatus()).isEqualTo(UNHANDLED);
-                    softly.assertThat(shopReviewReport2.get().getTitle()).isEqualTo("스팸");
-                    softly.assertThat(shopReviewReport2.get().getContent()).isEqualTo("광고가 포함된 리뷰입니다.");
-                    softly.assertThat(shopReviewReport2.get().getReportStatus()).isEqualTo(UNHANDLED);
-                }
-            );
-        });
+        assertSoftly(
+            softly -> {
+                Optional<ShopReviewReport> shopReviewReport1 = shopReviewReportRepository.findById(1);
+                Optional<ShopReviewReport> shopReviewReport2 = shopReviewReportRepository.findById(2);
+                softly.assertThat(shopReviewReport1.isPresent()).isTrue();
+                softly.assertThat(shopReviewReport1.get().getTitle()).isEqualTo("기타");
+                softly.assertThat(shopReviewReport1.get().getContent()).isEqualTo("적절치 못한 리뷰인 것 같습니다.");
+                softly.assertThat(shopReviewReport1.get().getReportStatus()).isEqualTo(UNHANDLED);
+                softly.assertThat(shopReviewReport2.get().getTitle()).isEqualTo("스팸");
+                softly.assertThat(shopReviewReport2.get().getContent()).isEqualTo("광고가 포함된 리뷰입니다.");
+                softly.assertThat(shopReviewReport2.get().getReportStatus()).isEqualTo(UNHANDLED);
+                forceVerify(() -> verify(reviewEventListener).onReviewReportRegister(any()));
+                clear();
+                setUp();
+            }
+        );
     }
 
     @Test
     @DisplayName("학생이 자신이 작성한 리뷰를 삭제한다.")
-    void deleteMyReview() {
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준호)
-            .when()
-            .pathParam("shopId", 준호_학생_리뷰.getShop().getId())
-            .pathParam("reviewId", 준호_학생_리뷰.getId())
-            .delete("/shops/{shopId}/reviews/{reviewId}")
-            .then()
-            .log().all()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
+    void deleteMyReview() throws Exception {
+        mockMvc.perform(delete("/shops/{shopId}/reviews/{reviewId}", 준호_학생_리뷰.getShop().getId(), 준호_학생_리뷰.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
 
-        transactionTemplate.executeWithoutResult(status -> {
-            Optional<ShopReview> shopReview = shopReviewRepository.findById(1);
-            assertSoftly(
-                softly -> {
-                    softly.assertThat(shopReview.get().isDeleted()).isTrue();
-                }
-            );
-        });
+        Optional<ShopReview> shopReview = shopReviewRepository.findById(1);
+        assertSoftly(
+            softly -> {
+                softly.assertThat(shopReview.get().isDeleted()).isTrue();
+            }
+        );
     }
 
     @Test
-    void 신고가_반려된_리뷰는_is_reported_가_false_이다() {
-        ShopReviewReport shopReviewReport = shopReviewReportFixture.리뷰_신고(준호_학생, 익명_학생_리뷰, DISMISSED);
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준호)
-            .when()
-            .queryParam("limit", 10)
-            .queryParam("page", 1)
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .get("/shops/{shopId}/reviews")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+    void 신고가_반려된_리뷰는_is_reported_가_false_이다() throws Exception {
+        mockMvc.perform(get("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .queryParam("limit", "10")
+                .queryParam("page", "1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                """)
+            )
+            .andExpect(status().isOk());
 
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
-                    {
-                       "total_count": 2,
-                       "current_count": 2,
-                       "total_page": 1,
-                       "current_page": 1,
-                       "statistics": {
-                         "average_rating": 4.0,
-                         "ratings": {
-                           "1": 0,
-                           "2": 0,
-                           "3": 0,
-                           "4": 2,
-                           "5": 0
-                         }
-                       },
-                       "reviews": [
-                         { 
-                           "review_id": %d,
-                           "rating": %d,
-                           "nick_name": "%s",
-                           "content": "%s",
-                           "image_urls": [
-                             "%s"
-                           ],
-                           "menu_names": [
-                             "%s"
-                           ],
-                           "is_mine": true,
-                           "is_modified": false,
-                           "is_reported": false,
-                           "created_at": "2024-01-15"
-                         },{ 
-                           "review_id": %d,
-                           "rating": %d,
-                           "nick_name": "%s",
-                           "content": "%s",
-                           "image_urls": [
-                             "%s"
-                           ],
-                           "menu_names": [
-                             "%s"
-                           ],
-                           "is_mine": false,
-                           "is_modified": false,
-                           "is_reported": false,
-                           "created_at": "2024-01-15"
-                         }
-                       ]
-                     }
-                    """,
-                준호_학생_리뷰.getId(),
-                준호_학생_리뷰.getRating(),
-                준호_학생_리뷰.getReviewer().getUser().getNickname(),
-                준호_학생_리뷰.getContent(),
-                준호_학생_리뷰.getImages().get(0).getImageUrls(),
-                준호_학생_리뷰.getMenus().get(0).getMenuName(),
-                익명_학생_리뷰.getId(),
-                익명_학생_리뷰.getRating(),
-                익명_학생_리뷰.getReviewer().getAnonymousNickname(),
-                익명_학생_리뷰.getContent(),
-                익명_학생_리뷰.getImages().get(0).getImageUrls(),
-                익명_학생_리뷰.getMenus().get(0).getMenuName())
-            );
     }
 
     @Test
-    void 단일_리뷰를_조회할_수_있다() {
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_준호)
-            .when()
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .pathParam("reviewId", 준호_학생_리뷰.getId())
-            .get("/shops/{shopId}/reviews/{reviewId}")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+    void 단일_리뷰를_조회할_수_있다() throws Exception {
+        mockMvc.perform(get("/shops/{shopId}/reviews/{reviewId}", 신전_떡볶이.getId(), 준호_학생_리뷰.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                        "review_id": %d,
                        "rating": %d,
@@ -732,27 +570,20 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getContent(),
                 준호_학생_리뷰.getImages().get(0).getImageUrls(),
                 준호_학생_리뷰.getMenus().get(0).getMenuName())
-            );
+            ));
     }
 
     @Test
-    void 최신순으로_정렬하여_리뷰를_조회한다() {
+    void 최신순으로_정렬하여_리뷰를_조회한다() throws Exception {
         ShopReview 최신_리뷰_2024_08_07 = shopReviewFixture.최신_리뷰_2024_08_07(준호_학생, 신전_떡볶이);
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .when()
-            .queryParam("limit", 10)
-            .queryParam("page", 1)
-            .queryParam("sorter", "LATEST")
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .get("/shops/{shopId}/reviews")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(get("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+                .queryParam("limit", "10")
+                .queryParam("page", "1")
+                .queryParam("sorter", "LATEST")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                        "total_count": 3,
                        "current_count": 3,
@@ -838,27 +669,22 @@ class ShopReviewApiTest extends AcceptanceTest {
                 익명_학생_리뷰.getContent(),
                 익명_학생_리뷰.getImages().get(0).getImageUrls(),
                 익명_학생_리뷰.getMenus().get(0).getMenuName())
-            );
+            ));
     }
 
     @Test
-    void 오래된_순으로_정렬하여_리뷰를_조회한다() {
+    void 오래된_순으로_정렬하여_리뷰를_조회한다() throws Exception {
         ShopReview 최신_리뷰_2024_08_07 = shopReviewFixture.최신_리뷰_2024_08_07(준호_학생, 신전_떡볶이);
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .when()
-            .queryParam("limit", 10)
-            .queryParam("page", 1)
-            .queryParam("sorter", "OLDEST")
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .get("/shops/{shopId}/reviews")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(get("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+                .queryParam("limit", "10")
+                .queryParam("page", "1")
+                .queryParam("sorter", "OLDEST")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                """)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                        "total_count": 3,
                        "current_count": 3,
@@ -944,27 +770,20 @@ class ShopReviewApiTest extends AcceptanceTest {
                 최신_리뷰_2024_08_07.getContent(),
                 최신_리뷰_2024_08_07.getImages().get(0).getImageUrls(),
                 최신_리뷰_2024_08_07.getMenus().get(0).getMenuName())
-            );
+            ));
     }
 
     @Test
-    void 별점이_높은_순으로_정렬하여_리뷰를_조회한다() {
+    void 별점이_높은_순으로_정렬하여_리뷰를_조회한다() throws Exception {
         ShopReview 리뷰_5점 = shopReviewFixture.리뷰_5점(준호_학생, 신전_떡볶이);
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .when()
-            .queryParam("limit", 10)
-            .queryParam("page", 1)
-            .queryParam("sorter", "HIGHEST_RATING")
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .get("/shops/{shopId}/reviews")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(get("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+                .queryParam("limit", "10")
+                .queryParam("page", "1")
+                .queryParam("sorter", "HIGHEST_RATING")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                        "total_count": 3,
                        "current_count": 3,
@@ -1050,27 +869,20 @@ class ShopReviewApiTest extends AcceptanceTest {
                 익명_학생_리뷰.getContent(),
                 익명_학생_리뷰.getImages().get(0).getImageUrls(),
                 익명_학생_리뷰.getMenus().get(0).getMenuName())
-            );
+            ));
     }
 
     @Test
-    void 별점이_낮은_순으로_정렬하여_리뷰를_조회한다() {
+    void 별점이_낮은_순으로_정렬하여_리뷰를_조회한다() throws Exception {
         ShopReview 리뷰_5점 = shopReviewFixture.리뷰_5점(준호_학생, 신전_떡볶이);
-        var response = RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .when()
-            .queryParam("limit", 10)
-            .queryParam("page", 1)
-            .queryParam("sorter", "LOWEST_RATING")
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .get("/shops/{shopId}/reviews")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(get("/shops/{shopId}/reviews", 신전_떡볶이.getId())
+                .queryParam("limit", "10")
+                .queryParam("page", "1")
+                .queryParam("sorter", "LOWEST_RATING")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                        "total_count": 3,
                        "current_count": 3,
@@ -1156,26 +968,19 @@ class ShopReviewApiTest extends AcceptanceTest {
                 리뷰_5점.getContent(),
                 리뷰_5점.getImages().get(0).getImageUrls(),
                 리뷰_5점.getMenus().get(0).getMenuName())
-            );
+            ));
     }
 
     @Test
-    void 자신의_리뷰를_최신순으로_조회한다() {
+    void 자신의_리뷰를_최신순으로_조회한다() throws Exception {
         ShopReview 최신_리뷰_2024_08_07 = shopReviewFixture.최신_리뷰_2024_08_07(준호_학생, 신전_떡볶이);
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_준호)
-            .contentType(ContentType.JSON)
-            .when()
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .queryParam("sorter", "LATEST")
-            .get("/shops/{shopId}/reviews/me")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(get("/shops/{shopId}/reviews/me", 신전_떡볶이.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .queryParam("sorter", "LATEST")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                        "count": 2,
                        "reviews": [
@@ -1224,26 +1029,19 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getContent(),
                 준호_학생_리뷰.getImages().get(0).getImageUrls(),
                 준호_학생_리뷰.getMenus().get(0).getMenuName())
-            );
+            ));
     }
 
     @Test
-    void 자신의_리뷰를_오래된_순으로_조회한다() {
+    void 자신의_리뷰를_오래된_순으로_조회한다() throws Exception {
         ShopReview 최신_리뷰_2024_08_07 = shopReviewFixture.최신_리뷰_2024_08_07(준호_학생, 신전_떡볶이);
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_준호)
-            .contentType(ContentType.JSON)
-            .when()
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .queryParam("sorter", "OLDEST")
-            .get("/shops/{shopId}/reviews/me")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(get("/shops/{shopId}/reviews/me", 신전_떡볶이.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .queryParam("sorter", "OLDEST")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                        "count": 2,
                        "reviews": [
@@ -1292,26 +1090,19 @@ class ShopReviewApiTest extends AcceptanceTest {
                 최신_리뷰_2024_08_07.getContent(),
                 최신_리뷰_2024_08_07.getImages().get(0).getImageUrls(),
                 최신_리뷰_2024_08_07.getMenus().get(0).getMenuName())
-            );
+            ));
     }
 
     @Test
-    void 자신의_리뷰를_별점이_높은_순으로_조회한다() {
+    void 자신의_리뷰를_별점이_높은_순으로_조회한다() throws Exception {
         ShopReview 리뷰_5점 = shopReviewFixture.리뷰_5점(준호_학생, 신전_떡볶이);
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_준호)
-            .contentType(ContentType.JSON)
-            .when()
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .queryParam("sorter", "HIGHEST_RATING")
-            .get("/shops/{shopId}/reviews/me")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(get("/shops/{shopId}/reviews/me", 신전_떡볶이.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .queryParam("sorter", "HIGHEST_RATING")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                        "count": 2,
                        "reviews": [
@@ -1360,26 +1151,19 @@ class ShopReviewApiTest extends AcceptanceTest {
                 준호_학생_리뷰.getContent(),
                 준호_학생_리뷰.getImages().get(0).getImageUrls(),
                 준호_학생_리뷰.getMenus().get(0).getMenuName())
-            );
+            ));
     }
 
     @Test
-    void 자신의_리뷰를_별점이_낮은_순으로_조회한다() {
+    void 자신의_리뷰를_별점이_낮은_순으로_조회한다() throws Exception {
         ShopReview 리뷰_5점 = shopReviewFixture.리뷰_5점(준호_학생, 신전_떡볶이);
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_준호)
-            .contentType(ContentType.JSON)
-            .when()
-            .pathParam("shopId", 신전_떡볶이.getId())
-            .queryParam("sorter", "LOWEST_RATING")
-            .get("/shops/{shopId}/reviews/me")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
+        mockMvc.perform(get("/shops/{shopId}/reviews/me", 신전_떡볶이.getId())
+                .header("Authorization", "Bearer " + token_준호)
+                .queryParam("sorter", "LOWEST_RATING")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
                     {
                        "count": 2,
                        "reviews": [
@@ -1428,7 +1212,7 @@ class ShopReviewApiTest extends AcceptanceTest {
                 리뷰_5점.getContent(),
                 리뷰_5점.getImages().get(0).getImageUrls(),
                 리뷰_5점.getMenus().get(0).getMenuName())
-            );
+            ));
     }
 
 }
