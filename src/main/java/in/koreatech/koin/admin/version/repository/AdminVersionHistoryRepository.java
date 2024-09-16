@@ -9,25 +9,28 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.version.exception.VersionTypeNotFoundException;
 import in.koreatech.koin.domain.version.model.Version;
+import in.koreatech.koin.domain.version.model.VersionHistory;
 
-public interface AdminVersionRepository extends Repository<Version, Integer> {
+public interface AdminVersionHistoryRepository extends Repository<VersionHistory, Integer> {
 
-    Version save(Version request);
+    VersionHistory save(Version request);
 
-    Optional<Version> findByType(String Type);
+    Optional<VersionHistory> findByType(String Type);
 
     Integer countAll();
 
-    Page<Version> findAll(Pageable pageable);
+    Page<VersionHistory> findAll(Pageable pageable);
 
-    default Version getByType(String type) {
+    default VersionHistory getByType(String type) {
         return findByType(type).orElseThrow(() -> VersionTypeNotFoundException.withDetail("type: " + type));
     }
 
-    Optional<Version> findById(Integer id);
+    Optional<VersionHistory> findById(Integer id);
 
-    default Version getById(Integer id) {
+    default VersionHistory getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> VersionTypeNotFoundException.withDetail("id: " + id));
     }
+
+    Page<VersionHistory> findAllByType(String type, PageRequest pageRequest);
 }

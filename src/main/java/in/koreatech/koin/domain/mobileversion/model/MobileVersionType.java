@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.version.model;
+package in.koreatech.koin.domain.mobileversion.model;
 
 import java.util.Arrays;
 
@@ -8,19 +8,18 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum VersionType {
-    TIMETABLE("timetable"),
-    SHUTTLE("shuttle_bus_timetable"),
-    CITY("city_bus_timetable"),
-    EXPRESS("express_bus_timetable"),
+public enum MobileVersionType {
+    ANDROID("android"),
+    IOS("ios")
     ;
 
     private final String value;
 
-    public static VersionType from(String value) {
+    public static MobileVersionType from(String value) {
         return Arrays.stream(values())
             .filter(versionType -> versionType.value.equals(value))
             .findAny()
             .orElseThrow(() -> VersionTypeNotFoundException.withDetail("versionType: " + value));
     }
 }
+

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.version.model;
+package in.koreatech.koin.domain.mobileversion.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
-public class VersionHistory extends BaseEntity {
+public class MobileVersionHistory extends BaseEntity {
 
 
     @Id
@@ -33,7 +33,7 @@ public class VersionHistory extends BaseEntity {
     private String message;
 
     @Builder
-    private VersionHistory(@NotNull String version, @NotNull String type, String message) {
+    private MobileVersionHistory(@NotNull String version, @NotNull String type, String message) {
         this.version = version;
         this.type = type;
         this.message = message;

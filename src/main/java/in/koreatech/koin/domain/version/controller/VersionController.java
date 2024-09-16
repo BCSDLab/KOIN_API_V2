@@ -16,7 +16,7 @@ public class VersionController {
     private final VersionService versionService;
 
     @GetMapping("/versions/{type}")
-    public ResponseEntity<VersionResponse> getVersions(@PathVariable(value = "type") String type) {
+    public ResponseEntity<VersionResponse> getVersion(@PathVariable(value = "type") String type) {
         VersionResponse response = versionService.getVersion(type);
 
         return ResponseEntity.ok(response);
