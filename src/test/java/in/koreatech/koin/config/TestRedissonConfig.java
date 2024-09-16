@@ -14,13 +14,11 @@ public class TestRedissonConfig {
     public RedissonClient redissonClient(
         @Value("${spring.data.redis.host}") String redisHost,
 
-        @Value("${spring.data.redis.port}") int redisPort,
-
-        @Value("${spring.data.redis.password:}") String redisPassword) {
+        @Value("${spring.data.redis.port}") int redisPort
+    ) {
         Config config = new Config();
         config.useSingleServer()
-            .setAddress("redis://" + redisHost + ":" + redisPort)
-            .setPassword(redisPassword.isEmpty() ? null : redisPassword);
+            .setAddress("redis://" + redisHost + ":" + redisPort);
         return Redisson.create(config);
     }
 }
