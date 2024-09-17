@@ -19,7 +19,7 @@ public class TestRedissonConfig {
     @Lazy
     public RedissonClient redissonClient() {
         String redisHost = environment.getProperty("spring.data.redis.host");
-        String redisPort = "6379";
+        String redisPort = environment.getProperty("spring.data.redis.port");
 
         Config config = new Config();
         config.useSingleServer()
