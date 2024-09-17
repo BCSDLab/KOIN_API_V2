@@ -12,14 +12,14 @@ import org.springframework.core.env.Environment;
 @TestConfiguration
 public class TestRedissonConfig {
 
-    @Value("${spring.data.redis.host}")
-    private String redisHost;
-
-    @Value("${spring.data.redis.port}")
-    private int redisPort;
+    @Autowired
+    private Environment environment;
 
     @Bean
     public RedissonClient redissonClient() {
+        String redisHost = environment.getProperty("spring.data.redis.host");
+        String redisPort = environment.getProperty("spring.data.redis.port");
+
         Config config = new Config();
         config.useSingleServer()
             .setAddress("redis://" + redisHost + ":" + redisPort);
