@@ -12,7 +12,7 @@ import in.koreatech.koin.config.TestTimeConfig;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Import({TestJpaConfiguration.class, TestTimeConfig.class, TestRedisConfiguration.class, TestRedissonConfig.class})
+@Import({TestJpaConfiguration.class, TestTimeConfig.class, TestRedisConfiguration.class})
 class KoinApplicationTest {
 
     @Test
