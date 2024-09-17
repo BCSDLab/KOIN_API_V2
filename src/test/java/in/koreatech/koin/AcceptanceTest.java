@@ -38,8 +38,7 @@ import jakarta.persistence.EntityManager;
 @Import({DBInitializer.class,
     TestJpaConfiguration.class,
     TestTimeConfig.class,
-    TestRedisConfiguration.class,
-    TestRedissonConfig.class})
+    TestRedisConfiguration.class})
 @ActiveProfiles("test")
 public abstract class AcceptanceTest {
 
