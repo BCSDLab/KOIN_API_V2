@@ -2,6 +2,7 @@ package in.koreatech.koin;
 
 import java.time.Clock;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -135,4 +136,11 @@ public abstract class AcceptanceTest {
         TestTransaction.end();
         runnable.run();
     }
+
+    @BeforeAll
+    static void setup() {
+        System.setProperty("spring.data.redis.host", redisContainer.getHost());
+        System.setProperty("spring.data.redis.port", String.valueOf(redisContainer.getMappedPort(6379)));
+    }
+
 }
