@@ -51,6 +51,10 @@ public class ArticleService {
         Sort.Order.desc("registeredAt"),
         Sort.Order.desc("id")
     );
+    private static final Sort NATIVE_ARTICLES_SORT = Sort.by(
+        Sort.Order.desc("registered_at"),
+        Sort.Order.desc("id")
+    );
 
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
@@ -119,7 +123,7 @@ public class ArticleService {
         }
 
         Criteria criteria = Criteria.of(page, limit);
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), NATIVE_ARTICLES_SORT);
         Page<Article> articles;
         if (boardId == null) {
             articles = articleRepository.findAllByTitleContaining(query, pageRequest);
