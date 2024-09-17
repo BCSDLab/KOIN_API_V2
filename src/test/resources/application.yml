@@ -48,8 +48,6 @@ logging:
         type:
           descriptor:
             sql: trace
-      redisson: DEBUG
-      testcontainers: DEBUG
 
 swagger:
   server-url: http://localhost:8080

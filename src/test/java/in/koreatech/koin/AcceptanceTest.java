@@ -38,14 +38,11 @@ import jakarta.persistence.EntityManager;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
-    "spring.data.redis.host=localhost",
-    "spring.data.redis.port=6379"
-})
 @Import({DBInitializer.class,
     TestJpaConfiguration.class,
     TestTimeConfig.class,
-    TestRedisConfiguration.class})
+    TestRedisConfiguration.class,
+    TestRedissonConfig.class})
 @ActiveProfiles("test")
 public abstract class AcceptanceTest {
 
