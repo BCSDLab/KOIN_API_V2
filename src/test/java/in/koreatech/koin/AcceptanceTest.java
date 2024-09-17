@@ -136,11 +136,4 @@ public abstract class AcceptanceTest {
         TestTransaction.end();
         runnable.run();
     }
-
-    @BeforeAll
-    static void setup() {
-        System.setProperty("spring.data.redis.host", redisContainer.getHost());
-        System.setProperty("spring.data.redis.port", String.valueOf(redisContainer.getMappedPort(6379)));
-    }
-
 }
