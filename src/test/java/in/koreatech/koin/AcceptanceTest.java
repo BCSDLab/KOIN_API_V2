@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.GenericContainer;
@@ -37,6 +38,10 @@ import jakarta.persistence.EntityManager;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestPropertySource(properties = {
+    "spring.data.redis.host=localhost",
+    "spring.data.redis.port=6379"
+})
 @Import({DBInitializer.class,
     TestJpaConfiguration.class,
     TestTimeConfig.class,
