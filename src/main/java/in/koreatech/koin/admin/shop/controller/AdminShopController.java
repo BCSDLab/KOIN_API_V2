@@ -256,6 +256,6 @@ public class AdminShopController implements AdminShopApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminShopService.deleteShopReview(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
