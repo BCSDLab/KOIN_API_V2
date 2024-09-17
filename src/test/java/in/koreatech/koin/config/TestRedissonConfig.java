@@ -18,11 +18,11 @@ public class TestRedissonConfig {
     @Bean
     public RedissonClient redissonClient() {
         String redisHost = environment.getProperty("spring.data.redis.host");
-        String redisPort = environment.getProperty("spring.data.redis.port");
+        String redisPort = "6379";
 
         Config config = new Config();
         config.useSingleServer()
-            .setAddress("rediss://" + redisHost + ":" + redisPort);
+            .setAddress("redis://" + redisHost + ":" + redisPort);
 
         return Redisson.create(config);
     }
