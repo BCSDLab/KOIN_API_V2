@@ -22,7 +22,7 @@ public class TestRedissonConfig {
 
         Config config = new Config();
         config.useSingleServer()
-            .setAddress("redis://" + redisHost + ":" + redisPort);
+            .setAddress("rediss://" + redisHost + ":" + redisPort);
 
         return Redisson.create(config);
     }
