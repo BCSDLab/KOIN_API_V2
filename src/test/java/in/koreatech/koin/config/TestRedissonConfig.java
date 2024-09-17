@@ -6,6 +6,7 @@ import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 
 @TestConfiguration
@@ -15,6 +16,7 @@ public class TestRedissonConfig {
     private Environment environment;
 
     @Bean
+    @Lazy
     public RedissonClient redissonClient() {
         String redisHost = environment.getProperty("spring.data.redis.host");
         String redisPort = "6379";

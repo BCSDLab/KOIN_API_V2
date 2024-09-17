@@ -111,8 +111,7 @@ public abstract class AcceptanceTest {
 
         redisContainer = new GenericContainer<>(
             DockerImageName.parse("redis:7.0.9"))
-            .withExposedPorts(6379)
-            .withNetwork(Network.SHARED);
+            .withExposedPorts(6379);
 
         mongoContainer = new GenericContainer<>(
             DockerImageName.parse("mongo:6.0.14"))
