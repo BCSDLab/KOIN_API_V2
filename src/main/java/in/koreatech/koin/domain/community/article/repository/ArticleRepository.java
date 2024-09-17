@@ -31,15 +31,29 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     default Article getById(Integer articleId) {
         return findById(articleId).orElseThrow(
-            () -> ArticleNotFoundException.withDetail(
-                "articleId: " + articleId));
+            () -> ArticleNotFoundException.withDetail("articleId: " + articleId));
     }
 
-    Page<Article> findAllByBoardIdAndTitleContaining(Integer boardId, String query, PageRequest pageRequest);
+    @Query(
+        value = "SELECT * FROM koreatech_articles WHERE board_id = :boardId AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
+        countQuery = "SELECT count(*) FROM articles WHERE board_id = :boardId AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
+        nativeQuery = true
+    )
+    Page<Article> findAllByBoardIdAndTitleContaining(@Param("boardId") Integer boardId, @Param("query") String query, Pageable pageable);
 
-    Page<Article> findAllByTitleContaining(String query, PageRequest pageRequest);
+    @Query(
+        value = "SELECT * FROM koreatech_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
+        countQuery = "SELECT count(*) FROM articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
+        nativeQuery = true
+    )
+    Page<Article> findAllByTitleContaining(@Param("query") String query, Pageable pageable);
 
-    Page<Article> findAllByIsNoticeIsTrueAndTitleContaining(String query, PageRequest pageRequest);
+    @Query(
+        value = "SELECT * FROM koreatech_articles WHERE is_notice = true AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
+        countQuery = "SELECT count(*) FROM articles WHERE is_notice = true AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
+        nativeQuery = true
+    )
+    Page<Article> findAllByIsNoticeIsTrueAndTitleContaining(@Param("query") String query, Pageable pageable);
 
     Long countBy();
 
