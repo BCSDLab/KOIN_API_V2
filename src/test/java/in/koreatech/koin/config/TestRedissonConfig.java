@@ -11,9 +11,12 @@ import org.springframework.core.env.Environment;
 @TestConfiguration
 public class TestRedissonConfig {
 
+    @Autowired
+    private Environment environment;
+
     @Bean
     public RedissonClient redissonClient() {
-        String redisHost = "localhost";
+        String redisHost = environment.getProperty("spring.data.redis.host");
         String redisPort = "6379";
 
         Config config = new Config();

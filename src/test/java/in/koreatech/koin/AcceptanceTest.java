@@ -17,6 +17,7 @@ import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
@@ -110,7 +111,8 @@ public abstract class AcceptanceTest {
 
         redisContainer = new GenericContainer<>(
             DockerImageName.parse("redis:7.0.9"))
-            .withExposedPorts(6379);
+            .withExposedPorts(6379)
+            .withNetwork(Network.SHARED);
 
         mongoContainer = new GenericContainer<>(
             DockerImageName.parse("mongo:6.0.14"))
