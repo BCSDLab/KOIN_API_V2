@@ -27,6 +27,7 @@ import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepos
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.KeywordFixture;
@@ -59,13 +60,17 @@ public class KeywordApiTest extends AcceptanceTest {
     private ArticleFixture articleFixture;
 
     private Student 준호_학생;
+    private User 관리자;
     private String token;
+    private String adminToken;
 
     @BeforeAll
     void setup() {
         clear();
         준호_학생 = userFixture.준호_학생();
+        관리자 = userFixture.코인_운영자();
         token = userFixture.getToken(준호_학생.getUser());
+        adminToken = userFixture.getToken(관리자);
     }
 
     @Test
@@ -226,7 +231,7 @@ public class KeywordApiTest extends AcceptanceTest {
 
         mockMvc.perform(
                 post("/articles/keyword/notification")
-                    .header("Authorization", "Bearer " + token)
+                    .header("Authorization", "Bearer " + adminToken)
                     .content("""
                     {
                         "update_notification": %s
@@ -262,7 +267,7 @@ public class KeywordApiTest extends AcceptanceTest {
                         "update_notification": %s
                     }
                     """.formatted(articleIds.toString()))
-                    .header("Authorization", "Bearer " + token)
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
