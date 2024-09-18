@@ -32,20 +32,21 @@ public record ShopsResponseV2(
         ShopsSortCriteria sortBy,
         List<ShopsFilterCriteria> shopsFilterCriterias
     ) {
+        List<InnerShopResponse> innerShopResponses = shops.stream()
+            .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias, now))
+            .map(it -> {
+                ShopInfo shopInfo = shopInfoMap.get(it.getId());
+                return InnerShopResponse.from(
+                    it,
+                    shopInfo.durationEvent(),
+                    it.isOpen(now),
+                    shopInfo.averageRate(),
+                    shopInfo.reviewCount()
+                );
+            }).sorted(InnerShopResponse.getComparator(sortBy)).toList();
         return new ShopsResponseV2(
-            shops.size(),
-            shops.stream()
-                .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias, now))
-                .map(it -> {
-                    ShopInfo shopInfo = shopInfoMap.get(it.getId());
-                    return InnerShopResponse.from(
-                        it,
-                        shopInfo.durationEvent(),
-                        it.isOpen(now),
-                        shopInfo.averageRate(),
-                        shopInfo.reviewCount()
-                    );
-                }).sorted(InnerShopResponse.getComparator(sortBy)).toList()
+            innerShopResponses.size(),
+            innerShopResponses
         );
     }
 
