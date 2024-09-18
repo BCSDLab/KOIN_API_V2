@@ -91,11 +91,6 @@ dependencies {
 
     // Redisson
     implementation 'org.redisson:redisson-spring-boot-starter:3.35.0'
-
-    // mock 환경에서 redisson은 사용 불가능
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.redisson', module: 'redisson-spring-boot-starter'
-    }
 }
 
 clean {
