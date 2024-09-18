@@ -36,10 +36,10 @@ public class UpdateContent extends BaseEntity {
     @JoinColumn(name = "type_id", referencedColumnName = "id", nullable = false)
     private UpdateVersion type;
 
-    @Column(name = "title", length = 50, unique = true)
+    @Column(name = "title", length = 50)
     private String title;
 
-    @Column(name = "content", length = 50, unique = true)
+    @Column(name = "content", length = 50)
     private String content;
 
     @Builder

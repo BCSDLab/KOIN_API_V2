@@ -35,7 +35,7 @@ public class UpdateHistory extends BaseEntity {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", unique = true)
+    @Column(name = "type")
     private UpdateVersionType type;
 
     @Size(max = 50)

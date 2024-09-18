@@ -33,7 +33,7 @@ class VersionApiTest extends AcceptanceTest {
         Version version = versionRepository.save(
             Version.builder()
                 .version("1.0.0")
-                .type(VersionType.ANDROID.getValue())
+                .type(VersionType.TIMETABLE.getValue())
                 .build()
         );
 
@@ -46,7 +46,7 @@ class VersionApiTest extends AcceptanceTest {
                 {
                     "id": %d,
                     "version": "1.0.0",
-                    "type": "android",
+                    "type": "timetable",
                     "created_at": "2024-01-15 12:00:00",
                     "updated_at": "2024-01-15"
                 }
