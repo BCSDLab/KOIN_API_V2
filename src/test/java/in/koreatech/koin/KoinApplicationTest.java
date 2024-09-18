@@ -1,8 +1,6 @@
 package in.koreatech.koin;
 
 import org.junit.jupiter.api.Test;
-import org.redisson.spring.starter.RedissonAutoConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
