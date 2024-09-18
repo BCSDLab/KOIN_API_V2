@@ -1,11 +1,12 @@
 package in.koreatech.koin.admin.acceptance;
 
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,10 +21,10 @@ import org.springframework.transaction.support.TransactionTemplate;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.shop.repository.AdminShopReviewRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.shop.model.ReportStatus;
-import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopReview;
-import in.koreatech.koin.domain.shop.model.ShopReviewReport;
+import in.koreatech.koin.domain.shop.model.review.ReportStatus;
+import in.koreatech.koin.domain.shop.model.review.ShopReview;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ShopFixture;
@@ -89,7 +90,7 @@ class AdminShopReviewApiTest extends AcceptanceTest {
 
     @Test
     void 어드민이_특정_리뷰의_신고_상태를_변경한다() throws Exception {
-        ShopReviewReport report = shopReviewReportFixture.리뷰_신고(student_익명, 준호_리뷰, ReportStatus.UNHANDLED);
+        ShopReviewReport report = shopReviewReportFixture.리뷰_신고(student_익명, 준호_리뷰, UNHANDLED);
 
         mockMvc.perform(
                 put("/admin/shops/reviews/{id}", report.getId())
@@ -108,7 +109,7 @@ class AdminShopReviewApiTest extends AcceptanceTest {
         List<ShopReviewReport> shopReviewReport = updatedReport.getReports().stream()
             .filter(reviewReport -> reviewReport.getId().equals(report.getId()))
             .toList();
-        assertThat(shopReviewReport.get(0).getReportStatus()).isEqualTo(ReportStatus.DELETED);
+        assertThat(shopReviewReport.get(0).getReportStatus()).isEqualTo(DELETED);
     }
 
     @Test
