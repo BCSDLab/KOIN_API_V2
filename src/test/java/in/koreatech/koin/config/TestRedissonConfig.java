@@ -16,7 +16,6 @@ public class TestRedissonConfig {
     private Environment environment;
 
     @Bean
-    @Lazy
     public RedissonClient redissonClient() {
         String redisHost = environment.getProperty("spring.data.redis.host");
         String redisPort = environment.getProperty("spring.data.redis.port");
