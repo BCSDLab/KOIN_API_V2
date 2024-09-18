@@ -115,8 +115,7 @@ public class ArticleService {
         return cacheList.stream().map(HotArticleItemResponse::from).toList();
     }
 
-    // @ConcurrencyGuard(lockName = "searchLog")
-    @Transactional
+    @ConcurrencyGuard(lockName = "searchLog")
     public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit,
         String ipAddress) {
         if (query.length() >= MAXIMUM_SEARCH_LENGTH) {

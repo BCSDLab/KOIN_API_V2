@@ -78,8 +78,7 @@ public class TimetableServiceV2 {
             .toList();
     }
 
-    // @ConcurrencyGuard(lockName = "deleteFrame")
-    @Transactional
+    @ConcurrencyGuard(lockName = "deleteFrame")
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {
         TimetableFrame frame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
         if (!Objects.equals(frame.getUser().getId(), userId)) {

@@ -20,6 +20,9 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  autoconfigure:
+    exclude:
+      - org.redisson.spring.starter.RedissonAutoConfigurationV2
 
   data:
     redis:

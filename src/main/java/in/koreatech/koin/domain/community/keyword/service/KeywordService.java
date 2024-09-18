@@ -51,8 +51,7 @@ public class KeywordService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
 
-    // @ConcurrencyGuard(lockName = "createKeyword")
-    @Transactional
+    @ConcurrencyGuard(lockName = "createKeyword")
     public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
         String keyword = validateAndGetKeyword(request.keyword());
         if (articleKeywordUserMapRepository.countByUserId(userId) >= ARTICLE_KEYWORD_LIMIT) {
