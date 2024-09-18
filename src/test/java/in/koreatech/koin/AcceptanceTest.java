@@ -24,7 +24,6 @@ import org.testcontainers.utility.DockerImageName;
 
 import in.koreatech.koin.config.TestJpaConfiguration;
 import in.koreatech.koin.config.TestRedisConfiguration;
-import in.koreatech.koin.config.TestRedissonConfig;
 import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEventListener;
 import in.koreatech.koin.domain.coop.model.CoopEventListener;
@@ -41,8 +40,7 @@ import jakarta.persistence.EntityManager;
 @Import({DBInitializer.class,
     TestJpaConfiguration.class,
     TestTimeConfig.class,
-    TestRedisConfiguration.class,
-    TestRedissonConfig.class})
+    TestRedisConfiguration.class})
 @ActiveProfiles("test")
 public abstract class AcceptanceTest {
 
