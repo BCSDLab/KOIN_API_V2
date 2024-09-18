@@ -8,10 +8,10 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.shop.model.Menu;
-import in.koreatech.koin.domain.shop.model.MenuCategory;
-import in.koreatech.koin.domain.shop.model.MenuImage;
-import in.koreatech.koin.domain.shop.model.MenuOption;
+import in.koreatech.koin.domain.shop.model.menu.Menu;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
+import in.koreatech.koin.domain.shop.model.menu.MenuImage;
+import in.koreatech.koin.domain.shop.model.menu.MenuOption;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;

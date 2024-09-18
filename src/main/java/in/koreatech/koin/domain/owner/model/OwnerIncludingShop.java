@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.owner.model;
 
-import in.koreatech.koin.domain.shop.model.Shop;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 import lombok.Getter;
 
 @Getter

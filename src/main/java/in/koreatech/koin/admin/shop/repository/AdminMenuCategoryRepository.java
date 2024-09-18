@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.shop.exception.MenuCategoryNotFoundException;
-import in.koreatech.koin.domain.shop.model.MenuCategory;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 
 public interface AdminMenuCategoryRepository extends Repository<MenuCategory, Integer> {
 

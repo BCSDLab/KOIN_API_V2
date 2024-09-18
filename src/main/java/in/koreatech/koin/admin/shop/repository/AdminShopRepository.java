@@ -11,7 +11,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
-import in.koreatech.koin.domain.shop.model.Shop;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 
 public interface AdminShopRepository extends Repository<Shop, Integer> {
 

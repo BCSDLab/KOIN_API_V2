@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import in.koreatech.koin.domain.shop.dto.ShopsResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin.domain.shop.model.EventArticle;
+import in.koreatech.koin.domain.shop.model.article.EventArticle;
 
 public interface AdminEventArticleRepository extends Repository<EventArticle, Integer> {
 
