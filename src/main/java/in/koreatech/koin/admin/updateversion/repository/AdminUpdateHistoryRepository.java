@@ -15,15 +15,9 @@ public interface AdminUpdateHistoryRepository extends Repository<UpdateHistory, 
 
     UpdateHistory save(UpdateHistory request);
 
-    Optional<UpdateHistory> findByType(String Type);
-
     Integer countByType(UpdateVersionType type);
 
     Page<UpdateHistory> findAll(Pageable pageable);
-
-    default UpdateHistory getByType(String type) {
-        return findByType(type).orElseThrow(() -> VersionTypeNotFoundException.withDetail("type: " + type));
-    }
 
     Optional<UpdateHistory> findById(Integer id);
 

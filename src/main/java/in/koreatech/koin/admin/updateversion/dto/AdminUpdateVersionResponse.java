@@ -19,7 +19,7 @@ public record AdminUpdateVersionResponse(
     @Schema(description = "업데이트 버전 ID", example = "1", requiredMode = REQUIRED)
     Integer id,
 
-    @Schema(description = "업데이트 버전 타입", example = "android", requiredMode = REQUIRED)
+    @Schema(description = "업데이트 버전 타입", example = "ANDROID", requiredMode = REQUIRED)
     UpdateVersionType type,
 
     @Schema(description = "업데이트 버전", example = "3.5.0", requiredMode = REQUIRED)

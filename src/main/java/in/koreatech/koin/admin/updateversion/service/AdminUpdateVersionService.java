@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.updateversion.dto.AdminUpdateHistoryResponse;
 import in.koreatech.koin.admin.updateversion.dto.AdminUpdateVersionRequest;
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AdminUpdateVersionService {
 
     private final AdminUpdateVersionRepository adminUpdateVersionRepository;
@@ -44,6 +46,7 @@ public class AdminUpdateVersionService {
         return AdminUpdateVersionResponse.from(result);
     }
 
+    @Transactional
     public void updateVersion(UpdateVersionType type, AdminUpdateVersionRequest request) {
         UpdateVersion version = adminUpdateVersionRepository.getByType(type);
         version.getContents().clear();

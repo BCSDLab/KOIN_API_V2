@@ -79,7 +79,7 @@ public interface AdminUpdateVersionApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "버전 업데이트 이력 조회")
+    @Operation(summary = "특정 타입의 버전 업데이트 이력 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/version/history/{type}")
     ResponseEntity<AdminUpdateHistoryResponse> getHistory(

@@ -5,16 +5,18 @@ import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import in.koreatech.koin.domain.updateversion.exception.UpdateVersionTypeNotFoundException;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public enum UpdateVersionType {
     ANDROID("android"),
     IOS("ios");
 
     private final String value;
+
+    UpdateVersionType(String value) {
+        this.value = value;
+    }
 
     @JsonCreator
     public static UpdateVersionType from(String value) {
