@@ -1,12 +1,12 @@
 package in.koreatech.koin.admin.updateversion.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.updateversion.model.UpdateContent;
@@ -14,7 +14,7 @@ import in.koreatech.koin.domain.updateversion.model.UpdateVersion;
 import in.koreatech.koin.domain.updateversion.model.UpdateVersionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminUpdateVersionResponse(
     @Schema(description = "업데이트 버전 ID", example = "1", requiredMode = REQUIRED)
     Integer id,
@@ -54,7 +54,7 @@ public record AdminUpdateVersionResponse(
         );
     }
 
-    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerAdminUpdateVersionBody(
         @Schema(description = "업데이트 버전 소제목", example = "백그라운드 푸시 알림", requiredMode = REQUIRED)
         String bodyTitle,

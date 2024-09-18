@@ -1,19 +1,19 @@
 package in.koreatech.koin.admin.updateversion.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.updateversion.model.UpdateHistory;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminUpdateHistoryResponse(
     @Schema(description = "조건에 해당하는 총 버전 타입의 수", example = "2", requiredMode = REQUIRED)
     Long totalCount,
