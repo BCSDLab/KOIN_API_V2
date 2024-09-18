@@ -69,9 +69,6 @@ public abstract class AcceptanceTest {
     @MockBean
     protected ArticleKeywordEventListener articleKeywordEventListener;
 
-    @MockBean
-    private RedissonClient redissonClient;
-
     @SpyBean
     protected TestCircuitBreakerClient testCircuitBreakerClient;
 
