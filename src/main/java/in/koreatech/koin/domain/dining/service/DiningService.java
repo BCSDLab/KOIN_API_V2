@@ -101,9 +101,8 @@ public class DiningService {
                     : list
             ));
 
-        LocalDate oneYearAgo = LocalDate.now().minusYears(1);
-        Page<Dining> result = diningRepository.findAllByMenuContainingAndPlaceInAndDateAfter(
-            keyword, placeFilters, oneYearAgo, pageRequest);
+        Page<Dining> result = diningRepository.findAllByMenuContainingAndPlaceIn(
+            keyword, placeFilters, pageRequest);
         return DiningSearchResponse.of(result, criteria);
     }
 }
