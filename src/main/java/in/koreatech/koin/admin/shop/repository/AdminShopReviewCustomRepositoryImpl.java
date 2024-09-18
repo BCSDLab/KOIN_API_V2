@@ -1,18 +1,20 @@
 package in.koreatech.koin.admin.shop.repository;
 
-import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import in.koreatech.koin.domain.shop.model.QShopReview;
-import in.koreatech.koin.domain.shop.model.ShopReview;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import in.koreatech.koin.domain.shop.model.review.QShopReview;
+import in.koreatech.koin.domain.shop.model.review.ShopReview;
+import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
