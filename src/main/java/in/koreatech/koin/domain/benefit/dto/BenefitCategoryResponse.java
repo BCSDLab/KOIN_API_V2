@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record BenefitCategoryResponse(
     @Schema(description = "혜택 카테고리 리스트", requiredMode = NOT_REQUIRED)
     List<InnerBenefitResponse> benefits
-
 ) {
 
     public static BenefitCategoryResponse from(List<BenefitCategory> benefitCategories) {
