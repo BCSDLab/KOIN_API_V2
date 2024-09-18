@@ -31,4 +31,5 @@ public interface ShopRepository extends Repository<Shop, Integer> {
 
     @EntityGraph(value = "Shop.withAll", type = EntityGraph.EntityGraphType.LOAD)
     List<Shop> findAll();
+
 }

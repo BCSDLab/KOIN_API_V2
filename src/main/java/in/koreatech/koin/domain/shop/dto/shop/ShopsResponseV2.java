@@ -4,14 +4,16 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.dto.shop.ShopResponse.InnerShopOpen;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.shop.model.review.ShopReview;
+import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -24,9 +26,24 @@ public record ShopsResponseV2(
 ) {
 
     public static ShopsResponseV2 from(
-        List<InnerShopResponse> shops
+        List<Shop> shops,
+        Map<Integer, ShopInfo> shopInfoMap,
+        LocalDateTime now,
+        ShopsSortCriteria sortBy
     ) {
-        return new ShopsResponseV2(shops.size(), shops);
+        return new ShopsResponseV2(
+            shops.size(),
+            shops.stream().map(it -> {
+                ShopInfo shopInfo = shopInfoMap.get(it.getId());
+                return InnerShopResponse.from(
+                    it,
+                    shopInfo.durationEvent(),
+                    it.isOpen(now),
+                    shopInfo.averageRate(),
+                    shopInfo.reviewCount()
+                );
+            }).sorted(InnerShopResponse.getComparator(sortBy)).toList()
+        );
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
@@ -70,8 +87,10 @@ public record ShopsResponseV2(
 
         public static InnerShopResponse from(
             Shop shop,
-            boolean isEvent,
-            boolean isOpen
+            Boolean isEvent,
+            Boolean isOpen,
+            Double averageRate,
+            Long reviewCount
         ) {
             return new InnerShopResponse(
                 shop.getShopCategories().stream().map(shopCategoryMap ->
@@ -86,14 +105,8 @@ public record ShopsResponseV2(
                 shop.getPhone(),
                 isEvent,
                 isOpen,
-                Math.round(shop.getReviews().stream()
-                    .filter(review -> !review.isDeleted())
-                    .mapToInt(ShopReview::getRating)
-                    .average()
-                    .orElse(0.0) * 10) / 10.0,
-                shop.getReviews().stream()
-                    .filter(review -> !review.isDeleted())
-                    .count()
+                averageRate,
+                reviewCount
             );
         }
 
