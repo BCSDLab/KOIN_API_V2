@@ -29,20 +29,23 @@ public record ShopsResponseV2(
         List<Shop> shops,
         Map<Integer, ShopInfo> shopInfoMap,
         LocalDateTime now,
-        ShopsSortCriteria sortBy
+        ShopsSortCriteria sortBy,
+        List<ShopsFilterCriteria> shopsFilterCriterias
     ) {
         return new ShopsResponseV2(
             shops.size(),
-            shops.stream().map(it -> {
-                ShopInfo shopInfo = shopInfoMap.get(it.getId());
-                return InnerShopResponse.from(
-                    it,
-                    shopInfo.durationEvent(),
-                    it.isOpen(now),
-                    shopInfo.averageRate(),
-                    shopInfo.reviewCount()
-                );
-            }).sorted(InnerShopResponse.getComparator(sortBy)).toList()
+            shops.stream()
+                .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias, now))
+                .map(it -> {
+                    ShopInfo shopInfo = shopInfoMap.get(it.getId());
+                    return InnerShopResponse.from(
+                        it,
+                        shopInfo.durationEvent(),
+                        it.isOpen(now),
+                        shopInfo.averageRate(),
+                        shopInfo.reviewCount()
+                    );
+                }).sorted(InnerShopResponse.getComparator(sortBy)).toList()
         );
     }
 

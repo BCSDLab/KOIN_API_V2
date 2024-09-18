@@ -108,6 +108,6 @@ public class ShopService {
         List<Shop> shops = shopRepository.findAll();
         LocalDateTime now = LocalDateTime.now(clock);
         Map<Integer, ShopInfo> shopInfoMap = shopCustomRepository.findAllShopInfo(now.toLocalDate());
-        return ShopsResponseV2.from(shops, shopInfoMap, now, sortBy);
+        return ShopsResponseV2.from(shops, shopInfoMap, now, sortBy, shopsFilterCriterias);
     }
 }
