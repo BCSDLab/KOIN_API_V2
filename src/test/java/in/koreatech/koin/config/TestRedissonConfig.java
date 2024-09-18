@@ -3,21 +3,17 @@ package in.koreatech.koin.config;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.Environment;
 
 @TestConfiguration
 public class TestRedissonConfig {
 
-    @Autowired
-    private Environment environment;
-
     @Bean
-    public RedissonClient redissonClient() {
-        String redisHost = environment.getProperty("spring.data.redis.host");
-        String redisPort = environment.getProperty("spring.data.redis.port");
+    public RedissonClient redissonClient(
+        @Value("${spring.data.redis.host}") String redisHost,
+        @Value("${spring.data.redis.port}") String redisPort) {
 
         Config config = new Config();
         config.useSingleServer()
