@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import in.koreatech.koin.domain.bus.controller.BusStationEnumConverter;
 import in.koreatech.koin.domain.bus.controller.BusTypeEnumConverter;
-import in.koreatech.koin.domain.shop.dto.ShopsFilterCriteriaConverter;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaConverter;
 import in.koreatech.koin.global.auth.AuthArgumentResolver;
 import in.koreatech.koin.global.auth.ExtractAuthenticationInterceptor;
 import in.koreatech.koin.global.auth.UserIdArgumentResolver;

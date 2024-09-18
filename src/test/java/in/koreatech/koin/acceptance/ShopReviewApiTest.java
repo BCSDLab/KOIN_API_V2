@@ -1,6 +1,6 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.shop.model.ReportStatus.UNHANDLED;
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.*;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -20,13 +20,14 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopReview;
-import in.koreatech.koin.domain.shop.model.ShopReviewReport;
-import in.koreatech.koin.domain.shop.model.ShopReviewReportCategory;
-import in.koreatech.koin.domain.shop.repository.ShopReviewReportCategoryRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewReportRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewRepository;
+import in.koreatech.koin.domain.shop.model.review.ReportStatus;
+import in.koreatech.koin.domain.shop.model.review.ShopReview;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewReportCategory;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.repository.review.ShopReviewReportCategoryRepository;
+import in.koreatech.koin.domain.shop.repository.review.ShopReviewReportRepository;
+import in.koreatech.koin.domain.shop.repository.review.ShopReviewRepository;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.fixture.ShopFixture;
 import in.koreatech.koin.fixture.ShopReviewFixture;

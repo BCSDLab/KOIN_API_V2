@@ -2,8 +2,8 @@ package in.koreatech.koin.fixture;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.shop.model.ShopReviewReportCategory;
-import in.koreatech.koin.domain.shop.repository.ShopReviewReportCategoryRepository;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewReportCategory;
+import in.koreatech.koin.domain.shop.repository.review.ShopReviewReportCategoryRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")

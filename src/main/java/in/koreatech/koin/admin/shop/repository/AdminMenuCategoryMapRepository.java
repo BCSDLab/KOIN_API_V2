@@ -2,7 +2,7 @@ package in.koreatech.koin.admin.shop.repository;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
 
 public interface AdminMenuCategoryMapRepository extends Repository<MenuCategoryMap, Integer> {
 
