@@ -1,10 +1,12 @@
 package in.koreatech.koin.global.concurrent;
 
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+@Profile("!test")
 @Component
 public class TransactionAspect {
     // leaseTime보다 트랜잭션 타임아웃은 작아야 한다.

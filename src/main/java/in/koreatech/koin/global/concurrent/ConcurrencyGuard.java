@@ -8,9 +8,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.context.annotation.Profile;
+
 @Documented
 @Target(METHOD)
 @Retention(RUNTIME)
+@Profile("!test")
 public @interface ConcurrencyGuard {
 
     String lockName();
