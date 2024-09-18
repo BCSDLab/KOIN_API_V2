@@ -1,17 +1,17 @@
-package in.koreatech.koin.domain.mobileversion.model;
+package in.koreatech.koin.domain.updateversion.model;
 
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.Clock;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -25,9 +25,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "versions")
+@Table(name = "update_versions")
 @NoArgsConstructor(access = PROTECTED)
-public class MobileVersion extends BaseEntity {
+public class UpdateVersion extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -39,29 +39,34 @@ public class MobileVersion extends BaseEntity {
     private String version;
 
     @NotNull
-    @Column(name = "type", length = 50, unique = true)
-    private String type;
+    @Column(name = "type", unique = true)
+    @Enumerated(EnumType.STRING)
+    private UpdateVersionType type;
 
     @Column(name = "title", length = 50)
     private String title;
 
-    @OneToMany(mappedBy = "version", orphanRemoval = true, cascade = ALL, fetch = FetchType.EAGER)
-    private List<MobileVersionMessage> contents = new ArrayList<>();
+    @OneToMany(mappedBy = "type", orphanRemoval = true, cascade = ALL, fetch = FetchType.EAGER)
+    private List<UpdateContent> contents = new ArrayList<>();
 
     @Builder
-    private MobileVersion(@NotNull String version, @NotNull String type) {
-        this.version = version;
+    private UpdateVersion(
+        Integer id,
+        UpdateVersionType type,
+        String version,
+        String title,
+        List<UpdateContent> contents
+    ) {
+        this.id = id;
         this.type = type;
+        this.version = version;
+        this.title = title;
+        this.contents = contents;
     }
 
-    public void update(Clock clock) {
-        version = generateVersionName(clock);
-    }
-
-    private String generateVersionName(Clock clock) {
-        String year = Integer.toString(LocalDate.now().getYear());
-        String padding = "0_";
-        String epochSeconds = Long.toString(clock.instant().getEpochSecond());
-        return year + padding + epochSeconds;
+    public void update(String version, String title, List<UpdateContent> contents) {
+        this.version = version;
+        this.title = title;
+        this.contents.addAll(contents);
     }
 }

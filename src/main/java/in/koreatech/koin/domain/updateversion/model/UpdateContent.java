@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.mobileversion.model;
+package in.koreatech.koin.domain.updateversion.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
@@ -23,19 +23,18 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "version_message")
+@Table(name = "update_contents")
 @NoArgsConstructor(access = PROTECTED)
-public class MobileVersionMessage extends BaseEntity {
+public class UpdateContent extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @Size(max = 50)
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id", referencedColumnName = "id", nullable = false)
-    private MobileVersion version;
+    private UpdateVersion type;
 
     @NotNull
     @Column(name = "title", length = 50, unique = true)
@@ -46,19 +45,9 @@ public class MobileVersionMessage extends BaseEntity {
     private String content;
 
     @Builder
-    private MobileVersionMessage(@NotNull String version, @NotNull String type) {
-        this.version = version;
+    private UpdateContent(UpdateVersion type, String title, String content) {
         this.type = type;
-    }
-
-    public void update(Clock clock) {
-        version = generateVersionName(clock);
-    }
-
-    private String generateVersionName(Clock clock) {
-        String year = Integer.toString(LocalDate.now().getYear());
-        String padding = "0_";
-        String epochSeconds = Long.toString(clock.instant().getEpochSecond());
-        return year + padding + epochSeconds;
+        this.title = title;
+        this.content = content;
     }
 }
