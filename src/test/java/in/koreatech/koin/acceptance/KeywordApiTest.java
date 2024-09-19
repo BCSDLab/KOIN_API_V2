@@ -275,4 +275,35 @@ public class KeywordApiTest extends AcceptanceTest {
         clear();
         setup();
     }
+
+    @Test
+    @Transactional
+    void 권한이_없으면_공지사항_알림_요청_실패() throws Exception {
+
+        Board board = boardFixture.자유게시판();
+
+        List<Integer> articleIds = new ArrayList<>();
+
+        for (int i = 1; i <= 5; i++) {
+            Article article = articleFixture.자유글_3("수강신청" + i, board, i);
+            articleIds.add(article.getId());
+        }
+
+        keywordFixture.키워드1("수강신청6", 준호_학생.getUser());
+
+        mockMvc.perform(
+                post("/articles/keyword/notification")
+                    .content("""
+                    {
+                        "update_notification": %s
+                    }
+                    """.formatted(articleIds.toString()))
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isForbidden());
+        forceVerify(() -> verify(articleKeywordEventListener, never()).onKeywordRequest(any()));
+        clear();
+        setup();
+    }
 }
