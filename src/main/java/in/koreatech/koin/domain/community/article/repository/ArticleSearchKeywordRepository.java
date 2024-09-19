@@ -31,5 +31,5 @@ public interface ArticleSearchKeywordRepository extends Repository<ArticleSearch
         """)
     List<String> findTopKeywordsByLatest(Pageable pageable);
 
-    List<ArticleSearchKeyword> findByCreatedAtBetween(LocalDateTime startTime, LocalDateTime endTime);
+    List<ArticleSearchKeyword> findByUpdatedAtBetween(LocalDateTime startTime, LocalDateTime endTime);
 }

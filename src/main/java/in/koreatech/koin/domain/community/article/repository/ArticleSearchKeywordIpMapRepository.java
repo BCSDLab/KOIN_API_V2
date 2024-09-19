@@ -15,5 +15,5 @@ public interface ArticleSearchKeywordIpMapRepository extends Repository<ArticleS
 
     Optional<ArticleSearchKeywordIpMap> findByArticleSearchKeywordAndIpAddress(ArticleSearchKeyword keyword, String ipAddress);
 
-    List<ArticleSearchKeywordIpMap> findByCreatedAtBetween(LocalDateTime fiveHoursThirtyMinutesAgo, LocalDateTime now);
+    List<ArticleSearchKeywordIpMap> findByUpdatedAtBetween(LocalDateTime before, LocalDateTime now);
 }

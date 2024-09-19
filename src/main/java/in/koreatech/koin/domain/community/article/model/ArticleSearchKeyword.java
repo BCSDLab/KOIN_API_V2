@@ -57,7 +57,6 @@ public class ArticleSearchKeyword extends BaseEntity {
 
     public void resetWeight() {
         this.weight = 1.0;
-        this.lastSearchedAt = LocalDateTime.now();
     }
 
     public void incrementTotalSearch() {
