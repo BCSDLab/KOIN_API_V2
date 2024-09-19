@@ -12,6 +12,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "article_search_keyword_ip_map", indexes = {
-    @Index(name = "idx_ip_address", columnList = "ipAddress")
+    @Index(name = "idx_ip_address", columnList = "ipAddress")}, uniqueConstraints = {
+    @UniqueConstraint(name = "ux_keyword_ip", columnNames = {"keyword_id", "ipAddress"})
 })
 @NoArgsConstructor(access = PROTECTED)
 public class ArticleSearchKeywordIpMap extends BaseEntity {
