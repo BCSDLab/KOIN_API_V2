@@ -10,6 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -27,10 +30,14 @@ import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepos
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.KeywordFixture;
 import in.koreatech.koin.fixture.UserFixture;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -270,4 +277,55 @@ public class KeywordApiTest extends AcceptanceTest {
         clear();
         setup();
     }
+
+    // 클래스 단에 transactional이 붙으면 테스트 실패 함
+    /* @Test
+    void 키워드_생성_동시성_테스트() throws InterruptedException {
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        String keyword = "testKeyword";
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        CountDownLatch latch = new CountDownLatch(4);
+
+        List<Response> responseList = new ArrayList<>();
+
+        Runnable createKeywordTask = () -> {
+            Response response = RestAssured
+                .given()
+                .header("Authorization", "Bearer " + token)
+                .contentType(ContentType.JSON)
+                .body("""
+                {
+                    "keyword": "testKeyword"
+                }
+                """)
+                .when()
+                .post("/articles/keyword");
+            responseList.add(response);
+            latch.countDown();
+        };
+
+        for (int i = 0; i < 4; i++) {
+            executor.submit(createKeywordTask);
+        }
+
+        latch.await();
+
+        long successCount = responseList.stream()
+            .filter(response -> response.getStatusCode() == 200)
+            .count();
+
+        long conflictCount = responseList.stream()
+            .filter(response -> response.getStatusCode() == 409)
+            .count();
+
+        assertThat(successCount).isEqualTo(1);
+
+        assertThat(conflictCount).isEqualTo(3);
+
+        assertThat(articleKeywordRepository.findByKeyword(keyword)).isPresent();
+
+        executor.shutdown();
+    } */
 }
