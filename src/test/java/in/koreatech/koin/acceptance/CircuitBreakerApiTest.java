@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doThrow;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.config.TestResilience4jConfig;
@@ -17,14 +19,16 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
 @Import(TestResilience4jConfig.class)
-class CircuitBreakerApiTest extends AcceptanceTest {
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class CircuitBreakerTest extends AcceptanceTest {
 
     @Autowired
     private CircuitBreakerRegistry circuitBreakerRegistry;
 
     private CircuitBreaker circuitBreaker;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
         circuitBreaker = circuitBreakerRegistry.circuitBreaker("test");
         circuitBreaker.reset();

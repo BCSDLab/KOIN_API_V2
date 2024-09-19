@@ -19,38 +19,38 @@ import in.koreatech.koin.domain.ownershop.dto.OwnerShopEventsResponse;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse.InnerShopResponse;
-import in.koreatech.koin.domain.shop.dto.CreateCategoryRequest;
-import in.koreatech.koin.domain.shop.dto.CreateMenuRequest;
-import in.koreatech.koin.domain.shop.dto.MenuCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.MenuDetailResponse;
-import in.koreatech.koin.domain.shop.dto.ModifyCategoryRequest;
-import in.koreatech.koin.domain.shop.dto.ModifyMenuRequest;
-import in.koreatech.koin.domain.shop.dto.ModifyShopRequest;
-import in.koreatech.koin.domain.shop.dto.ShopMenuResponse;
-import in.koreatech.koin.domain.shop.dto.ShopResponse;
-import in.koreatech.koin.domain.shop.model.EventArticle;
-import in.koreatech.koin.domain.shop.model.EventArticleImage;
-import in.koreatech.koin.domain.shop.model.Menu;
-import in.koreatech.koin.domain.shop.model.MenuCategory;
-import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
-import in.koreatech.koin.domain.shop.model.MenuImage;
-import in.koreatech.koin.domain.shop.model.MenuOption;
-import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopCategory;
-import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
-import in.koreatech.koin.domain.shop.model.ShopImage;
-import in.koreatech.koin.domain.shop.model.ShopOpen;
-import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
-import in.koreatech.koin.domain.shop.repository.MenuCategoryMapRepository;
-import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
-import in.koreatech.koin.domain.shop.repository.MenuDetailRepository;
-import in.koreatech.koin.domain.shop.repository.MenuImageRepository;
-import in.koreatech.koin.domain.shop.repository.MenuRepository;
-import in.koreatech.koin.domain.shop.repository.ShopCategoryMapRepository;
-import in.koreatech.koin.domain.shop.repository.ShopCategoryRepository;
-import in.koreatech.koin.domain.shop.repository.ShopImageRepository;
-import in.koreatech.koin.domain.shop.repository.ShopOpenRepository;
-import in.koreatech.koin.domain.shop.repository.ShopRepository;
+import in.koreatech.koin.domain.shop.dto.menu.CreateCategoryRequest;
+import in.koreatech.koin.domain.shop.dto.menu.CreateMenuRequest;
+import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.menu.ModifyCategoryRequest;
+import in.koreatech.koin.domain.shop.dto.menu.ModifyMenuRequest;
+import in.koreatech.koin.domain.shop.dto.shop.ModifyShopRequest;
+import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
+import in.koreatech.koin.domain.shop.model.article.EventArticle;
+import in.koreatech.koin.domain.shop.model.article.EventArticleImage;
+import in.koreatech.koin.domain.shop.model.menu.Menu;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
+import in.koreatech.koin.domain.shop.model.menu.MenuImage;
+import in.koreatech.koin.domain.shop.model.menu.MenuOption;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
+import in.koreatech.koin.domain.shop.model.shop.ShopImage;
+import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
+import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryMapRepository;
+import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
+import in.koreatech.koin.domain.shop.repository.menu.MenuDetailRepository;
+import in.koreatech.koin.domain.shop.repository.menu.MenuImageRepository;
+import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryMapRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopImageRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopOpenRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -97,14 +97,14 @@ public class OwnerShopService {
                 .shop(savedShop)
                 .name(categoryName)
                 .build();
-            menuCategoryRepository.save(menuCategory);
+            savedShop.getMenuCategories().add(menuCategory);
         }
         for (String imageUrl : ownerShopsRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(savedShop)
                 .imageUrl(imageUrl)
                 .build();
-            shopImageRepository.save(shopImage);
+            savedShop.getShopImages().add(shopImage);
         }
         for (OwnerShopsRequest.InnerOpenRequest open : ownerShopsRequest.open()) {
             ShopOpen shopOpen = ShopOpen.builder()
@@ -114,7 +114,7 @@ public class OwnerShopService {
                 .dayOfWeek(open.dayOfWeek())
                 .closed(open.closed())
                 .build();
-            shopOpenRepository.save(shopOpen);
+            savedShop.getShopOpens().add(shopOpen);
         }
         List<ShopCategory> shopCategories = shopCategoryRepository.findAllByIdIn(ownerShopsRequest.categoryIds());
         for (ShopCategory shopCategory : shopCategories) {
@@ -122,7 +122,7 @@ public class OwnerShopService {
                 .shopCategory(shopCategory)
                 .shop(savedShop)
                 .build();
-            shopCategoryMapRepository.save(shopCategoryMap);
+            savedShop.getShopCategories().add(shopCategoryMap);
         }
     }
 
@@ -188,14 +188,14 @@ public class OwnerShopService {
                 .menuCategory(menuCategory)
                 .menu(savedMenu)
                 .build();
-            menuCategoryMapRepository.save(menuCategoryMap);
+            savedMenu.getMenuCategoryMaps().add(menuCategoryMap);
         }
         for (String imageUrl : createMenuRequest.imageUrls()) {
             MenuImage menuImage = MenuImage.builder()
                 .imageUrl(imageUrl)
                 .menu(savedMenu)
                 .build();
-            menuImageRepository.save(menuImage);
+            savedMenu.getMenuImages().add(menuImage);
         }
         if (createMenuRequest.optionPrices() == null) {
             MenuOption menuOption = MenuOption.builder()
@@ -203,7 +203,7 @@ public class OwnerShopService {
                 .price(createMenuRequest.singlePrice())
                 .menu(menu)
                 .build();
-            menuDetailRepository.save(menuOption);
+            savedMenu.getMenuOptions().add(menuOption);
         } else {
             for (var option : createMenuRequest.optionPrices()) {
                 MenuOption menuOption = MenuOption.builder()
@@ -211,7 +211,7 @@ public class OwnerShopService {
                     .price(option.price())
                     .menu(menu)
                     .build();
-                menuDetailRepository.save(menuOption);
+                savedMenu.getMenuOptions().add(menuOption);
             }
         }
     }

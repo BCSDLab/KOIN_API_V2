@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import in.koreatech.koin.domain.bus.controller.BusStationEnumConverter;
 import in.koreatech.koin.domain.bus.controller.BusTypeEnumConverter;
-import in.koreatech.koin.domain.shop.dto.ShopsFilterCriteriaConverter;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaConverter;
 import in.koreatech.koin.global.auth.AuthArgumentResolver;
 import in.koreatech.koin.global.auth.ExtractAuthenticationInterceptor;
 import in.koreatech.koin.global.auth.UserIdArgumentResolver;
@@ -21,6 +21,7 @@ import in.koreatech.koin.global.host.ServerURLArgumentResolver;
 import in.koreatech.koin.global.host.ServerURLInterceptor;
 import in.koreatech.koin.global.ipaddress.IpAddressArgumentResolver;
 import in.koreatech.koin.global.ipaddress.IpAddressInterceptor;
+import in.koreatech.koin.global.useragent.UserAgentArgumentResolver;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -33,6 +34,7 @@ public class WebConfig implements WebMvcConfigurer {
     private final AuthArgumentResolver authArgumentResolver;
     private final IpAddressInterceptor ipAddressInterceptor;
     private final ServerURLArgumentResolver serverURLArgumentResolver;
+    private final UserAgentArgumentResolver userAgentArgumentResolver;
     private final ServerURLInterceptor serverURLInterceptor;
     private final CorsProperties corsProperties;
 
@@ -55,6 +57,7 @@ public class WebConfig implements WebMvcConfigurer {
         resolvers.add(ipAddressArgumentResolver);
         resolvers.add(userIdArgumentResolver);
         resolvers.add(serverURLArgumentResolver);
+        resolvers.add(userAgentArgumentResolver);
     }
 
     @Override

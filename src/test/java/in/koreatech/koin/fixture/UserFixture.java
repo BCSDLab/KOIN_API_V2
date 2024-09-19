@@ -2,10 +2,7 @@ package in.koreatech.koin.fixture;
 
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
-import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -132,8 +129,8 @@ public final class UserFixture {
                 .user(
                     User.builder()
                         .password(passwordEncoder.encode("1234"))
-                        .nickname("성빈")
-                        .name("테스트용_성빈")
+                        .nickname("빈")
+                        .name("박성빈")
                         .phoneNumber("01099411123")
                         .userType(STUDENT)
                         .gender(MAN)
@@ -144,6 +141,46 @@ public final class UserFixture {
                 )
                 .build()
         );
+    }
+
+    public Owner 성빈_사장님() {
+        User user = User.builder()
+            .password(passwordEncoder.encode("1234"))
+            .nickname("성빈")
+            .name("박성빈")
+            .phoneNumber("01098765439")
+            .userType(OWNER)
+            .gender(MAN)
+            .email("testsungbeenowner@naver.com")
+            .isAuthed(true)
+            .isDeleted(false)
+            .build();
+
+        Owner owner = Owner.builder()
+            .account("01098765439")
+            .user(user)
+            .companyRegistrationNumber("723-45-67190")
+            .grantShop(true)
+            .grantEvent(true)
+            .attachments(new ArrayList<>())
+            .build();
+
+        OwnerAttachment attachment1 = OwnerAttachment.builder()
+            .url("https://test.com/성빈_사장님_인증사진_8.jpg")
+            .isDeleted(false)
+            .owner(owner)
+            .build();
+
+        OwnerAttachment attachment2 = OwnerAttachment.builder()
+            .url("https://test.com/성빈_사장님_인증사진_9.jpg")
+            .isDeleted(false)
+            .owner(owner)
+            .build();
+
+        owner.getAttachments().add(attachment1);
+        owner.getAttachments().add(attachment2);
+
+        return ownerRepository.save(owner);
     }
 
     public Owner 현수_사장님() {
@@ -329,6 +366,15 @@ public final class UserFixture {
         return coopRepository.save(coop);
     }
 
+    public String 맥북userAgent헤더() {
+        return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/123.45 (KHTML, like Gecko) Chrome/127.0.0"
+            + ".0 Safari/123.45, sec-fetch-dest=empty}";
+    }
+
+    public String 아이피() {
+        return "127.0.0.1";
+    }
+
     public String getToken(User user) {
         return jwtProvider.createToken(user);
     }
@@ -352,7 +398,6 @@ public final class UserFixture {
         private Boolean isDeleted;
         private String resetToken;
         private LocalDateTime resetExpiredAt;
-        private String deviceToken;
 
         public UserFixtureBuilder password(String password) {
             this.password = passwordEncoder.encode(password);
@@ -419,16 +464,10 @@ public final class UserFixture {
             return this;
         }
 
-        public UserFixtureBuilder deviceToken(String deviceToken) {
-            this.deviceToken = deviceToken;
-            return this;
-        }
-
         public User build() {
             return userRepository.save(
                 User.builder()
                     .phoneNumber(phoneNumber)
-                    .deviceToken(deviceToken)
                     .lastLoggedAt(lastLoggedAt)
                     .isAuthed(isAuthed)
                     .resetExpiredAt(resetExpiredAt)

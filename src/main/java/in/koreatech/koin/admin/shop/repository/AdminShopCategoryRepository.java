@@ -10,7 +10,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.shop.exception.ShopCategoryNotFoundException;
-import in.koreatech.koin.domain.shop.model.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 
 public interface AdminShopCategoryRepository extends Repository<ShopCategory, Integer> {
 

@@ -7,6 +7,7 @@ import java.util.UUID;
 import in.koreatech.koin.domain.user.model.*;
 import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
 import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
+
 import org.joda.time.LocalDateTime;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -86,13 +87,15 @@ public class StudentService {
         User user = student.getUser();
         checkNicknameDuplication(request.nickname(), userId);
         checkDepartmentValid(request.major());
-        user.update(request.nickname(), request.name(),
-            request.phoneNumber(), UserGender.from(request.gender()));
+        updateUserDetails(user, request);
         user.updateStudentPassword(passwordEncoder, request.password());
         student.update(request.studentNumber(), request.major());
         studentRepository.save(student);
-
         return StudentUpdateResponse.from(student);
+    }
+
+    private void updateUserDetails(User user, StudentUpdateRequest request) {
+        user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
     }
 
     public void checkNicknameDuplication(String nickname, Integer userId) {
@@ -111,7 +114,8 @@ public class StudentService {
 
     @Transactional
     public ModelAndView authenticate(AuthTokenRequest request) {
-        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findByAuthToken(request.authToken());
+        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findByAuthToken(
+            request.authToken());
 
         if (studentTemporaryStatus.isEmpty()) {
             ModelAndView modelAndView = new ModelAndView("error_config");
@@ -120,7 +124,6 @@ public class StudentService {
         }
 
         Student student = studentTemporaryStatus.get().toStudent(passwordEncoder);
-
         studentRepository.save(student);
         userRepository.save(student.getUser());
 
@@ -149,28 +152,28 @@ public class StudentService {
 
         validateDataExist(request);
         validateStudentNumber(request.studentNumber());
-        checkDepartmentValid(request.department());
+        checkDepartmentValid(request.major());
     }
 
     private void validateDataExist(StudentRegisterRequest request) {
         userRepository.findByEmail(request.email())
-                .ifPresent(user -> {
-                    throw DuplicationEmailException.withDetail("email: " + request.email());
-                });
+            .ifPresent(user -> {
+                throw DuplicationEmailException.withDetail("email: " + request.email());
+            });
         studentRedisRepository.findById(request.email())
-                .ifPresent(studentTemporaryStatus -> {
-                    throw DuplicationEmailException.withDetail("email: " + request.email());
-                });
+            .ifPresent(studentTemporaryStatus -> {
+                throw DuplicationEmailException.withDetail("email: " + request.email());
+            });
 
         if (request.nickname() != null) {
             userRepository.findByNickname(request.nickname())
-                    .ifPresent(user -> {
-                        throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
-                    });
+                .ifPresent(user -> {
+                    throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
+                });
             studentRedisRepository.findByNickname(request.nickname())
-                    .ifPresent(studentTemporaryStatus -> {
-                        throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
-                    });
+                .ifPresent(studentTemporaryStatus -> {
+                    throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
+                });
         }
     }
 

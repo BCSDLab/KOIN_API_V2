@@ -4,14 +4,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.shop.model.Menu;
-import in.koreatech.koin.domain.shop.model.MenuCategory;
-import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
-import in.koreatech.koin.domain.shop.model.MenuImage;
-import in.koreatech.koin.domain.shop.model.MenuOption;
-import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.repository.MenuCategoryMapRepository;
-import in.koreatech.koin.domain.shop.repository.MenuRepository;
+import in.koreatech.koin.domain.shop.model.menu.Menu;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
+import in.koreatech.koin.domain.shop.model.menu.MenuImage;
+import in.koreatech.koin.domain.shop.model.menu.MenuOption;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryMapRepository;
+import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
@@ -29,13 +29,11 @@ public class MenuFixture {
     }
 
     public Menu 짜장면_옵션메뉴(Shop shop, MenuCategory menuCategory) {
-        Menu menu = menuRepository.save(
-            Menu.builder()
-                .shopId(shop.getId())
-                .name("짜장면")
-                .description("맛있는 짜장면")
-                .build()
-        );
+        Menu menu = Menu.builder()
+            .shopId(shop.getId())
+            .name("짜장면")
+            .description("맛있는 짜장면")
+            .build();
 
         menu.getMenuImages().addAll(
             List.of(
@@ -63,25 +61,21 @@ public class MenuFixture {
                     .build()
             )
         );
-        menu.getMenuCategoryMaps().add(
-            MenuCategoryMap.builder()
-                .menu(menu)
-                .menuCategory(menuCategory)
-                .build()
-        );
-
+        MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
+            .menu(menu)
+            .menuCategory(menuCategory)
+            .build();
+        menu.getMenuCategoryMaps().add(menuCategoryMap);
+        menuCategory.getMenuCategoryMaps().add(menuCategoryMap);
         return menuRepository.save(menu);
     }
 
     public Menu 짜장면_단일메뉴(Shop shop, MenuCategory menuCategory) {
-
-        Menu menu = menuRepository.save(
-            Menu.builder()
-                .shopId(shop.getId())
-                .name("짜장면")
-                .description("맛있는 짜장면")
-                .build()
-        );
+        Menu menu = Menu.builder()
+            .shopId(shop.getId())
+            .name("짜장면")
+            .description("맛있는 짜장면")
+            .build();
 
         menu.getMenuImages().addAll(
             List.of(
@@ -102,13 +96,12 @@ public class MenuFixture {
                 .price(7000)
                 .build()
         );
-        menu.getMenuCategoryMaps().add(
-            MenuCategoryMap.builder()
-                .menu(menu)
-                .menuCategory(menuCategory)
-                .build()
-        );
-
+        MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
+            .menu(menu)
+            .menuCategory(menuCategory)
+            .build();
+        menu.getMenuCategoryMaps().add(menuCategoryMap);
+        menuCategory.getMenuCategoryMaps().add(menuCategoryMap);
         return menuRepository.save(menu);
     }
 }

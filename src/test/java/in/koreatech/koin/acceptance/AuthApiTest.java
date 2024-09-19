@@ -1,12 +1,19 @@
 package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.user.model.User;
@@ -15,10 +22,10 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AuthApiTest extends AcceptanceTest {
 
     @Autowired
@@ -31,8 +38,7 @@ class AuthApiTest extends AcceptanceTest {
     private UserTokenRepository tokenRepository;
 
     @Test
-    @DisplayName("사용자가 로그인을 수행한다")
-    void userLoginSuccess() {
+    void 사용자가_로그인을_수행한다() throws Exception {
         User user = userFixture.builder()
             .password("1234")
             .nickname("주노")
@@ -44,41 +50,27 @@ class AuthApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        var response = RestAssured
-            .given()
-            .body("""
-                {
-                  "email": "test@koreatech.ac.kr",
-                  "password": "1234"
-                }
-                """)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/user/login")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
-
-        User userResult = userRepository.findById(user.getId()).get();
-        UserToken token = tokenRepository.findById(userResult.getId()).get();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo(String.format("""
-                    {
-                        "token": "%s",
-                        "refresh_token": "%s",
-                        "user_type": "%s"
-                    }
-                    """,
-                response.jsonPath().getString("token"),
-                token.getRefreshToken(),
-                user.getUserType().name()
-            ));
+        MvcResult result = mockMvc.perform(
+                post("/user/login")
+                    .content("""
+                        {
+                          "email": "test@koreatech.ac.kr",
+                          "password": "1234"
+                        }
+                        """
+                    )
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.token").isNotEmpty())
+            .andExpect(
+                jsonPath("$.refresh_token").value(tokenRepository.findById(user.getId()).get().getRefreshToken()))
+            .andExpect(jsonPath("$.user_type").value(user.getUserType().name()))
+            .andReturn();
     }
 
     @Test
-    @DisplayName("사용자가 로그인 이후 로그아웃을 수행한다")
-    void userLogoutSuccessg() {
+    void 사용자가_로그인_이후_로그아웃을_수행한다() throws Exception {
         User user = userFixture.builder()
             .password("1234")
             .nickname("주노")
@@ -90,36 +82,33 @@ class AuthApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        var response = RestAssured
-            .given()
-            .body("""
-                {
-                  "email": "test@koreatech.ac.kr",
-                  "password": "1234"
-                }
-                """)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/user/login")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        MvcResult result = mockMvc.perform(
+                post("/user/login")
+                    .content("""
+                        {
+                          "email": "test@koreatech.ac.kr",
+                          "password": "1234"
+                        }
+                        """
+                    )
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + response.jsonPath().getString("token"))
-            .when()
-            .post("/user/logout")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
+        mockMvc.perform(
+                post("/user/logout")
+                    .header("Authorization", "Bearer " + jsonNode.get("token").asText())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
 
         Assertions.assertThat(tokenRepository.findById(user.getId())).isEmpty();
     }
 
     @Test
-    @DisplayName("사용자가 로그인 이후 refreshToken을 재발급한다")
-    void userRefreshToken() {
+    void 사용자가_로그인_이후_refreshToken을_재발급한다() throws Exception {
         User user = userFixture.builder()
             .password("1234")
             .nickname("주노")
@@ -131,47 +120,47 @@ class AuthApiTest extends AcceptanceTest {
             .isDeleted(false)
             .build();
 
-        var loginResponse = RestAssured
-            .given()
-            .body("""
-                {
-                  "email": "test@koreatech.ac.kr",
-                  "password": "1234"
-                }
-                """)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/user/login")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
-
-        var response = RestAssured
-            .given()
-            .body(String.format("""
-                    {
-                      "refresh_token": "%s"
-                    }
-                    """,
-                loginResponse.jsonPath().getString("refresh_token"))
+        MvcResult loginResult = mockMvc.perform(
+                post("/user/login")
+                    .content("""
+                        {
+                          "email": "test@koreatech.ac.kr",
+                          "password": "1234"
+                        }
+                        """
+                    )
+                    .contentType(MediaType.APPLICATION_JSON)
             )
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/user/refresh")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        JsonNode loginJsonNode = JsonAssertions.convertJsonNode(loginResult);
+
+        MvcResult refreshResult = mockMvc.perform(
+                post("/user/refresh")
+                    .content(String.format("""
+                        {
+                            "refresh_token": "%s"
+                        }
+                        """, loginJsonNode.get("refresh_token").asText())
+                    )
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        JsonNode refreshJsonNode = JsonAssertions.convertJsonNode(refreshResult);
 
         UserToken token = tokenRepository.findById(user.getId()).get();
 
-        JsonAssertions.assertThat(response.asPrettyString())
+        JsonAssertions.assertThat(refreshResult.getResponse().getContentAsString())
             .isEqualTo(String.format("""
                     {
                         "token": "%s",
                         "refresh_token": "%s"
                     }
                     """,
-                response.jsonPath().getString("token"),
+                refreshJsonNode.get("token").asText(),
                 token.getRefreshToken()
             ));
     }

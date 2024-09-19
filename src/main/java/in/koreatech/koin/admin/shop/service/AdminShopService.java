@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.shop.service;
 
-import static in.koreatech.koin.domain.shop.model.ReportStatus.DELETED;
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.DELETED;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -12,7 +12,7 @@ import java.util.Optional;
 import in.koreatech.koin.admin.shop.dto.*;
 import in.koreatech.koin.admin.shop.repository.*;
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
-import in.koreatech.koin.domain.shop.model.*;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,6 +22,19 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.admin.shop.dto.AdminCreateShopRequest.InnerShopOpen;
 import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest.InnerOptionPrice;
 import in.koreatech.koin.admin.shop.exception.ShopCategoryDuplicationException;
+import in.koreatech.koin.domain.shop.model.menu.Menu;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
+import in.koreatech.koin.domain.shop.model.menu.MenuImage;
+import in.koreatech.koin.domain.shop.model.menu.MenuOption;
+import in.koreatech.koin.domain.shop.model.review.ReportStatus;
+import in.koreatech.koin.domain.shop.model.review.ShopReview;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
+import in.koreatech.koin.domain.shop.model.shop.ShopImage;
+import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import jakarta.persistence.EntityManager;
@@ -111,14 +124,14 @@ public class AdminShopService {
                 .shop(savedShop)
                 .name(categoryName)
                 .build();
-            adminMenuCategoryRepository.save(menuCategory);
+            savedShop.getMenuCategories().add(menuCategory);
         }
         for (String imageUrl : adminCreateShopRequest.imageUrls()) {
             ShopImage shopImage = ShopImage.builder()
                 .shop(savedShop)
                 .imageUrl(imageUrl)
                 .build();
-            adminShopImageRepository.save(shopImage);
+            savedShop.getShopImages().add(shopImage);
         }
         for (InnerShopOpen open : adminCreateShopRequest.open()) {
             ShopOpen shopOpen = ShopOpen.builder()
@@ -128,7 +141,7 @@ public class AdminShopService {
                 .dayOfWeek(open.dayOfWeek())
                 .closed(open.closed())
                 .build();
-            adminShopOpenRepository.save(shopOpen);
+            savedShop.getShopOpens().add(shopOpen);
         }
         List<ShopCategory> categories = adminShopCategoryRepository.findAllByIdIn(adminCreateShopRequest.categoryIds());
         for (ShopCategory shopCategory : categories) {
@@ -136,7 +149,7 @@ public class AdminShopService {
                 .shopCategory(shopCategory)
                 .shop(savedShop)
                 .build();
-            adminShopCategoryMapRepository.save(shopCategoryMap);
+            savedShop.getShopCategories().add(shopCategoryMap);
         }
     }
 
@@ -160,14 +173,14 @@ public class AdminShopService {
                 .menuCategory(menuCategory)
                 .menu(savedMenu)
                 .build();
-            adminMenuCategoryMapRepository.save(menuCategoryMap);
+            savedMenu.getMenuCategoryMaps().add(menuCategoryMap);
         }
         for (String imageUrl : adminCreateMenuRequest.imageUrls()) {
             MenuImage menuImage = MenuImage.builder()
                 .imageUrl(imageUrl)
                 .menu(savedMenu)
                 .build();
-            adminMenuImageRepository.save(menuImage);
+            savedMenu.getMenuImages().add(menuImage);
         }
         if (adminCreateMenuRequest.optionPrices() == null) {
             MenuOption menuOption = MenuOption.builder()
@@ -175,7 +188,7 @@ public class AdminShopService {
                 .price(adminCreateMenuRequest.singlePrice())
                 .menu(menu)
                 .build();
-            adminMenuDetailRepository.save(menuOption);
+            savedMenu.getMenuOptions().add(menuOption);
         } else {
             for (var option : adminCreateMenuRequest.optionPrices()) {
                 MenuOption menuOption = MenuOption.builder()
@@ -183,7 +196,7 @@ public class AdminShopService {
                     .price(option.price())
                     .menu(menu)
                     .build();
-                adminMenuDetailRepository.save(menuOption);
+                savedMenu.getMenuOptions().add(menuOption);
             }
         }
     }

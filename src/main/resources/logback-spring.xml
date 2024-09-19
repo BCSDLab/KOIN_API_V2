@@ -25,6 +25,11 @@
     <conversionRule conversionWord="clr"
       converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
 
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+      <file>logs/app.log</file>
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+    </appender>
+
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
       <encoder>
         <pattern>${consoleLogPattern}</pattern>
@@ -47,66 +52,8 @@
     </appender>
 
     <root level="info">
-      <appender-ref ref="ASYNC_SLACK"/>
       <appender-ref ref="console"/>
-    </root>
-  </springProfile>
-
-  <springProfile name="dev">
-    <property name="infoLogPath" value="logs/info"/>
-    <property name="errorLogPath" value="logs/error"/>
-    <property name="fileNamePattern" value="%d{yyyy-MM-dd}_%i.log"/>
-
-    <appender name="info-warn-error-appender"
-      class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <file>${infoLogPath}/info.log</file>
-      <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-        <maxHistory>7</maxHistory>
-        <maxFileSize>1GB</maxFileSize>
-        <totalSizeCap>2GB</totalSizeCap>
-        <fileNamePattern>${infoLogPath}/${fileNamePattern}</fileNamePattern>
-      </rollingPolicy>
-      <encoder>
-        <pattern>${defaultLogPattern}</pattern>
-      </encoder>
-      <filter class="ch.qos.logback.classic.filter.LevelFilter">
-        <level>INFO</level>
-        <onMatch>ACCEPT</onMatch>
-        <onMismatch>NEUTRAL</onMismatch>
-      </filter>
-      <filter class="ch.qos.logback.classic.filter.LevelFilter">
-        <level>WARN</level>
-        <onMatch>ACCEPT</onMatch>
-        <onMismatch>NEUTRAL</onMismatch>
-      </filter>
-      <filter class="ch.qos.logback.classic.filter.LevelFilter">
-        <level>ERROR</level>
-        <onMatch>ACCEPT</onMatch>
-        <onMismatch>DENY</onMismatch>
-      </filter>
-    </appender>
-
-    <appender name="error-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <file>${errorLogPath}/error.log</file>
-      <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-        <maxHistory>7</maxHistory>
-        <maxFileSize>1GB</maxFileSize>
-        <totalSizeCap>2GB</totalSizeCap>
-        <fileNamePattern>${errorLogPath}/${fileNamePattern}</fileNamePattern>
-      </rollingPolicy>
-      <encoder>
-        <pattern>${defaultLogPattern}</pattern>
-      </encoder>
-      <filter class="ch.qos.logback.classic.filter.LevelFilter">
-        <level>ERROR</level>
-        <onMatch>ACCEPT</onMatch>
-        <onMismatch>DENY</onMismatch>
-      </filter>
-    </appender>
-
-    <root level="info">
-      <appender-ref ref="info-warn-error-appender"/>
-      <appender-ref ref="error-appender"/>
+      <appender-ref ref="FILE"/>
     </root>
   </springProfile>
 </configuration>

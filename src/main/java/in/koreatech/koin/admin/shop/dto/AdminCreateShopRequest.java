@@ -10,8 +10,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopOpen;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
 import in.koreatech.koin.global.validation.NotBlankElement;
 import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;

@@ -3,50 +3,53 @@ package in.koreatech.koin.acceptance;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.shop.model.EventArticle;
-import in.koreatech.koin.domain.shop.model.Menu;
-import in.koreatech.koin.domain.shop.model.MenuCategory;
-import in.koreatech.koin.domain.shop.model.MenuCategoryMap;
-import in.koreatech.koin.domain.shop.model.MenuImage;
-import in.koreatech.koin.domain.shop.model.MenuOption;
-import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopCategory;
-import in.koreatech.koin.domain.shop.model.ShopCategoryMap;
-import in.koreatech.koin.domain.shop.model.ShopImage;
-import in.koreatech.koin.domain.shop.model.ShopOpen;
-import in.koreatech.koin.domain.shop.repository.EventArticleRepository;
-import in.koreatech.koin.domain.shop.repository.MenuCategoryRepository;
-import in.koreatech.koin.domain.shop.repository.MenuRepository;
-import in.koreatech.koin.domain.shop.repository.ShopRepository;
+import in.koreatech.koin.domain.shop.model.article.EventArticle;
+import in.koreatech.koin.domain.shop.model.menu.Menu;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
+import in.koreatech.koin.domain.shop.model.menu.MenuImage;
+import in.koreatech.koin.domain.shop.model.menu.MenuOption;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
+import in.koreatech.koin.domain.shop.model.shop.ShopImage;
+import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
+import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
+import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
+import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.fixture.EventArticleFixture;
 import in.koreatech.koin.fixture.MenuCategoryFixture;
 import in.koreatech.koin.fixture.MenuFixture;
 import in.koreatech.koin.fixture.ShopCategoryFixture;
 import in.koreatech.koin.fixture.ShopFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
+import jakarta.transaction.Transactional;
 
+@Transactional
 @SuppressWarnings("NonAsciiCharacters")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OwnerShopApiTest extends AcceptanceTest {
 
     @Autowired
@@ -92,8 +95,9 @@ class OwnerShopApiTest extends AcceptanceTest {
     private MenuCategory menuCategory_메인;
     private MenuCategory menuCategory_사이드;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
+        clear();
         owner_현수 = userFixture.현수_사장님();
         token_현수 = userFixture.getToken(owner_현수.getUser());
         owner_준영 = userFixture.준영_사장님();
@@ -106,23 +110,15 @@ class OwnerShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님의 가게 목록을 조회한다.")
-    void getOwnerShops() {
+    void 사장님의_가게_목록을_조회한다() throws Exception {
         // given
-        shopFixture.영업중이_아닌_신전_떡볶이(owner_현수);
-
-        // when then
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .when()
-            .get("/owner/shops")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        shopFixture.배달_안되는_신전_떡볶이(owner_현수);
+        mockMvc.perform(
+                get("/owner/shops")
+                    .header("Authorization", "Bearer " + token_현수)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "count": 2,
                     "shops": [
@@ -138,122 +134,107 @@ class OwnerShopApiTest extends AcceptanceTest {
                         }
                     ]
                 }
-                """);
-    }
-
-    @Test
-    @DisplayName("상점을 생성한다.")
-    void createOwnerShop() {
-        // given
-        RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_현수)
-            .body(String.format("""
-                {
-                    "address": "대전광역시 유성구 대학로 291",
-                    "category_ids": [
-                        %d
-                    ],
-                    "delivery": true,
-                    "delivery_price": 4000,
-                    "description": "테스트 상점2입니다.",
-                    "image_urls": [
-                        "https://test.com/test1.jpg",
-                        "https://test.com/test2.jpg",
-                        "https://test.com/test3.jpg"
-                    ],
-                    
-                    "name": "테스트 상점2",
-                    "open": [
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "MONDAY",
-                            "open_time": "09:00"
-                        },
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "TUESDAY",
-                            "open_time": "09:00"
-                        },
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "WEDNESDAY",
-                            "open_time": "09:00"
-                        },
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "THURSDAY",
-                            "open_time": "09:00"
-                        },
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "FRIDAY",
-                            "open_time": "09:00"
-                        },
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "SATURDAY",
-                            "open_time": "09:00"
-                        },
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "SUNDAY",
-                            "open_time": "09:00"
-                        }
-                    ],
-                    "pay_bank": true,
-                    "pay_card": true,
-                    "phone": "010-1234-5678"
-                }
-                """, shopCategory_치킨.getId())
-            )
-            .when()
-            .post("/owner/shops")
-            .then()
-            .log().all()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
-
-        transactionTemplate.executeWithoutResult(status -> {
-            List<Shop> shops = shopRepository.findAllByOwnerId(owner_현수.getId());
-            Shop result = shops.get(1);
-            assertSoftly(
-                softly -> {
-                    softly.assertThat(result.getAddress()).isEqualTo("대전광역시 유성구 대학로 291");
-                    softly.assertThat(result.getDeliveryPrice()).isEqualTo(4000);
-                    softly.assertThat(result.getDescription()).isEqualTo("테스트 상점2입니다.");
-                    softly.assertThat(result.getName()).isEqualTo("테스트 상점2");
-                    softly.assertThat(result.getShopImages()).hasSize(3);
-                    softly.assertThat(result.getShopOpens()).hasSize(7);
-                    softly.assertThat(result.getShopCategories()).hasSize(1);
-                }
+                """)
             );
-        });
     }
 
     @Test
-    @DisplayName("상점 사장님이 특정 상점 조회")
-    void getShop() {
+    void 상점을_생성한다() throws Exception {
         // given
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .when()
-            .get("/owner/shops/{shopId}", shop_마슬랜.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+        mockMvc.perform(
+                post("/owner/shops")
+                    .header("Authorization", "Bearer " + token_현수)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(String.format("""
+                        {
+                            "address": "대전광역시 유성구 대학로 291",
+                            "category_ids": [
+                                %d
+                            ],
+                            "delivery": true,
+                            "delivery_price": 4000,
+                            "description": "테스트 상점2입니다.",
+                            "image_urls": [
+                                "https://test.com/test1.jpg",
+                                "https://test.com/test2.jpg",
+                                "https://test.com/test3.jpg"
+                            ],
+                            "name": "테스트 상점2",
+                            "open": [
+                                {
+                                    "close_time": "21:00",
+                                    "closed": false,
+                                    "day_of_week": "MONDAY",
+                                    "open_time": "09:00"
+                                },
+                                {
+                                    "close_time": "21:00",
+                                    "closed": false,
+                                    "day_of_week": "TUESDAY",
+                                    "open_time": "09:00"
+                                },
+                                {
+                                    "close_time": "21:00",
+                                    "closed": false,
+                                    "day_of_week": "WEDNESDAY",
+                                    "open_time": "09:00"
+                                },
+                                {
+                                    "close_time": "21:00",
+                                    "closed": false,
+                                    "day_of_week": "THURSDAY",
+                                    "open_time": "09:00"
+                                },
+                                {
+                                    "close_time": "21:00",
+                                    "closed": false,
+                                    "day_of_week": "FRIDAY",
+                                    "open_time": "09:00"
+                                },
+                                {
+                                    "close_time": "21:00",
+                                    "closed": false,
+                                    "day_of_week": "SATURDAY",
+                                    "open_time": "09:00"
+                                },
+                                {
+                                    "close_time": "21:00",
+                                    "closed": false,
+                                    "day_of_week": "SUNDAY",
+                                    "open_time": "09:00"
+                                }
+                            ],
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-1234-5678"
+                        }
+                        """, shopCategory_치킨.getId())
+                    )
+            )
+            .andExpect(status().isCreated());
+        List<Shop> shops = shopRepository.findAllByOwnerId(owner_현수.getId());
+        Shop result = shops.get(1);
+        assertSoftly(
+            softly -> {
+                softly.assertThat(result.getAddress()).isEqualTo("대전광역시 유성구 대학로 291");
+                softly.assertThat(result.getDeliveryPrice()).isEqualTo(4000);
+                softly.assertThat(result.getDescription()).isEqualTo("테스트 상점2입니다.");
+                softly.assertThat(result.getName()).isEqualTo("테스트 상점2");
+                softly.assertThat(result.getShopImages()).hasSize(3);
+                softly.assertThat(result.getShopOpens()).hasSize(7);
+                softly.assertThat(result.getShopCategories()).hasSize(1);
+                System.out.println("dsa");
+            }
+        );
+    }
 
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+    @Test
+    void 상점_사장님이_특정_상점_조회() throws Exception {
+        mockMvc.perform(
+                get("/owner/shops/{shopId}", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+            ).andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "address": "천안시 동남구 병천면 1600",
                      "delivery": true,
@@ -293,33 +274,25 @@ class OwnerShopApiTest extends AcceptanceTest {
                      "pay_card": true,
                      "phone": "010-7574-1212",
                      "shop_categories": [
-                       
                      ],
                      "updated_at": "2024-01-15",
                      "is_event": false,
                      "bank": "국민",
                      "account_number": "01022595923"
                  }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("특정 상점의 모든 메뉴를 조회한다.")
-    void findOwnerShopMenu() {
-        // given
+    void 특정_상점의_모든_메뉴를_조회한다() throws Exception {
         menuFixture.짜장면_옵션메뉴(shop_마슬랜, menuCategory_메인);
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .param("shopId", shop_마슬랜.getId())
-            .when()
-            .get("/owner/shops/menus")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/owner/shops/menus")
+                    .header("Authorization", "Bearer " + token_현수)
+                    .param("shopId", shop_마슬랜.getId().toString())
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "count": 1,
                      "menu_categories": [
@@ -354,26 +327,20 @@ class OwnerShopApiTest extends AcceptanceTest {
                      ],
                      "updated_at": "2024-01-15"
                  }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("사장님이 자신의 상점 메뉴 카테고리들을 조회한다.")
-    void findOwnerMenuCategories() {
+    void 사장님이_자신의_상점_메뉴_카테고리들을_조회한다() throws Exception {
         // given
         menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
-
-        var response = RestAssured
-            .given()
-            .param("shopId", shop_마슬랜.getId())
-            .header("Authorization", "Bearer " + token_현수)
-            .when()
-            .get("/owner/shops/menus/categories")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/owner/shops/menus/categories")
+                    .header("Authorization", "Bearer " + token_현수)
+                    .param("shopId", shop_마슬랜.getId().toString())
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "count": 2,
                     "menu_categories": [
@@ -387,131 +354,137 @@ class OwnerShopApiTest extends AcceptanceTest {
                         }
                     ]
                 }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("사장님이 자신의 상점의 특정 메뉴를 조회한다.")
-    void findMenuShopOwner() {
+    void 사장님이_자신의_상점의_특정_메뉴를_조회한다() throws Exception {
         // given
         Menu menu = menuFixture.짜장면_옵션메뉴(shop_마슬랜, menuCategory_메인);
+        mockMvc.perform(
+                get("/owner/shops/menus/{menuId}", menu.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(menu.getId()))
+            .andExpect(jsonPath("$.shop_id").value(menu.getShopId()))
+            .andExpect(jsonPath("$.name").value(menu.getName()))
+            .andExpect(jsonPath("$.is_hidden").value(menu.isHidden()))
+            .andExpect(jsonPath("$.is_single").value(false))
+            .andExpect(jsonPath("$.single_price").doesNotExist())
+            .andExpect(jsonPath("$.option_prices", hasSize(2)))
+            .andExpect(jsonPath("$.description").value(menu.getDescription()))
+            .andExpect(jsonPath("$.category_ids", hasSize(menu.getMenuCategoryMaps().size())))
+            .andExpect(jsonPath("$.image_urls", hasSize(menu.getMenuImages().size())));
+    }
 
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .when()
-            .get("/owner/shops/menus/{menuId}", menu.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+    @Test
+    void 권한이_없는_상점_사장님이_특정_상점_조회() throws Exception {
+        // given
+        mockMvc.perform(
+                get("/owner/shops/{shopId}", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_준영)
+            )
+            .andExpect(status().isForbidden());
+    }
 
-        SoftAssertions.assertSoftly(
+    @Test
+    void 사장님이_메뉴_카테고리를_삭제한다() throws Exception {
+        // when & then
+        mockMvc.perform(
+                delete("/owner/shops/menus/categories/{categoryId}", menuCategory_메인.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+            )
+            .andExpect(status().isNoContent());
+        assertThat(menuCategoryRepository.findById(menuCategory_메인.getId())).isNotPresent();
+    }
+
+    @Test
+    void 사장님이_메뉴를_삭제한다() throws Exception {
+        // given
+        Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
+        mockMvc.perform(
+                delete("/owner/shops/menus/{menuId}", menu.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+            )
+            .andExpect(status().isNoContent());
+        assertThat(menuRepository.findById(menu.getId())).isNotPresent();
+    }
+
+    @Test
+    void 사장님이_옵션이_여러개인_메뉴를_추가한다() throws Exception {
+        // given
+        MenuCategory menuCategory = menuCategory_메인;
+        mockMvc.perform(
+                post("/owner/shops/{id}/menus", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(String.format("""
+                        {
+                          "category_ids": [
+                            %s
+                          ],
+                          "description": "테스트메뉴입니다.",
+                          "image_urls": [
+                            "https://test-image.com/짜장면.jpg"
+                          ],
+                          "is_single": false,
+                          "name": "짜장면",
+                          "option_prices": [
+                            {
+                              "option": "중",
+                              "price": 10000
+                            },
+                            {
+                              "option": "소",
+                              "price": 5000
+                            }
+                          ]
+                        }
+                        """, menuCategory.getId()))
+            )
+            .andExpect(status().isCreated());
+        Menu menu = menuRepository.getById(1);
+        assertSoftly(
             softly -> {
-                softly.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(menu.getId());
-
-                softly.assertThat(response.body().jsonPath().getInt("shop_id")).isEqualTo(menu.getShopId());
-                softly.assertThat(response.body().jsonPath().getString("name")).isEqualTo(menu.getName());
-                softly.assertThat(response.body().jsonPath().getBoolean("is_hidden")).isEqualTo(menu.isHidden());
-
-                softly.assertThat(response.body().jsonPath().getBoolean("is_single")).isFalse();
-                softly.assertThat((Integer)response.body().jsonPath().get("single_price")).isNull();
-                softly.assertThat(response.body().jsonPath().getList("option_prices")).hasSize(2);
-                softly.assertThat(response.body().jsonPath().getString("description")).isEqualTo(menu.getDescription());
-                softly.assertThat(response.body().jsonPath().getList("category_ids"))
-                    .hasSize(menu.getMenuCategoryMaps().size());
-                softly.assertThat(response.body().jsonPath().getList("image_urls"))
-                    .hasSize(menu.getMenuImages().size());
+                List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
+                List<MenuOption> menuOptions = menu.getMenuOptions();
+                List<MenuImage> menuImages = menu.getMenuImages();
+                softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
+                softly.assertThat(menu.getName()).isEqualTo("짜장면");
+                softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
+                softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
+                softly.assertThat(menuOptions).hasSize(2);
             }
         );
     }
 
     @Test
-    @DisplayName("권한이 없는 상점 사장님이 특정 상점 조회")
-    void ownerCannotQueryOtherStoresWithoutPermission() {
-        // given
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_준영)
-            .when()
-            .get("/owner/shops/{shopId}", shop_마슬랜.getId())
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
-    }
-
-    @Test
-    @DisplayName("사장님이 메뉴 카테고리를 삭제한다.")
-    void deleteMenuCategory() {
-        // when & then
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .when()
-            .delete("/owner/shops/menus/categories/{categoryId}", menuCategory_메인.getId())
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
-
-        assertThat(menuCategoryRepository.findById(menuCategory_메인.getId())).isNotPresent();
-    }
-
-    @Test
-    @DisplayName("사장님이 메뉴를 삭제한다.")
-    void deleteMenu() {
-        // given
-        Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
-
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .when()
-            .delete("/owner/shops/menus/{menuId}", menu.getId())
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
-
-        assertThat(menuRepository.findById(menu.getId())).isNotPresent();
-    }
-
-    @Test
-    @DisplayName("사장님이 옵션이 여러개인 메뉴를 추가한다.")
-    void createManyOptionMenu() {
+    void 사장님이_옵션이_한개인_메뉴를_추가한다() throws Exception {
         // given
         MenuCategory menuCategory = menuCategory_메인;
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                  "category_ids": [
-                    %s
-                  ],
-                  "description": "테스트메뉴입니다.",
-                  "image_urls": [
-                    "https://test-image.com/짜장면.jpg"
-                  ],
-                  "is_single": false,
-                  "name": "짜장면",
-                  "option_prices": [
-                    {
-                      "option": "중",
-                      "price": 10000
-                    },
-                    {
-                      "option": "소",
-                      "price": 5000
-                    }
-                  ]
-                }
-                """, menuCategory.getId()))
-            .when()
-            .post("/owner/shops/{id}/menus", shop_마슬랜.getId())
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
-
-        transactionTemplate.executeWithoutResult(status -> {
+        mockMvc.perform(
+                post("/owner/shops/{id}/menus", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+                    .content(String.format("""
+                        {
+                          "category_ids": [
+                            %s
+                          ],
+                          "description": "테스트메뉴입니다.",
+                          "image_urls": [
+                            "https://test-image.com/짜장면.jpg"
+                          ],
+                          "is_single": true,
+                          "name": "짜장면",
+                          "option_prices": null,
+                          "single_price": 10000
+                        }
+                        """, menuCategory.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
+        transactionTemplate.executeWithoutResult(execute -> {
             Menu menu = menuRepository.getById(1);
             assertSoftly(
                 softly -> {
@@ -522,55 +495,6 @@ class OwnerShopApiTest extends AcceptanceTest {
                     softly.assertThat(menu.getName()).isEqualTo("짜장면");
                     softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
                     softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
-                    softly.assertThat(menuOptions).hasSize(2);
-                }
-            );
-        });
-    }
-
-    @Test
-    @DisplayName("사장님이 옵션이 한개인 메뉴를 추가한다.")
-    void createOneOptionMenu() {
-        // given
-        MenuCategory menuCategory = menuCategory_메인;
-        var response = RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                  "category_ids": [
-                    %s
-                  ],
-                  "description": "테스트메뉴입니다.",
-                  "image_urls": [
-                    "https://test-image.com/짜장면.jpg"
-                  ],
-                  "is_single": true,
-                  "name": "짜장면",
-                  "option_prices": null,
-                  "single_price": 10000
-                }
-                """, menuCategory.getId()))
-            .when()
-            .post("/owner/shops/{id}/menus", shop_마슬랜.getId())
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
-
-        transactionTemplate.executeWithoutResult(status -> {
-            Menu menu = menuRepository.getById(1);
-            assertSoftly(
-                softly -> {
-                    List<MenuCategoryMap> menuCategoryMaps = menu.getMenuCategoryMaps();
-                    List<MenuOption> menuOptions = menu.getMenuOptions();
-                    List<MenuImage> menuImages = menu.getMenuImages();
-                    softly.assertThat(menu.getDescription()).isEqualTo("테스트메뉴입니다.");
-                    softly.assertThat(menu.getName()).isEqualTo("짜장면");
-
-                    softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.com/짜장면.jpg");
-                    softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(1);
-
                     softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
                 }
             );
@@ -578,58 +502,48 @@ class OwnerShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님이 메뉴 카테고리를 추가한다.")
-    void createMenuCategory() {
-        // given
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                   "name": "대박메뉴"
-                }
-                """))
-            .when()
-            .post("/owner/shops/{id}/menus/categories", shop_마슬랜.getId())
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
-
+    void 사장님이_메뉴_카테고리를_추가한다() throws Exception {
+        menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
+        mockMvc.perform(
+                post("/owner/shops/{id}/menus/categories", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                           "name": "대박메뉴"
+                        }
+                        """)
+            )
+            .andExpect(status().isCreated());
         var menuCategories = menuCategoryRepository.findAllByShopId(shop_마슬랜.getId());
-
         assertThat(menuCategories).anyMatch(menuCategory -> "대박메뉴".equals(menuCategory.getName()));
     }
 
     @Test
-    @DisplayName("사장님이 단일 메뉴로 수정한다.")
-    void modifyOneMenu() {
+    void 사장님이_단일_메뉴로_수정한다() throws Exception {
         // given
         Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                  "category_ids": [
-                    %d
-                  ],
-                  "description": "테스트메뉴수정",
-                  "image_urls": [
-                    "https://test-image.net/테스트메뉴.jpeg"
-                  ],
-                  "is_single": true,
-                  "name": "짜장면2",
-                  "single_price": 10000
-                }
-                """, shopCategory_일반.getId()))
-            .when()
-            .put("/owner/shops/menus/{menuId}", menu.getId())
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                put("/owner/shops/menus/{menuId}", menu.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(String.format("""
+                        {
+                          "category_ids": [
+                            %d
+                          ],
+                          "description": "테스트메뉴수정",
+                          "image_urls": [
+                            "https://test-image.net/테스트메뉴.jpeg"
+                          ],
+                          "is_single": true,
+                          "name": "짜장면2",
+                          "single_price": 10000
+                        }
+                        """, shopCategory_일반.getId()))
+            )
+            .andExpect(status().isCreated());
 
         transactionTemplate.executeWithoutResult(status -> {
             Menu result = menuRepository.getById(1);
@@ -640,55 +554,49 @@ class OwnerShopApiTest extends AcceptanceTest {
                     List<MenuImage> menuImages = result.getMenuImages();
                     softly.assertThat(result.getDescription()).isEqualTo("테스트메뉴수정");
                     softly.assertThat(result.getName()).isEqualTo("짜장면2");
-
                     softly.assertThat(menuImages.get(0).getImageUrl()).isEqualTo("https://test-image.net/테스트메뉴.jpeg");
                     softly.assertThat(menuCategoryMaps.get(0).getMenuCategory().getId()).isEqualTo(2);
-
                     softly.assertThat(menuOptions.get(0).getPrice()).isEqualTo(10000);
-
                 }
             );
         });
     }
 
     @Test
-    @DisplayName("사장님이 여러옵션을 가진 메뉴로 수정한다.")
-    void modifyManyOptionMenu() {
+    void 사장님이_여러옵션을_가진_메뉴로_수정한다() throws Exception {
         // given
         Menu menu = menuFixture.짜장면_옵션메뉴(shop_마슬랜, menuCategory_메인);
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                  "category_ids": [
-                    %d, %d
-                  ],
-                  "description": "테스트메뉴입니다.",
-                  "image_urls": [
-                    "https://fixed-testimage.com/수정된짜장면.png"
-                  ],
-                  "is_single": false,
-                  "name": "짜장면",
-                  "option_prices": [
-                    {
-                      "option": "중",
-                      "price": 10000
-                    },
-                    {
-                      "option": "소",
-                      "price": 5000
-                    }
-                  ]
-                }
-                """, menuCategory_메인.getId(), menuCategory_사이드.getId())
+
+        mockMvc.perform(
+                put("/owner/shops/menus/{menuId}", menu.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(String.format("""
+                        {
+                          "category_ids": [
+                            %d, %d
+                          ],
+                          "description": "테스트메뉴입니다.",
+                          "image_urls": [
+                            "https://fixed-testimage.com/수정된짜장면.png"
+                          ],
+                          "is_single": false,
+                          "name": "짜장면",
+                          "option_prices": [
+                            {
+                              "option": "중",
+                              "price": 10000
+                            },
+                            {
+                              "option": "소",
+                              "price": 5000
+                            }
+                          ]
+                        }
+                        """, menuCategory_메인.getId(), menuCategory_사이드.getId())
+                    )
             )
-            .when()
-            .put("/owner/shops/menus/{menuId}", menu.getId())
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+            .andExpect(status().isCreated());
 
         transactionTemplate.executeWithoutResult(status -> {
             Menu result = menuRepository.getById(1);
@@ -709,51 +617,48 @@ class OwnerShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님이 상점을 수정한다.")
-    void modifyShop() {
+    void 사장님이_상점을_수정한다() throws Exception {
         // given
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                  "address": "충청남도 천안시 동남구 병천면 충절로 1600",
-                  "category_ids": [
-                   %d, %d
-                  ],
-                  "delivery": false,
-                  "delivery_price": 1000,
-                  "description": "이번주 전 메뉴 10%% 할인 이벤트합니다.",
-                  "image_urls": [
-                    "https://fixed-shopimage.com/수정된_상점_이미지.png"
-                  ],
-                  "name": "써니 숯불 도시락",
-                  "open": [
-                    {
-                      "close_time": "22:30",
-                      "closed": false,
-                      "day_of_week": "MONDAY",
-                      "open_time": "10:00"
-                    },
-                    {
-                      "close_time": "23:30",
-                      "closed": true,
-                      "day_of_week": "SUNDAY",
-                      "open_time": "11:00"
-                    }
-                  ],
-                  "pay_bank": true,
-                  "pay_card": true,
-                  "phone": "041-123-4567"
-                }
-                """, shopCategory_일반.getId(), shopCategory_치킨.getId()
-            ))
-            .when()
-            .put("/owner/shops/{id}", shop_마슬랜.getId())
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                put("/owner/shops/{id}", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(String.format("""
+                            {
+                              "address": "충청남도 천안시 동남구 병천면 충절로 1600",
+                              "category_ids": [
+                               %d, %d
+                              ],
+                              "delivery": false,
+                              "delivery_price": 1000,
+                              "description": "이번주 전 메뉴 10%% 할인 이벤트합니다.",
+                              "image_urls": [
+                                "https://fixed-shopimage.com/수정된_상점_이미지.png"
+                              ],
+                              "name": "써니 숯불 도시락",
+                              "open": [
+                                {
+                                  "close_time": "22:30",
+                                  "closed": false,
+                                  "day_of_week": "MONDAY",
+                                  "open_time": "10:00"
+                                },
+                                {
+                                  "close_time": "23:30",
+                                  "closed": true,
+                                  "day_of_week": "SUNDAY",
+                                  "open_time": "11:00"
+                                }
+                              ],
+                              "pay_bank": true,
+                              "pay_card": true,
+                              "phone": "041-123-4567"
+                            }
+                            """, shopCategory_일반.getId(), shopCategory_치킨.getId()
+                        )
+                    )
+            )
+            .andExpect(status().isCreated());
 
         transactionTemplate.executeWithoutResult(status -> {
             Shop result = shopRepository.getById(1);
@@ -793,337 +698,294 @@ class OwnerShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    @DisplayName("사장님이 단일 메뉴로 수정한다. - 가격 옵션이 null이 아니면 400 에러")
-    void modifySingleMenuWithEmptyOptionPrices() {
+    void 사장님이_단일_메뉴로_수정한다_가격_옵션이_null이_아니면_400_에러() throws Exception {
         // given
         Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
 
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-        {
-          "category_ids": [
-            %d
-          ],
-          "description": "테스트메뉴수정",
-          "image_urls": [
-            "https://test-image.net/테스트메뉴.jpeg"
-          ],
-          "is_single": true,
-          "name": "짜장면2",
-          "single_price": 10000,
-          "option_prices": []
-        }
-        """, shopCategory_일반.getId()))
-            .when()
-            .put("/owner/shops/menus/{menuId}", menu.getId())
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
+        mockMvc.perform(
+                put("/owner/shops/menus/{menuId}", menu.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(String.format("""
+                        {
+                          "category_ids": [
+                            %d
+                          ],
+                          "description": "테스트메뉴수정",
+                          "image_urls": [
+                            "https://test-image.net/테스트메뉴.jpeg"
+                          ],
+                          "is_single": true,
+                          "name": "짜장면2",
+                          "single_price": 10000,
+                          "option_prices": []
+                        }
+                        """, shopCategory_일반.getId())
+                    )
+            )
+            .andExpect(status().isBadRequest());
     }
 
-
     @Test
-    @DisplayName("권한이 없는 상점 사장님이 특정 카테고리 조회한다.")
-    void ownerCannotQueryOtherCategoriesWithoutPermission() {
+    void 권한이_없는_상점_사장님이_특정_카테고리_조회한다() throws Exception {
         // given
-        RestAssured
-            .given()
-            .param("shopId", 1)
-            .header("Authorization", "Bearer " + token_준영)
-            .when()
-            .get("/owner/shops/menus/categories")
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
+        mockMvc.perform(
+                get("/owner/shops/menus/categories")
+                    .header("Authorization", "Bearer " + token_준영)
+                    .param("shopId", shop_마슬랜.getId().toString())
+            )
+            .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("권한이 없는 상점 사장님이 특정 메뉴 조회한다.")
-    void ownerCannotQueryOtherMenusWithoutPermission() {
+    void 권한이_없는_상점_사장님이_특정_메뉴_조회한다() throws Exception {
+        menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
         // given
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_준영)
-            .param("shopId", 1)
-            .when()
-            .get("/owner/shops/menus")
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
+        mockMvc.perform(
+                get("/owner/shops/menus/{menuId}", 1)
+                    .header("Authorization", "Bearer " + token_준영)
+            )
+            .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("권한이 없는 사장님이 메뉴 카테고리를 삭제한다.")
-    void ownerCannotDeleteOtherCategoriesWithoutPermission() {
+    void 권한이_없는_사장님이_메뉴_카테고리를_삭제한다() throws Exception {
         // given
         MenuCategory menuCategory = menuCategoryFixture.세트메뉴(shop_마슬랜);
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_준영)
-            .when()
-            .delete("/owner/shops/menus/categories/{categoryId}", menuCategory.getId())
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
+        mockMvc.perform(
+                delete("/owner/shops/menus/categories/{categoryId}", menuCategory.getId())
+                    .header("Authorization", "Bearer " + token_준영)
+            )
+            .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("권한이 없는 사장님이 메뉴를 삭제한다.")
-    void ownerCannotDeleteOtherMenusWithoutPermission() {
+    void 권한이_없는_사장님이_메뉴를_삭제한다() throws Exception {
         // given
         Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
-
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_준영)
-            .when()
-            .delete("/owner/shops/menus/{menuId}", menu.getId())
-            .then()
-            .statusCode(HttpStatus.FORBIDDEN.value())
-            .extract();
+        mockMvc.perform(
+                delete("/owner/shops/menus/{menuId}", menu.getId())
+                    .header("Authorization", "Bearer " + token_준영)
+            )
+            .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("사장님이 이벤트를 추가한다.")
-    void ownerShopCreateEvent() {
+    void 사장님이_이벤트를_추가한다() throws Exception {
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = startDate.plusDays(10);
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                    {
-                      "title": "감성떡볶이 이벤트합니다!",
-                      "content": "테스트 이벤트입니다.",
-                      "thumbnail_images": [
-                        "https://test.com/test1.jpg"
-                      ],
-                      "start_date": "%s",
-                      "end_date": "%s"
-                    }
-                    """,
-                startDate.format(ofPattern("yyyy-MM-dd")),
-                endDate.format(ofPattern("yyyy-MM-dd"))
-            ))
-            .when()
-            .post("/owner/shops/{shopId}/event", shop_마슬랜.getId())
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
-
         transactionTemplate.executeWithoutResult(status -> {
-            EventArticle eventArticle = eventArticleRepository.getById(1);
-            assertSoftly(
-                softly -> {
-                    softly.assertThat(eventArticle.getShop().getId()).isEqualTo(1);
-                    softly.assertThat(eventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
-                    softly.assertThat(eventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
-                    softly.assertThat(eventArticle.getThumbnailImages().get(0).getThumbnailImage())
-                        .isEqualTo("https://test.com/test1.jpg");
-                    softly.assertThat(eventArticle.getStartDate()).isEqualTo(startDate);
-                    softly.assertThat(eventArticle.getEndDate()).isEqualTo(endDate);
-                }
-            );
+            try {
+                mockMvc.perform(
+                        post("/owner/shops/{shopId}/event", shop_마슬랜.getId())
+                            .header("Authorization", "Bearer " + token_현수)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(String.format("""
+                                        {
+                                          "title": "감성떡볶이 이벤트합니다!",
+                                          "content": "테스트 이벤트입니다.",
+                                          "thumbnail_images": [
+                                            "https://test.com/test1.jpg"
+                                          ],
+                                          "start_date": "%s",
+                                          "end_date": "%s"
+                                        }
+                                        """,
+                                    startDate.format(ofPattern("yyyy-MM-dd")),
+                                    endDate.format(ofPattern("yyyy-MM-dd"))
+                                )
+                            )
+                    )
+                    .andExpect(status().isCreated());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
-        verify(shopEventListener).onShopEventCreate(any());
+        EventArticle eventArticle = eventArticleRepository.getById(1);
+        assertSoftly(
+            softly -> {
+                softly.assertThat(eventArticle.getShop().getId()).isEqualTo(1);
+                softly.assertThat(eventArticle.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
+                softly.assertThat(eventArticle.getContent()).isEqualTo("테스트 이벤트입니다.");
+                softly.assertThat(eventArticle.getThumbnailImages().get(0).getThumbnailImage())
+                    .isEqualTo("https://test.com/test1.jpg");
+                softly.assertThat(eventArticle.getStartDate()).isEqualTo(startDate);
+                softly.assertThat(eventArticle.getEndDate()).isEqualTo(endDate);
+            }
+        );
+        forceVerify(() -> verify(shopEventListener, times(1)).onShopEventCreate(any()));
+        clear();
+        setUp();
     }
 
     @Test
-    @DisplayName("사장님이 이벤트를 수정한다.")
-    void ownerShopModifyEvent() {
+    void 사장님이_이벤트를_수정한다() throws Exception {
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = startDate.plusDays(10);
         EventArticle eventArticle = eventArticleFixture.할인_이벤트(shop_마슬랜, startDate, endDate);
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                    {
-                      "title": "감성떡볶이 이벤트합니다!",
-                      "content": "테스트 이벤트입니다.",
-                      "thumbnail_images": [
-                        "https://test.com/test1.jpg"
-                      ],
-                      "start_date": "%s",
-                      "end_date": "%s"
-                    }
-                    """,
-                startDate,
-                endDate))
-            .when()
-            .put("/owner/shops/{shopId}/events/{eventId}", shop_마슬랜.getId(), eventArticle.getId())
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+        mockMvc.perform(
+                put("/owner/shops/{shopId}/events/{eventId}", shop_마슬랜.getId(), eventArticle.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(String.format("""
+                            {
+                              "title": "감성떡볶이 이벤트합니다!",
+                              "content": "테스트 이벤트입니다.",
+                              "thumbnail_images": [
+                                "https://test.com/test1.jpg"
+                              ],
+                              "start_date": "%s",
+                              "end_date": "%s"
+                            }
+                            """,
+                        startDate,
+                        endDate)
+                    )
+            )
+            .andExpect(status().isCreated());
 
-        transactionTemplate.executeWithoutResult(status -> {
-            EventArticle result = eventArticleRepository.getById(eventArticle.getId());
-            assertSoftly(
-                softly -> {
-                    softly.assertThat(result.getShop().getId()).isEqualTo(1);
-                    softly.assertThat(result.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
-                    softly.assertThat(result.getContent()).isEqualTo("테스트 이벤트입니다.");
-                    softly.assertThat(result.getThumbnailImages().get(0).getThumbnailImage())
-                        .isEqualTo("https://test.com/test1.jpg");
-                    softly.assertThat(result.getStartDate()).isEqualTo(startDate);
-                    softly.assertThat(result.getEndDate()).isEqualTo(endDate);
-                }
-            );
-        });
+        EventArticle result = eventArticleRepository.getById(eventArticle.getId());
+        assertSoftly(
+            softly -> {
+                softly.assertThat(result.getShop().getId()).isEqualTo(1);
+                softly.assertThat(result.getTitle()).isEqualTo("감성떡볶이 이벤트합니다!");
+                softly.assertThat(result.getContent()).isEqualTo("테스트 이벤트입니다.");
+                softly.assertThat(result.getThumbnailImages().get(0).getThumbnailImage())
+                    .isEqualTo("https://test.com/test1.jpg");
+                softly.assertThat(result.getStartDate()).isEqualTo(startDate);
+                softly.assertThat(result.getEndDate()).isEqualTo(endDate);
+            }
+        );
     }
 
     @Test
-    @DisplayName("사장님이 이벤트를 삭제한다.")
-    void ownerShopDeleteEvent() {
+    void 사장님이_이벤트를_삭제한다() throws Exception {
         EventArticle eventArticle = eventArticleFixture.할인_이벤트(
             shop_마슬랜,
             LocalDate.of(2024, 10, 24),
             LocalDate.of(2024, 10, 26)
         );
-
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .contentType(ContentType.JSON)
-            .when()
-            .delete("/owner/shops/{shopId}/events/{eventId}", shop_마슬랜.getId(), eventArticle.getId())
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-            .extract();
-
+        mockMvc.perform(
+                delete("/owner/shops/{shopId}/events/{eventId}", shop_마슬랜.getId(), eventArticle.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+            )
+            .andExpect(status().isNoContent());
         Optional<EventArticle> modifiedEventArticle = eventArticleRepository.findById(eventArticle.getId());
         assertThat(modifiedEventArticle).isNotPresent();
     }
 
     @Test
-    void 이미지_url의_요소가_공백인_채로_상점을_수정하면_400에러가_반환된다() {
+    void 이미지_url의_요소가_공백인_채로_상점을_수정하면_400에러가_반환된다() throws Exception {
         // given
-        RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token_현수)
-            .contentType(ContentType.JSON)
-            .body(String.format("""
-                {
-                  "address": "충청남도 천안시 동남구 병천면 충절로 1600",
-                  "category_ids": [
-                   %d, %d
-                  ],
-                  "delivery": false,
-                  "delivery_price": 1000,
-                  "description": "이번주 전 메뉴 10%% 할인 이벤트합니다.",
-                  "image_urls": [
-                    ""
-                  ],
-                  "name": "써니 숯불 도시락",
-                  "open": [
-                    {
-                      "close_time": "22:30",
-                      "closed": false,
-                      "day_of_week": "MONDAY",
-                      "open_time": "10:00"
-                    },
-                    {
-                      "close_time": "23:30",
-                      "closed": true,
-                      "day_of_week": "SUNDAY",
-                      "open_time": "11:00"
-                    }
-                  ],
-                  "pay_bank": true,
-                  "pay_card": true,
-                  "phone": "041-123-4567"
-                }
-                """, shopCategory_일반.getId(), shopCategory_치킨.getId()
-            ))
-            .when()
-            .put("/owner/shops/{id}", shop_마슬랜.getId())
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
-
+        mockMvc.perform(
+                put("/owner/shops/{shopId}", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_현수)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(String.format("""
+                        {
+                          "address": "충청남도 천안시 동남구 병천면 충절로 1600",
+                          "category_ids": [
+                           %d, %d
+                          ],
+                          "delivery": false,
+                          "delivery_price": 1000,
+                          "description": "이번주 전 메뉴 10%% 할인 이벤트합니다.",
+                          "image_urls": [
+                            ""
+                          ],
+                          "name": "써니 숯불 도시락",
+                          "open": [
+                            {
+                              "close_time": "22:30",
+                              "closed": false,
+                              "day_of_week": "MONDAY",
+                              "open_time": "10:00"
+                            },
+                            {
+                              "close_time": "23:30",
+                              "closed": true,
+                              "day_of_week": "SUNDAY",
+                              "open_time": "11:00"
+                            }
+                          ],
+                          "pay_bank": true,
+                          "pay_card": true,
+                          "phone": "041-123-4567"
+                        }
+                        """, shopCategory_일반.getId(), shopCategory_치킨.getId()
+                    )))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    void 이미지_url의_요소가_공백인_채로_상점을_생성하면_400에러가_반환된다() {
+    void 이미지_url의_요소가_공백인_채로_상점을_생성하면_400에러가_반환된다() throws Exception {
         // given
-        RestAssured
-            .given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token_현수)
-            .body(String.format("""
-                {
-                    "address": "대전광역시 유성구 대학로 291",
-                    "category_ids": [
-                        %d
-                    ],
-                    "delivery": true,
-                    "delivery_price": 4000,
-                    "description": "테스트 상점2입니다.",
-                    "image_urls": [
-                        "",
-                    ],
-                    
-                    "name": "테스트 상점2",
-                    "open": [
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "MONDAY",
-                            "open_time": "09:00"
-                        },
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "TUESDAY",
-                            "open_time": "09:00"
-                        },
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "WEDNESDAY",
-                            "open_time": "09:00"
-                        },
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "THURSDAY",
-                            "open_time": "09:00"
-                        },
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "FRIDAY",
-                            "open_time": "09:00"
-                        },
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "SATURDAY",
-                            "open_time": "09:00"
-                        },
-                        {
-                            "close_time": "21:00",
-                            "closed": false,
-                            "day_of_week": "SUNDAY",
-                            "open_time": "09:00"
-                        }
-                    ],
-                    "pay_bank": true,
-                    "pay_card": true,
-                    "phone": "010-1234-5678"
-                }
-                """, shopCategory_치킨.getId())
-            )
-            .when()
-            .post("/owner/shops")
-            .then()
-            .log().all()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .extract();
+        mockMvc.perform(post("/owner/shops")
+                .header("Authorization", "Bearer " + token_현수)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(String.format("""
+                    {
+                        "address": "대전광역시 유성구 대학로 291",
+                        "category_ids": [
+                            %d
+                        ],
+                        "delivery": true,
+                        "delivery_price": 4000,
+                        "description": "테스트 상점2입니다.",
+                        "image_urls": [
+                            "",
+                        ],
+                        "name": "테스트 상점2",
+                        "open": [
+                            {
+                                "close_time": "21:00",
+                                "closed": false,
+                                "day_of_week": "MONDAY",
+                                "open_time": "09:00"
+                            },
+                            {
+                                "close_time": "21:00",
+                                "closed": false,
+                                "day_of_week": "TUESDAY",
+                                "open_time": "09:00"
+                            },
+                            {
+                                "close_time": "21:00",
+                                "closed": false,
+                                "day_of_week": "WEDNESDAY",
+                                "open_time": "09:00"
+                            },
+                            {
+                                "close_time": "21:00",
+                                "closed": false,
+                                "day_of_week": "THURSDAY",
+                                "open_time": "09:00"
+                            },
+                            {
+                                "close_time": "21:00",
+                                "closed": false,
+                                "day_of_week": "FRIDAY",
+                                "open_time": "09:00"
+                            },
+                            {
+                                "close_time": "21:00",
+                                "closed": false,
+                                "day_of_week": "SATURDAY",
+                                "open_time": "09:00"
+                            },
+                            {
+                                "close_time": "21:00",
+                                "closed": false,
+                                "day_of_week": "SUNDAY",
+                                "open_time": "09:00"
+                            }
+                        ],
+                        "pay_bank": true,
+                        "pay_card": true,
+                        "phone": "010-1234-5678"
+                    }
+                    """, shopCategory_치킨.getId())
+                ))
+            .andExpect(status().isBadRequest());
     }
 }

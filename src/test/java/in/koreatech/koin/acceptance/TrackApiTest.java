@@ -1,19 +1,24 @@
 package in.koreatech.koin.acceptance;
 
-import org.junit.jupiter.api.DisplayName;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.fixture.MemberFixture;
 import in.koreatech.koin.fixture.TechStackFixture;
 import in.koreatech.koin.fixture.TrackFixture;
-import in.koreatech.koin.support.JsonAssertions;
-import io.restassured.RestAssured;
 
 @SuppressWarnings("NonAsciiCharacters")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TrackApiTest extends AcceptanceTest {
 
     @Autowired
@@ -25,23 +30,23 @@ class TrackApiTest extends AcceptanceTest {
     @Autowired
     private TechStackFixture techStackFixture;
 
+    @BeforeAll
+    void setup() {
+        clear();
+    }
+
     @Test
-    @DisplayName("BCSDLab 트랙 정보를 조회한다")
-    void findTracks() {
+    void BCSDLab_트랙_정보를_조회한다() throws Exception {
         trackFixture.backend();
         trackFixture.frontend();
         trackFixture.ios();
 
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/tracks")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/tracks")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 [
                     {
                         "id": 1,
@@ -68,27 +73,22 @@ class TrackApiTest extends AcceptanceTest {
                         "updated_at": "2024-01-15 12:00:00"
                     }
                 ]
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("BCSDLab 트랙 정보 단건 조회 - 삭제된 멤버는 조회하지 않는다.")
-    void findTrackWithoutDeletedMember() {
+    void BCSDLab_트랙_정보_단건_조회_삭제된_멤버는_조회하지_않는다() throws Exception {
         Track track = trackFixture.backend();
         memberFixture.배진호(track); // 삭제된 멤버
         memberFixture.최준호(track);
         techStackFixture.java(track);
 
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/tracks/{id}", track.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/tracks/{id}", track.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "TrackName": "BackEnd",
                      "TechStacks": [
@@ -118,26 +118,21 @@ class TrackApiTest extends AcceptanceTest {
                          }
                      ]
                  }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("BCSDLab 트랙 정보 단건 조회")
-    void findTrack() {
+    void BCSDLab_트랙_정보_단건_조회() throws Exception {
         Track track = trackFixture.backend();
         memberFixture.최준호(track);
         techStackFixture.java(track);
 
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/tracks/{id}", track.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/tracks/{id}", track.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                      "TrackName": "BackEnd",
                      "TechStacks": [
@@ -167,24 +162,19 @@ class TrackApiTest extends AcceptanceTest {
                          }
                      ]
                  }
-                """);
+                """));
     }
 
     @Test
-    @DisplayName("BCSDLab 트랙 정보 단건 조회 - 트랙에 속한 멤버와 기술스택이 없을 때")
-    void findTrackWithEmptyMembersAndTechStacks() {
+    void BCSDLab_트랙_정보_단건_조회_트랙에_속한_멤버와_기술스택이_없을_때() throws Exception {
         Track track = trackFixture.frontend();
 
-        var response = RestAssured
-            .given()
-            .when()
-            .get("/tracks/{id}", track.getId())
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
-
-        JsonAssertions.assertThat(response.asPrettyString())
-            .isEqualTo("""
+        mockMvc.perform(
+                get("/tracks/{id}", track.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
                 {
                     "TrackName": "FrontEnd",
                     "TechStacks": [
@@ -194,6 +184,6 @@ class TrackApiTest extends AcceptanceTest {
                        
                     ]
                 }
-                """);
+                """));
     }
 }

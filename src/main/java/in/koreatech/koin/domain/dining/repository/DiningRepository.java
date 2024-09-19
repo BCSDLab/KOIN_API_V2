@@ -31,6 +31,5 @@ public interface DiningRepository extends Repository<Dining, Integer> {
 
     Long count();
 
-    Page<Dining> findAllByMenuContainingAndPlaceInAndDateAfter(String keyword, List<String> diningPlaces,
-        LocalDate oneYearAgo, Pageable pageable);
+    Page<Dining> findAllByMenuContainingAndPlaceIn(String keyword, List<String> diningPlaces, Pageable pageable);
 }

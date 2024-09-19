@@ -5,13 +5,14 @@ import java.time.Clock;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.config.FixedDate;
-import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopReview;
-import in.koreatech.koin.domain.shop.model.ShopReviewImage;
-import in.koreatech.koin.domain.shop.model.ShopReviewMenu;
-import in.koreatech.koin.domain.shop.repository.ShopReviewImageRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewMenuRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewRepository;
+import in.koreatech.koin.domain.shop.model.review.ShopReview;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewImage;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewMenu;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.repository.review.ShopReviewImageRepository;
+import in.koreatech.koin.domain.shop.repository.review.ShopReviewMenuRepository;
+import in.koreatech.koin.domain.shop.repository.review.ShopReviewRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.user.model.Student;
 
 @Component
@@ -27,8 +28,8 @@ public class ShopReviewFixture {
         ShopReviewRepository shopReviewRepository,
         ShopReviewImageRepository shopReviewImageRepository,
         ShopReviewMenuRepository shopReviewMenuRepository,
-        Clock clock
-    ) {
+        Clock clock,
+        ShopRepository shopRepository) {
         this.shopReviewRepository = shopReviewRepository;
         this.shopReviewImageRepository = shopReviewImageRepository;
         this.shopReviewMenuRepository = shopReviewMenuRepository;
@@ -51,8 +52,9 @@ public class ShopReviewFixture {
             .menuName("피자")
             .review(shopReview)
             .build());
-        ShopReview savedShopReview = shopReviewRepository.save(shopReview);
-        return savedShopReview;
+        shopReviewRepository.save(shopReview);
+        shop.getReviews().add(shopReview);
+        return shopReview;
     }
 
     @FixedDate(year = 2024, month = 8, day = 7)
