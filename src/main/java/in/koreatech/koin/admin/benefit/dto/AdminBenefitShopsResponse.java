@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -16,10 +17,13 @@ public record AdminBenefitShopsResponse(
     List<InnerShopResponse> shops
 ) {
 
-    public static AdminBenefitShopsResponse from(
-        List<InnerShopResponse> shops
-    ) {
-        return new AdminBenefitShopsResponse(shops.size(), shops);
+    public static AdminBenefitShopsResponse from(List<Shop> shops) {
+        return new AdminBenefitShopsResponse(
+            shops.size(),
+            shops.stream()
+                .map(InnerShopResponse::from)
+                .toList()
+        );
     }
 
     public record InnerShopResponse(
@@ -30,10 +34,10 @@ public record AdminBenefitShopsResponse(
         String name
     ) {
 
-        public static InnerShopResponse from(InnerShopResponse shop) {
+        public static InnerShopResponse from(Shop shop) {
             return new InnerShopResponse(
-                shop.id(),
-                shop.name()
+                shop.getId(),
+                shop.getName()
             );
         }
     }

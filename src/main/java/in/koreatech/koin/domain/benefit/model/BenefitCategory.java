@@ -36,8 +36,9 @@ public class BenefitCategory extends BaseEntity {
     String imageUrl;
 
     @Builder
-    public BenefitCategory(String title, String detail) {
+    public BenefitCategory(String title, String detail, String imageUrl) {
         this.title = title;
         this.detail = detail;
+        this.imageUrl = imageUrl;
     }
 }
