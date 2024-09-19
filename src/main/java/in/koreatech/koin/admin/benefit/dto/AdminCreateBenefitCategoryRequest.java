@@ -19,16 +19,21 @@ public record AdminCreateBenefitCategoryRequest(
     @NotBlank(message = "혜택 카테고리 설명은 필수입니다.")
     String detail,
 
-    @Schema(description = "혜택 카테고리 이미지 URL", example = "https://example.com/example.jpg", requiredMode = REQUIRED)
-    @NotBlank(message = "혜택 카테고리 이미지 URL은 필수입니다.")
-    String imageUrl
+    @Schema(description = "혜택 카테고리 ON 이미지 URL", example = "https://example.com/button_on.jpg", requiredMode = REQUIRED)
+    @NotBlank(message = "혜택 카테고리 ON 이미지 URL은 필수입니다.")
+    String onImageUrl,
+
+    @Schema(description = "혜택 카테고리 OFF 이미지 URL", example = "https://example.com/button_off.jpg", requiredMode = REQUIRED)
+    @NotBlank(message = "혜택 카테고리 OFF 이미지 URL은 필수입니다.")
+    String offImageUrl
 ) {
 
     public BenefitCategory toBenefitCategory() {
         return BenefitCategory.builder()
             .title(title)
             .detail(detail)
-            .imageUrl(imageUrl)
+            .onImageUrl(onImageUrl)
+            .offImageUrl(offImageUrl)
             .build();
     }
 }
