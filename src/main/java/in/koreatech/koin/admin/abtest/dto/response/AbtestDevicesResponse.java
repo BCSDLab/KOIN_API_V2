@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.abtest.dto;
+package in.koreatech.koin.admin.abtest.dto.response;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
