@@ -1,9 +1,11 @@
 package in.koreatech.koin.acceptance;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -14,6 +16,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -313,9 +316,9 @@ class BusApiTest extends AcceptanceTest {
 
         expressBusService.storeRemainTimeByRatio();
 
-        forceVerify(() -> verify(publicExpressBusClient, times(1)).storeRemainTime());
-        forceVerify(() -> verify(tmoneyExpressBusClient, never()).storeRemainTime());
-        forceVerify(() -> verify(staticExpressBusClient, never()).storeRemainTime());
+        verify(publicExpressBusClient, times(1)).storeRemainTime();
+        verify(tmoneyExpressBusClient, never()).storeRemainTime();
+        verify(staticExpressBusClient, never()).storeRemainTime();
         clear();
         setUp();
     }
@@ -328,9 +331,9 @@ class BusApiTest extends AcceptanceTest {
 
         expressBusService.storeRemainTimeByRatio();
 
-        forceVerify(() -> verify(publicExpressBusClient, times(1)).storeRemainTime());
-        forceVerify(() -> verify(tmoneyExpressBusClient, times(1)).storeRemainTime());
-        forceVerify(() -> verify(staticExpressBusClient, never()).storeRemainTime());
+        verify(publicExpressBusClient, times(1)).storeRemainTime();
+        verify(tmoneyExpressBusClient, times(1)).storeRemainTime();
+        verify(staticExpressBusClient, never()).storeRemainTime();
         clear();
         setUp();
     }
