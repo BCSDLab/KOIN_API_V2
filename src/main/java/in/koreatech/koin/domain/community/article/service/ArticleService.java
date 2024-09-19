@@ -211,8 +211,6 @@ public class ArticleService {
         if (map.getSearchCount() <= 10) {
             keyword.updateWeight(keyword.getWeight() + additionalWeight);
         }
-
-        keyword.updateWeight(keyword.getWeight() + additionalWeight);
         articleSearchKeywordRepository.save(keyword);
     }
 
@@ -221,9 +219,9 @@ public class ArticleService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime before = now.minusHours(6).minusMinutes(30);
 
-        List<ArticleSearchKeyword> keywordsToUpdate = articleSearchKeywordRepository.findByCreatedAtBetween(
+        List<ArticleSearchKeyword> keywordsToUpdate = articleSearchKeywordRepository.findByUpdatedAtBetween(
             before, now);
-        List<ArticleSearchKeywordIpMap> ipMapsToUpdate = articleSearchKeywordIpMapRepository.findByCreatedAtBetween(
+        List<ArticleSearchKeywordIpMap> ipMapsToUpdate = articleSearchKeywordIpMapRepository.findByUpdatedAtBetween(
             before, now);
 
         for (ArticleSearchKeyword keyword : keywordsToUpdate) {
