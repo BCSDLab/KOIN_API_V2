@@ -20,7 +20,7 @@ public final class UpdateVersionFixture {
         this.updateVersionRepository = updateVersionRepository;
     }
 
-    public UpdateVersion Android() {
+    public UpdateVersion android() {
         var updateVersion = updateVersionRepository.save(
             UpdateVersion.builder()
                 .type(UpdateVersionType.ANDROID)
@@ -39,6 +39,27 @@ public final class UpdateVersionFixture {
                 UpdateContent.builder()
                     .type(updateVersion)
                     .title("Android 키워드 알림")
+                    .content("더 빠른 알림을 위해 업데이트 해주세요!")
+                    .build()
+            )
+        );
+        return updateVersionRepository.save(updateVersion);
+    }
+
+    public UpdateVersion ios() {
+        var updateVersion = updateVersionRepository.save(
+            UpdateVersion.builder()
+                .type(UpdateVersionType.IOS)
+                .version("3.5.0")
+                .title("코인 신기능 업데이트")
+                .contents(new ArrayList<>())
+                .build()
+        );
+        updateVersion.getContents().addAll(
+            List.of(
+                UpdateContent.builder()
+                    .type(updateVersion)
+                    .title("iOS 백그라운드 푸시 알림")
                     .content("더 빠른 알림을 위해 업데이트 해주세요!")
                     .build()
             )

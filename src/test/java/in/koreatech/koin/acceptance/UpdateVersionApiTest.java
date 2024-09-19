@@ -12,13 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.admin.updateversion.repository.AdminUpdateHistoryRepository;
-import in.koreatech.koin.admin.updateversion.repository.AdminUpdateVersionRepository;
 import in.koreatech.koin.domain.updateversion.model.UpdateVersion;
 import in.koreatech.koin.domain.updateversion.model.UpdateVersionType;
-import in.koreatech.koin.domain.updateversion.repository.UpdateVersionRepository;
-import in.koreatech.koin.domain.version.model.Version;
-import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.fixture.UpdateVersionFixture;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -33,7 +28,7 @@ public class UpdateVersionApiTest extends AcceptanceTest {
     @BeforeAll
     void setup() {
         clear();
-        android = updateVersionFixture.Android();
+        android = updateVersionFixture.android();
     }
 
     @Test

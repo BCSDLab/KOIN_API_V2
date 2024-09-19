@@ -15,7 +15,7 @@ import in.koreatech.koin.admin.updateversion.dto.AdminUpdateVersionsResponse;
 import in.koreatech.koin.admin.updateversion.repository.AdminUpdateHistoryRepository;
 import in.koreatech.koin.admin.updateversion.repository.AdminUpdateVersionRepository;
 import in.koreatech.koin.domain.updateversion.model.UpdateContent;
-import in.koreatech.koin.domain.updateversion.model.UpdateHistory;
+import in.koreatech.koin.domain.updateversion.model.UpdateVersionHistory;
 import in.koreatech.koin.domain.updateversion.model.UpdateVersion;
 import in.koreatech.koin.domain.updateversion.model.UpdateVersionType;
 import in.koreatech.koin.global.model.Criteria;
@@ -59,13 +59,7 @@ public class AdminUpdateVersionService {
             contents
         );
         adminUpdateVersionRepository.save(version);
-
-        UpdateHistory history = UpdateHistory.builder()
-            .type(version.getType())
-            .version(version.getVersion())
-            .title(version.getTitle())
-            .build();
-        adminUpdateHistoryRepository.save(history);
+        adminUpdateHistoryRepository.save(UpdateVersionHistory.from(version));
     }
 
     public AdminUpdateHistoryResponse getUpdateHistory(UpdateVersionType type, Integer page, Integer limit) {
@@ -75,7 +69,7 @@ public class AdminUpdateVersionService {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
             Sort.by(Sort.Direction.ASC, "id"));
 
-        Page<UpdateHistory> result = adminUpdateHistoryRepository.findAllByType(type, pageRequest);
+        Page<UpdateVersionHistory> result = adminUpdateHistoryRepository.findAllByType(type, pageRequest);
 
         return AdminUpdateHistoryResponse.of(result, criteria);
     }

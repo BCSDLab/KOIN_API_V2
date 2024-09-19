@@ -5,8 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.util.List;
-
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.updateversion.repository.AdminUpdateVersionRepository;
-import in.koreatech.koin.domain.updateversion.model.UpdateContent;
 import in.koreatech.koin.domain.updateversion.model.UpdateVersion;
 import in.koreatech.koin.domain.updateversion.model.UpdateVersionType;
 import in.koreatech.koin.domain.user.model.User;
@@ -44,7 +41,7 @@ public class AdminUpdateVersionApiTest extends AcceptanceTest {
     @BeforeAll
     void setup() {
         clear();
-        android = updateVersionFixture.Android();
+        android = updateVersionFixture.android();
         admin = userFixture.코인_운영자();
         admin_token = userFixture.getToken(admin);
     }
@@ -82,17 +79,18 @@ public class AdminUpdateVersionApiTest extends AcceptanceTest {
 
     @Test
     void 모든_타입의_최소_버전_정보를_조회한다() throws Exception {
+        adminUpdateVersionRepository.save(updateVersionFixture.ios());
         mockMvc.perform(
                 get("/admin/update/version")
                     .header("Authorization", "Bearer " + admin_token)
                     .param("page", "1")
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.total_count").value(1))
-            .andExpect(jsonPath("$.current_count").value(1))
+            .andExpect(jsonPath("$.total_count").value(2))
+            .andExpect(jsonPath("$.current_count").value(2))
             .andExpect(jsonPath("$.total_page").value(1))
             .andExpect(jsonPath("$.current_page").value(1))
-            .andExpect(jsonPath("$.versions.length()").value(1));
+            .andExpect(jsonPath("$.versions.length()").value(2));
     }
 
     @Test

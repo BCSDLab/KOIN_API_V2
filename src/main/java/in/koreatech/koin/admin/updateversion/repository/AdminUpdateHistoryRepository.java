@@ -7,24 +7,24 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.updateversion.model.UpdateHistory;
+import in.koreatech.koin.domain.updateversion.model.UpdateVersionHistory;
 import in.koreatech.koin.domain.updateversion.model.UpdateVersionType;
 import in.koreatech.koin.domain.version.exception.VersionTypeNotFoundException;
 
-public interface AdminUpdateHistoryRepository extends Repository<UpdateHistory, Integer> {
+public interface AdminUpdateHistoryRepository extends Repository<UpdateVersionHistory, Integer> {
 
-    UpdateHistory save(UpdateHistory request);
+    UpdateVersionHistory save(UpdateVersionHistory request);
 
     Integer countByType(UpdateVersionType type);
 
-    Page<UpdateHistory> findAll(Pageable pageable);
+    Page<UpdateVersionHistory> findAll(Pageable pageable);
 
-    Optional<UpdateHistory> findById(Integer id);
+    Optional<UpdateVersionHistory> findById(Integer id);
 
-    default UpdateHistory getById(Integer id) {
+    default UpdateVersionHistory getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> VersionTypeNotFoundException.withDetail("id: " + id));
     }
 
-    Page<UpdateHistory> findAllByType(UpdateVersionType type, PageRequest pageRequest);
+    Page<UpdateVersionHistory> findAllByType(UpdateVersionType type, PageRequest pageRequest);
 }

@@ -1,21 +1,15 @@
 package in.koreatech.koin.domain.updateversion.model;
 
-import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -25,9 +19,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "update_history")
+@Table(name = "update_version_history")
 @NoArgsConstructor(access = PROTECTED)
-public class UpdateHistory extends BaseEntity {
+public class UpdateVersionHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -47,7 +41,7 @@ public class UpdateHistory extends BaseEntity {
     private String title;
 
     @Builder
-    private UpdateHistory(
+    private UpdateVersionHistory(
         UpdateVersionType type,
         String version,
         String title
@@ -55,5 +49,13 @@ public class UpdateHistory extends BaseEntity {
         this.version = version;
         this.type = type;
         this.title = title;
+    }
+
+    public static UpdateVersionHistory from(UpdateVersion version) {
+        return UpdateVersionHistory.builder()
+            .type(version.getType())
+            .version(version.getVersion())
+            .title(version.getTitle())
+            .build();
     }
 }
