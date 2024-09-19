@@ -22,14 +22,19 @@ import org.testcontainers.utility.DockerImageName;
 import in.koreatech.koin.config.TestJpaConfiguration;
 import in.koreatech.koin.config.TestRedisConfiguration;
 import in.koreatech.koin.config.TestTimeConfig;
+import in.koreatech.koin.domain.bus.util.express.PublicExpressBusClient;
+import in.koreatech.koin.domain.bus.util.express.StaticExpressBusClient;
+import in.koreatech.koin.domain.bus.util.express.TmoneyExpressBusClient;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEventListener;
 import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
-import in.koreatech.koin.domain.shop.model.ReviewEventListener;
-import in.koreatech.koin.domain.shop.model.ShopEventListener;
+import in.koreatech.koin.domain.shop.model.event.listener.ReviewEventListener;
+import in.koreatech.koin.domain.shop.model.event.listener.ShopEventListener;
 import in.koreatech.koin.domain.user.model.StudentEventListener;
 import in.koreatech.koin.support.DBInitializer;
 import in.koreatech.koin.util.TestCircuitBreakerClient;
+import in.koreatech.koin.util.TestCircuitBreakerClient;
+import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
 
 @SpringBootTest
@@ -61,6 +66,15 @@ public abstract class AcceptanceTest {
 
     @MockBean
     protected ArticleKeywordEventListener articleKeywordEventListener;
+
+    @MockBean
+    protected PublicExpressBusClient publicExpressBusClient;
+
+    @MockBean
+    protected TmoneyExpressBusClient tmoneyExpressBusClient;
+
+    @MockBean
+    protected StaticExpressBusClient staticExpressBusClient;
 
     @SpyBean
     protected TestCircuitBreakerClient testCircuitBreakerClient;

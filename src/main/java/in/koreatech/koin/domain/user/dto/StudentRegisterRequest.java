@@ -4,21 +4,9 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.util.UUID;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.user.model.Student;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.model.UserIdentity;
-import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.global.validation.NotEmoji;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -37,11 +25,11 @@ public record StudentRegisterRequest(
     @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z]+$", message = "이름은 한글, 영문만 사용할 수 있습니다.")
     String name,
 
-    @Schema(description = " SHA 256 해시 알고리즘으로 암호화된 비밀번호", example = "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268", requiredMode = REQUIRED)
+    @Schema(description = "SHA 256 해시 알고리즘으로 암호화된 비밀번호", example = "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268", requiredMode = REQUIRED)
     @NotBlank(message = "비밀번호를 입력해주세요.")
     String password,
 
-    @Schema(description = "닉네임", example = "bbo", requiredMode = NOT_REQUIRED)
+    @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
     @Size(max = 10, message = "닉네임은 최대 10자입니다.")
     @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$", message = "한글, 영문 및 숫자만 사용할 수 있습니다.")
     String nickname,
@@ -54,7 +42,7 @@ public record StudentRegisterRequest(
 
     @Schema(
         description = """
-            - 전공
+            전공
             - 기계공학부
             - 컴퓨터공학부
             - 메카트로닉스공학부
@@ -69,11 +57,10 @@ public record StudentRegisterRequest(
         example = "컴퓨터공학부",
         requiredMode = REQUIRED
     )
-    @JsonProperty("major")
-    String department,
+    String major,
 
     @Schema(description = "학번", example = "2021136012", requiredMode = NOT_REQUIRED)
-    @Size(min = 10, max = 10, message = "학번은 10자여야합니다.")
+    @Pattern(regexp = "^[0-9]{10}$", message = "학번엔 10자리 숫자만 입력 가능합니다.")
     String studentNumber,
 
     @Schema(description = "휴대폰 번호", example = "010-1234-5678 또는 01012345678", requiredMode = NOT_REQUIRED)

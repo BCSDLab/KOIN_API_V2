@@ -5,14 +5,14 @@ import java.time.Clock;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.config.FixedDate;
-import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopReview;
-import in.koreatech.koin.domain.shop.model.ShopReviewImage;
-import in.koreatech.koin.domain.shop.model.ShopReviewMenu;
-import in.koreatech.koin.domain.shop.repository.ShopRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewImageRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewMenuRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewRepository;
+import in.koreatech.koin.domain.shop.model.review.ShopReview;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewImage;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewMenu;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.repository.review.ShopReviewImageRepository;
+import in.koreatech.koin.domain.shop.repository.review.ShopReviewMenuRepository;
+import in.koreatech.koin.domain.shop.repository.review.ShopReviewRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.user.model.Student;
 
 @Component

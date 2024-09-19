@@ -50,6 +50,10 @@ public class ArticleService {
         Sort.Order.desc("registeredAt"),
         Sort.Order.desc("id")
     );
+    private static final Sort NATIVE_ARTICLES_SORT = Sort.by(
+        Sort.Order.desc("registered_at"),
+        Sort.Order.desc("id")
+    );
 
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
@@ -118,7 +122,7 @@ public class ArticleService {
         }
 
         Criteria criteria = Criteria.of(page, limit);
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), NATIVE_ARTICLES_SORT);
         Page<Article> articles;
         if (boardId == null) {
             articles = articleRepository.findAllByTitleContaining(query, pageRequest);
@@ -207,8 +211,6 @@ public class ArticleService {
         if (map.getSearchCount() <= 10) {
             keyword.updateWeight(keyword.getWeight() + additionalWeight);
         }
-
-        keyword.updateWeight(keyword.getWeight() + additionalWeight);
         articleSearchKeywordRepository.save(keyword);
     }
 
@@ -217,9 +219,9 @@ public class ArticleService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime before = now.minusHours(6).minusMinutes(30);
 
-        List<ArticleSearchKeyword> keywordsToUpdate = articleSearchKeywordRepository.findByCreatedAtBetween(
+        List<ArticleSearchKeyword> keywordsToUpdate = articleSearchKeywordRepository.findByUpdatedAtBetween(
             before, now);
-        List<ArticleSearchKeywordIpMap> ipMapsToUpdate = articleSearchKeywordIpMapRepository.findByCreatedAtBetween(
+        List<ArticleSearchKeywordIpMap> ipMapsToUpdate = articleSearchKeywordIpMapRepository.findByUpdatedAtBetween(
             before, now);
 
         for (ArticleSearchKeyword keyword : keywordsToUpdate) {

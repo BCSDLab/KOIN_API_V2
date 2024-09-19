@@ -2,16 +2,10 @@ package in.koreatech.koin.fixture;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.shop.model.ReportStatus;
-import in.koreatech.koin.domain.shop.model.Shop;
-import in.koreatech.koin.domain.shop.model.ShopReview;
-import in.koreatech.koin.domain.shop.model.ShopReviewImage;
-import in.koreatech.koin.domain.shop.model.ShopReviewMenu;
-import in.koreatech.koin.domain.shop.model.ShopReviewReport;
-import in.koreatech.koin.domain.shop.repository.ShopReviewImageRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewMenuRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewReportRepository;
-import in.koreatech.koin.domain.shop.repository.ShopReviewRepository;
+import in.koreatech.koin.domain.shop.model.review.ReportStatus;
+import in.koreatech.koin.domain.shop.model.review.ShopReview;
+import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
+import in.koreatech.koin.domain.shop.repository.review.ShopReviewReportRepository;
 import in.koreatech.koin.domain.user.model.Student;
 
 @Component

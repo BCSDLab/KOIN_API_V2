@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.keyword.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
@@ -84,6 +85,7 @@ public interface KeywordApi {
     @Operation(summary = "키워드 알림 전송", hidden = true)
     @PostMapping("/notification")
     ResponseEntity<Void> pushKeywordNotification(
-        @Valid @RequestBody KeywordNotificationRequest request
+        @Valid @RequestBody KeywordNotificationRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 }
