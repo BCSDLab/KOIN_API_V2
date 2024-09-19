@@ -26,14 +26,18 @@ public record BenefitCategoryResponse(
         String title,
 
         @Schema(description = "혜택 카테고리 설명", example = "계좌이체하면 배달비가 무료(할인)인 상점들만 모아뒀어요.", requiredMode = NOT_REQUIRED)
-        String detail
+        String detail,
+
+        @Schema(description = "혜택 카테고리 이미지 URL", example = "https://example.com/example.jpg", requiredMode = NOT_REQUIRED)
+        String imageUrl
     ) {
 
         public static InnerBenefitResponse from(BenefitCategory benefitCategory) {
             return new InnerBenefitResponse(
                 benefitCategory.getId(),
                 benefitCategory.getTitle(),
-                benefitCategory.getDetail()
+                benefitCategory.getDetail(),
+                benefitCategory.getImageUrl()
             );
         }
     }

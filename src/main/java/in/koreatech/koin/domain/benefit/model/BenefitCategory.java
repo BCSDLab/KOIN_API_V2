@@ -32,6 +32,9 @@ public class BenefitCategory extends BaseEntity {
     @Column(name = "detail")
     String detail;
 
+    @Column(name = "image_url")
+    String imageUrl;
+
     @Builder
     public BenefitCategory(String title, String detail) {
         this.title = title;
