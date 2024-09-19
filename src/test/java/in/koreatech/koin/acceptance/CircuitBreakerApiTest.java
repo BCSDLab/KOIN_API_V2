@@ -21,7 +21,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 @Import(TestResilience4jConfig.class)
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CircuitBreakerTest extends AcceptanceTest {
+class CircuitBreakerApiTest extends AcceptanceTest {
 
     @Autowired
     private CircuitBreakerRegistry circuitBreakerRegistry;
