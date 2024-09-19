@@ -1,6 +1,8 @@
 package in.koreatech.koin.admin.benefit.service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,6 +82,16 @@ public class AdminBenefitService {
     }
 
     public AdminSearchBenefitShopsResponse searchShops(Integer benefitId, String query) {
-        return null;
+        List<Shop> shops = adminShopRepository.searchByName(query);
+        Set<Integer> benefitShopIds = adminBenefitCategoryMapRepository.findAllByBenefitCategoryId(benefitId).stream()
+            .map(benefitCategoryMap -> benefitCategoryMap.getShop().getId())
+            .collect(Collectors.toSet());
+        List<Shop> benefitShops = shops.stream()
+            .filter(shop -> benefitShopIds.contains(shop.getId()))
+            .toList();
+        List<Shop> nonBenefitShops = shops.stream()
+            .filter(shop -> !benefitShopIds.contains(shop.getId()))
+            .toList();
+        return AdminSearchBenefitShopsResponse.from(benefitShops, nonBenefitShops);
     }
 }

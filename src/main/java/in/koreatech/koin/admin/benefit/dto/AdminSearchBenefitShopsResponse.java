@@ -6,23 +6,34 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record AdminSearchBenefitShopsResponse(
-    @Schema(description = "상점 리스트")
-    List<InnerShopResponse> shops
+    @Schema(description = "혜택 상점 리스트")
+    List<InnerShopResponse> benefitShops,
+
+    @Schema(description = "혜택을 제공하지 않는 상점 리스트")
+    List<InnerShopResponse> nonBenefitShops
 ) {
+
+    public static AdminSearchBenefitShopsResponse from(List<Shop> benefitShops, List<Shop> nonBenefitShops) {
+        return new AdminSearchBenefitShopsResponse(
+            benefitShops.stream()
+                .map(InnerShopResponse::from)
+                .toList(),
+            nonBenefitShops.stream().
+                map(InnerShopResponse::from)
+                .toList()
+        );
+    }
 
     public record InnerShopResponse(
         @Schema(description = "상점 ID", example = "1")
         Integer id,
 
         @Schema(description = "상점 이름", example = "수신반점")
-        String name,
+        String name
+        ) {
 
-        @Schema(description = "혜택 여부", example = "true")
-        boolean hasBenefit
-    ) {
-
-        public static AdminCreateBenefitShopsResponse.InnerShopResponse from(Shop shop) {
-            return new AdminCreateBenefitShopsResponse.InnerShopResponse(
+        public static InnerShopResponse from(Shop shop) {
+            return new InnerShopResponse(
                 shop.getId(),
                 shop.getName()
             );
