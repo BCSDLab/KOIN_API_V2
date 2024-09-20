@@ -54,12 +54,10 @@ public class Version extends BaseEntity {
 
     @Builder
     private Version(
-        Integer id,
         String type,
         String version,
         String title
     ) {
-        this.id = id;
         this.type = type;
         this.version = version;
         this.title = title;
