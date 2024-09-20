@@ -1,23 +1,24 @@
-package in.koreatech.koin.domain.bus.util;
+package in.koreatech.koin.domain.bus.util.express;
 
 import static in.koreatech.koin.domain.bus.model.enums.BusStation.KOREATECH;
 import static in.koreatech.koin.domain.bus.model.enums.BusStation.TERMINAL;
 import static in.koreatech.koin.domain.bus.model.enums.BusType.EXPRESS;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.domain.bus.dto.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
@@ -26,26 +27,35 @@ import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusTimetable;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
-import in.koreatech.koin.domain.version.repository.VersionRepository;
+import in.koreatech.koin.global.domain.callcontoller.CallController;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
+@Component
 @Transactional(readOnly = true)
-public abstract class ExpressBusClient<T, U> {
+@RequiredArgsConstructor
+public class ExpressBusService {
 
-    protected final VersionRepository versionRepository;
-    protected final ExpressBusCacheRepository expressBusCacheRepository;
-    protected final RestTemplate restTemplate;
-    protected final Clock clock;
+    private final List<ExpressBusClient> expressBusTypes;
+    private final List<ExpressBusClient> apiCallListByRatio = new ArrayList<>();
+    private final ExpressBusCacheRepository expressBusCacheRepository;
+    private final CallController<ExpressBusClient> callController;
 
-    public ExpressBusClient(
-        VersionRepository versionRepository,
-        RestTemplate restTemplate,
-        Clock clock,
-        ExpressBusCacheRepository expressBusCacheRepository
-    ) {
-        this.versionRepository = versionRepository;
-        this.restTemplate = restTemplate;
-        this.clock = clock;
-        this.expressBusCacheRepository = expressBusCacheRepository;
+    public void storeRemainTimeByRatio() {
+        ExpressBusClient selectedBus = callController.getInstanceByRatio(expressBusTypes, apiCallListByRatio);
+        List<ExpressBusClient> fallBackableTypes = new ArrayList<>(expressBusTypes);
+        while (true) {
+            try {
+                selectedBus.storeRemainTime();
+                break;
+            } catch (IndexOutOfBoundsException e) {
+                throw new BusOpenApiException("호출할 수 있는 버스 API가 없습니다.");
+            } catch (Exception e) {
+                log.warn(String.format("%s 호출 중 문제가 발생했습니다.", selectedBus));
+                selectedBus = callController.fallBack(selectedBus, fallBackableTypes);
+            }
+        }
     }
 
     public SingleBusTimeResponse searchBusTime(
@@ -121,12 +131,4 @@ public abstract class ExpressBusClient<T, U> {
             .map(ExpressBusTimetable::from)
             .toList();
     }
-
-    public abstract void storeRemainTimeByOpenApi();
-
-    protected abstract T getOpenApiResponse(BusStation depart, BusStation arrival);
-
-    protected abstract U getBusApiURL(BusStation depart, BusStation arrival);
-
-    protected abstract List<?> extractBusArrivalInfo(T ExpressBusResponse);
 }

@@ -37,9 +37,9 @@ import in.koreatech.koin.domain.bus.model.mongo.CityBusTimetable;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
-import in.koreatech.koin.domain.bus.util.CityBusClient;
-import in.koreatech.koin.domain.bus.util.CityBusRouteClient;
-import in.koreatech.koin.domain.bus.util.TmoneyExpressBusClient;
+import in.koreatech.koin.domain.bus.util.city.CityBusClient;
+import in.koreatech.koin.domain.bus.util.city.CityBusRouteClient;
+import in.koreatech.koin.domain.bus.util.express.ExpressBusService;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -54,7 +54,7 @@ public class BusService {
     private final BusRepository busRepository;
     private final CityBusTimetableRepository cityBusTimetableRepository;
     private final CityBusClient cityBusClient;
-    private final TmoneyExpressBusClient tmoneyExpressBusClient;
+    private final ExpressBusService expressBusService;
     private final CityBusRouteClient cityBusRouteClient;
     private final VersionService versionService;
 
@@ -83,7 +83,7 @@ public class BusService {
         }
 
         if (busType == BusType.EXPRESS) {
-            var remainTimes = tmoneyExpressBusClient.getBusRemainTime(depart, arrival);
+            var remainTimes = expressBusService.getBusRemainTime(depart, arrival);
             return toResponse(busType, remainTimes);
         }
 
@@ -118,7 +118,7 @@ public class BusService {
             SingleBusTimeResponse busTimeResponse = null;
 
             if (busType == BusType.EXPRESS) {
-                busTimeResponse = tmoneyExpressBusClient.searchBusTime(
+                busTimeResponse = expressBusService.searchBusTime(
                     busType.getName(),
                     depart,
                     arrival,
@@ -187,7 +187,7 @@ public class BusService {
         }
 
         if (busType == BusType.EXPRESS) {
-            return tmoneyExpressBusClient.getExpressBusTimetable(direction);
+            return expressBusService.getExpressBusTimetable(direction);
         }
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {

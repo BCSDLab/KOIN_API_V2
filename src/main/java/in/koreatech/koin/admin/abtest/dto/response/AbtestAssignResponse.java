@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.abtest.dto;
+package in.koreatech.koin.admin.abtest.dto.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReflectionUtils {
 
-    public static <A extends Annotation> Object findAnnotationValue(
+    public static <A extends Annotation> Object getAnnotationValue(
         Object proxy,
         Class<A> annotationType,
         String methodName
