@@ -33,9 +33,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -50,14 +47,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "shops")
 @Where(clause = "is_deleted=0")
-@NamedEntityGraph(name = "Shop.withAll", attributeNodes = {
-    @NamedAttributeNode(value = "shopOpens"),
-    @NamedAttributeNode(value = "shopCategories", subgraph = "shopCategory1"),
-},
-    subgraphs = @NamedSubgraph(name = "shopCategory1", attributeNodes = {
-        @NamedAttributeNode("shopCategory")
-    })
-)
 public class Shop extends BaseEntity {
 
     @Id
