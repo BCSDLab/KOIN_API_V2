@@ -18,4 +18,11 @@ public interface VersionRepository extends Repository<Version, Integer> {
         return this.findByType(type.getValue())
             .orElseThrow(() -> VersionTypeNotFoundException.withDetail("versionType: " + type));
     }
+
+    Optional<Version> findByTypeAndIsPrevious(String type, boolean isPrevious);
+
+    default Version getByTypeAndIsPrevious(VersionType type, boolean isPrevious) {
+        return this.findByTypeAndIsPrevious(type.getValue(), isPrevious)
+            .orElseThrow(() -> VersionTypeNotFoundException.withDetail("versionType: " + type));
+    }
 }

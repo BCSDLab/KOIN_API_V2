@@ -3,7 +3,6 @@ package in.koreatech.koin.admin.acceptance;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,42 +13,42 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.admin.updateversion.repository.AdminUpdateVersionRepository;
-import in.koreatech.koin.domain.updateversion.model.UpdateVersion;
-import in.koreatech.koin.domain.updateversion.model.UpdateVersionType;
+import in.koreatech.koin.admin.version.repository.AdminVersionRepository;
 import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.fixture.UpdateVersionFixture;
+import in.koreatech.koin.domain.version.model.Version;
+import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.fixture.UserFixture;
+import in.koreatech.koin.fixture.VersionFixture;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
-public class AdminUpdateVersionApiTest extends AcceptanceTest {
+public class AdminVersionApiTest extends AcceptanceTest {
 
     @Autowired
-    private AdminUpdateVersionRepository adminUpdateVersionRepository;
+    private AdminVersionRepository adminVersionRepository;
 
     @Autowired
-    private UpdateVersionFixture updateVersionFixture;
+    private VersionFixture versionFixture;
 
     @Autowired
     private UserFixture userFixture;
 
-    private UpdateVersion android;
+    private Version android;
     private User admin;
     private String admin_token;
 
     @BeforeAll
     void setup() {
         clear();
-        android = updateVersionFixture.android();
+        android = versionFixture.android();
         admin = userFixture.코인_운영자();
         admin_token = userFixture.getToken(admin);
     }
 
     @Test
-    void 업데이트_버전_타입을_통해_최소_버전_정보를_조회한다() throws Exception {
+    void 특정_타입의_버전_정보를_조회한다() throws Exception {
         mockMvc.perform(
-                get("/admin/update/version/" + android.getType())
+                get("/admin/version/" + android.getType())
                     .header("Authorization", "Bearer " + admin_token)
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -78,10 +77,10 @@ public class AdminUpdateVersionApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 모든_타입의_최소_버전_정보를_조회한다() throws Exception {
-        adminUpdateVersionRepository.save(updateVersionFixture.ios());
+    void 모든_타입의_버전_정보를_조회한다() throws Exception {
+        adminVersionRepository.save(versionFixture.ios());
         mockMvc.perform(
-                get("/admin/update/version")
+                get("/admin/version")
                     .header("Authorization", "Bearer " + admin_token)
                     .param("page", "1")
             )
@@ -94,9 +93,9 @@ public class AdminUpdateVersionApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 특정_타입의_최소_버전을_업데이트_한다() throws Exception {
+    void 특정_타입의_버전을_업데이트_한다() throws Exception {
         mockMvc.perform(
-                post("/admin/update/version/" + android.getType())
+                post("/admin/version/" + android.getType())
                     .header("Authorization", "Bearer " + admin_token)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
@@ -112,25 +111,25 @@ public class AdminUpdateVersionApiTest extends AcceptanceTest {
                             }
                         """)
             )
-            .andExpect(status().isOk());
+            .andExpect(status().isCreated());
 
-        UpdateVersion updatedVersion = adminUpdateVersionRepository.getByType(android.getType());
+        Version newVersion = adminVersionRepository.getByTypeAndIsPrevious(VersionType.from(android.getType()), false);
 
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(updatedVersion.getType()).isEqualTo(android.getType());
-            softly.assertThat(updatedVersion.getVersion()).isEqualTo("3.6.1");
-            softly.assertThat(updatedVersion.getTitle()).isEqualTo("코인의 새로운 기능 업데이트");
-            softly.assertThat(updatedVersion.getContents().get(0).getTitle()).isEqualTo("백그라운드 푸시 알림");
-            softly.assertThat(updatedVersion.getContents().get(0).getContent()).isEqualTo("정확하고 빠른...");
+            softly.assertThat(newVersion.getType()).isEqualTo(android.getType());
+            softly.assertThat(newVersion.getVersion()).isEqualTo("3.6.1");
+            softly.assertThat(newVersion.getTitle()).isEqualTo("코인의 새로운 기능 업데이트");
+            softly.assertThat(newVersion.getContents().get(0).getTitle()).isEqualTo("백그라운드 푸시 알림");
+            softly.assertThat(newVersion.getContents().get(0).getContent()).isEqualTo("정확하고 빠른...");
         });
     }
 
     @Test
-    void 버전_타입을_통해_버전_정보를_조회한다_저장되지_않은_버전_타입을_요청한_경우_에러가_발생한다() throws Exception {
-        UpdateVersionType failureType = UpdateVersionType.IOS;
+    void 타입을_통해_버전_정보를_조회한다_저장되지_않은_버전_타입을_요청한_경우_에러가_발생한다() throws Exception {
+        VersionType failureType = VersionType.IOS;
 
         mockMvc.perform(
-                get("/admin/update/version/" + failureType)
+                get("/admin/version/" + failureType)
                     .header("Authorization", "Bearer " + admin_token)
                     .contentType(MediaType.APPLICATION_JSON)
             )

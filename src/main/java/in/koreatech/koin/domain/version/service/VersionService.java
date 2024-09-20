@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.version.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.version.dto.VersionMessageResponse;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
@@ -19,5 +20,10 @@ public class VersionService {
     public VersionResponse getVersion(String type) {
         Version version = versionRepository.getByType(VersionType.from(type));
         return VersionResponse.from(version);
+    }
+
+    public VersionMessageResponse getVersionWithMessage(String type) {
+        Version version = versionRepository.getByTypeAndIsPrevious(VersionType.from(type), false);
+        return VersionMessageResponse.from(version);
     }
 }

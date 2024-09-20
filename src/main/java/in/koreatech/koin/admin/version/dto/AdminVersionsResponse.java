@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.updateversion.dto;
+package in.koreatech.koin.admin.version.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -11,13 +11,13 @@ import org.springframework.data.domain.Page;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.updateversion.model.UpdateVersionHistory;
-import in.koreatech.koin.domain.updateversion.model.UpdateVersionType;
+import in.koreatech.koin.domain.version.model.Version;
+import in.koreatech.koin.domain.version.model.VersionContent;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record AdminUpdateHistoryResponse(
+public record AdminVersionsResponse(
     @Schema(description = "조건에 해당하는 총 버전 타입의 수", example = "2", requiredMode = REQUIRED)
     Long totalCount,
 
@@ -31,33 +31,36 @@ public record AdminUpdateHistoryResponse(
     Integer currentPage,
 
     @Schema(description = "버전 정보 리스트", requiredMode = REQUIRED)
-    List<InnerAdminUpdateHistoryResponse> versions
+    List<InnerAdminVersionResponse> versions
 ) {
 
-    public static AdminUpdateHistoryResponse of(Page<UpdateVersionHistory> pagedResult, Criteria criteria) {
-        return new AdminUpdateHistoryResponse(
+    public static AdminVersionsResponse of(Page<Version> pagedResult, Criteria criteria) {
+        return new AdminVersionsResponse(
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),
             pagedResult.getTotalPages(),
             criteria.getPage() + 1,
             pagedResult.getContent().stream()
-                .map(InnerAdminUpdateHistoryResponse::from)
+                .map(InnerAdminVersionResponse::from)
                 .toList()
         );
     }
 
-    public record InnerAdminUpdateHistoryResponse(
+    public record InnerAdminVersionResponse(
         @Schema(description = "업데이트 버전 ID", example = "1", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(description = "업데이트 버전 타입", example = "ANDROID", requiredMode = REQUIRED)
-        UpdateVersionType type,
+        @Schema(description = "업데이트 버전 타입", example = "android", requiredMode = REQUIRED)
+        String type,
 
         @Schema(description = "업데이트 버전", example = "3.5.0", requiredMode = REQUIRED)
         String version,
 
         @Schema(description = "업데이트 제목", example = "코인의 새로운 기능 업데이트", requiredMode = REQUIRED)
         String title,
+
+        @Schema(description = "업데이트 버전 내용", requiredMode = REQUIRED)
+        List<InnerAdminVersionsBody> body,
 
         @Schema(description = "생성일", example = "2021-06-21 13:00:00", requiredMode = REQUIRED)
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -67,15 +70,36 @@ public record AdminUpdateHistoryResponse(
         @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDateTime updatedAt
     ) {
-        public static InnerAdminUpdateHistoryResponse from(UpdateVersionHistory history) {
-            return new InnerAdminUpdateHistoryResponse(
-                history.getId(),
-                history.getType(),
-                history.getVersion(),
-                history.getTitle(),
-                history.getCreatedAt(),
-                history.getUpdatedAt()
+
+        public static InnerAdminVersionResponse from(Version version) {
+            return new InnerAdminVersionResponse(
+                version.getId(),
+                version.getType(),
+                version.getVersion(),
+                version.getTitle(),
+                version.getContents().stream()
+                    .map(InnerAdminVersionsBody::from)
+                    .toList(),
+                version.getCreatedAt(),
+                version.getUpdatedAt()
             );
+        }
+
+        @JsonNaming(value = SnakeCaseStrategy.class)
+        public record InnerAdminVersionsBody(
+            @Schema(description = "업데이트 버전 소제목", example = "백그라운드 푸시 알림", requiredMode = REQUIRED)
+            String bodyTitle,
+
+            @Schema(description = "업데이트 버전 본문", example = "정확하고 빠른 알림을 위해...", requiredMode = REQUIRED)
+            String bodyContent
+        ) {
+
+            public static InnerAdminVersionsBody from(VersionContent content) {
+                return new InnerAdminVersionsBody(
+                    content.getTitle(),
+                    content.getContent()
+                );
+            }
         }
     }
 }

@@ -1,10 +1,7 @@
-package in.koreatech.koin.domain.updateversion.model;
+package in.koreatech.koin.domain.version.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
-
-import java.time.Clock;
-import java.time.LocalDate;
 
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -16,16 +13,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "update_contents")
+@Table(name = "version_contents")
 @NoArgsConstructor(access = PROTECTED)
-public class UpdateContent extends BaseEntity {
+public class VersionContent extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -33,8 +29,8 @@ public class UpdateContent extends BaseEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "type_id", referencedColumnName = "id", nullable = false)
-    private UpdateVersion type;
+    @JoinColumn(name = "version_id", referencedColumnName = "id", nullable = false)
+    private Version version;
 
     @Column(name = "title", length = 50)
     private String title;
@@ -43,8 +39,8 @@ public class UpdateContent extends BaseEntity {
     private String content;
 
     @Builder
-    private UpdateContent(UpdateVersion type, String title, String content) {
-        this.type = type;
+    private VersionContent(Version version, String title, String content) {
+        this.version = version;
         this.title = title;
         this.content = content;
     }

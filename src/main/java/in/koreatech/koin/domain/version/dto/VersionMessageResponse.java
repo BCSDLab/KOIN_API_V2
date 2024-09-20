@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.updateversion.dto;
+package in.koreatech.koin.domain.version.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -9,18 +9,17 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.updateversion.model.UpdateContent;
-import in.koreatech.koin.domain.updateversion.model.UpdateVersion;
-import in.koreatech.koin.domain.updateversion.model.UpdateVersionType;
+import in.koreatech.koin.domain.version.model.Version;
+import in.koreatech.koin.domain.version.model.VersionContent;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record UpdateVersionResponse(
+public record VersionMessageResponse(
     @Schema(description = "업데이트 버전 ID", example = "1", requiredMode = REQUIRED)
     Integer id,
 
     @Schema(description = "업데이트 버전 타입", example = "android", requiredMode = REQUIRED)
-    UpdateVersionType type,
+    String type,
 
     @Schema(description = "업데이트 버전", example = "3.5.0", requiredMode = REQUIRED)
     String version,
@@ -29,7 +28,7 @@ public record UpdateVersionResponse(
     String title,
 
     @Schema(description = "업데이트 버전 내용", requiredMode = REQUIRED)
-    List<InnerUpdateVersionBody> body,
+    List<InnerVersionBody> body,
 
     @Schema(description = "생성일", example = "2021-06-21 13:00:00", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -40,14 +39,14 @@ public record UpdateVersionResponse(
     LocalDateTime updatedAt
 ) {
 
-    public static UpdateVersionResponse from(UpdateVersion version) {
-        return new UpdateVersionResponse(
+    public static VersionMessageResponse from(Version version) {
+        return new VersionMessageResponse(
             version.getId(),
             version.getType(),
             version.getVersion(),
             version.getTitle(),
             version.getContents().stream()
-                .map(InnerUpdateVersionBody::from)
+                .map(InnerVersionBody::from)
                 .toList(),
             version.getCreatedAt(),
             version.getUpdatedAt()
@@ -55,7 +54,7 @@ public record UpdateVersionResponse(
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerUpdateVersionBody(
+    public record InnerVersionBody(
         @Schema(description = "업데이트 버전 소제목", example = "백그라운드 푸시 알림", requiredMode = REQUIRED)
         String bodyTitle,
 
@@ -63,8 +62,8 @@ public record UpdateVersionResponse(
         String bodyContent
     ) {
 
-        public static InnerUpdateVersionBody from(UpdateContent content) {
-            return new InnerUpdateVersionBody(
+        public static InnerVersionBody from(VersionContent content) {
+            return new InnerVersionBody(
                 content.getTitle(),
                 content.getContent()
             );
