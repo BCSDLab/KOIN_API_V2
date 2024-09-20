@@ -20,6 +20,7 @@ public record AdminBenefitCategoryResponse(
         );
     }
 
+    @JsonNaming(SnakeCaseStrategy.class)
     public record InnerBenefitResponse(
         @Schema(description = "혜택 카테고리 ID", example = "1")
         Integer id,

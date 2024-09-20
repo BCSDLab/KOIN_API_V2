@@ -15,6 +15,7 @@ import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminDeleteShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
+import in.koreatech.koin.admin.benefit.exception.BenefitLimitException;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
@@ -32,6 +33,9 @@ public class AdminBenefitService {
     private final AdminBenefitCategoryMapRepository adminBenefitCategoryMapRepository;
     private final AdminShopRepository adminShopRepository;
 
+    private static final int MAX_BENEFIT_CATEGORIES = 6;
+    private static final int MIN_BENEFIT_CATEGORIES = 2;
+
     public AdminBenefitCategoryResponse getBenefitCategories() {
         List<BenefitCategory> categories = adminBenefitCategoryRepository.findAllByOrderByTitleAsc();
         return AdminBenefitCategoryResponse.from(categories);
@@ -39,6 +43,12 @@ public class AdminBenefitService {
 
     @Transactional
     public AdminCreateBenefitCategoryResponse createBenefitCategory(AdminCreateBenefitCategoryRequest request) {
+        int currentCategoryCount = adminBenefitCategoryRepository.count();
+        if (currentCategoryCount >= MAX_BENEFIT_CATEGORIES) {
+            throw BenefitLimitException.withDetail("혜택 카테고리는 반드시 " + MAX_BENEFIT_CATEGORIES + "개 이하이어야 합니다.");
+        } else if(adminBenefitCategoryRepository.findByTitle(request.title()).isPresent()) {
+            throw BenefitLimitException.withDetail("이미 존재하는 혜택 카테고리입니다.");
+        }
         BenefitCategory benefitCategory = request.toBenefitCategory();
         BenefitCategory savedBenefitCategory = adminBenefitCategoryRepository.save(benefitCategory);
         return AdminCreateBenefitCategoryResponse.from(savedBenefitCategory);
@@ -46,6 +56,14 @@ public class AdminBenefitService {
 
     @Transactional
     public void deleteBenefitCategory(Integer categoryId) {
+        System.out.println("=============123");
+        int currentCategoryCount = adminBenefitCategoryRepository.count();
+        if (currentCategoryCount <= MIN_BENEFIT_CATEGORIES) {
+            throw BenefitLimitException.withDetail("혜택 카테고리는 반드시 " + MIN_BENEFIT_CATEGORIES + "개 이상이어야 합니다.");
+        }
+        System.out.println("=============123");
+        adminBenefitCategoryMapRepository.deleteByBenefitCategoryId(categoryId);
+        System.out.println("=============123");
         adminBenefitCategoryRepository.deleteById(categoryId);
     }
 
@@ -95,3 +113,4 @@ public class AdminBenefitService {
         return AdminSearchBenefitShopsResponse.from(benefitShops, nonBenefitShops);
     }
 }
+

@@ -10,7 +10,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 
-public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCategory, Integer> {
+public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCategoryMap, Integer> {
 
     void save(BenefitCategoryMap benefitCategoryMap);
 
@@ -20,4 +20,8 @@ public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCat
     @Modifying
     @Query("DELETE FROM BenefitCategoryMap bcm WHERE bcm.benefitCategory.id = :benefitId AND bcm.shop.id IN :shopIds")
     void deleteByBenefitCategoryIdAndShopIds(Integer benefitId, List<Integer> shopIds);
+
+    @Modifying
+    @Query("DELETE FROM BenefitCategoryMap bcm WHERE bcm.benefitCategory.id = :categoryId")
+    void deleteByBenefitCategoryId(Integer categoryId);
 }

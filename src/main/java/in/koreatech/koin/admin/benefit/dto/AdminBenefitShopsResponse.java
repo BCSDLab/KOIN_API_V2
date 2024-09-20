@@ -26,6 +26,7 @@ public record AdminBenefitShopsResponse(
         );
     }
 
+    @JsonNaming(SnakeCaseStrategy.class)
     public record InnerShopResponse(
         @Schema(example = "1", description = "고유 id")
         Integer id,
