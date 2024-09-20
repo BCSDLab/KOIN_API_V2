@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
+import in.koreatech.koin.admin.abtest.dto.request.AbtestRequest;
 import in.koreatech.koin.admin.abtest.exception.AbtestAssignException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotIncludeVariableException;
 import in.koreatech.koin.admin.abtest.exception.AbtestTitleIllegalArgumentException;
