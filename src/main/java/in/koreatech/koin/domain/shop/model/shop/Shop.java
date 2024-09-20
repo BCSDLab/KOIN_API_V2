@@ -1,6 +1,9 @@
 package in.koreatech.koin.domain.shop.model.shop;
 
-import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.REFRESH;
+import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
@@ -35,7 +38,6 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -147,12 +149,6 @@ public class Shop extends BaseEntity {
     @Size(max = 20)
     @Column(name = "accountNumber", length = 20)
     private String accountNumber;
-
-    @Transient
-    Boolean isOpen;
-
-    @Transient
-    Boolean isEventActive;
 
     @Builder
     private Shop(
