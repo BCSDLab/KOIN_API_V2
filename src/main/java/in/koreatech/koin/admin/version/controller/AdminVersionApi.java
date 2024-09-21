@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "(ADMIN) AdminVersion: 버전", description = "관리자 권한으로 버전 정보를 관리한다")
-@RequestMapping("/admin")
+@RequestMapping("/admin/version")
 public interface AdminVersionApi {
 
     @ApiResponses(
@@ -39,7 +39,7 @@ public interface AdminVersionApi {
     )
     @Operation(summary = "모든 타입의 현재 버전 조회")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/version")
+    @GetMapping
     ResponseEntity<AdminVersionsResponse> getVersions(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
@@ -56,7 +56,7 @@ public interface AdminVersionApi {
     )
     @Operation(summary = "특정 타입의 현재 버전 조회")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/version/{type}")
+    @GetMapping("/{type}")
     ResponseEntity<AdminVersionResponse> getVersion(
         @Parameter(description = "android, ios, timetable, express_bus_timetable, shuttle_bus_timetable, city_bus_timetable")
         @PathVariable("type") String type,
@@ -73,7 +73,7 @@ public interface AdminVersionApi {
     )
     @Operation(summary = "특정 타입의 현재 버전 업데이트")
     @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/version/{type}")
+    @PutMapping("/{type}")
     ResponseEntity<Void> updateVersion(
         @Parameter(description = "android, ios") @PathVariable("type") String type,
         @RequestBody @Valid AdminVersionUpdateRequest adminVersionUpdateRequest,
@@ -90,7 +90,7 @@ public interface AdminVersionApi {
     )
     @Operation(summary = "특정 타입의 모든 버전 이력 조회")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/version/history/{type}")
+    @GetMapping("/history/{type}")
     ResponseEntity<AdminVersionHistoryResponse> getHistory(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,

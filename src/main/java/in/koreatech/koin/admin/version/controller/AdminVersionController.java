@@ -23,12 +23,12 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin")
+@RequestMapping("/admin/version")
 public class AdminVersionController implements AdminVersionApi {
 
     private final AdminVersionService adminVersionService;
 
-    @GetMapping("/version")
+    @GetMapping
     public ResponseEntity<AdminVersionsResponse> getVersions(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
@@ -37,7 +37,7 @@ public class AdminVersionController implements AdminVersionApi {
         return ResponseEntity.ok().body(adminVersionService.getVersions(page, limit));
     }
 
-    @GetMapping("/version/{type}")
+    @GetMapping("/{type}")
     public ResponseEntity<AdminVersionResponse> getVersion(
         @PathVariable("type") String type,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -45,7 +45,7 @@ public class AdminVersionController implements AdminVersionApi {
         return ResponseEntity.ok().body(adminVersionService.getVersion(type));
     }
 
-    @PostMapping("/version/{type}")
+    @PostMapping("/{type}")
     public ResponseEntity<Void> updateVersion(
         @PathVariable("type") String type,
         @RequestBody @Valid AdminVersionUpdateRequest adminVersionUpdateRequest,
@@ -55,7 +55,7 @@ public class AdminVersionController implements AdminVersionApi {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/version/history/{type}")
+    @GetMapping("/history/{type}")
     public ResponseEntity<AdminVersionHistoryResponse> getHistory(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
