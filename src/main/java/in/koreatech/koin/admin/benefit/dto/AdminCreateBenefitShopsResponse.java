@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(SnakeCaseStrategy.class)
 public record AdminCreateBenefitShopsResponse(
     @Schema(description = "상점 리스트")
     List<InnerShopResponse> shops
@@ -19,7 +18,6 @@ public record AdminCreateBenefitShopsResponse(
         );
     }
 
-    @JsonNaming(SnakeCaseStrategy.class)
     public record InnerShopResponse(
         @Schema(description = "상점 ID", example = "1")
         Integer id,
