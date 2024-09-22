@@ -233,7 +233,7 @@ public class AdminBenefitApiTest extends AcceptanceTest {
         mockMvc.perform(
                 get("/admin/benefit/{id}/shops/search", 배달비_무료.getId())
                     .header("Authorization", "Bearer " + token_admin)
-                    .param("query", "김밥")
+                    .param("search_keyword", "김밥")
             )
             .andExpect(status().isOk())
             .andExpect(content().json(String.format("""
