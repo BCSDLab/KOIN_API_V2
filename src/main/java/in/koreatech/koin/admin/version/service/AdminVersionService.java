@@ -50,7 +50,6 @@ public class AdminVersionService {
 
         Version currentVersion = adminVersionRepository.getByTypeAndIsPrevious(versionType, false);
         currentVersion.toPreviousVersion();
-        adminVersionRepository.save(currentVersion);
 
         Version newVersion = Version.of(versionType, request);
         adminVersionRepository.save(newVersion);

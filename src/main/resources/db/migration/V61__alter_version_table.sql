@@ -1,7 +1,7 @@
 ALTER TABLE `versions`
     ADD COLUMN (
     `title`         VARCHAR(255)                            COMMENT '업데이트 문구 제목',
-    `is_previous`   tinyint(1)      NOT NULL    DEFAULT 0   COMMENT '지난 버전 여부'
+    `is_previous`   tinyint      NOT NULL    DEFAULT 0   COMMENT '지난 버전 여부'
     ),
     DROP CONSTRAINT `versions_type_unique`
 ;

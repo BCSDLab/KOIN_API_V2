@@ -32,10 +32,10 @@ public class VersionContent extends BaseEntity {
     @JoinColumn(name = "version_id", referencedColumnName = "id", nullable = false)
     private Version version;
 
-    @Column(name = "title", length = 50)
+    @Column(name = "title")
     private String title;
 
-    @Column(name = "content", length = 50)
+    @Column(name = "content")
     private String content;
 
     @Builder
