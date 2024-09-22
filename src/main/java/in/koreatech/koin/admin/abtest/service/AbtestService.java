@@ -21,7 +21,6 @@ import in.koreatech.koin.admin.abtest.dto.response.AbtestResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestUsersResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestsResponse;
 import in.koreatech.koin.admin.abtest.exception.AbtestAlreadyExistException;
-import in.koreatech.koin.admin.abtest.exception.AbtestAssignedUserException;
 import in.koreatech.koin.admin.abtest.exception.AbtestDuplicatedVariableException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotAssignedUserException;
 import in.koreatech.koin.admin.abtest.exception.AbtestNotInProgressException;
@@ -38,7 +37,6 @@ import in.koreatech.koin.admin.abtest.repository.AbtestVariableAssignRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableAssignTemplateRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
-import in.koreatech.koin.admin.abtest.repository.AccessHistoryAbtestVariableCustomRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -63,7 +61,6 @@ public class AbtestService {
     private final UserRepository userRepository;
     private final AbtestVariableAssignRepository abtestVariableAssignRepository;
     private final AbtestVariableAssignTemplateRepository abtestVariableAssignTemplateRepository;
-    private final AccessHistoryAbtestVariableCustomRepository accessHistoryAbtestVariableCustomRepository;
 
     @Transactional
     public AbtestResponse createAbtest(AbtestRequest request) {
@@ -98,7 +95,6 @@ public class AbtestService {
         );
         return AbtestResponse.from(abtest);
     }
-
 
     private void deleteVariableAssignCache(Abtest abtest) {
         abtest.getAbtestVariables().forEach(abtestVariable ->
@@ -144,7 +140,8 @@ public class AbtestService {
     }
 
     @Transactional
-    public AbtestAssignResponse assignVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo, Integer userId,
+    public AbtestAssignResponse assignOrGetVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo,
+        Integer userId,
         AbtestAssignRequest request) {
         Abtest abtest = abtestRepository.getByTitle(request.title());
         AccessHistory accessHistory = findOrCreateAccessHistory(accessHistoryId);
@@ -152,7 +149,10 @@ public class AbtestService {
         if (winnerResponse.isPresent()) {
             return AbtestAssignResponse.of(winnerResponse.get(), accessHistory);
         }
-        validateAssignedUser(abtest, accessHistory.getId(), userId);
+        if (isAssignedUser(abtest, accessHistory.getId(), userId)) {
+            return AbtestAssignResponse.of(
+                getMyVariable(accessHistory.getId(), userAgentInfo, userId, request.title()), accessHistory);
+        }
         List<AbtestVariableCount> cacheCount = loadCacheCount(abtest);
         AbtestVariable variable = abtest.findAssignVariable(cacheCount);
         if (userId != null) {
@@ -193,14 +193,14 @@ public class AbtestService {
         abtestVariableAssignRepository.save(AbtestVariableAssign.of(variable.getId(), accessHistoryId));
     }
 
-    @Transactional
-    public String getMyVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo, Integer userId, String title) {
+    private AbtestVariable getMyVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo, Integer userId,
+        String title) {
         Abtest abtest = abtestRepository.getByTitle(title);
         AccessHistory accessHistory = accessHistoryRepository.getById(accessHistoryId);
         syncCacheCountToDB(abtest);
         Optional<AbtestVariable> winner = returnWinnerIfClosed(abtest);
         if (winner.isPresent()) {
-            return winner.get().getName();
+            return winner.get();
         }
         if (userId != null) {
             createDeviceIfNotExists(userId, userAgentInfo, accessHistory, abtest);
@@ -215,23 +215,20 @@ public class AbtestService {
                 .orElseThrow(() -> AbtestNotAssignedUserException.withDetail("abtestId: " + abtest.getId() + ", "
                     + "accessHistoryId: " + accessHistory.getId()));
             abtestVariableAssignRepository.save(AbtestVariableAssign.of(dbVariable.getId(), accessHistory.getId()));
-            return dbVariable.getName();
+            return dbVariable;
         }
         accessHistory.updateLastAccessedAt(clock);
-        return cacheVariable.get().getName();
+        return cacheVariable.get();
     }
 
-    private void validateAssignedUser(Abtest abtest, Integer accessHistoryId, Integer userId) {
+    private boolean isAssignedUser(Abtest abtest, Integer accessHistoryId, Integer userId) {
         AccessHistory accessHistory = accessHistoryRepository.getById(accessHistoryId);
         if (userId != null && accessHistory.getDevice() != null
             && !Objects.equals(accessHistory.getDevice().getUser().getId(), userId)) {
-            return;
+            return false;
         }
-        if (abtest.getAbtestVariables().stream()
-            .anyMatch(abtestVariable -> accessHistory.hasVariable(abtestVariable.getId()))) {
-            throw AbtestAssignedUserException.withDetail(
-                "abtestId: " + abtest.getId() + ", accessHistoryId: " + accessHistoryId);
-        }
+        return abtest.getAbtestVariables().stream()
+            .anyMatch(abtestVariable -> accessHistory.hasVariable(abtestVariable.getId()));
     }
 
     @Transactional

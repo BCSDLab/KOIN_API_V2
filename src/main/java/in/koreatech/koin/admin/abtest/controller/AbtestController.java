@@ -125,25 +125,14 @@ public class AbtestController implements AbtestApi {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<String> getMyAbtestVariable(
-        @RequestHeader("access_history_id") Integer accessHistoryId,
-        @UserAgent UserAgentInfo userAgentInfo,
-        @UserId Integer userId,
-        @RequestParam(name = "title") String title
-    ) {
-        String response = abtestService.getMyVariable(accessHistoryId, userAgentInfo, userId, title);
-        return ResponseEntity.ok(response);
-    }
-
     @PostMapping("/assign")
-    public ResponseEntity<AbtestAssignResponse> assignAbtestVariable(
+    public ResponseEntity<AbtestAssignResponse> assignOrGetAbtestVariable(
         @RequestHeader(value = "access_history_id", required = false) Integer accessHistoryId,
         @UserAgent UserAgentInfo userAgentInfo,
         @UserId Integer userId,
         @RequestBody @Valid AbtestAssignRequest abtestAssignRequest
     ) {
-        AbtestAssignResponse response = abtestService.assignVariable(accessHistoryId, userAgentInfo, userId, abtestAssignRequest);
+        AbtestAssignResponse response = abtestService.assignOrGetVariable(accessHistoryId, userAgentInfo, userId, abtestAssignRequest);
         return ResponseEntity.ok(response);
     }
 }

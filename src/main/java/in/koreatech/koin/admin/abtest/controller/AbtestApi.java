@@ -186,25 +186,9 @@ public interface AbtestApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "(NORMAL) 자신의 실험군 조회")
-    @GetMapping("/me")
-    ResponseEntity<String> getMyAbtestVariable(
-        @RequestHeader("accessHistoryId") Integer accessHistoryId,
-        @UserAgent UserAgentInfo userAgentInfo,
-        @UserId Integer userId,
-        @RequestParam(name = "title") String title
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "(NORMAL) 실험군 최초 편입")
+    @Operation(summary = "(NORMAL) 실험군 편입 정보 확인")
     @PostMapping("/assign")
-    ResponseEntity<AbtestAssignResponse> assignAbtestVariable(
+    ResponseEntity<AbtestAssignResponse> assignOrGetAbtestVariable(
         @RequestHeader("accessHistoryId") Integer accessHistoryId,
         @UserAgent UserAgentInfo userAgentInfo,
         @UserId Integer userId,
