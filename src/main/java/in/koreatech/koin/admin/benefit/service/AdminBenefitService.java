@@ -98,8 +98,8 @@ public class AdminBenefitService {
         adminBenefitCategoryMapRepository.deleteByBenefitCategoryIdAndShopIds(benefitId, request.shopIds());
     }
 
-    public AdminSearchBenefitShopsResponse searchShops(Integer benefitId, String query) {
-        List<Shop> shops = adminShopRepository.searchByName(query);
+    public AdminSearchBenefitShopsResponse searchShops(Integer benefitId, String searchKeyword) {
+        List<Shop> shops = adminShopRepository.searchByName(searchKeyword);
         Set<Integer> benefitShopIds = adminBenefitCategoryMapRepository.findAllByBenefitCategoryId(benefitId).stream()
             .map(benefitCategoryMap -> benefitCategoryMap.getShop().getId())
             .collect(Collectors.toSet());

@@ -70,9 +70,9 @@ public class AdminBenefitController implements AdminBenefitApi {
     @GetMapping("/{id}/shops/search")
     public ResponseEntity<AdminSearchBenefitShopsResponse> searchShops(
         @PathVariable("id") Integer benefitId,
-        @RequestParam("query") String query
+        @RequestParam("search_keyword") String searchKeyword
     ) {
-        AdminSearchBenefitShopsResponse response = adminBenefitService.searchShops(benefitId, query);
+        AdminSearchBenefitShopsResponse response = adminBenefitService.searchShops(benefitId, searchKeyword);
         return ResponseEntity.ok(response);
     }
 }

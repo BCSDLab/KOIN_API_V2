@@ -47,6 +47,6 @@ public interface AdminShopRepository extends Repository<Shop, Integer> {
     @Query(value = "UPDATE shops SET is_deleted = true WHERE id = :shopId", nativeQuery = true)
     int deleteById(@Param("shopId") Integer shopId);
 
-    @Query("SELECT s FROM Shop s WHERE s.name LIKE :query%")
-    List<Shop> searchByName(String query);
+    @Query("SELECT s FROM Shop s WHERE s.name LIKE :searchKeyword%")
+    List<Shop> searchByName(String searchKeyword);
 }

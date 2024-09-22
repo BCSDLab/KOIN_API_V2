@@ -128,6 +128,6 @@ public interface AdminBenefitApi {
     @GetMapping("/{id}/shops/search")
     ResponseEntity<AdminSearchBenefitShopsResponse> searchShops(
         @PathVariable("id") Integer benefitId,
-        @RequestParam("query") String query
+        @RequestParam("search_keyword") String searchKeyword
     );
 }
