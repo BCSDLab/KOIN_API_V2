@@ -49,7 +49,7 @@ public class Version extends BaseEntity {
     @OneToMany(mappedBy = "version", orphanRemoval = true, cascade = ALL, fetch = FetchType.EAGER)
     private List<VersionContent> contents = new ArrayList<>();
 
-    @Column(name = "is_previous")
+    @Column(name = "is_previous", columnDefinition = "TINYINT")
     private boolean isPrevious;
 
     @Builder
