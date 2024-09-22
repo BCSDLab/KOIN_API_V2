@@ -13,14 +13,12 @@ public class AdminBenefitController implements AdminBenefitApi {
 
     private final AdminBenefitService adminBenefitService;
 
-    @Override
     @GetMapping("/categories")
     public ResponseEntity<AdminBenefitCategoryResponse> getBenefitCategories() {
         AdminBenefitCategoryResponse response = adminBenefitService.getBenefitCategories();
         return ResponseEntity.ok(response);
     }
 
-    @Override
     @PostMapping("/categories")
     public ResponseEntity<AdminCreateBenefitCategoryResponse> createBenefitCategory(
         @RequestBody AdminCreateBenefitCategoryRequest request
@@ -29,7 +27,6 @@ public class AdminBenefitController implements AdminBenefitApi {
         return ResponseEntity.status(201).body(response);
     }
 
-    @Override
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> deleteBenefitCategory(
         @PathVariable("id") Integer categoryId
@@ -38,7 +35,6 @@ public class AdminBenefitController implements AdminBenefitApi {
         return ResponseEntity.noContent().build();
     }
 
-    @Override
     @GetMapping("/{id}/shops")
     public ResponseEntity<AdminBenefitShopsResponse> getBenefitShops(
         @PathVariable("id") Integer benefitId) {
@@ -46,7 +42,6 @@ public class AdminBenefitController implements AdminBenefitApi {
         return ResponseEntity.ok(response);
     }
 
-    @Override
     @PostMapping("/{id}/shops")
     public ResponseEntity<AdminCreateBenefitShopsResponse> createBenefitShops(
         @PathVariable("id") Integer benefitId,
@@ -56,7 +51,6 @@ public class AdminBenefitController implements AdminBenefitApi {
         return ResponseEntity.status(201).body(response);
     }
 
-    @Override
     @DeleteMapping("/{id}/shops")
     public ResponseEntity<Void> deleteBenefitShops(
         @PathVariable("id") Integer benefitId,
@@ -66,7 +60,6 @@ public class AdminBenefitController implements AdminBenefitApi {
         return ResponseEntity.noContent().build();
     }
 
-    @Override
     @GetMapping("/{id}/shops/search")
     public ResponseEntity<AdminSearchBenefitShopsResponse> searchShops(
         @PathVariable("id") Integer benefitId,
