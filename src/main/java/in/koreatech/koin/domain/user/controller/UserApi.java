@@ -4,6 +4,8 @@ import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
+import in.koreatech.koin.domain.user.dto.*;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,22 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import in.koreatech.koin.domain.user.dto.AuthResponse;
-import in.koreatech.koin.domain.user.dto.CoopResponse;
-import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
-import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.StudentLoginRequest;
-import in.koreatech.koin.domain.user.dto.StudentLoginResponse;
-import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
-import in.koreatech.koin.domain.user.dto.StudentResponse;
-import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
-import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
-import in.koreatech.koin.domain.user.dto.UserLoginRequest;
-import in.koreatech.koin.domain.user.dto.UserLoginResponse;
-import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
-import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
-import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.host.ServerURL;
 import io.swagger.v3.oas.annotations.Operation;
@@ -253,5 +239,19 @@ public interface UserApi {
     ResponseEntity<Void> checkPassword(
         @Valid @RequestBody UserPasswordCheckRequest request,
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
+    );
+
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200"),
+                    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            }
+    )
+    @Operation(summary = "로그인 여부 확인")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/user/check/login")
+    ResponseEntity<Void> checklogin(
+            @ParameterObject @ModelAttribute(value = "access_token")
+            @Valid UserAccessTokenRequest request
     );
 }

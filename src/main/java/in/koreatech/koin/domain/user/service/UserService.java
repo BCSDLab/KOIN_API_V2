@@ -112,6 +112,10 @@ public class UserService {
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
     }
 
+    public void checkLogin(String accessToken) {
+        jwtProvider.getUserId(accessToken);
+    }
+
     public void checkPassword(UserPasswordCheckRequest request, Integer userId) {
         User user = userRepository.getById(userId);
         if (!user.isSamePassword(passwordEncoder, request.password())) {
