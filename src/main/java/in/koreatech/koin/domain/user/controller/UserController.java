@@ -156,7 +156,7 @@ public class UserController implements UserApi {
     }
 
     @GetMapping("/user/check/login")
-    public ResponseEntity<Void> checklogin(
+    public ResponseEntity<Void> checkLogin(
             @ParameterObject @ModelAttribute(value = "access_token")
             @Valid UserAccessTokenRequest request
     ) {

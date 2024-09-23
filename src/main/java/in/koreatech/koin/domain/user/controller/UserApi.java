@@ -250,7 +250,7 @@ public interface UserApi {
     @Operation(summary = "로그인 여부 확인")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/user/check/login")
-    ResponseEntity<Void> checklogin(
+    ResponseEntity<Void> checkLogin(
             @ParameterObject @ModelAttribute(value = "access_token")
             @Valid UserAccessTokenRequest request
     );
