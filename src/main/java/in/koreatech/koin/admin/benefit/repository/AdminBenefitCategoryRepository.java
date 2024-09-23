@@ -20,7 +20,7 @@ public interface AdminBenefitCategoryRepository extends Repository<BenefitCatego
 
     void deleteById(Integer id);
 
-    int count();;
+    int count();
 
     default BenefitCategory getById(Integer benefitId) {
         return findById(benefitId)

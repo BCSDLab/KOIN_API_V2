@@ -25,7 +25,7 @@ public record AdminBenefitShopsResponse(
         );
     }
 
-    public record InnerShopResponse(
+    private record InnerShopResponse(
         @Schema(example = "1", description = "고유 id")
         Integer id,
 
