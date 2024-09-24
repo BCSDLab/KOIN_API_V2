@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -33,6 +32,7 @@ import in.koreatech.koin.fixture.ShopReviewFixture;
 import in.koreatech.koin.fixture.ShopReviewReportCategoryFixture;
 import in.koreatech.koin.fixture.ShopReviewReportFixture;
 import in.koreatech.koin.fixture.UserFixture;
+import jakarta.transaction.Transactional;
 
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

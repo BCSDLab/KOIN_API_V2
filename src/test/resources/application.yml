@@ -8,11 +8,12 @@ spring:
     enabled: false
   jpa:
     properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
+      show_sql: true
+      format_sql: true
     hibernate:
       ddl-auto: create
+      jdbc:
+        batch_size: 100
   thymeleaf:
     prefix: "classpath:/mail/"
     suffix: ".html"
@@ -30,7 +31,7 @@ spring:
 server:
   tomcat:
     max-http-form-post-size: 10MB
-#  MockMvc이용하면 한글 깨지는 문제 해결하는 설정
+  #  MockMvc이용하면 한글 깨지는 문제 해결하는 설정
   servlet:
     encoding:
       force-response: true

@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.shop.dto.ShopResponse.InnerShopOpen;
 import in.koreatech.koin.domain.shop.model.Shop;
 import in.koreatech.koin.domain.shop.model.ShopReview;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,9 +41,6 @@ public record ShopsResponseV2(
 
         @Schema(example = "수신반점", description = "이름", requiredMode = REQUIRED)
         String name,
-
-        @Schema(description = "요일별 휴무 여부 및 장사 시간")
-        List<InnerShopOpen> open,
 
         @Schema(example = "true", description = "계좌 이체 가능 여부", requiredMode = REQUIRED)
         boolean payBank,
@@ -80,7 +76,6 @@ public record ShopsResponseV2(
                 shop.getDelivery(),
                 shop.getId(),
                 shop.getName(),
-                shop.getShopOpens().stream().sorted().map(InnerShopOpen::from).toList(),
                 shop.isPayBank(),
                 shop.isPayCard(),
                 shop.getPhone(),
