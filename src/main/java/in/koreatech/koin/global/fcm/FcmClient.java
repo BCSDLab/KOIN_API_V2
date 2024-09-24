@@ -38,7 +38,7 @@ public class FcmClient {
         }
         log.info("call FcmClient sendMessage: title: {}, content: {}", title, content);
 
-        ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type);
+        ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type, schemeUri);
         AndroidConfig androidConfig = generateAndroidConfig(title, content, imageUrl, path, type);
 
         Message message = Message.builder()
@@ -68,7 +68,7 @@ public class FcmClient {
         }
         log.info("call FcmClient sendMessageV2: title: {}, content: {}", title, content);
 
-        ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type);
+        ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type, schemeUri);
         AndroidConfig androidConfig = generateAndroidConfigV2(title, content, imageUrl, schemeUri, type);
 
         Message message = Message.builder()
@@ -88,7 +88,8 @@ public class FcmClient {
         String content,
         String imageUrl,
         MobileAppPath path,
-        String type
+        String type,
+        String schemeUri
     ) {
         return ApnsConfig.builder()
             .setAps(
@@ -111,7 +112,8 @@ public class FcmClient {
             )
             .putAllCustomData(
                 Map.of(
-                    "type", type
+                    "type", type,
+                    "schemeUri", schemeUri
                 )
             )
             .build();
