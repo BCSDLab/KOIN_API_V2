@@ -1,22 +1,20 @@
 package in.koreatech.koin.domain.shop.service;
 
-import static in.koreatech.koin.domain.shop.dto.shop.ShopsResponse.InnerShopResponse;
-
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopEventsResponse;
-import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
@@ -32,7 +30,8 @@ import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
-import in.koreatech.koin.domain.shop.repository.redis.ShopsRedisRepository;
+import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
+import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
@@ -47,7 +46,7 @@ public class ShopService {
     private final ShopRepository shopRepository;
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
-    private final ShopsRedisRepository shopsRedisRepository;
+    private final ShopCustomRepository shopCustomRepository;
 
     public MenuDetailResponse findMenu(Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
@@ -81,10 +80,10 @@ public class ShopService {
     }
 
     public ShopsResponse getShops() {
-        if (!shopsRedisRepository.isCacheAvailable()) {
-            refreshShopsCache();
-        }
-        return shopsRedisRepository.getShopsResponseByRedis();
+        LocalDateTime now = LocalDateTime.now(clock);
+        List<Shop> shops = shopRepository.findAll();
+        Map<Integer, Boolean> shopEventMap = shopCustomRepository.findAllShopEvent(now.toLocalDate());
+        return ShopsResponse.from(shops, shopEventMap, now);
     }
 
     public ShopCategoriesResponse getShopsCategories() {
@@ -102,34 +101,13 @@ public class ShopService {
         return ShopEventsResponse.of(shops, clock);
     }
 
-    public void refreshShopsCache() {
-        List<Shop> shops = shopRepository.findAll();
-        LocalDateTime now = LocalDateTime.now(clock);
-        List<InnerShopResponse> innerShopResponses = shops.stream().map(shop -> {
-                boolean isDurationEvent = eventArticleRepository.isDurationEvent(shop.getId(), now.toLocalDate());
-                return InnerShopResponse.from(shop, isDurationEvent, shop.isOpen(now));
-            })
-            .sorted(Comparator.comparing(InnerShopResponse::isOpen, Comparator.reverseOrder())).toList();
-        ShopsResponse shopsResponse = ShopsResponse.from(innerShopResponses);
-        shopsRedisRepository.save(shopsResponse);
-    }
-
     public ShopsResponseV2 getShopsV2(ShopsSortCriteria sortBy, List<ShopsFilterCriteria> shopsFilterCriterias) {
         if (shopsFilterCriterias.contains(null)) {
             throw KoinIllegalArgumentException.withDetail("유효하지 않은 필터입니다.");
         }
         List<Shop> shops = shopRepository.findAll();
         LocalDateTime now = LocalDateTime.now(clock);
-        List<ShopsResponseV2.InnerShopResponse> innerShopResponses = shops.stream()
-            .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias, now))
-            .map(shop -> {
-                boolean isDurationEvent = eventArticleRepository.isDurationEvent(shop.getId(), now.toLocalDate());
-                return ShopsResponseV2.InnerShopResponse.from(shop, isDurationEvent, shop.isOpen(now));
-            })
-            .sorted(ShopsResponseV2.InnerShopResponse.getComparator(sortBy))
-            .toList();
-        ShopsResponseV2 shopsResponse = ShopsResponseV2.from(innerShopResponses);
-        return shopsResponse;
+        Map<Integer, ShopInfo> shopInfoMap = shopCustomRepository.findAllShopInfo(now.toLocalDate());
+        return ShopsResponseV2.from(shops, shopInfoMap, now, sortBy, shopsFilterCriterias);
     }
-
 }

@@ -1,6 +1,9 @@
 package in.koreatech.koin.domain.shop.model.shop;
 
-import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.REFRESH;
+import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
@@ -30,12 +33,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -48,14 +47,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "shops")
 @Where(clause = "is_deleted=0")
-@NamedEntityGraph(name = "Shop.withAll", attributeNodes = {
-    @NamedAttributeNode(value = "shopOpens"),
-    @NamedAttributeNode(value = "shopCategories", subgraph = "shopCategory1"),
-},
-    subgraphs = @NamedSubgraph(name = "shopCategory1", attributeNodes = {
-        @NamedAttributeNode("shopCategory")
-    })
-)
 public class Shop extends BaseEntity {
 
     @Id
@@ -147,12 +138,6 @@ public class Shop extends BaseEntity {
     @Size(max = 20)
     @Column(name = "accountNumber", length = 20)
     private String accountNumber;
-
-    @Transient
-    Boolean isOpen;
-
-    @Transient
-    Boolean isEventActive;
 
     @Builder
     private Shop(
