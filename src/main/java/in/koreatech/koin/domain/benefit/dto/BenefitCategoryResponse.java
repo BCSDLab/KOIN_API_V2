@@ -4,6 +4,10 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -18,6 +22,7 @@ public record BenefitCategoryResponse(
         );
     }
 
+    @JsonNaming(SnakeCaseStrategy.class)
     public record InnerBenefitResponse(
         @Schema(description = "혜택 id", example = "1", requiredMode = NOT_REQUIRED)
         Integer id,
@@ -26,14 +31,22 @@ public record BenefitCategoryResponse(
         String title,
 
         @Schema(description = "혜택 카테고리 설명", example = "계좌이체하면 배달비가 무료(할인)인 상점들만 모아뒀어요.", requiredMode = NOT_REQUIRED)
-        String detail
+        String detail,
+
+        @Schema(description = "혜택 카테고리 ON 이미지 URL", example = "https://example.com/button_on.jpg")
+        String onImageUrl,
+
+        @Schema(description = "혜택 카테고리 OFF 이미지 URL", example = "https://example.com/button_off.jpg")
+        String offImageUrl
     ) {
 
         public static InnerBenefitResponse from(BenefitCategory benefitCategory) {
             return new InnerBenefitResponse(
                 benefitCategory.getId(),
                 benefitCategory.getTitle(),
-                benefitCategory.getDetail()
+                benefitCategory.getDetail(),
+                benefitCategory.getOnImageUrl(),
+                benefitCategory.getOffImageUrl()
             );
         }
     }

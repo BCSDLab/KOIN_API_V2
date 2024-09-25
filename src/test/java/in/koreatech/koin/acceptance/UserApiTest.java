@@ -706,4 +706,17 @@ class UserApiTest extends AcceptanceTest {
             )
             .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void 사용자가_로그인상태인지_확인한다() throws Exception {
+        Student student = userFixture.준호_학생();
+        String accessToken = userFixture.getToken(student.getUser());
+
+        mockMvc.perform(
+                get("/user/check/login")
+                        .param("access_token", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
+    }
 }

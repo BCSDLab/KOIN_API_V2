@@ -6,6 +6,8 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.net.URI;
 
+import in.koreatech.koin.domain.user.dto.*;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,24 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import in.koreatech.koin.domain.user.dto.AuthResponse;
-import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
-import in.koreatech.koin.domain.user.dto.CoopResponse;
-import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
-import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
-import in.koreatech.koin.domain.user.dto.StudentLoginRequest;
-import in.koreatech.koin.domain.user.dto.StudentLoginResponse;
-import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
-import in.koreatech.koin.domain.user.dto.StudentResponse;
-import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
-import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
-import in.koreatech.koin.domain.user.dto.UserLoginRequest;
-import in.koreatech.koin.domain.user.dto.UserLoginResponse;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
-import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
-import in.koreatech.koin.domain.user.dto.UserTokenRefreshRequest;
-import in.koreatech.koin.domain.user.dto.UserTokenRefreshResponse;
 import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
@@ -169,6 +153,15 @@ public class UserController implements UserApi {
     ) {
         studentService.findPassword(request, serverURL);
         return new ResponseEntity<>(HttpStatusCode.valueOf(201));
+    }
+
+    @GetMapping("/user/check/login")
+    public ResponseEntity<Void> checkLogin(
+            @ParameterObject @ModelAttribute(value = "access_token")
+            @Valid UserAccessTokenRequest request
+    ) {
+        userService.checkLogin(request.accessToken());
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/user/check/password")
