@@ -79,6 +79,34 @@ public class TimetableV2ApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 특정_시간표_frame을_이름을_지어_생성한다() throws Exception {
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+
+        mockMvc.perform(
+                post("/v2/timetables/frame")
+                    .header("Authorization", "Bearer " + token)
+                    .content(String.format("""
+                        {
+                            "semester": "%s",
+                            "timetable_name": "%s"
+                        }
+                        """, semester.getSemester(), "이름지어본시간표"
+                    ))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
+                    "id": 1,
+                    "timetable_name": "이름지어본시간표",
+                    "is_main": true
+                }
+                """));
+    }
+
+    @Test
     void 특정_시간표_frame을_수정한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
@@ -91,7 +119,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + token)
                     .content(String.format("""
                         {
-                            "name": "새로운 이름",
+                            "timetable_name": "새로운 이름",
                             "is_main": true
                         }
                         """
@@ -102,7 +130,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             .andExpect(content().json("""
                 {
                     "id": 1,
-                    "name": "새로운 이름",
+                    "timetable_name": "새로운 이름",
                     "is_main": true
                 }
                 """));
@@ -244,6 +272,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                 "timetable": [
                     {
                         "id": 1,
+                        "lecture_id" : null,
                         "regular_number": null,
                         "code": null,
                         "design_score": null,
@@ -259,6 +288,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                     },
                     {
                         "id": 2,
+                        "lecture_id" : null,
                         "regular_number": null,
                         "code": null,
                         "design_score": null,
@@ -324,6 +354,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                 "timetable": [
                     {
                         "id": 1,
+                        "lecture_id" : null,
                         "regular_number": null,
                         "code": null,
                         "design_score": null,
@@ -339,6 +370,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                     },
                     {
                         "id": 2,
+                        "lecture_id" : null,
                         "regular_number": null,
                         "code": null,
                         "design_score": null,
@@ -383,6 +415,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                 "timetable": [
                     {
                         "id" : 1,
+                        "lecture_id" : 1,
                         "regular_number": "25",
                         "code": "ARB244",
                         "design_score": "0",
@@ -398,6 +431,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                     },
                     {
                         "id": 2,
+                        "lecture_id": 2,
                         "regular_number": "22",
                         "code": "BSM590",
                         "design_score": "0",
