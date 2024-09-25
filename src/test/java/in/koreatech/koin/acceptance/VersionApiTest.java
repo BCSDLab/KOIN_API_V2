@@ -63,16 +63,7 @@ class VersionApiTest extends AcceptanceTest {
                   "type": %s,
                   "version": "3.5.0",
                   "title": "코인 신기능 업데이트",
-                  "body": [
-                    {
-                      "body_title": "Android 백그라운드 푸시 알림",
-                      "body_content": "더 빠른 알림을 위해 업데이트 해주세요!"
-                    },
-                    {
-                      "body_title": "Android 키워드 알림",
-                      "body_content": "더 빠른 알림을 위해 업데이트 해주세요!"
-                    }
-                  ],
+                  "content": "더 빠른 알림을 위해 업데이트 해주세요!",
                   "created_at": "2024-01-15 12:00:00",
                   "updated_at": "2024-01-15"
                 }
