@@ -254,4 +254,19 @@ public interface UserApi {
             @ParameterObject @ModelAttribute(value = "access_token")
             @Valid UserAccessTokenRequest request
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "비밀번호 변경")
+    @PutMapping("/user/change/password")
+    ResponseEntity<Void> changePassword(
+        @RequestBody UserPasswordChangeRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
 }

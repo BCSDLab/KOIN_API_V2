@@ -173,6 +173,15 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/user/change/password")
+    public ResponseEntity<Void> changePassword(
+        @RequestBody UserPasswordChangeRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        studentService.changePassword(userId, request);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/user/change/password/config")
     public ModelAndView checkResetToken(
         @ServerURL String serverUrl,
@@ -183,11 +192,11 @@ public class UserController implements UserApi {
 
     @Hidden
     @PostMapping("/user/change/password/submit")
-    public ResponseEntity<Void> changePassword(
-        @RequestBody UserPasswordChangeRequest request,
+    public ResponseEntity<Void> changePasswordSubmit(
+        @RequestBody UserPasswordChangeSubmitRequest request,
         @RequestParam("reset_token") String resetToken
     ) {
-        studentService.changePassword(request, resetToken);
+        studentService.changePasswordSubmit(request, resetToken);
         return ResponseEntity.ok().build();
     }
 }

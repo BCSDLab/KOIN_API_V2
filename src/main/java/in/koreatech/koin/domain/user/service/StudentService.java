@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.Optional;
 import java.util.UUID;
 
+import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.model.*;
 import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
 import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
@@ -23,7 +24,7 @@ import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.dto.StudentResponse;
 import in.koreatech.koin.domain.user.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.user.dto.StudentUpdateResponse;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
+import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.user.exception.StudentNumberNotValidException;
@@ -204,7 +205,14 @@ public class StudentService {
     }
 
     @Transactional
-    public void changePassword(UserPasswordChangeRequest request, String resetToken) {
+    public void changePassword(Integer userId, UserPasswordChangeRequest request) {
+        Student student = studentRepository.getById(userId);
+        User user = student.getUser();
+        user.updateStudentPassword(passwordEncoder, request.password());
+    }
+
+    @Transactional
+    public void changePasswordSubmit(UserPasswordChangeSubmitRequest request, String resetToken) {
         User authedUser = userRepository.getByResetToken(resetToken);
         authedUser.validateResetToken();
         authedUser.updatePassword(passwordEncoder, request.password());
