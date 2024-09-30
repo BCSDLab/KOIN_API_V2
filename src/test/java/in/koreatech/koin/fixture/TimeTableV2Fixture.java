@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
@@ -81,7 +82,9 @@ public class TimeTableV2Fixture {
         return timetableFrameRepositoryV2.save(frame);
     }
 
-    public TimetableFrame 시간표4(User user, Semester semester, Lecture lecture1, Lecture lecture2) {
+    public TimetableFrame 시간표4(User user, Semester semester, Lecture lecture1, Lecture lecture2, CourseType courseType1,
+        CourseType courseType2) {
+
         TimetableFrame frame = TimetableFrame.builder()
             .user(user)
             .semester(semester)
@@ -95,6 +98,7 @@ public class TimeTableV2Fixture {
             .isDeleted(false)
             .lecture(lecture1)
             .timetableFrame(frame)
+            .courseType(courseType1)
             .build();
 
         TimetableLecture timetableLecture2 = TimetableLecture.builder()
@@ -102,6 +106,7 @@ public class TimeTableV2Fixture {
             .isDeleted(false)
             .lecture(lecture2)
             .timetableFrame(frame)
+            .courseType(courseType2)
             .build();
 
         frame.getTimetableLectures().add(timetableLecture1);
@@ -110,7 +115,7 @@ public class TimeTableV2Fixture {
         return timetableFrameRepositoryV2.save(frame);
     }
 
-    public TimetableFrame 시간표5(User user, Semester semester, Lecture lecture1) {
+    public TimetableFrame 시간표5(User user, Semester semester, Lecture lecture1, CourseType courseType1) {
         TimetableFrame frame = TimetableFrame.builder()
             .user(user)
             .semester(semester)
@@ -124,6 +129,7 @@ public class TimeTableV2Fixture {
             .isDeleted(false)
             .lecture(lecture1)
             .timetableFrame(frame)
+            .courseType(courseType1)
             .build();
 
         TimetableLecture timetableLecture2 = TimetableLecture.builder()
@@ -143,7 +149,9 @@ public class TimeTableV2Fixture {
         return timetableFrameRepositoryV2.save(frame);
     }
 
-    public TimetableFrame 시간표6(User user, Semester semester, Lecture lecture1, Lecture lecture2) {
+    public TimetableFrame 시간표6(User user, Semester semester, Lecture lecture1, Lecture lecture2, CourseType courseType1,
+        CourseType courseType2) {
+
         TimetableFrame frame = TimetableFrame.builder()
             .user(user)
             .semester(semester)
@@ -157,6 +165,7 @@ public class TimeTableV2Fixture {
             .isDeleted(false)
             .lecture(lecture1)
             .timetableFrame(frame)
+            .courseType(courseType1)
             .build();
 
         TimetableLecture timetableLecture2 = TimetableLecture.builder()
@@ -164,6 +173,7 @@ public class TimeTableV2Fixture {
             .isDeleted(false)
             .lecture(lecture2)
             .timetableFrame(frame)
+            .courseType(courseType2)
             .build();
 
         frame.getTimetableLectures().add(timetableLecture1);

@@ -12,12 +12,14 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.CourseTypeFixture;
 import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
 import in.koreatech.koin.fixture.TimeTableV2Fixture;
@@ -39,6 +41,9 @@ public class TimetableV2ApiTest extends AcceptanceTest {
 
     @Autowired
     private LectureFixture lectureFixture;
+
+    @Autowired
+    private CourseTypeFixture courseTypeFixture;
 
     @Autowired
     private TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
@@ -174,8 +179,9 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
         Lecture lecture = lectureFixture.HRD_개론(semester.getSemester());
+        CourseType courseType = courseTypeFixture.HRD_필수();
 
-        TimetableFrame frame1 = timetableV2Fixture.시간표5(user, semester, lecture);
+        TimetableFrame frame1 = timetableV2Fixture.시간표5(user, semester, lecture, courseType);
 
         mockMvc.perform(
                 delete("/v2/timetables/frame")
@@ -284,7 +290,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                         "lecture_class": null,
                         "target": null,
                         "professor": "서정빈",
-                        "department": null
+                        "department": null,
+                        "course_type": null
                     },
                     {
                         "id": 2,
@@ -300,7 +307,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                         "lecture_class": null,
                         "target": null,
                         "professor": "감사 서정빈",
-                        "department": null
+                        "department": null,
+                        "course_type": null
                     }
                 ],
                 "grades": 3,
@@ -366,7 +374,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                         "lecture_class": null,
                         "target": null,
                         "professor": "서정빈",
-                        "department": null
+                        "department": null,
+                        "course_type": null
                     },
                     {
                         "id": 2,
@@ -382,7 +391,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                         "lecture_class": null,
                         "target": null,
                         "professor": "알바 서정빈",
-                        "department": null
+                        "department": null,
+                        "course_type": null
                     }
                 ],
                 "grades": 0,
@@ -400,7 +410,10 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
 
-        TimetableFrame frame = timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+        CourseType 전공_필수 = courseTypeFixture.전공_필수();
+        CourseType HRD_필수 = courseTypeFixture.HRD_필수();
+
+        TimetableFrame frame = timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론, 전공_필수, HRD_필수);
 
         mockMvc.perform(
                 get("/v2/timetables/lecture")
@@ -427,7 +440,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                         "lecture_class": "01",
                         "target": "디자 1 건축",
                         "professor": "황현식",
-                        "department": "디자인ㆍ건축공학부"
+                        "department": "디자인ㆍ건축공학부",
+                        "course_type": "전공 필수"
                     },
                     {
                         "id": 2,
@@ -443,7 +457,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                         "lecture_class": "06",
                         "target": "기공1",
                         "professor": "박한수,최준호",
-                        "department": "기계공학부"
+                        "department": "기계공학부",
+                        "course_type": "MSC 필수"
                     }
                 ],
                 "grades": 6,
@@ -459,7 +474,10 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         Semester semester = semesterFixture.semester("20192");
         Lecture lecture1 = lectureFixture.HRD_개론("20192");
         Lecture lecture2 = lectureFixture.영어청해("20192");
-        TimetableFrame frame = timetableV2Fixture.시간표4(user1, semester, lecture1, lecture2);
+        CourseType courseType1 = courseTypeFixture.HRD_필수();
+        CourseType courseType2 = courseTypeFixture.교양_필수();
+
+        TimetableFrame frame = timetableV2Fixture.시간표4(user1, semester, lecture1, lecture2, courseType1, courseType2);
 
         Integer lectureId = lecture1.getId();
 
