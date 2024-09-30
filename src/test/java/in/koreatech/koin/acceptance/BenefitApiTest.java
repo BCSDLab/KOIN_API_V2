@@ -14,7 +14,7 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.fixture.BenefitCategoryFixture;
 import in.koreatech.koin.fixture.BenefitCategoryMapFixture;
 import in.koreatech.koin.fixture.ShopFixture;

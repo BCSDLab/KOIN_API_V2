@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.exception;
+package in.koreatech.koin.domain.student.exception;
 
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 

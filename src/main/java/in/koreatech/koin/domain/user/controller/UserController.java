@@ -6,6 +6,11 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.net.URI;
 
+import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
+import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
+import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
+import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
+import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.user.dto.*;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatusCode;
@@ -20,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import in.koreatech.koin.domain.user.service.StudentService;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.host.ServerURL;
@@ -33,15 +37,6 @@ import lombok.RequiredArgsConstructor;
 public class UserController implements UserApi {
 
     private final UserService userService;
-    private final StudentService studentService;
-
-    @GetMapping("/user/student/me")
-    public ResponseEntity<StudentResponse> getStudent(
-        @Auth(permit = STUDENT) Integer userId
-    ) {
-        StudentResponse studentResponse = studentService.getStudent(userId);
-        return ResponseEntity.ok().body(studentResponse);
-    }
 
     @GetMapping("/user/coop/me")
     public ResponseEntity<CoopResponse> getCoop(
@@ -51,29 +46,11 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().body(coopResponse);
     }
 
-    @PutMapping("/user/student/me")
-    public ResponseEntity<StudentUpdateResponse> updateStudent(
-        @Auth(permit = STUDENT) Integer userId,
-        @Valid @RequestBody StudentUpdateRequest request
-    ) {
-        StudentUpdateResponse studentUpdateResponse = studentService.updateStudent(userId, request);
-        return ResponseEntity.ok(studentUpdateResponse);
-    }
-
     @PostMapping("/user/login")
     public ResponseEntity<UserLoginResponse> login(
         @RequestBody @Valid UserLoginRequest request
     ) {
         UserLoginResponse response = userService.login(request);
-        return ResponseEntity.created(URI.create("/"))
-            .body(response);
-    }
-
-    @PostMapping("/student/login")
-    public ResponseEntity<StudentLoginResponse> studentLogin(
-        @RequestBody @Valid StudentLoginRequest request
-    ) {
-        StudentLoginResponse response = studentService.studentLogin(request);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
     }
@@ -112,23 +89,6 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user/student/register")
-    public ResponseEntity<Void> studentRegister(
-        @Valid @RequestBody StudentRegisterRequest request,
-        @ServerURL String serverURL
-    ) {
-        studentService.studentRegister(request, serverURL);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping(value = "/user/authenticate")
-    public ModelAndView authenticate(
-        @ModelAttribute("auth_token")
-        @Valid AuthTokenRequest request
-    ) {
-        return studentService.authenticate(request);
-    }
-
     @GetMapping("/user/check/nickname")
     public ResponseEntity<Void> checkDuplicationOfNickname(
         @ModelAttribute("nickname")
@@ -146,15 +106,6 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().body(authResponse);
     }
 
-    @PostMapping("/user/find/password")
-    public ResponseEntity<Void> findPassword(
-        @RequestBody @Valid FindPasswordRequest request,
-        @ServerURL String serverURL
-    ) {
-        studentService.findPassword(request, serverURL);
-        return new ResponseEntity<>(HttpStatusCode.valueOf(201));
-    }
-
     @GetMapping("/user/check/login")
     public ResponseEntity<Void> checkLogin(
             @ParameterObject @ModelAttribute(value = "access_token")
@@ -170,33 +121,6 @@ public class UserController implements UserApi {
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
     ) {
         userService.checkPassword(request, userId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/user/change/password")
-    public ResponseEntity<Void> changePassword(
-        @RequestBody UserPasswordChangeRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
-    ) {
-        studentService.changePassword(userId, request);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/user/change/password/config")
-    public ModelAndView checkResetToken(
-        @ServerURL String serverUrl,
-        @RequestParam("reset_token") String resetToken
-    ) {
-        return studentService.checkResetToken(resetToken, serverUrl);
-    }
-
-    @Hidden
-    @PostMapping("/user/change/password/submit")
-    public ResponseEntity<Void> changePasswordSubmit(
-        @RequestBody UserPasswordChangeSubmitRequest request,
-        @RequestParam("reset_token") String resetToken
-    ) {
-        studentService.changePasswordSubmit(request, resetToken);
         return ResponseEntity.ok().build();
     }
 }
