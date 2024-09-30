@@ -32,7 +32,6 @@ public record ShopsResponseV2(
         List<ShopsFilterCriteria> shopsFilterCriterias
     ) {
         List<InnerShopResponse> innerShopResponses = shops.stream()
-            .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias, now))
             .map(it -> {
                 ShopInfoV2 shopInfo = shopInfoMap.get(it.getId());
                 return InnerShopResponse.from(
@@ -42,7 +41,9 @@ public record ShopsResponseV2(
                     shopInfo.averageRate(),
                     shopInfo.reviewCount()
                 );
-            }).sorted(InnerShopResponse.getComparator(sortBy)).toList();
+            })
+            .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias, now))
+            .sorted(InnerShopResponse.getComparator(sortBy)).toList();
         return new ShopsResponseV2(
             innerShopResponses.size(),
             innerShopResponses

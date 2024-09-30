@@ -7,9 +7,13 @@ import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.hibernate.annotations.Where;
@@ -196,6 +200,35 @@ public class Shop extends BaseEntity {
         this.phone = phone;
         this.bank = bank;
         this.accountNumber = accountNumber;
+    }
+
+    public boolean isOpen(LocalDateTime now) {
+        String currDayOfWeek = now.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
+        String prevDayOfWeek = now.minusDays(1).getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
+        for (ShopOpen shopOpen : shopOpens) {
+            if (shopOpen.isClosed()) {
+                continue;
+            }
+            if (shopOpen.getDayOfWeek().equals(currDayOfWeek) && isBetweenDate(now, shopOpen, now.toLocalDate())) {
+                return true;
+            }
+            if (
+                shopOpen.getDayOfWeek().equals(prevDayOfWeek) && isBetweenDate(now, shopOpen,
+                    now.minusDays(1).toLocalDate())
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isBetweenDate(LocalDateTime now, ShopOpen shopOpen, LocalDate criteriaDate) {
+        LocalDateTime start = LocalDateTime.of(criteriaDate, shopOpen.getOpenTime());
+        LocalDateTime end = LocalDateTime.of(criteriaDate, shopOpen.getCloseTime());
+        if (!shopOpen.getCloseTime().isAfter(shopOpen.getOpenTime())) {
+            end = end.plusDays(1);
+        }
+        return !start.isAfter(now) && !end.isBefore(now);
     }
 
     public void modifyShopImages(List<String> imageUrls, EntityManager entityManager) {
