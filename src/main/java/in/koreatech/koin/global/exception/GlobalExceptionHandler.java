@@ -183,9 +183,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatusCode status,
         WebRequest request
     ) {
-        log.warn("요청하신 API를 찾을 수 없습니다. " + e.getRequestURL());
+        log.warn("유효하지 않은 API 경로입니다. " + e.getRequestURL());
         requestLogging(((ServletWebRequest)request).getRequest());
-        return buildErrorResponse(HttpStatus.NOT_FOUND, "요청하신 API를 찾을 수 없습니다.");
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "유효하지 않은 API 경로입니다.");
     }
 
     @ExceptionHandler(Exception.class)
