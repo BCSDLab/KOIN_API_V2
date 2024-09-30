@@ -716,10 +716,10 @@ class UserApiTest extends AcceptanceTest {
                 put("/user/change/password")
                     .header("Authorization", "Bearer " + accessToken)
                     .content("""
-                    {
-                      "password": "%s"
-                    }
-                    """.formatted(newPassword))
+                        {
+                          "password": "%s"
+                        }
+                        """.formatted(newPassword))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
@@ -727,11 +727,11 @@ class UserApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/user/login")
                     .content("""
-                    {
-                      "email": "%s",
-                      "password": "%s"
-                    }
-                    """.formatted(student.getUser().getEmail(), newPassword))
+                        {
+                          "email": "%s",
+                          "password": "%s"
+                        }
+                        """.formatted(student.getUser().getEmail(), newPassword))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isCreated());
@@ -739,16 +739,15 @@ class UserApiTest extends AcceptanceTest {
         mockMvc.perform(
                 post("/user/login")
                     .content("""
-                    {
-                      "email": "%s",
-                      "password": "%s"
-                    }
-                    """.formatted(student.getUser().getEmail(), "1234"))
+                        {
+                          "email": "%s",
+                          "password": "%s"
+                        }
+                        """.formatted(student.getUser().getEmail(), "1234"))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
     }
-
 
     @Test
     void 사용자가_로그인상태인지_확인한다() throws Exception {
