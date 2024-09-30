@@ -9,6 +9,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
@@ -53,14 +54,18 @@ public record TimetableLectureCreateRequest(
         @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
         String memo,
 
+        @Schema(description = "이수 구분 고유 번호", example = "1", requiredMode = NOT_REQUIRED)
+        Integer courseTypeId,
+
         @Schema(description = "강의 고유 번호", example = "1", requiredMode = NOT_REQUIRED)
         Integer lectureId
-    ){
+    ) {
         public InnerTimeTableLectureRequest {
             if (grades == null) {
                 grades = "0";
             }
         }
+
         public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame) {
             return new TimetableLecture(
                 classTitle,
@@ -71,11 +76,13 @@ public record TimetableLectureCreateRequest(
                 memo,
                 false,
                 null,
-                timetableFrame
+                timetableFrame,
+                null
             );
         }
 
-        public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame, Lecture lecture) {
+        public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame, Lecture lecture,
+            CourseType courseType) {
             return new TimetableLecture(
                 classTitle,
                 Arrays.toString(classTime().stream().toArray()),
@@ -85,7 +92,8 @@ public record TimetableLectureCreateRequest(
                 memo,
                 false,
                 lecture,
-                timetableFrame
+                timetableFrame,
+                courseType
             );
         }
     }

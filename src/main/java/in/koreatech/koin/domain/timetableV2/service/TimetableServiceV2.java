@@ -6,6 +6,8 @@ import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateReq
 import java.util.List;
 import java.util.Objects;
 
+import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +42,7 @@ public class TimetableServiceV2 {
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final UserRepository userRepository;
     private final SemesterRepositoryV2 semesterRepositoryV2;
+    private final CourseTypeRepository courseTypeRepository;
 
     @Transactional
     public TimetableFrameResponse createTimetablesFrame(Integer userId, TimetableFrameCreateRequest request) {
@@ -104,7 +107,10 @@ public class TimetableServiceV2 {
         for (InnerTimeTableLectureRequest timetableLectureRequest : request.timetableLecture()) {
             Lecture lecture = timetableLectureRequest.lectureId() == null ?
                 null : lectureRepositoryV2.getLectureById(timetableLectureRequest.lectureId());
-            TimetableLecture timetableLecture = timetableLectureRequest.toTimetableLecture(timetableFrame, lecture);
+            CourseType courseType = timetableLectureRequest.courseTypeId() == null ?
+                null : courseTypeRepository.getCourseTypeById(timetableLectureRequest.courseTypeId());
+
+            TimetableLecture timetableLecture = timetableLectureRequest.toTimetableLecture(timetableFrame, lecture, courseType);
             timetableLectureRepositoryV2.save(timetableLecture);
         }
 

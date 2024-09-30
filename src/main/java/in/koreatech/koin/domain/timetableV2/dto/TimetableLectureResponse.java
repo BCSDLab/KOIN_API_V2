@@ -69,6 +69,9 @@ public record TimetableLectureResponse(
         @Schema(description = "강의 교수", example = "이돈우", requiredMode = NOT_REQUIRED)
         String professor,
 
+        @Schema(description = "이수 구분", example = "전공필수", requiredMode = NOT_REQUIRED)
+        String courseType,
+
         @Schema(description = "학부", example = "디자인ㆍ건축공학부", requiredMode = NOT_REQUIRED)
         String department
     ) {
@@ -93,6 +96,7 @@ public record TimetableLectureResponse(
                         null,
                         null,
                         timetableLecture.getProfessor(),
+                        null,
                         null
                     );
                 } else {
@@ -110,6 +114,7 @@ public record TimetableLectureResponse(
                         timetableLecture.getLecture().getLectureClass(),
                         timetableLecture.getLecture().getTarget(),
                         timetableLecture.getLecture().getProfessor(),
+                        timetableLecture.getCourseType().getName(),
                         timetableLecture.getLecture().getDepartment()
                     );
                 }
