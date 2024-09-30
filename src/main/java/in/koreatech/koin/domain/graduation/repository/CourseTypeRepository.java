@@ -9,6 +9,8 @@ import in.koreatech.koin.domain.graduation.model.CourseType;
 
 public interface CourseTypeRepository extends Repository<CourseType, Integer> {
 
+    CourseType save(CourseType courseType);
+
     Optional<CourseType> findById(Integer id);
 
     default CourseType getCourseTypeById(Integer id) {
