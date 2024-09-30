@@ -47,8 +47,8 @@ public class TimetableServiceV2 {
         User user = userRepository.getById(userId);
         int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId, semester.getId());
         boolean isMain = (currentFrameCount == 0);
-
-        TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, "시간표" + (currentFrameCount+1), isMain);
+        String name = (request.timetableName() != null) ? request.timetableName() : "시간표" + (currentFrameCount + 1);
+        TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, name, isMain);
         TimetableFrame savedTimetableFrame = timetableFrameRepositoryV2.save(timetableFrame);
         return TimetableFrameResponse.from(savedTimetableFrame);
     }
@@ -66,7 +66,7 @@ public class TimetableServiceV2 {
                 throw new KoinIllegalArgumentException("메인 시간표는 필수입니다.");
             }
         }
-        timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.name(), isMain);
+        timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.timetableName(), isMain);
         return TimetableFrameUpdateResponse.from(timeTableFrame);
     }
 

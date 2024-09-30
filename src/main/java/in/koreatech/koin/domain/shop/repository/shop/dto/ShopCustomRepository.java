@@ -59,6 +59,7 @@ public class ShopCustomRepository {
             .on(eventArticle.startDate.loe(now.toLocalDate())
                 .and(eventArticle.endDate.goe(now.toLocalDate())))
             .leftJoin(shop.reviews, shopReview)
+            .on(shopReview.isDeleted.eq(false))
             .groupBy(shop.id)
             .fetch();
 

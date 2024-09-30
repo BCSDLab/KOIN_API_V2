@@ -18,7 +18,7 @@ public class VersionService {
     private final VersionRepository versionRepository;
 
     public VersionResponse getVersion(String type) {
-        Version version = versionRepository.getByType(VersionType.from(type));
+        Version version = versionRepository.getByTypeAndIsPrevious(VersionType.from(type), false);
         return VersionResponse.from(version);
     }
 

@@ -33,6 +33,9 @@ public record TimetableLectureResponse(
         @Schema(description = "시간표 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
+        @Schema(description = "강의 id", example = "1", requiredMode = NOT_REQUIRED)
+        Integer lectureId,
+
         @Schema(description = "수강 정원", example = "38", requiredMode = NOT_REQUIRED)
         String regularNumber,
 
@@ -81,6 +84,7 @@ public record TimetableLectureResponse(
                         null,
                         null,
                         null,
+                        null,
                         parseIntegerClassTimesFromString(timetableLecture.getClassTime()),
                         timetableLecture.getClassPlace(),
                         timetableLecture.getMemo(),
@@ -94,6 +98,7 @@ public record TimetableLectureResponse(
                 } else {
                     response = new InnerTimetableLectureResponse(
                         timetableLecture.getId(),
+                        timetableLecture.getLecture().getId(),
                         timetableLecture.getLecture().getRegularNumber(),
                         timetableLecture.getLecture().getCode(),
                         timetableLecture.getLecture().getDesignScore(),

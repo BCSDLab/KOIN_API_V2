@@ -59,16 +59,7 @@ public class AdminVersionApiTest extends AcceptanceTest {
                   "type": %s,
                   "version": "3.5.0",
                   "title": "코인 신기능 업데이트",
-                  "body": [
-                    {
-                      "body_title": "Android 백그라운드 푸시 알림",
-                      "body_content": "더 빠른 알림을 위해 업데이트 해주세요!"
-                    },
-                    {
-                      "body_title": "Android 키워드 알림",
-                      "body_content": "더 빠른 알림을 위해 업데이트 해주세요!"
-                    }
-                  ],
+                  "content": "더 빠른 알림을 위해 업데이트 해주세요!",
                   "created_at": "2024-01-15 12:00:00",
                   "updated_at": "2024-01-15"
                 }
@@ -102,12 +93,7 @@ public class AdminVersionApiTest extends AcceptanceTest {
                             {
                               "version": "3.6.1",
                               "title": "코인의 새로운 기능 업데이트",
-                              "body": [
-                                {
-                                  "body_title": "백그라운드 푸시 알림",
-                                  "body_content": "정확하고 빠른..."
-                                }
-                              ]
+                              "content": "더 빠른 알림을 위해 업데이트 해주세요!"
                             }
                         """)
             )
@@ -119,8 +105,7 @@ public class AdminVersionApiTest extends AcceptanceTest {
             softly.assertThat(newVersion.getType()).isEqualTo(android.getType());
             softly.assertThat(newVersion.getVersion()).isEqualTo("3.6.1");
             softly.assertThat(newVersion.getTitle()).isEqualTo("코인의 새로운 기능 업데이트");
-            softly.assertThat(newVersion.getContents().get(0).getTitle()).isEqualTo("백그라운드 푸시 알림");
-            softly.assertThat(newVersion.getContents().get(0).getContent()).isEqualTo("정확하고 빠른...");
+            softly.assertThat(newVersion.getContent()).isEqualTo("더 빠른 알림을 위해 업데이트 해주세요!");
         });
     }
 

@@ -1,22 +1,17 @@
 package in.koreatech.koin.domain.version.model;
 
-import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import in.koreatech.koin.admin.version.dto.AdminVersionUpdateRequest;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -46,8 +41,8 @@ public class Version extends BaseEntity {
     @Column(name = "title", length = 50)
     private String title;
 
-    @OneToMany(mappedBy = "version", orphanRemoval = true, cascade = ALL, fetch = FetchType.EAGER)
-    private List<VersionContent> contents = new ArrayList<>();
+    @Column(name = "content")
+    private String content;
 
     @Column(name = "is_previous", columnDefinition = "TINYINT")
     private boolean isPrevious;
@@ -56,11 +51,13 @@ public class Version extends BaseEntity {
     private Version(
         String type,
         String version,
-        String title
+        String title,
+        String content
     ) {
         this.type = type;
         this.version = version;
         this.title = title;
+        this.content = content;
     }
 
     public void toPreviousVersion() {
@@ -79,17 +76,11 @@ public class Version extends BaseEntity {
     }
 
     public static Version of(VersionType type, AdminVersionUpdateRequest request) {
-        Version newVersion = Version.builder()
+        return Version.builder()
             .type(type.getValue())
             .version(request.version())
             .title(request.title())
+            .content(request.content())
             .build();
-
-        List<VersionContent> contents = request.body().stream()
-            .map(body -> body.toEntity(newVersion))
-            .toList();
-        newVersion.getContents().addAll(contents);
-
-        return newVersion;
     }
 }
