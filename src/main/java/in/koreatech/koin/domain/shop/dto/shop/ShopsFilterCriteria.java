@@ -32,7 +32,7 @@ public enum ShopsFilterCriteria {
     }
 
     public static Predicate<InnerShopResponse> createCombinedFilter(
-        List<ShopsFilterCriteria> criteriaList,
+        List<ShopsFilterCriteria> criteriaList
     ) {
         return criteriaList.stream()
             .map(criteria -> criteria.getCondition())
