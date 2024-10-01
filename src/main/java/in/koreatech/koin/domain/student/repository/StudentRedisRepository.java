@@ -1,6 +1,6 @@
-package in.koreatech.koin.domain.user.repository;
+package in.koreatech.koin.domain.student.repository;
 
-import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
 import org.springframework.data.repository.Repository;
 
 import java.util.Optional;

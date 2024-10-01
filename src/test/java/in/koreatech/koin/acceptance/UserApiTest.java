@@ -23,12 +23,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.dept.model.Dept;
-import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
-import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
-import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
-import in.koreatech.koin.domain.user.repository.StudentRepository;
+import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.fixture.UserFixture;
 import in.koreatech.koin.global.auth.JwtProvider;
@@ -208,17 +208,17 @@ class UserApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-                {
-                    "anonymous_nickname": "익명",
-                    "email": "juno@koreatech.ac.kr",
-                    "gender": 1,
-                    "major": "기계공학부",
-                    "name": "서정빈",
-                    "nickname": "duehee",
-                    "phone_number": "01023456789",
-                    "student_number": "2019136136"
-                }
-            """));
+                    {
+                        "anonymous_nickname": "익명",
+                        "email": "juno@koreatech.ac.kr",
+                        "gender": 1,
+                        "major": "기계공학부",
+                        "name": "서정빈",
+                        "nickname": "duehee",
+                        "phone_number": "01023456789",
+                        "student_number": "2019136136"
+                    }
+                """));
 
         transactionTemplate.executeWithoutResult(status -> {
             Student result = studentRepository.getById(student.getId());
@@ -243,15 +243,15 @@ class UserApiTest extends AcceptanceTest {
                 put("/user/student/me")
                     .header("Authorization", "Bearer " + token)
                     .content("""
-                  {
-                    "gender" : 0,
-                    "major" : "메카트로닉스공학부",
-                    "name" : "최주노",
-                    "nickname" : "juno",
-                    "phone_number" : "01023456789",
-                    "student_number" : "201913613"
-                  }
-                """)
+                          {
+                            "gender" : 0,
+                            "major" : "메카트로닉스공학부",
+                            "name" : "최주노",
+                            "nickname" : "juno",
+                            "phone_number" : "01023456789",
+                            "student_number" : "201913613"
+                          }
+                        """)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
@@ -266,15 +266,15 @@ class UserApiTest extends AcceptanceTest {
                 put("/user/student/me")
                     .header("Authorization", "Bearer " + token)
                     .content("""
-                  {
-                    "gender" : 0,
-                    "major" : "경영학과",
-                    "name" : "최주노",
-                    "nickname" : "juno",
-                    "phone_number" : "01023456789",
-                    "student_number" : "2019136136"
-                  }
-                """)
+                          {
+                            "gender" : 0,
+                            "major" : "경영학과",
+                            "name" : "최주노",
+                            "nickname" : "juno",
+                            "phone_number" : "01023456789",
+                            "student_number" : "2019136136"
+                          }
+                        """)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
@@ -289,15 +289,15 @@ class UserApiTest extends AcceptanceTest {
                 put("/user/student/me")
                     .header("Authorization", "Bearer " + token)
                     .content("""
-                  {
-                    "gender" : 0,
-                    "major" : "메카트로닉스공학부",
-                    "name" : "최주노",
-                    "nickname" : "juno",
-                    "phone_number" : "01023456789",
-                    "student_number" : "2019136136"
-                  }
-                """)
+                          {
+                            "gender" : 0,
+                            "major" : "메카트로닉스공학부",
+                            "name" : "최주노",
+                            "nickname" : "juno",
+                            "phone_number" : "01023456789",
+                            "student_number" : "2019136136"
+                          }
+                        """)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isUnauthorized());
@@ -315,15 +315,15 @@ class UserApiTest extends AcceptanceTest {
                 put("/user/student/me")
                     .header("Authorization", "Bearer " + token)
                     .content("""
-                  {
-                    "gender" : 0,
-                    "major" : "메카트로닉스공학부",
-                    "name" : "최주노",
-                    "nickname" : "juno",
-                    "phone_number" : "01023456789",
-                    "student_number" : "2019136136"
-                  }
-                """)
+                          {
+                            "gender" : 0,
+                            "major" : "메카트로닉스공학부",
+                            "name" : "최주노",
+                            "nickname" : "juno",
+                            "phone_number" : "01023456789",
+                            "student_number" : "2019136136"
+                          }
+                        """)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isNotFound());
@@ -339,15 +339,15 @@ class UserApiTest extends AcceptanceTest {
                 put("/user/student/me")
                     .header("Authorization", "Bearer " + token)
                     .content(String.format("""
-                 {
-                    "gender" : 0,
-                    "major" : "테스트학과",
-                    "name" : "최주노",
-                    "nickname" : "%s",
-                    "phone_number" : "01023456789",
-                    "student_number" : "2019136136"
-                 }
-                """, 성빈.getUser().getNickname()))
+                         {
+                            "gender" : 0,
+                            "major" : "테스트학과",
+                            "name" : "최주노",
+                            "nickname" : "%s",
+                            "phone_number" : "01023456789",
+                            "student_number" : "2019136136"
+                         }
+                        """, 성빈.getUser().getNickname()))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isConflict());
@@ -529,23 +529,23 @@ class UserApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk());
 
-            Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
+        Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
 
-            assertSoftly(
-                softly -> {
-                    softly.assertThat(student).isNotNull();
-                    softly.assertThat(student.get().getNickname()).isEqualTo("koko");
-                    softly.assertThat(student.get().getName()).isEqualTo("김철수");
-                    softly.assertThat(student.get().getPhoneNumber()).isEqualTo("01000000000");
-                    softly.assertThat(student.get().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
-                    softly.assertThat(student.get().getStudentNumber()).isEqualTo("2021136012");
-                    softly.assertThat(student.get().getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
-                    forceVerify(() -> verify(studentEventListener).onStudentEmailRequest(any()));
-                    clear();
-                    setup();
-                }
-            );
-}
+        assertSoftly(
+            softly -> {
+                softly.assertThat(student).isNotNull();
+                softly.assertThat(student.get().getNickname()).isEqualTo("koko");
+                softly.assertThat(student.get().getName()).isEqualTo("김철수");
+                softly.assertThat(student.get().getPhoneNumber()).isEqualTo("01000000000");
+                softly.assertThat(student.get().getEmail()).isEqualTo("koko123@koreatech.ac.kr");
+                softly.assertThat(student.get().getStudentNumber()).isEqualTo("2021136012");
+                softly.assertThat(student.get().getDepartment()).isEqualTo(Dept.COMPUTER_SCIENCE.getName());
+                forceVerify(() -> verify(studentEventListener).onStudentEmailRequest(any()));
+                clear();
+                setup();
+            }
+        );
+    }
 
     @Test
     void 이메일_요청을_확인_후_회원가입_이벤트가_발생하고_Redis에_저장된_정보가_삭제된다() throws Exception {
@@ -567,7 +567,6 @@ class UserApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
-
 
         Optional<StudentTemporaryStatus> student = studentRedisRepository.findById("koko123@koreatech.ac.kr");
         mockMvc.perform(
@@ -680,10 +679,10 @@ class UserApiTest extends AcceptanceTest {
                 post("/user/check/password")
                     .header("Authorization", "Bearer " + token)
                     .content("""
-                      {
-                        "password": "1234"
-                      }
-                    """)
+                          {
+                            "password": "1234"
+                          }
+                        """)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
@@ -698,10 +697,53 @@ class UserApiTest extends AcceptanceTest {
                 post("/user/check/password")
                     .header("Authorization", "Bearer " + token)
                     .content("""
-                      {
-                        "password": "123"
-                      }
-                    """)
+                          {
+                            "password": "123"
+                          }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 사용자가_비밀번호를_변경하고_기존_비밀번호로_로그인하면_에러를_반환한다() throws Exception {
+        Student student = userFixture.준호_학생();
+        String accessToken = userFixture.getToken(student.getUser());
+        String newPassword = "newPassword1234";
+
+        mockMvc.perform(
+                put("/user/change/password")
+                    .header("Authorization", "Bearer " + accessToken)
+                    .content("""
+                        {
+                          "password": "%s"
+                        }
+                        """.formatted(newPassword))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+
+        mockMvc.perform(
+                post("/user/login")
+                    .content("""
+                        {
+                          "email": "%s",
+                          "password": "%s"
+                        }
+                        """.formatted(student.getUser().getEmail(), newPassword))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated());
+
+        mockMvc.perform(
+                post("/user/login")
+                    .content("""
+                        {
+                          "email": "%s",
+                          "password": "%s"
+                        }
+                        """.formatted(student.getUser().getEmail(), "1234"))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
@@ -714,9 +756,9 @@ class UserApiTest extends AcceptanceTest {
 
         mockMvc.perform(
                 get("/user/check/login")
-                        .param("access_token", accessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
+                    .param("access_token", accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
     }
 }

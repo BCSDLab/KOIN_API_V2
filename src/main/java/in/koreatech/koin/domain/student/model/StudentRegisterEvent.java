@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.model;
+package in.koreatech.koin.domain.student.model;
 
 public record StudentRegisterEvent(
     String email
