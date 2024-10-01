@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.shop.dto.shop;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -35,7 +34,7 @@ public enum ShopsFilterCriteria {
         List<ShopsFilterCriteria> criteriaList
     ) {
         return criteriaList.stream()
-            .map(criteria -> criteria.getCondition())
+            .map(ShopsFilterCriteria::getCondition)
             .reduce(x -> true, Predicate::and);
     }
 }
