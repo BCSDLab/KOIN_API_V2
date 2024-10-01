@@ -41,7 +41,8 @@ public record ShopsResponseV2(
                 );
             })
             .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias))
-            .sorted(InnerShopResponse.getComparator(sortBy)).toList();
+            .sorted(InnerShopResponse.getComparator(sortBy))
+            .toList();
         return new ShopsResponseV2(
             innerShopResponses.size(),
             innerShopResponses
