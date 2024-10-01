@@ -4,7 +4,6 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
+import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV2;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -26,23 +25,24 @@ public record ShopsResponseV2(
 
     public static ShopsResponseV2 from(
         List<Shop> shops,
-        Map<Integer, ShopInfo> shopInfoMap,
-        LocalDateTime now,
+        Map<Integer, ShopInfoV2> shopInfoMap,
         ShopsSortCriteria sortBy,
         List<ShopsFilterCriteria> shopsFilterCriterias
     ) {
         List<InnerShopResponse> innerShopResponses = shops.stream()
-            .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias, now))
             .map(it -> {
-                ShopInfo shopInfo = shopInfoMap.get(it.getId());
+                ShopInfoV2 shopInfo = shopInfoMap.get(it.getId());
                 return InnerShopResponse.from(
                     it,
                     shopInfo.durationEvent(),
-                    it.isOpen(now),
+                    shopInfo.isOpen(),
                     shopInfo.averageRate(),
                     shopInfo.reviewCount()
                 );
-            }).sorted(InnerShopResponse.getComparator(sortBy)).toList();
+            })
+            .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias))
+            .sorted(InnerShopResponse.getComparator(sortBy))
+            .toList();
         return new ShopsResponseV2(
             innerShopResponses.size(),
             innerShopResponses

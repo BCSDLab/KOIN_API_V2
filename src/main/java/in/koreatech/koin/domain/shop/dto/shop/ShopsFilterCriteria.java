@@ -1,10 +1,9 @@
 package in.koreatech.koin.domain.shop.dto.shop;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
 
-import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsResponseV2.InnerShopResponse;
 import lombok.Getter;
 
 @Getter
@@ -20,20 +19,19 @@ public enum ShopsFilterCriteria {
         this.value = value;
     }
 
-    public Predicate<Shop> getCondition(LocalDateTime now) {
-        switch (this) {
-            case OPEN:
-                return shop -> shop.isOpen(now);
-            case DELIVERY:
-                return Shop::getDelivery;
-            default:
-                return shop -> true;
-        }
+    public Predicate<InnerShopResponse> getCondition() {
+        return switch (this) {
+            case OPEN -> InnerShopResponse::isOpen;
+            case DELIVERY -> InnerShopResponse::delivery;
+            default -> shop -> true;
+        };
     }
 
-    public static Predicate<Shop> createCombinedFilter(List<ShopsFilterCriteria> criteriaList, LocalDateTime now) {
+    public static Predicate<InnerShopResponse> createCombinedFilter(
+        List<ShopsFilterCriteria> criteriaList
+    ) {
         return criteriaList.stream()
-            .map(criteria -> criteria.getCondition(now))
+            .map(ShopsFilterCriteria::getCondition)
             .reduce(x -> true, Predicate::and);
     }
 }
