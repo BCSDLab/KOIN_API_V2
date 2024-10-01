@@ -20,14 +20,11 @@ public enum ShopsFilterCriteria {
     }
 
     public Predicate<InnerShopResponse> getCondition() {
-        switch (this) {
-            case OPEN:
-                return InnerShopResponse::isOpen;
-            case DELIVERY:
-                return InnerShopResponse::delivery;
-            default:
-                return shop -> true;
-        }
+        return switch (this) {
+            case OPEN -> InnerShopResponse::isOpen;
+            case DELIVERY -> InnerShopResponse::delivery;
+            default -> shop -> true;
+        };
     }
 
     public static Predicate<InnerShopResponse> createCombinedFilter(
