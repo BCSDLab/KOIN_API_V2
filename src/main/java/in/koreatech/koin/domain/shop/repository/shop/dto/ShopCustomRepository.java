@@ -93,7 +93,7 @@ public class ShopCustomRepository {
             .select(
                 shop.id,
                 ExpressionUtils.as(eventArticle.id.count().gt(0L), "isEventActive"),
-                ExpressionUtils.as(isOpenSubQuery, "isOpen") // 서브쿼리 결과를 "isOpen" 필드로 추가
+                ExpressionUtils.as(isOpenSubQuery, "isOpen")
             )
             .from(shop)
             .leftJoin(shop.eventArticles, eventArticle)
@@ -115,11 +115,9 @@ public class ShopCustomRepository {
     }
 
     private BooleanBuilder openCondition(NumberPath<Integer> shopId, LocalDateTime now) {
-        QShopOpen shopOpen = QShopOpen.shopOpen; // 상점 운영 시간 테이블
-        LocalDate today = now.toLocalDate();
+        QShopOpen shopOpen = QShopOpen.shopOpen;
         LocalTime currentTime = now.toLocalTime();
         LocalDateTime yesterday = now.minusDays(1);
-        LocalDate yesterdayDate = yesterday.toLocalDate();
 
         BooleanBuilder whereCondition = new BooleanBuilder();
 
