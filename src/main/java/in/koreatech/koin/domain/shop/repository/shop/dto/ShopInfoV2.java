@@ -6,4 +6,5 @@ public record ShopInfoV2(
     Long reviewCount,
     Boolean isOpen
 ) {
+
 }

@@ -209,12 +209,13 @@ public class Shop extends BaseEntity {
             if (shopOpen.isClosed()) {
                 continue;
             }
-            if (shopOpen.getDayOfWeek().equals(currDayOfWeek) && isBetweenDate(now, shopOpen, now.toLocalDate())) {
+            if (shopOpen.getDayOfWeek().equals(currDayOfWeek) &&
+                isBetweenDate(now, shopOpen, now.toLocalDate())
+            ) {
                 return true;
             }
-            if (
-                shopOpen.getDayOfWeek().equals(prevDayOfWeek) && isBetweenDate(now, shopOpen,
-                    now.minusDays(1).toLocalDate())
+            if (shopOpen.getDayOfWeek().equals(prevDayOfWeek) &&
+                isBetweenDate(now, shopOpen, now.minusDays(1).toLocalDate())
             ) {
                 return true;
             }

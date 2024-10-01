@@ -4,4 +4,5 @@ public record ShopInfoV1(
     Boolean durationEvent,
     Boolean isOpen
 ) {
+
 }

@@ -31,7 +31,10 @@ public enum ShopsFilterCriteria {
         }
     }
 
-    public static Predicate<InnerShopResponse> createCombinedFilter(List<ShopsFilterCriteria> criteriaList, LocalDateTime now) {
+    public static Predicate<InnerShopResponse> createCombinedFilter(
+        List<ShopsFilterCriteria> criteriaList,
+        LocalDateTime now
+    ) {
         return criteriaList.stream()
             .map(criteria -> criteria.getCondition(now))
             .reduce(x -> true, Predicate::and);
