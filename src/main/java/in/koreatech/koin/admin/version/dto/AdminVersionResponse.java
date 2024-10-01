@@ -22,17 +22,17 @@ public record AdminVersionResponse(
     @Schema(description = "업데이트 버전", example = "3.5.0", requiredMode = REQUIRED)
     String version,
 
-    @Schema(description = "업데이트 제목", example = "코인의 새로운 기능 업데이트", requiredMode = REQUIRED)
+    @Schema(description = "업데이트 제목", example = "코인의 새로운 기능 업데이트")
     String title,
 
-    @Schema(description = "업데이트 버전 내용", requiredMode = REQUIRED)
+    @Schema(description = "업데이트 버전 내용")
     String content,
 
-    @Schema(description = "생성일", example = "2021-06-21 13:00:00", requiredMode = REQUIRED)
+    @Schema(description = "생성일", example = "2021-06-21 13:00:00")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime createdAt,
 
-    @Schema(description = "수정일", example = "2021-06-21", requiredMode = REQUIRED)
+    @Schema(description = "수정일", example = "2021-06-21")
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDateTime updatedAt
 ) {

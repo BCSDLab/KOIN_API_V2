@@ -12,10 +12,10 @@ public record AdminVersionUpdateRequest(
     @Schema(description = "업데이트 버전", example = "3.5.0", requiredMode = REQUIRED)
     String version,
 
-    @Schema(description = "업데이트 제목", example = "코인의 새로운 기능 업데이트", requiredMode = REQUIRED)
+    @Schema(description = "업데이트 제목", example = "코인의 새로운 기능 업데이트")
     String title,
 
-    @Schema(description = "업데이트 내용", example = "더 빠른 성능을 위해...", requiredMode = REQUIRED)
+    @Schema(description = "업데이트 내용", example = "더 빠른 성능을 위해...")
     String content
 ) {
 
