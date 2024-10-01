@@ -42,7 +42,7 @@ public record ShopsResponseV2(
                     shopInfo.reviewCount()
                 );
             })
-            .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias, now))
+            .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias))
             .sorted(InnerShopResponse.getComparator(sortBy)).toList();
         return new ShopsResponseV2(
             innerShopResponses.size(),
