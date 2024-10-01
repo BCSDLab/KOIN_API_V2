@@ -4,7 +4,6 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,6 @@ public record ShopsResponseV2(
     public static ShopsResponseV2 from(
         List<Shop> shops,
         Map<Integer, ShopInfoV2> shopInfoMap,
-        LocalDateTime now,
         ShopsSortCriteria sortBy,
         List<ShopsFilterCriteria> shopsFilterCriterias
     ) {
