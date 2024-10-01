@@ -20,7 +20,7 @@ public enum ShopsFilterCriteria {
         this.value = value;
     }
 
-    public Predicate<InnerShopResponse> getCondition(LocalDateTime now) {
+    public Predicate<InnerShopResponse> getCondition() {
         switch (this) {
             case OPEN:
                 return InnerShopResponse::isOpen;
@@ -33,10 +33,9 @@ public enum ShopsFilterCriteria {
 
     public static Predicate<InnerShopResponse> createCombinedFilter(
         List<ShopsFilterCriteria> criteriaList,
-        LocalDateTime now
     ) {
         return criteriaList.stream()
-            .map(criteria -> criteria.getCondition(now))
+            .map(criteria -> criteria.getCondition())
             .reduce(x -> true, Predicate::and);
     }
 }
