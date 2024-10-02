@@ -47,11 +47,11 @@ public class ArticleService {
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final int MAXIMUM_SEARCH_LENGTH = 100;
     private static final Sort ARTICLES_SORT = Sort.by(
-        Sort.Order.desc("registeredAt"),
+        Sort.Order.desc("koreatechArticle.registeredAt"),
         Sort.Order.desc("id")
     );
     private static final Sort NATIVE_ARTICLES_SORT = Sort.by(
-        Sort.Order.desc("registered_at"),
+        //Sort.Order.desc("koreatechArticle.registeredAt"),
         Sort.Order.desc("id")
     );
 
