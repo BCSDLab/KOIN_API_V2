@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 public record AdminNoticesResponse (
     @Schema(description = "공지사항 목록")
-    List<AdminNoticesResponse.InnerAdminNoticeResponse> notices,
+    List<InnerAdminNoticeResponse> notices,
 
     @Schema(description = "총 공지사항 수", example = "57", requiredMode = REQUIRED)
     Long totalCount,
