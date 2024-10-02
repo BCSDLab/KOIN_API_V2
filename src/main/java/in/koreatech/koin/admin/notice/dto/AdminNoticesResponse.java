@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -29,7 +30,7 @@ public record AdminNoticesResponse (
     Integer currentPage
 ) {
 
-    public static AdminNoticesResponse of(Page<Void> pagedResult, Criteria criteria) {
+    public static AdminNoticesResponse of(Page<Article> pagedResult, Criteria criteria) {
         return new AdminNoticesResponse(
             pagedResult.stream()
                 .map(AdminNoticesResponse.InnerAdminNoticeResponse::from)
@@ -54,8 +55,12 @@ public record AdminNoticesResponse (
         String author
     ) {
 
-        public static AdminNoticesResponse.InnerAdminNoticeResponse from(Object notice) {
-            return null;
+        public static InnerAdminNoticeResponse from(Article noticeArticle) {
+            return new InnerAdminNoticeResponse(
+                noticeArticle.getId(),
+                noticeArticle.getTitle(),
+                noticeArticle.getAuthor()
+            );
         }
     }
 }
