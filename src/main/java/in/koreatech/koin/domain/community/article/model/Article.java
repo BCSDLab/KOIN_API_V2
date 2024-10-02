@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.article.model;
 
 import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
@@ -10,21 +11,18 @@ import java.util.List;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.global.config.LocalDateAttributeConverter;
 import in.koreatech.koin.global.domain.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -33,69 +31,52 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "koreatech_articles",
-    uniqueConstraints = {
-        @UniqueConstraint(name = "ux_koreatech_article", columnNames = {"board_id", "article_num"})
-    },
-    indexes = {
-        @Index(name = "idx_registered_at_id", columnList = "registered_at DESC, id DESC")
-    }
-)
+@Table(name = "articles")
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
 public class Article extends BaseEntity {
+
+    @Transient
+    private static final String ADMIN_NOTICE_AUTHOR = "BCSD Lab";
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "board_id", nullable = false, updatable = false)
     private Board board;
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "title", nullable = false, updatable = false)
+    @Column(name = "title", nullable = false)
     private String title;
 
     @NotNull
-    @Column(name = "content", nullable = false, updatable = false)
+    @Column(name = "content", nullable = false)
     private String content;
-
-    @Size(max = 50)
-    @NotNull
-    @Column(name = "author", nullable = false, length = 50, updatable = false)
-    private String author;
 
     @NotNull
     @Column(name = "hit", nullable = false)
     private int hit;
 
     @NotNull
-    @Column(name = "koin_hit", nullable = false)
-    private int koinHit;
-
-    @NotNull
-    @Column(name = "is_deleted", nullable = false, updatable = false)
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    @Column(name = "article_num", nullable = false, updatable = false)
-    private Integer articleNum;
-
-    @Column(name = "url", nullable = false, updatable = false)
-    private String url;
-
-    @Convert(converter = LocalDateAttributeConverter.class)
-    @Column(name = "registered_at", columnDefinition = "DATETIME", updatable = false)
-    private LocalDate registeredAt;
-
-    @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(cascade = {PERSIST, MERGE, REMOVE}, orphanRemoval = true, fetch = LAZY)
     @JoinColumn(name = "article_id", updatable = false)
     private List<ArticleAttachment> attachments = new ArrayList<>();
 
     @NotNull
     @Column(name = "is_notice", nullable = false, updatable = false)
     private boolean isNotice = false;
+
+    @OneToOne(mappedBy = "article", fetch = LAZY)
+    private KoreatechArticle koreatechArticle;
+
+    @OneToOne(mappedBy = "article", fetch = LAZY, cascade = PERSIST)
+    private KoinArticle koinArticle;
 
     @Transient
     private Integer prevId;
@@ -104,11 +85,14 @@ public class Article extends BaseEntity {
     private Integer nextId;
 
     public void increaseKoinHit() {
-        koinHit++;
+        this.hit++;
     }
 
     public int getTotalHit() {
-        return hit + koinHit;
+        if (this.koreatechArticle != null) {
+            return this.koreatechArticle.getPortalHit() + this.hit;
+        }
+        return this.hit;
     }
 
     public void setPrevNextArticles(Article prev, Article next) {
@@ -120,32 +104,62 @@ public class Article extends BaseEntity {
         }
     }
 
+    public String getAuthor() {
+        if (this.koreatechArticle != null) {
+            return this.koreatechArticle.getAuthor();
+        } else if (this.koinArticle != null && this.board.getId() == 9) {
+            return ADMIN_NOTICE_AUTHOR;
+        } else {
+            return this.koinArticle.getUser().getName();
+        }
+    }
+
+    public LocalDate getRegisteredAt() {
+        if (this.koreatechArticle != null) {
+            return this.koreatechArticle.getRegisteredAt();
+        } else return null;
+    }
+
+    public int getArticleNum() {
+        return this.koreatechArticle.getPortalNum();
+    }
+
+    public String getUrl() {
+        return this.koreatechArticle.getUrl();
+    }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
+
+    public void updateKoinAdminArticle(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
+
     @Builder
-    private Article(
+    public Article(
+        Integer id,
         Board board,
         String title,
         String content,
-        String author,
-        Integer hit,
-        Integer koinHit,
+        int hit,
         boolean isDeleted,
-        Integer articleNum,
-        String url,
-        LocalDate registeredAt,
         List<ArticleAttachment> attachments,
-        boolean isNotice
-    ) {
+        boolean isNotice,
+        KoreatechArticle koreatechArticle,
+        KoinArticle koinArticle
+    )
+    {
+        this.id = id;
         this.board = board;
         this.title = title;
         this.content = content;
-        this.author = author;
         this.hit = hit;
-        this.koinHit = koinHit;
         this.isDeleted = isDeleted;
-        this.articleNum = articleNum;
-        this.url = url;
-        this.registeredAt = registeredAt;
         this.attachments = attachments;
         this.isNotice = isNotice;
+        this.koreatechArticle = koreatechArticle;
+        this.koinArticle = koinArticle;
     }
 }
