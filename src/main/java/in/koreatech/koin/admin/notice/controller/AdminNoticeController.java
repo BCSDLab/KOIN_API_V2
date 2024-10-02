@@ -29,7 +29,7 @@ public class AdminNoticeController implements AdminNoticeApi {
 
     private final AdminNoticeService adminNoticeService;
 
-    @GetMapping("/admin/notice")
+    @GetMapping("/admin/notices")
     public ResponseEntity<AdminNoticesResponse> getAllNotices(
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
@@ -52,7 +52,7 @@ public class AdminNoticeController implements AdminNoticeApi {
         @RequestBody @Valid AdminNoticeRequest adminNoticeRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminNoticeService.createNotice(adminNoticeRequest);
+        adminNoticeService.createNotice(adminNoticeRequest, adminId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
