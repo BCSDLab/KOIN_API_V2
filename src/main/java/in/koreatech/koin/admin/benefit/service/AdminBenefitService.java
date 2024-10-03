@@ -17,6 +17,8 @@ import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminDeleteShopsRequest;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryRequest;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.exception.BenefitLimitException;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
@@ -54,6 +56,16 @@ public class AdminBenefitService {
         BenefitCategory benefitCategory = request.toBenefitCategory();
         BenefitCategory savedBenefitCategory = adminBenefitCategoryRepository.save(benefitCategory);
         return AdminCreateBenefitCategoryResponse.from(savedBenefitCategory);
+    }
+
+    @Transactional
+    public AdminModifyBenefitCategoryResponse modifyBenefitCategory(
+        Integer categoryId,
+        AdminModifyBenefitCategoryRequest request
+    ) {
+        BenefitCategory benefitCategory = adminBenefitCategoryRepository.getById(categoryId);
+        benefitCategory.update(request.title(), request.detail(), request.onImageUrl(), request.offImageUrl());
+        return AdminModifyBenefitCategoryResponse.from(benefitCategory);
     }
 
     @Transactional
