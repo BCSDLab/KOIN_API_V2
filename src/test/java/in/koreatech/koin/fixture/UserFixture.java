@@ -16,11 +16,11 @@ import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
-import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.domain.user.repository.StudentRepository;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 

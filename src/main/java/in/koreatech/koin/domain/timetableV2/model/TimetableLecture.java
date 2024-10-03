@@ -7,7 +7,6 @@ import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +14,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -38,8 +38,8 @@ public class TimetableLecture extends BaseEntity {
     @Column(name = "class_title", length = 100)
     private String classTitle;
 
-    @Size(max = 100)
-    @Column(name = "class_time", length = 100)
+    @Lob
+    @Column(name = "class_time", columnDefinition = "TEXT")
     private String classTime;
 
     @Size(max = 30)

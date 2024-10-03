@@ -26,7 +26,7 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
-import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;

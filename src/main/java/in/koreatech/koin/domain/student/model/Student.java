@@ -1,7 +1,9 @@
-package in.koreatech.koin.domain.user.model;
+package in.koreatech.koin.domain.student.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserIdentity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

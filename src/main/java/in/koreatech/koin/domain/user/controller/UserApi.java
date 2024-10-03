@@ -4,6 +4,12 @@ import static in.koreatech.koin.domain.user.model.UserType.COOP;
 import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
+import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
+import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
+import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
+import in.koreatech.koin.domain.student.dto.StudentResponse;
+import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
+import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.user.dto.*;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -36,43 +42,11 @@ public interface UserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "회원 정보 조회")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/user/student/me")
-    ResponseEntity<StudentResponse> getStudent(
-        @Auth(permit = STUDENT) Integer userId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
     @Operation(summary = "영양사 정보 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/user/coop/me")
     ResponseEntity<CoopResponse> getCoop(
         @Auth(permit = COOP) Integer userId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "회원 정보 수정")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/user/student/me")
-    ResponseEntity<StudentUpdateResponse> updateStudent(
-        @Auth(permit = STUDENT) Integer userId,
-        @Valid StudentUpdateRequest studentUpdateRequest
     );
 
     @ApiResponses(
@@ -87,20 +61,6 @@ public interface UserApi {
     @PostMapping("/user/login")
     ResponseEntity<UserLoginResponse> login(
         @RequestBody @Valid UserLoginRequest request
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "학생 로그인")
-    @PostMapping("/student/login")
-    ResponseEntity<StudentLoginResponse> studentLogin(
-        @RequestBody @Valid StudentLoginRequest request
     );
 
     @ApiResponses(
@@ -130,22 +90,6 @@ public interface UserApi {
     @PostMapping("/user/refresh")
     ResponseEntity<UserTokenRefreshResponse> refresh(
         @RequestBody @Valid UserTokenRefreshRequest request
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "회원가입")
-    @PostMapping("/user/student/register")
-    ResponseEntity<Void> studentRegister(
-        @RequestBody @Valid StudentRegisterRequest studentRegisterRequest,
-        @ServerURL String serverURL
     );
 
     @ApiResponses(
@@ -207,22 +151,6 @@ public interface UserApi {
     @GetMapping("/user/auth")
     ResponseEntity<AuthResponse> getAuth(
         @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "비밀번호 초기(변경) 메일 발송")
-    @PostMapping("/user/find/password")
-    ResponseEntity<Void> findPassword(
-        @RequestBody @Valid FindPasswordRequest findPasswordRequest,
-        @ServerURL String serverURL
     );
 
     @ApiResponses(
