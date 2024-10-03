@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.dto.shop.ShopResponse.InnerShopOpen;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV1;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -26,7 +27,7 @@ public record ShopsResponse(
 
     public static ShopsResponse from(
         List<Shop> shops,
-        Map<Integer, Boolean> shopEventMap,
+        Map<Integer, ShopInfoV1> shopEventMap,
         LocalDateTime now
     ) {
         return new ShopsResponse(
@@ -34,8 +35,8 @@ public record ShopsResponse(
             shops.stream().map(it -> {
                     return InnerShopResponse.from(
                         it,
-                        shopEventMap.get(it.getId()),
-                        it.isOpen(now)
+                        shopEventMap.get(it.getId()).durationEvent(),
+                        shopEventMap.get(it.getId()).isOpen()
                     );
                 })
                 .sorted(Comparator.comparing(InnerShopResponse::isOpen, Comparator.reverseOrder()))

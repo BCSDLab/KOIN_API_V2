@@ -31,7 +31,8 @@ import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
-import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
+import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV1;
+import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV2;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
@@ -82,7 +83,7 @@ public class ShopService {
     public ShopsResponse getShops() {
         LocalDateTime now = LocalDateTime.now(clock);
         List<Shop> shops = shopRepository.findAll();
-        Map<Integer, Boolean> shopEventMap = shopCustomRepository.findAllShopEvent(now.toLocalDate());
+        Map<Integer, ShopInfoV1> shopEventMap = shopCustomRepository.findAllShopEvent(now);
         return ShopsResponse.from(shops, shopEventMap, now);
     }
 
@@ -107,7 +108,7 @@ public class ShopService {
         }
         List<Shop> shops = shopRepository.findAll();
         LocalDateTime now = LocalDateTime.now(clock);
-        Map<Integer, ShopInfo> shopInfoMap = shopCustomRepository.findAllShopInfo(now.toLocalDate());
-        return ShopsResponseV2.from(shops, shopInfoMap, now, sortBy, shopsFilterCriterias);
+        Map<Integer, ShopInfoV2> shopInfoMap = shopCustomRepository.findAllShopInfo(now);
+        return ShopsResponseV2.from(shops, shopInfoMap, sortBy, shopsFilterCriterias);
     }
 }

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.user.model;
+package in.koreatech.koin.domain.student.model;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 

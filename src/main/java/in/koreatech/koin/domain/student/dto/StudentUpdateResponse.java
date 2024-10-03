@@ -1,20 +1,21 @@
-package in.koreatech.koin.domain.user.dto;
+package in.koreatech.koin.domain.student.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record StudentResponse(
+public record StudentUpdateResponse(
     @Schema(description = "익명 닉네임", example = "익명_1676688416361", requiredMode = NOT_REQUIRED)
     String anonymousNickname,
 
-    @Schema(description = "이메일 주소", example = "koin123@koreatech.ac.kr", requiredMode = NOT_REQUIRED)
+    @Schema(description = "이메일 주소", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
     String email,
 
     @Schema(description = "성별(남:0, 여:1)", example = "1", requiredMode = NOT_REQUIRED)
@@ -41,23 +42,19 @@ public record StudentResponse(
     @Schema(description = "닉네임", example = "juno", requiredMode = NOT_REQUIRED)
     String nickname,
 
-    @Schema(description = "휴대폰 번호", example = "010-0000-0000", requiredMode = NOT_REQUIRED)
+    @Schema(description = "휴대폰 번호", example = "01000000000", requiredMode = NOT_REQUIRED)
     String phoneNumber,
 
     @Schema(description = "학번", example = "2029136012", requiredMode = NOT_REQUIRED)
     String studentNumber
 ) {
 
-    public static StudentResponse from(Student student) {
+    public static StudentUpdateResponse from(Student student) {
         User user = student.getUser();
-        Integer userGender = null;
-        if (user.getGender() != null) {
-            userGender = user.getGender().ordinal();
-        }
-        return new StudentResponse(
+        return new StudentUpdateResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
-            userGender,
+            user.getGender() != null ? user.getGender().ordinal() : null,
             student.getDepartment(),
             user.getName(),
             user.getNickname(),

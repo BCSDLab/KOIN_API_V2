@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.shop.repository.review.ShopReviewImageRepository
 import in.koreatech.koin.domain.shop.repository.review.ShopReviewMenuRepository;
 import in.koreatech.koin.domain.shop.repository.review.ShopReviewRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
-import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.student.model.Student;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")

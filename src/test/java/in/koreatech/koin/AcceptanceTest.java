@@ -30,11 +30,9 @@ import in.koreatech.koin.domain.coop.model.CoopEventListener;
 import in.koreatech.koin.domain.owner.model.OwnerEventListener;
 import in.koreatech.koin.domain.shop.model.event.listener.ReviewEventListener;
 import in.koreatech.koin.domain.shop.model.event.listener.ShopEventListener;
-import in.koreatech.koin.domain.user.model.StudentEventListener;
+import in.koreatech.koin.domain.student.model.StudentEventListener;
 import in.koreatech.koin.support.DBInitializer;
 import in.koreatech.koin.util.TestCircuitBreakerClient;
-import in.koreatech.koin.util.TestCircuitBreakerClient;
-import io.restassured.RestAssured;
 import jakarta.persistence.EntityManager;
 
 @SpringBootTest

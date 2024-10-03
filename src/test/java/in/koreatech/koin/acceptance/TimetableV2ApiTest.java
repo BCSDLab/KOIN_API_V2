@@ -231,6 +231,29 @@ public class TimetableV2ApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 모든_시간표_프레임을_삭제한다() throws Exception {
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        Semester semester = semesterFixture.semester("20192");
+
+        TimetableFrame frame1 = timetableV2Fixture.시간표1(user, semester);
+        TimetableFrame frame2 = timetableV2Fixture.시간표1(user, semester);
+        TimetableFrame frame3 = timetableV2Fixture.시간표1(user, semester);
+
+        mockMvc.perform(
+                delete("/v2/all/timetables/frame")
+                    .header("Authorization", "Bearer " + token)
+                    .param("semester", semester.getSemester())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
+
+        assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isNotPresent();
+        assertThat(timetableFrameRepositoryV2.findById(frame2.getId())).isNotPresent();
+        assertThat(timetableFrameRepositoryV2.findById(frame3.getId())).isNotPresent();
+    }
+
+    @Test
     void 시간표를_생성한다_TimetableLecture() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
