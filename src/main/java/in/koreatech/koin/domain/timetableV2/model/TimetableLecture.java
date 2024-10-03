@@ -39,7 +39,7 @@ public class TimetableLecture extends BaseEntity {
     private String classTitle;
 
     @Lob
-    @Column(name = "class_time")
+    @Column(name = "class_time", columnDefinition = "TEXT")
     private String classTime;
 
     @Size(max = 30)
