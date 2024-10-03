@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,8 @@ import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminDeleteShopsRequest;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryRequest;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.service.AdminBenefitService;
 import in.koreatech.koin.global.auth.Auth;
@@ -46,6 +49,16 @@ public class AdminBenefitController implements AdminBenefitApi {
     ) {
         AdminCreateBenefitCategoryResponse response = adminBenefitService.createBenefitCategory(request);
         return ResponseEntity.status(201).body(response);
+    }
+
+    @PutMapping("/categories/{id}")
+    public ResponseEntity<AdminModifyBenefitCategoryResponse> modifyBenefitCategory(
+        @PathVariable("id") Integer categoryId,
+        @RequestBody AdminModifyBenefitCategoryRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        AdminModifyBenefitCategoryResponse response = adminBenefitService.modifyBenefitCategory(categoryId, request);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/categories/{id}")
