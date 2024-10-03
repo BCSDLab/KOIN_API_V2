@@ -59,7 +59,7 @@ public record AdminNoticesResponse (
             return new InnerAdminNoticeResponse(
                 noticeArticle.getId(),
                 noticeArticle.getTitle(),
-                noticeArticle.getAuthor()
+                noticeArticle.getKoinArticle().getUser().getName()
             );
         }
     }

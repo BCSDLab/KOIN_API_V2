@@ -62,7 +62,7 @@ public class AdminNoticeController implements AdminNoticeApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminNoticeService.deleteNotice(noticeId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/admin/notice/{id}")

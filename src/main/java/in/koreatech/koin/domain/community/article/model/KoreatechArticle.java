@@ -1,12 +1,12 @@
 package in.koreatech.koin.domain.community.article.model;
 
-import static jakarta.persistence.GenerationType.*;
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.global.config.LocalDateAttributeConverter;
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -15,7 +15,6 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -28,6 +27,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Where(clause = "is_deleted=0")
 @Table(name = "koreatech_articles", schema = "koin")
 @NoArgsConstructor(access = PROTECTED)
 public class KoreatechArticle extends BaseEntity {
@@ -84,5 +84,9 @@ public class KoreatechArticle extends BaseEntity {
         this.url = url;
         this.registeredAt = registeredAt;
         this.isDeleted = isDeleted;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
     }
 }

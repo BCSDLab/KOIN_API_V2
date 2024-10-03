@@ -2,9 +2,8 @@ package in.koreatech.koin.domain.community.article.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import java.time.Instant;
-
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -22,10 +21,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Entity
+@Where(clause = "is_deleted=0")
 @Table(name = "koin_articles", schema = "koin")
 @NoArgsConstructor(access = PROTECTED)
 public class KoinArticle extends BaseEntity {
@@ -34,13 +33,12 @@ public class KoinArticle extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Setter
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id", nullable = false)
     private Article article;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @NotNull
@@ -59,5 +57,13 @@ public class KoinArticle extends BaseEntity {
         this.article = article;
         this.user = user;
         this.isDeleted = isDeleted;
+    }
+
+    public void setArticle(Article article) {
+        this.article = article;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
     }
 }

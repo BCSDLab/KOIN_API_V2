@@ -1,5 +1,9 @@
 package in.koreatech.koin.admin.notice.service;
 
+import static in.koreatech.koin.domain.community.article.model.Board.KOIN_ADMIN_NOTICE_BOARD_ID;
+
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -12,7 +16,6 @@ import in.koreatech.koin.admin.notice.dto.AdminNoticesResponse;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
-import in.koreatech.koin.domain.community.article.model.KoinArticle;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -28,7 +31,6 @@ public class AdminNoticeService {
     private final AdminUserRepository adminUserRepository;
     private final BoardRepository boardRepository;
 
-    private static final Integer KOIN_ADMIN_NOTICE_BOARD_ID = 9;
     private static final Sort NOTICES_SORT = Sort.by(
         Sort.Order.desc("id")
     );
@@ -37,26 +39,7 @@ public class AdminNoticeService {
     public void createNotice(AdminNoticeRequest request, Integer adminUserId) {
         Board adminNoticeBoard = boardRepository.getById(KOIN_ADMIN_NOTICE_BOARD_ID);
         User adminUser = adminUserRepository.getById(adminUserId);
-
-        KoinArticle koinArticle = KoinArticle.builder()
-            .user(adminUser)
-            .isDeleted(false)
-            .build();
-
-        Article adminNoticeArticle = Article.builder()
-            .board(adminNoticeBoard)
-            .title(request.title())
-            .content(request.content())
-            .hit(0)
-            .isDeleted(false)
-            .attachments(null)
-            .isNotice(true)
-            .koinArticle(koinArticle)
-            .koreatechArticle(null)
-            .build();
-
-        koinArticle.setArticle(adminNoticeArticle);
-
+        Article adminNoticeArticle = Article.createKoinNoticeArticleByAdmin(request, adminNoticeBoard, adminUser);
         articleRepository.save(adminNoticeArticle);
     }
 
@@ -76,8 +59,11 @@ public class AdminNoticeService {
 
     @Transactional
     public void deleteNotice(Integer noticeId) {
-        Article noticeArticle = articleRepository.getById(noticeId);
-        noticeArticle.delete();
+        Optional<Article> foundArticle = articleRepository.findById(noticeId);
+        if (foundArticle.isEmpty()) {
+            return;
+        }
+        foundArticle.get().delete();
     }
 
     @Transactional
