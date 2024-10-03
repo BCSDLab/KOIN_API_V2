@@ -1,6 +1,7 @@
-package in.koreatech.koin.domain.user.model.redis;
+package in.koreatech.koin.domain.student.model.redis;
 
-import in.koreatech.koin.domain.user.dto.StudentRegisterRequest;
+import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.user.model.*;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;

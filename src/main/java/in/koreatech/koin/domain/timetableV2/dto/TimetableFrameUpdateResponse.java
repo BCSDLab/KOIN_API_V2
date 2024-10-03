@@ -14,7 +14,7 @@ public record TimetableFrameUpdateResponse(
     Integer id,
 
     @Schema(description = "시간표 이름", example = "시간표1", requiredMode = REQUIRED)
-    String name,
+    String timetableName,
 
     @Schema(description = "메인 시간표 여부", example = "false", requiredMode = REQUIRED)
     Boolean isMain
