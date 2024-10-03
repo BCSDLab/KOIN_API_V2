@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -33,7 +32,7 @@ public record AdminCoopShopSemestersResponse(
         Integer id,
         String semester,
         String term
-    ){
+    ) {
 
         public static InnerSemester from(CoopShopSemester coopShopSemester) {
             return new InnerSemester(

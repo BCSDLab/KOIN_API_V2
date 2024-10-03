@@ -53,7 +53,7 @@ public class CoopShop extends BaseEntity {
 
     @OneToMany(mappedBy = "coopShop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE},
         fetch = FetchType.EAGER)
-    private List<CoopOpen> coopOpens = new ArrayList<>();
+    private final List<CoopOpen> coopOpens = new ArrayList<>();
 
     @Builder
     private CoopShop(

@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.coopshop.exception.CoopShopNotFoundException;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
@@ -34,6 +33,7 @@ public interface CoopShopRepository extends Repository<CoopShop, Integer> {
 
     default CoopShop getByCoopShopSemesterAndName(CoopShopSemester coopShopSemester, String name) {
         return findByCoopShopSemesterAndName(coopShopSemester, name)
-            .orElseThrow(() -> CoopShopNotFoundException.withDetail("coopShopSemester : " + coopShopSemester.getSemester() + ", "+ "coopShopName : " + name));
+            .orElseThrow(() -> CoopShopNotFoundException.withDetail(
+                "coopShopSemester : " + coopShopSemester.getSemester() + ", " + "coopShopName : " + name));
     }
 }
