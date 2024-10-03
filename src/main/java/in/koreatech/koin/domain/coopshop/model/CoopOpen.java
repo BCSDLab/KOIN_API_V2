@@ -43,10 +43,6 @@ public class CoopOpen {
     @Column(name = "close_time")
     private String closeTime;
 
-    @NotNull
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
-
     @Builder
     private CoopOpen(
         CoopShop coopShop,

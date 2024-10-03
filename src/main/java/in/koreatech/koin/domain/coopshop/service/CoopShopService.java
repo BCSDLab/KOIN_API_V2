@@ -12,9 +12,11 @@ import org.springframework.stereotype.Service;
 import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
 import in.koreatech.koin.domain.coopshop.model.CoopOpen;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
+import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.repository.CoopOpenRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
+import in.koreatech.koin.domain.coopshop.repository.CoopShopSemesterRepository;
 import in.koreatech.koin.domain.dining.model.DiningType;
 import lombok.RequiredArgsConstructor;
 
@@ -24,11 +26,19 @@ public class CoopShopService {
 
     private final CoopShopRepository coopShopRepository;
     private final CoopOpenRepository coopOpenRepository;
+    private final CoopShopSemesterRepository coopShopSemesterRepository;
 
     public List<CoopShopResponse> getCoopShops() {
-        return coopShopRepository.findAllByIsDeletedFalse().stream()
+        CoopShopSemester coopShopSemester = coopShopSemesterRepository.getByIsApplied(true);
+        return coopShopSemester.getCoopShops().stream()
             .map(CoopShopResponse::from)
             .toList();
+    }
+
+    public CoopShopResponse getCoopShopByName(String coopShopName) {
+        CoopShopSemester coopShopSemester = coopShopSemesterRepository.getByIsApplied(true);
+        CoopShop coopShop = coopShopRepository.getByCoopShopSemesterAndName(coopShopSemester, coopShopName);
+        return CoopShopResponse.from(coopShop);
     }
 
     public CoopShopResponse getCoopShop(Integer id) {

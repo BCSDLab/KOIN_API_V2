@@ -13,6 +13,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -30,13 +32,13 @@ public class CoopShop extends BaseEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "semester_id", referencedColumnName = "id", nullable = false)
+    private CoopShopSemester coopShopSemester;
+
     @NotNull
     @Column(name = "name", nullable = false)
     private String name;
-
-    @NotNull
-    @Column(name = "semester", nullable = false)
-    private String semester;
 
     @NotNull
     @Column(name = "phone", nullable = false)
@@ -49,24 +51,20 @@ public class CoopShop extends BaseEntity {
     @Column(name = "remarks")
     private String remarks;
 
-    @NotNull
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
-
     @OneToMany(mappedBy = "coopShop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE},
         fetch = FetchType.EAGER)
     private List<CoopOpen> coopOpens = new ArrayList<>();
 
     @Builder
     private CoopShop(
+        CoopShopSemester coopShopSemester,
         String name,
-        String semester,
         String phone,
         String location,
         String remarks
     ) {
+        this.coopShopSemester = coopShopSemester;
         this.name = name;
-        this.semester = semester;
         this.phone = phone;
         this.location = location;
         this.remarks = remarks;
