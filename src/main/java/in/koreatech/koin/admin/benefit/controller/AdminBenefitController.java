@@ -2,6 +2,7 @@ package in.koreatech.koin.admin.benefit.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +49,7 @@ public class AdminBenefitController implements AdminBenefitApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminCreateBenefitCategoryResponse response = adminBenefitService.createBenefitCategory(request);
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/categories/{id}")
@@ -86,7 +87,7 @@ public class AdminBenefitController implements AdminBenefitApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminCreateBenefitShopsResponse response = adminBenefitService.createBenefitShops(benefitId, request);
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{id}/shops")
