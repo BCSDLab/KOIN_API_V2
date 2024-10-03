@@ -106,6 +106,21 @@ public interface TimetableApiV2 {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
+    @Operation(summary = "시간표 프레임 모두 삭제")
+    @DeleteMapping("/v2/all/timetables/frame")
+    public ResponseEntity<Void> deleteAllTimetablesFrame(
+        @RequestParam(name = "semester") String semester,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
     @Operation(summary = "시간표에 강의 정보 추가")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/timetables/lecture")
