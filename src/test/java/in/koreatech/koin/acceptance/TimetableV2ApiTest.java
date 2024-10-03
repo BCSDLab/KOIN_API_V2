@@ -241,7 +241,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         TimetableFrame frame3 = timetableV2Fixture.시간표1(user, semester);
 
         mockMvc.perform(
-                delete("/v2/timetables/all/frame")
+                delete("/v2/all/timetables/frame")
                     .header("Authorization", "Bearer " + token)
                     .param("semester", semester.getSemester())
                     .contentType(MediaType.APPLICATION_JSON)
