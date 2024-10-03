@@ -156,8 +156,34 @@ public class AdminBenefitApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 혜택_카테고리를_수정한다() throws Exception {
+        mockMvc.perform(
+                put("/admin/benefit/categories/{id}", 배달비_무료.getId())
+                    .header("Authorization", "Bearer " + token_admin)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                            {
+                              "title": "배달비 유료",
+                              "detail": "배달비 유료인 상점들을 모아뒀어요.",
+                              "on_image_url": "https://example.com/modifyOn.jpg",
+                              "off_image_url": "https://example.com/modifyOff.jpg"
+                            }
+                        """)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                    {
+                      "id": 1,
+                      "title": "배달비 유료",
+                      "detail": "배달비 유료인 상점들을 모아뒀어요.",
+                      "on_image_url": "https://example.com/modifyOn.jpg",
+                      "off_image_url": "https://example.com/modifyOff.jpg"
+                    }
+                """));
+    }
+
+    @Test
     void 혜택_카테고리를_삭제한다() throws Exception {
-        System.out.println(배달비_무료.getId());
         mockMvc.perform(
                 delete("/admin/benefit/categories/{id}", 배달비_무료.getId())
                     .header("Authorization", "Bearer " + token_admin)
