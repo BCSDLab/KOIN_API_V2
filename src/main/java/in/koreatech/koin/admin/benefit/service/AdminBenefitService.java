@@ -49,7 +49,7 @@ public class AdminBenefitService {
         if (currentCategoryCount >= MAX_BENEFIT_CATEGORIES) {
             throw BenefitLimitException.withDetail("혜택 카테고리는 반드시 " + MAX_BENEFIT_CATEGORIES + "개 이하이어야 합니다.");
         }
-        boolean isExistCategory = adminBenefitCategoryRepository.findByTitle(request.title()).isPresent();
+        boolean isExistCategory = adminBenefitCategoryRepository.existsByTitle(request.title());
         if (isExistCategory) {
             throw BenefitLimitException.withDetail("이미 존재하는 혜택 카테고리입니다.");
         }
