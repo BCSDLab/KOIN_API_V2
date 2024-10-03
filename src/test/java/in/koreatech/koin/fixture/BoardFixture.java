@@ -30,6 +30,18 @@ public class BoardFixture {
         );
     }
 
+    public Board 공지게시판() {
+        return boardRepository.save(
+            Board.builder()
+                .name("공지게시판")
+                .isAnonymous(false)
+                .articleCount(0)
+                .isDeleted(false)
+                .isNotice(true)
+                .build()
+        );
+    }
+
     public BoardFixtureBuilder builder() {
         return new BoardFixtureBuilder();
     }

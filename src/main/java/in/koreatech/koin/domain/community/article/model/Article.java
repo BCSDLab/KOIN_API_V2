@@ -74,7 +74,7 @@ public class Article extends BaseEntity {
     @Column(name = "is_notice", nullable = false, updatable = false)
     private boolean isNotice = false;
 
-    @OneToOne(mappedBy = "article", fetch = LAZY)
+    @OneToOne(mappedBy = "article", fetch = LAZY, cascade = ALL)
     private KoreatechArticle koreatechArticle;
 
     @OneToOne(mappedBy = "article", fetch = LAZY, cascade = ALL)

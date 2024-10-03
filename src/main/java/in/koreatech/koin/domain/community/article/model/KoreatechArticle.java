@@ -89,4 +89,8 @@ public class KoreatechArticle extends BaseEntity {
     public void delete() {
         this.isDeleted = true;
     }
+
+    public void setArticle(Article article) {
+        this.article = article;
+    }
 }

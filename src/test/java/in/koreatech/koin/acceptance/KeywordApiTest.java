@@ -223,7 +223,7 @@ public class KeywordApiTest extends AcceptanceTest {
         List<Integer> articleIds = new ArrayList<>();
 
         for (int i = 1; i <= 5; i++) {
-            Article article = articleFixture.자유글_3("수강신청" + i, board, i);
+            Article article = articleFixture.공지_크롤링_게시글("수강신청" + i, board, i);
             articleIds.add(article.getId());
         }
 
@@ -254,7 +254,7 @@ public class KeywordApiTest extends AcceptanceTest {
         List<Integer> articleIds = new ArrayList<>();
 
         for (int i = 1; i <= 5; i++) {
-            Article article = articleFixture.자유글_3("수강신청" + i, board, i);
+            Article article = articleFixture.공지_크롤링_게시글("수강신청" + i, board, i);
             articleIds.add(article.getId());
         }
 
@@ -285,7 +285,7 @@ public class KeywordApiTest extends AcceptanceTest {
         List<Integer> articleIds = new ArrayList<>();
 
         for (int i = 1; i <= 5; i++) {
-            Article article = articleFixture.자유글_3("수강신청" + i, board, i);
+            Article article = articleFixture.공지_크롤링_게시글("수강신청" + i, board, i);
             articleIds.add(article.getId());
         }
 
