@@ -30,10 +30,94 @@ public class BoardFixture {
         );
     }
 
-    public Board 공지게시판() {
+    public Board 취업게시판() {
         return boardRepository.save(
             Board.builder()
-                .name("공지게시판")
+                .name("취업게시판")
+                .isAnonymous(false)
+                .articleCount(0)
+                .isDeleted(false)
+                .isNotice(false)
+                .build()
+        );
+    }
+
+    public Board 익명게시판() {
+        return boardRepository.save(
+            Board.builder()
+                .name("자유게시판")
+                .isAnonymous(true)
+                .articleCount(0)
+                .isDeleted(false)
+                .isNotice(false)
+                .build()
+        );
+    }
+
+    public Board 공지사항() {
+        return boardRepository.save(
+            Board.builder()
+                .name("공지사항")
+                .isAnonymous(false)
+                .articleCount(0)
+                .isDeleted(false)
+                .isNotice(true)
+                .build()
+        );
+    }
+
+    public Board 일반공지() {
+        return boardRepository.save(
+            Board.builder()
+                .name("일반공지")
+                .isAnonymous(false)
+                .articleCount(0)
+                .isDeleted(false)
+                .isNotice(true)
+                .build()
+        );
+    }
+
+    public Board 장학공지() {
+        return boardRepository.save(
+            Board.builder()
+                .name("장학공지")
+                .isAnonymous(false)
+                .articleCount(0)
+                .isDeleted(false)
+                .isNotice(true)
+                .build()
+        );
+    }
+
+    public Board 학사공지() {
+        return boardRepository.save(
+            Board.builder()
+                .name("장학공지")
+                .isAnonymous(false)
+                .articleCount(0)
+                .isDeleted(false)
+                .isNotice(true)
+                .build()
+        );
+    }
+
+    public Board 취업공지() {
+        return boardRepository.save(
+            Board.builder()
+                .name("장학공지")
+                .isAnonymous(false)
+                .articleCount(0)
+                .isDeleted(false)
+                .isNotice(true)
+                .build()
+        );
+    }
+
+    public Board 코인공지() {
+        return boardRepository.save(
+            Board.builder()
+                .name("코인공지")
                 .isAnonymous(false)
                 .articleCount(0)
                 .isDeleted(false)

@@ -50,7 +50,7 @@ class ArticleApiTest extends AcceptanceTest {
         clear();
         student = userFixture.준호_학생();
         board = boardFixture.자유게시판();
-        adminBoard = boardFixture.공지게시판();
+        adminBoard = boardFixture.공지사항();
         article1 = articleFixture.자유글_1(board, student.getUser());
         article2 = articleFixture.자유글_2(board, student.getUser());
         article3 = articleFixture.공지_크롤링_게시글("[취창업지원팀] 근로장학생 모집", adminBoard, 16660);

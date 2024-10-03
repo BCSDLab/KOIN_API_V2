@@ -59,6 +59,7 @@ public class ArticleFixture {
     }
 
     public Article 자유글_2(Board board, User user) {
+
         KoinArticle koinArticle = KoinArticle.builder()
             .user(user)
             .isDeleted(false)
@@ -112,5 +113,27 @@ public class ArticleFixture {
         koreatechArticle.setArticle(article);
 
         return articleRepository.save(article);
+    }
+
+    public Article 코인_공지_게시글(String title, String content, Board board, User user) {
+
+        KoinArticle koinArticle = KoinArticle.builder()
+            .user(user)
+            .isDeleted(false)
+            .build();
+
+        Article adminNoticeArticle = Article.builder()
+            .board(board)
+            .title(title)
+            .content(content)
+            .koinArticle(koinArticle)
+            .koreatechArticle(null)
+            .isNotice(true)
+            .isDeleted(false)
+            .build();
+
+        koinArticle.setArticle(adminNoticeArticle);
+
+        return articleRepository.save(adminNoticeArticle);
     }
 }
