@@ -19,3 +19,8 @@ ALTER TABLE `coop_shop`
 
 ALTER TABLE `coop_opens`
     DROP COLUMN `is_deleted`;
+
+ALTER TABLE `coop_opens`
+    CHANGE `coop_id` `coop_shop_id` INT UNSIGNED,
+    DROP CONSTRAINT FK_COOP_ID,
+    ADD CONSTRAINT FK_COOP_SHOP_ID FOREIGN KEY (coop_shop_id) REFERENCES coop_shop(id)		ON DELETE CASCADE;

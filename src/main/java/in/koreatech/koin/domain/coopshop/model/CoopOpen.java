@@ -27,7 +27,7 @@ public class CoopOpen {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coop_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "coop_shop_id", referencedColumnName = "id", nullable = false)
     private CoopShop coopShop;
 
     @Column(name = "type")
