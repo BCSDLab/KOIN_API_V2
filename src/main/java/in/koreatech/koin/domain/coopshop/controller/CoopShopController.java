@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
+import in.koreatech.koin.domain.coopshop.dto.CoopShopResponseV2;
 import in.koreatech.koin.domain.coopshop.dto.CoopShopsResponse;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +33,10 @@ public class CoopShopController implements CoopShopApi {
     }
 
     @GetMapping("/coopshop")
-    public ResponseEntity<CoopShopResponse> getCoopShopByName(
+    public ResponseEntity<CoopShopResponseV2> getCoopShopByName(
         @RequestParam(value = "coop_shop_name") String coopShopName
     ) {
-        CoopShopResponse coopShop = coopShopService.getCoopShopByName(coopShopName);
+        CoopShopResponseV2 coopShop = coopShopService.getCoopShopByName(coopShopName);
         return ResponseEntity.ok(coopShop);
     }
 }

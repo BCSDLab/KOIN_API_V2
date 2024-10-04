@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
+import in.koreatech.koin.domain.coopshop.dto.CoopShopResponseV2;
 import in.koreatech.koin.domain.coopshop.dto.CoopShopsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -56,7 +57,7 @@ public interface CoopShopApi {
     )
     @Operation(summary = "현재 학기 생협 매장 이름으로 정보 조회")
     @GetMapping("/coopshop")
-    ResponseEntity<CoopShopResponse> getCoopShopByName(
+    ResponseEntity<CoopShopResponseV2> getCoopShopByName(
         @RequestParam(value = "coop_shop_name") String coopShopName
     );
 }
