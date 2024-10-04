@@ -34,7 +34,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "articles")
+@Table(name = "new_articles")
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
 public class Article extends BaseEntity {

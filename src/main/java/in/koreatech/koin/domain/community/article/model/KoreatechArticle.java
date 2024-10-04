@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Where(clause = "is_deleted=0")
-@Table(name = "koreatech_articles", schema = "koin")
+@Table(name = "new_koreatech_articles", schema = "koin")
 @NoArgsConstructor(access = PROTECTED)
 public class KoreatechArticle extends BaseEntity {
 

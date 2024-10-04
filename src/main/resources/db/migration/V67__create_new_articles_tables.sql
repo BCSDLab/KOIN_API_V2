@@ -20,7 +20,8 @@ CREATE TABLE `koin`.`new_koin_articles`
     `is_deleted` TINYINT(1)   NOT NULL DEFAULT '0' COMMENT '삭제 여부',
     `created_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일자',
     `updated_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '업데이트 일자',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `article_id_UNIQUE` (`article_id` ASC) VISIBLE
 );
 
 CREATE TABLE `koin`.`new_koreatech_articles`
@@ -35,5 +36,6 @@ CREATE TABLE `koin`.`new_koreatech_articles`
     `is_deleted`    TINYINT(1)                           NOT NULL DEFAULT '0' COMMENT '삭제 여부',
     `created_at`    TIMESTAMP                            NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일자',
     `updated_at`    TIMESTAMP                            NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '업데이트 일자',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `article_id_UNIQUE` (`article_id` ASC) VISIBLE
 );
