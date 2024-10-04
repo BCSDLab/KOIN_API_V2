@@ -5,6 +5,8 @@ import static lombok.AccessLevel.PROTECTED;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -35,7 +37,8 @@ public class CoopOpen {
 
     @NotNull
     @Column(name = "day_of_week", nullable = false)
-    private String dayOfWeek;
+    @Enumerated(EnumType.STRING)
+    private DayType dayOfWeek;
 
     @Column(name = "open_time")
     private String openTime;
@@ -47,7 +50,7 @@ public class CoopOpen {
     private CoopOpen(
         CoopShop coopShop,
         String type,
-        String dayOfWeek,
+        DayType dayOfWeek,
         String openTime,
         String closeTime
     ) {

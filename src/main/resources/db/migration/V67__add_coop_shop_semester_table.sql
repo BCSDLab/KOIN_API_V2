@@ -2,8 +2,9 @@ CREATE TABLE `coop_shop_semester`
 (
     `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `semester`   VARCHAR(200) NOT NULL UNIQUE,
-    `term`       VARCHAR(200) NOT NULL,
-    `is_applied` TINYINT(1) NOT NULL DEFAULT '1',
+    `from_date`  DATE         NOT NULL,
+    `to_date`    DATE         NOT NULL,
+    `is_applied` TINYINT(1)   NOT NULL DEFAULT '1',
     `created_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)

@@ -1,15 +1,20 @@
 package in.koreatech.koin.admin.coopShop.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminCoopShopSemestersResponse(
 
     @Schema(description = "조건에 해당하는 총 학기 수", example = "20", requiredMode = REQUIRED)
@@ -28,17 +33,20 @@ public record AdminCoopShopSemestersResponse(
     List<InnerSemester> coopShopSemesters
 ) {
 
+    @JsonNaming(value = SnakeCaseStrategy.class)
     record InnerSemester(
         Integer id,
         String semester,
-        String term
+        LocalDate fromDate,
+        LocalDate toDate
     ) {
 
         public static InnerSemester from(CoopShopSemester coopShopSemester) {
             return new InnerSemester(
                 coopShopSemester.getId(),
                 coopShopSemester.getSemester(),
-                coopShopSemester.getTerm()
+                coopShopSemester.getFromDate(),
+                coopShopSemester.getToDate()
             );
         }
     }

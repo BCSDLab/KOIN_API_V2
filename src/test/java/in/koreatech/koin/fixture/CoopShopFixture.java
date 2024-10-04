@@ -1,78 +1,92 @@
 package in.koreatech.koin.fixture;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.coopshop.model.CoopOpen;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
+import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
+import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
+import in.koreatech.koin.domain.coopshop.repository.CoopShopSemesterRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
 public class CoopShopFixture {
 
     private final CoopShopRepository coopShopRepository;
+    private final CoopShopSemesterRepository coopShopSemesterRepository;
 
-    public CoopShopFixture(CoopShopRepository coopShopRepository) {
+    public CoopShopFixture(
+        CoopShopRepository coopShopRepository,
+        CoopShopSemesterRepository coopShopSemesterRepository
+    ) {
         this.coopShopRepository = coopShopRepository;
+        this.coopShopSemesterRepository = coopShopSemesterRepository;
     }
 
-    public CoopShop 학생식당() {
-        var coopShop = coopShopRepository.save(
-            CoopShop.builder()
-                .name("학생식당")
-                .semester("하계방학")
-                .location("학생회관 1층")
-                .phone("041-000-0000")
-                .remarks("공휴일 휴무")
+    public CoopShopSemester _23_2학기() {
+        var coopShopSemester = coopShopSemesterRepository.save(
+            CoopShopSemester.builder()
+                .semester("23-2학기")
+                .fromDate(LocalDate.of(2023, 9, 2))
+                .toDate(LocalDate.of(2023, 12, 20))
                 .build()
         );
-        coopShop.getCoopOpens().addAll(
+        coopShopSemester.updateApply(true);
+
+        var cafeteria = CoopShop.builder()
+            .name(CoopShopType.CAFETERIA)
+            .location("학생회관 1층")
+            .phone("041-000-0000")
+            .remarks("공휴일 휴무")
+            .coopShopSemester(coopShopSemester)
+            .build();
+
+        cafeteria.getCoopOpens().addAll(
             List.of(
                 CoopOpen.builder()
                     .openTime("08:00")
                     .closeTime("09:00")
-                    .coopShop(coopShop)
+                    .coopShop(cafeteria)
                     .dayOfWeek("평일")
                     .type("아침")
-                    .build(),
-                CoopOpen.builder()
-                    .openTime("11:30")
-                    .closeTime("13:30")
-                    .coopShop(coopShop)
-                    .dayOfWeek("평일")
-                    .type("점심")
-                    .build(),
-                CoopOpen.builder()
-                    .openTime("17:30")
-                    .closeTime("18:30")
-                    .coopShop(coopShop)
-                    .dayOfWeek("평일")
-                    .type("저녁")
-                    .build(),
-                CoopOpen.builder()
-                    .openTime("11:30")
-                    .closeTime("13:00")
-                    .coopShop(coopShop)
-                    .dayOfWeek("주말")
-                    .type("점심")
                     .build()
             )
         );
-        return coopShopRepository.save(coopShop);
+
+        var laundry = CoopShop.builder()
+            .name(CoopShopType.LAUNDRY)
+            .location("학생회관 2층")
+            .phone("041-000-0000")
+            .remarks("연중무휴")
+            .coopShopSemester(coopShopSemester)
+            .build();
+
+        coopShopRepository.save(cafeteria);
+        coopShopRepository.save(laundry);
+        return coopShopSemesterRepository.save(coopShopSemester);
     }
 
-    public CoopShop 세탁소() {
-        var coopShop = coopShopRepository.save(
-            CoopShop.builder()
-                .name("세탁소")
-                .semester("학기")
-                .location("학생회관 2층")
-                .phone("041-000-0000")
-                .remarks("연중무휴")
+    public CoopShopSemester _23_겨울학기() {
+        var coopShopSemester = coopShopSemesterRepository.save(
+            CoopShopSemester.builder()
+                .semester("23-겨울학기")
+                .fromDate(LocalDate.of(2023, 12, 21))
+                .toDate(LocalDate.of(2024, 2, 28))
                 .build()
         );
+
+        var coopShop = CoopShop.builder()
+            .name(CoopShopType.LAUNDRY)
+            .location("학생회관 2층")
+            .phone("041-000-0000")
+            .remarks("연중무휴")
+            .coopShopSemester(coopShopSemester)
+            .build();
+
         coopShop.getCoopOpens().addAll(
             List.of(
                 CoopOpen.builder()
@@ -80,15 +94,11 @@ public class CoopShopFixture {
                     .closeTime("18:00")
                     .coopShop(coopShop)
                     .dayOfWeek("평일")
-                    .build(),
-                CoopOpen.builder()
-                    .openTime("미운영")
-                    .closeTime("미운영")
-                    .coopShop(coopShop)
-                    .dayOfWeek("주말")
                     .build()
             )
         );
-        return coopShopRepository.save(coopShop);
+
+        coopShopSemester.getCoopShops().addAll(List.of(coopShop));
+        return coopShopSemesterRepository.save(coopShopSemester);
     }
 }

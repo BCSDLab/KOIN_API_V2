@@ -52,6 +52,6 @@ public interface AdminCoopShopApi {
     @GetMapping("/{semesterId}")
     ResponseEntity<AdminCoopShopSemesterResponse> getCoopShops(
         @Auth(permit = {ADMIN}) Integer adminId,
-        @Parameter(in = PATH) @PathVariable Integer coopShopId
+        @Parameter(in = PATH) @PathVariable Integer semesterId
     );
 }

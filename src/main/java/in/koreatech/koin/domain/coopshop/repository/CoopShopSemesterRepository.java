@@ -9,10 +9,19 @@ import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
 
 public interface CoopShopSemesterRepository extends Repository<CoopShopSemester, Integer> {
 
+    CoopShopSemester save(CoopShopSemester coopShopSemester);
+
     Optional<CoopShopSemester> findByIsApplied(boolean isApplied);
 
     default CoopShopSemester getByIsApplied(boolean isApplied) {
         return findByIsApplied(isApplied)
+            .orElseThrow(() -> CoopShopSemesterNotFoundException.withDetail(""));
+    }
+
+    Optional<CoopShopSemester> findTopByOrderByToDateDesc();
+
+    default CoopShopSemester getTopByOrderByToDateDesc() {
+        return findTopByOrderByToDateDesc()
             .orElseThrow(() -> CoopShopSemesterNotFoundException.withDetail(""));
     }
 }

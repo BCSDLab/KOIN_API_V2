@@ -44,7 +44,7 @@ public record CoopShopResponse(
     public static CoopShopResponse from(CoopShop coopShop) {
         return new CoopShopResponse(
             coopShop.getId(),
-            coopShop.getName(),
+            coopShop.getName().getCoopShopName(),
             coopShop.getCoopShopSemester().getSemester(),
             coopShop.getCoopOpens().stream()
                 .map(InnerCoopOpens::from)
@@ -74,7 +74,7 @@ public record CoopShopResponse(
 
         public static InnerCoopOpens from(CoopOpen coopOpen) {
             return new InnerCoopOpens(
-                coopOpen.getDayOfWeek(),
+                coopOpen.getDayOfWeek().getDay(),
                 coopOpen.getType(),
                 coopOpen.getOpenTime(),
                 coopOpen.getCloseTime()

@@ -4,6 +4,7 @@ import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,12 +36,16 @@ public class CoopShopSemester extends BaseEntity {
     private String semester;
 
     @NotNull
-    @Column(name = "term", nullable = false)
-    private String term;
+    @Column(name = "from_date", nullable = false)
+    private LocalDate fromDate;
+
+    @NotNull
+    @Column(name = "to_date", nullable = false)
+    private LocalDate toDate;
 
     @NotNull
     @Column(name = "is_applied", columnDefinition = "TINYINT", nullable = false)
-    private boolean isApplied = true;
+    private boolean isApplied = false;
 
     @OneToMany(mappedBy = "coopShopSemester", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE},
         fetch = FetchType.EAGER)
@@ -49,9 +54,15 @@ public class CoopShopSemester extends BaseEntity {
     @Builder
     private CoopShopSemester(
         String semester,
-        String term
+        LocalDate fromDate,
+        LocalDate toDate
     ) {
         this.semester = semester;
-        this.term = term;
+        this.fromDate = fromDate;
+        this.toDate = toDate;
+    }
+
+    public void updateApply(boolean isApplied) {
+        this.isApplied = isApplied;
     }
 }

@@ -2,14 +2,13 @@ package in.koreatech.koin.domain.coopshop.controller;
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
+import in.koreatech.koin.domain.coopshop.dto.CoopShopsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,7 +30,7 @@ public interface CoopShopApi {
     )
     @Operation(summary = "현재 학기에 해당하는 모든 생협 매장 정보 조회")
     @GetMapping("/coopshops")
-    ResponseEntity<List<CoopShopResponse>> getCoopsShops();
+    ResponseEntity<CoopShopsResponse> getCoopShops();
 
     @ApiResponses(
         value = {

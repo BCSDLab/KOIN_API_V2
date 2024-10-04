@@ -8,6 +8,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.coopshop.exception.CoopShopNotFoundException;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
+import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 
 public interface CoopShopRepository extends Repository<CoopShop, Integer> {
 
@@ -17,23 +18,23 @@ public interface CoopShopRepository extends Repository<CoopShop, Integer> {
 
     Optional<CoopShop> findById(Integer id);
 
-    Optional<CoopShop> findByName(String name);
+    Optional<CoopShop> findByName(CoopShopType name);
 
-    Optional<CoopShop> findByCoopShopSemesterAndName(CoopShopSemester coopShopSemester, String name);
+    Optional<CoopShop> findByCoopShopSemesterAndName(CoopShopSemester coopShopSemester, CoopShopType name);
 
     default CoopShop getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> CoopShopNotFoundException.withDetail("coopShopId : " + id));
     }
 
-    default CoopShop getByName(String name) {
+    default CoopShop getByName(CoopShopType name) {
         return findByName(name)
-            .orElseThrow(() -> CoopShopNotFoundException.withDetail("coopShopName : " + name));
+            .orElseThrow(() -> CoopShopNotFoundException.withDetail("coopShopName : " + name.getCoopShopName()));
     }
 
-    default CoopShop getByCoopShopSemesterAndName(CoopShopSemester coopShopSemester, String name) {
+    default CoopShop getByCoopShopSemesterAndName(CoopShopSemester coopShopSemester, CoopShopType name) {
         return findByCoopShopSemesterAndName(coopShopSemester, name)
             .orElseThrow(() -> CoopShopNotFoundException.withDetail(
-                "coopShopSemester : " + coopShopSemester.getSemester() + ", " + "coopShopName : " + name));
+                "coopShopSemester : " + coopShopSemester.getSemester() + ", " + "coopShopName : " + name.getCoopShopName()));
     }
 }

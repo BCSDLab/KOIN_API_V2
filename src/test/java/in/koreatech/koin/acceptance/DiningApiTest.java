@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
-import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -54,7 +53,6 @@ class DiningApiTest extends AcceptanceTest {
     private String token_준기;
     private User owner_현수;
     private String token_현수;
-    private CoopShop 학생식당;
 
     @BeforeAll
     void setUp() {
@@ -64,7 +62,6 @@ class DiningApiTest extends AcceptanceTest {
         owner_현수 = userFixture.현수_사장님().getUser();
         token_현수 = userFixture.getToken(owner_현수);
         A코너_점심 = diningFixture.A코너_점심(LocalDate.parse("2024-01-15"));
-        학생식당 = coopShopFixture.학생식당();
     }
 
     @Test
@@ -153,11 +150,11 @@ class DiningApiTest extends AcceptanceTest {
                 patch("/coop/dining/soldout")
                     .header("Authorization", "Bearer " + token_준기)
                     .content(String.format("""
-                {
-                    "menu_id": "%s",
-                    "sold_out": %s
-                }
-                """, A코너_점심.getId(), true))
+                        {
+                            "menu_id": "%s",
+                            "sold_out": %s
+                        }
+                        """, A코너_점심.getId(), true))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
@@ -169,11 +166,11 @@ class DiningApiTest extends AcceptanceTest {
                 patch("/coop/dining/soldout")
                     .header("Authorization", "Bearer " + token_현수)
                     .content(String.format("""
-                    {
-                        "menu_id": "%s",
-                        "sold_out": %s
-                    }
-                    """, A코너_점심.getId(), true))
+                        {
+                            "menu_id": "%s",
+                            "sold_out": %s
+                        }
+                        """, A코너_점심.getId(), true))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isForbidden());
@@ -186,11 +183,11 @@ class DiningApiTest extends AcceptanceTest {
                 patch("/coop/dining/image")
                     .header("Authorization", "Bearer " + token_준기)
                     .content(String.format("""
-                    {
-                        "menu_id": "%s",
-                        "image_url": "%s"
-                    }
-                    """, A코너_점심.getId(), imageUrl))
+                        {
+                            "menu_id": "%s",
+                            "image_url": "%s"
+                        }
+                        """, A코너_점심.getId(), imageUrl))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -206,11 +203,11 @@ class DiningApiTest extends AcceptanceTest {
                 patch("/coop/dining/image")
                     .header("Authorization", "Bearer " + token_현수)
                     .content(String.format("""
-                    {
-                        "menu_id": "%s",
-                        "image_url": "%s"
-                    }
-                    """, A코너_점심.getId(), imageUrl))
+                        {
+                            "menu_id": "%s",
+                            "image_url": "%s"
+                        }
+                        """, A코너_점심.getId(), imageUrl))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isForbidden())
@@ -223,11 +220,11 @@ class DiningApiTest extends AcceptanceTest {
                 patch("/coop/dining/soldout")
                     .header("Authorization", "Bearer " + token_준기)
                     .content(String.format("""
-                    {
-                        "menu_id": "%s",
-                        "sold_out": "%s"
-                    }
-                    """, A코너_점심.getId(), true))
+                        {
+                            "menu_id": "%s",
+                            "sold_out": "%s"
+                        }
+                        """, A코너_점심.getId(), true))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -245,11 +242,11 @@ class DiningApiTest extends AcceptanceTest {
                 patch("/coop/dining/soldout")
                     .header("Authorization", "Bearer " + token_준기)
                     .content(String.format("""
-                    {
-                        "menu_id": "%s",
-                        "sold_out": "%s"
-                    }
-                    """, A코너_저녁.getId(), true))
+                        {
+                            "menu_id": "%s",
+                            "sold_out": "%s"
+                        }
+                        """, A코너_저녁.getId(), true))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -266,11 +263,11 @@ class DiningApiTest extends AcceptanceTest {
                 patch("/coop/dining/soldout")
                     .header("Authorization", "Bearer " + token_준기)
                     .content(String.format("""
-                    {
-                        "menu_id": "%s",
-                        "sold_out": "%s"
-                    }
-                    """, A코너_점심.getId(), true))
+                        {
+                            "menu_id": "%s",
+                            "sold_out": "%s"
+                        }
+                        """, A코너_점심.getId(), true))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -405,11 +402,11 @@ class DiningApiTest extends AcceptanceTest {
                 patch("/coop/dining/image")
                     .header("Authorization", "Bearer " + token_준기)
                     .content(String.format("""
-                        {
-                            "menu_id": "%s",
-                            "image_url": "%s"
-                        }
-                    """, A코너_점심.getId(), imageUrl))
+                            {
+                                "menu_id": "%s",
+                                "image_url": "%s"
+                            }
+                        """, A코너_점심.getId(), imageUrl))
                     .param("diningId", String.valueOf(1))
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -427,11 +424,11 @@ class DiningApiTest extends AcceptanceTest {
                 patch("/coop/dining/image")
                     .header("Authorization", "Bearer " + token_준기)
                     .content(String.format("""
-                        {
-                            "menu_id": "%s",
-                            "image_url": "%s"
-                        }
-                    """, A코너_저녁.getId(), imageUrl))
+                            {
+                                "menu_id": "%s",
+                                "image_url": "%s"
+                            }
+                        """, A코너_저녁.getId(), imageUrl))
                     .param("diningId", String.valueOf(1))
                     .contentType(MediaType.APPLICATION_JSON)
             )

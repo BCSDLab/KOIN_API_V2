@@ -3,6 +3,7 @@ package in.koreatech.koin.admin.coopShop.dto;
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,8 +23,13 @@ public record AdminCoopShopSemesterResponse(
     @Schema(description = "학기", example = "24-2학기", requiredMode = REQUIRED)
     String semester,
 
-    @Schema(description = "학기 기간", example = "2024-09-02 ~ 2024-12-20", requiredMode = REQUIRED)
-    String term,
+    @Schema(description = "학기 기간 시작일", example = "2024-09-02", requiredMode = REQUIRED)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    LocalDate fromDate,
+
+    @Schema(description = "학기 기간 마감일", example = "2024-12-20", requiredMode = REQUIRED)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    LocalDate toDate,
 
     @Schema(description = "생협 매장 정보 리스트", requiredMode = REQUIRED)
     List<InnerCoopShop> coopShops
@@ -32,7 +38,8 @@ public record AdminCoopShopSemesterResponse(
         return new AdminCoopShopSemesterResponse(
             coopShopSemester.getId(),
             coopShopSemester.getSemester(),
-            coopShopSemester.getTerm(),
+            coopShopSemester.getFromDate(),
+            coopShopSemester.getToDate(),
             coopShopSemester.getCoopShops().stream().map(InnerCoopShop::from).toList()
         );
     }
@@ -68,7 +75,7 @@ public record AdminCoopShopSemesterResponse(
         public static InnerCoopShop from(CoopShop coopShop) {
             return new InnerCoopShop(
                 coopShop.getId(),
-                coopShop.getName(),
+                coopShop.getName().getCoopShopName(),
                 coopShop.getCoopShopSemester().getSemester(),
                 coopShop.getCoopOpens().stream()
                     .map(InnerCoopOpens::from)
@@ -98,7 +105,7 @@ public record AdminCoopShopSemesterResponse(
 
             public static InnerCoopOpens from(CoopOpen coopOpen) {
                 return new InnerCoopOpens(
-                    coopOpen.getDayOfWeek(),
+                    coopOpen.getDayOfWeek().getDay(),
                     coopOpen.getType(),
                     coopOpen.getOpenTime(),
                     coopOpen.getCloseTime()

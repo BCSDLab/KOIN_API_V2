@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.coopshop.model.CoopShop;
+import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.CoopShopFixture;
@@ -30,93 +30,44 @@ class AdminCoopShopTest extends AcceptanceTest {
     @Autowired
     private UserFixture userFixture;
 
-    private CoopShop 학생식당;
-    private CoopShop 세탁소;
     private User admin;
     private String token_admin;
 
     @BeforeAll
     void setUp() {
         clear();
-        학생식당 = coopShopFixture.학생식당();
-        세탁소 = coopShopFixture.세탁소();
+        coopShopFixture._23_2학기();
+        coopShopFixture._23_겨울학기();
         admin = userFixture.코인_운영자();
         token_admin = userFixture.getToken(admin);
     }
 
     @Test
-    void 생협의_모든_상점을_조회한다() throws Exception {
+    void 모든_생협_운영_학기를_조회한다() throws Exception {
         mockMvc.perform(
                 get("/admin/coopshop")
                     .header("Authorization", "Bearer " + token_admin)
                     .param("page", "1")
-                    .param("is_deleted", "false")
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                         "totalCount": 2,
-                         "currentCount": 2,
-                         "totalPage": 1,
-                         "currentPage": 1,
-                         "coopShops": [
+                         "total_count": 2,
+                         "current_count": 2,
+                         "total_page": 1,
+                         "current_page": 1,
+                         "coop_shop_semesters": [
                              {
                                  "id": 1,
-                                 "name": "학생식당",
-                                 "semester": "하계방학",
-                                 "opens": [
-                                     {
-                                         "day_of_week": "평일",
-                                         "type": "아침",
-                                         "open_time": "08:00",
-                                         "close_time": "09:00"
-                                     },
-                                     {
-                                         "day_of_week": "평일",
-                                         "type": "점심",
-                                         "open_time": "11:30",
-                                         "close_time": "13:30"
-                                     },
-                                     {
-                                         "day_of_week": "평일",
-                                         "type": "저녁",
-                                         "open_time": "17:30",
-                                         "close_time": "18:30"
-                                     },
-                                     {
-                                         "day_of_week": "주말",
-                                         "type": "점심",
-                                         "open_time": "11:30",
-                                         "close_time": "13:00"
-                                     }
-                                 ],
-                                 "phone": "041-000-0000",
-                                 "location": "학생회관 1층",
-                                 "remarks": "공휴일 휴무",
-                                 "updated_at" : "2024-01-15"
+                                 "semester": "23-2학기",
+                                 "from_date": "2023-09-02",
+                                 "to_date": "2023-12-20",
                              },
                              {
                                  "id": 2,
-                                 "name": "세탁소",
-                                 "semester": "학기",
-                                 "opens": [
-                                     {
-                                         "day_of_week": "평일",
-                                         "type": null,
-                                         "open_time": "09:00",
-                                         "close_time": "18:00"
-                                     },
-                                     {
-                                         "day_of_week": "주말",
-                                         "type": null,
-                                         "open_time": "미운영",
-                                         "close_time": "미운영"
-                                     }
-                                 ],
-                                 "phone": "041-000-0000",
-                                 "location": "학생회관 2층",
-                                 "remarks": "연중무휴",
-                                 "updated_at" : "2024-01-15"
+                                 "semester": "23-겨울학기",
+                                 "from_date": "2023-12-21",
+                                 "to_date": "2024-02-28",
                              }
                          ]
                      }
@@ -124,36 +75,46 @@ class AdminCoopShopTest extends AcceptanceTest {
     }
 
     @Test
-    void 생협의_특정_상점을_조회한다() throws Exception {
+    void 특정_학기의_생협_정보를_조회한다() throws Exception {
         mockMvc.perform(
-                get("/coopshop/2")
+                get("/admin/coopshop/1")
                     .header("Authorization", "Bearer " + token_admin)
+                    .param("page", "1")
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
                 {
-                        "id": 2,
-                        "name": "세탁소",
-                        "semester": "학기",
-                        "opens": [
+                        "semester": "23-2학기",
+                        "from_date": "2023-09-02",
+                        "to_date": "2023-12-20",
+                        "coop_shops": [
                             {
-                                "day_of_week": "평일",
-                                "type": null,
-                                "open_time": "09:00",
-                                "close_time": "18:00"
+                                "id": 1,
+                                "name": "학생식당",
+                                "opens": [
+                                    {
+                                        "day_of_week": "평일",
+                                        "type": "아침",
+                                        "open_time": "08:00",
+                                        "close_time": "09:00"
+                                    }
+                                ],
+                                "phone": "041-000-0000",
+                                "location": "학생회관 1층",
+                                "remarks": "공휴일 휴무",
+                                "updated_at" : "2024-01-15"
                             },
                             {
-                                "day_of_week": "주말",
-                                "type": null,
-                                "open_time": "미운영",
-                                "close_time": "미운영"
+                                "id": 2,
+                                "name": "세탁소",
+                                "opens": [],
+                                "phone": "041-000-0000",
+                                "location": "학생회관 2층",
+                                "remarks": "연중무휴",
+                                "updated_at" : "2024-01-15"
                             }
-                        ],
-                        "phone": "041-000-0000",
-                        "location": "학생회관 2층",
-                        "remarks": "연중무휴",
-                        "updated_at" : "2024-01-15"
-                }
+                        ]
+                    }
                 """));
     }
 }

@@ -1,19 +1,24 @@
 package in.koreatech.koin.domain.coopshop.service;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
+import in.koreatech.koin.domain.coopshop.dto.CoopShopsResponse;
+import in.koreatech.koin.domain.coopshop.exception.CoopShopSemesterNotFoundException;
 import in.koreatech.koin.domain.coopshop.model.CoopOpen;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
+import in.koreatech.koin.domain.coopshop.model.DayType;
 import in.koreatech.koin.domain.coopshop.repository.CoopOpenRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopSemesterRepository;
@@ -24,20 +29,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CoopShopService {
 
+    private final Clock clock;
     private final CoopShopRepository coopShopRepository;
     private final CoopOpenRepository coopOpenRepository;
     private final CoopShopSemesterRepository coopShopSemesterRepository;
 
-    public List<CoopShopResponse> getCoopShops() {
+    public CoopShopsResponse getCoopShops() {
         CoopShopSemester coopShopSemester = coopShopSemesterRepository.getByIsApplied(true);
-        return coopShopSemester.getCoopShops().stream()
-            .map(CoopShopResponse::from)
-            .toList();
+        return CoopShopsResponse.from(coopShopSemester);
     }
 
     public CoopShopResponse getCoopShopByName(String coopShopName) {
         CoopShopSemester coopShopSemester = coopShopSemesterRepository.getByIsApplied(true);
-        CoopShop coopShop = coopShopRepository.getByCoopShopSemesterAndName(coopShopSemester, coopShopName);
+        CoopShop coopShop = coopShopRepository.getByCoopShopSemesterAndName(coopShopSemester,
+            CoopShopType.from(coopShopName));
         return CoopShopResponse.from(coopShop);
     }
 
@@ -48,9 +53,10 @@ public class CoopShopService {
 
     public boolean getIsOpened(LocalDateTime now, CoopShopType coopShopType, DiningType type, Boolean isMinus) {
         try {
-            String todayType =
-                (now.getDayOfWeek() == DayOfWeek.SATURDAY || now.getDayOfWeek() == DayOfWeek.SUNDAY) ? "주말" : "평일";
-            CoopShop coopShop = coopShopRepository.getByName(coopShopType.getName());
+            DayType todayType =
+                (now.getDayOfWeek() == DayOfWeek.SATURDAY || now.getDayOfWeek() == DayOfWeek.SUNDAY)
+                    ? DayType.WEEKEND : DayType.WEEKDAYS;
+            CoopShop coopShop = coopShopRepository.getByName(coopShopType);
             CoopOpen open = coopOpenRepository
                 .getByCoopShopAndTypeAndDayOfWeek(coopShop, type.getDiningName(), todayType);
 
@@ -68,5 +74,25 @@ public class CoopShopService {
         } catch (DateTimeParseException e) {
             return false;
         }
+    }
+
+    @Transactional
+    public void updateSemester() {
+        CoopShopSemester currentSemester = coopShopSemesterRepository.getByIsApplied(true);
+        if (validateSemester(currentSemester)) {
+            return;
+        }
+
+        currentSemester.updateApply(false);
+        CoopShopSemester nextSemester = coopShopSemesterRepository.getTopByOrderByToDateDesc();
+        if (!validateSemester(nextSemester)) {
+            throw CoopShopSemesterNotFoundException.withDetail("");
+        }
+        nextSemester.updateApply(true);
+    }
+
+    public boolean validateSemester(CoopShopSemester coopShopSemester) {
+        LocalDate today = LocalDate.now(clock);
+        return today.isAfter(coopShopSemester.getFromDate()) && today.isBefore(coopShopSemester.getToDate());
     }
 }
