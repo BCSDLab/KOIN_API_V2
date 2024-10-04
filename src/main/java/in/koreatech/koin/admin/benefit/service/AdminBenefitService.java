@@ -20,6 +20,7 @@ import in.koreatech.koin.admin.benefit.dto.AdminDeleteShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
+import in.koreatech.koin.admin.benefit.exception.BenefitDuplicationException;
 import in.koreatech.koin.admin.benefit.exception.BenefitLimitException;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryRepository;
@@ -51,7 +52,7 @@ public class AdminBenefitService {
         }
         boolean isExistCategory = adminBenefitCategoryRepository.existsByTitle(request.title());
         if (isExistCategory) {
-            throw BenefitLimitException.withDetail("이미 존재하는 혜택 카테고리입니다.");
+            throw BenefitDuplicationException.withDetail("이미 존재하는 혜택 카테고리입니다.");
         }
         BenefitCategory benefitCategory = request.toBenefitCategory();
         BenefitCategory savedBenefitCategory = adminBenefitCategoryRepository.save(benefitCategory);
@@ -63,6 +64,10 @@ public class AdminBenefitService {
         Integer categoryId,
         AdminModifyBenefitCategoryRequest request
     ) {
+        boolean isExistCategory = adminBenefitCategoryRepository.existsByTitle(request.title());
+        if (isExistCategory) {
+            throw BenefitDuplicationException.withDetail("이미 존재하는 혜택 카테고리입니다.");
+        }
         BenefitCategory benefitCategory = adminBenefitCategoryRepository.getById(categoryId);
         benefitCategory.update(request.title(), request.detail(), request.onImageUrl(), request.offImageUrl());
         return AdminModifyBenefitCategoryResponse.from(benefitCategory);
