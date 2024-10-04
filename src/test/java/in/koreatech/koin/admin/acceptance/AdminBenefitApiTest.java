@@ -192,7 +192,8 @@ public class AdminBenefitApiTest extends AcceptanceTest {
 
         assertThat(adminBenefitCategoryRepository.findById(배달비_무료.getId())).isNotPresent();
         assertThat(
-            adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdOrderByShopName(배달비_무료.getId())
+            adminBenefitCategoryMapRepository
+                .findAllByBenefitCategoryIdOrderByShopName(배달비_무료.getId())
         ).isEmpty();
     }
 
@@ -272,7 +273,8 @@ public class AdminBenefitApiTest extends AcceptanceTest {
             .andExpect(status().isNoContent());
 
         List<BenefitCategoryMap> shops =
-            adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdOrderByShopName(배달비_무료.getId());
+            adminBenefitCategoryMapRepository
+                .findAllByBenefitCategoryIdOrderByShopName(배달비_무료.getId());
 
         assertThat(shops)
             .extracting("shop.id")

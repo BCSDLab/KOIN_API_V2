@@ -85,7 +85,8 @@ public class AdminBenefitService {
 
     public AdminBenefitShopsResponse getBenefitShops(Integer benefitId) {
         List<BenefitCategoryMap> benefitCategoryMaps =
-            adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdOrderByShopName(benefitId);
+            adminBenefitCategoryMapRepository
+                .findAllByBenefitCategoryIdOrderByShopName(benefitId);
         List<Shop> shops = benefitCategoryMaps.stream()
             .map(BenefitCategoryMap::getShop)
             .toList();
@@ -117,7 +118,8 @@ public class AdminBenefitService {
     public AdminSearchBenefitShopsResponse searchShops(Integer benefitId, String searchKeyword) {
         List<Shop> shops = adminShopRepository.searchByName(searchKeyword);
         Set<Integer> benefitShopIds =
-            adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdOrderByShopName(benefitId).stream()
+            adminBenefitCategoryMapRepository
+                .findAllByBenefitCategoryIdOrderByShopName(benefitId).stream()
                 .map(benefitCategoryMap -> benefitCategoryMap.getShop().getId())
                 .collect(Collectors.toSet());
         List<Shop> benefitShops = shops.stream()
