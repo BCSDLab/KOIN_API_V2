@@ -3,8 +3,6 @@ package in.koreatech.koin.admin.acceptance;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -141,7 +139,9 @@ public class AdminNoticeApiTest extends AcceptanceTest {
                     "id": %d,
                     "author": "테스트용_코인운영자",
                     "title": "[코인 캠퍼스팀] 공지사항 테스트",
-                    "content": "<p>내용</p>"
+                    "content": "<p>내용</p>",
+                    "created_at": "2024-01-15 12:00:00",
+                    "updated_at": "2024-01-15 12:00:00"
                 }
                 """, noticeId)));
     }

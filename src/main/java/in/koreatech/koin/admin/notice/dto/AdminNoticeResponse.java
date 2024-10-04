@@ -2,6 +2,9 @@ package in.koreatech.koin.admin.notice.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -21,7 +24,13 @@ public record AdminNoticeResponse(
     String title,
 
     @Schema(description = "공지사항 본문", requiredMode = REQUIRED)
-    String content
+    String content,
+
+    @Schema(description = "생성 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+
+    @Schema(description = "수정 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
 ) {
 
     public static AdminNoticeResponse from(Article article) {
@@ -29,7 +38,9 @@ public record AdminNoticeResponse(
             article.getId(),
             article.getKoinArticle().getUser().getName(),
             article.getTitle(),
-            article.getContent()
+            article.getContent(),
+            article.getCreatedAt(),
+            article.getUpdatedAt()
         );
     }
 }

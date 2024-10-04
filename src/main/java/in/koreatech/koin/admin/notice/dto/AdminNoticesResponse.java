@@ -2,10 +2,12 @@ package in.koreatech.koin.admin.notice.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -52,14 +54,22 @@ public record AdminNoticesResponse (
         String title,
 
         @Schema(description = "공지사항 작성자", requiredMode = REQUIRED)
-        String author
+        String author,
+
+        @Schema(description = "생성 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
+
+        @Schema(description = "수정 일자", example = "2023-01-04 12:00:01", requiredMode = REQUIRED)
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
     ) {
 
         public static InnerAdminNoticeResponse from(Article noticeArticle) {
             return new InnerAdminNoticeResponse(
                 noticeArticle.getId(),
                 noticeArticle.getTitle(),
-                noticeArticle.getKoinArticle().getUser().getName()
+                noticeArticle.getKoinArticle().getUser().getName(),
+                noticeArticle.getCreatedAt(),
+                noticeArticle.getUpdatedAt()
             );
         }
     }
