@@ -39,5 +39,4 @@ public record CoopShopsResponse(
                 .toList()
         );
     }
-
 }

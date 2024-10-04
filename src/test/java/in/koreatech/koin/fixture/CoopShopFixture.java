@@ -9,6 +9,7 @@ import in.koreatech.koin.domain.coopshop.model.CoopOpen;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
+import in.koreatech.koin.domain.coopshop.model.DayType;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopSemesterRepository;
 
@@ -51,7 +52,7 @@ public class CoopShopFixture {
                     .openTime("08:00")
                     .closeTime("09:00")
                     .coopShop(cafeteria)
-                    .dayOfWeek("평일")
+                    .dayOfWeek(DayType.WEEKDAYS)
                     .type("아침")
                     .build()
             )
@@ -93,7 +94,7 @@ public class CoopShopFixture {
                     .openTime("09:00")
                     .closeTime("18:00")
                     .coopShop(coopShop)
-                    .dayOfWeek("평일")
+                    .dayOfWeek(DayType.WEEKDAYS)
                     .build()
             )
         );

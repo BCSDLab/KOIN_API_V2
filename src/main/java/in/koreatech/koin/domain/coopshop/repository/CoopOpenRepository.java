@@ -19,5 +19,4 @@ public interface CoopOpenRepository extends Repository<CoopOpen, Integer> {
                 String.format("coopShop: %s, type: %s, day of week: %s", coopShop, type, dayOfWeek.getDay())
             ));
     }
-
 }

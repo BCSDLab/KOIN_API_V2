@@ -60,5 +60,4 @@ public class CoopOpen {
         this.openTime = openTime;
         this.closeTime = closeTime;
     }
-
 }
