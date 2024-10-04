@@ -4,6 +4,7 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,8 @@ public record ShopsResponseV2(
         List<Shop> shops,
         Map<Integer, ShopInfoV2> shopInfoMap,
         ShopsSortCriteria sortBy,
-        List<ShopsFilterCriteria> shopsFilterCriterias
+        List<ShopsFilterCriteria> shopsFilterCriterias,
+        LocalDateTime now
     ) {
         List<InnerShopResponse> innerShopResponses = shops.stream()
             .map(it -> {
@@ -35,7 +37,7 @@ public record ShopsResponseV2(
                 return InnerShopResponse.from(
                     it,
                     shopInfo.durationEvent(),
-                    shopInfo.isOpen(),
+                    it.isOpen(now),
                     shopInfo.averageRate(),
                     shopInfo.reviewCount()
                 );
