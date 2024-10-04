@@ -276,9 +276,9 @@ public class AdminBenefitApiTest extends AcceptanceTest {
 
         assertThat(shops)
             .extracting("shop.id")
-            .containsExactlyInAnyOrder(
-                영업중인_티바.getId(),
-                영업중이_아닌_신전_떡볶이.getId()
+            .containsExactly(
+                영업중이_아닌_신전_떡볶이.getId(),
+                영업중인_티바.getId()
             );
     }
 
