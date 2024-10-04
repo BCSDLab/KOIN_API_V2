@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.notice.dto.AdminNoticeRequest;
@@ -26,6 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "(Admin) Notice: 코인 공지", description = "")
+@RequestMapping("/admin/notice")
 public interface AdminNoticeApi {
 
     @ApiResponses(
@@ -37,7 +39,7 @@ public interface AdminNoticeApi {
         }
     )
     @Operation(summary = "모든 공지사항 조회")
-    @GetMapping("/admin/notice")
+    @GetMapping
     ResponseEntity<AdminNoticesResponse> getAllNotices(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
@@ -54,7 +56,7 @@ public interface AdminNoticeApi {
         }
     )
     @Operation(summary = "특정 공지사항 조회")
-    @GetMapping("/admin/notice/{id}")
+    @GetMapping("/{id}")
     ResponseEntity<AdminNoticeResponse> getNotice(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -69,7 +71,7 @@ public interface AdminNoticeApi {
         }
     )
     @Operation(summary = "공지사항 생성")
-    @PostMapping("/admin/notice")
+    @PostMapping
     ResponseEntity<Void> createNotice(
         @RequestBody @Valid AdminNoticeRequest adminNoticeRequest,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -83,7 +85,7 @@ public interface AdminNoticeApi {
         }
     )
     @Operation(summary = "특정 공지사항 삭제")
-    @DeleteMapping("/admin/notice/{id}")
+    @DeleteMapping("/{id}")
     ResponseEntity<Void> deleteNotice(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -98,7 +100,7 @@ public interface AdminNoticeApi {
         }
     )
     @Operation(summary = "특정 공지사항 수정")
-    @PutMapping("/admin/notice/{id}")
+    @PutMapping("/{id}")
     ResponseEntity<Void> updateNotice(
         @PathVariable("id") Integer noticeId,
         @RequestBody @Valid AdminNoticeRequest request,

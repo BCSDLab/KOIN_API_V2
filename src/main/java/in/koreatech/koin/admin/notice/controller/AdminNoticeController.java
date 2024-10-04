@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,11 +26,12 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/admin/notice")
 public class AdminNoticeController implements AdminNoticeApi {
 
     private final AdminNoticeService adminNoticeService;
 
-    @GetMapping("/admin/notices")
+    @GetMapping
     public ResponseEntity<AdminNoticesResponse> getAllNotices(
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
@@ -39,7 +41,7 @@ public class AdminNoticeController implements AdminNoticeApi {
         return ResponseEntity.ok().body(adminNoticeService.getNotices(page, limit, isDeleted));
     }
 
-    @GetMapping("/admin/notice/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<AdminNoticeResponse> getNotice(
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -47,7 +49,7 @@ public class AdminNoticeController implements AdminNoticeApi {
         return ResponseEntity.ok().body(adminNoticeService.getNotice(id));
     }
 
-    @PostMapping("/admin/notice")
+    @PostMapping
     public ResponseEntity<Void> createNotice(
         @RequestBody @Valid AdminNoticeRequest adminNoticeRequest,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -56,7 +58,7 @@ public class AdminNoticeController implements AdminNoticeApi {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/admin/notice/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotice(
         @PathVariable("id") Integer noticeId,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -65,7 +67,7 @@ public class AdminNoticeController implements AdminNoticeApi {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/admin/notice/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Void> updateNotice(
         @PathVariable("id") Integer noticeId,
         @RequestBody @Valid AdminNoticeRequest request,
