@@ -398,6 +398,94 @@ public final class ShopFixture {
         return shopRepository.save(shop);
     }
 
+    public Shop _24시간_영업중인_티바(Owner owner) {
+        var shop = shopRepository.save(
+            Shop.builder()
+                .owner(owner)
+                .name("티바")
+                .internalName("티바")
+                .chosung("티")
+                .phone("010-7788-9900")
+                .address("천안시 동남구 병천면 1600 신전떡볶이")
+                .description("신전떡볶이입니다.")
+                .delivery(true)
+                .deliveryPrice(2000)
+                .payCard(true)
+                .payBank(true)
+                .isDeleted(false)
+                .isEvent(false)
+                .remarks("비고")
+                .hit(0)
+                .build()
+        );
+        shop.getShopImages().addAll(
+            List.of(
+                ShopImage.builder()
+                    .shop(shop)
+                    .imageUrl("https://test-image.com/신전.png")
+                    .build(),
+                ShopImage.builder()
+                    .shop(shop)
+                    .imageUrl("https://test-image.com/신전2.png")
+                    .build()
+            )
+        );
+        shop.getShopOpens().addAll(
+            List.of(
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(0, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("SUNDAY")
+                    .build(),
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(0, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("MONDAY")
+                    .build(),
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(0, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("TUESDAY")
+                    .build(),
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(0, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("WEDNESDAY")
+                    .build(),
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(0, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("THURSDAY")
+                    .build(),
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(0, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("FRIDAY")
+                    .build(),
+                ShopOpen.builder()
+                    .openTime(LocalTime.of(0, 0))
+                    .closeTime(LocalTime.of(0, 0))
+                    .shop(shop)
+                    .closed(false)
+                    .dayOfWeek("SATURDAY")
+                    .build()
+            )
+        );
+        return shopRepository.save(shop);
+    }
+
     public ShopFixtureBuilder builder() {
         return new ShopFixtureBuilder();
     }

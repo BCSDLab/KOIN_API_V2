@@ -36,7 +36,7 @@ public record ShopsResponse(
                     return InnerShopResponse.from(
                         it,
                         shopEventMap.get(it.getId()).durationEvent(),
-                        shopEventMap.get(it.getId()).isOpen()
+                        it.isOpen(now)
                     );
                 })
                 .sorted(Comparator.comparing(InnerShopResponse::isOpen, Comparator.reverseOrder()))
