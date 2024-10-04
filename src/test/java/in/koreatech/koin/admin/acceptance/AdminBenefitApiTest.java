@@ -1,9 +1,9 @@
 package in.koreatech.koin.admin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 
@@ -191,7 +191,9 @@ public class AdminBenefitApiTest extends AcceptanceTest {
             .andExpect(status().isNoContent());
 
         assertThat(adminBenefitCategoryRepository.findById(배달비_무료.getId())).isNotPresent();
-        assertThat(adminBenefitCategoryMapRepository.findAllByBenefitCategoryId(배달비_무료.getId())).isEmpty();
+        assertThat(
+            adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdOrderByShopName(배달비_무료.getId())
+        ).isEmpty();
     }
 
     @Test
@@ -269,7 +271,8 @@ public class AdminBenefitApiTest extends AcceptanceTest {
             )
             .andExpect(status().isNoContent());
 
-        List<BenefitCategoryMap> shops = adminBenefitCategoryMapRepository.findAllByBenefitCategoryId(배달비_무료.getId());
+        List<BenefitCategoryMap> shops =
+            adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdOrderByShopName(배달비_무료.getId());
 
         assertThat(shops)
             .extracting("shop.id")
