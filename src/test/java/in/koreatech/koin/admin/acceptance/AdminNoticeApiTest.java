@@ -91,7 +91,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
         String token = userFixture.getToken(adminUser);
 
         mockMvc.perform(
-                get("/admin/notices")
+                get("/admin/notice")
                     .header("Authorization", "Bearer " + token)
                     .param("page", "1")
                     .param("is_deleted", "false")
