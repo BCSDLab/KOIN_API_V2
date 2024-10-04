@@ -26,7 +26,7 @@ public record CoopShopsResponse(
     LocalDate toDate,
 
     @Schema(example = "하계방학", description = "운영 학기", requiredMode = REQUIRED)
-    List<CoopShopResponse> coopShops
+    List<CoopShopResponseV2> coopShops
 ) {
 
     public static CoopShopsResponse from(CoopShopSemester coopShopSemester) {
@@ -35,7 +35,7 @@ public record CoopShopsResponse(
             coopShopSemester.getFromDate(),
             coopShopSemester.getToDate(),
             coopShopSemester.getCoopShops().stream()
-                .map(CoopShopResponse::from)
+                .map(CoopShopResponseV2::from)
                 .toList()
         );
     }

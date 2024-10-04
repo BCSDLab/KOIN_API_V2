@@ -52,9 +52,6 @@ public record AdminCoopShopSemesterResponse(
         @Schema(example = "세탁소", description = "생협 매장 이름", requiredMode = REQUIRED)
         String name,
 
-        @Schema(example = "하계방학", description = "운영 학기", requiredMode = REQUIRED)
-        String semester,
-
         @Schema(description = "요일별 생협 매장 운영시간")
         List<InnerCoopOpens> opens,
 
@@ -76,7 +73,6 @@ public record AdminCoopShopSemesterResponse(
             return new InnerCoopShop(
                 coopShop.getId(),
                 coopShop.getName().getCoopShopName(),
-                coopShop.getCoopShopSemester().getSemester(),
                 coopShop.getCoopOpens().stream()
                     .map(InnerCoopOpens::from)
                     .toList(),
