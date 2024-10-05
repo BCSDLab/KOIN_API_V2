@@ -35,7 +35,7 @@ class CoopShopApiTest extends AcceptanceTest {
     @Test
     void 생협의_모든_상점을_조회한다() throws Exception {
         mockMvc.perform(
-                get("/coopshops")
+                get("/coopshop")
                     .contentType(MediaType.ALL.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -103,39 +103,11 @@ class CoopShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 생협의_상점을_이름으로_조회한다() throws Exception {
-        mockMvc.perform(
-                get("/coopshop")
-                    .contentType(MediaType.ALL.APPLICATION_JSON)
-                    .param("coop_shop_name", "학생식당")
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().json("""
-                    {
-                        "id": 1,
-                        "name": "학생식당",
-                        "opens": [
-                            {
-                                "day_of_week": "평일",
-                                "type": "아침",
-                                "open_time": "08:00",
-                                "close_time": "09:00"
-                            }
-                        ],
-                        "phone": "041-000-0000",
-                        "location": "학생회관 1층",
-                        "remarks": "공휴일 휴무",
-                        "updated_at" : "2024-01-15"
-                    }
-                """));
-    }
-
-    @Test
     void 다음_학기로_전환된다() throws Exception {
         coopShopFixture._23_겨울학기();
         coopShopService.updateSemester();
         mockMvc.perform(
-                get("/coopshops")
+                get("/coopshop")
                     .contentType(MediaType.ALL.APPLICATION_JSON)
             )
             .andExpect(status().isOk())

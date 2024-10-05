@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.CoopShopFixture;
@@ -19,7 +18,7 @@ import in.koreatech.koin.fixture.UserFixture;
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
-class AdminCoopShopTest extends AcceptanceTest {
+class AdminCoopShopApiTest extends AcceptanceTest {
 
     @Autowired
     private CoopShopRepository coopShopRepository;

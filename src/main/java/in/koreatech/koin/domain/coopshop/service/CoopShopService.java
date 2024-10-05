@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
-import in.koreatech.koin.domain.coopshop.dto.CoopShopResponseV2;
 import in.koreatech.koin.domain.coopshop.dto.CoopShopsResponse;
 import in.koreatech.koin.domain.coopshop.exception.CoopShopSemesterNotFoundException;
 import in.koreatech.koin.domain.coopshop.model.CoopOpen;
@@ -38,13 +37,6 @@ public class CoopShopService {
     public CoopShopsResponse getCoopShops() {
         CoopShopSemester coopShopSemester = coopShopSemesterRepository.getByIsApplied(true);
         return CoopShopsResponse.from(coopShopSemester);
-    }
-
-    public CoopShopResponseV2 getCoopShopByName(String coopShopName) {
-        CoopShopSemester coopShopSemester = coopShopSemesterRepository.getByIsApplied(true);
-        CoopShop coopShop = coopShopRepository.getByCoopShopSemesterAndName(coopShopSemester,
-            CoopShopType.from(coopShopName));
-        return CoopShopResponseV2.from(coopShop);
     }
 
     public CoopShopResponse getCoopShop(Integer id) {
