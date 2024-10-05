@@ -115,10 +115,10 @@ public class TimetableServiceV2 {
             Lecture lecture = timetableLectureRequest.lectureId() == null ?
                 null : lectureRepositoryV2.getLectureById(timetableLectureRequest.lectureId());
 
-            CourseType courseType = lecture == null ?
-                null : getCourseType(userId, lecture);
+            CourseType courseType = lecture == null ? null : getCourseType(userId, lecture);
 
-            TimetableLecture timetableLecture = timetableLectureRequest.toTimetableLecture(timetableFrame, lecture, courseType);
+            TimetableLecture timetableLecture = timetableLectureRequest.toTimetableLecture(timetableFrame, lecture,
+                courseType);
             timetableLectureRepositoryV2.save(timetableLecture);
         }
 
@@ -132,7 +132,6 @@ public class TimetableServiceV2 {
         String year = Student.parseStudentNumberYear(student.getStudentNumber()).toString();
         Department department = departmentRepository.getByName(student.getDepartment());
         String code = lecture.getCode();
-
         Catalog catalog = catalogRepository.getByYearAndDepartmentAndCode(year, department, code);
         return catalog.getCourseType();
     }
