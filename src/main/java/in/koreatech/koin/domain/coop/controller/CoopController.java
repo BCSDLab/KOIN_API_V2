@@ -2,18 +2,25 @@ package in.koreatech.koin.domain.coop.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.COOP;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
+import java.time.LocalDate;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
+import in.koreatech.koin.domain.coop.dto.ExcelResponseBuilder;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.service.CoopService;
 import in.koreatech.koin.global.auth.Auth;
@@ -52,5 +59,16 @@ public class CoopController implements CoopApi {
         CoopLoginResponse response = coopService.coopLogin(request);
         return ResponseEntity.created(URI.create("/"))
             .body(response);
+    }
+
+    @GetMapping("/dining/excel")
+    public ResponseEntity<InputStreamResource> generateCoopExcel(
+        @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+        @RequestParam(name = "isCafeteria", defaultValue = "false") Boolean isCafeteria
+    ) {
+        ByteArrayInputStream excelFile = coopService.generateCoopExcel(startDate, endDate, isCafeteria);
+        return ExcelResponseBuilder.buildExcelResponse(excelFile, startDate, endDate);
+
     }
 }
