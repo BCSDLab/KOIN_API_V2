@@ -123,7 +123,7 @@ public class Article extends BaseEntity {
         if (this.koreatechArticle != null) {
             return this.koreatechArticle.getRegisteredAt();
         } else
-            return null;
+            return this.getCreatedAt().toLocalDate();
     }
 
     public int getArticleNum() {
