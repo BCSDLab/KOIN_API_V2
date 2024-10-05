@@ -965,4 +965,56 @@ class ShopApiTest extends AcceptanceTest {
                 """, 마슬랜_영업여부, 신전_떡볶이_영업여부)));
     }
 
+    @Test
+    void _24시간_운영중인_상점은_is_open은_true이다() throws Exception {
+        Shop 영업중인_티바 = shopFixture._24시간_영업중인_티바(owner);
+        shopReviewFixture.리뷰_4점(익명_학생, 영업중인_티바);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+        // 2024-01-15 12:00 월요일 기준
+        boolean 마슬랜_영업여부 = true;
+        boolean 티바_영업여부 = true;
+        mockMvc.perform(
+                get("/v2/shops")
+                    .queryParam("sorter", "COUNT")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
+                {
+                    "count": 2,
+                    "shops": [
+                        {
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 2
+                        },{
+                            "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 2,
+                            "name": "티바",
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7788-9900",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        }
+                    ]
+                }
+                """, 티바_영업여부, 마슬랜_영업여부)));
+    }
 }

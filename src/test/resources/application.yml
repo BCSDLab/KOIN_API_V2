@@ -4,6 +4,11 @@ jwt:
     expiration-time: 600000 # (ms) = 10 minutes
 
 spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
   flyway:
     enabled: false
   jpa:
