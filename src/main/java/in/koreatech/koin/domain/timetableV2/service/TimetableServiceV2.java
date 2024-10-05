@@ -10,7 +10,6 @@ import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.model.Department;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
-import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
 import in.koreatech.koin.domain.graduation.repository.DepartmentRepository;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
@@ -48,7 +47,6 @@ public class TimetableServiceV2 {
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final UserRepository userRepository;
     private final SemesterRepositoryV2 semesterRepositoryV2;
-    private final CourseTypeRepository courseTypeRepository;
     private final CatalogRepository catalogRepository;
     private final DepartmentRepository departmentRepository;
     private final StudentRepository studentRepository;
