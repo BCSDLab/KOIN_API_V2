@@ -1,5 +1,5 @@
 <configuration>
-<!--  <springProperty scope="context" name="SLACK_WEBHOOK_URI" source="slack.logging.error"/>-->
+  <springProperty scope="context" name="SLACK_WEBHOOK_URI" source="slack.logging.error"/>
   <property name="defaultLogPattern"
     value="[%d{yyyy-MM-dd'T'HH:mm:ss.SSS}] %-5level --- [%15.15thread] %-40.40logger{36} : %msg%n"/>
   <property name="consoleLogPattern"
@@ -37,7 +37,7 @@
     </appender>
 
     <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
-<!--      <webhookUri>${SLACK_WEBHOOK_URI}</webhookUri>-->
+      <webhookUri>${SLACK_WEBHOOK_URI}</webhookUri>
       <layout class="ch.qos.logback.classic.PatternLayout">
         <pattern>${slackLogPattern}</pattern>
       </layout>
