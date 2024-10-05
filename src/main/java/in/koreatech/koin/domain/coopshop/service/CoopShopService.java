@@ -49,7 +49,8 @@ public class CoopShopService {
             DayType todayType =
                 (now.getDayOfWeek() == DayOfWeek.SATURDAY || now.getDayOfWeek() == DayOfWeek.SUNDAY)
                     ? DayType.WEEKEND : DayType.WEEKDAYS;
-            CoopShop coopShop = coopShopRepository.getByName(coopShopType);
+            CoopShopSemester semester = coopShopSemesterRepository.getByIsApplied(true);
+            CoopShop coopShop = coopShopRepository.getByNameAndSemester_Id(coopShopType, semester.getId());
             CoopOpen open = coopOpenRepository
                 .getByCoopShopAndTypeAndDayOfWeek(coopShop, type.getDiningName(), todayType);
 

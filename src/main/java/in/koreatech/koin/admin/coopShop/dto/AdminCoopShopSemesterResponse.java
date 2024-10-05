@@ -72,7 +72,7 @@ public record AdminCoopShopSemesterResponse(
         public static InnerCoopShop from(CoopShop coopShop) {
             return new InnerCoopShop(
                 coopShop.getId(),
-                coopShop.getName().getCoopShopName(),
+                coopShop.getName(),
                 coopShop.getCoopOpens().stream()
                     .map(InnerCoopOpens::from)
                     .toList(),

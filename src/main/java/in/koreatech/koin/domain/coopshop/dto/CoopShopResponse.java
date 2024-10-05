@@ -44,8 +44,8 @@ public record CoopShopResponse(
     public static CoopShopResponse from(CoopShop coopShop) {
         return new CoopShopResponse(
             coopShop.getId(),
-            coopShop.getName().getCoopShopName(),
-            coopShop.getCoopShopSemester().getSemester(),
+            coopShop.getName(),
+            coopShop.getSemester().getSemester(),
             coopShop.getCoopOpens().stream()
                 .map(InnerCoopOpens::from)
                 .toList(),

@@ -10,8 +10,6 @@ import java.util.List;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -36,12 +34,11 @@ public class CoopShop extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "semester_id", referencedColumnName = "id", nullable = false)
-    private CoopShopSemester coopShopSemester;
+    private CoopShopSemester semester;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "name", nullable = false)
-    private CoopShopType name;
+    private String name;
 
     @NotNull
     @Column(name = "phone", nullable = false)
@@ -60,13 +57,13 @@ public class CoopShop extends BaseEntity {
 
     @Builder
     private CoopShop(
-        CoopShopSemester coopShopSemester,
-        CoopShopType name,
+        CoopShopSemester semester,
+        String name,
         String phone,
         String location,
         String remarks
     ) {
-        this.coopShopSemester = coopShopSemester;
+        this.semester = semester;
         this.name = name;
         this.phone = phone;
         this.location = location;
