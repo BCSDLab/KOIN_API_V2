@@ -6,8 +6,14 @@ import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateReq
 import java.util.List;
 import java.util.Objects;
 
+import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.graduation.model.Department;
+import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
 import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
+import in.koreatech.koin.domain.graduation.repository.DepartmentRepository;
+import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.user.repository.StudentRepository;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +49,9 @@ public class TimetableServiceV2 {
     private final UserRepository userRepository;
     private final SemesterRepositoryV2 semesterRepositoryV2;
     private final CourseTypeRepository courseTypeRepository;
+    private final CatalogRepository catalogRepository;
+    private final DepartmentRepository departmentRepository;
+    private final StudentRepository studentRepository;
 
     @Transactional
     public TimetableFrameResponse createTimetablesFrame(Integer userId, TimetableFrameCreateRequest request) {
@@ -107,8 +116,9 @@ public class TimetableServiceV2 {
         for (InnerTimeTableLectureRequest timetableLectureRequest : request.timetableLecture()) {
             Lecture lecture = timetableLectureRequest.lectureId() == null ?
                 null : lectureRepositoryV2.getLectureById(timetableLectureRequest.lectureId());
-            CourseType courseType = timetableLectureRequest.courseTypeId() == null ?
-                null : courseTypeRepository.getCourseTypeById(timetableLectureRequest.courseTypeId());
+
+            CourseType courseType = lecture == null ?
+                null : getCourseType(userId, lecture);
 
             TimetableLecture timetableLecture = timetableLectureRequest.toTimetableLecture(timetableFrame, lecture, courseType);
             timetableLectureRepositoryV2.save(timetableLecture);
@@ -117,6 +127,16 @@ public class TimetableServiceV2 {
         List<TimetableLecture> timetableLectures = timetableLectureRepositoryV2.findAllByTimetableFrameId(
             timetableFrame.getId());
         return getTimetableLectureResponse(userId, timetableFrame, timetableLectures);
+    }
+
+    private CourseType getCourseType(Integer userId, Lecture lecture) {
+        Student student = studentRepository.getById(userId);
+        String year = Student.parseStudentNumberYear(student.getStudentNumber()).toString();
+        Department department = departmentRepository.getByName(student.getDepartment());
+        String code = lecture.getCode();
+
+        Catalog catalog = catalogRepository.getByYearAndDepartmentAndCode(year, department, code);
+        return catalog.getCourseType();
     }
 
     @Transactional

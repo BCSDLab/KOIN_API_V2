@@ -54,9 +54,6 @@ public record TimetableLectureCreateRequest(
         @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
         String memo,
 
-        @Schema(description = "이수 구분 고유 번호", example = "1", requiredMode = NOT_REQUIRED)
-        Integer courseTypeId,
-
         @Schema(description = "강의 고유 번호", example = "1", requiredMode = NOT_REQUIRED)
         Integer lectureId
     ) {
