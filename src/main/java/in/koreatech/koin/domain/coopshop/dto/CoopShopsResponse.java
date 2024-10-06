@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.coopshop.model.CoopOpen;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
-import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
+import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -32,12 +32,12 @@ public record CoopShopsResponse(
     List<InnerCoopShop> coopShops
 ) {
 
-    public static CoopShopsResponse from(CoopShopSemester coopShopSemester) {
+    public static CoopShopsResponse from(CoopSemester coopSemester) {
         return new CoopShopsResponse(
-            coopShopSemester.getSemester(),
-            coopShopSemester.getFromDate(),
-            coopShopSemester.getToDate(),
-            coopShopSemester.getCoopShops().stream()
+            coopSemester.getSemester(),
+            coopSemester.getFromDate(),
+            coopSemester.getToDate(),
+            coopSemester.getCoopShops().stream()
                 .map(InnerCoopShop::from)
                 .toList()
         );

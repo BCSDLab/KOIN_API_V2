@@ -10,12 +10,12 @@ import org.springframework.data.domain.Page;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
+import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record AdminCoopShopSemestersResponse(
+public record AdminCoopSemestersResponse(
 
     @Schema(description = "조건에 해당하는 총 학기 수", example = "20", requiredMode = REQUIRED)
     Long totalCount,
@@ -34,25 +34,25 @@ public record AdminCoopShopSemestersResponse(
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    record InnerSemester(
+    public record InnerSemester(
         Integer id,
         String semester,
         LocalDate fromDate,
         LocalDate toDate
     ) {
 
-        public static InnerSemester from(CoopShopSemester coopShopSemester) {
+        public static InnerSemester from(CoopSemester coopSemester) {
             return new InnerSemester(
-                coopShopSemester.getId(),
-                coopShopSemester.getSemester(),
-                coopShopSemester.getFromDate(),
-                coopShopSemester.getToDate()
+                coopSemester.getId(),
+                coopSemester.getSemester(),
+                coopSemester.getFromDate(),
+                coopSemester.getToDate()
             );
         }
     }
 
-    public static AdminCoopShopSemestersResponse of(Page<CoopShopSemester> pagedResult, Criteria criteria) {
-        return new AdminCoopShopSemestersResponse(
+    public static AdminCoopSemestersResponse of(Page<CoopSemester> pagedResult, Criteria criteria) {
+        return new AdminCoopSemestersResponse(
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),
             pagedResult.getTotalPages(),

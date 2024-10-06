@@ -1,4 +1,4 @@
-insert into `coop_shop_semester` (`semester`, `from_date`, `to_date`, `is_applied`)
+insert into `coop_semester` (`semester`, `from_date`, `to_date`, `is_applied`)
 values ('24-2학기', '2024-09-02', '2024-12-20', 1);
 
 INSERT INTO `coop_shop` (`name`, `phone`, `location`, `remarks`, `semester_id`)
@@ -12,6 +12,7 @@ INSERT INTO `coop_shop` (`name`, `phone`, `location`, `remarks`, `semester_id`)
     ('미용실', '041-560-1769', '학생회관 1층', '예약제운영', 1),
     ('오락실', '041-560-1472', '학생회관 1층', 'NULL', 1);
 
+update `coop_shop` set `semester_id` = 1 where `id` = 1;
 update `coop_opens` set `day_of_week` = 'WEEKDAYS' where `id` = 1;
 update `coop_opens` set `day_of_week` = 'WEEKDAYS' where `id` = 2;
 update `coop_opens` set `day_of_week` = 'WEEKDAYS' where `id` = 3;
@@ -19,7 +20,7 @@ update `coop_opens` set `day_of_week` = 'WEEKEND' where `id` = 4;
 update `coop_opens` set `day_of_week` = 'WEEKEND' where `id` = 5;
 update `coop_opens` set `day_of_week` = 'WEEKEND' where `id` = 6;
 
-INSERT INTO coop_opens (coop_shop_id, type, day_of_week, open_time, close_time)
+INSERT INTO coop_opens (`coop_shop_id`, `type`, `day_of_week`, `open_time`, `close_time`)
     VALUES
     (2, '점심', 'WEEKDAYS', '11:40', '13:30'),
     (2, '점심', 'WEEKEND', '미운영', '미운영'),

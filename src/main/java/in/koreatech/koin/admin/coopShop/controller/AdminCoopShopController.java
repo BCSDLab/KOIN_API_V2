@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopSemesterResponse;
-import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopSemestersResponse;
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemesterResponse;
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemestersResponse;
 import in.koreatech.koin.admin.coopShop.service.AdminCoopShopService;
 import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
@@ -23,21 +23,21 @@ public class AdminCoopShopController implements AdminCoopShopApi {
     private final AdminCoopShopService adminCoopShopService;
 
     @GetMapping
-    public ResponseEntity<AdminCoopShopSemestersResponse> getCoopShopSemesters(
+    public ResponseEntity<AdminCoopSemestersResponse> getCoopShopSemesters(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminCoopShopSemestersResponse coopShops = adminCoopShopService.getCoopShopSemesters(page, limit);
+        AdminCoopSemestersResponse coopShops = adminCoopShopService.getCoopShopSemesters(page, limit);
         return ResponseEntity.ok(coopShops);
     }
 
     @GetMapping("/{semesterId}")
-    public ResponseEntity<AdminCoopShopSemesterResponse> getCoopShops(
+    public ResponseEntity<AdminCoopSemesterResponse> getCoopShops(
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable Integer semesterId
     ) {
-        AdminCoopShopSemesterResponse coopShop = adminCoopShopService.getCoopShopSemester(semesterId);
+        AdminCoopSemesterResponse coopShop = adminCoopShopService.getCoopShopSemester(semesterId);
         return ResponseEntity.ok(coopShop);
     }
 }

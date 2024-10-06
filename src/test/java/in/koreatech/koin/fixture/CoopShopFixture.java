@@ -9,30 +9,30 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.coopshop.model.CoopOpen;
+import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
-import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
 import in.koreatech.koin.domain.coopshop.model.DayType;
+import in.koreatech.koin.domain.coopshop.repository.CoopSemesterRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
-import in.koreatech.koin.domain.coopshop.repository.CoopShopSemesterRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
 public class CoopShopFixture {
 
     private final CoopShopRepository coopShopRepository;
-    private final CoopShopSemesterRepository coopShopSemesterRepository;
+    private final CoopSemesterRepository coopSemesterRepository;
 
     public CoopShopFixture(
         CoopShopRepository coopShopRepository,
-        CoopShopSemesterRepository coopShopSemesterRepository
+        CoopSemesterRepository coopSemesterRepository
     ) {
         this.coopShopRepository = coopShopRepository;
-        this.coopShopSemesterRepository = coopShopSemesterRepository;
+        this.coopSemesterRepository = coopSemesterRepository;
     }
 
-    public CoopShopSemester _23_2학기() {
-        var coopShopSemester = coopShopSemesterRepository.save(
-            CoopShopSemester.builder()
+    public CoopSemester _23_2학기() {
+        var coopShopSemester = coopSemesterRepository.save(
+            CoopSemester.builder()
                 .semester("23-2학기")
                 .fromDate(LocalDate.of(2023, 9, 2))
                 .toDate(LocalDate.of(2023, 12, 20))
@@ -45,7 +45,7 @@ public class CoopShopFixture {
             .location("학생회관 1층")
             .phone("041-000-0000")
             .remarks("공휴일 휴무")
-            .coopShopSemester(coopShopSemester)
+            .coopSemester(coopShopSemester)
             .build();
 
         cafeteria.getCoopOpens().addAll(
@@ -65,17 +65,17 @@ public class CoopShopFixture {
             .location("학생회관 2층")
             .phone("041-000-0000")
             .remarks("연중무휴")
-            .coopShopSemester(coopShopSemester)
+            .coopSemester(coopShopSemester)
             .build();
 
         coopShopRepository.save(cafeteria);
         coopShopRepository.save(laundry);
-        return coopShopSemesterRepository.save(coopShopSemester);
+        return coopSemesterRepository.save(coopShopSemester);
     }
 
-    public CoopShopSemester _23_겨울학기() {
-        var coopShopSemester = coopShopSemesterRepository.save(
-            CoopShopSemester.builder()
+    public CoopSemester _23_겨울학기() {
+        var coopShopSemester = coopSemesterRepository.save(
+            CoopSemester.builder()
                 .semester("23-겨울학기")
                 .fromDate(LocalDate.of(2023, 12, 21))
                 .toDate(LocalDate.of(2024, 2, 28))
@@ -87,7 +87,7 @@ public class CoopShopFixture {
             .location("학생회관 2층")
             .phone("041-000-0000")
             .remarks("연중무휴")
-            .coopShopSemester(coopShopSemester)
+            .coopSemester(coopShopSemester)
             .build();
 
         coopShop.getCoopOpens().addAll(
@@ -102,12 +102,12 @@ public class CoopShopFixture {
         );
 
         coopShopSemester.getCoopShops().addAll(List.of(coopShop));
-        return coopShopSemesterRepository.save(coopShopSemester);
+        return coopSemesterRepository.save(coopShopSemester);
     }
 
-    public CoopShopSemester 현재학기() {
-        var coopShopSemester = coopShopSemesterRepository.save(
-            CoopShopSemester.builder()
+    public CoopSemester 현재학기() {
+        var coopShopSemester = coopSemesterRepository.save(
+            CoopSemester.builder()
                 .semester("현재 학기")
                 .fromDate(LocalDate.of(2023, 12, 21))
                 .toDate(LocalDate.of(2024, 2, 28))
@@ -121,7 +121,7 @@ public class CoopShopFixture {
             .location("학생회관 2층")
             .phone("041-000-0000")
             .remarks("연중무휴")
-            .coopShopSemester(coopShopSemester)
+            .coopSemester(coopShopSemester)
             .build();
 
         coopShop.getCoopOpens().addAll(
@@ -172,6 +172,6 @@ public class CoopShopFixture {
         );
 
         coopShopSemester.getCoopShops().addAll(List.of(coopShop));
-        return coopShopSemesterRepository.save(coopShopSemester);
+        return coopSemesterRepository.save(coopShopSemester);
     }
 }

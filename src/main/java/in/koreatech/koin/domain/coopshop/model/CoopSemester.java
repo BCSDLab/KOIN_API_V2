@@ -23,9 +23,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "coop_shop_semester")
+@Table(name = "coop_semester")
 @NoArgsConstructor(access = PROTECTED)
-public class CoopShopSemester extends BaseEntity {
+public class CoopSemester extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -47,12 +47,12 @@ public class CoopShopSemester extends BaseEntity {
     @Column(name = "is_applied", columnDefinition = "TINYINT", nullable = false)
     private boolean isApplied = false;
 
-    @OneToMany(mappedBy = "coopShopSemester", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE},
+    @OneToMany(mappedBy = "coopSemester", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE},
         fetch = FetchType.EAGER)
     private List<CoopShop> coopShops = new ArrayList<>();
 
     @Builder
-    private CoopShopSemester(
+    private CoopSemester(
         String semester,
         LocalDate fromDate,
         LocalDate toDate

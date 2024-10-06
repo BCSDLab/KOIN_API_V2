@@ -5,10 +5,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopSemesterResponse;
-import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopSemestersResponse;
-import in.koreatech.koin.admin.coopShop.repository.AdminCoopShopSemesterRepository;
-import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemesterResponse;
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemestersResponse;
+import in.koreatech.koin.admin.coopShop.repository.AdminCoopSemesterRepository;
+import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
@@ -16,22 +16,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminCoopShopService {
 
-    private final AdminCoopShopSemesterRepository adminCoopShopSemesterRepository;
+    private final AdminCoopSemesterRepository adminCoopSemesterRepository;
 
-    public AdminCoopShopSemestersResponse getCoopShopSemesters(Integer page, Integer limit) {
-        Integer total = adminCoopShopSemesterRepository.count();
+    public AdminCoopSemestersResponse getCoopShopSemesters(Integer page, Integer limit) {
+        Integer total = adminCoopSemesterRepository.count();
 
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
             Sort.by(Sort.Direction.ASC, "id"));
 
-        Page<CoopShopSemester> result = adminCoopShopSemesterRepository.findAll(pageRequest);
+        Page<CoopSemester> result = adminCoopSemesterRepository.findAll(pageRequest);
 
-        return AdminCoopShopSemestersResponse.of(result, criteria);
+        return AdminCoopSemestersResponse.of(result, criteria);
     }
 
-    public AdminCoopShopSemesterResponse getCoopShopSemester(Integer id) {
-        CoopShopSemester coopShopSemester = adminCoopShopSemesterRepository.getById(id);
-        return AdminCoopShopSemesterResponse.from(coopShopSemester);
+    public AdminCoopSemesterResponse getCoopShopSemester(Integer id) {
+        CoopSemester coopSemester = adminCoopSemesterRepository.getById(id);
+        return AdminCoopSemesterResponse.from(coopSemester);
     }
 }

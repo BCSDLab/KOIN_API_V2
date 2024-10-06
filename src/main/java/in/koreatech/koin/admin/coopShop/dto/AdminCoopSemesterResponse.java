@@ -12,11 +12,11 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.coopshop.model.CoopOpen;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
-import in.koreatech.koin.domain.coopshop.model.CoopShopSemester;
+import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record AdminCoopShopSemesterResponse(
+public record AdminCoopSemesterResponse(
     @Schema(description = "학기 고유 id", example = "1", requiredMode = REQUIRED)
     Integer id,
 
@@ -34,18 +34,18 @@ public record AdminCoopShopSemesterResponse(
     @Schema(description = "생협 매장 정보 리스트", requiredMode = REQUIRED)
     List<InnerCoopShop> coopShops
 ) {
-    public static AdminCoopShopSemesterResponse from(CoopShopSemester coopShopSemester) {
-        return new AdminCoopShopSemesterResponse(
-            coopShopSemester.getId(),
-            coopShopSemester.getSemester(),
-            coopShopSemester.getFromDate(),
-            coopShopSemester.getToDate(),
-            coopShopSemester.getCoopShops().stream().map(InnerCoopShop::from).toList()
+    public static AdminCoopSemesterResponse from(CoopSemester coopSemester) {
+        return new AdminCoopSemesterResponse(
+            coopSemester.getId(),
+            coopSemester.getSemester(),
+            coopSemester.getFromDate(),
+            coopSemester.getToDate(),
+            coopSemester.getCoopShops().stream().map(InnerCoopShop::from).toList()
         );
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    record InnerCoopShop(
+    public record InnerCoopShop(
         @Schema(example = "1", description = "생협 매장 고유 id", requiredMode = REQUIRED)
         Integer id,
 

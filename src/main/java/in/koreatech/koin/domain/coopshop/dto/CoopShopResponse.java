@@ -45,7 +45,7 @@ public record CoopShopResponse(
         return new CoopShopResponse(
             coopShop.getId(),
             coopShop.getName(),
-            coopShop.getCoopShopSemester().getSemester(),
+            coopShop.getCoopSemester().getSemester(),
             coopShop.getCoopOpens().stream()
                 .map(InnerCoopOpens::from)
                 .toList(),

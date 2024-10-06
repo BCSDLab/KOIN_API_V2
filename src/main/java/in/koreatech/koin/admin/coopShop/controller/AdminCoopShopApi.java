@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopSemesterResponse;
-import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopSemestersResponse;
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemesterResponse;
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemestersResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,7 +34,7 @@ public interface AdminCoopShopApi {
     )
     @Operation(summary = "모든 생협 운영 학기 정보 조회")
     @GetMapping
-    ResponseEntity<AdminCoopShopSemestersResponse> getCoopShopSemesters(
+    ResponseEntity<AdminCoopSemestersResponse> getCoopShopSemesters(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
         @Auth(permit = {ADMIN}) Integer adminId
@@ -50,7 +50,7 @@ public interface AdminCoopShopApi {
     )
     @Operation(summary = "특정 학기 생협 정보 조회")
     @GetMapping("/{semesterId}")
-    ResponseEntity<AdminCoopShopSemesterResponse> getCoopShops(
+    ResponseEntity<AdminCoopSemesterResponse> getCoopShops(
         @Auth(permit = {ADMIN}) Integer adminId,
         @Parameter(in = PATH) @PathVariable Integer semesterId
     );
