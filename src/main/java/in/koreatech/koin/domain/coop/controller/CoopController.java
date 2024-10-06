@@ -24,6 +24,7 @@ import in.koreatech.koin.domain.coop.dto.ExcelResponseBuilder;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.service.CoopService;
 import in.koreatech.koin.global.auth.Auth;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -63,12 +64,15 @@ public class CoopController implements CoopApi {
 
     @GetMapping("/dining/excel")
     public ResponseEntity<InputStreamResource> generateCoopExcel(
-        @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+        @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2024-01-03")
+        @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        LocalDate startDate,
+        @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2024-01-10")
+        @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        LocalDate endDate,
         @RequestParam(name = "isCafeteria", defaultValue = "false") Boolean isCafeteria
     ) {
-        ByteArrayInputStream excelFile = coopService.generateCoopExcel(startDate, endDate, isCafeteria);
+        ByteArrayInputStream excelFile = coopService.generateDiningExcel(startDate, endDate, isCafeteria);
         return ExcelResponseBuilder.buildExcelResponse(excelFile, startDate, endDate);
-
     }
 }

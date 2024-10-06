@@ -112,7 +112,7 @@ public class CoopService {
         return CoopLoginResponse.of(accessToken, savedToken.getRefreshToken());
     }
 
-    public ByteArrayInputStream generateCoopExcel(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
+    public ByteArrayInputStream generateDiningExcel(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
         List<Dining> dinings;
 
         if(isCafeteria) {
@@ -121,7 +121,6 @@ public class CoopService {
         } else {
             dinings = diningRepository.findByDateBetween(startDate, endDate);
         }
-
 
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("식단 메뉴");
@@ -144,7 +143,7 @@ public class CoopService {
         dinings.forEach(dining -> {
             Row row = sheet.createRow(rowIdx.getAndIncrement());
             row.createCell(0).setCellValue(dining.getDate().toString());
-            row.createCell(1).setCellValue(dining.getType().toString());
+            row.createCell(1).setCellValue(dining.getType().getDiningName());
             row.createCell(2).setCellValue(dining.getPlace());
             row.createCell(3).setCellValue(dining.getKcal() != null ? dining.getKcal() : 0);
 
