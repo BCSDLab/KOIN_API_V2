@@ -2,14 +2,8 @@ package in.koreatech.koin.domain.user.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import in.koreatech.koin.domain.graduation.model.Department;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,7 +28,8 @@ public class Student {
     private String studentNumber;
 
     @Column(name = "major", length = 50)
-    private String department;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Department department;
 
     @Column(name = "identity", columnDefinition = "SMALLINT")
     @Enumerated(EnumType.ORDINAL)
@@ -51,7 +46,7 @@ public class Student {
     private Student(
         String anonymousNickname,
         String studentNumber,
-        String department,
+        Department department,
         UserIdentity userIdentity,
         boolean isGraduated,
         User user
@@ -64,7 +59,7 @@ public class Student {
         this.user = user;
     }
 
-    public void update(String studentNumber, String department) {
+    public void update(String studentNumber, Department department) {
         this.studentNumber = studentNumber;
         this.department = department;
     }

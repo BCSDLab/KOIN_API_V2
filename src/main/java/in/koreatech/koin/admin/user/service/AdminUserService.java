@@ -4,6 +4,8 @@ import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
 import java.util.List;
 
+import in.koreatech.koin.admin.user.repository.*;
+import in.koreatech.koin.domain.graduation.model.Department;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -34,11 +36,6 @@ import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
-import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
-import in.koreatech.koin.admin.user.repository.AdminOwnerShopRedisRepository;
-import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
-import in.koreatech.koin.admin.user.repository.AdminTokenRepository;
-import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
@@ -71,6 +68,7 @@ public class AdminUserService {
     private final AdminShopRepository adminShopRepository;
     private final PasswordEncoder passwordEncoder;
     private final AdminTokenRepository adminTokenRepository;
+    private final AdminDepartmentRepository adminDepartmentRepository;
 
     public AdminStudentsResponse getStudents(StudentsCondition studentsCondition) {
         Integer totalStudents = adminStudentRepository.findAllStudentCount();
@@ -158,7 +156,8 @@ public class AdminUserService {
         user.update(adminRequest.nickname(), adminRequest.name(),
                 adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
         user.updateStudentPassword(passwordEncoder, adminRequest.password());
-        student.update(adminRequest.studentNumber(), adminRequest.major());
+        Department department = adminDepartmentRepository.getByName(adminRequest.major());
+        student.update(adminRequest.studentNumber(), department);
         adminStudentRepository.save(student);
 
         return AdminStudentUpdateResponse.from(student);
