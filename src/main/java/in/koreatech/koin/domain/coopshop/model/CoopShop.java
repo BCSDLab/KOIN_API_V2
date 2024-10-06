@@ -34,7 +34,7 @@ public class CoopShop extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "semester_id", referencedColumnName = "id", nullable = false)
-    private CoopShopSemester semester;
+    private CoopShopSemester coopShopSemester;
 
     @NotNull
     @Column(name = "name", nullable = false)
@@ -57,13 +57,13 @@ public class CoopShop extends BaseEntity {
 
     @Builder
     private CoopShop(
-        CoopShopSemester semester,
+        CoopShopSemester coopShopSemester,
         String name,
         String phone,
         String location,
         String remarks
     ) {
-        this.semester = semester;
+        this.coopShopSemester = coopShopSemester;
         this.name = name;
         this.phone = phone;
         this.location = location;

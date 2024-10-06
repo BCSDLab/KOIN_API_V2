@@ -9,7 +9,7 @@ import lombok.Getter;
 public enum CoopShopType {
     CAFETERIA("학생식당"),
     WELFARE_CENTER("복지관"),
-    _2CAMPUS("2캠퍼스"),
+    CAMPUS2("2캠퍼스"),
     WELFARE_CVS("복지관 편의점"),
     CHAMBIT_CVS("참빛관 편의점"),
     BOOK_STORE("서점"),

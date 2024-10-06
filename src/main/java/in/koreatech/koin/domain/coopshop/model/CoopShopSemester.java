@@ -47,7 +47,7 @@ public class CoopShopSemester extends BaseEntity {
     @Column(name = "is_applied", columnDefinition = "TINYINT", nullable = false)
     private boolean isApplied = false;
 
-    @OneToMany(mappedBy = "semester", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE},
+    @OneToMany(mappedBy = "coopShopSemester", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE},
         fetch = FetchType.EAGER)
     private List<CoopShop> coopShops = new ArrayList<>();
 

@@ -17,15 +17,15 @@ public interface CoopShopRepository extends Repository<CoopShop, Integer> {
 
     Optional<CoopShop> findById(Integer id);
 
-    Optional<CoopShop> findByNameAndSemester_Id(String name, Integer semesterId);
+    Optional<CoopShop> findByNameAndCoopShopSemester_Id(String name, Integer semesterId);
 
     default CoopShop getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> CoopShopNotFoundException.withDetail("coopShopId : " + id));
     }
 
-    default CoopShop getByNameAndSemester_Id(CoopShopType name, Integer semesterId) {
-        return findByNameAndSemester_Id(name.getCoopShopName(), semesterId)
+    default CoopShop getByNameAndCoopShopSemester_Id(CoopShopType name, Integer semesterId) {
+        return findByNameAndCoopShopSemester_Id(name.getCoopShopName(), semesterId)
             .orElseThrow(() -> CoopShopNotFoundException
                 .withDetail("coopShopName : " + name.getCoopShopName() + ", semesterId: " + semesterId));
     }

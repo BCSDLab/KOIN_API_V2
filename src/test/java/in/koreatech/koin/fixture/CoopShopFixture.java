@@ -45,7 +45,7 @@ public class CoopShopFixture {
             .location("학생회관 1층")
             .phone("041-000-0000")
             .remarks("공휴일 휴무")
-            .semester(coopShopSemester)
+            .coopShopSemester(coopShopSemester)
             .build();
 
         cafeteria.getCoopOpens().addAll(
@@ -65,7 +65,7 @@ public class CoopShopFixture {
             .location("학생회관 2층")
             .phone("041-000-0000")
             .remarks("연중무휴")
-            .semester(coopShopSemester)
+            .coopShopSemester(coopShopSemester)
             .build();
 
         coopShopRepository.save(cafeteria);
@@ -87,7 +87,7 @@ public class CoopShopFixture {
             .location("학생회관 2층")
             .phone("041-000-0000")
             .remarks("연중무휴")
-            .semester(coopShopSemester)
+            .coopShopSemester(coopShopSemester)
             .build();
 
         coopShop.getCoopOpens().addAll(
@@ -121,7 +121,7 @@ public class CoopShopFixture {
             .location("학생회관 2층")
             .phone("041-000-0000")
             .remarks("연중무휴")
-            .semester(coopShopSemester)
+            .coopShopSemester(coopShopSemester)
             .build();
 
         coopShop.getCoopOpens().addAll(
