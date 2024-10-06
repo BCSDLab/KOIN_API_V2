@@ -2,11 +2,17 @@ package in.koreatech.koin.domain.coop.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.COOP;
 
+import java.time.LocalDate;
+
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
@@ -69,5 +75,21 @@ public interface CoopApi {
     @PostMapping("/coop/login")
     ResponseEntity<CoopLoginResponse> coopLogin(
         @RequestBody @Valid CoopLoginRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "영양사 식단 엑셀 다운로드")
+    @GetMapping("/dining/excel")
+    ResponseEntity<InputStreamResource> generateCoopExcel(
+        @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+        @RequestParam("isCafeteria") Boolean isCafeteria
     );
 }
