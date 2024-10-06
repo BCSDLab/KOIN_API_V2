@@ -16,6 +16,7 @@ public enum ImageUploadDomain {
     MEMBERS,
     OWNERS,
     COOP,
+    ADMIN,
     ;
 
     public static ImageUploadDomain from(String domain) {

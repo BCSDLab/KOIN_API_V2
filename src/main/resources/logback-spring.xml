@@ -27,7 +27,7 @@
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
       <file>logs/app.log</file>
-      <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
@@ -54,6 +54,7 @@
     <root level="info">
       <appender-ref ref="console"/>
       <appender-ref ref="FILE"/>
+      <appender-ref ref="ASYNC_SLACK"/>
     </root>
   </springProfile>
 </configuration>

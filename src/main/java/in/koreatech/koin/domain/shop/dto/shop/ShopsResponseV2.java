@@ -12,7 +12,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
+import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV2;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -26,15 +26,14 @@ public record ShopsResponseV2(
 
     public static ShopsResponseV2 from(
         List<Shop> shops,
-        Map<Integer, ShopInfo> shopInfoMap,
-        LocalDateTime now,
+        Map<Integer, ShopInfoV2> shopInfoMap,
         ShopsSortCriteria sortBy,
-        List<ShopsFilterCriteria> shopsFilterCriterias
+        List<ShopsFilterCriteria> shopsFilterCriterias,
+        LocalDateTime now
     ) {
         List<InnerShopResponse> innerShopResponses = shops.stream()
-            .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias, now))
             .map(it -> {
-                ShopInfo shopInfo = shopInfoMap.get(it.getId());
+                ShopInfoV2 shopInfo = shopInfoMap.get(it.getId());
                 return InnerShopResponse.from(
                     it,
                     shopInfo.durationEvent(),
@@ -42,7 +41,10 @@ public record ShopsResponseV2(
                     shopInfo.averageRate(),
                     shopInfo.reviewCount()
                 );
-            }).sorted(InnerShopResponse.getComparator(sortBy)).toList();
+            })
+            .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias))
+            .sorted(InnerShopResponse.getComparator(sortBy))
+            .toList();
         return new ShopsResponseV2(
             innerShopResponses.size(),
             innerShopResponses

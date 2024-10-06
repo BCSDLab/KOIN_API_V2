@@ -202,6 +202,36 @@ public class Shop extends BaseEntity {
         this.accountNumber = accountNumber;
     }
 
+    public boolean isOpen(LocalDateTime now) {
+        String currDayOfWeek = now.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
+        String prevDayOfWeek = now.minusDays(1).getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
+        for (ShopOpen shopOpen : shopOpens) {
+            if (shopOpen.isClosed()) {
+                continue;
+            }
+            if (shopOpen.getDayOfWeek().equals(currDayOfWeek) &&
+                isBetweenDate(now, shopOpen, now.toLocalDate())
+            ) {
+                return true;
+            }
+            if (shopOpen.getDayOfWeek().equals(prevDayOfWeek) &&
+                isBetweenDate(now, shopOpen, now.minusDays(1).toLocalDate())
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isBetweenDate(LocalDateTime now, ShopOpen shopOpen, LocalDate criteriaDate) {
+        LocalDateTime start = LocalDateTime.of(criteriaDate, shopOpen.getOpenTime());
+        LocalDateTime end = LocalDateTime.of(criteriaDate, shopOpen.getCloseTime());
+        if (!shopOpen.getCloseTime().isAfter(shopOpen.getOpenTime())) {
+            end = end.plusDays(1);
+        }
+        return !start.isAfter(now) && !end.isBefore(now);
+    }
+
     public void modifyShopImages(List<String> imageUrls, EntityManager entityManager) {
         this.shopImages.clear();
         entityManager.flush();
@@ -239,35 +269,6 @@ public class Shop extends BaseEntity {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder().shop(this).shopCategory(shopCategory).build();
             this.shopCategories.add(shopCategoryMap);
         }
-    }
-
-    public boolean isOpen(LocalDateTime now) {
-        String currDayOfWeek = now.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
-        String prevDayOfWeek = now.minusDays(1).getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US).toUpperCase();
-        for (ShopOpen shopOpen : shopOpens) {
-            if (shopOpen.isClosed()) {
-                continue;
-            }
-            if (shopOpen.getDayOfWeek().equals(currDayOfWeek) && isBetweenDate(now, shopOpen, now.toLocalDate())) {
-                return true;
-            }
-            if (
-                shopOpen.getDayOfWeek().equals(prevDayOfWeek) && isBetweenDate(now, shopOpen,
-                    now.minusDays(1).toLocalDate())
-            ) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isBetweenDate(LocalDateTime now, ShopOpen shopOpen, LocalDate criteriaDate) {
-        LocalDateTime start = LocalDateTime.of(criteriaDate, shopOpen.getOpenTime());
-        LocalDateTime end = LocalDateTime.of(criteriaDate, shopOpen.getCloseTime());
-        if (!shopOpen.getCloseTime().isAfter(shopOpen.getOpenTime())) {
-            end = end.plusDays(1);
-        }
-        return !start.isAfter(now) && !end.isBefore(now);
     }
 
     public void updateOwner(Owner owner) {

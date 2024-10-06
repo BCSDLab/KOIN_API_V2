@@ -1,9 +1,6 @@
 package in.koreatech.koin.global.domain.upload.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 import java.util.List;
@@ -54,6 +51,7 @@ public interface UploadApi {
         - members
         - owners
         - coop
+        - admin
         """)
     @PostMapping("/{domain}/upload/url")
     ResponseEntity<UploadUrlResponse> getPresignedUrl(

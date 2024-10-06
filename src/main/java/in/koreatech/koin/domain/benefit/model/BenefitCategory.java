@@ -48,4 +48,11 @@ public class BenefitCategory extends BaseEntity {
         this.onImageUrl = onImageUrl;
         this.offImageUrl = offImageUrl;
     }
+
+    public void update(String title, String detail, String onImageUrl, String offImageUrl) {
+        this.title = title;
+        this.detail = detail;
+        this.onImageUrl = onImageUrl;
+        this.offImageUrl = offImageUrl;
+    }
 }

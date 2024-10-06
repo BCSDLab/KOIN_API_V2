@@ -17,7 +17,10 @@ import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminDeleteShopsRequest;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryRequest;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
+import in.koreatech.koin.admin.benefit.exception.BenefitDuplicationException;
 import in.koreatech.koin.admin.benefit.exception.BenefitLimitException;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryRepository;
@@ -47,13 +50,27 @@ public class AdminBenefitService {
         if (currentCategoryCount >= MAX_BENEFIT_CATEGORIES) {
             throw BenefitLimitException.withDetail("혜택 카테고리는 반드시 " + MAX_BENEFIT_CATEGORIES + "개 이하이어야 합니다.");
         }
-        boolean isExistCategory = adminBenefitCategoryRepository.findByTitle(request.title()).isPresent();
+        boolean isExistCategory = adminBenefitCategoryRepository.existsByTitle(request.title());
         if (isExistCategory) {
-            throw BenefitLimitException.withDetail("이미 존재하는 혜택 카테고리입니다.");
+            throw BenefitDuplicationException.withDetail("이미 존재하는 혜택 카테고리입니다.");
         }
         BenefitCategory benefitCategory = request.toBenefitCategory();
         BenefitCategory savedBenefitCategory = adminBenefitCategoryRepository.save(benefitCategory);
         return AdminCreateBenefitCategoryResponse.from(savedBenefitCategory);
+    }
+
+    @Transactional
+    public AdminModifyBenefitCategoryResponse modifyBenefitCategory(
+        Integer categoryId,
+        AdminModifyBenefitCategoryRequest request
+    ) {
+        boolean isExistCategory = adminBenefitCategoryRepository.existsByTitle(request.title());
+        if (isExistCategory) {
+            throw BenefitDuplicationException.withDetail("이미 존재하는 혜택 카테고리입니다.");
+        }
+        BenefitCategory benefitCategory = adminBenefitCategoryRepository.getById(categoryId);
+        benefitCategory.update(request.title(), request.detail(), request.onImageUrl(), request.offImageUrl());
+        return AdminModifyBenefitCategoryResponse.from(benefitCategory);
     }
 
     @Transactional
@@ -67,9 +84,9 @@ public class AdminBenefitService {
     }
 
     public AdminBenefitShopsResponse getBenefitShops(Integer benefitId) {
-        List<BenefitCategoryMap> benefitCategoryMaps = adminBenefitCategoryMapRepository.findAllByBenefitCategoryId(
-            benefitId
-        );
+        List<BenefitCategoryMap> benefitCategoryMaps =
+            adminBenefitCategoryMapRepository
+                .findAllByBenefitCategoryIdOrderByShopName(benefitId);
         List<Shop> shops = benefitCategoryMaps.stream()
             .map(BenefitCategoryMap::getShop)
             .toList();
@@ -100,9 +117,11 @@ public class AdminBenefitService {
 
     public AdminSearchBenefitShopsResponse searchShops(Integer benefitId, String searchKeyword) {
         List<Shop> shops = adminShopRepository.searchByName(searchKeyword);
-        Set<Integer> benefitShopIds = adminBenefitCategoryMapRepository.findAllByBenefitCategoryId(benefitId).stream()
-            .map(benefitCategoryMap -> benefitCategoryMap.getShop().getId())
-            .collect(Collectors.toSet());
+        Set<Integer> benefitShopIds =
+            adminBenefitCategoryMapRepository
+                .findAllByBenefitCategoryIdOrderByShopName(benefitId).stream()
+                .map(benefitCategoryMap -> benefitCategoryMap.getShop().getId())
+                .collect(Collectors.toSet());
         List<Shop> benefitShops = shops.stream()
             .filter(shop -> benefitShopIds.contains(shop.getId()))
             .toList();

@@ -13,6 +13,7 @@ import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
 import in.koreatech.koin.domain.graduation.repository.DepartmentRepository;
 import in.koreatech.koin.domain.user.model.Student;
 import in.koreatech.koin.domain.user.repository.StudentRepository;
+import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -210,5 +211,13 @@ public class TimetableServiceV2 {
         TimetableFrame mainTimetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
             semesterId);
         mainTimetableFrame.cancelMain();
+    }
+
+    @Transactional
+    public void deleteAllTimetablesFrame(Integer userId, String semester) {
+        User user = userRepository.findById(userId).get();
+        Semester userSemester = semesterRepositoryV2.findBySemester(semester)
+            .orElseThrow(() -> new SemesterNotFoundException("해당하는 시간표 프레임이 없습니다"));
+        timetableFrameRepositoryV2.deleteAllByUserAndSemester(user, userSemester);
     }
 }

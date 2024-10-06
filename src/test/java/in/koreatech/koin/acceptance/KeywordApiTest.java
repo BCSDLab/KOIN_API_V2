@@ -26,7 +26,7 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
-import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
@@ -223,7 +223,7 @@ public class KeywordApiTest extends AcceptanceTest {
         List<Integer> articleIds = new ArrayList<>();
 
         for (int i = 1; i <= 5; i++) {
-            Article article = articleFixture.자유글_3("수강신청" + i, board, i);
+            Article article = articleFixture.공지_크롤링_게시글("수강신청" + i, board, i);
             articleIds.add(article.getId());
         }
 
@@ -254,7 +254,7 @@ public class KeywordApiTest extends AcceptanceTest {
         List<Integer> articleIds = new ArrayList<>();
 
         for (int i = 1; i <= 5; i++) {
-            Article article = articleFixture.자유글_3("수강신청" + i, board, i);
+            Article article = articleFixture.공지_크롤링_게시글("수강신청" + i, board, i);
             articleIds.add(article.getId());
         }
 
@@ -285,7 +285,7 @@ public class KeywordApiTest extends AcceptanceTest {
         List<Integer> articleIds = new ArrayList<>();
 
         for (int i = 1; i <= 5; i++) {
-            Article article = articleFixture.자유글_3("수강신청" + i, board, i);
+            Article article = articleFixture.공지_크롤링_게시글("수강신청" + i, board, i);
             articleIds.add(article.getId());
         }
 

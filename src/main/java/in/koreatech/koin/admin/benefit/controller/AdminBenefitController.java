@@ -2,10 +2,28 @@ package in.koreatech.koin.admin.benefit.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.admin.benefit.dto.*;
+import in.koreatech.koin.admin.benefit.dto.AdminBenefitCategoryResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminBenefitShopsResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryRequest;
+import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsRequest;
+import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminDeleteShopsRequest;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryRequest;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.service.AdminBenefitService;
 import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
@@ -27,17 +45,27 @@ public class AdminBenefitController implements AdminBenefitApi {
 
     @PostMapping("/categories")
     public ResponseEntity<AdminCreateBenefitCategoryResponse> createBenefitCategory(
-        @Auth(permit = {ADMIN}) Integer adminId,
-        @RequestBody AdminCreateBenefitCategoryRequest request
+        @RequestBody AdminCreateBenefitCategoryRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminCreateBenefitCategoryResponse response = adminBenefitService.createBenefitCategory(request);
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PutMapping("/categories/{id}")
+    public ResponseEntity<AdminModifyBenefitCategoryResponse> modifyBenefitCategory(
+        @PathVariable("id") Integer categoryId,
+        @RequestBody AdminModifyBenefitCategoryRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        AdminModifyBenefitCategoryResponse response = adminBenefitService.modifyBenefitCategory(categoryId, request);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> deleteBenefitCategory(
-        @Auth(permit = {ADMIN}) Integer adminId,
-        @PathVariable("id") Integer categoryId
+        @PathVariable("id") Integer categoryId,
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminBenefitService.deleteBenefitCategory(categoryId);
         return ResponseEntity.noContent().build();
@@ -45,8 +73,8 @@ public class AdminBenefitController implements AdminBenefitApi {
 
     @GetMapping("/{id}/shops")
     public ResponseEntity<AdminBenefitShopsResponse> getBenefitShops(
-        @Auth(permit = {ADMIN}) Integer adminId,
-        @PathVariable("id") Integer benefitId
+        @PathVariable("id") Integer benefitId,
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminBenefitShopsResponse response = adminBenefitService.getBenefitShops(benefitId);
         return ResponseEntity.ok(response);
@@ -54,19 +82,19 @@ public class AdminBenefitController implements AdminBenefitApi {
 
     @PostMapping("/{id}/shops")
     public ResponseEntity<AdminCreateBenefitShopsResponse> createBenefitShops(
-        @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer benefitId,
-        @RequestBody AdminCreateBenefitShopsRequest request
+        @RequestBody AdminCreateBenefitShopsRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminCreateBenefitShopsResponse response = adminBenefitService.createBenefitShops(benefitId, request);
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{id}/shops")
     public ResponseEntity<Void> deleteBenefitShops(
-        @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer benefitId,
-        @RequestBody AdminDeleteShopsRequest request
+        @RequestBody AdminDeleteShopsRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminBenefitService.deleteBenefitShops(benefitId, request);
         return ResponseEntity.noContent().build();
@@ -74,9 +102,9 @@ public class AdminBenefitController implements AdminBenefitApi {
 
     @GetMapping("/{id}/shops/search")
     public ResponseEntity<AdminSearchBenefitShopsResponse> searchShops(
-        @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer benefitId,
-        @RequestParam("search_keyword") String searchKeyword
+        @RequestParam("search_keyword") String searchKeyword,
+        @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminSearchBenefitShopsResponse response = adminBenefitService.searchShops(benefitId, searchKeyword);
         return ResponseEntity.ok(response);

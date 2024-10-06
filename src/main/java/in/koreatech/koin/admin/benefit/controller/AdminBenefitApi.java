@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +19,8 @@ import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminDeleteShopsRequest;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryRequest;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,8 +59,24 @@ public interface AdminBenefitApi {
     @Operation(summary = "혜택 카테고리를 추가한다.")
     @PostMapping("/categories")
     ResponseEntity<AdminCreateBenefitCategoryResponse> createBenefitCategory(
-        @Auth(permit = {ADMIN}) Integer adminId,
-        @RequestBody AdminCreateBenefitCategoryRequest request
+        @RequestBody AdminCreateBenefitCategoryRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "혜택 카테고리를 수정한다.")
+    @PutMapping("/categories/{id}")
+    ResponseEntity<AdminModifyBenefitCategoryResponse> modifyBenefitCategory(
+        @PathVariable("id") Integer categoryId,
+        @RequestBody AdminModifyBenefitCategoryRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(
@@ -72,8 +91,8 @@ public interface AdminBenefitApi {
     @Operation(summary = "혜택 카테고리를 삭제한다.")
     @DeleteMapping("/categories/{id}")
     ResponseEntity<Void> deleteBenefitCategory(
-        @Auth(permit = {ADMIN}) Integer adminId,
-        @PathVariable("id") Integer categoryId
+        @PathVariable("id") Integer categoryId,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(
@@ -87,8 +106,8 @@ public interface AdminBenefitApi {
     @Operation(summary = "특정 혜택 카테고리에 속하는 상점을 모두 조회한다.")
     @GetMapping("/{id}/shops")
     ResponseEntity<AdminBenefitShopsResponse> getBenefitShops(
-        @Auth(permit = {ADMIN}) Integer adminId,
-        @PathVariable("id") Integer benefitId
+        @PathVariable("id") Integer benefitId,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(
@@ -103,9 +122,9 @@ public interface AdminBenefitApi {
     @Operation(summary = "특정 혜택을 제공하는 상점을 추가한다.")
     @PostMapping("/{id}/shops")
     ResponseEntity<AdminCreateBenefitShopsResponse> createBenefitShops(
-        @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer benefitId,
-        @RequestBody AdminCreateBenefitShopsRequest request
+        @RequestBody AdminCreateBenefitShopsRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(
@@ -120,9 +139,9 @@ public interface AdminBenefitApi {
     @Operation(summary = "특정 혜택을 제공하는 상점을 삭제한다.")
     @DeleteMapping("/{id}/shops")
     ResponseEntity<Void> deleteBenefitShops(
-        @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer benefitId,
-        @RequestBody AdminDeleteShopsRequest request
+        @RequestBody AdminDeleteShopsRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(
@@ -137,8 +156,8 @@ public interface AdminBenefitApi {
     @Operation(summary = "혜택 상점을 추가하기 위해 상점을 검색한다.")
     @GetMapping("/{id}/shops/search")
     ResponseEntity<AdminSearchBenefitShopsResponse> searchShops(
-        @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable("id") Integer benefitId,
-        @RequestParam("search_keyword") String searchKeyword
+        @RequestParam("search_keyword") String searchKeyword,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 }

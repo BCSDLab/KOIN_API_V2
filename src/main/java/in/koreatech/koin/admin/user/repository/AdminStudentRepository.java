@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
-import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.student.model.Student;
 
 public interface AdminStudentRepository extends Repository<Student, Integer> {
 

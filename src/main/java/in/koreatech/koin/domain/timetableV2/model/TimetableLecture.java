@@ -15,6 +15,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -38,8 +39,8 @@ public class TimetableLecture extends BaseEntity {
     @Column(name = "class_title", length = 100)
     private String classTitle;
 
-    @Size(max = 100)
-    @Column(name = "class_time", length = 100)
+    @Lob
+    @Column(name = "class_time", columnDefinition = "TEXT")
     private String classTime;
 
     @Size(max = 30)

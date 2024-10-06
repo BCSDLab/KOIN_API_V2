@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.shop.repository.shop.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class ShopCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public Map<Integer, ShopInfo> findAllShopInfo(LocalDate now) {
+    public Map<Integer, ShopInfoV2> findAllShopInfo(LocalDateTime now) {
         QShop shop = QShop.shop;
         QEventArticle eventArticle = QEventArticle.eventArticle;
         QShopReview shopReview = QShopReview.shopReview;
@@ -40,17 +41,17 @@ public class ShopCustomRepository {
             )
             .from(shop)
             .leftJoin(shop.eventArticles, eventArticle)
-            .on(eventArticle.startDate.loe(now)
-                .and(eventArticle.endDate.goe(now)))
+            .on(eventArticle.startDate.loe(now.toLocalDate())
+                .and(eventArticle.endDate.goe(now.toLocalDate())))
             .leftJoin(shop.reviews, shopReview)
             .on(shopReview.isDeleted.eq(false))
             .groupBy(shop.id)
             .fetch();
 
-        Map<Integer, ShopInfo> map = new HashMap<>(results.size());
+        Map<Integer, ShopInfoV2> map = new HashMap<>(results.size());
 
         for (Tuple result : results) {
-            ShopInfo shopResult = new ShopInfo(
+            ShopInfoV2 shopResult = new ShopInfoV2(
                 result.get(1, Boolean.class),
                 result.get(2, Double.class),
                 result.get(3, Long.class)
@@ -60,7 +61,7 @@ public class ShopCustomRepository {
         return map;
     }
 
-    public Map<Integer, Boolean> findAllShopEvent(LocalDate now) {
+    public Map<Integer, ShopInfoV1> findAllShopEvent(LocalDateTime now) {
         QShop shop = QShop.shop;
         QEventArticle eventArticle = QEventArticle.eventArticle;
 
@@ -71,17 +72,18 @@ public class ShopCustomRepository {
             )
             .from(shop)
             .leftJoin(shop.eventArticles, eventArticle)
-            .on(eventArticle.startDate.loe(now).and(eventArticle.endDate.goe(now)))
+            .on(eventArticle.startDate.loe(now.toLocalDate()).and(eventArticle.endDate.goe(
+                LocalDate.from(now.toLocalDate()))))
             .groupBy(shop.id)
             .fetch();
 
-        Map<Integer, Boolean> shopEventMap = new HashMap<>(results.size());
+        Map<Integer, ShopInfoV1> shopEventMap = new HashMap<>(results.size());
 
         for (Tuple result : results) {
-            shopEventMap.put(
-                result.get(0, Integer.class),
+            ShopInfoV1 shopResult = new ShopInfoV1(
                 result.get(1, Boolean.class)
             );
+            shopEventMap.put(result.get(0, Integer.class), shopResult);
         }
         return shopEventMap;
     }

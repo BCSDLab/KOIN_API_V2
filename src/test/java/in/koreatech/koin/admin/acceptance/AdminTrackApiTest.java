@@ -16,7 +16,7 @@ import in.koreatech.koin.admin.member.repository.AdminTechStackRepository;
 import in.koreatech.koin.admin.member.repository.AdminTrackRepository;
 import in.koreatech.koin.domain.member.model.TechStack;
 import in.koreatech.koin.domain.member.model.Track;
-import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.MemberFixture;
 import in.koreatech.koin.fixture.TechStackFixture;
