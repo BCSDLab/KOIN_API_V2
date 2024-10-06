@@ -36,7 +36,7 @@ public record AdminNoticeResponse(
     public static AdminNoticeResponse from(Article article) {
         return new AdminNoticeResponse(
             article.getId(),
-            article.getKoinArticle().getUser().getName(),
+            article.getAuthor(),
             article.getTitle(),
             article.getContent(),
             article.getCreatedAt(),
