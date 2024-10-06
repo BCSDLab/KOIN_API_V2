@@ -3,5 +3,5 @@ CREATE TABLE `detect_graduation_calculation`
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT comment '고유 id',
     user_id INT UNSIGNED NULL comment '유저 id',
-    is_changed TINYINT(1) NULL DEFAULT 0 comment '졸업학점 계산 변경 여부',
+    is_changed TINYINT(1) NULL DEFAULT 0 comment '졸업학점 계산 변경 여부'
 );

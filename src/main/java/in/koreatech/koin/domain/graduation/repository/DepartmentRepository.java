@@ -8,6 +8,9 @@ import in.koreatech.koin.domain.graduation.exception.DepartmentNotFoundException
 import in.koreatech.koin.domain.graduation.model.Department;
 
 public interface DepartmentRepository extends Repository<Department, Integer> {
+
+    Department save(Department department);
+
     Optional<Department> findByName(String name);
 
     default Department getByName(String name) {

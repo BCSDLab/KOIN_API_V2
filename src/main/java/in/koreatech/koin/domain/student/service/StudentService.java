@@ -167,7 +167,8 @@ public class StudentService {
             return modelAndView;
         }
 
-        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder);
+        Department department = departmentRepository.getByName(studentTemporaryStatus.get().getDepartment());
+        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
 

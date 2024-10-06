@@ -7,6 +7,7 @@ import static in.koreatech.koin.domain.user.model.UserType.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+import in.koreatech.koin.domain.graduation.model.Department;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -74,7 +75,7 @@ public final class UserFixture {
             Student.builder()
                 .studentNumber("2019136135")
                 .anonymousNickname("익명")
-                .department("컴퓨터공학부")
+                .department(new Department("컴퓨터공학부"))
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(
@@ -99,7 +100,7 @@ public final class UserFixture {
             Student.builder()
                 .studentNumber("2020136111")
                 .anonymousNickname("익명111")
-                .department("컴퓨터공학부")
+                .department(new Department("컴퓨터공학부"))
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(
@@ -123,7 +124,7 @@ public final class UserFixture {
             Student.builder()
                 .studentNumber("2023100514")
                 .anonymousNickname("익명123")
-                .department("컴퓨터공학부")
+                .department(new Department("컴퓨터공학부"))
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(

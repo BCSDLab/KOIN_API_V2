@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.graduation.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import lombok.Builder;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -31,6 +32,7 @@ public class Department extends BaseEntity {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
+    @Builder
     public Department(String name) {
         this.name = name;
     }

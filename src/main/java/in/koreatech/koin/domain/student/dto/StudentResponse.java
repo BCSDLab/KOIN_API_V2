@@ -58,7 +58,7 @@ public record StudentResponse(
             student.getAnonymousNickname(),
             user.getEmail(),
             userGender,
-            student.getDepartment(),
+            student.getDepartment().getName(),
             user.getName(),
             user.getNickname(),
             user.getPhoneNumber(),

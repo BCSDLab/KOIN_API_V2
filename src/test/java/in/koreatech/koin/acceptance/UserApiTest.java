@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Optional;
 
+import in.koreatech.koin.domain.graduation.model.Department;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -55,6 +57,9 @@ class UserApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @Autowired
+    private DepartmentFixture departmentFixture;
 
     @BeforeAll
     void setup() {
@@ -474,10 +479,11 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 로그인된_사용자의_권한을_조회한다() throws Exception {
+        Department department = departmentFixture.컴퓨터공학부();
         Student student = Student.builder()
             .studentNumber("2019136135")
             .anonymousNickname("익명")
-            .department("컴퓨터공학부")
+            .department(department)
             .userIdentity(UNDERGRADUATE)
             .isGraduated(false)
             .user(

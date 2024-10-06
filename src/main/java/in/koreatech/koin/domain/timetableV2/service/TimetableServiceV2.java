@@ -8,11 +8,9 @@ import java.util.Objects;
 
 import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.CourseType;
-import in.koreatech.koin.domain.graduation.model.Department;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
-import in.koreatech.koin.domain.graduation.repository.DepartmentRepository;
-import in.koreatech.koin.domain.user.model.Student;
-import in.koreatech.koin.domain.user.repository.StudentRepository;
+import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import org.springframework.stereotype.Service;
