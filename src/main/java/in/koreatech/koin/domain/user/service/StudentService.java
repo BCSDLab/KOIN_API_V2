@@ -100,14 +100,14 @@ public class StudentService {
         // 학부(학과) 변경 시 학생의 졸업 요건 계산 정보 초기화
         Department oldDepartment = student.getDepartment();
         Department newDepartment = departmentRepository.getByName(request.major());
-        if (isChangedDepartment(oldDepartment, newDepartment)) {
+        if (isChangedDepartment(oldDepartment, newDepartment) && student.getStudentNumber()!=null) {
             // StudentCourseCalculationRepository 정보 학번에 맞게 초기화
             studentCourseCalculationRepository.findByUserId(userId)
                     .ifPresent(studentCourseCalculation -> {
                         studentCourseCalculationRepository.deleteAllByUserId(userId);
                     });
             List<StandardGraduationRequirements> StandardGraduationRequirementsList = standardGraduationRequirementsRepository.
-            findAllByDepartmentAndYear(student.getDepartment(), student.getStudentNumber().substring(0, 4));
+            findAllByDepartmentAndYear(newDepartment, student.getStudentNumber().substring(0, 4));
             for (StandardGraduationRequirements standardGraduationRequirements : StandardGraduationRequirementsList) {
                 StudentCourseCalculation studentCourseCalculation = StudentCourseCalculation.builder()
                         .completedGrades(0)
