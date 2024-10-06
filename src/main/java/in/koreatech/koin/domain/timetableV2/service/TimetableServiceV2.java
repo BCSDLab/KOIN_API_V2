@@ -48,7 +48,6 @@ public class TimetableServiceV2 {
     private final UserRepository userRepository;
     private final SemesterRepositoryV2 semesterRepositoryV2;
     private final CatalogRepository catalogRepository;
-    private final DepartmentRepository departmentRepository;
     private final StudentRepository studentRepository;
 
     @Transactional
@@ -130,9 +129,8 @@ public class TimetableServiceV2 {
     private CourseType getCourseType(Integer userId, Lecture lecture) {
         Student student = studentRepository.getById(userId);
         String year = Student.parseStudentNumberYear(student.getStudentNumber()).toString();
-        Department department = departmentRepository.getByName(student.getDepartment());
         String code = lecture.getCode();
-        Catalog catalog = catalogRepository.getByYearAndDepartmentAndCode(year, department, code);
+        Catalog catalog = catalogRepository.getByYearAndDepartmentAndCode(year, student.getDepartment(), code);
         return catalog.getCourseType();
     }
 

@@ -1,9 +1,17 @@
 package in.koreatech.koin.domain.user.service;
 
 import java.time.Clock;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import in.koreatech.koin.domain.graduation.model.Department;
+import in.koreatech.koin.domain.graduation.model.StandardGraduationRequirements;
+import in.koreatech.koin.domain.graduation.model.StudentCourseCalculation;
+import in.koreatech.koin.domain.graduation.repository.DepartmentRepository;
+import in.koreatech.koin.domain.graduation.repository.DetectGraduationCalculationRepository;
+import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
+import in.koreatech.koin.domain.graduation.repository.StudentCourseCalculationRepository;
 import in.koreatech.koin.domain.user.model.*;
 import in.koreatech.koin.domain.user.model.redis.StudentTemporaryStatus;
 import in.koreatech.koin.domain.user.repository.StudentRedisRepository;
@@ -47,6 +55,10 @@ public class StudentService {
 
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
+    private final DetectGraduationCalculationRepository detectGraduationCalculationRepository;
+    private final StudentCourseCalculationRepository studentCourseCalculationRepository;
+    private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
+    private final DepartmentRepository departmentRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
@@ -84,12 +96,39 @@ public class StudentService {
     @Transactional
     public StudentUpdateResponse updateStudent(Integer userId, StudentUpdateRequest request) {
         Student student = studentRepository.getById(userId);
+
+        // 학부(학과) 변경 시 학생의 졸업 요건 계산 정보 초기화
+        Department oldDepartment = student.getDepartment();
+        Department newDepartment = departmentRepository.getByName(request.major());
+        if (isChangedDepartment(oldDepartment, newDepartment)) {
+            // StudentCourseCalculationRepository 정보 학번에 맞게 초기화
+            studentCourseCalculationRepository.findByUserId(userId)
+                    .ifPresent(studentCourseCalculation -> {
+                        studentCourseCalculationRepository.deleteAllByUserId(userId);
+                    });
+            List<StandardGraduationRequirements> StandardGraduationRequirementsList = standardGraduationRequirementsRepository.
+            findAllByDepartmentAndYear(student.getDepartment(), student.getStudentNumber().substring(0, 4));
+            for (StandardGraduationRequirements standardGraduationRequirements : StandardGraduationRequirementsList) {
+                StudentCourseCalculation studentCourseCalculation = StudentCourseCalculation.builder()
+                        .completedGrades(0)
+                        .user(student.getUser())
+                        .standardGraduationRequirements(standardGraduationRequirements)
+                        .build();
+                studentCourseCalculationRepository.save(studentCourseCalculation);
+            }
+
+            // DetectGraduationCalculation 정보 업데이트
+            detectGraduationCalculationRepository.findByUserId(userId)
+                    .ifPresent(detectGraduationCalculation -> {
+                        detectGraduationCalculation.updatedIsChanged(true);
+                    });
+        }
         User user = student.getUser();
         checkNicknameDuplication(request.nickname(), userId);
         checkDepartmentValid(request.major());
         updateUserDetails(user, request);
         user.updateStudentPassword(passwordEncoder, request.password());
-        student.update(request.studentNumber(), request.major());
+        student.update(request.studentNumber(), newDepartment);
         studentRepository.save(student);
         return StudentUpdateResponse.from(student);
     }
@@ -183,7 +222,7 @@ public class StudentService {
         }
         int studentNumberYear = Student.parseStudentNumberYear(studentNumber);
         if (studentNumberYear < 1992
-            || LocalDateTime.now().getYear() < studentNumberYear) {
+                || LocalDateTime.now().getYear() < studentNumberYear) {
             throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);
         }
     }
@@ -209,5 +248,9 @@ public class StudentService {
         authedUser.validateResetToken();
         authedUser.updatePassword(passwordEncoder, request.password());
         userRepository.save(authedUser);
+    }
+
+    private boolean isChangedDepartment(Department oldDepartment, Department newDepartment) {
+        return !oldDepartment.equals(newDepartment);
     }
 }
