@@ -102,37 +102,16 @@ public class StudentService {
     public StudentUpdateResponse updateStudent(Integer userId, StudentUpdateRequest request) {
         Student student = studentRepository.getById(userId);
 
-        // 학부(학과) 변경 시 학생의 졸업 요건 계산 정보 초기화
-        Department oldDepartment = student.getDepartment();
-        Department newDepartment = departmentRepository.getByName(request.major());
-        if (isChangedDepartment(oldDepartment, newDepartment) && student.getStudentNumber()!=null) {
-            // StudentCourseCalculationRepository 정보 학번에 맞게 초기화
-            studentCourseCalculationRepository.findByUserId(userId)
-                    .ifPresent(studentCourseCalculation -> {
-                        studentCourseCalculationRepository.deleteAllByUserId(userId);
-                    });
-            List<StandardGraduationRequirements> StandardGraduationRequirementsList = standardGraduationRequirementsRepository.
-            findAllByDepartmentAndYear(newDepartment, student.getStudentNumber().substring(0, 4));
-            for (StandardGraduationRequirements standardGraduationRequirements : StandardGraduationRequirementsList) {
-                StudentCourseCalculation studentCourseCalculation = StudentCourseCalculation.builder()
-                        .completedGrades(0)
-                        .user(student.getUser())
-                        .standardGraduationRequirements(standardGraduationRequirements)
-                        .build();
-                studentCourseCalculationRepository.save(studentCourseCalculation);
-            }
-
-            // DetectGraduationCalculation 정보 업데이트
-            detectGraduationCalculationRepository.findByUserId(userId)
-                    .ifPresent(detectGraduationCalculation -> {
-                        detectGraduationCalculation.updatedIsChanged(true);
-                    });
+        if (studentCourseCalculationRepository.findByUserId(userId).isPresent()) {
+            resetStudentCourseCalculation(student, request);
         }
+
         User user = student.getUser();
         checkNicknameDuplication(request.nickname(), userId);
         checkDepartmentValid(request.major());
         updateUserDetails(user, request);
         user.updateStudentPassword(passwordEncoder, request.password());
+        Department newDepartment = departmentRepository.getByName(request.major());
         student.update(request.studentNumber(), newDepartment);
         studentRepository.save(student);
         return StudentUpdateResponse.from(student);
@@ -145,7 +124,7 @@ public class StudentService {
     public void checkNicknameDuplication(String nickname, Integer userId) {
         User checkUser = userRepository.getById(userId);
         if (nickname != null && !nickname.equals(checkUser.getNickname())
-            && userRepository.existsByNickname(nickname)) {
+                && userRepository.existsByNickname(nickname)) {
             throw DuplicationNicknameException.withDetail("nickname : " + nickname);
         }
     }
@@ -159,7 +138,7 @@ public class StudentService {
     @Transactional
     public ModelAndView authenticate(AuthTokenRequest request) {
         Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findByAuthToken(
-            request.authToken());
+                request.authToken());
 
         if (studentTemporaryStatus.isEmpty()) {
             ModelAndView modelAndView = new ModelAndView("error_config");
@@ -202,23 +181,23 @@ public class StudentService {
 
     private void validateDataExist(StudentRegisterRequest request) {
         userRepository.findByEmail(request.email())
-            .ifPresent(user -> {
-                throw DuplicationEmailException.withDetail("email: " + request.email());
-            });
+                .ifPresent(user -> {
+                    throw DuplicationEmailException.withDetail("email: " + request.email());
+                });
         studentRedisRepository.findById(request.email())
-            .ifPresent(studentTemporaryStatus -> {
-                throw DuplicationEmailException.withDetail("email: " + request.email());
-            });
+                .ifPresent(studentTemporaryStatus -> {
+                    throw DuplicationEmailException.withDetail("email: " + request.email());
+                });
 
         if (request.nickname() != null) {
             userRepository.findByNickname(request.nickname())
-                .ifPresent(user -> {
-                    throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
-                });
+                    .ifPresent(user -> {
+                        throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
+                    });
             studentRedisRepository.findByNickname(request.nickname())
-                .ifPresent(studentTemporaryStatus -> {
-                    throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
-                });
+                    .ifPresent(studentTemporaryStatus -> {
+                        throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
+                    });
         }
     }
 
@@ -263,7 +242,46 @@ public class StudentService {
         userRepository.save(authedUser);
     }
 
+    private void resetStudentCourseCalculation(Student student, StudentUpdateRequest request) {
+        Integer userId = student.getUser().getId();
+        Department oldDepartment = student.getDepartment();
+        Department newDepartment = departmentRepository.getByName(request.major());
+        String oldStudentNumber = student.getStudentNumber();
+        String newStudentNumber = request.studentNumber();
+
+        // 학과 or 학번 변경 시 학생의 졸업 요건 계산 정보 초기화
+        if (newDepartment != null && newStudentNumber != null) {
+            if (isChangedDepartment(oldDepartment, newDepartment) || isChangedStudentNumber(oldStudentNumber, newStudentNumber)) {
+                // StudentCourseCalculationRepository 정보 학번에 맞게 초기화
+                studentCourseCalculationRepository.findByUserId(userId)
+                        .ifPresent(studentCourseCalculation -> {
+                            studentCourseCalculationRepository.deleteAllByUserId(userId);
+                        });
+                List<StandardGraduationRequirements> StandardGraduationRequirementsList = standardGraduationRequirementsRepository.
+                        findAllByDepartmentAndYear(newDepartment, student.getStudentNumber().substring(0, 4));
+                for (StandardGraduationRequirements standardGraduationRequirements : StandardGraduationRequirementsList) {
+                    StudentCourseCalculation studentCourseCalculation = StudentCourseCalculation.builder()
+                            .completedGrades(0)
+                            .user(student.getUser())
+                            .standardGraduationRequirements(standardGraduationRequirements)
+                            .build();
+                    studentCourseCalculationRepository.save(studentCourseCalculation);
+                }
+
+                // DetectGraduationCalculation 정보 업데이트
+                detectGraduationCalculationRepository.findByUserId(userId)
+                        .ifPresent(detectGraduationCalculation -> {
+                            detectGraduationCalculation.updatedIsChanged(true);
+                        });
+            }
+        }
+    }
+
     private boolean isChangedDepartment(Department oldDepartment, Department newDepartment) {
         return !oldDepartment.equals(newDepartment);
+    }
+
+    private boolean isChangedStudentNumber(String oldStudentNumber, String newStudentNumber) {
+        return !oldStudentNumber.equals(newStudentNumber);
     }
 }
