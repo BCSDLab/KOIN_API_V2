@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.coopshop.dto;
+package in.koreatech.koin.admin.coopShop.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -14,7 +14,7 @@ import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record CoopShopResponse(
+public record AdminCoopShopResponse(
     @Schema(example = "1", description = "생협 매장 고유 id", requiredMode = REQUIRED)
     Integer id,
 
@@ -41,8 +41,8 @@ public record CoopShopResponse(
     LocalDateTime updatedAt
 ) {
 
-    public static CoopShopResponse from(CoopShop coopShop) {
-        return new CoopShopResponse(
+    public static AdminCoopShopResponse from(CoopShop coopShop) {
+        return new AdminCoopShopResponse(
             coopShop.getId(),
             coopShop.getName(),
             coopShop.getSemester(),

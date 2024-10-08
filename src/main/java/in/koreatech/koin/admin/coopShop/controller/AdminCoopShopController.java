@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemesterResponse;
-import in.koreatech.koin.admin.coopShop.dto.AdminCoopSemestersResponse;
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopResponse;
+import in.koreatech.koin.admin.coopShop.dto.AdminCoopShopsResponse;
 import in.koreatech.koin.admin.coopShop.service.AdminCoopShopService;
 import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
@@ -23,21 +23,23 @@ public class AdminCoopShopController implements AdminCoopShopApi {
     private final AdminCoopShopService adminCoopShopService;
 
     @GetMapping
-    public ResponseEntity<AdminCoopSemestersResponse> getCoopShopSemesters(
+    public ResponseEntity<AdminCoopShopsResponse> getCoopsShops(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
+        @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminCoopSemestersResponse coopShops = adminCoopShopService.getCoopShopSemesters(page, limit);
+        AdminCoopShopsResponse coopShops = adminCoopShopService.getCoopsShops(page, limit, isDeleted);
         return ResponseEntity.ok(coopShops);
     }
 
-    @GetMapping("/{semesterId}")
-    public ResponseEntity<AdminCoopSemesterResponse> getCoopShops(
+    @GetMapping("/{coopShopId}")
+    public ResponseEntity<AdminCoopShopResponse> getCoopShop(
         @Auth(permit = {ADMIN}) Integer adminId,
-        @PathVariable Integer semesterId
+        @PathVariable Integer coopShopId
     ) {
-        AdminCoopSemesterResponse coopShop = adminCoopShopService.getCoopShopSemester(semesterId);
+        AdminCoopShopResponse coopShop = adminCoopShopService.getCoopShop(coopShopId);
         return ResponseEntity.ok(coopShop);
     }
+
 }
