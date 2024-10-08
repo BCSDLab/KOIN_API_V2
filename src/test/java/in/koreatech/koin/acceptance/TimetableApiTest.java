@@ -2,7 +2,8 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -242,7 +243,7 @@ class TimetableApiTest extends AcceptanceTest {
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
 
-        timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+        timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론, null, null);
 
         mockMvc.perform(
                 get("/timetables")
@@ -324,8 +325,8 @@ class TimetableApiTest extends AcceptanceTest {
         Semester semester2 = semesterFixture.semester("20201");
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester1.getSemester());
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester2.getSemester());
-        timetableV2Fixture.시간표6(user, semester1, HRD_개론, null);
-        timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null);
+        timetableV2Fixture.시간표6(user, semester1, HRD_개론, null, null, null);
+        timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null, null, null);
 
         mockMvc.perform(
                 get("/semesters/check")
@@ -553,7 +554,7 @@ class TimetableApiTest extends AcceptanceTest {
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
 
-        timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+        timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론, null, null);
 
         mockMvc.perform(
                 delete("/timetable")

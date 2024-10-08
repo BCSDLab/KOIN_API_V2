@@ -93,7 +93,7 @@ public record AdminStudentResponse (
             user.getUpdatedAt(),
             student.getAnonymousNickname(),
             student.getStudentNumber(),
-            student.getDepartment(),
+            student.getDepartment().getName(),
             student.isGraduated()
         );
     }

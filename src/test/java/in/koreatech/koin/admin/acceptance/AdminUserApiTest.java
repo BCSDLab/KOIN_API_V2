@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 
+import in.koreatech.koin.domain.graduation.model.Department;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -71,6 +73,9 @@ public class AdminUserApiTest extends AcceptanceTest {
     private ShopFixture shopFixture;
 
     @Autowired
+    private DepartmentFixture departmentFixture;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @BeforeAll
@@ -114,10 +119,11 @@ public class AdminUserApiTest extends AcceptanceTest {
     @Test
     void 관리자가_학생_리스트를_페이지_수와_limits으로_조회한다_페이지네이션() throws Exception {
         for (int i = 0; i < 11; i++) {
+            Department department = departmentFixture.컴퓨터공학부();
             Student student = Student.builder()
                 .studentNumber("2019136135")
                 .anonymousNickname("익명" + i)
-                .department("컴퓨터공학부")
+                .department(department)
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(
