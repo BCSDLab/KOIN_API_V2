@@ -1,15 +1,16 @@
 package in.koreatech.koin.domain.graduation.repository;
 
-import in.koreatech.koin.domain.graduation.model.StudentCourseCalculation;
-import org.springframework.data.repository.Repository;
-
 import java.util.Optional;
 
-public interface StudentCourseCalculationRepository extends Repository<StudentCourseCalculationRepository, Integer> {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import in.koreatech.koin.domain.graduation.model.StudentCourseCalculation;
+
+@Repository
+public interface StudentCourseCalculationRepository extends JpaRepository<StudentCourseCalculation, Integer> {
 
     Optional<StudentCourseCalculation> findByUserId(Integer userId);
 
     void deleteAllByUserId(Integer userId);
-
-    void save(StudentCourseCalculation studentCourseCalculation);
 }

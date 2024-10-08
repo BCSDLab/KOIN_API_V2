@@ -22,6 +22,7 @@ public class GraduationService {
     private final StudentCourseCalculationRepository studentCourseCalculationRepository;
     private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
 
+    @Transactional
     public void createStudentCourseCalculation(Integer userId) {
         Student student = studentRepository.getById(userId);
 

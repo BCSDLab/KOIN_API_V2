@@ -37,7 +37,7 @@ public class Student {
     @Column(name = "student_number", length = 20)
     private String studentNumber;
 
-    @Column(name = "major", length = 50)
+    @JoinColumn(name = "department_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Department department;
 
