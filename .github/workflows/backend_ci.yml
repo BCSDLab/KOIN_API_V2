@@ -44,4 +44,4 @@ jobs:
         if: always()
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
-          token: ${{ github.token }}
+          token: ${{ secrets.PAT }}
