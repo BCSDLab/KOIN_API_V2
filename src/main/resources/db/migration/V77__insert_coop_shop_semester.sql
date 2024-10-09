@@ -50,8 +50,8 @@ VALUES (last_insert_id(), NULL, 'WEEKDAYS', '09:30', '17:00'),
 INSERT INTO `coop_shop` (`name`, `phone`, `location`, `remarks`, `semester_id`)
 VALUES ('오락실', '041-560-1472', '학생회관 1층', NULL, 1);
 INSERT INTO coop_opens (`coop_shop_id`, `type`, `day_of_week`, `open_time`, `close_time`)
-VALUES (last_insert_id(), 'NULL', 'WEEKDAYS', '24시간', '24시간'),
-       (last_insert_id(), 'NULL', 'WEEKEND', '24시간', '24시간');
+VALUES (last_insert_id(), NULL, 'WEEKDAYS', '24시간', '24시간'),
+       (last_insert_id(), NULL, 'WEEKEND', '24시간', '24시간');
 
 UPDATE coop_shop
 SET semester_id = 1
