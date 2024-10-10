@@ -64,10 +64,10 @@ public class CoopController implements CoopApi {
 
     @GetMapping("/dining/excel")
     public ResponseEntity<InputStreamResource> generateCoopExcel(
-        @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2024-01-03")
+        @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2022-11-29")
         @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate startDate,
-        @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2024-01-10")
+        @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2023-01-10")
         @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate endDate,
         @RequestParam(name = "isCafeteria", defaultValue = "false") Boolean isCafeteria
