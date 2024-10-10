@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,6 +32,9 @@ import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
+import in.koreatech.koin.domain.coop.exception.DiningLimitDateException;
+import in.koreatech.koin.domain.coop.exception.DiningNowDateException;
+import in.koreatech.koin.domain.coop.exception.StartDateAfterEndDateException;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.coop.model.DiningImageUploadEvent;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
@@ -113,9 +117,11 @@ public class CoopService {
     }
 
     public ByteArrayInputStream generateDiningExcel(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
+        checkDate(startDate, endDate);
+
         List<Dining> dinings;
 
-        if(isCafeteria) {
+        if (isCafeteria) {
             List<String> placeFilters = Arrays.asList("A코너", "B코너", "C코너");
             dinings = diningRepository.findByDateBetweenAndPlaceIn(startDate, endDate, placeFilters);
         } else {
@@ -129,10 +135,28 @@ public class CoopService {
             CellStyle commonStyle = makeCommonStyle(workbook);
             createHeaderCell(sheet, headerStyle);
 
-            return putDiningData(dinings, sheet, commonStyle, workbook);
+            ByteArrayInputStream result = putDiningData(dinings, sheet, commonStyle, workbook);
+
+            return result;
 
         } catch (IOException e) {
             throw new RuntimeException("엑셀 파일 생성 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    private static void checkDate(LocalDate startDate, LocalDate endDate) {
+        LocalDate limitDate = LocalDate.of(2022, 11, 29);
+        if (startDate.isBefore(limitDate) || endDate.isBefore(limitDate)) {
+            throw new DiningLimitDateException("2022/11/29 식단부터 다운받을 수 있어요.");
+        }
+
+        LocalDate now = LocalDate.now();
+        if(startDate.isAfter(now) || endDate.isAfter(now)){
+            throw new DiningNowDateException("오늘 날짜 이후 기간은 설정할 수 없어요.");
+        }
+
+        if(startDate.isAfter(endDate)){
+            throw new StartDateAfterEndDateException("시작일은 종료일 이전으로 설정해주세요.");
         }
     }
 
@@ -155,8 +179,10 @@ public class CoopService {
             menuCell.setCellValue(formattedMenu);
 
             row.createCell(5).setCellValue(dining.getImageUrl());
-            row.createCell(6).setCellValue(dining.getSoldOut());
-            row.createCell(7).setCellValue(dining.getIsChanged());
+            row.createCell(6).setCellValue(
+                Optional.ofNullable(dining.getSoldOut()).map(Object::toString).orElse("")
+            );
+            row.createCell(7).setCellValue(Optional.ofNullable(dining.getIsChanged()).map(Object::toString).orElse(""));
 
             for (int i = 0; i < 8; i++) {
                 row.getCell(i).setCellStyle(commonStyle);
