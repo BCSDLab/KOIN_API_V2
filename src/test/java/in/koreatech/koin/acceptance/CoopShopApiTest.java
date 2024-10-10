@@ -44,6 +44,7 @@ class CoopShopApiTest extends AcceptanceTest {
                         "semester": "23-2학기",
                         "from_date": "2023-09-02",
                         "to_date": "2023-12-20",
+                        "updated_at" : "2024-01-15 12:00:00",
                         "coop_shops": [
                             {
                                 "id": 1,
@@ -58,8 +59,7 @@ class CoopShopApiTest extends AcceptanceTest {
                                 ],
                                 "phone": "041-000-0000",
                                 "location": "학생회관 1층",
-                                "remarks": "공휴일 휴무",
-                                "updated_at" : "2024-01-15"
+                                "remarks": "공휴일 휴무"
                             },
                             {
                                 "id": 2,
@@ -67,8 +67,7 @@ class CoopShopApiTest extends AcceptanceTest {
                                 "opens": [],
                                 "phone": "041-000-0000",
                                 "location": "학생회관 2층",
-                                "remarks": "연중무휴",
-                                "updated_at" : "2024-01-15"
+                                "remarks": "연중무휴"
                             }
                         ]
                     }
@@ -116,6 +115,7 @@ class CoopShopApiTest extends AcceptanceTest {
                         "semester": "23-겨울학기",
                         "from_date": "2023-12-21",
                         "to_date": "2024-02-28",
+                        "updated_at" : "2024-01-15 12:00:00",
                         "coop_shops": [
                             {
                                 "id": 3,
@@ -130,8 +130,7 @@ class CoopShopApiTest extends AcceptanceTest {
                         ],
                                 "phone": "041-000-0000",
                                 "location": "학생회관 2층",
-                                "remarks": "연중무휴",
-                                "updated_at" : "2024-01-15"
+                                "remarks": "연중무휴"
                             }
                         ]
                     }

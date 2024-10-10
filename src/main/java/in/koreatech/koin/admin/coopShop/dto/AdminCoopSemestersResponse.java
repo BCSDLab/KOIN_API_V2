@@ -4,10 +4,12 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.coopshop.model.CoopSemester;
@@ -35,10 +37,23 @@ public record AdminCoopSemestersResponse(
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerSemester(
+        @Schema(description = "학기 고유 id", example = "1", requiredMode = REQUIRED)
         Integer id,
+
+        @Schema(description = "학기", example = "24-2학기", requiredMode = REQUIRED)
         String semester,
+
+        @Schema(description = "학기 기간 시작일", example = "2024-09-02", requiredMode = REQUIRED)
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate fromDate,
-        LocalDate toDate
+
+        @Schema(description = "학기 기간 마감일", example = "2024-12-20", requiredMode = REQUIRED)
+        @JsonFormat(pattern = "yyyy-MM-dd")
+        LocalDate toDate,
+
+        @Schema(description = "업데이트 일자", example = "2024-09-01 14:02:48", requiredMode = REQUIRED)
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        LocalDateTime updatedAt
     ) {
 
         public static InnerSemester from(CoopSemester coopSemester) {
@@ -46,7 +61,8 @@ public record AdminCoopSemestersResponse(
                 coopSemester.getId(),
                 coopSemester.getSemester(),
                 coopSemester.getFromDate(),
-                coopSemester.getToDate()
+                coopSemester.getToDate(),
+                coopSemester.getUpdatedAt()
             );
         }
     }

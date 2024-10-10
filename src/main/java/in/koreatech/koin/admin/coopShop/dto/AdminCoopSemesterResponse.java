@@ -31,6 +31,10 @@ public record AdminCoopSemesterResponse(
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate toDate,
 
+    @Schema(description = "업데이트 일자", example = "2024-09-01 14:02:48", requiredMode = REQUIRED)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime updatedAt,
+
     @Schema(description = "생협 매장 정보 리스트", requiredMode = REQUIRED)
     List<InnerCoopShop> coopShops
 ) {
@@ -40,6 +44,7 @@ public record AdminCoopSemesterResponse(
             coopSemester.getSemester(),
             coopSemester.getFromDate(),
             coopSemester.getToDate(),
+            coopSemester.getUpdatedAt(),
             coopSemester.getCoopShops().stream().map(InnerCoopShop::from).toList()
         );
     }
@@ -62,11 +67,7 @@ public record AdminCoopSemesterResponse(
         String location,
 
         @Schema(example = "공휴일 휴무", description = "생협 매장 특이사항")
-        String remarks,
-
-        @JsonFormat(pattern = "yyyy-MM-dd")
-        @Schema(example = "2024-06-26", description = "학식 운영시간 업데이트 날짜", requiredMode = REQUIRED)
-        LocalDateTime updatedAt
+        String remarks
     ) {
 
         public static InnerCoopShop from(CoopShop coopShop) {
@@ -78,8 +79,7 @@ public record AdminCoopSemesterResponse(
                     .toList(),
                 coopShop.getPhone(),
                 coopShop.getLocation(),
-                coopShop.getRemarks(),
-                coopShop.getUpdatedAt()
+                coopShop.getRemarks()
             );
         }
 
