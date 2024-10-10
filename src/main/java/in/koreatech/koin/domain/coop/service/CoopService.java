@@ -66,7 +66,7 @@ public class CoopService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    private final int CELL_NUM = 8;
+    private final int EXCEL_COLUMN_COUNT = 8;
 
     @Transactional
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
@@ -184,12 +184,12 @@ public class CoopService {
             );
             row.createCell(7).setCellValue(Optional.ofNullable(dining.getIsChanged()).map(Object::toString).orElse(""));
 
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < EXCEL_COLUMN_COUNT; i++) {
                 row.getCell(i).setCellStyle(commonStyle);
             }
         });
 
-        for (int i = 0; i < CELL_NUM; i++) {
+        for (int i = 0; i < EXCEL_COLUMN_COUNT; i++) {
             sheet.autoSizeColumn(i);
             sheet.setColumnWidth(i, (sheet.getColumnWidth(i) + 1024));
         }
@@ -210,7 +210,7 @@ public class CoopService {
         headerRow.createCell(6).setCellValue("품절 여부");
         headerRow.createCell(7).setCellValue("변경 여부");
 
-        for (int i = 0; i < CELL_NUM; i++) {
+        for (int i = 0; i < EXCEL_COLUMN_COUNT; i++) {
             Cell cell = headerRow.getCell(i);
             cell.setCellStyle(headerStyle);
         }
