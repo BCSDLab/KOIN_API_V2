@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.WebUtils;
@@ -173,6 +174,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         logger.warn("클라이언트가 연결을 중단했습니다: " + e.getMessage());
         requestLogging(request);
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "클라이언트에 의해 연결이 중단되었습니다");
+    }
+
+    @Override
+    public ResponseEntity<Object> handleNoHandlerFoundException(
+        NoHandlerFoundException e,
+        HttpHeaders headers,
+        HttpStatusCode status,
+        WebRequest request
+    ) {
+        log.warn("유효하지 않은 API 경로입니다. " + e.getRequestURL());
+        requestLogging(((ServletWebRequest)request).getRequest());
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "유효하지 않은 API 경로입니다.");
     }
 
     @ExceptionHandler(Exception.class)

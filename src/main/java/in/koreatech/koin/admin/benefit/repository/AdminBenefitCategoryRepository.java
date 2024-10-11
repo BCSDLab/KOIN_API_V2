@@ -14,13 +14,15 @@ public interface AdminBenefitCategoryRepository extends Repository<BenefitCatego
 
     Optional<BenefitCategory> findById(Integer benefitId);
 
-    Optional<BenefitCategory> findByTitle(String title);
-
     List<BenefitCategory> findAllByOrderByTitleAsc();
 
     void deleteById(Integer id);
 
     int count();
+
+    boolean existsByTitle(String title);
+
+    boolean existsByTitleAndIdNot(String title, Integer categoryId);
 
     default BenefitCategory getById(Integer benefitId) {
         return findById(benefitId)
