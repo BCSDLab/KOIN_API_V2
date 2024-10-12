@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.admin.abtest.dto.AbtestAdminAssignRequest;
-import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
-import in.koreatech.koin.admin.abtest.dto.AbtestAssignResponse;
-import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
-import in.koreatech.koin.admin.abtest.dto.AbtestDevicesResponse;
-import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
-import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
-import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
-import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
+import in.koreatech.koin.admin.abtest.dto.request.AbtestAdminAssignRequest;
+import in.koreatech.koin.admin.abtest.dto.request.AbtestAssignRequest;
+import in.koreatech.koin.admin.abtest.dto.request.AbtestCloseRequest;
+import in.koreatech.koin.admin.abtest.dto.request.AbtestRequest;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestAssignResponse;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestDevicesResponse;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestResponse;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestUsersResponse;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestsResponse;
 import in.koreatech.koin.admin.abtest.service.AbtestService;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
@@ -125,25 +125,14 @@ public class AbtestController implements AbtestApi {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<String> getMyAbtestVariable(
-        @RequestHeader("access_history_id") Integer accessHistoryId,
-        @UserAgent UserAgentInfo userAgentInfo,
-        @UserId Integer userId,
-        @RequestParam(name = "title") String title
-    ) {
-        String response = abtestService.getMyVariable(accessHistoryId, userAgentInfo, userId, title);
-        return ResponseEntity.ok(response);
-    }
-
     @PostMapping("/assign")
-    public ResponseEntity<AbtestAssignResponse> assignAbtestVariable(
+    public ResponseEntity<AbtestAssignResponse> assignOrGetAbtestVariable(
         @RequestHeader(value = "access_history_id", required = false) Integer accessHistoryId,
         @UserAgent UserAgentInfo userAgentInfo,
         @UserId Integer userId,
         @RequestBody @Valid AbtestAssignRequest abtestAssignRequest
     ) {
-        AbtestAssignResponse response = abtestService.assignVariable(accessHistoryId, userAgentInfo, userId, abtestAssignRequest);
+        AbtestAssignResponse response = abtestService.assignOrGetVariable(accessHistoryId, userAgentInfo, userId, abtestAssignRequest);
         return ResponseEntity.ok(response);
     }
 }

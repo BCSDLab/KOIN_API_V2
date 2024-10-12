@@ -10,9 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -29,15 +26,12 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
-import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.KeywordFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -66,13 +60,17 @@ public class KeywordApiTest extends AcceptanceTest {
     private ArticleFixture articleFixture;
 
     private Student 준호_학생;
+    private User 관리자;
     private String token;
+    private String adminToken;
 
     @BeforeAll
     void setup() {
         clear();
         준호_학생 = userFixture.준호_학생();
+        관리자 = userFixture.코인_운영자();
         token = userFixture.getToken(준호_학생.getUser());
+        adminToken = userFixture.getToken(관리자);
     }
 
     @Test
@@ -225,7 +223,7 @@ public class KeywordApiTest extends AcceptanceTest {
         List<Integer> articleIds = new ArrayList<>();
 
         for (int i = 1; i <= 5; i++) {
-            Article article = articleFixture.자유글_3("수강신청" + i, board, i);
+            Article article = articleFixture.공지_크롤링_게시글("수강신청" + i, board, i);
             articleIds.add(article.getId());
         }
 
@@ -233,7 +231,7 @@ public class KeywordApiTest extends AcceptanceTest {
 
         mockMvc.perform(
                 post("/articles/keyword/notification")
-                    .header("Authorization", "Bearer " + token)
+                    .header("Authorization", "Bearer " + adminToken)
                     .content("""
                     {
                         "update_notification": %s
@@ -256,7 +254,7 @@ public class KeywordApiTest extends AcceptanceTest {
         List<Integer> articleIds = new ArrayList<>();
 
         for (int i = 1; i <= 5; i++) {
-            Article article = articleFixture.자유글_3("수강신청" + i, board, i);
+            Article article = articleFixture.공지_크롤링_게시글("수강신청" + i, board, i);
             articleIds.add(article.getId());
         }
 
@@ -269,7 +267,7 @@ public class KeywordApiTest extends AcceptanceTest {
                         "update_notification": %s
                     }
                     """.formatted(articleIds.toString()))
-                    .header("Authorization", "Bearer " + token)
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
@@ -328,4 +326,35 @@ public class KeywordApiTest extends AcceptanceTest {
 
         executor.shutdown();
     } */
+
+    @Test
+    @Transactional
+    void 권한이_없으면_공지사항_알림_요청_실패() throws Exception {
+
+        Board board = boardFixture.자유게시판();
+
+        List<Integer> articleIds = new ArrayList<>();
+
+        for (int i = 1; i <= 5; i++) {
+            Article article = articleFixture.공지_크롤링_게시글("수강신청" + i, board, i);
+            articleIds.add(article.getId());
+        }
+
+        keywordFixture.키워드1("수강신청6", 준호_학생.getUser());
+
+        mockMvc.perform(
+                post("/articles/keyword/notification")
+                    .content("""
+                    {
+                        "update_notification": %s
+                    }
+                    """.formatted(articleIds.toString()))
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isForbidden());
+        forceVerify(() -> verify(articleKeywordEventListener, never()).onKeywordRequest(any()));
+        clear();
+        setup();
+    }
 }

@@ -4,12 +4,16 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.dto.shop.ShopResponse.InnerShopOpen;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV1;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -21,8 +25,23 @@ public record ShopsResponse(
     List<InnerShopResponse> shops
 ) {
 
-    public static ShopsResponse from(List<InnerShopResponse> shops) {
-        return new ShopsResponse(shops.size(), shops);
+    public static ShopsResponse from(
+        List<Shop> shops,
+        Map<Integer, ShopInfoV1> shopEventMap,
+        LocalDateTime now
+    ) {
+        return new ShopsResponse(
+            shops.size(),
+            shops.stream().map(it -> {
+                    return InnerShopResponse.from(
+                        it,
+                        shopEventMap.get(it.getId()).durationEvent(),
+                        it.isOpen(now)
+                    );
+                })
+                .sorted(Comparator.comparing(InnerShopResponse::isOpen, Comparator.reverseOrder()))
+                .toList()
+        );
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)

@@ -16,27 +16,30 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimetableLectureResponse(
-    @Schema(name = "시간표 프레임 id", example = "1")
+    @Schema(description = "시간표 프레임 id", example = "1")
     Integer timetableFrameId,
 
-    @Schema(name = "시간표 상세정보")
+    @Schema(description = "시간표 상세정보")
     List<InnerTimetableLectureResponse> timetable,
 
-    @Schema(name = "해당 학기 학점", example = "21")
+    @Schema(description = "해당 학기 학점", example = "21")
     Integer grades,
 
-    @Schema(name = "전체 학기 학점", example = "121")
+    @Schema(description = "전체 학기 학점", example = "121")
     Integer totalGrades
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimetableLectureResponse(
-        @Schema(name = "시간표 id", example = "1", requiredMode = REQUIRED)
+        @Schema(description = "시간표 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
-        @Schema(name = "수강 정원", example = "38", requiredMode = NOT_REQUIRED)
+        @Schema(description = "강의 id", example = "1", requiredMode = NOT_REQUIRED)
+        Integer lectureId,
+
+        @Schema(description = "수강 정원", example = "38", requiredMode = NOT_REQUIRED)
         String regularNumber,
 
-        @Schema(name = "과목 코드", example = "ARB244", requiredMode = NOT_REQUIRED)
+        @Schema(description = "과목 코드", example = "ARB244", requiredMode = NOT_REQUIRED)
         String code,
 
         @Schema(description = "설계 학점", example = "0", requiredMode = NOT_REQUIRED)
@@ -45,28 +48,28 @@ public record TimetableLectureResponse(
         @Schema(description = "강의(커스텀) 시간", example = "[204, 205, 206, 207, 302, 303]", requiredMode = REQUIRED)
         List<Integer> classTime,
 
-        @Schema(description = "강의 장소", example = "2 공학관", requiredMode = NOT_REQUIRED)
+        @Schema(description = "강의 장소", example = "2공학관", requiredMode = NOT_REQUIRED)
         String classPlace,
 
         @Schema(description = "메모", example = "null", requiredMode = NOT_REQUIRED)
         String memo,
 
-        @Schema(name = "학점", example = "3", requiredMode = REQUIRED)
+        @Schema(description = "학점", example = "3", requiredMode = REQUIRED)
         String grades,
 
-        @Schema(name = "강의(커스텀) 이름", example = "한국사", requiredMode = REQUIRED)
+        @Schema(description = "강의(커스텀) 이름", example = "한국사", requiredMode = REQUIRED)
         String classTitle,
 
-        @Schema(name = "분반", example = "01", requiredMode = NOT_REQUIRED)
+        @Schema(description = "분반", example = "01", requiredMode = NOT_REQUIRED)
         String lectureClass,
 
-        @Schema(name = "대상", example = "디자 1 건축", requiredMode = NOT_REQUIRED)
+        @Schema(description = "대상", example = "디자 1 건축", requiredMode = NOT_REQUIRED)
         String target,
 
-        @Schema(name = "강의 교수", example = "이돈우", requiredMode = NOT_REQUIRED)
+        @Schema(description = "강의 교수", example = "이돈우", requiredMode = NOT_REQUIRED)
         String professor,
 
-        @Schema(name = "학부", example = "디자인ㆍ건축공학부", requiredMode = NOT_REQUIRED)
+        @Schema(description = "학부", example = "디자인ㆍ건축공학부", requiredMode = NOT_REQUIRED)
         String department
     ) {
 
@@ -78,6 +81,7 @@ public record TimetableLectureResponse(
                 if (timetableLecture.getLecture() == null) {
                     response = new InnerTimetableLectureResponse(
                         timetableLecture.getId(),
+                        null,
                         null,
                         null,
                         null,
@@ -94,6 +98,7 @@ public record TimetableLectureResponse(
                 } else {
                     response = new InnerTimetableLectureResponse(
                         timetableLecture.getId(),
+                        timetableLecture.getLecture().getId(),
                         timetableLecture.getLecture().getRegularNumber(),
                         timetableLecture.getLecture().getCode(),
                         timetableLecture.getLecture().getDesignScore(),

@@ -20,11 +20,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "article_search_keyword_ip_map", indexes = {
-    @Index(name = "idx_ip_address", columnList = "ipAddress")
-},
-    uniqueConstraints = {
-        @UniqueConstraint(name = "ux_keyword_ip", columnNames = {"keyword_id", "ipAddress"})
-    })
+    @Index(name = "idx_ip_address", columnList = "ipAddress")}, uniqueConstraints = {
+    @UniqueConstraint(name = "ux_keyword_ip", columnNames = {"keyword_id", "ipAddress"})
+})
 @NoArgsConstructor(access = PROTECTED)
 public class ArticleSearchKeywordIpMap extends BaseEntity {
 

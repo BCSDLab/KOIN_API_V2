@@ -70,6 +70,15 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/v2/all/timetables/frame")
+    public ResponseEntity<Void> deleteAllTimetablesFrame(
+        @RequestParam(name = "semester") String semester,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        timetableServiceV2.deleteAllTimetablesFrame(userId, semester);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/v2/timetables/lecture")
     public ResponseEntity<TimetableLectureResponse> createTimetableLecture(
         @Valid @RequestBody TimetableLectureCreateRequest request,

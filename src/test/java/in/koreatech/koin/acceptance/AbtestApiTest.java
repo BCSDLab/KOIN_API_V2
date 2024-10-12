@@ -26,7 +26,7 @@ import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.AbtestFixture;
 import in.koreatech.koin.fixture.DeviceFixture;
@@ -476,13 +476,17 @@ class AbtestApiTest extends AcceptanceTest {
                       "title": "dining_ui_test"
                     }
                     """))
-            );
+        );
 
         MvcResult mvcResult = mockMvc.perform(
-                get("/abtest/me")
+                post("/abtest/assign")
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("access_history_id", device.getAccessHistory().getId())
-                    .param("title", abtest.getTitle())
+                    .content(String.format("""
+                        {
+                          "title": "dining_ui_test"
+                        }
+                        """))
             )
             .andExpect(status().isOk())
             .andReturn();
@@ -498,7 +502,9 @@ class AbtestApiTest extends AcceptanceTest {
                         .map(AccessHistoryAbtestVariable::getVariable)
                         .filter(var -> var.getAbtest().getTitle().equals(abtest.getTitle()))
                         .findAny();
-                    softly.assertThat(responseBody).isEqualTo(variable.get().getName());
+                    softly.assertThat(responseBody).isEqualTo(
+                        String.format("{\"variable_name\":\"A\",\"access_history_id\":1}",
+                            variable.get().getName(), result.getAccessHistory().getId()));
                 }
             );
         });

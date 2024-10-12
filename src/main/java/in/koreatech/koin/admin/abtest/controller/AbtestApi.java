@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.admin.abtest.dto.AbtestAdminAssignRequest;
-import in.koreatech.koin.admin.abtest.dto.AbtestAssignRequest;
-import in.koreatech.koin.admin.abtest.dto.AbtestAssignResponse;
-import in.koreatech.koin.admin.abtest.dto.AbtestCloseRequest;
-import in.koreatech.koin.admin.abtest.dto.AbtestDevicesResponse;
-import in.koreatech.koin.admin.abtest.dto.AbtestRequest;
-import in.koreatech.koin.admin.abtest.dto.AbtestResponse;
-import in.koreatech.koin.admin.abtest.dto.AbtestUsersResponse;
-import in.koreatech.koin.admin.abtest.dto.AbtestsResponse;
+import in.koreatech.koin.admin.abtest.dto.request.AbtestAdminAssignRequest;
+import in.koreatech.koin.admin.abtest.dto.request.AbtestAssignRequest;
+import in.koreatech.koin.admin.abtest.dto.request.AbtestCloseRequest;
+import in.koreatech.koin.admin.abtest.dto.request.AbtestRequest;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestAssignResponse;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestDevicesResponse;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestResponse;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestUsersResponse;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestsResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.useragent.UserAgent;
@@ -186,25 +186,9 @@ public interface AbtestApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "(NORMAL) 자신의 실험군 조회")
-    @GetMapping("/me")
-    ResponseEntity<String> getMyAbtestVariable(
-        @RequestHeader("accessHistoryId") Integer accessHistoryId,
-        @UserAgent UserAgentInfo userAgentInfo,
-        @UserId Integer userId,
-        @RequestParam(name = "title") String title
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "(NORMAL) 실험군 최초 편입")
+    @Operation(summary = "(NORMAL) 실험군 편입 정보 확인")
     @PostMapping("/assign")
-    ResponseEntity<AbtestAssignResponse> assignAbtestVariable(
+    ResponseEntity<AbtestAssignResponse> assignOrGetAbtestVariable(
         @RequestHeader("accessHistoryId") Integer accessHistoryId,
         @UserAgent UserAgentInfo userAgentInfo,
         @UserId Integer userId,

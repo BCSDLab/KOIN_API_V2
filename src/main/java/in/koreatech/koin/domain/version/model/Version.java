@@ -6,6 +6,7 @@ import static lombok.AccessLevel.PROTECTED;
 import java.time.Clock;
 import java.time.LocalDate;
 
+import in.koreatech.koin.admin.version.dto.AdminVersionUpdateRequest;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,21 +35,37 @@ public class Version extends BaseEntity {
     private String version;
 
     @NotNull
-    @Column(name = "type", length = 50, unique = true)
+    @Column(name = "type", length = 50)
     private String type;
 
+    @Column(name = "title", length = 50)
+    private String title;
+
+    @Column(name = "content")
+    private String content;
+
+    @Column(name = "is_previous", columnDefinition = "TINYINT")
+    private boolean isPrevious;
+
     @Builder
-    private Version(@NotNull String version, @NotNull String type) {
-        this.version = version;
+    private Version(
+        String type,
+        String version,
+        String title,
+        String content
+    ) {
         this.type = type;
+        this.version = version;
+        this.title = title;
+        this.content = content;
+    }
+
+    public void toPreviousVersion() {
+        this.isPrevious = true;
     }
 
     public void update(Clock clock) {
         version = generateVersionName(clock);
-    }
-
-    public void updateAndroid(String version) {
-        this.version = version;
     }
 
     private String generateVersionName(Clock clock) {
@@ -56,5 +73,14 @@ public class Version extends BaseEntity {
         String padding = "0_";
         String epochSeconds = Long.toString(clock.instant().getEpochSecond());
         return year + padding + epochSeconds;
+    }
+
+    public static Version of(VersionType type, AdminVersionUpdateRequest request) {
+        return Version.builder()
+            .type(type.getValue())
+            .version(request.version())
+            .title(request.title())
+            .content(request.content())
+            .build();
     }
 }

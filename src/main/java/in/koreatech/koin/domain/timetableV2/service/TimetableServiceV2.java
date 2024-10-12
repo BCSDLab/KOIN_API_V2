@@ -6,6 +6,7 @@ import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateReq
 import java.util.List;
 import java.util.Objects;
 
+import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,8 +49,8 @@ public class TimetableServiceV2 {
         User user = userRepository.getById(userId);
         int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId, semester.getId());
         boolean isMain = (currentFrameCount == 0);
-
-        TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, "시간표" + (currentFrameCount+1), isMain);
+        String name = (request.timetableName() != null) ? request.timetableName() : "시간표" + (currentFrameCount + 1);
+        TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, name, isMain);
         TimetableFrame savedTimetableFrame = timetableFrameRepositoryV2.save(timetableFrame);
         return TimetableFrameResponse.from(savedTimetableFrame);
     }
@@ -67,7 +68,7 @@ public class TimetableServiceV2 {
                 throw new KoinIllegalArgumentException("메인 시간표는 필수입니다.");
             }
         }
-        timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.name(), isMain);
+        timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.timetableName(), isMain);
         return TimetableFrameUpdateResponse.from(timeTableFrame);
     }
 
@@ -190,5 +191,13 @@ public class TimetableServiceV2 {
         TimetableFrame mainTimetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
             semesterId);
         mainTimetableFrame.cancelMain();
+    }
+
+    @Transactional
+    public void deleteAllTimetablesFrame(Integer userId, String semester) {
+        User user = userRepository.findById(userId).get();
+        Semester userSemester = semesterRepositoryV2.findBySemester(semester)
+            .orElseThrow(() -> new SemesterNotFoundException("해당하는 시간표 프레임이 없습니다"));
+        timetableFrameRepositoryV2.deleteAllByUserAndSemester(user, userSemester);
     }
 }

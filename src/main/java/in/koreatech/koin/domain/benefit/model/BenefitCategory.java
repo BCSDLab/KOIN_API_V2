@@ -32,9 +32,27 @@ public class BenefitCategory extends BaseEntity {
     @Column(name = "detail")
     String detail;
 
+    @Column(name = "on_image_url")
+    String onImageUrl;
+
+    @Column(name = "off_image_url")
+    String offImageUrl;
+
+    public static final int MAX_BENEFIT_CATEGORIES = 6;
+    public static final int MIN_BENEFIT_CATEGORIES = 2;
+
     @Builder
-    public BenefitCategory(String title, String detail) {
+    public BenefitCategory(String title, String detail, String onImageUrl, String offImageUrl) {
         this.title = title;
         this.detail = detail;
+        this.onImageUrl = onImageUrl;
+        this.offImageUrl = offImageUrl;
+    }
+
+    public void update(String title, String detail, String onImageUrl, String offImageUrl) {
+        this.title = title;
+        this.detail = detail;
+        this.onImageUrl = onImageUrl;
+        this.offImageUrl = offImageUrl;
     }
 }

@@ -19,7 +19,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.user.model.Student;
+import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.fixture.EventArticleFixture;
 import in.koreatech.koin.fixture.MenuCategoryFixture;
 import in.koreatech.koin.fixture.MenuFixture;
@@ -553,50 +553,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": true,
                             "id": 2,
                             "name": "티바",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "TUESDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "WEDNESDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "THURSDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "SATURDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "SUNDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7788-9900",
@@ -611,20 +567,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": true,
                             "id": 1,
                             "name": "마슬랜 치킨",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7574-1212",
@@ -664,20 +606,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": true,
                             "id": 1,
                             "name": "마슬랜 치킨",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7574-1212",
@@ -692,50 +620,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": true,
                             "id": 2,
                             "name": "티바",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "TUESDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "WEDNESDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "THURSDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "SATURDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "SUNDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7788-9900",
@@ -775,20 +659,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": true,
                             "id": 1,
                             "name": "마슬랜 치킨",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7574-1212",
@@ -803,50 +673,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": true,
                             "id": 2,
                             "name": "신전 떡볶이",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "12:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "TUESDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "WEDNESDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "THURSDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "SATURDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "SUNDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7788-9900",
@@ -887,20 +713,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": true,
                             "id": 1,
                             "name": "마슬랜 치킨",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7574-1212",
@@ -938,20 +750,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": true,
                             "id": 1,
                             "name": "마슬랜 치킨",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7574-1212",
@@ -993,20 +791,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": true,
                             "id": 1,
                             "name": "마슬랜 치킨",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7574-1212",
@@ -1049,50 +833,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": false,
                             "id": 2,
                             "name": "신전 떡볶이",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "TUESDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "WEDNESDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "THURSDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "SATURDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "SUNDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7788-9900",
@@ -1107,20 +847,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": true,
                             "id": 1,
                             "name": "마슬랜 치킨",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7574-1212",
@@ -1160,20 +886,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": true,
                             "id": 1,
                             "name": "마슬랜 치킨",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7574-1212",
@@ -1188,50 +900,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": false,
                             "id": 2,
                             "name": "신전 떡볶이",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "TUESDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "WEDNESDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "THURSDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "SATURDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "SUNDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7788-9900",
@@ -1270,20 +938,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": true,
                             "id": 1,
                             "name": "마슬랜 치킨",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "21:00"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7574-1212",
@@ -1298,50 +952,6 @@ class ShopApiTest extends AcceptanceTest {
                             "delivery": false,
                             "id": 2,
                             "name": "신전 떡볶이",
-                            "open": [
-                                {
-                                    "day_of_week": "MONDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "TUESDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "WEDNESDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "THURSDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "FRIDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "SATURDAY",
-                                    "closed": false,
-                                    "open_time": "11:30",
-                                    "close_time": "21:30"
-                                },
-                                {
-                                    "day_of_week": "SUNDAY",
-                                    "closed": false,
-                                    "open_time": "00:00",
-                                    "close_time": "00:00"
-                                }
-                            ],
                             "pay_bank": true,
                             "pay_card": true,
                             "phone": "010-7788-9900",
@@ -1355,4 +965,56 @@ class ShopApiTest extends AcceptanceTest {
                 """, 마슬랜_영업여부, 신전_떡볶이_영업여부)));
     }
 
+    @Test
+    void _24시간_운영중인_상점은_is_open은_true이다() throws Exception {
+        Shop 영업중인_티바 = shopFixture._24시간_영업중인_티바(owner);
+        shopReviewFixture.리뷰_4점(익명_학생, 영업중인_티바);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+        // 2024-01-15 12:00 월요일 기준
+        boolean 마슬랜_영업여부 = true;
+        boolean 티바_영업여부 = true;
+        mockMvc.perform(
+                get("/v2/shops")
+                    .queryParam("sorter", "COUNT")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json(String.format("""
+                {
+                    "count": 2,
+                    "shops": [
+                        {
+                        "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 1,
+                            "name": "마슬랜 치킨",
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7574-1212",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 2
+                        },{
+                            "category_ids": [
+                               \s
+                            ],
+                            "delivery": true,
+                            "id": 2,
+                            "name": "티바",
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7788-9900",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        }
+                    ]
+                }
+                """, 티바_영업여부, 마슬랜_영업여부)));
+    }
 }

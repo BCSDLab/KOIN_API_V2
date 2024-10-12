@@ -31,6 +31,7 @@ public record BenefitShopsResponse(
         return new BenefitShopsResponse(shops.size(), shops);
     }
 
+    @JsonNaming(SnakeCaseStrategy.class)
     public record InnerShopResponse(
         @Schema(example = "[1, 2, 3]", description = "속해있는 상점 카테고리들의 고유 id 리스트", requiredMode = NOT_REQUIRED)
         List<Integer> categoryIds,
