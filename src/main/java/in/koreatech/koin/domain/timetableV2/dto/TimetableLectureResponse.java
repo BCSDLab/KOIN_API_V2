@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -108,7 +109,7 @@ public record TimetableLectureResponse(
                             : parseIntegerClassTimesFromString(timetableLecture.getClassTime()),
                         timetableLecture.getClassPlace(),
                         timetableLecture.getMemo(),
-                        timetableLecture.getGrades() == null
+                        Objects.equals(timetableLecture.getGrades(), "0")
                             ? timetableLecture.getLecture().getGrades()
                             : timetableLecture.getGrades(),
                         timetableLecture.getClassTitle() == null
