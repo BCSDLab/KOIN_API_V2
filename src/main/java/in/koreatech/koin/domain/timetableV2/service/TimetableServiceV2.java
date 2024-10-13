@@ -44,15 +44,12 @@ public class TimetableServiceV2 {
     private final SemesterRepositoryV2 semesterRepositoryV2;
 
     @Transactional
-    public TimetableFrameResponse createTimetablesFrame(Integer userId,
-        TimetableFrameCreateRequest request) {
+    public TimetableFrameResponse createTimetablesFrame(Integer userId, TimetableFrameCreateRequest request) {
         Semester semester = semesterRepositoryV2.getBySemester(request.semester());
         User user = userRepository.getById(userId);
-        int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId,
-            semester.getId());
+        int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId, semester.getId());
         boolean isMain = (currentFrameCount == 0);
-        String name = (request.timetableName() != null) ? request.timetableName() :
-            "시간표" + (currentFrameCount + 1);
+        String name = (request.timetableName() != null) ? request.timetableName() : "시간표" + (currentFrameCount + 1);
         TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, name, isMain);
         TimetableFrame savedTimetableFrame = timetableFrameRepositoryV2.save(timetableFrame);
         return TimetableFrameResponse.from(savedTimetableFrame);
@@ -71,15 +68,13 @@ public class TimetableServiceV2 {
                 throw new KoinIllegalArgumentException("메인 시간표는 필수입니다.");
             }
         }
-        timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.timetableName(),
-            isMain);
+        timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.timetableName(), isMain);
         return TimetableFrameUpdateResponse.from(timeTableFrame);
     }
 
     public List<TimetableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
         Semester semester = semesterRepositoryV2.getBySemester(semesterRequest);
-        return timetableFrameRepositoryV2.findAllByUserIdAndSemesterId(userId, semester.getId())
-            .stream()
+        return timetableFrameRepositoryV2.findAllByUserIdAndSemesterId(userId, semester.getId()).stream()
             .map(TimetableFrameResponse::from)
             .toList();
     }
@@ -94,8 +89,7 @@ public class TimetableServiceV2 {
         if (frame.isMain()) {
             TimetableFrame nextMainFrame =
                 timetableFrameRepositoryV2.
-                    findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId,
-                        frame.getSemester().getId());
+                    findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId, frame.getSemester().getId());
             if (nextMainFrame != null) {
                 nextMainFrame.updateStatusMain(true);
             }
@@ -103,10 +97,8 @@ public class TimetableServiceV2 {
     }
 
     @Transactional
-    public TimetableLectureResponse createTimetableLectures(Integer userId,
-        TimetableLectureCreateRequest request) {
-        TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(
-            request.timetableFrameId());
+    public TimetableLectureResponse createTimetableLectures(Integer userId, TimetableLectureCreateRequest request) {
+        TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(request.timetableFrameId());
         if (!Objects.equals(timetableFrame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
@@ -114,8 +106,7 @@ public class TimetableServiceV2 {
         for (InnerTimeTableLectureRequest timetableLectureRequest : request.timetableLecture()) {
             Lecture lecture = timetableLectureRequest.lectureId() == null ?
                 null : lectureRepositoryV2.getLectureById(timetableLectureRequest.lectureId());
-            TimetableLecture timetableLecture = timetableLectureRequest.toTimetableLecture(
-                timetableFrame, lecture);
+            TimetableLecture timetableLecture = timetableLectureRequest.toTimetableLecture(timetableFrame, lecture);
             timetableLectureRepositoryV2.save(timetableLecture);
         }
 
@@ -125,10 +116,8 @@ public class TimetableServiceV2 {
     }
 
     @Transactional
-    public TimetableLectureResponse updateTimetablesLectures(Integer userId,
-        TimetableLectureUpdateRequest request) {
-        TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(
-            request.timetableFrameId());
+    public TimetableLectureResponse updateTimetablesLectures(Integer userId, TimetableLectureUpdateRequest request) {
+        TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(request.timetableFrameId());
         if (!Objects.equals(timetableFrame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
@@ -160,8 +149,7 @@ public class TimetableServiceV2 {
 
     @Transactional
     public void deleteTimetableLecture(Integer userId, Integer timetableLectureId) {
-        TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(
-            timetableLectureId);
+        TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableLectureId);
         TimetableFrame frame = timetableLecture.getTimetableFrame();
         if (!Objects.equals(frame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
@@ -185,8 +173,7 @@ public class TimetableServiceV2 {
                 timetableLectureRepositoryV2.findAllByTimetableFrameId(timetableFrames.getId()));
         }
 
-        return TimetableLectureResponse.of(timetableFrame.getId(), timetableLectures, grades,
-            totalGrades);
+        return TimetableLectureResponse.of(timetableFrame.getId(), timetableLectures, grades, totalGrades);
     }
 
     private int calculateGrades(List<TimetableLecture> timetableLectures) {
@@ -202,8 +189,7 @@ public class TimetableServiceV2 {
     }
 
     private void cancelMainTimetable(Integer userId, Integer semesterId) {
-        TimetableFrame mainTimetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(
-            userId,
+        TimetableFrame mainTimetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
             semesterId);
         mainTimetableFrame.cancelMain();
     }
