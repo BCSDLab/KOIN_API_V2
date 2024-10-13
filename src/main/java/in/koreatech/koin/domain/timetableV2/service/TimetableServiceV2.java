@@ -8,7 +8,6 @@ import java.util.Objects;
 
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -157,8 +156,7 @@ public class TimetableServiceV2 {
         timetableLectureRepositoryV2.deleteById(timetableLectureId);
     }
 
-    private TimetableLectureResponse getTimetableLectureResponse(Integer userId,
-        TimetableFrame timetableFrame,
+    private TimetableLectureResponse getTimetableLectureResponse(Integer userId, TimetableFrame timetableFrame,
         List<TimetableLecture> timetableLectures) {
         int grades = 0;
         int totalGrades = 0;
@@ -167,8 +165,7 @@ public class TimetableServiceV2 {
             grades = calculateGrades(timetableLectures);
         }
 
-        for (TimetableFrame timetableFrames : timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(
-            userId)) {
+        for (TimetableFrame timetableFrames : timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId)) {
             totalGrades += calculateGrades(
                 timetableLectureRepositoryV2.findAllByTimetableFrameId(timetableFrames.getId()));
         }
