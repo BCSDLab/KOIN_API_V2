@@ -73,8 +73,7 @@ public record TimetableLectureResponse(
         String department
     ) {
 
-        public static List<InnerTimetableLectureResponse> from(
-            List<TimetableLecture> timetableLectures) {
+        public static List<InnerTimetableLectureResponse> from(List<TimetableLecture> timetableLectures) {
             List<InnerTimetableLectureResponse> timetableLectureList = new ArrayList<>();
 
             for (TimetableLecture timetableLecture : timetableLectures) {
@@ -129,19 +128,16 @@ public record TimetableLectureResponse(
         }
     }
 
-    public static TimetableLectureResponse of(Integer timetableFrameId,
-        List<TimetableLecture> timetableLectures,
+    public static TimetableLectureResponse of(Integer timetableFrameId, List<TimetableLecture> timetableLectures,
         Integer grades, Integer totalGrades) {
-        return new TimetableLectureResponse(timetableFrameId,
-            InnerTimetableLectureResponse.from(timetableLectures),
+        return new TimetableLectureResponse(timetableFrameId, InnerTimetableLectureResponse.from(timetableLectures),
             grades, totalGrades);
     }
 
     private static final int INITIAL_BRACE_INDEX = 1;
 
     private static List<Integer> parseIntegerClassTimesFromString(String classTime) {
-        String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX,
-            classTime.length() - 1);
+        String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
 
         if (!classTimeWithoutBrackets.isEmpty()) {
             return Arrays.stream(classTimeWithoutBrackets.split(","))
