@@ -122,8 +122,7 @@ public class TimetableServiceV2 {
         }
 
         for (InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
-            TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(
-                timetableRequest.id());
+            TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
             timetableLecture.update(
                 timetableRequest.classTitle(),
                 timetableRequest.classTime().toString(),
