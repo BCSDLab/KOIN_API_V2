@@ -43,7 +43,7 @@ public class NotificationService {
             notification.getImageUrl(),
             notification.getMobileAppPath(),
             notification.getSchemeUri(),
-            notification.getType()
+            notification.getType().toLowerCase()
         );
     }
 
