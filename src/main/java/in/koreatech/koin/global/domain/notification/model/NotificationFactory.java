@@ -78,8 +78,11 @@ public class NotificationFactory {
         );
     }
 
-    private String generateSchemeUri(MobileAppPath path, Integer id) {
-        return String.format("%s?id=%s", path.name().toLowerCase(), id);
+    private String generateSchemeUri(MobileAppPath path, Integer eventId) {
+        if (eventId == null) {
+            return path.getPath();
+        }
+        return String.format("%s?id=%d", path.getPath(), eventId);
     }
 
     private String getPostposition(String place, String firstPost, String secondPost) {

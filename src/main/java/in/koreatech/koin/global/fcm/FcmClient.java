@@ -71,7 +71,7 @@ public class FcmClient {
                             .build()
                     )
                     .setSound("default")
-                    .setCategory(path != null ? path.getApple() : null)
+                    .setCategory(path != null ? path.getPath() : null)
                     .setMutableContent(true)
                     .build()
             )
