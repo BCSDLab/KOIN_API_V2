@@ -14,8 +14,10 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
+import in.koreatech.koin.domain.community.article.exception.BoardNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
+import jakarta.persistence.EntityNotFoundException;
 
 public interface ArticleRepository extends Repository<Article, Integer> {
 
@@ -30,8 +32,14 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Page<Article> findAllByBoardId(Integer boardId, PageRequest pageRequest);
 
     default Article getById(Integer articleId) {
-        return findById(articleId).orElseThrow(
+        Article found = findById(articleId).orElseThrow(
             () -> ArticleNotFoundException.withDetail("articleId: " + articleId));
+        try {
+            found.getBoard().getName();
+        } catch (EntityNotFoundException e) {
+            throw BoardNotFoundException.withDetail("articleId: " + articleId);
+        }
+        return found;
     }
 
     @Query(
@@ -39,7 +47,8 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         countQuery = "SELECT count(*) FROM new_articles WHERE board_id = :boardId AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
         nativeQuery = true
     )
-    Page<Article> findAllByBoardIdAndTitleContaining(@Param("boardId") Integer boardId, @Param("query") String query, Pageable pageable);
+    Page<Article> findAllByBoardIdAndTitleContaining(@Param("boardId") Integer boardId, @Param("query") String query,
+        Pageable pageable);
 
     @Query(
         value = "SELECT * FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
