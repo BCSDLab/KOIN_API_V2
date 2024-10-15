@@ -27,7 +27,7 @@ public class TestController implements TestApi {
         @RequestParam(required = false) MobileAppPath mobileAppPath,
         @RequestParam(required = false) String url
     ) {
-        fcmClient.sendMessageV2(
+        fcmClient.sendMessage(
             deviceToken,
             title,
             body,

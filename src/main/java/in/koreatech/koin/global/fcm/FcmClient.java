@@ -39,37 +39,7 @@ public class FcmClient {
         log.info("call FcmClient sendMessage: title: {}, content: {}", title, content);
 
         ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type, schemeUri);
-        AndroidConfig androidConfig = generateAndroidConfig(title, content, imageUrl, path, type);
-
-        Message message = Message.builder()
-            .setToken(targetDeviceToken)
-            .setApnsConfig(apnsConfig)
-            .setAndroidConfig(androidConfig).build();
-        try {
-            String result = FirebaseMessaging.getInstance().send(message);
-            log.info("FCM 알림 전송 성공: {}", result);
-        } catch (Exception e) {
-            log.warn("FCM 알림 전송 실패", e);
-        }
-    }
-
-    @Async
-    public void sendMessageV2(
-        String targetDeviceToken,
-        String title,
-        String content,
-        String imageUrl,
-        MobileAppPath path,
-        String schemeUri,
-        String type
-    ) {
-        if (targetDeviceToken == null) {
-            return;
-        }
-        log.info("call FcmClient sendMessageV2: title: {}, content: {}", title, content);
-
-        ApnsConfig apnsConfig = generateAppleConfig(title, content, imageUrl, path, type, schemeUri);
-        AndroidConfig androidConfig = generateAndroidConfigV2(title, content, imageUrl, schemeUri, type);
+        AndroidConfig androidConfig = generateAndroidConfig(title, content, imageUrl, schemeUri, type);
 
         Message message = Message.builder()
             .setToken(targetDeviceToken)
@@ -120,27 +90,6 @@ public class FcmClient {
     }
 
     private AndroidConfig generateAndroidConfig(
-        String title,
-        String content,
-        String imageUrl,
-        MobileAppPath path,
-        String type
-    ) {
-        AndroidNotification androidNotification = AndroidNotification.builder()
-            .setTitle(title)
-            .setBody(content)
-            .setImage(imageUrl)
-            .setClickAction(path != null ? path.getAndroid() : null)
-            .build();
-
-        return AndroidConfig.builder()
-            .setNotification(androidNotification)
-            .putData("type", type != null ? type : "")
-            .setPriority(HIGH)
-            .build();
-    }
-
-    private AndroidConfig generateAndroidConfigV2(
         String title,
         String content,
         String imageUrl,
