@@ -106,21 +106,35 @@ public class GraduationService {
             .distinct()
             .toList();
 
+        List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = new ArrayList<>();
+
         for (StandardGraduationRequirements requirement : graduationRequirements) {
+            int completedGrades = courseTypeCreditsMap.getOrDefault(requirement.getCourseType().getId(), 0);
+
             StudentCourseCalculation existingCalculation = studentCourseCalculationRepository.findByUserIdAndStandardGraduationRequirementsId(
                 userId, requirement.getId());
 
             if (existingCalculation == null) {
-                int completedGrades = courseTypeCreditsMap.getOrDefault(requirement.getCourseType().getId(), 0);
-
                 StudentCourseCalculation newCalculation = StudentCourseCalculation.builder()
                     .completedGrades(completedGrades)
                     .user(student.getUser())
                     .standardGraduationRequirements(requirement)
                     .build();
-
                 studentCourseCalculationRepository.save(newCalculation);
+            } else {
+                existingCalculation.setCompletedGrades(existingCalculation.getCompletedGrades() + completedGrades);
+                studentCourseCalculationRepository.save(existingCalculation);  // 업데이트된 정보 저장
             }
+
+            GraduationCourseCalculationResponse.InnerCalculationResponse response = GraduationCourseCalculationResponse.InnerCalculationResponse.of(
+                requirement.getCourseType().getName(),
+                requirement.getRequiredGrades(),
+                completedGrades
+            );
+
+            courseTypes.add(response);
         }
+
+        return GraduationCourseCalculationResponse.of(courseTypes);
     }
 }

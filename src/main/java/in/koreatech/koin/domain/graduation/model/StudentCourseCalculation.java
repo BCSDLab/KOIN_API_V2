@@ -57,4 +57,8 @@ public class StudentCourseCalculation extends BaseEntity {
         this.user = user;
         this.standardGraduationRequirements = standardGraduationRequirements;
     }
+
+    public void setCompletedGrades(int completedGrades) {
+        this.completedGrades = completedGrades;
+    }
 }
