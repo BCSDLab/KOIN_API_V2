@@ -155,11 +155,11 @@ public class CoopService {
         }
 
         LocalDate now = LocalDate.now();
-        if(startDate.isAfter(now) || endDate.isAfter(now)){
+        if (startDate.isAfter(now) || endDate.isAfter(now)) {
             throw new DiningNowDateException("오늘 날짜 이후 기간은 설정할 수 없어요.");
         }
 
-        if(startDate.isAfter(endDate)){
+        if (startDate.isAfter(endDate)) {
             throw new StartDateAfterEndDateException("시작일은 종료일 이전으로 설정해주세요.");
         }
     }
