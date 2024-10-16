@@ -88,7 +88,7 @@ public interface CoopApi {
     @Operation(summary = "영양사 식단 엑셀 다운로드")
     @GetMapping("/dining/excel")
     ResponseEntity<InputStreamResource> generateCoopExcel(
-        @Auth(permit = {COOP}) Integer userId,
+        //@Auth(permit = {COOP}) Integer userId,
         @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
         @RequestParam("isCafeteria") Boolean isCafeteria
