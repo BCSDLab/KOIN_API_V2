@@ -14,8 +14,10 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
+import in.koreatech.koin.domain.community.article.exception.BoardNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
+import jakarta.persistence.EntityNotFoundException;
 
 public interface ArticleRepository extends Repository<Article, Integer> {
 
@@ -30,8 +32,14 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Page<Article> findAllByBoardId(Integer boardId, PageRequest pageRequest);
 
     default Article getById(Integer articleId) {
-        return findById(articleId).orElseThrow(
+        Article found = findById(articleId).orElseThrow(
             () -> ArticleNotFoundException.withDetail("articleId: " + articleId));
+        try {
+            found.getBoard().getName();
+        } catch (EntityNotFoundException e) {
+            throw BoardNotFoundException.withDetail("articleId: " + articleId);
+        }
+        return found;
     }
 
     @Query(
