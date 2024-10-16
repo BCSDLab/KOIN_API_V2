@@ -28,7 +28,6 @@ public class ArticleKeywordEventListener {
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onKeywordRequest(ArticleKeywordEvent event) {
-        String schemeUri = String.format("%s?id=%s", KEYWORD.name(), event.articleId());
         List<Notification> notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailType(ARTICLE_KEYWORD, null)
             .stream()
@@ -37,7 +36,7 @@ public class ArticleKeywordEventListener {
                 .anyMatch(map -> map.getUser().getId().equals(subscribe.getUser().getId())))
             .map(subscribe -> notificationFactory.generateKeywordNotification(
                 KEYWORD,
-                schemeUri,
+                event.articleId(),
                 event.keyword().getKeyword(),
                 subscribe.getUser()
             )).toList();
