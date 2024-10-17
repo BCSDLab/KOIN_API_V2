@@ -149,7 +149,7 @@ public class ArticleService {
         return ArticleHotKeywordResponse.from(topKeywords);
     }
 
-    @ConcurrencyGuard(lockName = "searchLog", waitTime = 6, leaseTime = 4)
+    @ConcurrencyGuard(lockName = "searchLog", waitTime = 5, leaseTime = 3)
     private void saveOrUpdateSearchLog(String query, String ipAddress) {
         if (query == null || query.trim().isEmpty()) {
             return;
