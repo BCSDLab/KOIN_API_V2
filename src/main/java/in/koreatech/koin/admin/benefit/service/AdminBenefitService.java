@@ -64,7 +64,7 @@ public class AdminBenefitService {
         Integer categoryId,
         AdminModifyBenefitCategoryRequest request
     ) {
-        boolean isExistCategory = adminBenefitCategoryRepository.existsByTitle(request.title());
+        boolean isExistCategory = adminBenefitCategoryRepository.existsByTitleAndIdNot(request.title(), categoryId);
         if (isExistCategory) {
             throw BenefitDuplicationException.withDetail("이미 존재하는 혜택 카테고리입니다.");
         }

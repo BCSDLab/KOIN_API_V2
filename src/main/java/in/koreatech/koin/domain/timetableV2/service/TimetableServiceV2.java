@@ -124,15 +124,13 @@ public class TimetableServiceV2 {
 
         for (InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
             TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
-            if (timetableRequest.lectureId() == null) {
-                timetableLecture.update(
-                    timetableRequest.classTitle(),
-                    timetableRequest.classTime().toString(),
-                    timetableRequest.classPlace(),
-                    timetableRequest.professor(),
-                    timetableRequest.grades(),
-                    timetableRequest.memo());
-            }
+            timetableLecture.update(
+                timetableRequest.classTitle(),
+                timetableRequest.classTime().toString(),
+                timetableRequest.classPlace(),
+                timetableRequest.professor(),
+                timetableRequest.grades(),
+                timetableRequest.memo());
         }
         List<TimetableLecture> timetableLectures = timetableFrame.getTimetableLectures();
         return getTimetableLectureResponse(userId, timetableFrame, timetableLectures);

@@ -15,7 +15,7 @@ import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record AdminNoticesResponse (
+public record AdminNoticesResponse(
     @Schema(description = "공지사항 목록")
     List<InnerAdminNoticeResponse> notices,
 
@@ -63,13 +63,13 @@ public record AdminNoticesResponse (
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt
     ) {
 
-        public static InnerAdminNoticeResponse from(Article noticeArticle) {
+        public static InnerAdminNoticeResponse from(Article article) {
             return new InnerAdminNoticeResponse(
-                noticeArticle.getId(),
-                noticeArticle.getTitle(),
-                noticeArticle.getKoinArticle().getUser().getName(),
-                noticeArticle.getCreatedAt(),
-                noticeArticle.getUpdatedAt()
+                article.getId(),
+                article.getTitle(),
+                article.getAuthor(),
+                article.getCreatedAt(),
+                article.getUpdatedAt()
             );
         }
     }

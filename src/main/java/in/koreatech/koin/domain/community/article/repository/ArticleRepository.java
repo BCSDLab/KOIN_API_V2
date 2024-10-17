@@ -14,8 +14,10 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
+import in.koreatech.koin.domain.community.article.exception.BoardNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
+import jakarta.persistence.EntityNotFoundException;
 
 public interface ArticleRepository extends Repository<Article, Integer> {
 
@@ -25,25 +27,19 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Optional<Article> findById(Integer articleId);
 
-    @Query(value = "SELECT * FROM new_articles "
-        + "WHERE id = :noticeId", nativeQuery = true)
-    Optional<Article> findAdminNoticeArticleById(@Param("noticeId") Integer noticeId);
-
     List<Article> findAll(Pageable pageable);
 
     Page<Article> findAllByBoardId(Integer boardId, PageRequest pageRequest);
 
-    @Query(value = "SELECT * FROM new_articles WHERE board_id = :boardId AND is_deleted = :isDeleted", nativeQuery = true)
-    Page<Article> findAllByBoardIdAndIsDeleted(@Param("boardId") Integer boardId, @Param("isDeleted") boolean isDeleted, Pageable pageable);
-
     default Article getById(Integer articleId) {
-        return findById(articleId).orElseThrow(
+        Article found = findById(articleId).orElseThrow(
             () -> ArticleNotFoundException.withDetail("articleId: " + articleId));
-    }
-
-    default Article getAdminNoticeArticleById(Integer noticeId) {
-        return findAdminNoticeArticleById(noticeId).orElseThrow(
-            () -> ArticleNotFoundException.withDetail("articleId: " + noticeId));
+        try {
+            found.getBoard().getName();
+        } catch (EntityNotFoundException e) {
+            throw BoardNotFoundException.withDetail("articleId: " + articleId);
+        }
+        return found;
     }
 
     @Query(
@@ -119,8 +115,5 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         + "JOIN new_articles a ON ka.article_id = a.id "
         + "WHERE ka.registered_at > :localDate", nativeQuery = true)
     List<Article> findAllByRegisteredAtIsAfter(LocalDate localDate);
-
-    @Query(value = "SELECT COUNT(*) FROM new_articles WHERE is_deleted = :isDeleted AND board_id = :boardId", nativeQuery = true)
-    Integer countAllByIsDeletedAndBoardId(@Param("isDeleted") boolean isDeleted, @Param("boardId") Integer boardId);
 
 }

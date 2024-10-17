@@ -24,6 +24,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
@@ -86,6 +88,9 @@ public class Article extends BaseEntity {
     @Transient
     private Integer nextId;
 
+    @Transient
+    private String author;
+
     public void increaseKoinHit() {
         this.hit++;
     }
@@ -106,24 +111,36 @@ public class Article extends BaseEntity {
         }
     }
 
-    public String getAuthor() {
-        if (this.koreatechArticle != null || this.koinArticle == null) {
-            return this.koreatechArticle.getAuthor();
-        } else if (Objects.equals(this.board.getId(), KOIN_ADMIN_NOTICE_BOARD_ID)) {
-            return ADMIN_NOTICE_AUTHOR;
-        } else {
-            if (Objects.equals(this.koinArticle.getUser(), null)) {
-                return "탈퇴한 사용자";
-            }
-            return this.koinArticle.getUser().getName();
+    @PostPersist
+    @PostLoad
+    public void updateAuthor() {
+        if (koreatechArticle == null && koinArticle == null) {
+            return;
         }
+        if (koreatechArticle != null) {
+            author = koreatechArticle.getAuthor();
+            return;
+        }
+        if (Objects.equals(board.getId(), KOIN_ADMIN_NOTICE_BOARD_ID)) {
+            author = ADMIN_NOTICE_AUTHOR;
+            return;
+        }
+        if (Objects.equals(koinArticle.getUser(), null)) {
+            author = "탈퇴한 사용자";
+            return;
+        }
+        author = koinArticle.getUser().getName();
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
 
     public LocalDate getRegisteredAt() {
         if (this.koreatechArticle != null) {
             return this.koreatechArticle.getRegisteredAt();
-        } else
-            return null;
+        }
+        return this.getCreatedAt().toLocalDate();
     }
 
     public int getArticleNum() {

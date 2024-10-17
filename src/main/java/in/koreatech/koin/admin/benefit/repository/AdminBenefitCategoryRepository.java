@@ -22,6 +22,8 @@ public interface AdminBenefitCategoryRepository extends Repository<BenefitCatego
 
     boolean existsByTitle(String title);
 
+    boolean existsByTitleAndIdNot(String title, Integer categoryId);
+
     default BenefitCategory getById(Integer benefitId) {
         return findById(benefitId)
             .orElseThrow(() -> BenefitNotFoundException.withDetail("해당 ID의 혜택 카테고리가 존재하지 않습니다."));
