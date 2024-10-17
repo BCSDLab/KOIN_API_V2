@@ -13,7 +13,7 @@ public record GraduationCourseCalculationResponse(
         }
     }
 
-    public static GraduationCourseCalculationResponse of(List<InnerCalculationResponse> courseTypes) {
+    public static GraduationCourseCalculationResponse of (List<InnerCalculationResponse> courseTypes) {
         return new GraduationCourseCalculationResponse(courseTypes);
     }
 
