@@ -34,9 +34,7 @@ public class GraduationService {
     private final StudentCourseCalculationRepository studentCourseCalculationRepository;
     private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
-    private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final CatalogRepository catalogRepository;
-    private final DepartmentRepository departmentRepository;
 
     @Transactional
     public void createStudentCourseCalculation(Integer userId) {
