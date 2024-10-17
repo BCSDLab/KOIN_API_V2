@@ -113,7 +113,7 @@ public class ArticleService {
         return cacheList.stream().map(HotArticleItemResponse::from).toList();
     }
 
-    @ConcurrencyGuard(lockName = "searchLog")
+    @Transactional
     public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit,
         String ipAddress) {
         if (query.length() >= MAXIMUM_SEARCH_LENGTH) {
@@ -149,6 +149,7 @@ public class ArticleService {
         return ArticleHotKeywordResponse.from(topKeywords);
     }
 
+    @ConcurrencyGuard(lockName = "searchLog")
     private void saveOrUpdateSearchLog(String query, String ipAddress) {
         if (query == null || query.trim().isEmpty()) {
             return;
