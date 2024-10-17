@@ -35,22 +35,22 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     }
 
     @Query(
-        value = "SELECT * FROM new_articles WHERE board_id = :boardId AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
-        countQuery = "SELECT count(*) FROM new_articles WHERE board_id = :boardId AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
+        value = "SELECT * FROM new_articles WHERE board_id = :boardId AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
+        countQuery = "SELECT count(*) FROM new_articles WHERE board_id = :boardId AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
         nativeQuery = true
     )
     Page<Article> findAllByBoardIdAndTitleContaining(@Param("boardId") Integer boardId, @Param("query") String query, Pageable pageable);
 
     @Query(
-        value = "SELECT * FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
-        countQuery = "SELECT count(*) FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
+        value = "SELECT * FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
+        countQuery = "SELECT count(*) FROM new_articles WHERE MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
         nativeQuery = true
     )
     Page<Article> findAllByTitleContaining(@Param("query") String query, Pageable pageable);
 
     @Query(
-        value = "SELECT * FROM new_articles WHERE is_notice = true AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
-        countQuery = "SELECT count(*) FROM new_articles WHERE is_notice = true AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE)",
+        value = "SELECT * FROM new_articles WHERE is_notice = true AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
+        countQuery = "SELECT count(*) FROM new_articles WHERE is_notice = true AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",
         nativeQuery = true
     )
     Page<Article> findAllByIsNoticeIsTrueAndTitleContaining(@Param("query") String query, Pageable pageable);
@@ -58,22 +58,22 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Long countBy();
 
     @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id < :articleId AND a.is_notice = true "
+        + "WHERE a.id < :articleId AND a.is_notice = true AND a.is_deleted = false "
         + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
     Optional<Article> findPreviousNoticeArticle(@Param("articleId") Integer articleId);
 
     @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id < :articleId AND a.board_id = :boardId "
+        + "WHERE a.id < :articleId AND a.board_id = :boardId AND a.is_deleted = false "
         + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
     Optional<Article> findPreviousArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
 
     @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id > :articleId AND a.is_notice = true "
+        + "WHERE a.id > :articleId AND a.is_notice = true AND a.is_deleted = false "
         + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
     Optional<Article> findNextNoticeArticle(@Param("articleId") Integer articleId);
 
     @Query(value = "SELECT * FROM new_articles a "
-        + "WHERE a.id > :articleId AND a.board_id = :boardId "
+        + "WHERE a.id > :articleId AND a.board_id = :boardId AND a.is_deleted = false "
         + "ORDER BY a.id ASC LIMIT 1", nativeQuery = true)
     Optional<Article> findNextArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
 
@@ -91,21 +91,16 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         return findNextArticle(article.getId(), board.getId()).orElse(null);
     }
 
-    @Query(value = "SELECT * FROM new_koreatech_articles ka WHERE ka.registered_at > :registeredAt "
-        + "ORDER BY (a.hit + a.koin_hit) DESC, a.registered_at DESC, a.id DESC "
-        + "LIMIT :limit", nativeQuery = true)
-    List<Article> findAllHotArticlesOld(@Param("registeredAt") LocalDate registeredAt, @Param("limit") int limit);
-
-    @Query(value = "SELECT a.* FROM new_koreatech_articles ka "
-        + "JOIN new_articles a ON ka.article_id = a.id "
-        + "WHERE ka.registered_at > :registeredAt "
-        + "ORDER BY (a.hit + ka.portal_hit) DESC, ka.registered_at DESC, a.id DESC "
+    @Query(value = "SELECT a.* FROM new_articles a "
+        + "JOIN new_koraetech_articles ka ON ka.article_id = a.id "
+        + "WHERE ka.registered_at > :registeredAt AND a.is_deleted = false "
+        + "ORDER BY (a.hit + ka.portal_hit) DESC, a.id DESC "
         + "LIMIT :limit", nativeQuery = true)
     List<Article> findAllHotArticles(@Param("registeredAt") LocalDate registeredAt, @Param("limit") int limit);
 
-    @Query(value = "SELECT a.* FROM new_koreatech_articles ka "
-        + "JOIN new_articles a ON ka.article_id = a.id "
-        + "WHERE ka.registered_at > :localDate", nativeQuery = true)
+    @Query(value = "SELECT a.* FROM new_articles a "
+        + "JOIN new_koreatech_articles ka ON ka.article_id = a.id "
+        + "WHERE ka.registered_at > :localDate AND a.is_deleted = false", nativeQuery = true)
     List<Article> findAllByRegisteredAtIsAfter(LocalDate localDate);
 
 }
