@@ -7,4 +7,3 @@ ALTER TABLE article_search_keyword_ip_map
     FOREIGN KEY (keyword_id)
     REFERENCES article_search_keywords (id)
     ON DELETE CASCADE;
-
