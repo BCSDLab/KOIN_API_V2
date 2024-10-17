@@ -33,6 +33,7 @@ import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywor
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
@@ -112,7 +113,7 @@ public class ArticleService {
         return cacheList.stream().map(HotArticleItemResponse::from).toList();
     }
 
-    @Transactional
+    @ConcurrencyGuard(lockName = "searchLog")
     public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit,
         String ipAddress) {
         if (query.length() >= MAXIMUM_SEARCH_LENGTH) {

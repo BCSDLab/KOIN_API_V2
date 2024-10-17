@@ -276,6 +276,57 @@ public class KeywordApiTest extends AcceptanceTest {
         setup();
     }
 
+    // 클래스 단에 transactional이 붙으면 테스트 실패 함
+    /* @Test
+    void 키워드_생성_동시성_테스트() throws InterruptedException {
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        String keyword = "testKeyword";
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        CountDownLatch latch = new CountDownLatch(4);
+
+        List<Response> responseList = new ArrayList<>();
+
+        Runnable createKeywordTask = () -> {
+            Response response = RestAssured
+                .given()
+                .header("Authorization", "Bearer " + token)
+                .contentType(ContentType.JSON)
+                .body("""
+                {
+                    "keyword": "testKeyword"
+                }
+                """)
+                .when()
+                .post("/articles/keyword");
+            responseList.add(response);
+            latch.countDown();
+        };
+
+        for (int i = 0; i < 4; i++) {
+            executor.submit(createKeywordTask);
+        }
+
+        latch.await();
+
+        long successCount = responseList.stream()
+            .filter(response -> response.getStatusCode() == 200)
+            .count();
+
+        long conflictCount = responseList.stream()
+            .filter(response -> response.getStatusCode() == 409)
+            .count();
+
+        assertThat(successCount).isEqualTo(1);
+
+        assertThat(conflictCount).isEqualTo(3);
+
+        assertThat(articleKeywordRepository.findByKeyword(keyword)).isPresent();
+
+        executor.shutdown();
+    } */
+
     @Test
     @Transactional
     void 권한이_없으면_공지사항_알림_요청_실패() throws Exception {
