@@ -103,7 +103,7 @@ public class ArticleService {
             .map(articleRepository::getById)
             .collect(Collectors.toList());
         if (cacheList.size() < HOT_ARTICLE_LIMIT) {
-            List<Article> highestHitArticles = articleRepository.findAllHotArticles(
+            List<Article> highestHitArticles = articleRepository.findMostHitArticles(
                 LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS), HOT_ARTICLE_LIMIT);
             cacheList.addAll(highestHitArticles);
             return cacheList.stream().limit(HOT_ARTICLE_LIMIT)
