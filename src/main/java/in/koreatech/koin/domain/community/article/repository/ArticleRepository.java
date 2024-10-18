@@ -14,8 +14,10 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.community.article.exception.ArticleNotFoundException;
+import in.koreatech.koin.domain.community.article.exception.BoardNotFoundException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
+import jakarta.persistence.EntityNotFoundException;
 
 public interface ArticleRepository extends Repository<Article, Integer> {
 
@@ -30,8 +32,14 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Page<Article> findAllByBoardId(Integer boardId, PageRequest pageRequest);
 
     default Article getById(Integer articleId) {
-        return findById(articleId).orElseThrow(
+        Article found = findById(articleId).orElseThrow(
             () -> ArticleNotFoundException.withDetail("articleId: " + articleId));
+        try {
+            found.getBoard().getName();
+        } catch (EntityNotFoundException e) {
+            throw BoardNotFoundException.withDetail("articleId: " + articleId);
+        }
+        return found;
     }
 
     @Query(
@@ -92,15 +100,22 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     }
 
     @Query(value = "SELECT a.* FROM new_articles a "
-        + "JOIN new_koraetech_articles ka ON ka.article_id = a.id "
-        + "WHERE ka.registered_at > :registeredAt AND a.is_deleted = false "
-        + "ORDER BY (a.hit + ka.portal_hit) DESC, a.id DESC "
-        + "LIMIT :limit", nativeQuery = true)
-    List<Article> findAllHotArticles(@Param("registeredAt") LocalDate registeredAt, @Param("limit") int limit);
+        + "LEFT JOIN new_koreatech_articles ka ON ka.article_id = a.id "
+        + "WHERE ( "
+        + "    (ka.article_id IS NOT NULL AND ka.registered_at > :registeredAt) "
+        + "    OR (ka.article_id IS NULL AND a.created_at > :registeredAt) "
+        + ") "
+        + "AND a.is_deleted = false "
+        + "ORDER BY (a.hit + IFNULL(ka.portal_hit, 0)) DESC, a.id DESC LIMIT :limit", nativeQuery = true)
+    List<Article> findMostHitArticles(@Param("registeredAt") LocalDate registeredAt, @Param("limit") int limit);
 
     @Query(value = "SELECT a.* FROM new_articles a "
-        + "JOIN new_koreatech_articles ka ON ka.article_id = a.id "
-        + "WHERE ka.registered_at > :localDate AND a.is_deleted = false", nativeQuery = true)
-    List<Article> findAllByRegisteredAtIsAfter(LocalDate localDate);
+        + "LEFT JOIN new_koreatech_articles ka ON ka.article_id = a.id "
+        + "WHERE ( "
+        + "    (ka.article_id IS NOT NULL AND ka.registered_at > :registeredAt) "
+        + "    OR (ka.article_id IS NULL AND a.created_at > :registeredAt) "
+        + ") "
+        + "AND a.is_deleted = false ", nativeQuery = true)
+    List<Article> findAllByRegisteredAtIsAfter(LocalDate registeredAt);
 
 }

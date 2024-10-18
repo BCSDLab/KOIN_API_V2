@@ -37,7 +37,10 @@ import jakarta.persistence.EntityManager;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import({DBInitializer.class, TestJpaConfiguration.class, TestTimeConfig.class, TestRedisConfiguration.class})
+@Import({DBInitializer.class,
+    TestJpaConfiguration.class,
+    TestTimeConfig.class,
+    TestRedisConfiguration.class})
 @ActiveProfiles("test")
 public abstract class AcceptanceTest {
 

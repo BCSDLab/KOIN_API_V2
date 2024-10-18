@@ -29,6 +29,7 @@ import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositor
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -78,7 +79,7 @@ public class TimetableServiceV2 {
             .toList();
     }
 
-    @Transactional
+    @ConcurrencyGuard(lockName = "deleteFrame")
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {
         TimetableFrame frame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
         if (!Objects.equals(frame.getUser().getId(), userId)) {
@@ -123,15 +124,13 @@ public class TimetableServiceV2 {
 
         for (InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
             TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
-            if (timetableRequest.lectureId() == null) {
-                timetableLecture.update(
-                    timetableRequest.classTitle(),
-                    timetableRequest.classTime().toString(),
-                    timetableRequest.classPlace(),
-                    timetableRequest.professor(),
-                    timetableRequest.grades(),
-                    timetableRequest.memo());
-            }
+            timetableLecture.update(
+                timetableRequest.classTitle(),
+                timetableRequest.classTime().toString(),
+                timetableRequest.classPlace(),
+                timetableRequest.professor(),
+                timetableRequest.grades(),
+                timetableRequest.memo());
         }
         List<TimetableLecture> timetableLectures = timetableFrame.getTimetableLectures();
         return getTimetableLectureResponse(userId, timetableFrame, timetableLectures);

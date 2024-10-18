@@ -24,16 +24,16 @@ public class TestController implements TestApi {
         @RequestParam(required = false) String title,
         @RequestParam(required = false) String body,
         @RequestParam(required = false) String image,
-        @RequestParam(required = false) MobileAppPath mobileAppPath,
-        @RequestParam(required = false) String url
+        @RequestParam(defaultValue = "HOME") MobileAppPath appPath,
+        @RequestParam(required = false) String uri
     ) {
-        fcmClient.sendMessageV2(
+        fcmClient.sendMessage(
             deviceToken,
             title,
             body,
             image,
-            mobileAppPath,
-            url,
+            appPath,
+            uri,
             NotificationType.MESSAGE.name().toLowerCase()
         );
         return ResponseEntity.ok().build();

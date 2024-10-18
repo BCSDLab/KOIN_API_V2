@@ -22,7 +22,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFCell;
+import org.apache.poi.xssf.streaming.SXSSFRow;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -128,8 +131,9 @@ public class CoopService {
             dinings = diningRepository.findByDateBetween(startDate, endDate);
         }
 
-        try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("식단 메뉴");
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook()) {
+            SXSSFSheet sheet = workbook.createSheet("식단 메뉴");
+            sheet.setRandomAccessWindowSize(100);
 
             CellStyle headerStyle = makeHeaderStyle(workbook);
             CellStyle commonStyle = makeCommonStyle(workbook);
@@ -151,21 +155,21 @@ public class CoopService {
         }
 
         LocalDate now = LocalDate.now();
-        if(startDate.isAfter(now) || endDate.isAfter(now)){
+        if (startDate.isAfter(now) || endDate.isAfter(now)) {
             throw new DiningNowDateException("오늘 날짜 이후 기간은 설정할 수 없어요.");
         }
 
-        if(startDate.isAfter(endDate)){
+        if (startDate.isAfter(endDate)) {
             throw new StartDateAfterEndDateException("시작일은 종료일 이전으로 설정해주세요.");
         }
     }
 
-    private ByteArrayInputStream putDiningData(List<Dining> dinings, Sheet sheet, CellStyle commonStyle,
-        Workbook workbook) throws IOException {
+    private ByteArrayInputStream putDiningData(List<Dining> dinings, SXSSFSheet sheet, CellStyle commonStyle,
+        SXSSFWorkbook workbook) throws IOException {
         AtomicInteger rowIdx = new AtomicInteger(1);
 
         dinings.forEach(dining -> {
-            Row row = sheet.createRow(rowIdx.getAndIncrement());
+            SXSSFRow row = sheet.createRow(rowIdx.getAndIncrement());
             row.createCell(0).setCellValue(dining.getDate().toString());
             row.createCell(1).setCellValue(dining.getType().getDiningName());
             row.createCell(2).setCellValue(dining.getPlace());
@@ -175,7 +179,7 @@ public class CoopService {
                 .replaceAll("^\\[|\\]$", "")
                 .replaceAll(", ", "\n");
 
-            Cell menuCell = row.createCell(4);
+            SXSSFCell menuCell = row.createCell(4);
             menuCell.setCellValue(formattedMenu);
 
             row.createCell(5).setCellValue(dining.getImageUrl());
@@ -190,12 +194,13 @@ public class CoopService {
         });
 
         for (int i = 0; i < EXCEL_COLUMN_COUNT; i++) {
-            sheet.autoSizeColumn(i);
-            sheet.setColumnWidth(i, (sheet.getColumnWidth(i) + 1024));
+            sheet.setColumnWidth(i, 6000);
         }
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
+        workbook.close();
+        workbook.dispose();
         return new ByteArrayInputStream(out.toByteArray());
     }
 

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -102,14 +103,23 @@ public record TimetableLectureResponse(
                         timetableLecture.getLecture().getRegularNumber(),
                         timetableLecture.getLecture().getCode(),
                         timetableLecture.getLecture().getDesignScore(),
-                        parseIntegerClassTimesFromString(timetableLecture.getLecture().getClassTime()),
+                        timetableLecture.getClassTime() == null
+                            ? parseIntegerClassTimesFromString(
+                            timetableLecture.getLecture().getClassTime())
+                            : parseIntegerClassTimesFromString(timetableLecture.getClassTime()),
                         timetableLecture.getClassPlace(),
                         timetableLecture.getMemo(),
-                        timetableLecture.getLecture().getGrades(),
-                        timetableLecture.getLecture().getName(),
+                        Objects.equals(timetableLecture.getGrades(), "0")
+                            ? timetableLecture.getLecture().getGrades()
+                            : timetableLecture.getGrades(),
+                        timetableLecture.getClassTitle() == null
+                            ? timetableLecture.getLecture().getName()
+                            : timetableLecture.getClassTitle(),
                         timetableLecture.getLecture().getLectureClass(),
                         timetableLecture.getLecture().getTarget(),
-                        timetableLecture.getLecture().getProfessor(),
+                        timetableLecture.getProfessor() == null
+                            ? timetableLecture.getLecture().getProfessor()
+                            : timetableLecture.getProfessor(),
                         timetableLecture.getLecture().getDepartment()
                     );
                 }
