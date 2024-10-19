@@ -21,11 +21,11 @@ public class TestController implements TestApi {
     @GetMapping("/notification")
     public ResponseEntity<Void> testSendMessage(
         @RequestParam String deviceToken,
-        @RequestParam(required = false) String title,
-        @RequestParam(required = false) String body,
-        @RequestParam(required = false) String image,
+        @RequestParam String title,
+        @RequestParam String body,
+        @RequestParam String image,
         @RequestParam(defaultValue = "HOME") MobileAppPath appPath,
-        @RequestParam(required = false) String uri
+        @RequestParam String uri
     ) {
         fcmClient.sendMessage(
             deviceToken,
