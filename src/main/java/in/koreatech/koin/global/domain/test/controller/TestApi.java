@@ -31,7 +31,8 @@ public interface TestApi {
         @Parameter(description = "알림 제목") @RequestParam String title,
         @Parameter(description = "알림 내용") @RequestParam String body,
         @Parameter(description = "이미지 url") @RequestParam String image,
-        @Parameter(description = "app path") @RequestParam MobileAppPath mobileAppPath,
+        @Parameter(description = "app path", required = true)
+        @RequestParam(defaultValue = "HOME") MobileAppPath mobileAppPath,
         @Parameter(description = "스킴 uri(ex: shop?id=1)") @RequestParam String url
     );
 
