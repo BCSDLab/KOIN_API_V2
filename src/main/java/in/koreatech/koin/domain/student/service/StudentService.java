@@ -37,6 +37,7 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
@@ -117,7 +118,7 @@ public class StudentService {
         }
     }
 
-    @Transactional
+    @ConcurrencyGuard(lockName = "studentAuthenticate")
     public ModelAndView authenticate(AuthTokenRequest request) {
         Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findByAuthToken(
             request.authToken());
