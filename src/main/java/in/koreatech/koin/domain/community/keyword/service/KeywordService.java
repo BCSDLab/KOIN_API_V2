@@ -51,7 +51,7 @@ public class KeywordService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
 
-    @ConcurrencyGuard(lockName = "createKeyword")
+    @ConcurrencyGuard(lockName = "createKeyword", waitTime = 7, leaseTime = 5)
     public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
         String keyword = validateAndGetKeyword(request.keyword());
         if (articleKeywordUserMapRepository.countByUserId(userId) >= ARTICLE_KEYWORD_LIMIT) {
@@ -77,7 +77,7 @@ public class KeywordService {
         return new ArticleKeywordResponse(keywordUserMap.getId(), existingKeyword.getKeyword());
     }
 
-    @Transactional
+    @ConcurrencyGuard(lockName = "deleteKeyword")
     public void deleteKeyword(Integer userId, Integer keywordUserMapId) {
         ArticleKeywordUserMap articleKeywordUserMap = articleKeywordUserMapRepository.getById(keywordUserMapId);
         if (!Objects.equals(articleKeywordUserMap.getUser().getId(), userId)) {
