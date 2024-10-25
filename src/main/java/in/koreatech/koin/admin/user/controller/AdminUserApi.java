@@ -25,6 +25,7 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminUserCreateRequest;
+import in.koreatech.koin.admin.user.dto.AdminUserResponse;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
@@ -146,6 +147,21 @@ public interface AdminUserApi {
     @Operation(summary = "어드민 유저 권한 요청 허용")
     @PutMapping("/admin/user/{id}/auth")
     ResponseEntity<Void> allowAdminUserPermission(
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 유저 정보 조회")
+    @GetMapping("/admin/user/{id}")
+    ResponseEntity<AdminUserResponse> getAdminUser(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     );

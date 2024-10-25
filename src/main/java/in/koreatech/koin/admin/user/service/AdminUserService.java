@@ -32,6 +32,7 @@ import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
 import in.koreatech.koin.admin.user.dto.AdminUserCreateRequest;
+import in.koreatech.koin.admin.user.dto.AdminUserResponse;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
 import in.koreatech.koin.admin.user.model.Admin;
@@ -166,6 +167,11 @@ public class AdminUserService {
         if (user.getUserType() != ADMIN)
             throw UserNotFoundException.withDetail("email" + user.getEmail());
         user.auth();
+    }
+
+    public AdminUserResponse getAdminUser(Integer id) {
+        Admin admin = adminRepository.getById(id);
+        return AdminUserResponse.of(admin);
     }
 
     @Transactional

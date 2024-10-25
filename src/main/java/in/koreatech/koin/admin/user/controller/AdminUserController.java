@@ -28,6 +28,7 @@ import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminUserCreateRequest;
+import in.koreatech.koin.admin.user.dto.AdminUserResponse;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
@@ -36,6 +37,7 @@ import in.koreatech.koin.admin.user.dto.StudentsCondition;
 import in.koreatech.koin.admin.user.service.AdminUserService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.Auth;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -118,6 +120,15 @@ public class AdminUserController implements AdminUserApi{
     ) {
         adminUserService.allowAdminUserPermission(id, adminId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/admin/user/{id}")
+    public ResponseEntity<AdminUserResponse> getAdminUser(
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        AdminUserResponse admin = adminUserService.getAdminUser(id);
+        return ResponseEntity.ok().body(admin);
     }
 
     @GetMapping("/admin/users/student/{id}")
