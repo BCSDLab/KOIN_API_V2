@@ -23,9 +23,11 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
+import in.koreatech.koin.admin.user.dto.AdminUserCreateRequest;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
@@ -91,6 +93,14 @@ public class AdminUserController implements AdminUserApi{
             .body(tokenGroupResponse);
     }
 
+    @PostMapping("/admin/user")
+    public ResponseEntity<Void> createAdminUser(
+        @RequestBody @Valid AdminUserCreateRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminUserService.createAdminUser(request, adminId);
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/admin/users/student/{id}")
     public ResponseEntity<AdminStudentResponse> getStudent(
