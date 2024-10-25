@@ -102,6 +102,15 @@ public class AdminUserController implements AdminUserApi{
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/admin/user/password")
+    public ResponseEntity<Void> changeAdminPassword(
+        @RequestBody @Valid AdminPasswordChangeRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminUserService.changeAdminPassword(request, adminId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/admin/users/student/{id}")
     public ResponseEntity<AdminStudentResponse> getStudent(
         @PathVariable Integer id,

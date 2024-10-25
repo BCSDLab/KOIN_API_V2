@@ -128,6 +128,21 @@ public interface AdminUserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
+    @Operation(summary = "어드민 유저 비밀번호 변경")
+    @PutMapping("/admin/user/password")
+    ResponseEntity<Void> changeAdminPassword(
+        @RequestBody @Valid AdminPasswordChangeRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
     @Operation(summary = "사장님 권한 요청 허용")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/admin/owner/{id}/authed")

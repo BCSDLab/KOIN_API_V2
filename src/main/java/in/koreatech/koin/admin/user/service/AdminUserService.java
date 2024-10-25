@@ -147,6 +147,17 @@ public class AdminUserService {
     }
 
     @Transactional
+    public void changeAdminPassword(AdminPasswordChangeRequest request, Integer adminId) {
+        Admin admin = adminRepository.getById(adminId);
+        User user = admin.getUser();
+
+        if (!passwordEncoder.matches(user.getPassword(), request.oldPassword()))
+            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
+
+        user.updatePassword(passwordEncoder, request.newPassword());
+    }
+
+    @Transactional
     public void allowOwnerPermission(Integer id) {
         Owner owner = adminOwnerRepository.getById(id);
         owner.getUser().auth();
