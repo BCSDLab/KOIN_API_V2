@@ -158,6 +158,17 @@ public class AdminUserService {
     }
 
     @Transactional
+    public void allowAdminUserPermission(Integer id, Integer adminId) {
+        Admin admin = adminRepository.getById(adminId);
+        if (!admin.isApproveAdmin())
+            throw new AuthorizationException("어드민 계정 승인 권한이 없습니다");
+        User user = adminRepository.getById(id).getUser();
+        if (user.getUserType() != ADMIN)
+            throw UserNotFoundException.withDetail("email" + user.getEmail());
+        user.auth();
+    }
+
+    @Transactional
     public void allowOwnerPermission(Integer id) {
         Owner owner = adminOwnerRepository.getById(id);
         owner.getUser().auth();

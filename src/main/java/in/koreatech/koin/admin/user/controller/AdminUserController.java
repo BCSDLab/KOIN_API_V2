@@ -111,6 +111,15 @@ public class AdminUserController implements AdminUserApi{
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/admin/user/{id}/auth")
+    public ResponseEntity<Void> allowAdminUserPermission(
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminUserService.allowAdminUserPermission(id, adminId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/admin/users/student/{id}")
     public ResponseEntity<AdminStudentResponse> getStudent(
         @PathVariable Integer id,
