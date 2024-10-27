@@ -148,7 +148,10 @@ public class Article extends BaseEntity {
     }
 
     public String getUrl() {
-        return this.koreatechArticle.getUrl();
+        if (this.koreatechArticle != null) {
+            return this.koreatechArticle.getUrl();
+        }
+        return null;
     }
 
     public void delete() {
