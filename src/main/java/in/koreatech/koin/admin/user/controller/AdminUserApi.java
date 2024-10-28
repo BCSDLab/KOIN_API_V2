@@ -52,7 +52,7 @@ public interface AdminUserApi {
     @Operation(summary = "학생 리스트 조회(페이지네이션)")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/admin/students")
-    public ResponseEntity<AdminStudentsResponse> getStudents(
+    ResponseEntity<AdminStudentsResponse> getStudents(
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
         @RequestParam(required = false) Boolean isAuthed,
@@ -116,7 +116,7 @@ public interface AdminUserApi {
     )
     @Operation(summary = "어드민 액세스 토큰 재발급")
     @PostMapping("/admin/user/refresh")
-    public ResponseEntity<AdminTokenRefreshResponse> refresh(
+    ResponseEntity<AdminTokenRefreshResponse> refresh(
         @RequestBody @Valid AdminTokenRefreshRequest request
     );
 
