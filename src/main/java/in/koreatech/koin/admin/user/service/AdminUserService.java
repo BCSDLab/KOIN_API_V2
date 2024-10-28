@@ -132,6 +132,10 @@ public class AdminUserService {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
 
+        if (!user.isAuthed()) {
+            throw new AuthorizationException("PL 인증 대기중입니다.");
+        }
+
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
         UserToken savedtoken = adminTokenRepository.save(UserToken.create(user.getId(), refreshToken));
