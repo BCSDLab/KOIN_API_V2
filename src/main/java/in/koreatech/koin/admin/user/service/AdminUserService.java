@@ -2,18 +2,16 @@ package in.koreatech.koin.admin.user.service;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,16 +24,22 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
-import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
+import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
+import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
+import in.koreatech.koin.admin.user.enums.TeamType;
+import in.koreatech.koin.admin.user.enums.TrackType;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.user.repository.AdminOwnerShopRedisRepository;
+import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminTokenRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
@@ -43,17 +47,19 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.model.StudentDepartment;
+import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
+import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
+import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +77,7 @@ public class AdminUserService {
     private final AdminShopRepository adminShopRepository;
     private final PasswordEncoder passwordEncoder;
     private final AdminTokenRepository adminTokenRepository;
+    private final AdminRepository adminRepository;
 
     public AdminStudentsResponse getStudents(StudentsCondition studentsCondition) {
         Integer totalStudents = adminStudentRepository.findAllStudentCount();
@@ -80,6 +87,36 @@ public class AdminUserService {
         Page<Student> studentsPage = adminStudentRepository.findByConditions(studentsCondition, pageRequest);
 
         return AdminStudentsResponse.from(studentsPage);
+    }
+
+    @Transactional
+    public AdminResponse createAdmin(CreateAdminRequest request, Integer adminId) {
+        Admin admin = adminRepository.getById(adminId);
+        if (!admin.isCreateAdmin() || !admin.isSuperAdmin()) {
+            throw new AuthorizationException("어드민 계정 생성 권한이 없습니다.");
+        }
+
+        validateAdminCreate(request);
+        Admin createAdmin = adminRepository.save(request.toEntity(passwordEncoder));
+
+        return AdminResponse.of(createAdmin);
+    }
+
+    private void validateAdminCreate(CreateAdminRequest request) {
+        EmailAddress emailAddress = EmailAddress.from(request.email());
+        emailAddress.validateKoreatechEmail();
+        emailAddress.validateAdminEmail();
+
+        validateDuplicateEmail(request);
+        TrackType.checkTrackValid(request.trackName());
+        TeamType.checkTeamValid(request.teamName());
+    }
+
+    private void validateDuplicateEmail(CreateAdminRequest request) {
+        adminUserRepository.findByEmail(request.email())
+            .ifPresent(user -> {
+                throw DuplicationEmailException.withDetail("email: " + request.email());
+            });
     }
 
     @Transactional

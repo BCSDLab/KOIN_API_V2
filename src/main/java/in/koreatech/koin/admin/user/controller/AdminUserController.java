@@ -23,14 +23,17 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
+import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
+import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.user.service.AdminUserService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.Auth;
@@ -63,6 +66,15 @@ public class AdminUserController implements AdminUserApi{
         StudentsCondition studentsCondition = new StudentsCondition(page, limit, isAuthed, nickname, email);
         AdminStudentsResponse adminStudentsResponse = adminUserService.getStudents(studentsCondition);
         return ResponseEntity.ok().body(adminStudentsResponse);
+    }
+
+    @PostMapping("/admin")
+    public ResponseEntity<Void> createAdmin(
+        @RequestBody @Valid CreateAdminRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        AdminResponse response = adminUserService.createAdmin(request, adminId);
+        return ResponseEntity.created(URI.create("/" + response.id())).build();
     }
 
     @PostMapping("/admin/user/login")

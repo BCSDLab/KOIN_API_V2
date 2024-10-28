@@ -15,6 +15,8 @@ public record EmailAddress(
     private static final String DOMAIN_SEPARATOR = "@";
     private static final String KOREATECH_DOMAIN = "koreatech.ac.kr";
 
+    private static final String ADMIN_EMAIL_PATTERN = "^koin\\d{5}$";
+
     public static EmailAddress from(String email) {
         return new EmailAddress(email);
     }
@@ -25,11 +27,21 @@ public record EmailAddress(
         }
     }
 
+    public void validateAdminEmail() {
+        if (!addressForm().matches(ADMIN_EMAIL_PATTERN)) {
+            throw new EmailAddressInvalidException("어드민 계정 양식에 맞지 않습니다", "email: " + email);
+        }
+    }
+
     private String domainForm() {
         return email.substring(getSeparateIndex() + DOMAIN_SEPARATOR.length());
     }
 
     private int getSeparateIndex() {
         return email.lastIndexOf(DOMAIN_SEPARATOR);
+    }
+
+    private String addressForm() {
+        return email.substring(0, email.lastIndexOf("@"));
     }
 }
