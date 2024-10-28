@@ -34,7 +34,7 @@ public class Admin {
     @NotNull
     @Size(max = 10)
     @Column(name = "team_name", length = 10, nullable = false)
-    private String teamNName;
+    private String teamName;
 
     @NotNull
     @Size(max = 20)
@@ -48,9 +48,9 @@ public class Admin {
     private boolean superAdmin = false;
 
     @Builder
-    public Admin(User user, String teamNName, String trackName, boolean createAdmin, boolean superAdmin) {
+    public Admin(User user, String teamName, String trackName, boolean createAdmin, boolean superAdmin) {
         this.user = user;
-        this.teamNName = teamNName;
+        this.teamName = teamName;
         this.trackName = trackName;
         this.createAdmin = createAdmin;
         this.superAdmin = superAdmin;

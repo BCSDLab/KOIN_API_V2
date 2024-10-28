@@ -40,7 +40,7 @@ public record AdminResponse(
             user.getEmail(),
             user.getName(),
             admin.getTrackName(),
-            admin.getTeamNName(),
+            admin.getTeamName(),
             admin.isCreateAdmin(),
             admin.isSuperAdmin()
         );
