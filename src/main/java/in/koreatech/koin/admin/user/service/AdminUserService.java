@@ -31,6 +31,8 @@ import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
+import in.koreatech.koin.admin.user.dto.AdminsCondition;
+import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
@@ -99,7 +101,7 @@ public class AdminUserService {
         validateAdminCreate(request);
         Admin createAdmin = adminRepository.save(request.toEntity(passwordEncoder));
 
-        return AdminResponse.of(createAdmin);
+        return AdminResponse.from(createAdmin);
     }
 
     private void validateAdminCreate(CreateAdminRequest request) {
@@ -171,7 +173,7 @@ public class AdminUserService {
 
     public AdminResponse getAdmin(Integer id) {
         Admin admin = adminRepository.getById(id);
-        return AdminResponse.of(admin);
+        return AdminResponse.from(admin);
     }
 
     @Transactional

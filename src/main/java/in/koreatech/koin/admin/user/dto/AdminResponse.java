@@ -32,7 +32,7 @@ public record AdminResponse(
     @Schema(description = "슈퍼 어드민 권한", example = "false", requiredMode = REQUIRED)
     Boolean superAdmin
 ) {
-    public static AdminResponse of(Admin admin) {
+    public static AdminResponse from(Admin admin) {
         User user = admin.getUser();
 
         return new AdminResponse(
