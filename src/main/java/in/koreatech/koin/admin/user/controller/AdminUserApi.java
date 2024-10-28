@@ -20,6 +20,7 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
@@ -118,6 +119,21 @@ public interface AdminUserApi {
     @PostMapping("/admin/user/refresh")
     ResponseEntity<AdminTokenRefreshResponse> refresh(
         @RequestBody @Valid AdminTokenRefreshRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 계정 정보 조회")
+    @GetMapping("/admin/{id}")
+    ResponseEntity<AdminResponse> getAdmin(
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(

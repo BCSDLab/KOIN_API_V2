@@ -103,6 +103,14 @@ public class AdminUserController implements AdminUserApi{
             .body(tokenGroupResponse);
     }
 
+    @GetMapping("/admin/{id}")
+    public ResponseEntity<AdminResponse> getAdmin(
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        AdminResponse adminResponse = adminUserService.getAdmin(id);
+        return ResponseEntity.ok(adminResponse);
+    }
 
     @GetMapping("/admin/users/student/{id}")
     public ResponseEntity<AdminStudentResponse> getStudent(

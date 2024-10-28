@@ -169,6 +169,11 @@ public class AdminUserService {
         return split[split.length - 1];
     }
 
+    public AdminResponse getAdmin(Integer id) {
+        Admin admin = adminRepository.getById(id);
+        return AdminResponse.of(admin);
+    }
+
     @Transactional
     public void allowOwnerPermission(Integer id) {
         Owner owner = adminOwnerRepository.getById(id);
