@@ -52,7 +52,7 @@ public record CreateAdminRequest(
         return Admin.builder()
             .user(user)
             .trackName(trackName)
-            .teamNName(teamName)
+            .teamName(teamName)
             .build();
     }
 }
