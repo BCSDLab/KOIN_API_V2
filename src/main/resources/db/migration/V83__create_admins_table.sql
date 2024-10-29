@@ -7,4 +7,11 @@ CREATE TABLE `koin`.`admins`
     `super_admin` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '슈퍼 어드민 권한',
     PRIMARY KEY (`user_id`),
     CONSTRAINT FK_ADMIN_ON_USER FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-)
+);
+
+INSERT INTO `koin`.`admins` (user_id, team_name, track_name, create_admin, super_admin)
+SELECT u.id, '코인 어드민', '코인 어드민', 1, 1
+FROM `koin`.`users` u
+WHERE u.user_type = 'ADMIN'
+ORDER BY u.id ASC LIMIT 1;
+
