@@ -1,6 +1,7 @@
 package in.koreatech.koin.fixture;
 
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
+import static in.koreatech.koin.domain.user.model.UserGender.WOMAN;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
 import static in.koreatech.koin.domain.user.model.UserType.*;
 
@@ -19,10 +20,10 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 
@@ -74,6 +75,54 @@ public final class UserFixture {
                         .gender(MAN)
                         .email("juno@koreatech.ac.kr")
                         .isAuthed(true)
+                        .isDeleted(false)
+                        .build()
+                )
+                .build()
+        );
+    }
+
+    public Admin 영희_운영자() {
+        return adminRepository.save(
+            Admin.builder()
+                .trackName("백엔드")
+                .teamName("비즈니스")
+                .createAdmin(false)
+                .superAdmin(false)
+                .user(
+                    User.builder()
+                        .password(passwordEncoder.encode("1234"))
+                        .nickname("코인운영자1")
+                        .name("테스트용_코인운영자")
+                        .phoneNumber("01012342347")
+                        .userType(ADMIN)
+                        .gender(WOMAN)
+                        .email("koinadmin1@koreatech.ac.kr")
+                        .isAuthed(true)
+                        .isDeleted(false)
+                        .build()
+                )
+                .build()
+        );
+    }
+
+    public Admin 진구_운영자() {
+        return adminRepository.save(
+            Admin.builder()
+                .trackName("백엔드")
+                .teamName("캠퍼스")
+                .createAdmin(true)
+                .superAdmin(false)
+                .user(
+                    User.builder()
+                        .password(passwordEncoder.encode("1234"))
+                        .nickname("코인운영자2")
+                        .name("테스트용_코인운영자")
+                        .phoneNumber("01012342347")
+                        .userType(ADMIN)
+                        .gender(WOMAN)
+                        .email("koinadmin2@koreatech.ac.kr")
+                        .isAuthed(false)
                         .isDeleted(false)
                         .build()
                 )
