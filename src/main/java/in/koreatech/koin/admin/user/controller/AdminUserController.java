@@ -28,6 +28,7 @@ import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
+import in.koreatech.koin.admin.user.dto.AdminUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminsCondition;
 import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
@@ -144,6 +145,16 @@ public class AdminUserController implements AdminUserApi{
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminUserService.allowAdminPermission(id, adminId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<Void> updateAdmin(
+        @RequestBody @Valid AdminUpdateRequest request,
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminUserService.updateAdmin(request, id);
         return ResponseEntity.ok().build();
     }
 

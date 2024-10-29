@@ -55,4 +55,9 @@ public class Admin {
         this.createAdmin = createAdmin;
         this.superAdmin = superAdmin;
     }
+
+    public void update(String teamName, String trackName) {
+        this.teamName = teamName;
+        this.trackName = trackName;
+    }
 }

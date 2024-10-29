@@ -32,6 +32,7 @@ import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
+import in.koreatech.koin.admin.user.dto.AdminUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminsCondition;
 import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
@@ -206,6 +207,21 @@ public class AdminUserService {
 
         User user = adminRepository.getById(id).getUser();
         user.auth();
+    }
+
+    @Transactional
+    public void updateAdmin(AdminUpdateRequest request, Integer id) {
+        Admin admin = adminRepository.getById(id);
+        User user = admin.getUser();
+
+        validateAdminUpdate(request);
+        user.update(null, request.name(), null, null);
+        admin.update(request.teamName(), request.trackName());
+    }
+
+    private void validateAdminUpdate(AdminUpdateRequest request) {
+        TrackType.checkTrackValid(request.trackName());
+        TeamType.checkTeamValid(request.teamName());
     }
 
     @Transactional
