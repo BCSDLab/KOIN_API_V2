@@ -137,9 +137,23 @@ public class AdminUserService {
     @Transactional
     public AdminLoginResponse adminLogin(AdminLoginRequest request) {
         User user = adminUserRepository.getByEmail(request.email());
+        validateAdminLogin(user,request);
 
+        String accessToken = jwtProvider.createToken(user);
+        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
+        UserToken savedtoken = adminTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        user.updateLastLoggedTime(LocalDateTime.now());
+
+        return AdminLoginResponse.of(accessToken, savedtoken.getRefreshToken());
+    }
+
+    private void validateAdminLogin(User user, AdminLoginRequest request) {
         /* 어드민 권한이 없으면 없는 회원으로 간주 */
         if (user.getUserType() != ADMIN) {
+            throw UserNotFoundException.withDetail("email" + request.email());
+        }
+
+        if (adminRepository.findById(user.getId()).isEmpty()) {
             throw UserNotFoundException.withDetail("email" + request.email());
         }
 
@@ -150,13 +164,6 @@ public class AdminUserService {
         if (!user.isAuthed()) {
             throw new AuthorizationException("PL 인증 대기중입니다.");
         }
-
-        String accessToken = jwtProvider.createToken(user);
-        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
-        UserToken savedtoken = adminTokenRepository.save(UserToken.create(user.getId(), refreshToken));
-        user.updateLastLoggedTime(LocalDateTime.now());
-
-        return AdminLoginResponse.of(accessToken, savedtoken.getRefreshToken());
     }
 
     @Transactional
