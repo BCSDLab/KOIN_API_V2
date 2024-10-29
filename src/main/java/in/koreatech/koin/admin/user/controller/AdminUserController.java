@@ -38,7 +38,6 @@ import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
-import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.user.service.AdminUserService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.Auth;
@@ -141,11 +140,11 @@ public class AdminUserController implements AdminUserApi{
     }
 
     @PutMapping("/admin/{id}/authed")
-    public ResponseEntity<Void> allowAdminPermission(
+    public ResponseEntity<Void> adminAuthenticate(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminUserService.allowAdminPermission(id, adminId);
+        adminUserService.adminAuthenticate(id, adminId);
         return ResponseEntity.ok().build();
     }
 

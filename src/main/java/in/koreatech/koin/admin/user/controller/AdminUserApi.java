@@ -186,7 +186,7 @@ public interface AdminUserApi {
     )
     @Operation(summary = "어드민 계정 인증 상태 변경")
     @PutMapping("/admin/{id}/authed")
-    ResponseEntity<Void> allowAdminPermission(
+    ResponseEntity<Void> adminAuthenticate(
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     );
