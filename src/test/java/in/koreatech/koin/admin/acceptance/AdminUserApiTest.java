@@ -25,6 +25,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.user.repository.AdminOwnerShopRedisRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
@@ -81,9 +82,9 @@ public class AdminUserApiTest extends AcceptanceTest {
     @Test
     void 관리자가_학생_리스트를_파라미터가_없이_조회한다_페이지네이션() throws Exception {
         Student student = userFixture.준호_학생();
-        User adminUser = userFixture.코인_운영자();
+        Admin adminUser = userFixture.코인_운영자();
 
-        String token = userFixture.getToken(adminUser);
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/students")
@@ -138,9 +139,8 @@ public class AdminUserApiTest extends AcceptanceTest {
             adminStudentRepository.save(student);
         }
 
-        User adminUser = userFixture.코인_운영자();
-
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/students")
@@ -173,9 +173,8 @@ public class AdminUserApiTest extends AcceptanceTest {
     void 관리자가_학생_리스트를_닉네임으로_조회한다_페이지네이션() throws Exception {
         Student student1 = userFixture.성빈_학생();
         Student student2 = userFixture.준호_학생();
-        User adminUser = userFixture.코인_운영자();
-
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/students")
@@ -206,8 +205,8 @@ public class AdminUserApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_로그인_한다() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-        String email = adminUser.getEmail();
+        Admin adminUser = userFixture.코인_운영자();
+        String email = adminUser.getUser().getEmail();
         String password = "1234";
 
         mockMvc.perform(
@@ -244,9 +243,8 @@ public class AdminUserApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_로그아웃한다() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 post("/admin/user/logout")
@@ -258,11 +256,11 @@ public class AdminUserApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_액세스_토큰_재발급_한다() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-        String email = adminUser.getEmail();
+        Admin adminUser = userFixture.코인_운영자();
+        User user = adminUser.getUser();
+        String email = user.getEmail();
         String password = "1234";
-
-        String token = userFixture.getToken(adminUser);
+        String token = userFixture.getToken(user);
 
         MvcResult result = mockMvc.perform(
                 post("/admin/user/login")
@@ -297,8 +295,8 @@ public class AdminUserApiTest extends AcceptanceTest {
         Owner owner = userFixture.철수_사장님();
         Shop shop = shopFixture.마슬랜(null);
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         OwnerShop ownerShop = OwnerShop.builder()
             .ownerId(owner.getId())
@@ -343,8 +341,8 @@ public class AdminUserApiTest extends AcceptanceTest {
     void 관리자가_특정_학생_정보를_조회한다() throws Exception {
         Student student = userFixture.준호_학생();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/users/student/{id}", student.getUser().getId())
@@ -377,8 +375,8 @@ public class AdminUserApiTest extends AcceptanceTest {
     void 관리자가_특정_학생_정보를_수정한다() throws Exception {
         Student student = userFixture.준호_학생();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 put("/admin/users/student/{id}", student.getUser().getId())
@@ -428,8 +426,8 @@ public class AdminUserApiTest extends AcceptanceTest {
         Owner owner = userFixture.현수_사장님();
         Shop shop = shopFixture.마슬랜(owner);
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/users/owner/{id}", owner.getUser().getId())
@@ -466,8 +464,8 @@ public class AdminUserApiTest extends AcceptanceTest {
         Owner owner = userFixture.현수_사장님();
         Shop shop = shopFixture.마슬랜(owner);
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 put("/admin/users/owner/{id}", owner.getUser().getId())
@@ -501,8 +499,8 @@ public class AdminUserApiTest extends AcceptanceTest {
         Owner owner = userFixture.철수_사장님();
         Shop shop = shopFixture.마슬랜(null);
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         OwnerShop ownerShop = OwnerShop.builder()
             .ownerId(owner.getId())
@@ -581,8 +579,8 @@ public class AdminUserApiTest extends AcceptanceTest {
             adminOwnerRepository.save(owner);
         }
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/users/new-owners")
@@ -637,8 +635,8 @@ public class AdminUserApiTest extends AcceptanceTest {
             adminOwnerRepository.save(owner);
         }
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/users/owners")
@@ -657,8 +655,8 @@ public class AdminUserApiTest extends AcceptanceTest {
     void 관리자가_회원을_조회한다() throws Exception {
         Student student = userFixture.준호_학생();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/users/{id}", student.getUser().getId())
@@ -675,8 +673,8 @@ public class AdminUserApiTest extends AcceptanceTest {
     void 관리자가_회원을_삭제한다() throws Exception {
         Student student = userFixture.준호_학생();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 delete("/admin/users/{id}", student.getUser().getId())

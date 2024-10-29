@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
@@ -33,8 +35,8 @@ public final class UserFixture {
     private final OwnerRepository ownerRepository;
     private final StudentRepository studentRepository;
     private final CoopRepository coopRepository;
+    private final AdminRepository adminRepository;
     private final JwtProvider jwtProvider;
-
 
     @Autowired
     public UserFixture(
@@ -43,6 +45,7 @@ public final class UserFixture {
         OwnerRepository ownerRepository,
         StudentRepository studentRepository,
         CoopRepository coopRepository,
+        AdminRepository adminRepository,
         JwtProvider jwtProvider
     ) {
         this.passwordEncoder = passwordEncoder;
@@ -50,21 +53,30 @@ public final class UserFixture {
         this.ownerRepository = ownerRepository;
         this.studentRepository = studentRepository;
         this.coopRepository = coopRepository;
+        this.adminRepository = adminRepository;
         this.jwtProvider = jwtProvider;
     }
 
-    public User 코인_운영자() {
-        return userRepository.save(
-            User.builder()
-                .password(passwordEncoder.encode("1234"))
-                .nickname("코인운영자")
-                .name("테스트용_코인운영자")
-                .phoneNumber("01012342344")
-                .userType(ADMIN)
-                .gender(MAN)
-                .email("juno@koreatech.ac.kr")
-                .isAuthed(true)
-                .isDeleted(false)
+    public Admin 코인_운영자() {
+        return adminRepository.save(
+            Admin.builder()
+                .trackName("백엔드")
+                .teamName("유저")
+                .createAdmin(true)
+                .superAdmin(true)
+                .user(
+                    User.builder()
+                        .password(passwordEncoder.encode("1234"))
+                        .nickname("코인운영자")
+                        .name("테스트용_코인운영자")
+                        .phoneNumber("01012342344")
+                        .userType(ADMIN)
+                        .gender(MAN)
+                        .email("juno@koreatech.ac.kr")
+                        .isAuthed(true)
+                        .isDeleted(false)
+                        .build()
+                )
                 .build()
         );
     }

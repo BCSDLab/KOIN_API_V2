@@ -17,11 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryRepository;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.BenefitCategoryFixture;
 import in.koreatech.koin.fixture.BenefitCategoryMapFixture;
 import in.koreatech.koin.fixture.ShopFixture;
@@ -49,7 +49,7 @@ public class AdminBenefitApiTest extends AcceptanceTest {
     @Autowired
     UserFixture userFixture;
 
-    User admin;
+    Admin admin;
     String token_admin;
     Owner 현수_사장님;
 
@@ -67,7 +67,7 @@ public class AdminBenefitApiTest extends AcceptanceTest {
     void setup() {
         clear();
         admin = userFixture.코인_운영자();
-        token_admin = userFixture.getToken(admin);
+        token_admin = userFixture.getToken(admin.getUser());
 
         배달비_무료 = benefitCategoryFixture.배달비_무료();
         최소주문금액_무료 = benefitCategoryFixture.최소주문금액_무료();
