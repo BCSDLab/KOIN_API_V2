@@ -23,6 +23,7 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
 import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
@@ -77,6 +78,15 @@ public class AdminUserController implements AdminUserApi{
     ) {
         AdminResponse response = adminUserService.createAdmin(request, adminId);
         return ResponseEntity.created(URI.create("/" + response.id())).build();
+    }
+
+    @PutMapping("/admin/password")
+    public ResponseEntity<Void> adminPasswordChange(
+        @RequestBody @Valid AdminPasswordChangeRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminUserService.adminPasswordChange(request, adminId);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/admin/user/login")

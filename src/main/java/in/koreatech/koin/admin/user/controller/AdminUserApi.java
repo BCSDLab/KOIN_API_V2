@@ -20,6 +20,7 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
 import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
@@ -92,6 +93,22 @@ public interface AdminUserApi {
     @PostMapping("/admin/user/login")
     ResponseEntity<AdminLoginResponse> adminLogin(
         @RequestBody @Valid AdminLoginRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 비밀번호 변경")
+    @PutMapping("/admin/password")
+    ResponseEntity<Void> adminPasswordChange(
+        @RequestBody @Valid AdminPasswordChangeRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(

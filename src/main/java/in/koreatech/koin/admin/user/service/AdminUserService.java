@@ -24,6 +24,7 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
 import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
@@ -119,6 +120,16 @@ public class AdminUserService {
             .ifPresent(user -> {
                 throw DuplicationEmailException.withDetail("email: " + request.email());
             });
+    }
+
+    @Transactional
+    public void adminPasswordChange(AdminPasswordChangeRequest request, Integer adminId) {
+        Admin admin = adminRepository.getById(adminId);
+        User user = admin.getUser();
+        if (!user.isSamePassword(passwordEncoder, request.oldPassword())) {
+            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+        user.updatePassword(passwordEncoder, request.oldPassword());
     }
 
     @Transactional
