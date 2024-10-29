@@ -2,6 +2,7 @@ package in.koreatech.koin.admin.user.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,5 +60,11 @@ public class Admin {
     public void update(String teamName, String trackName) {
         this.teamName = teamName;
         this.trackName = trackName;
+    }
+
+    /* 어드민 권한이 추가 되면, 해당 메소드에도 추가해야 합니다. */
+    public void updatePermission(AdminPermissionUpdateRequest request) {
+        this.createAdmin = request.createAdmin();
+        this.superAdmin = request.superAdmin();
     }
 }
