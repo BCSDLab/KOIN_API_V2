@@ -1,11 +1,11 @@
 package in.koreatech.koin.admin.acceptance;
 
-import static in.koreatech.koin.domain.shop.model.review.ReportStatus.*;
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.DELETED;
+import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +25,6 @@ import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ShopFixture;
 import in.koreatech.koin.fixture.ShopReviewFixture;
 import in.koreatech.koin.fixture.ShopReviewReportFixture;
