@@ -27,6 +27,7 @@ import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
+import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.domain.user.model.User;
@@ -134,6 +135,25 @@ public interface AdminUserApi {
     @GetMapping("/admin/{id}")
     ResponseEntity<AdminResponse> getAdmin(
         @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 계정 리스트 정보 조회")
+    @GetMapping("/admins")
+    ResponseEntity<AdminsResponse> getAdmins(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit,
+        @RequestParam(required = false) Boolean isAuthed,
+        @RequestParam(required = false) String trackName,
+        @RequestParam(required = false) String teamName,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 

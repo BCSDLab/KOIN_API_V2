@@ -27,6 +27,8 @@ import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
+import in.koreatech.koin.admin.user.dto.AdminsCondition;
+import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
@@ -110,6 +112,20 @@ public class AdminUserController implements AdminUserApi{
     ) {
         AdminResponse adminResponse = adminUserService.getAdmin(id);
         return ResponseEntity.ok(adminResponse);
+    }
+
+    @GetMapping("/admins")
+    public ResponseEntity<AdminsResponse> getAdmins(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit,
+        @RequestParam(required = false) Boolean isAuthed,
+        @RequestParam(required = false) String trackName,
+        @RequestParam(required = false) String teamName,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        AdminsCondition adminsCondition = new AdminsCondition(page, limit, isAuthed, trackName, teamName);
+        AdminsResponse adminsResponse = adminUserService.getAdmins(adminsCondition);
+        return ResponseEntity.ok(adminsResponse);
     }
 
     @GetMapping("/admin/users/student/{id}")

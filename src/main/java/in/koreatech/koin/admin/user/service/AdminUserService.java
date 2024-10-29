@@ -176,6 +176,16 @@ public class AdminUserService {
         return AdminResponse.from(admin);
     }
 
+    public AdminsResponse getAdmins(AdminsCondition adminsCondition) {
+        Integer totalAdmins = adminRepository.countAdmins();
+        Criteria criteria = Criteria.of(adminsCondition.page(), adminsCondition.limit(), totalAdmins);
+
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
+        Page<Admin> adminsPage = adminRepository.findByConditions(adminsCondition, pageRequest);
+
+        return AdminsResponse.of(adminsPage);
+    }
+
     @Transactional
     public void allowOwnerPermission(Integer id) {
         Owner owner = adminOwnerRepository.getById(id);

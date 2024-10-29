@@ -2,8 +2,13 @@ package in.koreatech.koin.admin.user.repository;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
+import in.koreatech.koin.admin.user.dto.AdminsCondition;
 import in.koreatech.koin.admin.user.exception.AdminNotFoundException;
 import in.koreatech.koin.admin.user.model.Admin;
 
@@ -16,4 +21,15 @@ public interface AdminRepository extends Repository<Admin, Integer> {
         return findById(id)
             .orElseThrow(() -> AdminNotFoundException.withDetail("adminId : " + id));
     }
+
+    @Query("SELECT COUNT(*) FROM Admin")
+    Integer countAdmins();
+
+    @Query("""
+        SELECT a FROM Admin a WHERE
+        (:#{#condition.isAuthed} IS NULL OR a.user.isAuthed = :#{#condition.isAuthed}) AND
+        (:#{#condition.trackName} IS NULL OR a.trackName = :#{#condition.trackName}) AND
+        (:#{#condition.teamName} IS NULL OR a.teamName = :#{#condition.teamName})
+        """)
+    Page<Admin> findByConditions(@Param("condition") AdminsCondition adminsCondition, Pageable pageable);
 }
