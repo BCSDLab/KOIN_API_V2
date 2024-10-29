@@ -129,7 +129,7 @@ public class AdminUserService {
         if (!user.isSamePassword(passwordEncoder, request.oldPassword())) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
-        user.updatePassword(passwordEncoder, request.oldPassword());
+        user.updatePassword(passwordEncoder, request.newPassword());
     }
 
     @Transactional
