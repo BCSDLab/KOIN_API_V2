@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import in.koreatech.koin.admin.history.enums.DomainType;
+import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import in.koreatech.koin.admin.history.model.AdminActivityHistory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -44,8 +46,8 @@ public record AdminHistoryResponse(
             adminActivityHistory.getId(),
             adminActivityHistory.getDomainId(),
             adminActivityHistory.getUser().getName(),
-            adminActivityHistory.getDomainName(),
-            adminActivityHistory.getRequestMethod(),
+            DomainType.valueOf(adminActivityHistory.getDomainName()).getDescription(),
+            HttpMethodType.valueOf(adminActivityHistory.getRequestMethod()).getValue(),
             adminActivityHistory.getRequestMessage(),
             adminActivityHistory.getCreatedAt()
         );
