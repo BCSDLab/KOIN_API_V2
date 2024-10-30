@@ -1,7 +1,8 @@
 package in.koreatech.koin.admin.history.aop;
 
 import org.apache.commons.lang3.EnumUtils;
-import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.context.annotation.Profile;
@@ -45,44 +46,68 @@ public class AdminActivityHistoryAspect {
     private void excludeSpecificMethods() {
     }
 
-    @AfterReturning("allAdminControllers() && excludeGetMapping() && excludeSpecificMethods()")
-    public void logAdminActivity() throws Throwable {
+    @Around("allAdminControllers() && excludeGetMapping() && excludeSpecificMethods()")
+    public Object logAdminActivity(ProceedingJoinPoint joinPoint) throws Throwable {
         HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
         String requestURI = request.getRequestURI();
         String requestMethod = request.getMethod();
 
-        User user = userRepository.getById(authContext.getUserId());
-
-        Integer domainId = null;
-        String domainName = null;
-        getDomainIdAndName(requestURI, domainId, domainName);
-
-        ContentCachingRequestWrapper cachingRequest = new ContentCachingRequestWrapper(request);
+        ContentCachingRequestWrapper cachingRequest = (ContentCachingRequestWrapper)request;
         String requestMessage = new String(cachingRequest.getContentAsByteArray());
 
+        Object result = joinPoint.proceed();
+
+        User user = userRepository.getById(authContext.getUserId());
+        DomainInfo domainInfo = getDomainInfo(requestURI);
+
         adminActivityHistoryRepository.save(AdminActivityHistory.builder()
-            .domainId(domainId)
+            .domainId(domainInfo.getDomainId())
             .user(user)
             .requestMethod(requestMethod)
-            .domainName(domainName)
+            .domainName(domainInfo.getDomainName())
             .requestMessage(requestMessage)
             .build());
+
+        return result;
     }
 
-    private void getDomainIdAndName(String requestURI, Integer domainId, String domainName) {
+    private DomainInfo getDomainInfo(String requestURI) {
         String[] split = requestURI.split("/");
+        Integer domainId = null;
+        String domainName = null;
+
         for (int i = split.length - 1; i >= 0; i--) {
             String segment = split[i];
             if (EnumUtils.isValidEnumIgnoreCase(DomainType.class, segment) && domainName == null) {
                 domainName = segment.toUpperCase();
                 if (i != split.length - 1) {
-                    String index = split[i - 1];
+                    String index = split[i + 1];
                     if (index.matches(regex) && domainId == null) {
                         domainId = Integer.valueOf(index);
                     }
                 }
                 break;
             }
+        }
+
+        return new DomainInfo(domainId, domainName);
+    }
+
+    private static class DomainInfo {
+        private final Integer domainId;
+        private final String domainName;
+
+        public DomainInfo(Integer domainId, String domainName) {
+            this.domainId = domainId;
+            this.domainName = domainName;
+        }
+
+        public Integer getDomainId() {
+            return domainId;
+        }
+
+        public String getDomainName() {
+            return domainName;
         }
     }
 }
