@@ -1,0 +1,35 @@
+package in.koreatech.koin.admin.history.repository;
+
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
+
+import in.koreatech.koin.admin.history.dto.AdminHistorysCondition;
+import in.koreatech.koin.admin.history.exception.AdminActivityHistoryNotFoundException;
+import in.koreatech.koin.admin.history.model.AdminActivityHistory;
+
+public interface AdminActivityHistoryRepository extends Repository<AdminActivityHistory, Integer> {
+
+    Optional<AdminActivityHistory> findById(Integer id);
+
+    default AdminActivityHistory getById(Integer id) {
+        return findById(id)
+            .orElseThrow(() -> new AdminActivityHistoryNotFoundException("admin_activity_history id: " + id));
+    }
+
+    @Query("SELECT COUNT(*) FROM AdminActivityHistory")
+    Integer countAdminActivityHistory();
+
+    @Query("""
+        SELECT a FROM AdminActivityHistory a WHERE
+        (:#{#condition.requestMethod} IS NULL OR a.requestMethod = :#{#condition.requestMethod}) AND
+        (:#{#condition.domainName} IS NULL OR a.domainName = :#{#condition.domainName}) AND
+        (:#{#condition.domainId} IS NULL OR a.domainId = :#{#condition.domainId})
+        """)
+    Page<AdminActivityHistory> findByConditions(@Param("condition") AdminHistorysCondition adminsCondition,
+        Pageable pageable);
+}
