@@ -44,7 +44,7 @@ public class AdminVersionService {
     @Transactional
     public void updateVersion(String type, AdminVersionUpdateRequest request) {
         VersionType versionType = VersionType.from(type);
-        if (versionType != VersionType.ANDROID && versionType != VersionType.IOS) {
+        if (checkType(versionType)) {
             throw new KoinIllegalArgumentException("unsupported type", "type: " + versionType);
         }
 
@@ -53,6 +53,12 @@ public class AdminVersionService {
 
         Version newVersion = Version.of(versionType, request);
         adminVersionRepository.save(newVersion);
+    }
+
+    private static boolean checkType(VersionType versionType) {
+        return versionType != VersionType.ANDROID
+            && versionType != VersionType.IOS
+            && versionType != VersionType.AND_OWNER;
     }
 
     public AdminVersionHistoryResponse getHistory(String type, Integer page, Integer limit) {

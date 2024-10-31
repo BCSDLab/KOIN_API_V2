@@ -58,7 +58,10 @@ public interface AdminVersionApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/{type}")
     ResponseEntity<AdminVersionResponse> getVersion(
-        @Parameter(description = "android, ios, timetable, express_bus_timetable, shuttle_bus_timetable, city_bus_timetable")
+        @Parameter(description = """
+            android, ios, android_owner, timetable, express_bus_timetable,
+            shuttle_bus_timetable, city_bus_timetable
+            """)
         @PathVariable("type") String type,
         @Auth(permit = {ADMIN}) Integer adminId
     );
@@ -75,7 +78,7 @@ public interface AdminVersionApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/{type}")
     ResponseEntity<Void> updateVersion(
-        @Parameter(description = "android, ios") @PathVariable("type") String type,
+        @Parameter(description = "android, ios, android_owner") @PathVariable("type") String type,
         @RequestBody @Valid AdminVersionUpdateRequest adminVersionUpdateRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     );
@@ -94,7 +97,10 @@ public interface AdminVersionApi {
     ResponseEntity<AdminVersionHistoryResponse> getHistory(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
-        @Parameter(description = "android, ios, timetable, express_bus_timetable, shuttle_bus_timetable, city_bus_timetable")
+        @Parameter(description = """
+            android, ios, android_owner, timetable, express_bus_timetable,
+            shuttle_bus_timetable, city_bus_timetable
+            """)
         @PathVariable("type") String type,
         @Auth(permit = {ADMIN}) Integer adminId
     );
