@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import in.koreatech.koin.admin.shop.dto.*;
+import in.koreatech.koin.admin.shop.exception.ShopCategoryNotEmptyException;
 import in.koreatech.koin.admin.shop.repository.*;
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 
@@ -288,7 +289,14 @@ public class AdminShopService {
 
     @Transactional
     public void deleteShopCategory(Integer categoryId) {
+        if (hasShops(categoryId)) {
+            throw ShopCategoryNotEmptyException.withDetail("category: " + categoryId);
+        }
         adminShopCategoryRepository.deleteById(categoryId);
+    }
+
+    private boolean hasShops(Integer categoryId) {
+        return adminShopCategoryMapRepository.existsByShopCategoryId(categoryId);
     }
 
     @Transactional
