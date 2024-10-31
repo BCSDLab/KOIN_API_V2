@@ -137,7 +137,7 @@ public class AdminUserService {
     @Transactional
     public AdminLoginResponse adminLogin(AdminLoginRequest request) {
         User user = adminUserRepository.getByEmail(request.email());
-        validateAdminLogin(user,request);
+        validateAdminLogin(user, request);
 
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
@@ -270,7 +270,7 @@ public class AdminUserService {
         validateNicknameDuplication(adminRequest.nickname(), id);
         validateDepartmentValid(adminRequest.major());
         user.update(adminRequest.nickname(), adminRequest.name(),
-                adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
+            adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
         user.updateStudentPassword(passwordEncoder, adminRequest.password());
         student.update(adminRequest.studentNumber(), adminRequest.major());
         adminStudentRepository.save(student);
@@ -288,17 +288,16 @@ public class AdminUserService {
         Page<Owner> result = getNewOwnersResultPage(ownersCondition, criteria, direction);
 
         List<OwnerIncludingShop> ownerIncludingShops = result.getContent().stream()
-                .map(owner -> {
-                    Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(owner.getId());
-                    return ownerShop
-                            .map(os -> {
-                                Shop shop = adminShopRepository.findById(os.getShopId()).orElse(null);
-                                return OwnerIncludingShop.of(owner, shop);
-                            })
-                            .orElseGet(() -> OwnerIncludingShop.of(owner, null));
-                })
-                .collect(Collectors.toList());
-
+            .map(owner -> {
+                Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(owner.getId());
+                return ownerShop
+                    .map(os -> {
+                        Shop shop = adminShopRepository.findById(os.getShopId()).orElse(null);
+                        return OwnerIncludingShop.of(owner, shop);
+                    })
+                    .orElseGet(() -> OwnerIncludingShop.of(owner, null));
+            })
+            .collect(Collectors.toList());
 
         return AdminNewOwnersResponse.of(ownerIncludingShops, result, criteria);
     }
@@ -316,9 +315,9 @@ public class AdminUserService {
     }
 
     private Page<Owner> getOwnersResultPage(OwnersCondition ownersCondition, Criteria criteria,
-                                            Sort.Direction direction) {
+        Sort.Direction direction) {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-                Sort.by(direction, "user.createdAt"));
+            Sort.by(direction, "user.createdAt"));
 
         Page<Owner> result;
 
@@ -334,9 +333,9 @@ public class AdminUserService {
     }
 
     private Page<Owner> getNewOwnersResultPage(OwnersCondition ownersCondition, Criteria criteria,
-                                               Sort.Direction direction) {
+        Sort.Direction direction) {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-                Sort.by(direction, "user.createdAt"));
+            Sort.by(direction, "user.createdAt"));
 
         Page<Owner> result;
 
@@ -351,10 +350,9 @@ public class AdminUserService {
         return result;
     }
 
-
     private void validateNicknameDuplication(String nickname, Integer userId) {
         if (nickname != null &&
-                adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {
+            adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {
             throw DuplicationNicknameException.withDetail("nickname : " + nickname);
         }
     }
@@ -369,9 +367,9 @@ public class AdminUserService {
         Owner owner = adminOwnerRepository.getById(ownerId);
 
         List<Integer> shopsId = adminShopRepository.findAllByOwnerId(ownerId)
-                .stream()
-                .map(Shop::getId)
-                .toList();
+            .stream()
+            .map(Shop::getId)
+            .toList();
 
         return AdminOwnerResponse.of(owner, shopsId);
     }
