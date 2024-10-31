@@ -61,10 +61,10 @@ public class AdminActivityHistoryAspect {
         DomainInfo domainInfo = getDomainInfo(requestURI);
 
         adminActivityHistoryRepository.save(AdminActivityHistory.builder()
-            .domainId(domainInfo.getDomainId())
+            .domainId(domainInfo.domainId())
             .user(user)
             .requestMethod(requestMethod)
-            .domainName(domainInfo.getDomainName())
+            .domainName(domainInfo.domainName())
             .requestMessage(requestMessage)
             .build());
 
@@ -93,21 +93,6 @@ public class AdminActivityHistoryAspect {
         return new DomainInfo(domainId, domainName);
     }
 
-    private static class DomainInfo {
-        private final Integer domainId;
-        private final String domainName;
-
-        public DomainInfo(Integer domainId, String domainName) {
-            this.domainId = domainId;
-            this.domainName = domainName;
-        }
-
-        public Integer getDomainId() {
-            return domainId;
-        }
-
-        public String getDomainName() {
-            return domainName;
-        }
+    private record DomainInfo(Integer domainId, String domainName) {
     }
 }
