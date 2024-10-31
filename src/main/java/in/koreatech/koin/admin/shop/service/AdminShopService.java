@@ -76,12 +76,12 @@ public class AdminShopService {
         return AdminShopResponse.from(shop, eventDuration);
     }
 
-    public AdminShopCategoriesResponse getShopCategories(Integer page, Integer limit, Boolean isDeleted) {
-        Integer total = adminShopCategoryRepository.countAllByIsDeleted(isDeleted);
+    public AdminShopCategoriesResponse getShopCategories(Integer page, Integer limit) {
+        Integer total = adminShopCategoryRepository.count();
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
             Sort.by(Sort.Direction.ASC, "id"));
-        Page<ShopCategory> result = adminShopCategoryRepository.findAllByIsDeleted(isDeleted, pageRequest);
+        Page<ShopCategory> result = adminShopCategoryRepository.findAll(pageRequest);
         return AdminShopCategoriesResponse.of(result, criteria);
     }
 
@@ -288,8 +288,7 @@ public class AdminShopService {
 
     @Transactional
     public void deleteShopCategory(Integer categoryId) {
-        ShopCategory shopCategory = adminShopCategoryRepository.getById(categoryId);
-        shopCategory.delete();
+        adminShopCategoryRepository.deleteById(categoryId);
     }
 
     @Transactional

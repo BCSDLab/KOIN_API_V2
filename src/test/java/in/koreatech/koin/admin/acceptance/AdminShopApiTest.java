@@ -458,7 +458,6 @@ class AdminShopApiTest extends AcceptanceTest {
                 softly -> {
                     softly.assertThat(result.getImageUrl()).isEqualTo("https://image.png");
                     softly.assertThat(result.getName()).isEqualTo("새로운 카테고리");
-                    softly.assertThat(result.isDeleted()).isEqualTo(false);
                 }
             );
         });
@@ -895,10 +894,9 @@ class AdminShopApiTest extends AcceptanceTest {
                 delete("/admin/shops/categories/{id}", shopCategory.getId())
                     .header("Authorization", "Bearer " + token_admin)
             )
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
 
-        ShopCategory deletedCategory = adminShopCategoryRepository.getById(shopCategory.getId());
-        assertSoftly(softly -> softly.assertThat(deletedCategory.isDeleted()).isTrue());
+        assertThat(adminMenuCategoryRepository.findById(shopCategory.getId())).isNotPresent();
     }
 
     @Test

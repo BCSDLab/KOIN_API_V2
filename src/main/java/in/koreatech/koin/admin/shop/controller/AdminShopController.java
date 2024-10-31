@@ -52,10 +52,9 @@ public class AdminShopController implements AdminShopApi {
     public ResponseEntity<AdminShopCategoriesResponse> getShopCategories(
         @RequestParam(name = "page", defaultValue = "1") Integer page,
         @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
-        @RequestParam(name = "is_deleted", defaultValue = "false") Boolean isDeleted,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminShopCategoriesResponse response = adminShopService.getShopCategories(page, limit, isDeleted);
+        AdminShopCategoriesResponse response = adminShopService.getShopCategories(page, limit);
         return ResponseEntity.ok(response);
     }
 
@@ -199,7 +198,7 @@ public class AdminShopController implements AdminShopApi {
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminShopService.deleteShopCategory(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/admin/shops/{shopId}/menus/categories/{categoryId}")
