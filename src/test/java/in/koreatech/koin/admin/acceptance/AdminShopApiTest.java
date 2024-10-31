@@ -202,7 +202,6 @@ class AdminShopApiTest extends AcceptanceTest {
         for (int i = 0; i < 12; i++) {
             ShopCategory request = ShopCategory.builder()
                 .name("카테고리" + i)
-                .isDeleted(false)
                 .build();
             adminShopCategoryRepository.save(request);
         }
