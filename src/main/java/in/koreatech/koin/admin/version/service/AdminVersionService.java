@@ -44,7 +44,7 @@ public class AdminVersionService {
     @Transactional
     public void updateVersion(String type, AdminVersionUpdateRequest request) {
         VersionType versionType = VersionType.from(type);
-        if (isPlatform(versionType)) {
+        if (!isPlatform(versionType)) {
             throw new KoinIllegalArgumentException("unsupported type", "type: " + versionType);
         }
 
