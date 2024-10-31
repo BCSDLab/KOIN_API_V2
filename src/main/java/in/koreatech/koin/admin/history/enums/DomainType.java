@@ -10,8 +10,17 @@ public enum DomainType {
     NOTICE("Notice", "코인 공지"),
     VERSION("Version", "버전관리"),
 
+    CATEGORIES("Categories", "카테고리"),
+
     BENEFIT("Benefit", "혜택"),
+    BENEFITCATEGORIES("Benefit Categories", "혜택 카테고리"),
+
     SHOPS("Shop", "상점"),
+    SHOPSCATEGORIES("Shop Categories", "상점 카테고리"),
+
+    MENUS("Menu", "메뉴"),
+    MENUSCATEGORIES("Menu Categroies", "메뉴 카테고리"),
+
     REVIEWS("Review", "리뷰"),
 
     ABTEST("Abtest", "AB 테스트"),
