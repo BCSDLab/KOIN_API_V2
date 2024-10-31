@@ -42,7 +42,7 @@ public class ShopCategory extends BaseEntity {
     private List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();
 
     @Builder
-    private ShopCategory(String name, String imageUrl, Boolean isDeleted) {
+    private ShopCategory(String name, String imageUrl) {
         this.name = name;
         this.imageUrl = imageUrl;
     }
