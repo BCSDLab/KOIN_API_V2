@@ -58,7 +58,7 @@ public class AdminVersionService {
     private static boolean checkType(VersionType versionType) {
         return versionType != VersionType.ANDROID
             && versionType != VersionType.IOS
-            && versionType != VersionType.AND_OWNER;
+            && versionType != VersionType.ANDROID_OWNER;
     }
 
     public AdminVersionHistoryResponse getHistory(String type, Integer page, Integer limit) {
