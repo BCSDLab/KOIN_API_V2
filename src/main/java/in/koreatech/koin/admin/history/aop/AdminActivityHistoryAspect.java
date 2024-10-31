@@ -29,7 +29,13 @@ public class AdminActivityHistoryAspect {
     private final AuthContext authContext;
     private final UserRepository userRepository;
     private final AdminActivityHistoryRepository adminActivityHistoryRepository;
-    private final String regex = "^[0-9]*$";
+
+    private static final String REGEX_NUMERIC = "^[0-9]*$";
+    private static final String SEGMENT_SHOPS = "SHOPS";
+    private static final String SEGMENT_BENEFIT = "benefit";
+    private static final String SEGMENT_CATEGORIES = "CATEGORIES";
+    private static final String SEGMENT_CLOSE = "close";
+    private static final String SEGMENT_ABTEST = "abtest";
 
     @Pointcut("execution(* in.koreatech.koin.admin..controller.*.*(..))")
     private void allAdminControllers() {
@@ -72,25 +78,56 @@ public class AdminActivityHistoryAspect {
     }
 
     private DomainInfo getDomainInfo(String requestURI) {
-        String[] split = requestURI.split("/");
+        String[] segments = requestURI.split("/");
         Integer domainId = null;
         String domainName = null;
 
-        for (int i = split.length - 1; i >= 0; i--) {
-            String segment = split[i];
-            if (EnumUtils.isValidEnumIgnoreCase(DomainType.class, segment) && domainName == null) {
-                domainName = segment.toUpperCase();
-                if (i != split.length - 1) {
-                    String index = split[i + 1];
-                    if (index.matches(regex) && domainId == null) {
-                        domainId = Integer.valueOf(index);
-                    }
-                }
+        for (int i = segments.length - 1; i >= 0; i--) {
+            String segment = segments[i];
+
+            if (isDomainType(segment)) {
+                domainName = getDomainName(segment, segments, i);
+                domainId = getDomainId(segments, i);
+                break;
+            }
+
+            if (isCloseAbtest(segment, segments, i)) {
+                domainName = segments[i - 1].toUpperCase();
+                domainId = Integer.valueOf(segments[i + 1]);
                 break;
             }
         }
 
         return new DomainInfo(domainId, domainName);
+    }
+
+    private boolean isDomainType(String segment) {
+        return EnumUtils.isValidEnumIgnoreCase(DomainType.class, segment);
+    }
+
+    private String getDomainName(String segment, String[] segments, int index) {
+        String domainName = segment.toUpperCase();
+
+        if (SEGMENT_SHOPS.equals(domainName) && SEGMENT_BENEFIT.equals(segments[index - 2])) {
+            return segments[index - 2].toUpperCase();
+        }
+
+        if (SEGMENT_CATEGORIES.equals(domainName)) {
+            return (segments[index - 1] + domainName).toUpperCase();
+        }
+
+        return domainName;
+    }
+
+    private Integer getDomainId(String[] segments, int index) {
+        if (index != segments.length - 1 && segments[index + 1].matches(REGEX_NUMERIC)) {
+            return Integer.valueOf(segments[index + 1]);
+        }
+        return null;
+    }
+
+    private boolean isCloseAbtest(String segment, String[] segments, int index) {
+        return SEGMENT_CLOSE.equals(segment) && SEGMENT_ABTEST.equals(segments[index - 1]);
     }
 
     private record DomainInfo(Integer domainId, String domainName) {
