@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS `koin`.`admins`;
+
 CREATE TABLE `koin`.`admins`
 (
     `user_id`      INT UNSIGNED NOT NULL COMMENT 'user 고유 id',
@@ -8,9 +10,3 @@ CREATE TABLE `koin`.`admins`
     PRIMARY KEY (`user_id`),
     CONSTRAINT FK_ADMIN_ON_USER FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 );
-
-INSERT INTO `koin`.`admins` (user_id, team_name, track_name, create_admin, super_admin)
-SELECT u.id, '코인 어드민', '코인 어드민', 1, 1
-FROM `koin`.`users` u
-WHERE u.user_type = 'ADMIN'
-ORDER BY u.id ASC LIMIT 1;
