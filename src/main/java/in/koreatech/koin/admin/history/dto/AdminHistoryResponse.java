@@ -1,16 +1,19 @@
 package in.koreatech.koin.admin.history.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.admin.history.enums.DomainType;
 import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import in.koreatech.koin.admin.history.model.AdminActivityHistory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminHistoryResponse(
     @Schema(description = "고유 id", example = "1", requiredMode = REQUIRED)
     Integer id,
