@@ -30,4 +30,8 @@ public enum VersionType {
             .findAny()
             .orElseThrow(() -> VersionTypeNotFoundException.withDetail("versionType: " + value));
     }
+
+    public boolean isPlatform() {
+        return this.category.equals("PLATFORM");
+    }
 }

@@ -44,7 +44,7 @@ public class AdminVersionService {
     @Transactional
     public void updateVersion(String type, AdminVersionUpdateRequest request) {
         VersionType versionType = VersionType.from(type);
-        if (!isPlatform(versionType)) {
+        if (!versionType.isPlatform()) {
             throw new KoinIllegalArgumentException("unsupported type", "type: " + versionType);
         }
 
@@ -53,10 +53,6 @@ public class AdminVersionService {
 
         Version newVersion = Version.of(versionType, request);
         adminVersionRepository.save(newVersion);
-    }
-
-    private static boolean isPlatform(VersionType versionType) {
-        return versionType.getCategory().equals("PLATFORM");
     }
 
     public AdminVersionHistoryResponse getHistory(String type, Integer page, Integer limit) {
