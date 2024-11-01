@@ -63,7 +63,7 @@ public final class UserFixture {
             Admin.builder()
                 .trackName("백엔드")
                 .teamName("유저")
-                .createAdmin(true)
+                .canCreateAdmin(true)
                 .superAdmin(true)
                 .user(
                     User.builder()
@@ -87,7 +87,7 @@ public final class UserFixture {
             Admin.builder()
                 .trackName("백엔드")
                 .teamName("비즈니스")
-                .createAdmin(false)
+                .canCreateAdmin(false)
                 .superAdmin(false)
                 .user(
                     User.builder()
@@ -111,7 +111,7 @@ public final class UserFixture {
             Admin.builder()
                 .trackName("백엔드")
                 .teamName("캠퍼스")
-                .createAdmin(true)
+                .canCreateAdmin(true)
                 .superAdmin(false)
                 .user(
                     User.builder()

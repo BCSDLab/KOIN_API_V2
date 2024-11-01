@@ -794,7 +794,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     "name": "테스트용_코인운영자",
                     "track_name": "백엔드",
                     "team_name": "비즈니스",
-                    "create_admin": false,
+                    "can_create_admin": false,
                     "super_admin": false
                 }
                 """, admin1.getId())));
@@ -826,7 +826,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                       "name": "테스트용_코인운영자",
                       "team_name": "유저",
                       "track_name": "백엔드",
-                      "create_admin": true,
+                      "can_create_admin": true,
                       "super_admin": true
                     },
                     {
@@ -835,7 +835,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                       "name": "테스트용_코인운영자",
                       "team_name": "비즈니스",
                       "track_name": "백엔드",
-                      "create_admin": false,
+                      "can_create_admin": false,
                       "super_admin": false
                     },
                     {
@@ -844,7 +844,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                       "name": "테스트용_코인운영자",
                       "team_name": "캠퍼스",
                       "track_name": "백엔드",
-                      "create_admin": true,
+                      "can_create_admin": true,
                       "super_admin": false
                     }
                   ]
