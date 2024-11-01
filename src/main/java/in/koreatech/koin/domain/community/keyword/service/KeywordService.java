@@ -27,9 +27,11 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
+import in.koreatech.koin.domain.community.keyword.model.UserNotificationStatus;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
+import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
@@ -50,6 +52,7 @@ public class KeywordService {
     private final ArticleKeywordSuggestRepository articleKeywordSuggestRepository;
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
+    private final UserNotificationStatusRepository userNotificationStatusRepository;
 
     @ConcurrencyGuard(lockName = "createKeyword", waitTime = 7, leaseTime = 5)
     public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
@@ -183,5 +186,14 @@ public class KeywordService {
         for(ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
             articleKeywordSuggestRepository.save(hotKeyword);
         }
+    }
+
+    public void updateLastNotifiedArticle(Integer userId, Integer articleId) {
+        UserNotificationStatus status = userNotificationStatusRepository.findByUserId(userId)
+            .orElseGet(() -> new UserNotificationStatus(userId, articleId));
+
+        status.updateLastNotifiedArticleId(articleId);
+
+        userNotificationStatusRepository.save(status);
     }
 }
