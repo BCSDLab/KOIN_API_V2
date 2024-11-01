@@ -43,7 +43,7 @@ public class ArticleKeywordEventListener {
                 Integer userId = subscribe.getUser().getId();
                 Integer lastNotifiedId = userNotificationStatusRepository.findLastNotifiedArticleIdByUserId(userId)
                     .orElse(0);
-                return lastNotifiedId < event.articleId();
+                return lastNotifiedId == event.articleId();
             })
             .map(subscribe -> {
                 Integer userId = subscribe.getUser().getId();
