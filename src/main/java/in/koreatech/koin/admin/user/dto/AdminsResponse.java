@@ -63,7 +63,7 @@ public record AdminsResponse(
                 user.getName(),
                 admin.getTrackName(),
                 admin.getTeamName(),
-                admin.isCreateAdmin(),
+                admin.isCanCreateAdmin(),
                 admin.isSuperAdmin()
             );
         }

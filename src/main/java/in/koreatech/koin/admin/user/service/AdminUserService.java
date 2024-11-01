@@ -97,7 +97,7 @@ public class AdminUserService {
     @Transactional
     public AdminResponse createAdmin(CreateAdminRequest request, Integer adminId) {
         Admin admin = adminRepository.getById(adminId);
-        if (!admin.isCreateAdmin() || !admin.isSuperAdmin()) {
+        if (!admin.isCanCreateAdmin() || !admin.isSuperAdmin()) {
             throw new AuthorizationException("어드민 계정 생성 권한이 없습니다.");
         }
 

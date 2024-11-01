@@ -42,18 +42,18 @@ public class Admin {
     @Column(name = "track_name", length = 20, nullable = false)
     private String trackName;
 
-    @Column(name = "create_admin", columnDefinition = "TINYINT")
-    private boolean createAdmin = false;
+    @Column(name = "can_create_admin", columnDefinition = "TINYINT")
+    private boolean canCreateAdmin = false;
 
     @Column(name = "super_admin", columnDefinition = "TINYINT")
     private boolean superAdmin = false;
 
     @Builder
-    public Admin(User user, String teamName, String trackName, boolean createAdmin, boolean superAdmin) {
+    public Admin(User user, String teamName, String trackName, boolean canCreateAdmin, boolean superAdmin) {
         this.user = user;
         this.teamName = teamName;
         this.trackName = trackName;
-        this.createAdmin = createAdmin;
+        this.canCreateAdmin = canCreateAdmin;
         this.superAdmin = superAdmin;
     }
 
@@ -64,7 +64,7 @@ public class Admin {
 
     /* 어드민 권한이 추가 되면, 해당 메소드에도 추가해야 합니다. */
     public void updatePermission(AdminPermissionUpdateRequest request) {
-        this.createAdmin = request.createAdmin();
+        this.canCreateAdmin = request.createAdmin();
         this.superAdmin = request.superAdmin();
     }
 }
