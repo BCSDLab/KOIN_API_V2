@@ -18,7 +18,6 @@ public class ShopCategoryFixture {
     public ShopCategory 카테고리_치킨() {
         return categoryRepository.save(
             ShopCategory.builder()
-                .isDeleted(false)
                 .name("치킨")
                 .imageUrl("https://test-image.com/ckicken.jpg")
                 .build()
@@ -28,7 +27,6 @@ public class ShopCategoryFixture {
     public ShopCategory 카테고리_일반음식() {
         return categoryRepository.save(
             ShopCategory.builder()
-                .isDeleted(false)
                 .name("일반음식점")
                 .imageUrl("https://test-image.com/normal.jpg")
                 .build()

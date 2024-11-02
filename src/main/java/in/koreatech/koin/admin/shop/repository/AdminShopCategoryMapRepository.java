@@ -11,4 +11,6 @@ public interface AdminShopCategoryMapRepository extends Repository<ShopCategoryM
     ShopCategoryMap save(ShopCategoryMap shopCategoryMap);
 
     List<ShopCategoryMap> findAllByShopId(Integer shopId);
+
+    boolean existsByShopCategoryId(Integer categoryId);
 }
