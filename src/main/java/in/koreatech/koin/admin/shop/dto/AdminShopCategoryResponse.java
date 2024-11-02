@@ -15,14 +15,18 @@ public record AdminShopCategoryResponse(
     String imageUrl,
 
     @Schema(description = "카테고리 이름", example = "string")
-    String name
+    String name,
+
+    @Schema(description = "카테고리 정렬 순서 번호", example = "0")
+    Integer sortOrder
 ) {
 
     public static AdminShopCategoryResponse from(ShopCategory shopCategory) {
         return new AdminShopCategoryResponse(
             shopCategory.getId(),
             shopCategory.getImageUrl(),
-            shopCategory.getName()
+            shopCategory.getName(),
+            shopCategory.getSortOrder()
         );
     }
 }

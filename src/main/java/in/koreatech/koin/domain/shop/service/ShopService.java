@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,7 +89,8 @@ public class ShopService {
     }
 
     public ShopCategoriesResponse getShopsCategories() {
-        List<ShopCategory> shopCategories = shopCategoryRepository.findAll();
+        Sort sorter = Sort.by(Sort.Direction.ASC, "sortOrder");
+        List<ShopCategory> shopCategories = shopCategoryRepository.findAll(sorter);
         return ShopCategoriesResponse.from(shopCategories);
     }
 

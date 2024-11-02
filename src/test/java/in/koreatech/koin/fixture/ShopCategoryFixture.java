@@ -20,6 +20,7 @@ public class ShopCategoryFixture {
             ShopCategory.builder()
                 .name("치킨")
                 .imageUrl("https://test-image.com/ckicken.jpg")
+                .sortOrder(2)
                 .build()
         );
     }
@@ -29,6 +30,7 @@ public class ShopCategoryFixture {
             ShopCategory.builder()
                 .name("일반음식점")
                 .imageUrl("https://test-image.com/normal.jpg")
+                .sortOrder(1)
                 .build()
         );
     }

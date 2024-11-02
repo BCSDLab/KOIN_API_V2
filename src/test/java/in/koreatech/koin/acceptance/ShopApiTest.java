@@ -3,8 +3,7 @@ package in.koreatech.koin.acceptance;
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.DISMISSED;
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDate;
 
@@ -407,23 +406,15 @@ class ShopApiTest extends AcceptanceTest {
                 get("/shops/categories")
             )
             .andExpect(status().isOk())
-            .andExpect(content().json("""
-                {
-                         "total_count": 2,
-                         "shop_categories": [
-                             {
-                                 "id": 1,
-                                 "image_url": "https://test-image.com/normal.jpg",
-                                 "name": "일반음식점"
-                             },
-                             {
-                                 "id": 2,
-                                 "image_url": "https://test-image.com/ckicken.jpg",
-                                 "name": "치킨"
-                             }
-                         ]
-                     }
-                """));
+            .andExpect(jsonPath("$.total_count").value(2))
+            .andExpect(jsonPath("$.shop_categories[0].id").value(1))
+            .andExpect(jsonPath("$.shop_categories[0].image_url")
+                .value("https://test-image.com/normal.jpg"))
+            .andExpect(jsonPath("$.shop_categories[0].name").value("일반음식점"))
+            .andExpect(jsonPath("$.shop_categories[1].id").value(2))
+            .andExpect(jsonPath("$.shop_categories[1].image_url")
+                .value("https://test-image.com/ckicken.jpg"))
+            .andExpect(jsonPath("$.shop_categories[1].name").value("치킨"));
     }
 
     @Test

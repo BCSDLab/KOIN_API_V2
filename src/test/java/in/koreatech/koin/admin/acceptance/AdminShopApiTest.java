@@ -198,10 +198,11 @@ class AdminShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 어드민이_상점의_모든_카테고리를_조회한다() throws Exception {
+    void 어드민이_상점의_모든_카테고리를_조회한다_페이징() throws Exception {
         for (int i = 0; i < 12; i++) {
             ShopCategory request = ShopCategory.builder()
                 .name("카테고리" + i)
+                .sortOrder(i)
                 .build();
             adminShopCategoryRepository.save(request);
         }
@@ -210,7 +211,6 @@ class AdminShopApiTest extends AcceptanceTest {
                 get("/admin/shops/categories")
                     .header("Authorization", "Bearer " + token_admin)
                     .param("page", "1")
-                    .param("is_deleted", "false")
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.total_count").value(14))
@@ -218,6 +218,27 @@ class AdminShopApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.total_page").value(2))
             .andExpect(jsonPath("$.current_page").value(1))
             .andExpect(jsonPath("$.categories.length()").value(10));
+    }
+
+    @Test
+    void 어드민이_상점의_모든_카테고리를_조회한다_정렬() throws Exception {
+        mockMvc.perform(
+                get("/admin/shops/categories")
+                    .header("Authorization", "Bearer " + token_admin)
+                    .param("page", "1")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.categories[0].id").value(2))
+            .andExpect(jsonPath("$.categories[0].image_url")
+                .value("https://test-image.com/normal.jpg"))
+            .andExpect(jsonPath("$.categories[0].name").value("일반음식점"))
+            .andExpect(jsonPath("$.categories[0].sort_order").value(1))
+
+            .andExpect(jsonPath("$.categories[1].id").value(1))
+            .andExpect(jsonPath("$.categories[1].image_url")
+                .value("https://test-image.com/ckicken.jpg"))
+            .andExpect(jsonPath("$.categories[1].name").value("치킨"))
+            .andExpect(jsonPath("$.categories[1].sort_order").value(2));
     }
 
     @Test
@@ -233,7 +254,8 @@ class AdminShopApiTest extends AcceptanceTest {
                 {
                   "id": 3,
                   "image_url": "https://test-image.com/ckicken.jpg",
-                  "name": "치킨"
+                  "name": "치킨",
+                  "sort_order": 2
                 }
                 """));
     }
@@ -445,7 +467,8 @@ class AdminShopApiTest extends AcceptanceTest {
                     .content("""
                         {
                           "image_url": "https://image.png",
-                          "name": "새로운 카테고리"
+                          "name": "새로운 카테고리",
+                          "sort_order": "3"
                         }
                         """)
             )
@@ -457,6 +480,7 @@ class AdminShopApiTest extends AcceptanceTest {
                 softly -> {
                     softly.assertThat(result.getImageUrl()).isEqualTo("https://image.png");
                     softly.assertThat(result.getName()).isEqualTo("새로운 카테고리");
+                    softly.assertThat(result.getSortOrder()).isEqualTo(3);
                 }
             );
         });
@@ -706,7 +730,8 @@ class AdminShopApiTest extends AcceptanceTest {
                     .content("""
                         {
                           "image_url": "http://image.png",
-                          "name": "수정된 카테고리 이름"
+                          "name": "수정된 카테고리 이름",
+                          "sort_order": "5"
                         }
                         """)
             )
@@ -719,6 +744,7 @@ class AdminShopApiTest extends AcceptanceTest {
                     softly.assertThat(updatedCategory.getId()).isEqualTo(shopCategory.getId());
                     softly.assertThat(updatedCategory.getImageUrl()).isEqualTo("http://image.png");
                     softly.assertThat(updatedCategory.getName()).isEqualTo("수정된 카테고리 이름");
+                    softly.assertThat(updatedCategory.getSortOrder()).isEqualTo(5);
                 }
             );
         });

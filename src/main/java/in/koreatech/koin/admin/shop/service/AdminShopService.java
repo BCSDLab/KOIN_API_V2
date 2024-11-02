@@ -81,7 +81,7 @@ public class AdminShopService {
         Integer total = adminShopCategoryRepository.count();
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-            Sort.by(Sort.Direction.ASC, "id"));
+            Sort.by(Sort.Direction.ASC, "sortOrder"));
         Page<ShopCategory> result = adminShopCategoryRepository.findAll(pageRequest);
         return AdminShopCategoriesResponse.of(result, criteria);
     }
@@ -251,7 +251,8 @@ public class AdminShopService {
         ShopCategory shopCategory = adminShopCategoryRepository.getById(categoryId);
         shopCategory.modifyShopCategory(
             adminModifyShopCategoryRequest.name(),
-            adminModifyShopCategoryRequest.imageUrl()
+            adminModifyShopCategoryRequest.imageUrl(),
+            adminModifyShopCategoryRequest.sortOrder()
         );
     }
 

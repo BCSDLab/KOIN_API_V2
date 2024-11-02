@@ -54,14 +54,18 @@ public record AdminShopCategoriesResponse(
         String imageUrl,
 
         @Schema(description = "이름", example = "치킨", requiredMode = REQUIRED)
-        String name
+        String name,
+
+        @Schema(description = "카테고리 정렬 순서 번호", example = "0")
+        Integer sortOrder
     ) {
 
         public static InnerShopCategory from(ShopCategory shopCategory) {
             return new InnerShopCategory(
                 shopCategory.getId(),
                 shopCategory.getImageUrl(),
-                shopCategory.getName()
+                shopCategory.getName(),
+                shopCategory.getSortOrder()
             );
         }
     }
