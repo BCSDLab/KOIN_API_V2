@@ -12,11 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.model.KoinArticle;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.UserFixture;
@@ -38,7 +38,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
     @Autowired
     private ArticleRepository articleRepository;
 
-    User adminUser;
+    Admin adminUser;
     Board boardId1, boardId2, boardId3, boardId4, boardId5, boardId6, boardId7, boardId8, boardId9;
     Article article1, article2, article3, article4;
 
@@ -57,13 +57,13 @@ public class AdminNoticeApiTest extends AcceptanceTest {
         boardId9 = boardFixture.코인공지();
 
         article1 =
-            articleFixture.코인_공지_게시글("[캠퍼스팀] 공지 테스트", "<p>내용</p>", boardId9, adminUser);
+            articleFixture.코인_공지_게시글("[캠퍼스팀] 공지 테스트", "<p>내용</p>", boardId9, adminUser.getUser());
         article2 =
-            articleFixture.코인_공지_게시글("[유저팀] 공지 테스트", "<p>내용</p>", boardId9, adminUser);
+            articleFixture.코인_공지_게시글("[유저팀] 공지 테스트", "<p>내용</p>", boardId9, adminUser.getUser());
         article3 =
-            articleFixture.코인_공지_게시글("[비즈니스팀] 공지 테스트", "<p>내용</p>", boardId9, adminUser);
+            articleFixture.코인_공지_게시글("[비즈니스팀] 공지 테스트", "<p>내용</p>", boardId9, adminUser.getUser());
         article4 =
-            articleFixture.코인_공지_게시글("[KOIN] 공지 테스트", "<p>내용</p>", boardId9, adminUser);
+            articleFixture.코인_공지_게시글("[KOIN] 공지 테스트", "<p>내용</p>", boardId9, adminUser.getUser());
     }
 
     @Test
@@ -75,7 +75,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
         }
         """;
 
-        String token = userFixture.getToken(adminUser);
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 post("/admin/notice")
@@ -88,7 +88,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
 
     @Test
     void 관리자_권한으로_삭제_되지_않은_코인_공지사항_목록을_조회한다() throws Exception {
-        String token = userFixture.getToken(adminUser);
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/notice")
@@ -108,7 +108,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
     void 관리자_권한으로_코인_공지사항_게시글을_단건_조회한다() throws Exception {
         // 코인 공지사항 게시글 생성
         KoinArticle koinArticle = KoinArticle.builder()
-            .user(adminUser)
+            .user(adminUser.getUser())
             .isDeleted(false)
             .build();
 
@@ -127,7 +127,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
         Article saveNotice = articleRepository.save(adminNoticeArticle);
         Integer noticeId = saveNotice.getId();
 
-        String token = userFixture.getToken(adminUser);
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/notice/{id}", noticeId)
@@ -150,7 +150,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
     void 관리자_권한으로_코인_공지사항_게시글을_삭제한다() throws Exception {
         // 코인 공지사항 게시글 생성
         KoinArticle koinArticle = KoinArticle.builder()
-            .user(adminUser)
+            .user(adminUser.getUser())
             .isDeleted(false)
             .build();
 
@@ -169,7 +169,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
         Article saveNotice = articleRepository.save(adminNoticeArticle);
         Integer noticeId = saveNotice.getId();
 
-        String token = userFixture.getToken(adminUser);
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 delete("/admin/notice/{id}", noticeId)
@@ -189,7 +189,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
     void 관리자_권한으로_코인_공지사항_게시글을_수정한다() throws Exception {
         // 코인 공지사항 게시글 생성
         KoinArticle koinArticle = KoinArticle.builder()
-            .user(adminUser)
+            .user(adminUser.getUser())
             .isDeleted(false)
             .build();
 
@@ -208,7 +208,7 @@ public class AdminNoticeApiTest extends AcceptanceTest {
         Article saveNotice = articleRepository.save(adminNoticeArticle);
         Integer noticeId = saveNotice.getId();
 
-        String token = userFixture.getToken(adminUser);
+        String token = userFixture.getToken(adminUser.getUser());
 
         // 코인 공지사항 게시글 수정
         String jsonBody = """

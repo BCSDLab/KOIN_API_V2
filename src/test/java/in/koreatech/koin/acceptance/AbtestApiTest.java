@@ -25,9 +25,9 @@ import in.koreatech.koin.admin.abtest.model.AccessHistoryAbtestVariable;
 import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.AbtestFixture;
 import in.koreatech.koin.fixture.DeviceFixture;
 import in.koreatech.koin.fixture.UserFixture;
@@ -54,14 +54,14 @@ class AbtestApiTest extends AcceptanceTest {
     @Autowired
     private DeviceRepository deviceRepository;
 
-    private User admin;
+    private Admin admin;
     private String adminToken;
 
     @BeforeAll
     void setUp() {
         clear();
         admin = userFixture.코인_운영자();
-        adminToken = userFixture.getToken(admin);
+        adminToken = userFixture.getToken(admin.getUser());
     }
 
     @Test
