@@ -14,7 +14,6 @@ import in.koreatech.koin.admin.version.exception.VersionNotSupportedException;
 import in.koreatech.koin.admin.version.repository.AdminVersionRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
 

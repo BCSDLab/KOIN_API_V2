@@ -37,15 +37,17 @@ public class NotificationScheduler {
     @Scheduled(cron = "0 * * * * *")
     public void sendDueNotifications() {
         try {
-            List<ShopNotificationQueue> dueNotifications = shopNotificationQueueRepository
-                .findByNotificationTimeBefore(LocalDateTime.now());
+            LocalDateTime now = LocalDateTime.now();
 
-            List<Notification> notifications = dueNotifications.stream()
-                .map(this::createNotification).toList();
+            List<Notification> notifications = shopNotificationQueueRepository
+                .findByNotificationTimeBefore(now)
+                .stream()
+                .map(this::createNotification)
+                .toList();
+
+            shopNotificationQueueRepository.deleteByNotificationTimeBefore(now);
 
             notificationService.push(notifications);
-
-            shopNotificationQueueRepository.deleteAll(dueNotifications);
         } catch (Exception e) {
             log.warn("리뷰유도 알림 전송 과정에서 오류가 발생했습니다.");
         }
