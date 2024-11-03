@@ -15,11 +15,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -27,6 +29,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.repository.shop.ShopNotificationQueueRepository;
 import in.koreatech.koin.domain.shop.scheduler.NotificationScheduler;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.fixture.EventArticleFixture;
@@ -72,6 +75,9 @@ class ShopApiTest extends AcceptanceTest {
     private NotificationScheduler notificationScheduler;
 
     @Autowired
+    private ShopNotificationQueueRepository shopNotificationQueueRepository;
+
+    @MockBean
     private NotificationService notificationService;
 
     @Mock
@@ -1039,31 +1045,25 @@ class ShopApiTest extends AcceptanceTest {
                 """, 티바_영업여부, 마슬랜_영업여부)));
     }
 
-    // @Test
-    // void 전화하기_이벤트_발생시_1시간_뒤에_알림을_발송한다() throws Exception {
-    //     mockMvc.perform(
-    //             post("/shops/{shopId}/call-notification", 마슬랜.getId())
-    //                 .header("Authorization", "Bearer " + token_익명)
-    //         )
-    //         .andExpect(status().isOk());
-    //     forceVerify(() -> verify(notificationEventListener, times(1))
-    //         .onNotificationEventCreate(any()));
-    //
-    //     // 이러면 DB에까진 제대로 저장된거야.
-    //     // cron 작업 테스트를 어떻게하지?
-    //
-    //     LocalDateTime oneHourTenMinutesLater = LocalDateTime.now().plusMinutes(70);
-    //     when(mockClock.instant()).thenReturn(oneHourTenMinutesLater.toInstant(ZoneOffset.UTC));
-    //     when(mockClock.getZone()).thenReturn(ZoneId.systemDefault());
-    //
-    //     notificationScheduler.sendDueNotifications();
-    //
-    //     forceVerify(() -> verify(notificationService, times(1))
-    //         .push(anyList()));
-    //
-    //     // DB에 남아있는지 확인
-    //
-    //     clear();
-    //     setUp();
-    // }
+    @Test
+    void 전화하기_이벤트_발생시_1시간_뒤에_알림을_발송한다() throws Exception {
+        mockMvc.perform(
+                post("/shops/{shopId}/call-notification", 마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_익명)
+            )
+            .andExpect(status().isOk());
+        forceVerify(() -> verify(notificationEventListener, times(1))
+            .onNotificationEventCreate(any()));
+
+        LocalDateTime oneHourTenMinutesLater = LocalDateTime.now().plusMinutes(70);
+        when(mockClock.instant()).thenReturn(oneHourTenMinutesLater.toInstant(ZoneOffset.UTC));
+        when(mockClock.getZone()).thenReturn(ZoneId.systemDefault());
+
+        notificationScheduler.sendDueNotifications();
+        verify(notificationService, times(1)).push(anyList());
+
+        Assertions.assertThat(shopNotificationQueueRepository.findAll()).isEmpty();
+        clear();
+        setUp();
+    }
 }
