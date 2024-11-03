@@ -42,7 +42,7 @@ public record AdminHistoryResponse(
 
     @Schema(description = "요청 시간", example = "2019-08-16-23-01-52", requiredMode = REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd-HH-mm-ss")
-    LocalDateTime createAt
+    LocalDateTime createdAt
 ) {
     public static AdminHistoryResponse from(AdminActivityHistory adminActivityHistory) {
         return new AdminHistoryResponse(
