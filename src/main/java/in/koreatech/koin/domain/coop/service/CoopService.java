@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -91,15 +92,27 @@ public class CoopService {
     @Transactional
     public void saveDiningImage(DiningImageRequest imageRequest) {
         Dining dining = diningRepository.getById(imageRequest.menuId());
-        boolean isImageExist = diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(dining.getDate(),
-            dining.getType());
+        boolean isImageExist = diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(dining.getDate(), dining.getType());
 
         LocalDateTime now = LocalDateTime.now(clock);
         boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType(), true);
-        if (isOpened && !isImageExist) {
-            eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getId(), dining.getImageUrl()));
-        }
+
         dining.setImageUrl(imageRequest.imageUrl());
+
+        if (isOpened && !isImageExist) {
+            int diningCount = diningRepository.countByDateAndType(dining.getDate(), dining.getType());
+
+            CompletableFuture.runAsync(() -> {
+                try {
+                    if (diningCount > 1) {
+                        Thread.sleep(6 * 60 * 1000);
+                    }
+                    eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getId(), dining.getImageUrl()));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            });
+        }
     }
 
     @Transactional

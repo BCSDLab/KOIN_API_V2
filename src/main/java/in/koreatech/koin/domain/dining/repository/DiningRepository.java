@@ -36,4 +36,8 @@ public interface DiningRepository extends Repository<Dining, Integer> {
     List<Dining> findByDateBetween(LocalDate startDate, LocalDate endDate);
 
     List<Dining> findByDateBetweenAndPlaceIn(LocalDate startDate, LocalDate endDate, List<String> placeFilters);
+
+    int countImagesByDateAndType(LocalDate date, DiningType type);
+
+    int countByDateAndType(LocalDate date, DiningType type);
 }
