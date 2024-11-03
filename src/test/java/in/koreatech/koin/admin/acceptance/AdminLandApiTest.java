@@ -15,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.land.repository.AdminLandRepository;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.land.model.Land;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.LandFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
@@ -55,8 +55,8 @@ class AdminLandApiTest extends AcceptanceTest {
             adminLandRepository.save(request);
         }
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/lands")
@@ -102,8 +102,8 @@ class AdminLandApiTest extends AcceptanceTest {
             }
             """;
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 post("/admin/lands")
@@ -141,8 +141,8 @@ class AdminLandApiTest extends AcceptanceTest {
         Land savedLand = adminLandRepository.save(request);
         Integer landId = savedLand.getId();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 delete("/admin/lands/{id}", landId)
@@ -177,8 +177,8 @@ class AdminLandApiTest extends AcceptanceTest {
         Land savedLand = adminLandRepository.save(request);
         Integer landId = savedLand.getId();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/lands/{id}", landId)
@@ -229,8 +229,8 @@ class AdminLandApiTest extends AcceptanceTest {
         Land land = landFixture.신안빌();
         Integer landId = land.getId();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         String jsonBody = """
             {
@@ -303,8 +303,8 @@ class AdminLandApiTest extends AcceptanceTest {
         Land deletedLand = landFixture.삭제된_복덕방();
         Integer landId = deletedLand.getId();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 post("/admin/lands/{id}/undelete", landId)

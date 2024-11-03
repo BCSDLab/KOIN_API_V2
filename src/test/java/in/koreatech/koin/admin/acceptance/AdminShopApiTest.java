@@ -22,6 +22,7 @@ import in.koreatech.koin.admin.shop.repository.AdminMenuCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.AdminMenuRepository;
 import in.koreatech.koin.admin.shop.repository.AdminShopCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
@@ -33,7 +34,6 @@ import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.ShopImage;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.MenuCategoryFixture;
 import in.koreatech.koin.fixture.MenuFixture;
 import in.koreatech.koin.fixture.ShopCategoryFixture;
@@ -82,7 +82,7 @@ class AdminShopApiTest extends AcceptanceTest {
     private Owner owner_현수;
     private Owner owner_준영;
     private Shop shop_마슬랜;
-    private User admin;
+    private Admin admin;
     private String token_admin;
     private ShopCategory shopCategory_치킨;
     private ShopCategory shopCategory_일반;
@@ -93,7 +93,7 @@ class AdminShopApiTest extends AcceptanceTest {
     void setUp() {
         clear();
         admin = userFixture.코인_운영자();
-        token_admin = userFixture.getToken(admin);
+        token_admin = userFixture.getToken(admin.getUser());
         owner_현수 = userFixture.현수_사장님();
         owner_준영 = userFixture.준영_사장님();
         shop_마슬랜 = shopFixture.마슬랜(owner_현수);

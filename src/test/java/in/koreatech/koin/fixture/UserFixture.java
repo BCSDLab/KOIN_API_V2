@@ -1,6 +1,9 @@
 package in.koreatech.koin.fixture;
 
+import static in.koreatech.koin.admin.user.enums.TeamType.*;
+import static in.koreatech.koin.admin.user.enums.TrackType.BACKEND;
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
+import static in.koreatech.koin.domain.user.model.UserGender.WOMAN;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
 import static in.koreatech.koin.domain.user.model.UserType.*;
 
@@ -11,16 +14,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserType;
-import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 
@@ -33,8 +38,8 @@ public final class UserFixture {
     private final OwnerRepository ownerRepository;
     private final StudentRepository studentRepository;
     private final CoopRepository coopRepository;
+    private final AdminRepository adminRepository;
     private final JwtProvider jwtProvider;
-
 
     @Autowired
     public UserFixture(
@@ -43,6 +48,7 @@ public final class UserFixture {
         OwnerRepository ownerRepository,
         StudentRepository studentRepository,
         CoopRepository coopRepository,
+        AdminRepository adminRepository,
         JwtProvider jwtProvider
     ) {
         this.passwordEncoder = passwordEncoder;
@@ -50,21 +56,78 @@ public final class UserFixture {
         this.ownerRepository = ownerRepository;
         this.studentRepository = studentRepository;
         this.coopRepository = coopRepository;
+        this.adminRepository = adminRepository;
         this.jwtProvider = jwtProvider;
     }
 
-    public User 코인_운영자() {
-        return userRepository.save(
-            User.builder()
-                .password(passwordEncoder.encode("1234"))
-                .nickname("코인운영자")
-                .name("테스트용_코인운영자")
-                .phoneNumber("01012342344")
-                .userType(ADMIN)
-                .gender(MAN)
-                .email("juno@koreatech.ac.kr")
-                .isAuthed(true)
-                .isDeleted(false)
+    public Admin 코인_운영자() {
+        return adminRepository.save(
+            Admin.builder()
+                .trackType(BACKEND)
+                .teamType(USER)
+                .canCreateAdmin(true)
+                .superAdmin(true)
+                .user(
+                    User.builder()
+                        .password(passwordEncoder.encode("1234"))
+                        .nickname("코인운영자")
+                        .name("테스트용_코인운영자")
+                        .phoneNumber("01012342344")
+                        .userType(ADMIN)
+                        .gender(MAN)
+                        .email("juno@koreatech.ac.kr")
+                        .isAuthed(true)
+                        .isDeleted(false)
+                        .build()
+                )
+                .build()
+        );
+    }
+
+    public Admin 영희_운영자() {
+        return adminRepository.save(
+            Admin.builder()
+                .trackType(BACKEND)
+                .teamType(BUSINESS)
+                .canCreateAdmin(false)
+                .superAdmin(false)
+                .user(
+                    User.builder()
+                        .password(passwordEncoder.encode("1234"))
+                        .nickname("코인운영자1")
+                        .name("테스트용_코인운영자")
+                        .phoneNumber("01012342347")
+                        .userType(ADMIN)
+                        .gender(WOMAN)
+                        .email("koinadmin1@koreatech.ac.kr")
+                        .isAuthed(true)
+                        .isDeleted(false)
+                        .build()
+                )
+                .build()
+        );
+    }
+
+    public Admin 진구_운영자() {
+        return adminRepository.save(
+            Admin.builder()
+                .trackType(BACKEND)
+                .teamType(CAMPUS)
+                .canCreateAdmin(true)
+                .superAdmin(false)
+                .user(
+                    User.builder()
+                        .password(passwordEncoder.encode("1234"))
+                        .nickname("코인운영자2")
+                        .name("테스트용_코인운영자")
+                        .phoneNumber("01012342347")
+                        .userType(ADMIN)
+                        .gender(WOMAN)
+                        .email("koinadmin2@koreatech.ac.kr")
+                        .isAuthed(false)
+                        .isDeleted(false)
+                        .build()
+                )
                 .build()
         );
     }
