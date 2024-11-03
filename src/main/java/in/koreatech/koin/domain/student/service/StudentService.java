@@ -58,7 +58,6 @@ public class StudentService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
-    private final NotificationService notificationService;
     private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
     private final UserTokenRepository userTokenRepository;
@@ -137,9 +136,7 @@ public class StudentService {
         userRepository.save(student.getUser());
 
         studentRedisRepository.deleteById(student.getUser().getEmail());
-        eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail()));
-
-        notificationService.permitNotificationSubscribe(student.getId(), NotificationSubscribeType.REVIEW_PROMPT);
+        eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail(), student.getId()));
 
         return new ModelAndView("success_register_config");
     }
