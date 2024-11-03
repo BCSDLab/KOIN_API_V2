@@ -3,3 +3,15 @@ ALTER TABLE `shop_categories`
     ADD CONSTRAINT `FK_SHOP_CATEGORIES_ON_SHOP_MAIN_CATEGORIES`
     FOREIGN KEY (`main_category_id`)
     REFERENCES `shop_main_categories` (`id`);
+
+UPDATE shop_categories
+SET main_category_id = 1
+WHERE id BETWEEN 2 AND 10;
+
+UPDATE shop_categories
+SET main_category_id = 2
+WHERE id = 11;
+
+UPDATE shop_categories
+SET main_category_id = 3
+WHERE id = 12;

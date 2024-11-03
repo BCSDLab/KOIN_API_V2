@@ -43,6 +43,8 @@ import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
 import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.domain.email.service.MailService;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
+import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
@@ -56,6 +58,7 @@ public class StudentService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
+    private final NotificationService notificationService;
     private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
     private final UserTokenRepository userTokenRepository;
@@ -135,6 +138,8 @@ public class StudentService {
 
         studentRedisRepository.deleteById(student.getUser().getEmail());
         eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail()));
+
+        notificationService.permitNotificationSubscribe(student.getId(), NotificationSubscribeType.REVIEW_PROMPT);
 
         return new ModelAndView("success_register_config");
     }

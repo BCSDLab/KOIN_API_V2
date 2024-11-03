@@ -201,7 +201,7 @@ public class ShopController implements ShopApi {
         return ResponseEntity.ok(shopReviewResponse);
     }
 
-    @PostMapping("/shops/{shopId}/call-notifications")
+    @PostMapping("/shops/{shopId}/call-notification")
     public ResponseEntity<Void> createCallNotification(
         @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
         @Auth(permit = {STUDENT}) Integer studentId
