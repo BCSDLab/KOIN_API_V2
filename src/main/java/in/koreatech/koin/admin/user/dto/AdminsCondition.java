@@ -7,6 +7,8 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.admin.user.enums.TeamType;
+import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -21,11 +23,11 @@ public record AdminsCondition(
     @Schema(description = "인증 여부", requiredMode = NOT_REQUIRED)
     Boolean isAuthed,
 
-    @Schema(description = "트랙 이름", requiredMode = NOT_REQUIRED)
-    String trackName,
+    @Schema(description = "트랙 타입", requiredMode = NOT_REQUIRED)
+    TrackType trackType,
 
-    @Schema(description = "팀 이름", requiredMode = NOT_REQUIRED)
-    String teamName
+    @Schema(description = "팀 타입", requiredMode = NOT_REQUIRED)
+    TeamType teamType
 ) {
     public AdminsCondition {
         if (Objects.isNull(page)) {

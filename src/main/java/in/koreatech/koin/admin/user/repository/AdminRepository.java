@@ -28,8 +28,8 @@ public interface AdminRepository extends Repository<Admin, Integer> {
     @Query("""
         SELECT a FROM Admin a WHERE
         (:#{#condition.isAuthed} IS NULL OR a.user.isAuthed = :#{#condition.isAuthed}) AND
-        (:#{#condition.trackName} IS NULL OR a.trackName = :#{#condition.trackName}) AND
-        (:#{#condition.teamName} IS NULL OR a.teamName = :#{#condition.teamName})
+        (:#{#condition.trackType?.name()} IS NULL OR a.trackType = :#{#condition.trackType}) AND
+        (:#{#condition.teamType?.name()} IS NULL OR a.teamType = :#{#condition.teamType})
         """)
     Page<Admin> findByConditions(@Param("condition") AdminsCondition adminsCondition, Pageable pageable);
 }

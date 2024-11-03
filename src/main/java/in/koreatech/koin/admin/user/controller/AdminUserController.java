@@ -2,9 +2,9 @@ package in.koreatech.koin.admin.user.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
-import org.springdoc.core.annotations.ParameterObject;
 import java.net.URI;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,15 +29,17 @@ import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
+import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
+import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
+import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
 import in.koreatech.koin.admin.user.dto.AdminUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminsCondition;
 import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
-import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
-import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
-import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
+import in.koreatech.koin.admin.user.enums.TeamType;
+import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.admin.user.service.AdminUserService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.Auth;
@@ -130,8 +132,8 @@ public class AdminUserController implements AdminUserApi{
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
         @RequestParam(required = false) Boolean isAuthed,
-        @RequestParam(required = false) String trackName,
-        @RequestParam(required = false) String teamName,
+        @RequestParam(required = false) TrackType trackName,
+        @RequestParam(required = false) TeamType teamName,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminsCondition adminsCondition = new AdminsCondition(page, limit, isAuthed, trackName, teamName);

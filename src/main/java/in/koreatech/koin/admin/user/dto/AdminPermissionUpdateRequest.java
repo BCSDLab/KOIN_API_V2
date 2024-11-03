@@ -12,7 +12,7 @@ import jakarta.validation.constraints.NotNull;
 public record AdminPermissionUpdateRequest(
     @Schema(description = "어드민 생성 권한", example = "false", requiredMode = REQUIRED)
     @NotNull(message = "어드민 생성 권한은 필수 입력 사항입니다")
-    Boolean createAdmin,
+    Boolean canCreateAdmin,
 
     @Schema(description = "슈퍼 어드민 권한", example = "false", requiredMode = REQUIRED)
     @NotNull(message = "슈퍼 어드민 권한은 필수 입력 사항입니다")

@@ -166,6 +166,10 @@ public class User extends BaseEntity {
         this.isAuthed = true;
     }
 
+    public void updateName(String name) {
+        this.name = name;
+    }
+
     public void validateResetToken() {
         if (resetExpiredAt.isBefore(LocalDateTime.now())) {
             throw UserResetTokenExpiredException.withDetail("resetToken: " + resetToken);

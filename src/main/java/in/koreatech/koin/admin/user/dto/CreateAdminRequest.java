@@ -8,10 +8,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.admin.user.enums.TeamType;
+import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -29,15 +32,13 @@ public record CreateAdminRequest(
     @NotBlank(message = "이름을 입력해주세요.")
     String name,
 
-    @Schema(description = "트랙 이름", example = "백엔드", requiredMode = REQUIRED)
-    @Size(max = 20, message = "트랙 이름은 20자 이내여야 합니다.")
-    @NotBlank(message = "트랙 이름을 입력해주세요.")
-    String trackName,
+    @Schema(description = "트랙 타입", example = "BACKEND", requiredMode = REQUIRED)
+    @NotNull(message = "트랙 타입을 입력해주세요.")
+    TrackType trackType,
 
-    @Schema(description = "팀 이름", example = "유저", requiredMode = REQUIRED)
-    @Size(max = 10, message = "유저 이름은 10자 이내여야 합니다.")
-    @NotBlank(message = "팀 이름을 입력해주세요.")
-    String teamName
+    @Schema(description = "팀 타입", example = "USER", requiredMode = REQUIRED)
+    @NotNull(message = "팀 타입을 입력해주세요.")
+    TeamType teamType
 ) {
     public Admin toEntity(PasswordEncoder passwordEncoder) {
         User user = User.builder()
@@ -51,8 +52,8 @@ public record CreateAdminRequest(
 
         return Admin.builder()
             .user(user)
-            .trackName(trackName)
-            .teamName(teamName)
+            .trackType(trackType)
+            .teamType(teamType)
             .build();
     }
 }

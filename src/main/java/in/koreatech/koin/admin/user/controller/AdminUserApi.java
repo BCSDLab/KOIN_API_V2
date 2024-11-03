@@ -33,6 +33,8 @@ import in.koreatech.koin.admin.user.dto.AdminUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
+import in.koreatech.koin.admin.user.enums.TeamType;
+import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -171,8 +173,8 @@ public interface AdminUserApi {
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
         @RequestParam(required = false) Boolean isAuthed,
-        @RequestParam(required = false) String trackName,
-        @RequestParam(required = false) String teamName,
+        @RequestParam(required = false) TrackType trackName,
+        @RequestParam(required = false) TeamType teamName,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 

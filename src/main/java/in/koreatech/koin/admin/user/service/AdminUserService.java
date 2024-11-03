@@ -39,8 +39,6 @@ import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
-import in.koreatech.koin.admin.user.enums.TeamType;
-import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.user.repository.AdminOwnerShopRedisRepository;
@@ -113,8 +111,6 @@ public class AdminUserService {
         emailAddress.validateAdminEmail();
 
         validateDuplicateEmail(request);
-        TrackType.checkTrackValid(request.trackName());
-        TeamType.checkTeamValid(request.teamName());
     }
 
     private void validateDuplicateEmail(CreateAdminRequest request) {
@@ -222,14 +218,8 @@ public class AdminUserService {
         Admin admin = adminRepository.getById(id);
         User user = admin.getUser();
 
-        validateAdminUpdate(request);
-        user.update(null, request.name(), null, null);
-        admin.update(request.teamName(), request.trackName());
-    }
-
-    private void validateAdminUpdate(AdminUpdateRequest request) {
-        TrackType.checkTrackValid(request.trackName());
-        TeamType.checkTeamValid(request.teamName());
+        user.updateName(request.name());
+        admin.update(request.teamType(), request.trackType());
     }
 
     @Transactional

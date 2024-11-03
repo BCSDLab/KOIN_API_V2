@@ -323,7 +323,7 @@ public class AdminTrackApiTest extends AcceptanceTest {
                             "description": "스프링은 웹 프레임워크이다"
                         }
                         """)
-                    .param("trackName", backEnd.getName())
+                    .param("trackType", backEnd.getName())
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
@@ -360,7 +360,7 @@ public class AdminTrackApiTest extends AcceptanceTest {
                             "is_deleted": true
                         }
                         """)
-                    .param("trackName", backEnd.getName())
+                    .param("trackType", backEnd.getName())
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""

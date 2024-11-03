@@ -3,16 +3,19 @@ package in.koreatech.koin.admin.user.model;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
+import in.koreatech.koin.admin.user.enums.TeamType;
+import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,14 +36,14 @@ public class Admin {
     private User user;
 
     @NotNull
-    @Size(max = 10)
-    @Column(name = "team_name", length = 10, nullable = false)
-    private String teamName;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "team_type", nullable = false)
+    private TeamType teamType;
 
     @NotNull
-    @Size(max = 20)
-    @Column(name = "track_name", length = 20, nullable = false)
-    private String trackName;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "track_type", nullable = false)
+    private TrackType trackType;
 
     @Column(name = "can_create_admin", columnDefinition = "TINYINT")
     private boolean canCreateAdmin = false;
@@ -49,22 +52,22 @@ public class Admin {
     private boolean superAdmin = false;
 
     @Builder
-    public Admin(User user, String teamName, String trackName, boolean canCreateAdmin, boolean superAdmin) {
+    public Admin(User user, TeamType teamType, TrackType trackType, boolean canCreateAdmin, boolean superAdmin) {
         this.user = user;
-        this.teamName = teamName;
-        this.trackName = trackName;
+        this.teamType = teamType;
+        this.trackType = trackType;
         this.canCreateAdmin = canCreateAdmin;
         this.superAdmin = superAdmin;
     }
 
-    public void update(String teamName, String trackName) {
-        this.teamName = teamName;
-        this.trackName = trackName;
+    public void update(TeamType teamName, TrackType trackName) {
+        this.teamType = teamName;
+        this.trackType = trackName;
     }
 
     /* 어드민 권한이 추가 되면, 해당 메소드에도 추가해야 합니다. */
     public void updatePermission(AdminPermissionUpdateRequest request) {
-        this.canCreateAdmin = request.createAdmin();
+        this.canCreateAdmin = request.canCreateAdmin();
         this.superAdmin = request.superAdmin();
     }
 }
