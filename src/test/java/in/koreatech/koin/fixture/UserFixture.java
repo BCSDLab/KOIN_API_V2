@@ -1,5 +1,7 @@
 package in.koreatech.koin.fixture;
 
+import static in.koreatech.koin.admin.user.enums.TeamType.*;
+import static in.koreatech.koin.admin.user.enums.TrackType.BACKEND;
 import static in.koreatech.koin.domain.user.model.UserGender.MAN;
 import static in.koreatech.koin.domain.user.model.UserGender.WOMAN;
 import static in.koreatech.koin.domain.user.model.UserIdentity.UNDERGRADUATE;
@@ -61,8 +63,8 @@ public final class UserFixture {
     public Admin 코인_운영자() {
         return adminRepository.save(
             Admin.builder()
-                .trackName("백엔드")
-                .teamName("유저")
+                .trackType(BACKEND)
+                .teamType(USER)
                 .canCreateAdmin(true)
                 .superAdmin(true)
                 .user(
@@ -85,8 +87,8 @@ public final class UserFixture {
     public Admin 영희_운영자() {
         return adminRepository.save(
             Admin.builder()
-                .trackName("백엔드")
-                .teamName("비즈니스")
+                .trackType(BACKEND)
+                .teamType(BUSINESS)
                 .canCreateAdmin(false)
                 .superAdmin(false)
                 .user(
@@ -109,8 +111,8 @@ public final class UserFixture {
     public Admin 진구_운영자() {
         return adminRepository.save(
             Admin.builder()
-                .trackName("백엔드")
-                .teamName("캠퍼스")
+                .trackType(BACKEND)
+                .teamType(CAMPUS)
                 .canCreateAdmin(true)
                 .superAdmin(false)
                 .user(
