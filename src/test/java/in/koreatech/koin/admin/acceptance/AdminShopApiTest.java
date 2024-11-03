@@ -202,7 +202,6 @@ class AdminShopApiTest extends AcceptanceTest {
         for (int i = 0; i < 12; i++) {
             ShopCategory request = ShopCategory.builder()
                 .name("카테고리" + i)
-                .isDeleted(false)
                 .build();
             adminShopCategoryRepository.save(request);
         }
@@ -458,7 +457,6 @@ class AdminShopApiTest extends AcceptanceTest {
                 softly -> {
                     softly.assertThat(result.getImageUrl()).isEqualTo("https://image.png");
                     softly.assertThat(result.getName()).isEqualTo("새로운 카테고리");
-                    softly.assertThat(result.isDeleted()).isEqualTo(false);
                 }
             );
         });
@@ -889,16 +887,30 @@ class AdminShopApiTest extends AcceptanceTest {
 
     @Test
     void 어드민이_상점_카테고리를_삭제한다() throws Exception {
-        ShopCategory shopCategory = shopCategoryFixture.카테고리_일반음식();
+        ShopCategory shopCategory = shopCategoryFixture.카테고리_치킨();
 
         mockMvc.perform(
                 delete("/admin/shops/categories/{id}", shopCategory.getId())
                     .header("Authorization", "Bearer " + token_admin)
             )
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
 
-        ShopCategory deletedCategory = adminShopCategoryRepository.getById(shopCategory.getId());
-        assertSoftly(softly -> softly.assertThat(deletedCategory.isDeleted()).isTrue());
+        assertThat(adminMenuCategoryRepository.findById(shopCategory.getId())).isNotPresent();
+    }
+
+    @Test
+    void 어드민이_상점_카테고리_삭제시_카테고리에_상점이_남아있으면_400() throws Exception {
+        ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
+            .shop(shop_마슬랜)
+            .shopCategory(shopCategory_치킨)
+            .build();
+        entityManager.persist(shopCategoryMap);
+
+        mockMvc.perform(
+                delete("/admin/shops/categories/{id}", shopCategory_치킨.getId())
+                    .header("Authorization", "Bearer " + token_admin)
+                )
+            .andExpect(status().isBadRequest());
     }
 
     @Test

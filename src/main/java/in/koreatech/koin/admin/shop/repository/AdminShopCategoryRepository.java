@@ -14,9 +14,7 @@ import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 
 public interface AdminShopCategoryRepository extends Repository<ShopCategory, Integer> {
 
-    Page<ShopCategory> findAllByIsDeleted(boolean isDeleted, Pageable pageable);
-
-    Integer countAllByIsDeleted(boolean isDeleted);
+    Page<ShopCategory> findAll(Pageable pageable);
 
     @Query(value = "SELECT * FROM shop_categories WHERE id = :shopCategoryId", nativeQuery = true)
     Optional<ShopCategory> findById(@Param("shopCategoryId") Integer shopCategoryId);
@@ -33,4 +31,8 @@ public interface AdminShopCategoryRepository extends Repository<ShopCategory, In
         return findById(shopCategoryId)
             .orElseThrow(() -> ShopCategoryNotFoundException.withDetail("shopCategoryId: " + shopCategoryId));
     }
+
+    Integer count();
+
+    void deleteById(Integer shopCategoryId);
 }

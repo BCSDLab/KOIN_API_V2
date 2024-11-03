@@ -26,7 +26,10 @@ public interface VersionApi {
     @Operation(summary = "특정 타입의 버전 조회")
     @GetMapping("/versions/{type}")
     ResponseEntity<VersionResponse> getVersion(
-        @Parameter(description = "android, ios, timetable, express_bus_timetable, shuttle_bus_timetable, city_bus_timetable")
+        @Parameter(description = """
+            android, ios, android_owner, timetable, express_bus_timetable,
+            shuttle_bus_timetable, city_bus_timetable
+            """)
         @PathVariable(value = "type") String type
     );
 
@@ -39,7 +42,10 @@ public interface VersionApi {
     @Operation(summary = "업데이트를 위한 특정 타입의 버전 조회")
     @GetMapping("/version/{type}")
     ResponseEntity<VersionMessageResponse> getVersionWithMessage(
-        @Parameter(description = "android, ios, timetable, express_bus_timetable, shuttle_bus_timetable, city_bus_timetable")
+        @Parameter(description = """
+            android, ios, android_owner, timetable, express_bus_timetable,
+            shuttle_bus_timetable, city_bus_timetable
+            """)
         @PathVariable(value = "type") String type
     );
 }
