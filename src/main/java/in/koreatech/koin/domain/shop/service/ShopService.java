@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
+import in.koreatech.koin.domain.shop.model.event.dto.NotificationCreateEvent;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
@@ -48,6 +50,7 @@ public class ShopService {
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
     private final ShopCustomRepository shopCustomRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public MenuDetailResponse findMenu(Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
@@ -110,5 +113,11 @@ public class ShopService {
         LocalDateTime now = LocalDateTime.now(clock);
         Map<Integer, ShopInfoV2> shopInfoMap = shopCustomRepository.findAllShopInfo(now);
         return ShopsResponseV2.from(shops, shopInfoMap, sortBy, shopsFilterCriterias, now);
+    }
+
+    @Transactional
+    public void createCallNotification(Integer shopId, Integer studentId) {
+        shopRepository.getById(shopId);
+        eventPublisher.publishEvent(new NotificationCreateEvent(shopId, studentId));
     }
 }
