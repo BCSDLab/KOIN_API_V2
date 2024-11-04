@@ -495,6 +495,27 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             .andExpect(status().isNoContent());
     }
 
+    @Test
+    void 시간표에서_특정_강의를_삭제한다_V2() throws Exception {
+        User user1 = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user1);
+        Semester semester = semesterFixture.semester("20192");
+        Lecture lecture1 = lectureFixture.HRD_개론("20192");
+        Lecture lecture2 = lectureFixture.영어청해("20192");
+        TimetableFrame frame = timetableV2Fixture.시간표4(user1, semester, lecture1, lecture2);
+
+        Integer frameId = frame.getId();
+        Integer lectureId = lecture1.getId();
+
+        mockMvc.perform(
+                delete("/v2/timetables/frame/{frameId}/lecture/{lectureId}", frameId, lectureId)
+                    .header("Authorization", "Bearer " + token)
+                    .param("timetable_frame_id", String.valueOf(frame.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
+    }
+
     /*@Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void isMain이_false인_frame과_true인_frame을_동시에_삭제한다() {
