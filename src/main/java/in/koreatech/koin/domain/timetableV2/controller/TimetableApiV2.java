@@ -175,4 +175,20 @@ public interface TimetableApiV2 {
         @PathVariable(value = "id") Integer timetableLectureId,
         @Auth(permit = {STUDENT}) Integer userId
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "시간표 프레임 Id를 이용해서 정규 강의 정보 삭제")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @DeleteMapping("/v2/timetables/frame/{frameId}/lecture/{lectureId}")
+    ResponseEntity<Void> deleteTimetableLectureByFrameId(
+        @PathVariable(value = "frameId") Integer frameId,
+        @PathVariable(value = "lectureId") Integer lectureId,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
 }
