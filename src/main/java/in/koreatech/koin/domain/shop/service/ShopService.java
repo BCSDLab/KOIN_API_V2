@@ -115,7 +115,6 @@ public class ShopService {
         return ShopsResponseV2.from(shops, shopInfoMap, sortBy, shopsFilterCriterias, now);
     }
 
-    @Transactional
     public void createCallNotification(Integer shopId, Integer studentId) {
         shopRepository.getById(shopId);
         eventPublisher.publishEvent(new NotificationCreateEvent(shopId, studentId));
