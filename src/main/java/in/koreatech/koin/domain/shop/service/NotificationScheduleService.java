@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.shop.service;
 
 import static in.koreatech.koin.global.fcm.MobileAppPath.SHOP;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,18 +24,18 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class NotificationScheduleService {
 
+    private final Clock clock;
     private final ShopNotificationQueueRepository shopNotificationQueueRepository;
     private final NotificationFactory notificationFactory;
     private final NotificationService notificationService;
 
     @Transactional
     public void sendDueNotifications() {
-        LocalDateTime now = LocalDateTime.now();
-
+        LocalDateTime now = LocalDateTime.now(clock);
         List<ShopNotificationQueue> dueNotifications = shopNotificationQueueRepository.findByNotificationTimeBefore(now);
-
         if (dueNotifications.isEmpty()) {
             return;
         }
@@ -42,7 +43,6 @@ public class NotificationScheduleService {
         List<Notification> notifications = dueNotifications.stream()
             .map(this::createNotification)
             .toList();
-
         shopNotificationQueueRepository.deleteByNotificationTimeBefore(now);
 
         notificationService.push(notifications);

@@ -206,7 +206,7 @@ public class ShopController implements ShopApi {
         @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
         @Auth(permit = {STUDENT}) Integer studentId
     ) {
-        shopService.createCallNotification(shopId, studentId);
+        shopService.publishCallNotification(shopId, studentId);
         return ResponseEntity.ok().build();
     }
 }
