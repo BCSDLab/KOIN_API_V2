@@ -14,7 +14,7 @@ public interface ShopNotificationQueueRepository extends Repository<ShopNotifica
 
     List<ShopNotificationQueue> findByNotificationTimeBefore(LocalDateTime now);
 
-    int deleteByNotificationTimeBefore(LocalDateTime now);
-
     List<ShopNotificationQueue> findAll();
+
+    int deleteByNotificationTimeBefore(LocalDateTime now);
 }
