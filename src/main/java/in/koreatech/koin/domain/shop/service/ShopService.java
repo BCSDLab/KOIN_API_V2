@@ -1,15 +1,7 @@
 package in.koreatech.koin.domain.shop.service;
 
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import in.koreatech.koin.domain.shop.cache.ShopsCacheService;
+import in.koreatech.koin.domain.shop.cache.dto.ShopsCache;
 import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
@@ -34,7 +26,15 @@ import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV1;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV2;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -47,6 +47,7 @@ public class ShopService {
     private final ShopRepository shopRepository;
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
+    private final ShopsCacheService shopsCache;
     private final ShopCustomRepository shopCustomRepository;
 
     public MenuDetailResponse findMenu(Integer menuId) {
@@ -102,13 +103,24 @@ public class ShopService {
         return ShopEventsResponse.of(shops, clock);
     }
 
-    public ShopsResponseV2 getShopsV2(ShopsSortCriteria sortBy, List<ShopsFilterCriteria> shopsFilterCriterias) {
+    public ShopsResponseV2 getShopsV2(
+            ShopsSortCriteria sortBy,
+            List<ShopsFilterCriteria> shopsFilterCriterias,
+            String query
+    ) {
         if (shopsFilterCriterias.contains(null)) {
             throw KoinIllegalArgumentException.withDetail("유효하지 않은 필터입니다.");
         }
-        List<Shop> shops = shopRepository.findAll();
+        ShopsCache shopCaches = shopsCache.findAllShopCache();
         LocalDateTime now = LocalDateTime.now(clock);
         Map<Integer, ShopInfoV2> shopInfoMap = shopCustomRepository.findAllShopInfo(now);
-        return ShopsResponseV2.from(shops, shopInfoMap, sortBy, shopsFilterCriterias, now);
+        return ShopsResponseV2.from(
+                shopCaches.shopCaches(),
+                shopInfoMap,
+                sortBy,
+                shopsFilterCriterias,
+                now,
+                query
+        );
     }
 }

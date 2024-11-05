@@ -4,6 +4,7 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -59,10 +60,10 @@ public record CreateMenuRequest(
     Integer singlePrice
 ) {
 
-    public Menu toEntity(Integer shopId) {
+    public Menu toEntity(Shop shop) {
         return Menu.builder()
             .name(name)
-            .shopId(shopId)
+            .shop(shop)
             .description(description)
             .build();
     }

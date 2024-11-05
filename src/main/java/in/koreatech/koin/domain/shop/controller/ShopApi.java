@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import in.koreatech.koin.domain.shop.dto.search.RelatedKeyword;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -283,6 +284,21 @@ public interface ShopApi {
     @GetMapping("/v2/shops")
     ResponseEntity<ShopsResponseV2> getShopsV2(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
-        @RequestParam(name = "filter") List<ShopsFilterCriteria> shopsFilterCriterias
+        @RequestParam(name = "filter") List<ShopsFilterCriteria> shopsFilterCriterias,
+        @RequestParam(name = "query") String query
+    );
+
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200"),
+                    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            }
+    )
+    @Operation(summary = "주변상점 검색어에 따른 연관검색어 조회")
+    @GetMapping("/search/related/{prefix}")
+    ResponseEntity<RelatedKeyword> getRelatedKeyword(
+            @PathVariable(name = "prefix") String prefix
     );
 }

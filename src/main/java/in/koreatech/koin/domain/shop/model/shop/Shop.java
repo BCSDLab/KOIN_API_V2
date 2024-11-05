@@ -7,6 +7,7 @@ import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.domain.shop.model.menu.Menu;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
@@ -121,6 +122,9 @@ public class Shop extends BaseEntity {
 
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<ShopImage> shopImages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
+    private List<Menu> menus = new ArrayList<>();
 
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<MenuCategory> menuCategories = new ArrayList<>();

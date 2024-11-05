@@ -4,6 +4,10 @@ import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +41,9 @@ public class Menu extends BaseEntity {
     private Integer id;
 
     @NotNull
-    @Column(name = "shop_id", nullable = false)
-    private Integer shopId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shop_id", nullable = false)
+    private Shop shop;
 
     @Size(max = 255)
     @NotNull
@@ -64,26 +69,17 @@ public class Menu extends BaseEntity {
 
     @Builder
     private Menu(
-        Integer shopId,
+        Shop shop,
         String name,
         String description
     ) {
-        this.shopId = shopId;
+        this.shop = shop;
         this.name = name;
         this.description = description;
     }
 
     public boolean hasMultipleOption() {
         return menuOptions.size() > SINGLE_OPTION_COUNT;
-    }
-
-    @Override
-    public String toString() {
-        return "Menu{" +
-            "id=" + id +
-            ", shopId=" + shopId +
-            ", name='" + name + '\'' +
-            '}';
     }
 
     public void modifyMenu(

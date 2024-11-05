@@ -142,7 +142,7 @@ public class OwnerShopService {
 
     public MenuDetailResponse getMenuByMenuId(Integer ownerId, Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
-        getOwnerShopById(menu.getShopId(), ownerId);
+        getOwnerShopById(menu.getShop().getId(), ownerId);
         List<MenuCategory> menuCategories = menu.getMenuCategoryMaps()
             .stream()
             .map(MenuCategoryMap::getMenuCategory)
@@ -166,7 +166,7 @@ public class OwnerShopService {
     @Transactional
     public void deleteMenuByMenuId(Integer ownerId, Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
-        getOwnerShopById(menu.getShopId(), ownerId);
+        getOwnerShopById(menu.getShop().getId(), ownerId);
         menuRepository.deleteById(menuId);
     }
 
@@ -179,8 +179,8 @@ public class OwnerShopService {
 
     @Transactional
     public void createMenu(Integer shopId, Integer ownerId, CreateMenuRequest createMenuRequest) {
-        getOwnerShopById(shopId, ownerId);
-        Menu menu = createMenuRequest.toEntity(shopId);
+        Shop shop = getOwnerShopById(shopId, ownerId);
+        Menu menu = createMenuRequest.toEntity(shop);
         Menu savedMenu = menuRepository.save(menu);
         for (Integer categoryId : createMenuRequest.categoryIds()) {
             MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
@@ -229,7 +229,7 @@ public class OwnerShopService {
     @Transactional
     public void modifyMenu(Integer ownerId, Integer menuId, ModifyMenuRequest modifyMenuRequest) {
         Menu menu = menuRepository.getById(menuId);
-        getOwnerShopById(menu.getShopId(), ownerId);
+        getOwnerShopById(menu.getShop().getId(), ownerId);
         menu.modifyMenu(
             modifyMenuRequest.name(),
             modifyMenuRequest.description()

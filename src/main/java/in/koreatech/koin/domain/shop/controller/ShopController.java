@@ -3,6 +3,13 @@ package in.koreatech.koin.domain.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import in.koreatech.koin.domain.shop.dto.search.RelatedKeyword;
+import in.koreatech.koin.domain.shop.service.SearchService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,6 +56,7 @@ public class ShopController implements ShopApi {
 
     private final ShopService shopService;
     private final ShopReviewService shopReviewService;
+    private final SearchService searchService;
 
     @GetMapping("/shops/{shopId}/menus/{menuId}")
     public ResponseEntity<MenuDetailResponse> findMenu(
@@ -183,12 +191,13 @@ public class ShopController implements ShopApi {
     @GetMapping("/v2/shops")
     public ResponseEntity<ShopsResponseV2> getShopsV2(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
-        @RequestParam(name = "filter", required = false) List<ShopsFilterCriteria> shopsFilterCriterias
+        @RequestParam(name = "filter", required = false) List<ShopsFilterCriteria> shopsFilterCriterias,
+        @RequestParam(name = "query") String query
     ) {
         if (shopsFilterCriterias == null) {
             shopsFilterCriterias = Collections.emptyList();
         }
-        var shops = shopService.getShopsV2(sortBy, shopsFilterCriterias);
+        var shops = shopService.getShopsV2(sortBy, shopsFilterCriterias, query);
         return ResponseEntity.ok(shops);
     }
 
@@ -199,5 +208,21 @@ public class ShopController implements ShopApi {
     ) {
         ShopReviewResponse shopReviewResponse = shopReviewService.getReviewByReviewId(shopId, reviewId);
         return ResponseEntity.ok(shopReviewResponse);
+    }
+
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200"),
+                    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            }
+    )
+    @Operation(summary = "주변상점 검색어에 따른 연관검색어 조회")
+    @GetMapping("/search/related/{prefix}")
+    public ResponseEntity<RelatedKeyword> getRelatedKeyword(
+            @PathVariable(name = "prefix") String prefix
+    ) {
+        return ResponseEntity.ok(searchService.getRelatedKeywordByQuery(prefix));
     }
 }
