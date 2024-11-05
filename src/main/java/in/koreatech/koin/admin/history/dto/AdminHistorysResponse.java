@@ -69,7 +69,7 @@ public record AdminHistorysResponse(
             return new InnerAdminHistorysResponse(
                 adminActivityHistory.getId(),
                 adminActivityHistory.getDomainId(),
-                adminActivityHistory.getUser().getName(),
+                adminActivityHistory.getAdmin().getUser().getName(),
                 DomainType.valueOf(adminActivityHistory.getDomainName()).getDescription(),
                 HttpMethodType.valueOf(adminActivityHistory.getRequestMethod()).getValue(),
                 adminActivityHistory.getRequestMessage(),

@@ -14,8 +14,8 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 import in.koreatech.koin.admin.history.enums.DomainType;
 import in.koreatech.koin.admin.history.model.AdminActivityHistory;
 import in.koreatech.koin.admin.history.repository.AdminActivityHistoryRepository;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.global.auth.AuthContext;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminActivityHistoryAspect {
 
     private final AuthContext authContext;
-    private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
     private final AdminActivityHistoryRepository adminActivityHistoryRepository;
 
     private static final String REGEX_NUMERIC = "^[0-9]*$";
@@ -63,12 +63,12 @@ public class AdminActivityHistoryAspect {
 
         Object result = joinPoint.proceed();
 
-        User user = userRepository.getById(authContext.getUserId());
+        Admin admin = adminRepository.getById(authContext.getUserId());
         DomainInfo domainInfo = getDomainInfo(requestURI);
 
         adminActivityHistoryRepository.save(AdminActivityHistory.builder()
             .domainId(domainInfo.domainId())
-            .user(user)
+            .admin(admin)
             .requestMethod(requestMethod)
             .domainName(domainInfo.domainName())
             .requestMessage(requestMessage)

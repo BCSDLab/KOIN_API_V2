@@ -3,7 +3,7 @@ package in.koreatech.koin.admin.history.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,18 +44,17 @@ public class AdminActivityHistory extends BaseEntity {
     @Column(name = "request_message", columnDefinition = "TEXT")
     private String requestMessage;
 
-    /* TODO. admin PR 머지 되면 admin으로 바꾸기 */
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
 
     @Builder
     public AdminActivityHistory(Integer domainId, String requestMethod, String domainName, String requestMessage,
-        User user) {
+        Admin admin) {
         this.domainId = domainId;
         this.requestMethod = requestMethod;
         this.domainName = domainName;
         this.requestMessage = requestMessage;
-        this.user = user;
+        this.admin = admin;
     }
 }
