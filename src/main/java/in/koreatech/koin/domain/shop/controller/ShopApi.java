@@ -285,7 +285,7 @@ public interface ShopApi {
     ResponseEntity<ShopsResponseV2> getShopsV2(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
         @RequestParam(name = "filter") List<ShopsFilterCriteria> shopsFilterCriterias,
-        @RequestParam(name = "query") String query
+        @RequestParam(name = "query", required = false) String query
     );
 
     @ApiResponses(

@@ -10,4 +10,6 @@ public interface MenuSearchKeywordRepository extends Repository<MenuSearchKeyWor
 
     @Query("SELECT DISTINCT m.keyword FROM MenuSearchKeyWord m WHERE m.keyword LIKE %:query%")
     List<String> findDistinctNameStartingWith(@Param("query") String query);
+
+    MenuSearchKeyWord save(MenuSearchKeyWord menuSearchKeyWord);
 }

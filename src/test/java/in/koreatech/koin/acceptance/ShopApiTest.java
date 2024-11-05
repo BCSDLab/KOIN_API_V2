@@ -75,7 +75,7 @@ class ShopApiTest extends AcceptanceTest {
     void 옵션이_하나_있는_상점의_메뉴를_조회한다() throws Exception {
         Menu menu = menuFixture.짜장면_단일메뉴(마슬랜, menuCategoryFixture.메인메뉴(마슬랜));
         mockMvc.perform(
-                get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
+                get("/shops/{shopId}/menus/{menuId}", menu.getShop().getId(), menu.getId())
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
@@ -105,7 +105,7 @@ class ShopApiTest extends AcceptanceTest {
         Menu menu = menuFixture.짜장면_옵션메뉴(마슬랜, menuCategoryFixture.메인메뉴(마슬랜));
 
         mockMvc.perform(
-                get("/shops/{shopId}/menus/{menuId}", menu.getShopId(), menu.getId())
+                get("/shops/{shopId}/menus/{menuId}", menu.getShop().getId(), menu.getId())
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
@@ -145,7 +145,7 @@ class ShopApiTest extends AcceptanceTest {
         Menu menu = menuFixture.짜장면_단일메뉴(마슬랜, menuCategoryFixture.추천메뉴(마슬랜));
 
         mockMvc.perform(
-                get("/shops/{shopId}/menus/categories", menu.getShopId())
+                get("/shops/{shopId}/menus/categories", menu.getShop().getId())
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
@@ -1016,5 +1016,44 @@ class ShopApiTest extends AcceptanceTest {
                     ]
                 }
                 """, 티바_영업여부, 마슬랜_영업여부)));
+    }
+
+    @Test
+    void 검색어를_입력해서_상점을_조회한다() throws Exception {
+        Shop 배달_안되는_신전_떡볶이 = shopFixture.배달_안되는_신전_떡볶이(owner);
+        ShopReview 리뷰_4점 = shopReviewFixture.리뷰_4점(익명_학생, 배달_안되는_신전_떡볶이);
+        shopReviewReportFixture.리뷰_신고(익명_학생, 리뷰_4점, DISMISSED);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+        // 2024-01-15 12:00 월요일 기준
+        boolean 신전_떡볶이_영업여부 = true;
+        boolean 마슬랜_영업여부 = true;
+        mockMvc.perform(
+                        get("/v2/shops")
+                                .queryParam("query", "떡")
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().json(String.format("""
+                {
+                    "count": 1,
+                    "shops": [
+                        {
+                            "category_ids": [
+                               \s
+                            ],
+                            "delivery": false,
+                            "id": 2,
+                            "name": "신전 떡볶이",
+                            "pay_bank": true,
+                            "pay_card": true,
+                            "phone": "010-7788-9900",
+                            "is_event": false,
+                            "is_open": %s,
+                            "average_rate": 4.0,
+                            "review_count": 1
+                        }
+                    ]
+                }
+                """, 마슬랜_영업여부, 신전_떡볶이_영업여부)));
     }
 }

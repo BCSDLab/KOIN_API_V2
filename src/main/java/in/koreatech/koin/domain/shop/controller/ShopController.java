@@ -192,7 +192,7 @@ public class ShopController implements ShopApi {
     public ResponseEntity<ShopsResponseV2> getShopsV2(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
         @RequestParam(name = "filter", required = false) List<ShopsFilterCriteria> shopsFilterCriterias,
-        @RequestParam(name = "query") String query
+        @RequestParam(name = "query", required = false, defaultValue = "") String query
     ) {
         if (shopsFilterCriterias == null) {
             shopsFilterCriterias = Collections.emptyList();

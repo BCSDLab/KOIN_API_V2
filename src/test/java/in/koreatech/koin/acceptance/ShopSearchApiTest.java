@@ -9,8 +9,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
+import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
+import in.koreatech.koin.domain.shop.model.menu.MenuSearchKeyWord;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.repository.menu.MenuSearchKeywordRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.fixture.EventArticleFixture;
 import in.koreatech.koin.fixture.MenuCategoryFixture;
@@ -56,6 +59,9 @@ class ShopSearchApiTest extends AcceptanceTest {
     @Autowired
     private ShopCategoryFixture shopCategoryFixture;
 
+    @Autowired
+    private MenuSearchKeywordRepository menuSearchKeywordRepository;
+
     private Shop 마슬랜;
     private Owner owner;
 
@@ -67,6 +73,64 @@ class ShopSearchApiTest extends AcceptanceTest {
         owner = userFixture.준영_사장님();
         마슬랜 = shopFixture.마슬랜(owner);
         익명_학생 = userFixture.익명_학생();
+        menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
+                .keyword("짜장면")
+                .build());
+        menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
+                .keyword("짜파게티")
+                .build());
+        menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
+                .keyword("짜장밥")
+                .build());
+        menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
+                .keyword("떡볶이")
+                .build());
+        menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
+                .keyword("짬짜면")
+                .build());
+        menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
+                .keyword("짜장")
+                .build());
+        menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
+                .keyword("짜게치")
+                .build());
     }
 
+    @Test
+    void 검색_문자열로_연관_검색어를_조회하면_검색어에_맞는_5개의_연관검색어를_반환한다() throws Exception {
+        // 2024-01-15 12:00 월요일 기준
+        boolean 신전_떡볶이_영업여부 = true;
+        mockMvc.perform(
+                        get("/search/related/짜")
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().json(String.format("""
+                        {
+                            "keywords": [
+                                            "짜장면",
+                                            "짜파게티",
+                                            "짜장밥",
+                                            "짬짜면",
+                                            "짜장"
+                                        ]
+                        }
+                        """, 신전_떡볶이_영업여부)));
+    }
+
+    @Test
+    void 검색_문자열로_연관_검색어를_조회하면_검색어에_맞는_연관검색어를_반환한다() throws Exception {
+        // 2024-01-15 12:00 월요일 기준
+        boolean 신전_떡볶이_영업여부 = true;
+        mockMvc.perform(
+                        get("/search/related/떡")
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().json(String.format("""
+                        {
+                            "keywords": [
+                                            "떡볶이"
+                                        ]
+                        }
+                        """, 신전_떡볶이_영업여부)));
+    }
 }
