@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.shop.cache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import in.koreatech.koin.domain.shop.cache.dto.ShopCache;
 import in.koreatech.koin.domain.shop.cache.dto.ShopsCache;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +16,8 @@ public class ShopRedisRepository {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    public void save(ShopCache shopCache) {
-        redisTemplate.opsForValue().set(KEY, shopCache);
+    public void save(ShopsCache shopsCache) {
+        redisTemplate.opsForValue().set(KEY, shopsCache);
     }
 
     public ShopsCache getShopsResponseByRedis() {

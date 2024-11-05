@@ -25,8 +25,9 @@ public record ShopsResponseV2(
 ) {
 
     private static Predicate<ShopCache> queryPredicate(String query) {
+        String trimmedQuery = query.replaceAll(" ", "");
         return (shop ->
-                shop.name().contains(query) || shop.menuNames().stream().anyMatch(s -> s.startsWith(query))
+                shop.name().contains(trimmedQuery) || shop.menuNames().stream().anyMatch(s -> s.contains(trimmedQuery))
         );
     }
 

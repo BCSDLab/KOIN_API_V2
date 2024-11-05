@@ -7,6 +7,10 @@ public record RelatedKeyword(
         List<String> keywords
 ) {
     public static RelatedKeyword from(List<String> menuKeywords, List<String> shopNames) {
-        return new RelatedKeyword(Stream.concat(menuKeywords.stream(), shopNames.stream()).toList());
+        return new RelatedKeyword(
+                Stream.concat(menuKeywords.stream(), shopNames.stream())
+                .limit(5)
+                .toList()
+        );
     }
 }

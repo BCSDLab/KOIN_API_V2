@@ -219,10 +219,10 @@ public class ShopController implements ShopApi {
             }
     )
     @Operation(summary = "주변상점 검색어에 따른 연관검색어 조회")
-    @GetMapping("/search/related/{prefix}")
+    @GetMapping("/search/related/{query}")
     public ResponseEntity<RelatedKeyword> getRelatedKeyword(
-            @PathVariable(name = "prefix") String prefix
+            @PathVariable(name = "query") String query
     ) {
-        return ResponseEntity.ok(searchService.getRelatedKeywordByQuery(prefix));
+        return ResponseEntity.ok(searchService.getRelatedKeywordByQuery(query));
     }
 }

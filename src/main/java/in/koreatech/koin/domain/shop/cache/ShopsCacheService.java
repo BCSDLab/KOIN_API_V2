@@ -16,6 +16,12 @@ public class ShopsCacheService {
         if (shopRedisRepository.isCacheAvailable()) {
             return shopRedisRepository.getShopsResponseByRedis();
         }
-        return ShopsCache.from(shopRepository.findAll());
+        return refreshShopsCache();
+    }
+
+    public ShopsCache refreshShopsCache() {
+        ShopsCache shopsCache = ShopsCache.from(shopRepository.findAll());
+        shopRedisRepository.save(shopsCache);
+        return shopsCache;
     }
 }
