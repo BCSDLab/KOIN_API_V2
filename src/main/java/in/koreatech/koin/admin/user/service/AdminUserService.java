@@ -2,18 +2,16 @@ package in.koreatech.koin.admin.user.service;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,16 +24,25 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
+import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
+import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
-import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
+import in.koreatech.koin.admin.user.dto.AdminUpdateRequest;
+import in.koreatech.koin.admin.user.dto.AdminsCondition;
+import in.koreatech.koin.admin.user.dto.AdminsResponse;
+import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
+import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.user.repository.AdminOwnerShopRedisRepository;
+import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminTokenRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
@@ -43,17 +50,19 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.model.StudentDepartment;
+import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
+import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
+import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +80,7 @@ public class AdminUserService {
     private final AdminShopRepository adminShopRepository;
     private final PasswordEncoder passwordEncoder;
     private final AdminTokenRepository adminTokenRepository;
+    private final AdminRepository adminRepository;
 
     public AdminStudentsResponse getStudents(StudentsCondition studentsCondition) {
         Integer totalStudents = adminStudentRepository.findAllStudentCount();
@@ -83,17 +93,47 @@ public class AdminUserService {
     }
 
     @Transactional
-    public AdminLoginResponse adminLogin(AdminLoginRequest request) {
-        User user = adminUserRepository.getByEmail(request.email());
-
-        /* 어드민 권한이 없으면 없는 회원으로 간주 */
-        if (user.getUserType() != ADMIN) {
-            throw UserNotFoundException.withDetail("email" + request.email());
+    public AdminResponse createAdmin(CreateAdminRequest request, Integer adminId) {
+        Admin admin = adminRepository.getById(adminId);
+        if (!admin.isCanCreateAdmin() || !admin.isSuperAdmin()) {
+            throw new AuthorizationException("어드민 계정 생성 권한이 없습니다.");
         }
 
-        if (!user.isSamePassword(passwordEncoder, request.password())) {
+        validateAdminCreate(request);
+        Admin createAdmin = adminRepository.save(request.toEntity(passwordEncoder));
+
+        return AdminResponse.from(createAdmin);
+    }
+
+    private void validateAdminCreate(CreateAdminRequest request) {
+        EmailAddress emailAddress = EmailAddress.from(request.email());
+        emailAddress.validateKoreatechEmail();
+        emailAddress.validateAdminEmail();
+
+        validateDuplicateEmail(request);
+    }
+
+    private void validateDuplicateEmail(CreateAdminRequest request) {
+        adminUserRepository.findByEmail(request.email())
+            .ifPresent(user -> {
+                throw DuplicationEmailException.withDetail("email: " + request.email());
+            });
+    }
+
+    @Transactional
+    public void adminPasswordChange(AdminPasswordChangeRequest request, Integer adminId) {
+        Admin admin = adminRepository.getById(adminId);
+        User user = admin.getUser();
+        if (!user.isSamePassword(passwordEncoder, request.oldPassword())) {
             throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
         }
+        user.updatePassword(passwordEncoder, request.newPassword());
+    }
+
+    @Transactional
+    public AdminLoginResponse adminLogin(AdminLoginRequest request) {
+        User user = adminUserRepository.getByEmail(request.email());
+        validateAdminLogin(user, request);
 
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
@@ -101,6 +141,25 @@ public class AdminUserService {
         user.updateLastLoggedTime(LocalDateTime.now());
 
         return AdminLoginResponse.of(accessToken, savedtoken.getRefreshToken());
+    }
+
+    private void validateAdminLogin(User user, AdminLoginRequest request) {
+        /* 어드민 권한이 없으면 없는 회원으로 간주 */
+        if (user.getUserType() != ADMIN) {
+            throw UserNotFoundException.withDetail("email" + request.email());
+        }
+
+        if (adminRepository.findById(user.getId()).isEmpty()) {
+            throw UserNotFoundException.withDetail("email" + request.email());
+        }
+
+        if (!user.isSamePassword(passwordEncoder, request.password())) {
+            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+
+        if (!user.isAuthed()) {
+            throw new AuthorizationException("PL 인증 대기중입니다.");
+        }
     }
 
     @Transactional
@@ -126,6 +185,51 @@ public class AdminUserService {
             throw new AuthorizationException("올바르지 않은 인증 토큰입니다. refreshToken: " + refreshToken);
         }
         return split[split.length - 1];
+    }
+
+    public AdminResponse getAdmin(Integer id) {
+        Admin admin = adminRepository.getById(id);
+        return AdminResponse.from(admin);
+    }
+
+    public AdminsResponse getAdmins(AdminsCondition adminsCondition) {
+        Integer totalAdmins = adminRepository.countAdmins();
+        Criteria criteria = Criteria.of(adminsCondition.page(), adminsCondition.limit(), totalAdmins);
+
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
+        Page<Admin> adminsPage = adminRepository.findByConditions(adminsCondition, pageRequest);
+
+        return AdminsResponse.of(adminsPage);
+    }
+
+    @Transactional
+    public void adminAuthenticate(Integer id, Integer adminId) {
+        Admin admin = adminRepository.getById(adminId);
+        if (!admin.isSuperAdmin()) {
+            throw new AuthorizationException("어드민 승인 권한이 없습니다.");
+        }
+
+        User user = adminRepository.getById(id).getUser();
+        user.auth();
+    }
+
+    @Transactional
+    public void updateAdmin(AdminUpdateRequest request, Integer id) {
+        Admin admin = adminRepository.getById(id);
+        User user = admin.getUser();
+
+        user.updateName(request.name());
+        admin.update(request.teamType(), request.trackType());
+    }
+
+    @Transactional
+    public void updateAdminPermission(AdminPermissionUpdateRequest request, Integer id, Integer adminId) {
+        Admin admin = adminRepository.getById(adminId);
+        if (!admin.isSuperAdmin()) {
+            throw new AuthorizationException("슈퍼 어드민 권한이 없습니다.");
+        }
+
+        adminRepository.getById(id).updatePermission(request);
     }
 
     @Transactional
@@ -156,7 +260,7 @@ public class AdminUserService {
         validateNicknameDuplication(adminRequest.nickname(), id);
         validateDepartmentValid(adminRequest.major());
         user.update(adminRequest.nickname(), adminRequest.name(),
-                adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
+            adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
         user.updateStudentPassword(passwordEncoder, adminRequest.password());
         student.update(adminRequest.studentNumber(), adminRequest.major());
         adminStudentRepository.save(student);
@@ -174,17 +278,16 @@ public class AdminUserService {
         Page<Owner> result = getNewOwnersResultPage(ownersCondition, criteria, direction);
 
         List<OwnerIncludingShop> ownerIncludingShops = result.getContent().stream()
-                .map(owner -> {
-                    Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(owner.getId());
-                    return ownerShop
-                            .map(os -> {
-                                Shop shop = adminShopRepository.findById(os.getShopId()).orElse(null);
-                                return OwnerIncludingShop.of(owner, shop);
-                            })
-                            .orElseGet(() -> OwnerIncludingShop.of(owner, null));
-                })
-                .collect(Collectors.toList());
-
+            .map(owner -> {
+                Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(owner.getId());
+                return ownerShop
+                    .map(os -> {
+                        Shop shop = adminShopRepository.findById(os.getShopId()).orElse(null);
+                        return OwnerIncludingShop.of(owner, shop);
+                    })
+                    .orElseGet(() -> OwnerIncludingShop.of(owner, null));
+            })
+            .collect(Collectors.toList());
 
         return AdminNewOwnersResponse.of(ownerIncludingShops, result, criteria);
     }
@@ -202,9 +305,9 @@ public class AdminUserService {
     }
 
     private Page<Owner> getOwnersResultPage(OwnersCondition ownersCondition, Criteria criteria,
-                                            Sort.Direction direction) {
+        Sort.Direction direction) {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-                Sort.by(direction, "user.createdAt"));
+            Sort.by(direction, "user.createdAt"));
 
         Page<Owner> result;
 
@@ -220,9 +323,9 @@ public class AdminUserService {
     }
 
     private Page<Owner> getNewOwnersResultPage(OwnersCondition ownersCondition, Criteria criteria,
-                                               Sort.Direction direction) {
+        Sort.Direction direction) {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-                Sort.by(direction, "user.createdAt"));
+            Sort.by(direction, "user.createdAt"));
 
         Page<Owner> result;
 
@@ -237,10 +340,9 @@ public class AdminUserService {
         return result;
     }
 
-
     private void validateNicknameDuplication(String nickname, Integer userId) {
         if (nickname != null &&
-                adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {
+            adminUserRepository.existsByNicknameAndIdNot(nickname, userId)) {
             throw DuplicationNicknameException.withDetail("nickname : " + nickname);
         }
     }
@@ -255,9 +357,9 @@ public class AdminUserService {
         Owner owner = adminOwnerRepository.getById(ownerId);
 
         List<Integer> shopsId = adminShopRepository.findAllByOwnerId(ownerId)
-                .stream()
-                .map(Shop::getId)
-                .toList();
+            .stream()
+            .map(Shop::getId)
+            .toList();
 
         return AdminOwnerResponse.of(owner, shopsId);
     }

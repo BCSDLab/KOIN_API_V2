@@ -1,7 +1,8 @@
 package in.koreatech.koin.admin.acceptance;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,10 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.member.repository.AdminTechStackRepository;
 import in.koreatech.koin.admin.member.repository.AdminTrackRepository;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.member.model.TechStack;
 import in.koreatech.koin.domain.member.model.Track;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.MemberFixture;
 import in.koreatech.koin.fixture.TechStackFixture;
 import in.koreatech.koin.fixture.TrackFixture;
@@ -65,8 +66,8 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_BCSDLab_트랙_정보를_조회한다() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         trackFixture.backend();
         trackFixture.frontend();
@@ -109,8 +110,8 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_BCSDLab_트랙_정보를_생성한다() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 post("/admin/tracks")
@@ -138,8 +139,8 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_BCSDLab_트랙_정보를_생성한다_이미_있는_트랙명이면_409_반환() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         trackFixture.backend();
 
@@ -159,8 +160,8 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_BCSDLab_트랙_단거_정보를_조회한다() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         Track backend = trackFixture.backend();
         trackFixture.ai();                    // 삭제된 트랙
@@ -231,8 +232,8 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_BCSDLab_트랙_정보를_수정한다() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         Track backEnd = trackFixture.backend();
 
@@ -262,8 +263,8 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_BCSDLab_트랙_정보를_수정한다_이미_있는_트랙명이면_409_반환() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         Track backEnd = trackFixture.backend();
 
@@ -283,8 +284,8 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_BCSDLab_트랙_정보를_삭제한다() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         Track backEnd = trackFixture.backend();
 
@@ -305,8 +306,8 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_BCSDLab_기술스택_정보를_생성한다() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         trackFixture.frontend();
         Track backEnd = trackFixture.backend();
@@ -341,8 +342,8 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_BCSDLab_기술스택_정보를_수정한다() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         TechStack java = techStackFixture.java(trackFixture.frontend());
         Track backEnd = trackFixture.backend();
@@ -378,8 +379,8 @@ public class AdminTrackApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_기술스택_정보를_삭제한다() throws Exception {
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         Track backEnd = trackFixture.backend();
         TechStack java = techStackFixture.java(backEnd);

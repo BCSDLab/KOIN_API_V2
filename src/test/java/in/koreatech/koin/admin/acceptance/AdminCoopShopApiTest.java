@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.CoopShopFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
@@ -30,7 +30,7 @@ class AdminCoopShopApiTest extends AcceptanceTest {
     @Autowired
     private UserFixture userFixture;
 
-    private User admin;
+    private Admin admin;
     private String token_admin;
 
     @BeforeAll
@@ -39,7 +39,7 @@ class AdminCoopShopApiTest extends AcceptanceTest {
         coopShopFixture._23_2학기();
         coopShopFixture._23_겨울학기();
         admin = userFixture.코인_운영자();
-        token_admin = userFixture.getToken(admin);
+        token_admin = userFixture.getToken(admin.getUser());
     }
 
     @Test

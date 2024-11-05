@@ -1,7 +1,6 @@
 package in.koreatech.koin.global.auth;
 
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Arrays;
@@ -53,6 +52,9 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
                 }
                 if (user.getUserType() == STUDENT) {
                     throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
+                }
+                if (user.getUserType() == ADMIN) {
+                    throw new AuthorizationException("PL 인증 대기중입니다.");
                 }
                 throw AuthorizationException.withDetail("userId: " + user.getId());
             }

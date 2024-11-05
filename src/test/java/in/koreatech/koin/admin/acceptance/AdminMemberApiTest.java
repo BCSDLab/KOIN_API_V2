@@ -1,7 +1,8 @@
 package in.koreatech.koin.admin.acceptance;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,8 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.member.repository.AdminMemberRepository;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.member.model.Member;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.MemberFixture;
 import in.koreatech.koin.fixture.TrackFixture;
 import in.koreatech.koin.fixture.UserFixture;
@@ -45,8 +46,8 @@ public class AdminMemberApiTest extends AcceptanceTest {
     void BCSDLab_회원들의_정보를_조회한다() throws Exception {
         memberFixture.최준호(trackFixture.backend());
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/members")
@@ -82,8 +83,8 @@ public class AdminMemberApiTest extends AcceptanceTest {
     void 관리자_권한으로_BCSDLab_회원을_추가한다() throws Exception {
         trackFixture.backend();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         String jsonBody = """
             {
@@ -121,8 +122,8 @@ public class AdminMemberApiTest extends AcceptanceTest {
     void BCSDLab_회원_정보를_조회한다() throws Exception {
         memberFixture.최준호(trackFixture.backend());
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 get("/admin/members/{id}", 1)
@@ -148,8 +149,8 @@ public class AdminMemberApiTest extends AcceptanceTest {
         Member member = memberFixture.최준호(trackFixture.backend());
         Integer memberId = member.getId();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 delete("/admin/members/{id}", memberId)
@@ -175,8 +176,8 @@ public class AdminMemberApiTest extends AcceptanceTest {
         Member member = memberFixture.최준호(trackFixture.backend());
         Integer memberId = member.getId();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         String jsonBody = """
             {
@@ -216,8 +217,8 @@ public class AdminMemberApiTest extends AcceptanceTest {
         trackFixture.frontend();
         Integer memberId = member.getId();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         String jsonBody = """
             {
@@ -256,8 +257,8 @@ public class AdminMemberApiTest extends AcceptanceTest {
         Member member = memberFixture.최준호_삭제(trackFixture.backend());
         Integer memberId = member.getId();
 
-        User adminUser = userFixture.코인_운영자();
-        String token = userFixture.getToken(adminUser);
+        Admin adminUser = userFixture.코인_운영자();
+        String token = userFixture.getToken(adminUser.getUser());
 
         mockMvc.perform(
                 post("/admin/members/{id}/undelete", memberId)
