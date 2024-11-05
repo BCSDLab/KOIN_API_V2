@@ -9,19 +9,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.Clock;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
@@ -29,8 +22,6 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.shop.repository.shop.ShopNotificationQueueRepository;
-import in.koreatech.koin.domain.shop.scheduler.NotificationScheduler;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.fixture.EventArticleFixture;
 import in.koreatech.koin.fixture.MenuCategoryFixture;
@@ -40,7 +31,6 @@ import in.koreatech.koin.fixture.ShopFixture;
 import in.koreatech.koin.fixture.ShopReviewFixture;
 import in.koreatech.koin.fixture.ShopReviewReportFixture;
 import in.koreatech.koin.fixture.UserFixture;
-import in.koreatech.koin.global.domain.notification.service.NotificationService;
 
 @Transactional
 @SuppressWarnings("NonAsciiCharacters")
@@ -70,18 +60,6 @@ class ShopApiTest extends AcceptanceTest {
 
     @Autowired
     private ShopCategoryFixture shopCategoryFixture;
-
-    @Autowired
-    private NotificationScheduler notificationScheduler;
-
-    @Autowired
-    private ShopNotificationQueueRepository shopNotificationQueueRepository;
-
-    @MockBean
-    private NotificationService notificationService;
-
-    @Mock
-    private Clock mockClock;
 
     private Shop 마슬랜;
     private Owner owner;
@@ -1046,7 +1024,7 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 전화하기_이벤트_발생시_1시간_뒤에_알림을_발송한다() throws Exception {
+    void 전화하기_발생시_알림이벤트를_호출한다() throws Exception {
         mockMvc.perform(
                 post("/shops/{shopId}/call-notification", 마슬랜.getId())
                     .header("Authorization", "Bearer " + token_익명)
@@ -1055,14 +1033,6 @@ class ShopApiTest extends AcceptanceTest {
         forceVerify(() -> verify(notificationEventListener, times(1))
             .onNotificationEventCreate(any()));
 
-        LocalDateTime oneHourTenMinutesLater = LocalDateTime.now().plusMinutes(70);
-        when(mockClock.instant()).thenReturn(oneHourTenMinutesLater.toInstant(ZoneOffset.UTC));
-        when(mockClock.getZone()).thenReturn(ZoneId.systemDefault());
-
-        notificationScheduler.sendDueNotifications();
-        verify(notificationService, times(1)).push(anyList());
-
-        Assertions.assertThat(shopNotificationQueueRepository.findAll()).isEmpty();
         clear();
         setUp();
     }

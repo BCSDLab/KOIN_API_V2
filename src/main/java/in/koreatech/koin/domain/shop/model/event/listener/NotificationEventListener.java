@@ -11,8 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.domain.shop.model.event.dto.NotificationCreateEvent;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationQueue;
 import in.koreatech.koin.domain.shop.repository.shop.ShopNotificationQueueRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -23,13 +27,18 @@ public class NotificationEventListener {
 
     private final NotificationSubscribeRepository notificationSubscribeRepository;
     private final ShopNotificationQueueRepository shopNotificationQueueRepository;
+    private final ShopRepository shopRepository;
+    private final UserRepository userRepository;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onNotificationEventCreate(NotificationCreateEvent event) {
         if (isSubscribeReviewNotification(event)) {
+            Shop shop = shopRepository.getById(event.shopId());
+            User user = userRepository.getById(event.studentId());
+
             ShopNotificationQueue shopNotificationQueue = ShopNotificationQueue.builder()
-                .shopId(event.shopId())
-                .userId(event.studentId())
+                .shop(shop)
+                .user(user)
                 .notificationTime(LocalDateTime.now().plusHours(1))
                 .build();
 
