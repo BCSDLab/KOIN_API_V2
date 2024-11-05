@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import in.koreatech.koin.admin.shop.dto.*;
+import in.koreatech.koin.admin.shop.exception.ShopCategoryNotEmptyException;
 import in.koreatech.koin.admin.shop.repository.*;
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 
@@ -76,12 +77,12 @@ public class AdminShopService {
         return AdminShopResponse.from(shop, eventDuration);
     }
 
-    public AdminShopCategoriesResponse getShopCategories(Integer page, Integer limit, Boolean isDeleted) {
-        Integer total = adminShopCategoryRepository.countAllByIsDeleted(isDeleted);
+    public AdminShopCategoriesResponse getShopCategories(Integer page, Integer limit) {
+        Integer total = adminShopCategoryRepository.count();
         Criteria criteria = Criteria.of(page, limit, total);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
             Sort.by(Sort.Direction.ASC, "id"));
-        Page<ShopCategory> result = adminShopCategoryRepository.findAllByIsDeleted(isDeleted, pageRequest);
+        Page<ShopCategory> result = adminShopCategoryRepository.findAll(pageRequest);
         return AdminShopCategoriesResponse.of(result, criteria);
     }
 
@@ -288,8 +289,14 @@ public class AdminShopService {
 
     @Transactional
     public void deleteShopCategory(Integer categoryId) {
-        ShopCategory shopCategory = adminShopCategoryRepository.getById(categoryId);
-        shopCategory.delete();
+        if (hasShops(categoryId)) {
+            throw ShopCategoryNotEmptyException.withDetail("category: " + categoryId);
+        }
+        adminShopCategoryRepository.deleteById(categoryId);
+    }
+
+    private boolean hasShops(Integer categoryId) {
+        return adminShopCategoryMapRepository.existsByShopCategoryId(categoryId);
     }
 
     @Transactional

@@ -32,6 +32,7 @@ import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserM
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
@@ -50,7 +51,7 @@ public class KeywordService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
 
-    @Transactional
+    @ConcurrencyGuard(lockName = "createKeyword", waitTime = 7, leaseTime = 5)
     public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
         String keyword = validateAndGetKeyword(request.keyword());
         if (articleKeywordUserMapRepository.countByUserId(userId) >= ARTICLE_KEYWORD_LIMIT) {
@@ -76,7 +77,7 @@ public class KeywordService {
         return new ArticleKeywordResponse(keywordUserMap.getId(), existingKeyword.getKeyword());
     }
 
-    @Transactional
+    @ConcurrencyGuard(lockName = "deleteKeyword")
     public void deleteKeyword(Integer userId, Integer keywordUserMapId) {
         ArticleKeywordUserMap articleKeywordUserMap = articleKeywordUserMapRepository.getById(keywordUserMapId);
         if (!Objects.equals(articleKeywordUserMap.getUser().getId(), userId)) {

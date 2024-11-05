@@ -32,4 +32,8 @@ public interface DiningRepository extends Repository<Dining, Integer> {
     Long count();
 
     Page<Dining> findAllByMenuContainingAndPlaceIn(String keyword, List<String> diningPlaces, Pageable pageable);
+
+    List<Dining> findByDateBetween(LocalDate startDate, LocalDate endDate);
+
+    List<Dining> findByDateBetweenAndPlaceIn(LocalDate startDate, LocalDate endDate, List<String> placeFilters);
 }

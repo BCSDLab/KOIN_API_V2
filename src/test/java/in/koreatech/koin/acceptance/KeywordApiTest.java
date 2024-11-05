@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
@@ -27,7 +28,6 @@ import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepos
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.KeywordFixture;
@@ -60,7 +60,7 @@ public class KeywordApiTest extends AcceptanceTest {
     private ArticleFixture articleFixture;
 
     private Student 준호_학생;
-    private User 관리자;
+    private Admin 관리자;
     private String token;
     private String adminToken;
 
@@ -70,7 +70,7 @@ public class KeywordApiTest extends AcceptanceTest {
         준호_학생 = userFixture.준호_학생();
         관리자 = userFixture.코인_운영자();
         token = userFixture.getToken(준호_학생.getUser());
-        adminToken = userFixture.getToken(관리자);
+        adminToken = userFixture.getToken(관리자.getUser());
     }
 
     @Test
@@ -223,7 +223,7 @@ public class KeywordApiTest extends AcceptanceTest {
         List<Integer> articleIds = new ArrayList<>();
 
         for (int i = 1; i <= 5; i++) {
-            Article article = articleFixture.자유글_3("수강신청" + i, board, i);
+            Article article = articleFixture.공지_크롤링_게시글("수강신청" + i, board, i);
             articleIds.add(article.getId());
         }
 
@@ -254,7 +254,7 @@ public class KeywordApiTest extends AcceptanceTest {
         List<Integer> articleIds = new ArrayList<>();
 
         for (int i = 1; i <= 5; i++) {
-            Article article = articleFixture.자유글_3("수강신청" + i, board, i);
+            Article article = articleFixture.공지_크롤링_게시글("수강신청" + i, board, i);
             articleIds.add(article.getId());
         }
 
@@ -276,6 +276,57 @@ public class KeywordApiTest extends AcceptanceTest {
         setup();
     }
 
+    // 클래스 단에 transactional이 붙으면 테스트 실패 함
+    /* @Test
+    void 키워드_생성_동시성_테스트() throws InterruptedException {
+        User user = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user);
+        String keyword = "testKeyword";
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        CountDownLatch latch = new CountDownLatch(4);
+
+        List<Response> responseList = new ArrayList<>();
+
+        Runnable createKeywordTask = () -> {
+            Response response = RestAssured
+                .given()
+                .header("Authorization", "Bearer " + token)
+                .contentType(ContentType.JSON)
+                .body("""
+                {
+                    "keyword": "testKeyword"
+                }
+                """)
+                .when()
+                .post("/articles/keyword");
+            responseList.add(response);
+            latch.countDown();
+        };
+
+        for (int i = 0; i < 4; i++) {
+            executor.submit(createKeywordTask);
+        }
+
+        latch.await();
+
+        long successCount = responseList.stream()
+            .filter(response -> response.getStatusCode() == 200)
+            .count();
+
+        long conflictCount = responseList.stream()
+            .filter(response -> response.getStatusCode() == 409)
+            .count();
+
+        assertThat(successCount).isEqualTo(1);
+
+        assertThat(conflictCount).isEqualTo(3);
+
+        assertThat(articleKeywordRepository.findByKeyword(keyword)).isPresent();
+
+        executor.shutdown();
+    } */
+
     @Test
     @Transactional
     void 권한이_없으면_공지사항_알림_요청_실패() throws Exception {
@@ -285,7 +336,7 @@ public class KeywordApiTest extends AcceptanceTest {
         List<Integer> articleIds = new ArrayList<>();
 
         for (int i = 1; i <= 5; i++) {
-            Article article = articleFixture.자유글_3("수강신청" + i, board, i);
+            Article article = articleFixture.공지_크롤링_게시글("수강신청" + i, board, i);
             articleIds.add(article.getId());
         }
 

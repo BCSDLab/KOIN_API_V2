@@ -10,6 +10,7 @@ import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
@@ -29,6 +30,7 @@ import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositor
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -78,7 +80,7 @@ public class TimetableServiceV2 {
             .toList();
     }
 
-    @Transactional
+    @ConcurrencyGuard(lockName = "deleteFrame")
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {
         TimetableFrame frame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
         if (!Objects.equals(frame.getUser().getId(), userId)) {
@@ -123,15 +125,13 @@ public class TimetableServiceV2 {
 
         for (InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
             TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
-            if (timetableRequest.lectureId() == null) {
-                timetableLecture.update(
-                    timetableRequest.classTitle(),
-                    timetableRequest.classTime().toString(),
-                    timetableRequest.classPlace(),
-                    timetableRequest.professor(),
-                    timetableRequest.grades(),
-                    timetableRequest.memo());
-            }
+            timetableLecture.update(
+                timetableRequest.classTitle(),
+                timetableRequest.classTime().toString(),
+                timetableRequest.classPlace(),
+                timetableRequest.professor(),
+                timetableRequest.grades(),
+                timetableRequest.memo());
         }
         List<TimetableLecture> timetableLectures = timetableFrame.getTimetableLectures();
         return getTimetableLectureResponse(userId, timetableFrame, timetableLectures);
@@ -198,5 +198,18 @@ public class TimetableServiceV2 {
         Semester userSemester = semesterRepositoryV2.findBySemester(semester)
             .orElseThrow(() -> new SemesterNotFoundException("해당하는 시간표 프레임이 없습니다"));
         timetableFrameRepositoryV2.deleteAllByUserAndSemester(user, userSemester);
+    }
+
+    @Transactional
+    public void deleteTimetableLectureByFrameId(
+        @PathVariable(value = "frameId") Integer frameId,
+        @PathVariable(value = "lectureId") Integer lectureId,
+        Integer userId
+    ) {
+        TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(frameId);
+        if (!Objects.equals(timetableFrame.getUser().getId(), userId)) {
+            throw AuthorizationException.withDetail("userId: " + userId);
+        }
+        timetableLectureRepositoryV2.deleteByFrameIdAndLectureId(frameId, lectureId);
     }
 }

@@ -33,6 +33,7 @@ import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywor
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
@@ -47,11 +48,9 @@ public class ArticleService {
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final int MAXIMUM_SEARCH_LENGTH = 100;
     private static final Sort ARTICLES_SORT = Sort.by(
-        Sort.Order.desc("registeredAt"),
         Sort.Order.desc("id")
     );
     private static final Sort NATIVE_ARTICLES_SORT = Sort.by(
-        Sort.Order.desc("registered_at"),
         Sort.Order.desc("id")
     );
 
@@ -104,7 +103,7 @@ public class ArticleService {
             .map(articleRepository::getById)
             .collect(Collectors.toList());
         if (cacheList.size() < HOT_ARTICLE_LIMIT) {
-            List<Article> highestHitArticles = articleRepository.findAllHotArticles(
+            List<Article> highestHitArticles = articleRepository.findMostHitArticles(
                 LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS), HOT_ARTICLE_LIMIT);
             cacheList.addAll(highestHitArticles);
             return cacheList.stream().limit(HOT_ARTICLE_LIMIT)
@@ -150,6 +149,7 @@ public class ArticleService {
         return ArticleHotKeywordResponse.from(topKeywords);
     }
 
+    @ConcurrencyGuard(lockName = "searchLog")
     private void saveOrUpdateSearchLog(String query, String ipAddress) {
         if (query == null || query.trim().isEmpty()) {
             return;

@@ -115,4 +115,14 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         timetableServiceV2.deleteTimetableLecture(userId, timetableLectureId);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/v2/timetables/frame/{frameId}/lecture/{lectureId}")
+    public ResponseEntity<Void> deleteTimetableLectureByFrameId(
+        @PathVariable(value = "frameId") Integer frameId,
+        @PathVariable(value = "lectureId") Integer lectureId,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        timetableServiceV2.deleteTimetableLectureByFrameId(frameId, lectureId, userId);
+        return ResponseEntity.noContent().build();
+    }
 }

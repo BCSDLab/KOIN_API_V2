@@ -1,9 +1,9 @@
 package in.koreatech.koin.admin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 
@@ -17,11 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryRepository;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.BenefitCategoryFixture;
 import in.koreatech.koin.fixture.BenefitCategoryMapFixture;
 import in.koreatech.koin.fixture.ShopFixture;
@@ -49,7 +49,7 @@ public class AdminBenefitApiTest extends AcceptanceTest {
     @Autowired
     UserFixture userFixture;
 
-    User admin;
+    Admin admin;
     String token_admin;
     Owner 현수_사장님;
 
@@ -67,7 +67,7 @@ public class AdminBenefitApiTest extends AcceptanceTest {
     void setup() {
         clear();
         admin = userFixture.코인_운영자();
-        token_admin = userFixture.getToken(admin);
+        token_admin = userFixture.getToken(admin.getUser());
 
         배달비_무료 = benefitCategoryFixture.배달비_무료();
         최소주문금액_무료 = benefitCategoryFixture.최소주문금액_무료();
@@ -156,8 +156,34 @@ public class AdminBenefitApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 혜택_카테고리를_수정한다() throws Exception {
+        mockMvc.perform(
+                put("/admin/benefit/categories/{id}", 배달비_무료.getId())
+                    .header("Authorization", "Bearer " + token_admin)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                            {
+                              "title": "배달비 유료",
+                              "detail": "배달비 유료인 상점들을 모아뒀어요.",
+                              "on_image_url": "https://example.com/modifyOn.jpg",
+                              "off_image_url": "https://example.com/modifyOff.jpg"
+                            }
+                        """)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                    {
+                      "id": 1,
+                      "title": "배달비 유료",
+                      "detail": "배달비 유료인 상점들을 모아뒀어요.",
+                      "on_image_url": "https://example.com/modifyOn.jpg",
+                      "off_image_url": "https://example.com/modifyOff.jpg"
+                    }
+                """));
+    }
+
+    @Test
     void 혜택_카테고리를_삭제한다() throws Exception {
-        System.out.println(배달비_무료.getId());
         mockMvc.perform(
                 delete("/admin/benefit/categories/{id}", 배달비_무료.getId())
                     .header("Authorization", "Bearer " + token_admin)
@@ -165,7 +191,10 @@ public class AdminBenefitApiTest extends AcceptanceTest {
             .andExpect(status().isNoContent());
 
         assertThat(adminBenefitCategoryRepository.findById(배달비_무료.getId())).isNotPresent();
-        assertThat(adminBenefitCategoryMapRepository.findAllByBenefitCategoryId(배달비_무료.getId())).isEmpty();
+        assertThat(
+            adminBenefitCategoryMapRepository
+                .findAllByBenefitCategoryIdOrderByShopName(배달비_무료.getId())
+        ).isEmpty();
     }
 
     @Test
@@ -243,13 +272,15 @@ public class AdminBenefitApiTest extends AcceptanceTest {
             )
             .andExpect(status().isNoContent());
 
-        List<BenefitCategoryMap> shops = adminBenefitCategoryMapRepository.findAllByBenefitCategoryId(배달비_무료.getId());
+        List<BenefitCategoryMap> shops =
+            adminBenefitCategoryMapRepository
+                .findAllByBenefitCategoryIdOrderByShopName(배달비_무료.getId());
 
         assertThat(shops)
             .extracting("shop.id")
-            .containsExactlyInAnyOrder(
-                영업중인_티바.getId(),
-                영업중이_아닌_신전_떡볶이.getId()
+            .containsExactly(
+                영업중이_아닌_신전_떡볶이.getId(),
+                영업중인_티바.getId()
             );
     }
 

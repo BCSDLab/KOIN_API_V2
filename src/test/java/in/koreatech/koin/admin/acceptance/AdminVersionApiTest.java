@@ -13,8 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.version.repository.AdminVersionRepository;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.fixture.UserFixture;
@@ -34,7 +34,7 @@ public class AdminVersionApiTest extends AcceptanceTest {
     private UserFixture userFixture;
 
     private Version android;
-    private User admin;
+    private Admin admin;
     private String admin_token;
 
     @BeforeAll
@@ -42,7 +42,7 @@ public class AdminVersionApiTest extends AcceptanceTest {
         clear();
         android = versionFixture.android();
         admin = userFixture.코인_운영자();
-        admin_token = userFixture.getToken(admin);
+        admin_token = userFixture.getToken(admin.getUser());
     }
 
     @Test

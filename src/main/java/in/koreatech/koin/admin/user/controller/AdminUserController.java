@@ -2,9 +2,9 @@ package in.koreatech.koin.admin.user.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 
-import org.springdoc.core.annotations.ParameterObject;
 import java.net.URI;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,14 +23,23 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
+import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
+import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
-import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
+import in.koreatech.koin.admin.user.dto.AdminUpdateRequest;
+import in.koreatech.koin.admin.user.dto.AdminsCondition;
+import in.koreatech.koin.admin.user.dto.AdminsResponse;
+import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
+import in.koreatech.koin.admin.user.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.dto.StudentsCondition;
+import in.koreatech.koin.admin.user.enums.TeamType;
+import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.admin.user.service.AdminUserService;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.Auth;
@@ -65,6 +74,24 @@ public class AdminUserController implements AdminUserApi{
         return ResponseEntity.ok().body(adminStudentsResponse);
     }
 
+    @PostMapping("/admin")
+    public ResponseEntity<Void> createAdmin(
+        @RequestBody @Valid CreateAdminRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        AdminResponse response = adminUserService.createAdmin(request, adminId);
+        return ResponseEntity.created(URI.create("/" + response.id())).build();
+    }
+
+    @PutMapping("/admin/password")
+    public ResponseEntity<Void> adminPasswordChange(
+        @RequestBody @Valid AdminPasswordChangeRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminUserService.adminPasswordChange(request, adminId);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/admin/user/login")
     public ResponseEntity<AdminLoginResponse> adminLogin(
         @RequestBody @Valid AdminLoginRequest request
@@ -91,6 +118,57 @@ public class AdminUserController implements AdminUserApi{
             .body(tokenGroupResponse);
     }
 
+    @GetMapping("/admin/{id}")
+    public ResponseEntity<AdminResponse> getAdmin(
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        AdminResponse adminResponse = adminUserService.getAdmin(id);
+        return ResponseEntity.ok(adminResponse);
+    }
+
+    @GetMapping("/admins")
+    public ResponseEntity<AdminsResponse> getAdmins(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit,
+        @RequestParam(required = false) Boolean isAuthed,
+        @RequestParam(required = false) TrackType trackName,
+        @RequestParam(required = false) TeamType teamName,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        AdminsCondition adminsCondition = new AdminsCondition(page, limit, isAuthed, trackName, teamName);
+        AdminsResponse adminsResponse = adminUserService.getAdmins(adminsCondition);
+        return ResponseEntity.ok(adminsResponse);
+    }
+
+    @PutMapping("/admin/{id}/authed")
+    public ResponseEntity<Void> adminAuthenticate(
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminUserService.adminAuthenticate(id, adminId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<Void> updateAdmin(
+        @RequestBody @Valid AdminUpdateRequest request,
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminUserService.updateAdmin(request, id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/admin/{id}/permission")
+    public ResponseEntity<Void> updateAdminPermission(
+        @RequestBody @Valid AdminPermissionUpdateRequest request,
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminUserService.updateAdminPermission(request, id, adminId);
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/admin/users/student/{id}")
     public ResponseEntity<AdminStudentResponse> getStudent(

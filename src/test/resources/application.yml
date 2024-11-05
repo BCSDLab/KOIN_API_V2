@@ -4,6 +4,11 @@ jwt:
     expiration-time: 600000 # (ms) = 10 minutes
 
 spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
   flyway:
     enabled: false
   jpa:
@@ -20,17 +25,20 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  autoconfigure:
+    exclude:
+      - org.redisson.spring.starter.RedissonAutoConfigurationV2
 
   data:
     redis:
-      repositories:
-        enabled: true
-        keyspace-events: ON_STARTUP
+        repositories:
+          enabled: true
+          keyspace-events: ON_STARTUP
 
 server:
   tomcat:
     max-http-form-post-size: 10MB
-#  MockMvc이용하면 한글 깨지는 문제 해결하는 설정
+  #  MockMvc이용하면 한글 깨지는 문제 해결하는 설정
   servlet:
     encoding:
       force-response: true

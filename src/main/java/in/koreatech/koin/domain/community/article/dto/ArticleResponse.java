@@ -35,6 +35,9 @@ public record ArticleResponse(
     @Schema(description = "조회수", example = "1", requiredMode = REQUIRED)
     Integer hit,
 
+    @Schema(description = "공지 원본 url", example = "https://portal.koreatech.ac.kr/ctt/bb/bulletin?b=14&ls=20&ln=1&dm=r&p=33248")
+    String url,
+
     @Schema(description = "첨부 파일")
     List<InnerArticleAttachmentResponse> attachments,
 
@@ -59,6 +62,7 @@ public record ArticleResponse(
             article.getContent(),
             article.getAuthor(),
             article.getTotalHit(),
+            article.getUrl(),
             article.getAttachments().stream()
                 .map(InnerArticleAttachmentResponse::from)
                 .toList(),

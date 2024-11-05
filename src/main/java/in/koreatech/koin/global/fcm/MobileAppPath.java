@@ -4,18 +4,16 @@ import lombok.Getter;
 
 @Getter
 public enum MobileAppPath {
-    HOME("home", "home"),
-    LOGIN("login", "login"),
-    SHOP("shop", "shop"),
-    DINING("dining", "dining"),
-    KEYWORD("keyword", "keyword")
+    HOME("home"),
+    LOGIN("login"),
+    SHOP("shop"),
+    DINING("dining"),
+    KEYWORD("keyword")
     ;
 
-    private final String android;
-    private final String apple;
+    private final String path;
 
-    MobileAppPath(String android, String apple) {
-        this.android = android;
-        this.apple = apple;
+    MobileAppPath(String path) {
+        this.path = path;
     }
 }
