@@ -31,6 +31,7 @@ public enum DomainType {
     USERS("User", "회원"),
     STUDENT("Student", "학생"),
     OWNER("Owner", "사장님"),
+    ADMIN("Admin", "어드민")
     ;
 
     private final String value;

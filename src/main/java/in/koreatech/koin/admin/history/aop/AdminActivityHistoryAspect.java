@@ -25,17 +25,16 @@ import lombok.RequiredArgsConstructor;
 @Profile("!test")
 @RequiredArgsConstructor
 public class AdminActivityHistoryAspect {
-
-    private final AuthContext authContext;
-    private final AdminRepository adminRepository;
-    private final AdminActivityHistoryRepository adminActivityHistoryRepository;
-
     private static final String REGEX_NUMERIC = "^[0-9]*$";
     private static final String SEGMENT_SHOPS = "SHOPS";
     private static final String SEGMENT_BENEFIT = "benefit";
     private static final String SEGMENT_CATEGORIES = "CATEGORIES";
     private static final String SEGMENT_CLOSE = "close";
     private static final String SEGMENT_ABTEST = "abtest";
+
+    private final AuthContext authContext;
+    private final AdminRepository adminRepository;
+    private final AdminActivityHistoryRepository adminActivityHistoryRepository;
 
     @Pointcut("execution(* in.koreatech.koin.admin..controller.*.*(..))")
     private void allAdminControllers() {
@@ -48,6 +47,8 @@ public class AdminActivityHistoryAspect {
     @Pointcut("!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.adminLogin(..)) && "
         + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.logout(..)) && "
         + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.refresh(..)) && "
+        + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.createAdmin(..)) && "
+        + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.adminPasswordChange(..)) && "
         + "!execution(* in.koreatech.koin.admin.abtest.controller.AbtestController.assignOrGetAbtestVariable(..))")
     private void excludeSpecificMethods() {
     }
