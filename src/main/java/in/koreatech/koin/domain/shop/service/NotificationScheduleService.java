@@ -50,7 +50,7 @@ public class NotificationScheduleService {
     private Notification createNotification(ShopNotificationQueue dueNotification) {
         Shop shop = shopRepository.getById(dueNotification.getShopId());
         ShopNotificationMessage shopNotificationMessage =
-            shopCategoryMapRepository.findNotificationMessageByShopId(dueNotification.getShopId());
+            shopCategoryMapRepository.getNotificationMessageByShopId(dueNotification.getShopId());
         User user = userRepository.getById(dueNotification.getUserId());
 
         return notificationFactory.generateReviewPromptNotification(
