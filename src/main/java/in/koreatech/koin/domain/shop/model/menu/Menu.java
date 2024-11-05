@@ -4,13 +4,6 @@ import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.domain.shop.model.shop.Shop;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import java.util.ArrayList;
-import java.util.List;
-
 import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.menu.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.menu.ModifyMenuRequest.InnerOptionPrice;
@@ -24,6 +17,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,9 +36,8 @@ public class Menu extends BaseEntity {
     private Integer id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", nullable = false)
-    private Shop shop;
+    @Column(name = "shop_id", nullable = false)
+    private Integer shopId;
 
     @Size(max = 255)
     @NotNull
@@ -69,11 +63,11 @@ public class Menu extends BaseEntity {
 
     @Builder
     private Menu(
-        Shop shop,
+        Integer shopId,
         String name,
         String description
     ) {
-        this.shop = shop;
+        this.shopId = shopId;
         this.name = name;
         this.description = description;
     }

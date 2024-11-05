@@ -4,11 +4,7 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import in.koreatech.koin.domain.shop.model.shop.Shop;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.global.validation.NotBlankElement;
 import in.koreatech.koin.global.validation.SingleMenuPrice;
@@ -19,6 +15,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 @SingleMenuPrice
@@ -59,10 +56,10 @@ public record AdminCreateMenuRequest(
     Integer singlePrice
 ) {
 
-    public Menu toEntity(Shop shop) {
+    public Menu toEntity(Integer shopId) {
         return Menu.builder()
             .name(name)
-            .shop(shop)
+            .shopId(shopId)
             .description(description)
             .build();
     }
