@@ -13,14 +13,14 @@ public class NotificationFactory {
         Integer eventShopId,
         String shopName,
         String title,
-        String content,
+        String message,
         User target
     ) {
         return new Notification(
             path,
             generateSchemeUri(path, eventShopId),
             String.format("%s%s", shopName, title),
-            content,
+            message,
             null,
             NotificationType.MESSAGE,
             target
