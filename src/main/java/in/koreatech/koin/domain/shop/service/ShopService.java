@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.shop.service;
 
+import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.REVIEW_PROMPT;
+
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -7,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,20 +22,24 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
-import in.koreatech.koin.domain.shop.model.event.dto.NotificationCreateEvent;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopNotificationQueue;
 import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopNotificationQueueRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV1;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV2;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
@@ -50,7 +55,9 @@ public class ShopService {
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
     private final ShopCustomRepository shopCustomRepository;
-    private final ApplicationEventPublisher eventPublisher;
+    private final NotificationSubscribeRepository notificationSubscribeRepository;
+    private final ShopNotificationQueueRepository shopNotificationQueueRepository;
+    private final UserRepository userRepository;
 
     public MenuDetailResponse findMenu(Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
@@ -117,6 +124,23 @@ public class ShopService {
 
     public void publishCallNotification(Integer shopId, Integer studentId) {
         shopRepository.getById(shopId);
-        eventPublisher.publishEvent(new NotificationCreateEvent(shopId, studentId));
+
+        if (isSubscribeReviewNotification(studentId)) {
+            Shop shop = shopRepository.getById(shopId);
+            User user = userRepository.getById(studentId);
+
+            ShopNotificationQueue shopNotificationQueue = ShopNotificationQueue.builder()
+                .shop(shop)
+                .user(user)
+                .notificationTime(LocalDateTime.now().plusHours(1))
+                .build();
+
+            shopNotificationQueueRepository.save(shopNotificationQueue);
+        }
+    }
+
+    private boolean isSubscribeReviewNotification(Integer studentId) {
+        return notificationSubscribeRepository
+            .existsByUserIdAndSubscribeType(studentId, REVIEW_PROMPT);
     }
 }

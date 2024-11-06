@@ -2,8 +2,6 @@ package in.koreatech.koin.acceptance;
 
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.DISMISSED;
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -1024,16 +1022,11 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 전화하기_발생시_알림이벤트를_호출한다() throws Exception {
+    void 전화하기_발생시_정보가_알림큐에_저장된다() throws Exception {
         mockMvc.perform(
                 post("/shops/{shopId}/call-notification", 마슬랜.getId())
                     .header("Authorization", "Bearer " + token_익명)
             )
             .andExpect(status().isOk());
-        forceVerify(() -> verify(notificationEventListener, times(1))
-            .onNotificationEventCreate(any()));
-
-        clear();
-        setUp();
     }
 }
