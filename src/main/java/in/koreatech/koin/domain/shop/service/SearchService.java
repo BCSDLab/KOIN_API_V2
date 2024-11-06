@@ -19,7 +19,7 @@ public class SearchService {
     public RelatedKeyword getRelatedKeywordByQuery(String query) {
         String trimmedQuery = query.replaceAll(" ", "");
         List<String> menuKeywords = menuSearchKeywordRepository.findDistinctNameStartingWith(trimmedQuery);
-        List<String> shopNames = shopRepository.findDistinctNameStartingWith(trimmedQuery);
+        List<String> shopNames = shopRepository.findDistinctNameContains(trimmedQuery);
         return RelatedKeyword.from(menuKeywords, shopNames);
     }
 }
