@@ -122,6 +122,7 @@ public class ShopService {
         return ShopsResponseV2.from(shops, shopInfoMap, sortBy, shopsFilterCriterias, now);
     }
 
+    @Transactional
     public void publishCallNotification(Integer shopId, Integer studentId) {
         shopRepository.getById(shopId);
 
