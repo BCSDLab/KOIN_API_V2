@@ -33,6 +33,4 @@ public interface TimetableLectureRepositoryV2 extends Repository<TimetableLectur
         AND lectures_id = :lectureId
         """, nativeQuery = true)
     void deleteByFrameIdAndLectureId(@Param("frameId") Integer frameId, @Param("lectureId") Integer lectureId);
-
-
 }
