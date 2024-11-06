@@ -9,5 +9,5 @@ CREATE TABLE `shop_notification_messages`
 
 INSERT INTO `shop_notification_messages` (title, content)
 VALUES (', 맛있게 드셨나요?', '드신 메뉴에 대한 리뷰를 작성해보세요!'),
-       (', 편안하게 이동하셨나요?', '승차하신 콜밴 대한 리뷰를 작성해보세요!'),
+       (', 편안하게 이동하셨나요?', '승차하신 콜벤에 대한 리뷰를 작성해보세요!'),
        (', 어떠셨나요?', '이용하신 샵에 대한 리뷰를 작성해보세요!');

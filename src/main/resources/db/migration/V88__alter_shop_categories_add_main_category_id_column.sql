@@ -5,13 +5,10 @@ ALTER TABLE `shop_categories`
     REFERENCES `shop_main_categories` (`id`);
 
 UPDATE shop_categories
-SET main_category_id = 1
-WHERE id BETWEEN 2 AND 10;
-
-UPDATE shop_categories
-SET main_category_id = 2
-WHERE id = 11;
-
-UPDATE shop_categories
-SET main_category_id = 3
-WHERE id = 12;
+SET main_category_id =
+        CASE
+            WHEN name IN ('기타/콜밴', '콜벤') THEN 2
+            WHEN name IN ('기타', '뷰티') THEN 3
+            ELSE 1
+            END
+WHERE id != 1;

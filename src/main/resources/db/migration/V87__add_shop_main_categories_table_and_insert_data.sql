@@ -11,5 +11,5 @@ CREATE TABLE `shop_main_categories`
 
 INSERT INTO `shop_main_categories` (name, notification_message_id)
 VALUES ('가게', 1),
-       ('콜밴', 2),
+       ('콜벤', 2),
        ('뷰티', 3);
