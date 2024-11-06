@@ -515,7 +515,6 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         mockMvc.perform(
                 delete("/v2/timetables/frame/{frameId}/lecture/{lectureId}", frameId, lectureId)
                     .header("Authorization", "Bearer " + token)
-                    .param("timetable_frame_id", String.valueOf(frame.getId()))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isNoContent());
