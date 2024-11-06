@@ -6,12 +6,4 @@ ALTER TABLE `shop_categories`
 
 UPDATE shop_categories
 SET main_category_id = 1
-WHERE id BETWEEN 2 AND 10;
-
-UPDATE shop_categories
-SET main_category_id = 2
-WHERE id = 11;
-
-UPDATE shop_categories
-SET main_category_id = 3
-WHERE id = 12;
+WHERE id != 1;
