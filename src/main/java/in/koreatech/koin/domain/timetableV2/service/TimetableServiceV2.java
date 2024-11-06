@@ -8,12 +8,10 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.domain.timetableV2.dto.TimeTableLecturesDeleteRequest;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameCreateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateRequest;
@@ -214,11 +212,7 @@ public class TimetableServiceV2 {
     }
 
     @Transactional
-    public void deleteTimetableLectureByFrameId(
-        @PathVariable(value = "frameId") Integer frameId,
-        @PathVariable(value = "lectureId") Integer lectureId,
-        Integer userId
-    ) {
+    public void deleteTimetableLectureByFrameId(Integer frameId, Integer lectureId, Integer userId) {
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(frameId);
         if (!Objects.equals(timetableFrame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
