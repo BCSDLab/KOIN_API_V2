@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "shop_menu_search_keywords")
 @NoArgsConstructor(access = PROTECTED)
 public class MenuSearchKeyWord extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;

@@ -3,16 +3,35 @@ package in.koreatech.koin.domain.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
+import in.koreatech.koin.domain.shop.dto.review.CreateReviewRequest;
+import in.koreatech.koin.domain.shop.dto.review.ModifyReviewRequest;
+import in.koreatech.koin.domain.shop.dto.review.ReviewsSortCriteria;
+import in.koreatech.koin.domain.shop.dto.review.ShopMyReviewsResponse;
+import in.koreatech.koin.domain.shop.dto.review.ShopReviewReportCategoryResponse;
+import in.koreatech.koin.domain.shop.dto.review.ShopReviewReportRequest;
+import in.koreatech.koin.domain.shop.dto.review.ShopReviewResponse;
+import in.koreatech.koin.domain.shop.dto.review.ShopReviewsResponse;
 import in.koreatech.koin.domain.shop.dto.search.RelatedKeyword;
+import in.koreatech.koin.domain.shop.dto.shop.ShopCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopEventsResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsResponseV2;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.service.SearchService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import in.koreatech.koin.domain.shop.service.ShopReviewService;
+import in.koreatech.koin.domain.shop.service.ShopService;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import java.util.Collections;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,32 +42,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import in.koreatech.koin.domain.shop.dto.review.CreateReviewRequest;
-import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
-import in.koreatech.koin.domain.shop.dto.review.ModifyReviewRequest;
-import in.koreatech.koin.domain.shop.dto.review.ReviewsSortCriteria;
-import in.koreatech.koin.domain.shop.dto.shop.ShopCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopEventsResponse;
-import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
-import in.koreatech.koin.domain.shop.dto.review.ShopMyReviewsResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
-import in.koreatech.koin.domain.shop.dto.review.ShopReviewReportCategoryResponse;
-import in.koreatech.koin.domain.shop.dto.review.ShopReviewReportRequest;
-import in.koreatech.koin.domain.shop.dto.review.ShopReviewResponse;
-import in.koreatech.koin.domain.shop.dto.review.ShopReviewsResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsResponseV2;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
-import in.koreatech.koin.domain.shop.service.ShopReviewService;
-import in.koreatech.koin.domain.shop.service.ShopService;
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
@@ -210,15 +203,6 @@ public class ShopController implements ShopApi {
         return ResponseEntity.ok(shopReviewResponse);
     }
 
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200"),
-                    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-                    @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-                    @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-            }
-    )
-    @Operation(summary = "주변상점 검색어에 따른 연관검색어 조회")
     @GetMapping("/search/related/{query}")
     public ResponseEntity<RelatedKeyword> getRelatedKeyword(
             @PathVariable(name = "query") String query

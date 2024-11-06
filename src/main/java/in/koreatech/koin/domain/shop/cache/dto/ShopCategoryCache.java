@@ -7,6 +7,7 @@ public record ShopCategoryCache(
         String name,
         String imageUrl
 ) {
+
     public static ShopCategoryCache from(ShopCategoryMap shopCategoryMap) {
         return new ShopCategoryCache(
                 shopCategoryMap.getId(),

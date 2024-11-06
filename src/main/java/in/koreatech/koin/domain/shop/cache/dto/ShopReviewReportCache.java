@@ -9,6 +9,7 @@ public record ShopReviewReportCache(
         ReportStatus reportStatus,
         Integer userId
 ) {
+
     public static ShopReviewReportCache from(ShopReviewReport shopReviewReport)  {
         return new ShopReviewReportCache(
                 shopReviewReport.getTitle(),

@@ -11,6 +11,7 @@ public record ShopReviewCache(
         List<String> images,
         List<ShopReviewReportCache> reports
 ) {
+
     public static ShopReviewCache from(ShopReview shopReview) {
         return new ShopReviewCache(
             shopReview.getContent(),

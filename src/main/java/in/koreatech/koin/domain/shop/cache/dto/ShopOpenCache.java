@@ -9,6 +9,7 @@ public record ShopOpenCache(
         LocalTime openTime,
         LocalTime closeTime
 ) {
+
     public static ShopOpenCache from(ShopOpen shopOpen) {
         return new ShopOpenCache(
                 shopOpen.getDayOfWeek(),

@@ -8,6 +8,7 @@ public record EventArticleCache(
         String title,
         List<String> thumbnailImages
 ) {
+    
     public static EventArticleCache from(EventArticle eventArticle) {
         return new EventArticleCache(
                 eventArticle.getTitle(),

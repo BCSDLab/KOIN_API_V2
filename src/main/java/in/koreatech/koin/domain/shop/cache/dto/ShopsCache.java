@@ -6,6 +6,7 @@ import java.util.List;
 public record ShopsCache(
         List<ShopCache> shopCaches
 ) {
+
     public static ShopsCache from(List<Shop> shops) {
         return new ShopsCache(shops.stream().map(ShopCache::from).toList());
     }
