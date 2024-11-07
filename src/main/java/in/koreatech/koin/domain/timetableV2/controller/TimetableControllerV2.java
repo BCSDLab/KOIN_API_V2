@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.timetableV2.dto.TimeTableLecturesDeleteRequest;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameCreateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateRequest;
@@ -93,7 +94,8 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @Valid @RequestBody TimetableLectureUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableLectureResponse timetableLectureResponse = timetableServiceV2.updateTimetablesLectures(userId, request);
+        TimetableLectureResponse timetableLectureResponse = timetableServiceV2.updateTimetablesLectures(userId,
+            request);
         return ResponseEntity.ok(timetableLectureResponse);
     }
 
@@ -113,6 +115,15 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @Auth(permit = {STUDENT}) Integer userId
     ) {
         timetableServiceV2.deleteTimetableLecture(userId, timetableLectureId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/v2/timetables/lectures")
+    public ResponseEntity<Void> deleteTimetableLectures(
+        @RequestParam(name = "timetable_lecture_ids") List<Integer> request,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        timetableServiceV2.deleteTimetableLectures(request, userId);
         return ResponseEntity.noContent().build();
     }
 
