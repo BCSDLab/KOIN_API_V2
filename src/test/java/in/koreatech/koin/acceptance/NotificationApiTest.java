@@ -108,6 +108,13 @@ class NotificationApiTest extends AcceptanceTest {
                              "detail_subscribes": [
                                 \s
                              ]
+                         },
+                         {
+                             "type": "REVIEW_PROMPT",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
                          }
                     ]
                 }
@@ -212,6 +219,13 @@ class NotificationApiTest extends AcceptanceTest {
                              "detail_subscribes": [
                                 \s
                              ]
+                         },
+                         {
+                             "type": "REVIEW_PROMPT",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
                          }
                      ]
                  }
@@ -312,6 +326,13 @@ class NotificationApiTest extends AcceptanceTest {
                          },
                          {
                              "type": "ARTICLE_KEYWORD",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
+                             "type": "REVIEW_PROMPT",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s
@@ -428,6 +449,13 @@ class NotificationApiTest extends AcceptanceTest {
                              "detail_subscribes": [
                                 \s
                              ]
+                         },
+                         {
+                             "type": "REVIEW_PROMPT",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
                          }
                      ]
                  }
@@ -533,6 +561,13 @@ class NotificationApiTest extends AcceptanceTest {
                          },
                          {
                              "type": "ARTICLE_KEYWORD",
+                             "is_permit": false,
+                             "detail_subscribes": [
+                                \s
+                             ]
+                         },
+                         {
+                             "type": "REVIEW_PROMPT",
                              "is_permit": false,
                              "detail_subscribes": [
                                 \s

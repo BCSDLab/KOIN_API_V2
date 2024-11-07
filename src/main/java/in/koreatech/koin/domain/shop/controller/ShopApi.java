@@ -285,4 +285,19 @@ public interface ShopApi {
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
         @RequestParam(name = "filter") List<ShopsFilterCriteria> shopsFilterCriterias
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "전화하기 리뷰 유도 푸시알림 요청")
+    @PostMapping("/shops/{shopId}/call-notification")
+    ResponseEntity<Void> createCallNotification(
+        @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    );
 }

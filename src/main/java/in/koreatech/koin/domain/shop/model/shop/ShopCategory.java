@@ -7,16 +7,16 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.Where;
-
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -27,7 +27,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "shop_categories")
-@Where(clause = "is_deleted=0")
 public class ShopCategory extends BaseEntity {
 
     @Id
@@ -42,26 +41,21 @@ public class ShopCategory extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @NotNull
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
-
     @OneToMany(mappedBy = "shopCategory", orphanRemoval = true, cascade = {PERSIST, REMOVE})
     private List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "main_category_id", referencedColumnName = "id")
+    private ShopMainCategory mainCategory;
+
     @Builder
-    private ShopCategory(String name, String imageUrl, Boolean isDeleted) {
+    private ShopCategory(String name, String imageUrl) {
         this.name = name;
         this.imageUrl = imageUrl;
-        this.isDeleted = isDeleted;
     }
 
     public void modifyShopCategory(String name, String imageUrl) {
         this.name = name;
         this.imageUrl = imageUrl;
-    }
-
-    public void delete() {
-        this.isDeleted = true;
     }
 }

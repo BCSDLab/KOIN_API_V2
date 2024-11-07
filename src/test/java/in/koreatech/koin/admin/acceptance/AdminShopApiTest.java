@@ -22,6 +22,7 @@ import in.koreatech.koin.admin.shop.repository.AdminMenuCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.AdminMenuRepository;
 import in.koreatech.koin.admin.shop.repository.AdminShopCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
@@ -33,7 +34,6 @@ import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.ShopImage;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.MenuCategoryFixture;
 import in.koreatech.koin.fixture.MenuFixture;
 import in.koreatech.koin.fixture.ShopCategoryFixture;
@@ -82,7 +82,7 @@ class AdminShopApiTest extends AcceptanceTest {
     private Owner owner_현수;
     private Owner owner_준영;
     private Shop shop_마슬랜;
-    private User admin;
+    private Admin admin;
     private String token_admin;
     private ShopCategory shopCategory_치킨;
     private ShopCategory shopCategory_일반;
@@ -93,7 +93,7 @@ class AdminShopApiTest extends AcceptanceTest {
     void setUp() {
         clear();
         admin = userFixture.코인_운영자();
-        token_admin = userFixture.getToken(admin);
+        token_admin = userFixture.getToken(admin.getUser());
         owner_현수 = userFixture.현수_사장님();
         owner_준영 = userFixture.준영_사장님();
         shop_마슬랜 = shopFixture.마슬랜(owner_현수);
@@ -202,7 +202,6 @@ class AdminShopApiTest extends AcceptanceTest {
         for (int i = 0; i < 12; i++) {
             ShopCategory request = ShopCategory.builder()
                 .name("카테고리" + i)
-                .isDeleted(false)
                 .build();
             adminShopCategoryRepository.save(request);
         }
@@ -458,7 +457,6 @@ class AdminShopApiTest extends AcceptanceTest {
                 softly -> {
                     softly.assertThat(result.getImageUrl()).isEqualTo("https://image.png");
                     softly.assertThat(result.getName()).isEqualTo("새로운 카테고리");
-                    softly.assertThat(result.isDeleted()).isEqualTo(false);
                 }
             );
         });
@@ -889,16 +887,30 @@ class AdminShopApiTest extends AcceptanceTest {
 
     @Test
     void 어드민이_상점_카테고리를_삭제한다() throws Exception {
-        ShopCategory shopCategory = shopCategoryFixture.카테고리_일반음식();
+        ShopCategory shopCategory = shopCategoryFixture.카테고리_치킨();
 
         mockMvc.perform(
                 delete("/admin/shops/categories/{id}", shopCategory.getId())
                     .header("Authorization", "Bearer " + token_admin)
             )
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
 
-        ShopCategory deletedCategory = adminShopCategoryRepository.getById(shopCategory.getId());
-        assertSoftly(softly -> softly.assertThat(deletedCategory.isDeleted()).isTrue());
+        assertThat(adminMenuCategoryRepository.findById(shopCategory.getId())).isNotPresent();
+    }
+
+    @Test
+    void 어드민이_상점_카테고리_삭제시_카테고리에_상점이_남아있으면_400() throws Exception {
+        ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
+            .shop(shop_마슬랜)
+            .shopCategory(shopCategory_치킨)
+            .build();
+        entityManager.persist(shopCategoryMap);
+
+        mockMvc.perform(
+                delete("/admin/shops/categories/{id}", shopCategory_치킨.getId())
+                    .header("Authorization", "Bearer " + token_admin)
+                )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
