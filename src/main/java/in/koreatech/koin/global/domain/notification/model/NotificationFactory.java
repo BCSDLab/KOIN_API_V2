@@ -8,6 +8,25 @@ import in.koreatech.koin.global.fcm.MobileAppPath;
 @Component
 public class NotificationFactory {
 
+    public Notification generateReviewPromptNotification(
+        MobileAppPath path,
+        Integer eventShopId,
+        String shopName,
+        String title,
+        String message,
+        User target
+    ) {
+        return new Notification(
+            path,
+            generateSchemeUri(path, eventShopId),
+            String.format("%s%s", shopName, title),
+            message,
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
+
     public Notification generateShopEventCreateNotification(
         MobileAppPath path,
         Integer eventShopId,

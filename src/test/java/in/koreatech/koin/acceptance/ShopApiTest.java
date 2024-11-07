@@ -3,6 +3,7 @@ package in.koreatech.koin.acceptance;
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.DISMISSED;
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,6 +63,7 @@ class ShopApiTest extends AcceptanceTest {
     private Owner owner;
 
     private Student 익명_학생;
+    private String token_익명;
 
     @BeforeAll
     void setUp() {
@@ -69,6 +71,7 @@ class ShopApiTest extends AcceptanceTest {
         owner = userFixture.준영_사장님();
         마슬랜 = shopFixture.마슬랜(owner);
         익명_학생 = userFixture.익명_학생();
+        token_익명 = userFixture.getToken(익명_학생.getUser());
     }
 
     @Test
@@ -1016,5 +1019,14 @@ class ShopApiTest extends AcceptanceTest {
                     ]
                 }
                 """, 티바_영업여부, 마슬랜_영업여부)));
+    }
+
+    @Test
+    void 전화하기_발생시_정보가_알림큐에_저장된다() throws Exception {
+        mockMvc.perform(
+                post("/shops/{shopId}/call-notification", 마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_익명)
+            )
+            .andExpect(status().isOk());
     }
 }

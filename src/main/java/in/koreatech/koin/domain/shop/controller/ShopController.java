@@ -200,4 +200,13 @@ public class ShopController implements ShopApi {
         ShopReviewResponse shopReviewResponse = shopReviewService.getReviewByReviewId(shopId, reviewId);
         return ResponseEntity.ok(shopReviewResponse);
     }
+
+    @PostMapping("/shops/{shopId}/call-notification")
+    public ResponseEntity<Void> createCallNotification(
+        @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        shopService.publishCallNotification(shopId, studentId);
+        return ResponseEntity.ok().build();
+    }
 }
