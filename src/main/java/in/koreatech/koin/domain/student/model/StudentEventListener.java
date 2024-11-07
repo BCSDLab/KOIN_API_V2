@@ -20,7 +20,6 @@ public class StudentEventListener {
 
     private final SlackClient slackClient;
     private final SlackNotificationFactory slackNotificationFactory;
-    private final NotificationService notificationService;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onStudentEmailRequest(StudentEmailRequestEvent event) {
