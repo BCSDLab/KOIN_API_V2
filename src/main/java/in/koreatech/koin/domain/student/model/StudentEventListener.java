@@ -32,7 +32,5 @@ public class StudentEventListener {
     public void onStudentRegister(StudentRegisterEvent event) {
         var notification = slackNotificationFactory.generateStudentRegisterCompleteNotification(event.email());
         slackClient.sendMessage(notification);
-
-        notificationService.permitNotificationSubscribe(event.studentId(), NotificationSubscribeType.REVIEW_PROMPT);
     }
 }
