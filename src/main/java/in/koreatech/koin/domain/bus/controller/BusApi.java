@@ -1,8 +1,10 @@
 package in.koreatech.koin.domain.bus.controller;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,10 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
+import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
@@ -90,4 +94,22 @@ public interface BusApi {
     @Operation(summary = "버스 노선 조회")
     @GetMapping("/courses")
     ResponseEntity<List<BusCourseResponse>> getBusCourses();
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "버스 스케줄 조회")
+    @GetMapping("/route")
+    ResponseEntity<BusScheduleResponse> getBusRouteSchedule(
+        @Parameter(description = "yyyy-MM-dd") @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+        @Parameter(description = "HH:mm") @RequestParam String time,
+        @Parameter(
+            description = "CITY, EXPRESS, SHUTTLE, COMMUTING, ALL"
+        ) @RequestParam BusRouteType busRouteType,
+        @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation depart,
+        @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation arrival
+    );
 }

@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
 import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import org.springframework.context.ApplicationEventPublisher;
@@ -51,6 +52,7 @@ public class UserService {
     private final UserTokenRepository userTokenRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
+    private final DeviceRepository deviceRepository;
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
@@ -108,6 +110,7 @@ public class UserService {
         } else if (user.getUserType() == UserType.OWNER) {
             ownerRepository.deleteByUserId(userId);
         }
+        deviceRepository.deleteAllByUser(user);
         userRepository.delete(user);
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
     }

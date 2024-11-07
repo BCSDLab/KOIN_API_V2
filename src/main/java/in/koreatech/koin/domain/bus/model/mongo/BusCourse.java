@@ -1,7 +1,11 @@
 package in.koreatech.koin.domain.bus.model.mongo;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -39,5 +43,13 @@ public class BusCourse {
         this.region = region;
         this.direction = direction;
         this.routes = routes;
+    }
+
+    public List<Route> getBusRoutesByDate(LocalDate date) {
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+
+        return routes.stream().filter(route -> route.getRunningDays()
+                .contains(dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.US).toUpperCase()))
+                .toList();
     }
 }

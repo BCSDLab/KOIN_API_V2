@@ -1,12 +1,19 @@
 package in.koreatech.koin.domain.bus.model.mongo;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import in.koreatech.koin.domain.bus.model.enums.BusStation;
+import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -17,6 +24,11 @@ import lombok.NoArgsConstructor;
 @Document(collection = "citybus_timetables")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CityBusTimetable {
+
+    private static final Integer ADDITIONAL_TIME_DEPART_TO_KOREATECH_400 = 6;
+    private static final Integer ADDITIONAL_TIME_DEPART_TO_KOREATECH_402 = 13;
+    private static final Integer ADDITIONAL_TIME_DEPART_TO_KOREATECH_405 = 7;
+    private static final Integer ADDITIONAL_TIME_DEPART_TO_STATION = 7;
 
     @Id
     @Field("_id")
@@ -71,5 +83,32 @@ public class CityBusTimetable {
             this.dayOfWeek = dayOfWeek;
             this.departInfo = departInfo;
         }
+
+        public List<LocalTime> adjustDepartTimes(Long busNumber, CityBusDirection arrival, BusStation depart) {
+            return departInfo.stream()
+                .map(time -> {
+                    LocalTime schedule = LocalTime.parse(time);
+                    if (busNumber == 400 && arrival == CityBusDirection.종합터미널) {
+                        schedule = schedule.plusMinutes(ADDITIONAL_TIME_DEPART_TO_KOREATECH_400);
+                    } else if (busNumber == 402 && arrival == CityBusDirection.종합터미널) {
+                        schedule = schedule.plusMinutes(ADDITIONAL_TIME_DEPART_TO_KOREATECH_402);
+                    } else if (busNumber == 405 && arrival == CityBusDirection.종합터미널) {
+                        schedule = schedule.plusMinutes(ADDITIONAL_TIME_DEPART_TO_KOREATECH_405);
+                    } else if (depart == BusStation.STATION) {
+                        schedule = schedule.plusMinutes(ADDITIONAL_TIME_DEPART_TO_STATION);
+                    }
+                    return schedule;
+                })
+                .collect(Collectors.toList());
+        }
+    }
+
+    public Optional<BusTimetable> getBusTimetableByDate(LocalDate date) {
+        String dayOfWeek = (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) ?
+            "주말" : "평일";
+
+        return busTimetables.stream()
+            .filter(busTimetable -> busTimetable.getDayOfWeek().equals(dayOfWeek))
+            .findFirst();
     }
 }
