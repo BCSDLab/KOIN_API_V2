@@ -20,7 +20,6 @@ public class StudentEventListener {
 
     private final SlackClient slackClient;
     private final SlackNotificationFactory slackNotificationFactory;
-    private final NotificationService notificationService;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onStudentEmailRequest(StudentEmailRequestEvent event) {
@@ -32,7 +31,5 @@ public class StudentEventListener {
     public void onStudentRegister(StudentRegisterEvent event) {
         var notification = slackNotificationFactory.generateStudentRegisterCompleteNotification(event.email());
         slackClient.sendMessage(notification);
-
-        notificationService.permitNotificationSubscribe(event.studentId(), NotificationSubscribeType.REVIEW_PROMPT);
     }
 }
