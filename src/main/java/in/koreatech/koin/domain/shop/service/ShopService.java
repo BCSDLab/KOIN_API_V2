@@ -27,12 +27,12 @@ import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
-import in.koreatech.koin.domain.shop.model.shop.ShopNotificationQueue;
+import in.koreatech.koin.domain.shop.model.shop.ShopNotificationBuffer;
 import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryRepository;
-import in.koreatech.koin.domain.shop.repository.shop.ShopNotificationQueueRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopNotificationBufferRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV1;
@@ -56,7 +56,7 @@ public class ShopService {
     private final EventArticleRepository eventArticleRepository;
     private final ShopCustomRepository shopCustomRepository;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
-    private final ShopNotificationQueueRepository shopNotificationQueueRepository;
+    private final ShopNotificationBufferRepository shopNotificationBufferRepository;
     private final UserRepository userRepository;
 
     public MenuDetailResponse findMenu(Integer menuId) {
@@ -130,13 +130,13 @@ public class ShopService {
             Shop shop = shopRepository.getById(shopId);
             User user = userRepository.getById(studentId);
 
-            ShopNotificationQueue shopNotificationQueue = ShopNotificationQueue.builder()
+            ShopNotificationBuffer shopNotificationBuffer = ShopNotificationBuffer.builder()
                 .shop(shop)
                 .user(user)
                 .notificationTime(LocalDateTime.now().plusHours(1))
                 .build();
 
-            shopNotificationQueueRepository.save(shopNotificationQueue);
+            shopNotificationBufferRepository.save(shopNotificationBuffer);
         }
     }
 

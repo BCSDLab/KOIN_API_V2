@@ -12,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.shop.exception.NotificationMessageNotFoundException;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
+import in.koreatech.koin.domain.shop.model.shop.ShopNotificationBuffer;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
-import in.koreatech.koin.domain.shop.model.shop.ShopNotificationQueue;
-import in.koreatech.koin.domain.shop.repository.shop.ShopNotificationQueueRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopNotificationBufferRepository;
 import in.koreatech.koin.domain.user.model.User;
 
 import in.koreatech.koin.global.domain.notification.model.Notification;
@@ -28,14 +28,14 @@ import lombok.RequiredArgsConstructor;
 public class NotificationScheduleService {
 
     private final Clock clock;
-    private final ShopNotificationQueueRepository shopNotificationQueueRepository;
+    private final ShopNotificationBufferRepository shopNotificationBufferRepository;
     private final NotificationFactory notificationFactory;
     private final NotificationService notificationService;
 
     @Transactional
     public void sendDueNotifications() {
         LocalDateTime now = LocalDateTime.now(clock);
-        List<ShopNotificationQueue> dueNotifications = shopNotificationQueueRepository.findByNotificationTimeBefore(now);
+        List<ShopNotificationBuffer> dueNotifications = shopNotificationBufferRepository.findByNotificationTimeBefore(now);
         if (dueNotifications.isEmpty()) {
             return;
         }
@@ -43,12 +43,12 @@ public class NotificationScheduleService {
         List<Notification> notifications = dueNotifications.stream()
             .map(this::createNotification)
             .toList();
-        shopNotificationQueueRepository.deleteByNotificationTimeBefore(now);
+        shopNotificationBufferRepository.deleteByNotificationTimeBefore(now);
 
         notificationService.push(notifications);
     }
 
-    private Notification createNotification(ShopNotificationQueue dueNotification) {
+    private Notification createNotification(ShopNotificationBuffer dueNotification) {
         Shop shop = dueNotification.getShop();
         User user = dueNotification.getUser();
 

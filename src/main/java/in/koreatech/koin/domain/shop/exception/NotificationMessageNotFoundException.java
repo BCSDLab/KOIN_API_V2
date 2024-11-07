@@ -4,7 +4,7 @@ import in.koreatech.koin.global.exception.DataNotFoundException;
 
 public class NotificationMessageNotFoundException extends DataNotFoundException {
 
-    private static final String DEFAULT_MESSAGE = "해당 상점에 해당하는 메세지를 찾지 못했습니다.";
+    private static final String DEFAULT_MESSAGE = "해당 상점에 해당하는 알림 메세지를 찾지 못했습니다.";
 
     public NotificationMessageNotFoundException(String message) {
         super(message);

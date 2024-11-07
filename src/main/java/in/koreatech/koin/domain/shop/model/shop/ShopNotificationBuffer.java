@@ -22,8 +22,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "shop_notification_queue")
-public class ShopNotificationQueue {
+@Table(name = "shop_notification_buffer")
+public class ShopNotificationBuffer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +42,7 @@ public class ShopNotificationQueue {
     private LocalDateTime notificationTime;
 
     @Builder
-    private ShopNotificationQueue(Shop shop, User user, LocalDateTime notificationTime) {
+    private ShopNotificationBuffer(Shop shop, User user, LocalDateTime notificationTime) {
         this.shop = shop;
         this.user = user;
         this.notificationTime = notificationTime;
