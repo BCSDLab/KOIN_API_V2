@@ -6,6 +6,7 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -68,6 +69,19 @@ public class Route {
                 "routeName: " + routeName + ", busStation: " + busStation.name()));
     }
 
+    public ArrivalNode checkContainNode(String name) {
+        return arrivalInfos.stream()
+            .filter(node -> node.getNodeName().contains(name))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public List<ArrivalNode> checkContainNodes(String name) {
+        return arrivalInfos.stream()
+            .filter(node -> node.getNodeName().contains(name))
+            .toList();
+    }
+
     @Builder
     private Route(String routeName, List<String> runningDays, List<ArrivalNode> arrivalInfos) {
         this.routeName = routeName;
@@ -89,5 +103,10 @@ public class Route {
             this.nodeName = nodeName;
             this.arrivalTime = arrivalTime;
         }
+
+        private boolean isNodeNameContains(String name) {
+            return nodeName.contains(name);
+        }
+
     }
 }

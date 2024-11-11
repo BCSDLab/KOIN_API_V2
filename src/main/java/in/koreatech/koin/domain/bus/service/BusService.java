@@ -110,7 +110,7 @@ public class BusService {
         LocalDate date, LocalTime time,
         BusStation depart, BusStation arrival
     ) {
-        validateBusCourse(depart, arrival);
+        validateBusCourse(depart, arrival); // 정류장 검증
         List<SingleBusTimeResponse> result = new ArrayList<>();
 
         LocalDateTime targetTime = LocalDateTime.of(date, time);

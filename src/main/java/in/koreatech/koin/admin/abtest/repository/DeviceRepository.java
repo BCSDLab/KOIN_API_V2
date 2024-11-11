@@ -7,6 +7,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.abtest.exception.DeviceNotFoundException;
 import in.koreatech.koin.admin.abtest.model.Device;
+import in.koreatech.koin.domain.user.model.User;
 
 public interface DeviceRepository extends Repository<Device, Integer> {
 
@@ -20,4 +21,6 @@ public interface DeviceRepository extends Repository<Device, Integer> {
         return findById(id).orElseThrow(() ->
             DeviceNotFoundException.withDetail("id: " + id));
     }
+
+    void deleteAllByUser(User user);
 }
