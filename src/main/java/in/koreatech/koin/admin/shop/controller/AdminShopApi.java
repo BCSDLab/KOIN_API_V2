@@ -3,6 +3,8 @@ package in.koreatech.koin.admin.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import java.util.List;
+
 import in.koreatech.koin.admin.shop.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -86,6 +88,19 @@ public interface AdminShopApi {
     @GetMapping("/admin/shops/categories/{id}")
     ResponseEntity<AdminShopCategoryResponse> getShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점의 모든 상위 카테고리 조회")
+    @GetMapping("/admin/shops/parent-categories")
+    ResponseEntity<List<AdminShopParentCategoryResponse>> getShopParentCategories(
         @Auth(permit = {ADMIN}) Integer adminId
     );
 

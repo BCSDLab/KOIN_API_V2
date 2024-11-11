@@ -45,8 +45,8 @@ public class ShopCategory extends BaseEntity {
     private List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "main_category_id", referencedColumnName = "id")
-    private ShopMainCategory mainCategory;
+    @JoinColumn(name = "parent_category_id", referencedColumnName = "id")
+    private ShopParentCategory parentCategory;
 
     @Builder
     private ShopCategory(String name, String imageUrl) {

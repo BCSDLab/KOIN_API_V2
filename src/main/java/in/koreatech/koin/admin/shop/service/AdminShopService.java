@@ -36,6 +36,7 @@ import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.ShopImage;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
+import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import jakarta.persistence.EntityManager;
@@ -52,6 +53,7 @@ public class AdminShopService {
     private final AdminMenuCategoryRepository adminMenuCategoryRepository;
     private final AdminShopCategoryMapRepository adminShopCategoryMapRepository;
     private final AdminShopCategoryRepository adminShopCategoryRepository;
+    private final AdminShopParentCategoryRepository adminShopParentCategoryRepository;
     private final AdminShopImageRepository adminShopImageRepository;
     private final AdminShopOpenRepository adminShopOpenRepository;
     private final AdminShopRepository adminShopRepository;
@@ -89,6 +91,13 @@ public class AdminShopService {
     public AdminShopCategoryResponse getShopCategory(Integer categoryId) {
         ShopCategory shopCategory = adminShopCategoryRepository.getById(categoryId);
         return AdminShopCategoryResponse.from(shopCategory);
+    }
+
+    public List<AdminShopParentCategoryResponse> getShopParentCategories() {
+        List<ShopParentCategory> shopParentCategories = adminShopParentCategoryRepository.findAll();
+        return shopParentCategories.stream()
+            .map(AdminShopParentCategoryResponse::from)
+            .toList();
     }
 
     public AdminShopMenuResponse getAllMenus(Integer shopId) {

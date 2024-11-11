@@ -19,7 +19,7 @@ public interface ShopNotificationBufferRepository extends Repository<ShopNotific
             JOIN FETCH b.user u
             JOIN FETCH s.shopCategories scm
             JOIN FETCH scm.shopCategory sc
-            JOIN FETCH sc.mainCategory smc
+            JOIN FETCH sc.parentCategory smc
             JOIN FETCH smc.notificationMessage m
             WHERE b.notificationTime < :now
                   AND sc.id = (

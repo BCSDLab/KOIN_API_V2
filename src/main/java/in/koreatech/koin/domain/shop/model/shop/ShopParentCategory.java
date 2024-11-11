@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "shop_main_categories")
-public class ShopMainCategory extends BaseEntity {
+@Table(name = "shop_parent_categories")
+public class ShopParentCategory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
