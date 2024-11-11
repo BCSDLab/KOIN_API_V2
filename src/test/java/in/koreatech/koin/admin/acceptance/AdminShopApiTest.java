@@ -199,7 +199,7 @@ class AdminShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 어드민이_상점의_정렬_모든_카테고리를_조회한다() throws Exception {
+    void 어드민이_상점의_정렬된_모든_카테고리를_조회한다() throws Exception {
         mockMvc.perform(
                 get("/admin/shops/categories")
                     .header("Authorization", "Bearer " + token_admin)
