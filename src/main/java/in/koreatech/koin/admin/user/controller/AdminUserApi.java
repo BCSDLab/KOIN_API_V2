@@ -1,6 +1,6 @@
 package in.koreatech.koin.admin.user.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +21,7 @@ import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
+import in.koreatech.koin.admin.user.dto.AdminPasswordCheckRequest;
 import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
@@ -97,6 +98,22 @@ public interface AdminUserApi {
     @PostMapping("/admin/user/login")
     ResponseEntity<AdminLoginResponse> adminLogin(
         @RequestBody @Valid AdminLoginRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 비밀번호 검증")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/admin/password/check")
+    ResponseEntity<Void> checkAdminPassword(
+        @Valid @RequestBody AdminPasswordCheckRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(
