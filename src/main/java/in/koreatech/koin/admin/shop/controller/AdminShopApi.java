@@ -3,7 +3,8 @@ package in.koreatech.koin.admin.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
-import in.koreatech.koin.admin.shop.dto.*;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,22 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.admin.shop.dto.AdminCreateMenuCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.AdminCreateMenuRequest;
+import in.koreatech.koin.admin.shop.dto.AdminCreateShopCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.AdminCreateShopRequest;
+import in.koreatech.koin.admin.shop.dto.AdminMenuCategoriesResponse;
+import in.koreatech.koin.admin.shop.dto.AdminMenuDetailResponse;
+import in.koreatech.koin.admin.shop.dto.AdminModifyMenuCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyShopCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyShopReviewReportStatusRequest;
+import in.koreatech.koin.admin.shop.dto.AdminShopCategoryResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopMenuResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopsResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopsReviewsResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -68,9 +85,7 @@ public interface AdminShopApi {
     )
     @Operation(summary = "모든 상점 카테고리 조회")
     @GetMapping("/admin/shops/categories")
-    ResponseEntity<AdminShopCategoriesResponse> getShopCategories(
-        @RequestParam(name = "page", defaultValue = "1") Integer page,
-        @RequestParam(name = "limit", defaultValue = "10", required = false) Integer limit,
+    ResponseEntity<List<AdminShopCategoryResponse>> getShopCategories(
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
