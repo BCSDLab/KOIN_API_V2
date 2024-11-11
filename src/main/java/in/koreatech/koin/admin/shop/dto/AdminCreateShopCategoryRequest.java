@@ -22,10 +22,11 @@ public record AdminCreateShopCategoryRequest(
     String name
 ) {
 
-    public ShopCategory toShopCategory() {
+    public ShopCategory toShopCategory(Integer orderIndex) {
         return ShopCategory.builder()
             .imageUrl(imageUrl)
             .name(name)
+            .orderIndex(orderIndex)
             .build();
     }
 }

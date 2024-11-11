@@ -5,6 +5,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -198,26 +199,26 @@ class AdminShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 어드민이_상점의_모든_카테고리를_조회한다() throws Exception {
-        for (int i = 0; i < 12; i++) {
-            ShopCategory request = ShopCategory.builder()
-                .name("카테고리" + i)
-                .build();
-            adminShopCategoryRepository.save(request);
-        }
-
+    void 어드민이_상점의_정렬_모든_카테고리를_조회한다() throws Exception {
         mockMvc.perform(
                 get("/admin/shops/categories")
                     .header("Authorization", "Bearer " + token_admin)
-                    .param("page", "1")
-                    .param("is_deleted", "false")
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.total_count").value(14))
-            .andExpect(jsonPath("$.current_count").value(10))
-            .andExpect(jsonPath("$.total_page").value(2))
-            .andExpect(jsonPath("$.current_page").value(1))
-            .andExpect(jsonPath("$.categories.length()").value(10));
+            .andExpect(content().json("""
+                [
+                  {
+                    "id": 2,
+                    "name": "일반음식점",
+                    "image_url": "https://test-image.com/normal.jpg"
+                  },
+                  {
+                    "id": 1,
+                    "name": "치킨",
+                    "image_url": "https://test-image.com/ckicken.jpg"
+                  }
+                ]
+                """));
     }
 
     @Test
@@ -296,7 +297,7 @@ class AdminShopApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + token_admin)
             )
             .andExpect(status().isOk())
-                .andExpect(content().json("""
+            .andExpect(content().json("""
                 {
                     "count": 2,
                     "menu_categories": [
@@ -694,7 +695,6 @@ class AdminShopApiTest extends AcceptanceTest {
         });
     }
 
-
     @Test
     void 어드민이_상점_카테고리를_수정한다() throws Exception {
         ShopCategory shopCategory = shopCategoryFixture.카테고리_일반음식();
@@ -870,7 +870,6 @@ class AdminShopApiTest extends AcceptanceTest {
             .andExpect(status().isBadRequest());
     }
 
-
     @Test
     void 어드민이_상점을_삭제한다() throws Exception {
         Shop shop = shopFixture.영업중이_아닌_신전_떡볶이(owner_현수);
@@ -909,7 +908,7 @@ class AdminShopApiTest extends AcceptanceTest {
         mockMvc.perform(
                 delete("/admin/shops/categories/{id}", shopCategory_치킨.getId())
                     .header("Authorization", "Bearer " + token_admin)
-                )
+            )
             .andExpect(status().isBadRequest());
     }
 

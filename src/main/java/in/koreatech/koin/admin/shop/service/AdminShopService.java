@@ -55,13 +55,8 @@ public class AdminShopService {
     private final AdminMenuCategoryRepository adminMenuCategoryRepository;
     private final AdminShopCategoryMapRepository adminShopCategoryMapRepository;
     private final AdminShopCategoryRepository adminShopCategoryRepository;
-    private final AdminShopImageRepository adminShopImageRepository;
-    private final AdminShopOpenRepository adminShopOpenRepository;
     private final AdminShopRepository adminShopRepository;
     private final AdminMenuRepository adminMenuRepository;
-    private final AdminMenuCategoryMapRepository adminMenuCategoryMapRepository;
-    private final AdminMenuImageRepository adminMenuImageRepository;
-    private final AdminMenuDetailRepository adminMenuDetailRepository;
     private final AdminShopReviewRepository adminShopReviewRepository;
     private final AdminShopReviewCustomRepository adminShopReviewCustomRepository;
 
@@ -160,7 +155,8 @@ public class AdminShopService {
         if (adminShopCategoryRepository.findByName(adminCreateShopCategoryRequest.name()).isPresent()) {
             throw ShopCategoryDuplicationException.withDetail("name: " + adminCreateShopCategoryRequest.name());
         }
-        ShopCategory shopCategory = adminCreateShopCategoryRequest.toShopCategory();
+        Integer maxOrderIndex = adminShopCategoryRepository.findMaxOrderIndex();
+        ShopCategory shopCategory = adminCreateShopCategoryRequest.toShopCategory(maxOrderIndex);
         adminShopCategoryRepository.save(shopCategory);
     }
 
@@ -257,10 +253,11 @@ public class AdminShopService {
     }
 
     @Transactional
-    public void modifyShopCategoriesOrder(List<Integer> shopCategoryIds) {
+    public void modifyShopCategoriesOrder(AdminModifyShopCategoriesOrderRequest adminModifyShopCategoriesOrderRequest) {
         Map<Integer, ShopCategory> categoryMap = adminShopCategoryRepository.findAll().stream()
             .collect(Collectors.toMap(ShopCategory::getId, category -> category));
 
+        List<Integer> shopCategoryIds = adminModifyShopCategoriesOrderRequest.shopCategoryIds();
         if (shopCategoryIds.size() != categoryMap.size()) {
             throw ShopCategoryIllegalArgumentException.withDetail("카테고리 수가 일치하지 않습니다.");
         }

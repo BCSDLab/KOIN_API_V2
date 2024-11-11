@@ -8,4 +8,4 @@ JOIN (
 ON sc.id = oc.id
 SET sc.order_index = oc.new_order_index;
 
-ALTER TABLE shop_categories MODIFY order_index INT UNIQUE NOT NULL;
+ALTER TABLE shop_categories MODIFY order_index INT NOT NULL;

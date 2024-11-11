@@ -41,9 +41,8 @@ public class ShopCategory extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "order_index", nullable = false, unique = true)
-    private Integer orderIndex;
+    @Column(name = "order_index", nullable = false)
+    private Integer orderIndex = 0;
 
     @OneToMany(mappedBy = "shopCategory", orphanRemoval = true, cascade = {PERSIST, REMOVE})
     private List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();
@@ -53,9 +52,10 @@ public class ShopCategory extends BaseEntity {
     private ShopMainCategory mainCategory;
 
     @Builder
-    private ShopCategory(String name, String imageUrl) {
+    private ShopCategory(String name, String imageUrl, Integer orderIndex) {
         this.name = name;
         this.imageUrl = imageUrl;
+        this.orderIndex = orderIndex == null ? 0 : orderIndex;
     }
 
     public void modifyShopCategory(String name, String imageUrl) {
@@ -63,7 +63,7 @@ public class ShopCategory extends BaseEntity {
         this.imageUrl = imageUrl;
     }
 
-    public void modifyOrderIndex(int orderIndex) {
+    public void modifyOrderIndex(Integer orderIndex) {
         this.orderIndex = orderIndex;
     }
 }

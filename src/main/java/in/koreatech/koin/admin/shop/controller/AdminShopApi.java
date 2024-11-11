@@ -22,6 +22,7 @@ import in.koreatech.koin.admin.shop.dto.AdminMenuCategoriesResponse;
 import in.koreatech.koin.admin.shop.dto.AdminMenuDetailResponse;
 import in.koreatech.koin.admin.shop.dto.AdminModifyMenuCategoryRequest;
 import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyShopCategoriesOrderRequest;
 import in.koreatech.koin.admin.shop.dto.AdminModifyShopCategoryRequest;
 import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
 import in.koreatech.koin.admin.shop.dto.AdminModifyShopReviewReportStatusRequest;
@@ -271,7 +272,7 @@ public interface AdminShopApi {
     @Operation(summary = "상점 카테고리 순서 수정")
     @PutMapping("/admin/shops/categories/order")
     ResponseEntity<Void> modifyShopCategoriesOrder(
-        @RequestBody List<Integer> shopCategoryIds,
+        @RequestBody @Valid AdminModifyShopCategoriesOrderRequest adminModifyShopCategoriesOrderRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
