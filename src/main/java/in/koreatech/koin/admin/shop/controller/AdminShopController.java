@@ -148,10 +148,19 @@ public class AdminShopController implements AdminShopApi {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/admin/shops/categories/order")
+    public ResponseEntity<Void> modifyShopCategoriesOrder(
+        @RequestBody @Valid List<Integer> shopCategoryIds,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminShopService.modifyShopCategoriesOrder(shopCategoryIds);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/admin/shops/{shopId}/menus/categories")
     public ResponseEntity<Void> modifyMenuCategory(
         @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
-        @RequestBody @Valid AdminModifyMenuCategoryRequest adminModifyMenuCategoryRequest,
+        @RequestBody AdminModifyMenuCategoryRequest adminModifyMenuCategoryRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminShopService.modifyMenuCategory(shopId, adminModifyMenuCategoryRequest);

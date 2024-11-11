@@ -6,11 +6,14 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import in.koreatech.koin.admin.shop.dto.*;
 import in.koreatech.koin.admin.shop.exception.ShopCategoryNotEmptyException;
+import in.koreatech.koin.admin.shop.exception.ShopCategoryIllegalArgumentException;
 import in.koreatech.koin.admin.shop.repository.*;
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 
@@ -251,6 +254,25 @@ public class AdminShopService {
             adminModifyShopCategoryRequest.name(),
             adminModifyShopCategoryRequest.imageUrl()
         );
+    }
+
+    @Transactional
+    public void modifyShopCategoriesOrder(List<Integer> shopCategoryIds) {
+        Map<Integer, ShopCategory> categoryMap = adminShopCategoryRepository.findAll().stream()
+            .collect(Collectors.toMap(ShopCategory::getId, category -> category));
+
+        if (shopCategoryIds.size() != categoryMap.size()) {
+            throw ShopCategoryIllegalArgumentException.withDetail("카테고리 수가 일치하지 않습니다.");
+        }
+
+        for (int orderIndex = 0; orderIndex < shopCategoryIds.size(); orderIndex++) {
+            Integer shopCategoryId = shopCategoryIds.get(orderIndex);
+            ShopCategory shopCategory = categoryMap.remove(shopCategoryId);
+            if (shopCategory == null) {
+                throw ShopCategoryIllegalArgumentException.withDetail("중복 혹은 잘못된 카테고리입니다.:" + shopCategoryId);
+            }
+            shopCategory.modifyOrderIndex(orderIndex);
+        }
     }
 
     @Transactional

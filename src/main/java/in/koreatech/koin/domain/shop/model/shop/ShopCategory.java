@@ -62,4 +62,8 @@ public class ShopCategory extends BaseEntity {
         this.name = name;
         this.imageUrl = imageUrl;
     }
+
+    public void modifyOrderIndex(int orderIndex) {
+        this.orderIndex = orderIndex;
+    }
 }

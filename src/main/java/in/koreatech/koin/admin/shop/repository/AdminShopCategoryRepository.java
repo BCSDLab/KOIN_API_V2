@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.shop.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +13,8 @@ import in.koreatech.koin.domain.shop.exception.ShopCategoryNotFoundException;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 
 public interface AdminShopCategoryRepository extends Repository<ShopCategory, Integer> {
+
+    List<ShopCategory> findAll();
 
     List<ShopCategory> findAll(Sort sort);
 
