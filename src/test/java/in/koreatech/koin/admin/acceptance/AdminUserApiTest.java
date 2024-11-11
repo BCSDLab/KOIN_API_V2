@@ -776,6 +776,24 @@ public class AdminUserApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 관리자_비밀번호를_통해_검증한다() throws Exception {
+        Admin admin = userFixture.코인_운영자();
+        String token = userFixture.getToken(admin.getUser());
+
+        mockMvc.perform(
+                post("/admin/password/check")
+                    .header("Authorization", "Bearer " + token)
+                    .content("""
+                          {
+                            "password": "1234"
+                          }
+                        """)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
+    }
+
+    @Test
     void 관리자가_특정_관리자의_계정을_조회한다() throws Exception {
         Admin admin = userFixture.코인_운영자();
         String token = userFixture.getToken(admin.getUser());
