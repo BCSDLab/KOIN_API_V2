@@ -5,7 +5,6 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -82,9 +81,7 @@ class AdminShopApiTest extends AcceptanceTest {
     private MenuCategoryFixture menuCategoryFixture;
 
     private Owner owner_현수;
-    private Owner owner_준영;
     private Shop shop_마슬랜;
-    private Admin admin;
     private String token_admin;
     private ShopCategory shopCategory_치킨;
     private ShopCategory shopCategory_일반;
@@ -94,10 +91,9 @@ class AdminShopApiTest extends AcceptanceTest {
     @BeforeAll
     void setUp() {
         clear();
-        admin = userFixture.코인_운영자();
+        Admin admin = userFixture.코인_운영자();
         token_admin = userFixture.getToken(admin.getUser());
         owner_현수 = userFixture.현수_사장님();
-        owner_준영 = userFixture.준영_사장님();
         shop_마슬랜 = shopFixture.마슬랜(owner_현수);
         shopCategory_치킨 = shopCategoryFixture.카테고리_치킨();
         shopCategory_일반 = shopCategoryFixture.카테고리_일반음식();
@@ -187,9 +183,7 @@ class AdminShopApiTest extends AcceptanceTest {
                      "pay_bank": true,
                      "pay_card": true,
                      "phone": "010-7574-1212",
-                     "shop_categories": [
-                       
-                     ],
+                     "shop_categories": [],
                      "updated_at": "2024-01-15",
                      "is_deleted": false,
                      "is_event": false,
@@ -566,11 +560,11 @@ class AdminShopApiTest extends AcceptanceTest {
                 post("/admin/shops/{id}/menus/categories", shop_마슬랜.getId())
                     .header("Authorization", "Bearer " + token_admin)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(String.format("""
+                    .content("""
                         {
                            "name": "대박메뉴"
                         }
-                        """))
+                        """)
             )
             .andExpect(status().isCreated());
 
@@ -732,10 +726,10 @@ class AdminShopApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + token_admin)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
-                    {
-                        "shop_category_ids": [%d, %d]
-                    }
-                    """.formatted(shopCategory_치킨.getId(), shopCategory_일반.getId()))
+                        {
+                            "shop_category_ids": [%d, %d]
+                        }
+                        """.formatted(shopCategory_치킨.getId(), shopCategory_일반.getId()))
             )
             .andExpect(status().isNoContent());
 
@@ -751,7 +745,7 @@ class AdminShopApiTest extends AcceptanceTest {
     @Test
     void 어드민이_특정_상점의_메뉴_카테고리를_수정한다() throws Exception {
         // given
-        Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
+        menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
         mockMvc.perform(
                 put("/admin/shops/{shopId}/menus/categories", shop_마슬랜.getId())
                     .header("Authorization", "Bearer " + token_admin)
