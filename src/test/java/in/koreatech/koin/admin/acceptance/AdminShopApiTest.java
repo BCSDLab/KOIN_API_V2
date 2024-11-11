@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -721,6 +722,29 @@ class AdminShopApiTest extends AcceptanceTest {
                     softly.assertThat(updatedCategory.getName()).isEqualTo("수정된 카테고리 이름");
                 }
             );
+        });
+    }
+
+    @Test
+    void 어드민이_상점_카테고리_순서를_변경한다() throws Exception {
+        mockMvc.perform(
+                put("/admin/shops/categories/order")
+                    .header("Authorization", "Bearer " + token_admin)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                    {
+                        "shop_category_ids": [%d, %d]
+                    }
+                    """.formatted(shopCategory_치킨.getId(), shopCategory_일반.getId()))
+            )
+            .andExpect(status().isNoContent());
+
+        List<ShopCategory> shopCategories = adminShopCategoryRepository.findAll(Sort.by("orderIndex"));
+        assertSoftly(softly -> {
+            softly.assertThat(shopCategories.get(0).getId()).isEqualTo(shopCategory_치킨.getId());
+            softly.assertThat(shopCategories.get(0).getOrderIndex()).isEqualTo(0);
+            softly.assertThat(shopCategories.get(1).getId()).isEqualTo(shopCategory_일반.getId());
+            softly.assertThat(shopCategories.get(1).getOrderIndex()).isEqualTo(1);
         });
     }
 
