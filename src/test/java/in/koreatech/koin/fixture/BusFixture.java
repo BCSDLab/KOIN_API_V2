@@ -6,29 +6,29 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
-import in.koreatech.koin.domain.bus.model.mongo.CityBusTimetable;
-import in.koreatech.koin.domain.bus.model.mongo.Route;
-import in.koreatech.koin.domain.bus.repository.BusRepository;
-import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
+import in.koreatech.koin.domain.bus.shuttle.model.BusCourse;
+import in.koreatech.koin.domain.bus.city.model.CityBusTimetable;
+import in.koreatech.koin.domain.bus.shuttle.model.Route;
+import in.koreatech.koin.domain.bus.shuttle.repository.SchoolBusRepository;
+import in.koreatech.koin.domain.bus.city.repository.CityBusTimetableRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
 public final class BusFixture {
 
     @Autowired
-    private final BusRepository busRepository;
+    private final SchoolBusRepository schoolBusRepository;
 
     @Autowired
     private final CityBusTimetableRepository cityBusTimetableRepository;
 
-    public BusFixture(BusRepository busRepository, CityBusTimetableRepository cityBusTimetableRepository) {
-        this.busRepository = busRepository;
+    public BusFixture(SchoolBusRepository schoolBusRepository, CityBusTimetableRepository cityBusTimetableRepository) {
+        this.schoolBusRepository = schoolBusRepository;
         this.cityBusTimetableRepository = cityBusTimetableRepository;
     }
 
     public void 버스_시간표_등록() {
-        busRepository.save(
+        schoolBusRepository.save(
             BusCourse.builder()
                 .busType("shuttle")
                 .region("천안")

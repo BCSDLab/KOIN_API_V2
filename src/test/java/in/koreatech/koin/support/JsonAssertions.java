@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
-
 public class JsonAssertions {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
