@@ -254,17 +254,17 @@ public class AdminShopService {
 
     @Transactional
     public void modifyShopCategoriesOrder(AdminModifyShopCategoriesOrderRequest adminModifyShopCategoriesOrderRequest) {
-        Map<Integer, ShopCategory> categoryMap = adminShopCategoryRepository.findAll().stream()
+        Map<Integer, ShopCategory> shopCategoryMap = adminShopCategoryRepository.findAll().stream()
             .collect(Collectors.toMap(ShopCategory::getId, category -> category));
 
         List<Integer> shopCategoryIds = adminModifyShopCategoriesOrderRequest.shopCategoryIds();
-        if (shopCategoryIds.size() != categoryMap.size()) {
+        if (shopCategoryIds.size() != shopCategoryMap.size()) {
             throw ShopCategoryIllegalArgumentException.withDetail("카테고리 수가 일치하지 않습니다.");
         }
 
         for (int orderIndex = 0; orderIndex < shopCategoryIds.size(); orderIndex++) {
             Integer shopCategoryId = shopCategoryIds.get(orderIndex);
-            ShopCategory shopCategory = categoryMap.remove(shopCategoryId);
+            ShopCategory shopCategory = shopCategoryMap.remove(shopCategoryId);
             if (shopCategory == null) {
                 throw ShopCategoryIllegalArgumentException.withDetail("중복 혹은 잘못된 카테고리입니다.:" + shopCategoryId);
             }
