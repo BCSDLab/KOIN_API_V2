@@ -77,13 +77,11 @@ public class AdminShopService {
         return AdminShopResponse.from(shop, eventDuration);
     }
 
-    public AdminShopCategoriesResponse getShopCategories(Integer page, Integer limit) {
-        Integer total = adminShopCategoryRepository.count();
-        Criteria criteria = Criteria.of(page, limit, total);
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-            Sort.by(Sort.Direction.ASC, "id"));
-        Page<ShopCategory> result = adminShopCategoryRepository.findAll(pageRequest);
-        return AdminShopCategoriesResponse.of(result, criteria);
+    public List<AdminShopCategoryResponse> getShopCategories() {
+        List<ShopCategory> shopCategories = adminShopCategoryRepository.findAll(Sort.by("orderIndex"));
+        return shopCategories.stream()
+            .map(AdminShopCategoryResponse::from)
+            .toList();
     }
 
     public AdminShopCategoryResponse getShopCategory(Integer categoryId) {

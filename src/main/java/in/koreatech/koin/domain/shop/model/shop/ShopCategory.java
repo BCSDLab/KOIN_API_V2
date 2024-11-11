@@ -41,6 +41,10 @@ public class ShopCategory extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @GeneratedValue(strategy = IDENTITY)
+    @Column(name = "order_index", nullable = false, unique = true)
+    private Integer orderIndex;
+
     @OneToMany(mappedBy = "shopCategory", orphanRemoval = true, cascade = {PERSIST, REMOVE})
     private List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();
 
