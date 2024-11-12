@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.timetableV2.dto;
+package in.koreatech.koin.domain.timetableV2.dto.request;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;

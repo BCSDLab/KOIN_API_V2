@@ -1,7 +1,7 @@
 package in.koreatech.koin.domain.timetableV2.service;
 
-import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureCreateRequest.InnerTimeTableLectureRequest;
-import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest.InnerTimetableLectureRequest;
+import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest.InnerTimeTableLectureRequest;
+import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest.InnerTimetableLectureRequest;
 
 import java.util.List;
 import java.util.Objects;
@@ -12,13 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameResponse;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateResponse;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureResponse;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.LectureRepositoryV2;

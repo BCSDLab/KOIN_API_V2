@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.timetableV2.dto;
+package in.koreatech.koin.domain.timetableV2.dto.response;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
