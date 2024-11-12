@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -21,13 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.domain.bus.city.dto.CityBusApiResponse;
-import in.koreatech.koin.domain.bus.global.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.city.model.CityBusArrival;
 import in.koreatech.koin.domain.bus.city.model.CityBusCache;
 import in.koreatech.koin.domain.bus.city.model.CityBusCacheInfo;
-import in.koreatech.koin.domain.bus.city.model.CityBusRemainTime;
 import in.koreatech.koin.domain.bus.city.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.city.repository.CityBusCacheRepository;
+import in.koreatech.koin.domain.bus.global.exception.BusOpenApiException;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
@@ -63,19 +61,6 @@ public class CityBusClient {
         this.versionRepository = versionRepository;
         this.cityBusCacheRepository = cityBusCacheRepository;
         this.restTemplate = restTemplate;
-    }
-
-    public List<CityBusRemainTime> getBusRemainTime(List<String> nodeIds) {
-        List<CityBusRemainTime> result = new ArrayList<>();
-        nodeIds.forEach(nodeId -> {
-            Optional<CityBusCache> cityBusCache = cityBusCacheRepository.findById(nodeId);
-            if (cityBusCache.isPresent()) {
-                result.addAll(
-                    cityBusCache.map(busCache -> busCache.getBusInfos().stream().map(CityBusRemainTime::from).toList())
-                        .get());
-            }
-        });
-        return result;
     }
 
     @Transactional

@@ -4,9 +4,7 @@ import static java.net.URLEncoder.encode;
 
 import java.net.URL;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -20,11 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.domain.bus.city.dto.CityBusRouteApiResponse;
-import in.koreatech.koin.domain.bus.global.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.city.model.CityBusRoute;
 import in.koreatech.koin.domain.bus.city.model.CityBusRouteCache;
 import in.koreatech.koin.domain.bus.city.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.city.repository.CityBusRouteCacheRepository;
+import in.koreatech.koin.domain.bus.global.exception.BusOpenApiException;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
@@ -35,8 +33,6 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 @Component
 @Transactional(readOnly = true)
 public class CityBusRouteClient {
-
-    private static final Set<Long> AVAILABLE_CITY_BUS = Set.of(400L, 402L, 405L);
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/BusSttnInfoInqireService/getSttnThrghRouteList";
     private static final String ENCODE_TYPE = "UTF-8";
@@ -54,20 +50,6 @@ public class CityBusRouteClient {
         this.openApiKey = openApiKey;
         this.cityBusRouteCacheRepository = cityBusRouteCacheRepository;
         this.restTemplate = restTemplate;
-    }
-
-    public Set<Long> getAvailableCityBus(List<String> nodeIds) {
-        Set<Long> busNumbers = new HashSet<>();
-        nodeIds.forEach(nodeId -> {
-            Optional<CityBusRouteCache> routeCache = cityBusRouteCacheRepository.findById(nodeId);
-            routeCache.ifPresent(cityBusRouteCache -> busNumbers.addAll(cityBusRouteCache.getBusNumbers()));
-        });
-
-        if (busNumbers.isEmpty()) {
-            return new HashSet<>(AVAILABLE_CITY_BUS);
-        }
-
-        return busNumbers;
     }
 
     @Transactional

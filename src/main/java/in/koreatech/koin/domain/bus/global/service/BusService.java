@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.bus.global.service;
 
-import static in.koreatech.koin.domain.bus.shuttle.model.enums.BusStation.getDirection;
-
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,34 +10,27 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.bus.shuttle.dto.BusCourseResponse;
-import in.koreatech.koin.domain.bus.shuttle.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.city.service.CityBusService;
+import in.koreatech.koin.domain.bus.express.util.ExpressBusService;
 import in.koreatech.koin.domain.bus.global.dto.BusTimetableResponse;
-import in.koreatech.koin.domain.bus.city.dto.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.global.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.global.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.global.exception.BusTypeNotFoundException;
 import in.koreatech.koin.domain.bus.global.exception.BusTypeNotSupportException;
 import in.koreatech.koin.domain.bus.global.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.global.model.BusTimetable;
-import in.koreatech.koin.domain.bus.shuttle.model.SchoolBusTimetable;
-import in.koreatech.koin.domain.bus.city.model.enums.BusDirection;
-import in.koreatech.koin.domain.bus.shuttle.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.global.model.enums.BusType;
-import in.koreatech.koin.domain.bus.city.model.enums.CityBusDirection;
+import in.koreatech.koin.domain.bus.shuttle.dto.BusCourseResponse;
+import in.koreatech.koin.domain.bus.shuttle.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.shuttle.model.BusCourse;
-import in.koreatech.koin.domain.bus.city.model.CityBusTimetable;
 import in.koreatech.koin.domain.bus.shuttle.model.Route;
+import in.koreatech.koin.domain.bus.shuttle.model.SchoolBusTimetable;
+import in.koreatech.koin.domain.bus.shuttle.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.shuttle.repository.SchoolBusRepository;
-import in.koreatech.koin.domain.bus.city.repository.CityBusTimetableRepository;
-import in.koreatech.koin.domain.bus.city.util.CityBusClient;
-import in.koreatech.koin.domain.bus.city.util.CityBusRouteClient;
-import in.koreatech.koin.domain.bus.express.util.ExpressBusService;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -51,42 +42,20 @@ import lombok.RequiredArgsConstructor;
 public class BusService {
 
     private final Clock clock;
+    private final CityBusService cityBusService;
     private final SchoolBusRepository schoolBusRepository;
-    private final CityBusTimetableRepository cityBusTimetableRepository;
-    private final CityBusClient cityBusClient;
     private final ExpressBusService expressBusService;
-    private final CityBusRouteClient cityBusRouteClient;
     private final VersionService versionService;
 
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
-        // 출발지 == 도착지면 예외
         validateBusCourse(depart, arrival);
         if (busType == BusType.CITY) {
-            // 시내버스에서 상행, 하행 구분할때 사용하는 로직
-            BusDirection direction = getDirection(depart, arrival);
-
-            Set<Long> departAvailableBusNumbers = cityBusRouteClient.getAvailableCityBus(depart.getNodeId(direction));
-            Set<Long> arrivalAvailableBusNumbers = cityBusRouteClient.getAvailableCityBus(arrival.getNodeId(direction));
-
-            departAvailableBusNumbers.retainAll(arrivalAvailableBusNumbers);
-
-            var remainTimes = cityBusClient.getBusRemainTime(depart.getNodeId(direction));
-
-            remainTimes = remainTimes.stream()
-                .filter(remainTime ->
-                    departAvailableBusNumbers.contains(remainTime.getBusNumber())
-                )
-                .toList();
-
-            return toResponse(busType, remainTimes);
+            return toResponse(busType, cityBusService.getBusRemainTime(depart, arrival));
         }
-
         if (busType == BusType.EXPRESS) {
-            var remainTimes = expressBusService.getBusRemainTime(depart, arrival);
-            return toResponse(busType, remainTimes);
+            return toResponse(busType, expressBusService.getBusRemainTime(depart, arrival));
         }
-
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
             List<BusCourse> busCourses = schoolBusRepository.findByBusType(busType.getName());
             var remainTimes = busCourses.stream()
@@ -102,7 +71,6 @@ public class BusService {
                 .toList();
             return toResponse(busType, remainTimes);
         }
-
         throw new KoinIllegalArgumentException("Invalid bus", "type: " + busType);
     }
 
@@ -221,12 +189,5 @@ public class BusService {
         return schoolBusRepository.findAll().stream()
             .map(BusCourseResponse::from)
             .toList();
-    }
-
-    public CityBusTimetableResponse getCityBusTimetable(Long busNumber, CityBusDirection direction) {
-        CityBusTimetable timetable = cityBusTimetableRepository
-            .getByBusInfoNumberAndBusInfoArrival(busNumber, direction.getName());
-
-        return CityBusTimetableResponse.from(timetable);
     }
 }
