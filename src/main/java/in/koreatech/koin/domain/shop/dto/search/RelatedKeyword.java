@@ -1,10 +1,13 @@
 package in.koreatech.koin.domain.shop.dto.search;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record RelatedKeyword(
         Set<InnerKeyword> keywords
 ) {
@@ -19,6 +22,7 @@ public record RelatedKeyword(
         );
     }
 
+    @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerKeyword(
             String keyword,
             List<Integer> shopIds,
