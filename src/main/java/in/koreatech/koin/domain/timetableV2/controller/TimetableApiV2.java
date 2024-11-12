@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.timetableV2.dto.TimeTableLecturesDeleteRequest;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameCreateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateRequest;
@@ -109,7 +108,7 @@ public interface TimetableApiV2 {
     )
     @Operation(summary = "시간표 프레임 모두 삭제")
     @DeleteMapping("/v2/all/timetables/frame")
-    public ResponseEntity<Void> deleteAllTimetablesFrame(
+    ResponseEntity<Void> deleteAllTimetablesFrame(
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     );

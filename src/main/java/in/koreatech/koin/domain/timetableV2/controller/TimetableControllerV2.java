@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.timetableV2.dto.TimeTableLecturesDeleteRequest;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameCreateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateRequest;
