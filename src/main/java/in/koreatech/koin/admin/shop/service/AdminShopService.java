@@ -126,8 +126,8 @@ public class AdminShopService {
 
     @Transactional
     public void createShop(AdminCreateShopRequest adminCreateShopRequest) {
-        ShopCategory shopCategory = adminShopCategoryRepository.getById(adminCreateShopRequest.mainCategoryId());
-        Shop shop = adminCreateShopRequest.toShop(shopCategory);
+        ShopCategory shopMainCategory = adminShopCategoryRepository.getById(adminCreateShopRequest.mainCategoryId());
+        Shop shop = adminCreateShopRequest.toShop(shopMainCategory);
         Shop savedShop = adminShopRepository.save(shop);
         List<String> categoryNames = List.of("추천 메뉴", "메인 메뉴", "세트 메뉴", "사이드 메뉴");
         for (String categoryName : categoryNames) {
@@ -155,9 +155,9 @@ public class AdminShopService {
             savedShop.getShopOpens().add(shopOpen);
         }
         List<ShopCategory> categories = adminShopCategoryRepository.findAllByIdIn(adminCreateShopRequest.categoryIds());
-        for (ShopCategory category : categories) {
+        for (ShopCategory shopCategory : categories) {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
-                .shopCategory(category)
+                .shopCategory(shopCategory)
                 .shop(savedShop)
                 .build();
             savedShop.getShopCategories().add(shopCategoryMap);
