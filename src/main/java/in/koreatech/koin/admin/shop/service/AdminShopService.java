@@ -168,7 +168,9 @@ public class AdminShopService {
         if (adminShopCategoryRepository.findByName(adminCreateShopCategoryRequest.name()).isPresent()) {
             throw ShopCategoryDuplicationException.withDetail("name: " + adminCreateShopCategoryRequest.name());
         }
-        ShopCategory shopCategory = adminCreateShopCategoryRequest.toShopCategory();
+        ShopParentCategory shopParentCategory =
+            adminShopParentCategoryRepository.getById(adminCreateShopCategoryRequest.parentCategoryId());
+        ShopCategory shopCategory = adminCreateShopCategoryRequest.toShopCategory(shopParentCategory);
         adminShopCategoryRepository.save(shopCategory);
     }
 
@@ -254,14 +256,21 @@ public class AdminShopService {
 
     @Transactional
     public void modifyShopCategory(Integer categoryId, AdminModifyShopCategoryRequest adminModifyShopCategoryRequest) {
-        if (adminShopCategoryRepository.findByName(adminModifyShopCategoryRequest.name()).isPresent()) {
-            throw ShopCategoryDuplicationException.withDetail("name: " + adminModifyShopCategoryRequest.name());
-        }
+        isExistCategoryName(adminModifyShopCategoryRequest.name(), categoryId);
         ShopCategory shopCategory = adminShopCategoryRepository.getById(categoryId);
+        ShopParentCategory shopParentCategory =
+            adminShopParentCategoryRepository.getById(adminModifyShopCategoryRequest.parentCategoryId());
         shopCategory.modifyShopCategory(
             adminModifyShopCategoryRequest.name(),
-            adminModifyShopCategoryRequest.imageUrl()
+            adminModifyShopCategoryRequest.imageUrl(),
+            shopParentCategory
         );
+    }
+
+    private void isExistCategoryName(String name, Integer categoryId) {
+        if (adminShopCategoryRepository.existsByNameAndIdNot(name, categoryId)) {
+            throw ShopCategoryDuplicationException.withDetail("name: " + name);
+        }
     }
 
     @Transactional

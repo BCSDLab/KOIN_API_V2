@@ -49,13 +49,15 @@ public class ShopCategory extends BaseEntity {
     private ShopParentCategory parentCategory;
 
     @Builder
-    private ShopCategory(String name, String imageUrl) {
+    private ShopCategory(String name, String imageUrl, ShopParentCategory parentCategory) {
         this.name = name;
         this.imageUrl = imageUrl;
+        this.parentCategory = parentCategory;
     }
 
-    public void modifyShopCategory(String name, String imageUrl) {
+    public void modifyShopCategory(String name, String imageUrl, ShopParentCategory parentCategory) {
         this.name = name;
         this.imageUrl = imageUrl;
+        this.parentCategory = parentCategory;
     }
 }
