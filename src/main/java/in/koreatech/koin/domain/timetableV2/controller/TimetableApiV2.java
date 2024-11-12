@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -61,8 +61,8 @@ public interface TimetableApiV2 {
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/v2/timetables/frame/{id}")
     ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
+        @Valid @RequestBody TimetableFrameUpdateRequest request,
         @PathVariable(value = "id") Integer timetableFrameId,
-        @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,
         @Auth(permit = {STUDENT}) Integer userId
     );
 

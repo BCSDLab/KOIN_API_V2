@@ -57,20 +57,29 @@ public class TimetableServiceV2 {
     }
 
     @Transactional
-    public TimetableFrameUpdateResponse updateTimetableFrame(Integer timetableFrameId,
-        TimetableFrameUpdateRequest timetableFrameUpdateRequest, Integer userId) {
+    public TimetableFrameUpdateResponse updateTimetableFrame(TimetableFrameUpdateRequest request, Integer timetableFrameId, Integer userId) {
         TimetableFrame timeTableFrame = timetableFrameRepositoryV2.getById(timetableFrameId);
         Semester semester = timeTableFrame.getSemester();
-        boolean isMain = timetableFrameUpdateRequest.isMain();
+        boolean isMain = request.isMain();
+        validateTimetableFrameUpdate(userId, isMain, semester, timeTableFrame);
+        timeTableFrame.updateTimetableFrame(semester, request.timetableName(), isMain);
+        return TimetableFrameUpdateResponse.from(timeTableFrame);
+    }
+
+    private void validateTimetableFrameUpdate(Integer userId, boolean isMain, Semester semester, TimetableFrame timeTableFrame) {
         if (isMain) {
             cancelMainTimetable(userId, semester.getId());
-        } else {
-            if (timeTableFrame.isMain()) {
-                throw new KoinIllegalArgumentException("메인 시간표는 필수입니다.");
-            }
+            return;
         }
-        timeTableFrame.updateTimetableFrame(semester, timetableFrameUpdateRequest.timetableName(), isMain);
-        return TimetableFrameUpdateResponse.from(timeTableFrame);
+        if (timeTableFrame.isMain()) {
+            throw new KoinIllegalArgumentException("메인 시간표는 필수입니다.");
+        }
+    }
+
+    private void cancelMainTimetable(Integer userId, Integer semesterId) {
+        TimetableFrame mainTimetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
+            semesterId);
+        mainTimetableFrame.cancelMain();
     }
 
     public List<TimetableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
@@ -185,12 +194,6 @@ public class TimetableServiceV2 {
                 }
             })
             .sum();
-    }
-
-    private void cancelMainTimetable(Integer userId, Integer semesterId) {
-        TimetableFrame mainTimetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
-            semesterId);
-        mainTimetableFrame.cancelMain();
     }
 
     @Transactional
