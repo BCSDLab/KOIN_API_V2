@@ -194,26 +194,16 @@ class AdminShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 어드민이_상점의_정렬된_모든_카테고리를_조회한다() throws Exception {
+    void 어드민이_상점의_등록된_순서가_아닌_정렬된_모든_카테고리를_조회한다() throws Exception {
         mockMvc.perform(
                 get("/admin/shops/categories")
                     .header("Authorization", "Bearer " + token_admin)
             )
             .andExpect(status().isOk())
-            .andExpect(content().json("""
-                [
-                  {
-                    "id": 2,
-                    "name": "일반음식점",
-                    "image_url": "https://test-image.com/normal.jpg"
-                  },
-                  {
-                    "id": 1,
-                    "name": "치킨",
-                    "image_url": "https://test-image.com/ckicken.jpg"
-                  }
-                ]
-                """));
+            .andExpect(jsonPath("$[0].id").value(2))
+            .andExpect(jsonPath("$[0].name").value("일반음식점"))
+            .andExpect(jsonPath("$[1].id").value(1))
+            .andExpect(jsonPath("$[1].name").value("치킨"));
     }
 
     @Test

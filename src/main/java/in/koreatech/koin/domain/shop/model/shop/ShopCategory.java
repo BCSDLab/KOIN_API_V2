@@ -17,6 +17,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -41,6 +43,8 @@ public class ShopCategory extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @NotNull
+    @PositiveOrZero
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex = 0;
 

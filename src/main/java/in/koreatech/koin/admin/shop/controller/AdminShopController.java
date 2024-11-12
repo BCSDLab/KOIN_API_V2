@@ -161,7 +161,7 @@ public class AdminShopController implements AdminShopApi {
     @PutMapping("/admin/shops/{shopId}/menus/categories")
     public ResponseEntity<Void> modifyMenuCategory(
         @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
-        @RequestBody AdminModifyMenuCategoryRequest adminModifyMenuCategoryRequest,
+        @RequestBody @Valid AdminModifyMenuCategoryRequest adminModifyMenuCategoryRequest,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         adminShopService.modifyMenuCategory(shopId, adminModifyMenuCategoryRequest);
