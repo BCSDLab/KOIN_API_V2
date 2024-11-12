@@ -1,13 +1,9 @@
 package in.koreatech.koin.domain.bus.city.util;
 
-import static java.net.URLEncoder.encode;
-
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,82 +19,49 @@ import in.koreatech.koin.domain.bus.city.model.CityBusRouteCache;
 import in.koreatech.koin.domain.bus.city.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.city.repository.CityBusRouteCacheRepository;
 import in.koreatech.koin.domain.bus.global.exception.BusOpenApiException;
-import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.RequiredArgsConstructor;
 
 /**
  * OpenApi 상세: 국토교통부_(TAGO)_버스정류소정보 - 정류소별경유노선 목록조회
  * https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15098534
  */
 @Component
-@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class CityBusRouteClient {
 
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/BusSttnInfoInqireService/getSttnThrghRouteList";
-    private static final String ENCODE_TYPE = "UTF-8";
-    private static final String CHEONAN_CITY_CODE = "34010";
 
-    private final String openApiKey;
     private final CityBusRouteCacheRepository cityBusRouteCacheRepository;
     private final RestTemplate restTemplate;
-
-    public CityBusRouteClient(
-        @Value("${OPEN_API_KEY_PUBLIC}") String openApiKey,
-        CityBusRouteCacheRepository cityBusRouteCacheRepository,
-        RestTemplate restTemplate
-    ) {
-        this.openApiKey = openApiKey;
-        this.cityBusRouteCacheRepository = cityBusRouteCacheRepository;
-        this.restTemplate = restTemplate;
-    }
+    private final URIProvider uriProvider;
 
     @Transactional
     @CircuitBreaker(name = "cityBusRoute")
     public void storeCityBusRoute() {
-        List<String> nodeIds = BusStationNode.getNodeIds();
-
-        for (String node : nodeIds) {
+        BusStationNode.getNodeIds().forEach((nodeId) -> {
             try {
-                Set<CityBusRoute> routes = Set.copyOf(extractBusRouteInfo(getOpenApiResponse(node)));
-                cityBusRouteCacheRepository.save(CityBusRouteCache.of(node, routes));
-            } catch (BusOpenApiException e) {
-                continue;
+                Set<CityBusRoute> routes = Set.copyOf(extractBusRouteInfo(getOpenApiResponse(nodeId)));
+                cityBusRouteCacheRepository.save(CityBusRouteCache.of(nodeId, routes));
+            } catch (BusOpenApiException ignored) {
             }
-        }
+        });
     }
 
-    public CityBusRouteApiResponse getOpenApiResponse(String nodeId) {
+    private CityBusRouteApiResponse getOpenApiResponse(String nodeId) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Accept", "*/*");
-
-            HttpEntity<?> entity = new HttpEntity<>(headers);
-            URL url = new URL(getRequestURL(CHEONAN_CITY_CODE, nodeId));
             ResponseEntity<CityBusRouteApiResponse> response = restTemplate.exchange(
-                url.toURI(),
+                uriProvider.getRequestURI(OPEN_API_URL, nodeId, "50"),
                 HttpMethod.GET,
-                entity,
+                new HttpEntity<>(headers),
                 CityBusRouteApiResponse.class
             );
             return response.getBody();
-        } catch (Exception ignore) {
-            throw BusOpenApiException.withDetail("nodeId : " + nodeId);
-        }
-    }
-
-    private String getRequestURL(String cityCode, String nodeId) {
-        String contentCount = "50";
-        StringBuilder urlBuilder = new StringBuilder(OPEN_API_URL);
-        try {
-            urlBuilder.append("?" + encode("serviceKey", ENCODE_TYPE) + "=" + encode(openApiKey, ENCODE_TYPE));
-            urlBuilder.append("&" + encode("numOfRows", ENCODE_TYPE) + "=" + encode(contentCount, ENCODE_TYPE));
-            urlBuilder.append("&" + encode("cityCode", ENCODE_TYPE) + "=" + encode(cityCode, ENCODE_TYPE));
-            urlBuilder.append("&" + encode("nodeid", ENCODE_TYPE) + "=" + encode(nodeId, ENCODE_TYPE));
-            urlBuilder.append("&_type=json");
-            return urlBuilder.toString();
-        } catch (Exception e) {
-            throw new KoinIllegalStateException("시내버스 경유지 API URL 생성중 문제가 발생했습니다.", "uri:" + urlBuilder);
+        } catch (Exception ignored) {
+            throw BusOpenApiException.withDetail("nodeId: " + nodeId);
         }
     }
 
