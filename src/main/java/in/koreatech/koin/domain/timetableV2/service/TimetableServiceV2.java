@@ -200,10 +200,9 @@ public class TimetableServiceV2 {
 
     @Transactional
     public void deleteAllTimetablesFrame(Integer userId, String semester) {
-        User user = userRepository.findById(userId).get();
-        Semester userSemester = semesterRepositoryV2.findBySemester(semester)
-            .orElseThrow(() -> new SemesterNotFoundException("해당하는 시간표 프레임이 없습니다"));
-        timetableFrameRepositoryV2.deleteAllByUserAndSemester(user, userSemester);
+        User user = userRepository.getById(userId);
+        Semester timetableSemester = semesterRepositoryV2.getBySemester(semester);
+        timetableFrameRepositoryV2.deleteAllByUserAndSemester(user, timetableSemester);
     }
 
     @Transactional
