@@ -381,7 +381,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(menu.getId()))
-            .andExpect(jsonPath("$.shop_id").value(menu.getShopId()))
+            .andExpect(jsonPath("$.shop_id").value(menu.getShop().getId()))
             .andExpect(jsonPath("$.name").value(menu.getName()))
             .andExpect(jsonPath("$.is_hidden").value(menu.isHidden()))
             .andExpect(jsonPath("$.is_single").value(false))

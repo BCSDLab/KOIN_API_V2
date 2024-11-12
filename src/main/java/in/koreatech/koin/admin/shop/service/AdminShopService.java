@@ -176,8 +176,8 @@ public class AdminShopService {
 
     @Transactional
     public void createMenu(Integer shopId, AdminCreateMenuRequest adminCreateMenuRequest) {
-        adminShopRepository.getById(shopId);
-        Menu menu = adminCreateMenuRequest.toEntity(shopId);
+        Shop shop = adminShopRepository.getById(shopId);
+        Menu menu = adminCreateMenuRequest.toEntity(shop);
         Menu savedMenu = adminMenuRepository.save(menu);
         for (Integer categoryId : adminCreateMenuRequest.categoryIds()) {
             MenuCategory menuCategory = adminMenuCategoryRepository.getById(categoryId);
@@ -329,7 +329,7 @@ public class AdminShopService {
     @Transactional
     public void deleteMenu(Integer shopId, Integer menuId) {
         Menu menu = adminMenuRepository.getById(menuId);
-        if (!Objects.equals(menu.getShopId(), shopId)) {
+        if (!Objects.equals(menu.getShop().getId(), shopId)) {
             throw new KoinIllegalArgumentException("해당 상점의 카테고리가 아닙니다.");
         }
         adminMenuRepository.deleteById(menuId);
