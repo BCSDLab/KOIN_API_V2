@@ -50,14 +50,17 @@ public class TimetableServiceV2 {
         User user = userRepository.getById(userId);
         int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId, semester.getId());
         boolean isMain = (currentFrameCount == 0);
-        String name = (request.timetableName() != null) ? request.timetableName() : getDefaultTimetableFrameName(currentFrameCount + 1);
+        String name = (request.timetableName() != null) ? request.timetableName() :
+            getDefaultTimetableFrameName(currentFrameCount + 1);
         TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, name, isMain);
         TimetableFrame savedTimetableFrame = timetableFrameRepositoryV2.save(timetableFrame);
         return TimetableFrameResponse.from(savedTimetableFrame);
     }
 
     @Transactional
-    public TimetableFrameUpdateResponse updateTimetableFrame(TimetableFrameUpdateRequest request, Integer timetableFrameId, Integer userId) {
+    public TimetableFrameUpdateResponse updateTimetableFrame(
+        TimetableFrameUpdateRequest request, Integer timetableFrameId, Integer userId
+    ) {
         TimetableFrame timeTableFrame = timetableFrameRepositoryV2.getById(timetableFrameId);
         Semester semester = timeTableFrame.getSemester();
         boolean isMain = request.isMain();
@@ -66,7 +69,8 @@ public class TimetableServiceV2 {
         return TimetableFrameUpdateResponse.from(timeTableFrame);
     }
 
-    private void validateTimetableFrameUpdate(Integer userId, boolean isMain, Semester semester, TimetableFrame timeTableFrame) {
+    private void validateTimetableFrameUpdate(Integer userId, boolean isMain, Semester semester,
+        TimetableFrame timeTableFrame) {
         if (isMain) {
             cancelMainTimetable(userId, semester.getId());
             return;
