@@ -14,6 +14,8 @@ import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 
 public interface AdminShopCategoryRepository extends Repository<ShopCategory, Integer> {
 
+    boolean existsByNameAndIdNot(String name, Integer shopCategoryId);
+
     Page<ShopCategory> findAll(Pageable pageable);
 
     @Query(value = "SELECT * FROM shop_categories WHERE id = :shopCategoryId", nativeQuery = true)

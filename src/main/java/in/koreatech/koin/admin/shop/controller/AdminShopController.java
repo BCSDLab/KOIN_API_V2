@@ -3,6 +3,8 @@ package in.koreatech.koin.admin.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import java.util.List;
+
 import in.koreatech.koin.admin.shop.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
@@ -65,6 +67,14 @@ public class AdminShopController implements AdminShopApi {
     ) {
         AdminShopCategoryResponse response = adminShopService.getShopCategory(id);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/admin/shops/parent-categories")
+    public ResponseEntity<List<AdminShopParentCategoryResponse>> getShopParentCategories(
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        List<AdminShopParentCategoryResponse> responses = adminShopService.getShopParentCategories();
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/admin/shops/{id}/menus")

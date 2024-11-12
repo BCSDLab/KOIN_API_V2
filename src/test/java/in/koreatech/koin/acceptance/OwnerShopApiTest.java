@@ -34,7 +34,9 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.ShopImage;
+import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
+import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
@@ -44,6 +46,8 @@ import in.koreatech.koin.fixture.MenuCategoryFixture;
 import in.koreatech.koin.fixture.MenuFixture;
 import in.koreatech.koin.fixture.ShopCategoryFixture;
 import in.koreatech.koin.fixture.ShopFixture;
+import in.koreatech.koin.fixture.ShopNotificationMessageFixture;
+import in.koreatech.koin.fixture.ShopParentCategoryFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import jakarta.transaction.Transactional;
 
@@ -80,6 +84,12 @@ class OwnerShopApiTest extends AcceptanceTest {
     private ShopCategoryFixture shopCategoryFixture;
 
     @Autowired
+    private ShopParentCategoryFixture shopParentCategoryFixture;
+
+    @Autowired
+    private ShopNotificationMessageFixture shopNotificationMessageFixture;;
+
+    @Autowired
     private MenuCategoryFixture menuCategoryFixture;
 
     @Autowired
@@ -94,6 +104,8 @@ class OwnerShopApiTest extends AcceptanceTest {
     private ShopCategory shopCategory_일반;
     private MenuCategory menuCategory_메인;
     private MenuCategory menuCategory_사이드;
+    private ShopParentCategory shopParentCategory_가게;
+    private ShopNotificationMessage notificationMessage_가게;
 
     @BeforeAll
     void setUp() {
@@ -103,10 +115,12 @@ class OwnerShopApiTest extends AcceptanceTest {
         owner_준영 = userFixture.준영_사장님();
         token_준영 = userFixture.getToken(owner_준영.getUser());
         shop_마슬랜 = shopFixture.마슬랜(owner_현수);
-        shopCategory_치킨 = shopCategoryFixture.카테고리_치킨();
-        shopCategory_일반 = shopCategoryFixture.카테고리_일반음식();
         menuCategory_메인 = menuCategoryFixture.메인메뉴(shop_마슬랜);
         menuCategory_사이드 = menuCategoryFixture.사이드메뉴(shop_마슬랜);
+        notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
+        shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
+        shopCategory_치킨 = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
+        shopCategory_일반 = shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게);
     }
 
     @Test
