@@ -43,6 +43,8 @@ import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
 import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.domain.email.service.MailService;
+import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
+import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 

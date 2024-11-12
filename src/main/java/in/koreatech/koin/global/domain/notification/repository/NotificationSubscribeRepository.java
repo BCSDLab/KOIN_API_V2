@@ -36,4 +36,6 @@ public interface NotificationSubscribeRepository extends Repository<Notification
         Integer userId,
         NotificationSubscribeType type
     );
+
+    boolean existsByUserIdAndSubscribeType(Integer userId, NotificationSubscribeType type);
 }

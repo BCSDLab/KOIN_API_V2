@@ -1,17 +1,15 @@
 package in.koreatech.koin.domain.timetableV2.service;
 
-import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureCreateRequest.*;
-import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest.*;
+import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureCreateRequest.InnerTimeTableLectureRequest;
+import static in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest.InnerTimetableLectureRequest;
 
 import java.util.List;
 import java.util.Objects;
 
-import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 
+import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameCreateRequest;
@@ -31,6 +29,7 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -90,7 +89,8 @@ public class TimetableServiceV2 {
         if (frame.isMain()) {
             TimetableFrame nextMainFrame =
                 timetableFrameRepositoryV2.
-                    findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId, frame.getSemester().getId());
+                    findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId,
+                        frame.getSemester().getId());
             if (nextMainFrame != null) {
                 nextMainFrame.updateStatusMain(true);
             }
@@ -201,11 +201,18 @@ public class TimetableServiceV2 {
     }
 
     @Transactional
-    public void deleteTimetableLectureByFrameId(
-        @PathVariable(value = "frameId") Integer frameId,
-        @PathVariable(value = "lectureId") Integer lectureId,
-        Integer userId
-    ) {
+    public void deleteTimetableLectures(List<Integer> request, Integer userId) {
+        for (int timetablesLectureId : request) {
+            TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetablesLectureId);
+            if (!Objects.equals(timetableLecture.getTimetableFrame().getUser().getId(), userId)) {
+                throw AuthorizationException.withDetail("userId: " + userId);
+            }
+            timetableLectureRepositoryV2.deleteById(timetablesLectureId);
+        }
+    }
+
+    @Transactional
+    public void deleteTimetableLectureByFrameId(Integer frameId, Integer lectureId, Integer userId) {
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(frameId);
         if (!Objects.equals(timetableFrame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);

@@ -209,4 +209,13 @@ public class ShopController implements ShopApi {
     ) {
         return ResponseEntity.ok(searchService.getRelatedKeywordByQuery(query));
     }
+
+    @PostMapping("/shops/{shopId}/call-notification")
+    public ResponseEntity<Void> createCallNotification(
+        @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        shopService.publishCallNotification(shopId, studentId);
+        return ResponseEntity.ok().build();
+    }
 }
