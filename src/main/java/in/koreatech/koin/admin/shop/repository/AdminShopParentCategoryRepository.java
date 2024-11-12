@@ -10,6 +10,8 @@ import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 
 public interface AdminShopParentCategoryRepository extends Repository<ShopParentCategory, Integer> {
 
+    ShopParentCategory save(ShopParentCategory shopParentCategory);
+
     Optional<ShopParentCategory> findById(Integer shopParentCategoryId);
 
     default ShopParentCategory getById(Integer shopParentCategoryId) {

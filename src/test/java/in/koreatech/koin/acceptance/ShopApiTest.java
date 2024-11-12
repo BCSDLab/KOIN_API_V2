@@ -20,12 +20,16 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
+import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.fixture.EventArticleFixture;
 import in.koreatech.koin.fixture.MenuCategoryFixture;
 import in.koreatech.koin.fixture.MenuFixture;
 import in.koreatech.koin.fixture.ShopCategoryFixture;
 import in.koreatech.koin.fixture.ShopFixture;
+import in.koreatech.koin.fixture.ShopNotificationMessageFixture;
+import in.koreatech.koin.fixture.ShopParentCategoryFixture;
 import in.koreatech.koin.fixture.ShopReviewFixture;
 import in.koreatech.koin.fixture.ShopReviewReportFixture;
 import in.koreatech.koin.fixture.UserFixture;
@@ -59,11 +63,20 @@ class ShopApiTest extends AcceptanceTest {
     @Autowired
     private ShopCategoryFixture shopCategoryFixture;
 
+    @Autowired
+    private ShopParentCategoryFixture shopParentCategoryFixture;
+
+    @Autowired
+    private ShopNotificationMessageFixture shopNotificationMessageFixture;
+
     private Shop 마슬랜;
     private Owner owner;
 
     private Student 익명_학생;
     private String token_익명;
+
+    private ShopParentCategory shopParentCategory_가게;
+    private ShopNotificationMessage notificationMessage_가게;
 
     @BeforeAll
     void setUp() {
@@ -72,6 +85,9 @@ class ShopApiTest extends AcceptanceTest {
         마슬랜 = shopFixture.마슬랜(owner);
         익명_학생 = userFixture.익명_학생();
         token_익명 = userFixture.getToken(익명_학생.getUser());
+
+        notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
+        shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
     }
 
     @Test
@@ -403,8 +419,8 @@ class ShopApiTest extends AcceptanceTest {
 
     @Test
     void 상점들의_모든_카테고리를_조회한다() throws Exception {
-        shopCategoryFixture.카테고리_일반음식();
-        shopCategoryFixture.카테고리_치킨();
+        shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게);
+        shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
 
         mockMvc.perform(
                 get("/shops/categories")
