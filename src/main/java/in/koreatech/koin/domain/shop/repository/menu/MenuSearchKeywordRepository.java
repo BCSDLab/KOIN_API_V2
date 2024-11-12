@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 public interface MenuSearchKeywordRepository extends Repository<MenuSearchKeyWord, Integer> {
 
     @Query("SELECT DISTINCT m.keyword FROM MenuSearchKeyWord m WHERE m.keyword LIKE %:query%")
-    List<String> findDistinctNameStartingWith(@Param("query") String query);
+    List<String> findDistinctNameContains(@Param("query") String query);
 
     MenuSearchKeyWord save(MenuSearchKeyWord menuSearchKeyWord);
 }

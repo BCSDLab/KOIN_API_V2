@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 @Repository
 public class ShopRedisRepository {
+
     private static final String KEY = "Shops";
 
     private final RedisTemplate<String, Object> redisTemplate;

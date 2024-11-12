@@ -30,6 +30,6 @@ public interface ShopRepository extends Repository<Shop, Integer> {
 
     List<Shop> findAll();
 
-    @Query("SELECT DISTINCT s.name FROM Shop s WHERE s.name LIKE %:query%")
-    List<String> findDistinctNameContains(@Param("query") String query);
+    @Query("SELECT s FROM Shop s WHERE s.name LIKE %:query%")
+    List<Shop> findDistinctNameContains(@Param("query") String query);
 }
