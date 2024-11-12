@@ -37,6 +37,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 public class TimetableFrame extends BaseEntity {
 
+    private static final String DEFAULT_TIMETABLE_FRAME_NAME = "시간표";
+
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
@@ -96,5 +98,9 @@ public class TimetableFrame extends BaseEntity {
 
     public void cancelMain() {
         isMain = false;
+    }
+
+    public static String getDefaultTimetableFrameName(int currentFrameCount) {
+        return DEFAULT_TIMETABLE_FRAME_NAME + (currentFrameCount + 1);
     }
 }

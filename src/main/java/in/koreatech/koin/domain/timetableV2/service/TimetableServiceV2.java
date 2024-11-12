@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.timetableV2.service;
 
 import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest.InnerTimeTableLectureRequest;
 import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest.InnerTimetableLectureRequest;
+import static in.koreatech.koin.domain.timetableV2.model.TimetableFrame.getDefaultTimetableFrameName;
 
 import java.util.List;
 import java.util.Objects;
@@ -13,12 +14,12 @@ import in.koreatech.koin.domain.timetable.exception.SemesterNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.LectureRepositoryV2;
@@ -49,7 +50,7 @@ public class TimetableServiceV2 {
         User user = userRepository.getById(userId);
         int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId, semester.getId());
         boolean isMain = (currentFrameCount == 0);
-        String name = (request.timetableName() != null) ? request.timetableName() : "시간표" + (currentFrameCount + 1);
+        String name = (request.timetableName() != null) ? request.timetableName() : getDefaultTimetableFrameName(currentFrameCount + 1);
         TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, name, isMain);
         TimetableFrame savedTimetableFrame = timetableFrameRepositoryV2.save(timetableFrame);
         return TimetableFrameResponse.from(savedTimetableFrame);
