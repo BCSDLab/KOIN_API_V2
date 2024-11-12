@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,4 +31,11 @@ public class ShopNotificationMessage extends BaseEntity {
     @Size(max = 255)
     @Column(name = "content", nullable = false)
     private String content;
+
+    @Builder
+    private ShopNotificationMessage(Integer id, String title, String content) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+    }
 }

@@ -30,6 +30,7 @@ import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
 import in.koreatech.koin.admin.shop.dto.AdminModifyShopReviewReportStatusRequest;
 import in.koreatech.koin.admin.shop.dto.AdminShopCategoryResponse;
 import in.koreatech.koin.admin.shop.dto.AdminShopMenuResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopParentCategoryResponse;
 import in.koreatech.koin.admin.shop.dto.AdminShopResponse;
 import in.koreatech.koin.admin.shop.dto.AdminShopsResponse;
 import in.koreatech.koin.admin.shop.dto.AdminShopsReviewsResponse;
@@ -81,6 +82,14 @@ public class AdminShopController implements AdminShopApi {
     ) {
         AdminShopCategoryResponse response = adminShopService.getShopCategory(id);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/admin/shops/parent-categories")
+    public ResponseEntity<List<AdminShopParentCategoryResponse>> getShopParentCategories(
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        List<AdminShopParentCategoryResponse> responses = adminShopService.getShopParentCategories();
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/admin/shops/{id}/menus")

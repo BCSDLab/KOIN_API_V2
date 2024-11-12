@@ -28,6 +28,7 @@ import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
 import in.koreatech.koin.admin.shop.dto.AdminModifyShopReviewReportStatusRequest;
 import in.koreatech.koin.admin.shop.dto.AdminShopCategoryResponse;
 import in.koreatech.koin.admin.shop.dto.AdminShopMenuResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopParentCategoryResponse;
 import in.koreatech.koin.admin.shop.dto.AdminShopResponse;
 import in.koreatech.koin.admin.shop.dto.AdminShopsResponse;
 import in.koreatech.koin.admin.shop.dto.AdminShopsReviewsResponse;
@@ -102,6 +103,19 @@ public interface AdminShopApi {
     @GetMapping("/admin/shops/categories/{id}")
     ResponseEntity<AdminShopCategoryResponse> getShopCategory(
         @Parameter(in = PATH) @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "상점의 모든 상위 카테고리 조회")
+    @GetMapping("/admin/shops/parent-categories")
+    ResponseEntity<List<AdminShopParentCategoryResponse>> getShopParentCategories(
         @Auth(permit = {ADMIN}) Integer adminId
     );
 

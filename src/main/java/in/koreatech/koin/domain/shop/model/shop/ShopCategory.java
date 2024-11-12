@@ -52,19 +52,21 @@ public class ShopCategory extends BaseEntity {
     private List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "main_category_id", referencedColumnName = "id")
-    private ShopMainCategory mainCategory;
+    @JoinColumn(name = "parent_category_id", referencedColumnName = "id")
+    private ShopParentCategory parentCategory;
 
     @Builder
-    private ShopCategory(String name, String imageUrl, Integer orderIndex) {
+    private ShopCategory(String name, String imageUrl, Integer orderIndex, ShopParentCategory parentCategory) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.orderIndex = orderIndex == null ? 0 : orderIndex;
+        this.parentCategory = parentCategory;
     }
 
-    public void modifyShopCategory(String name, String imageUrl) {
+    public void modifyShopCategory(String name, String imageUrl, ShopParentCategory parentCategory) {
         this.name = name;
         this.imageUrl = imageUrl;
+        this.parentCategory = parentCategory;
     }
 
     public void modifyOrderIndex(Integer orderIndex) {
