@@ -296,7 +296,21 @@ public interface ShopApi {
                     @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
             }
     )
-    @Operation(summary = "주변상점 검색어에 따른 연관검색어 조회")
+    @Operation(
+            summary = "주변상점 검색어에 따른 연관검색어 조회",
+            description = """
+            ### 검색어와 유사한 이름의 음식을 조회
+            - 검색어와 관련된 음식의 이름을 조회합니다. ex) 김 → 김치찌개, 김치짜글이
+            - 이때 shopIds 필드는 해당 음식과 관련된 상점의 ID를 반환합니다.(관련된 = 해당 음식 이름의 메뉴를 판매중 or 상점에 해당 음식 이름이 포함)  
+            - 이 경우 음식과 관련된 것으로 조회하는 것이기 때문에 shopId는 null입니다.
+            ### 검색어와 유사한 이름의 상점명을 가진 상점 조회 
+            - 검색어와 유사한 상점 이름이 조회됩니다. ex) 즐 → 즐겨먹기
+            - 이 경우 shopIds는 빈 배열, shopId는 해당 상점의 ID를 값으로 가집니다.
+            
+            **shopId가 null인 경우: 연관검색어가 음식 이름인 경우**
+            **shopId가 이 아닌 경우: 연관검색어가 상점 이름인 경우**
+            """
+    )
     @GetMapping("/shops/search/related/{query}")
     ResponseEntity<RelatedKeyword> getRelatedKeyword(
             @PathVariable(name = "query") String query
