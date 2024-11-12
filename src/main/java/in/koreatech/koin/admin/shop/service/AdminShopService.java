@@ -256,7 +256,7 @@ public class AdminShopService {
 
     @Transactional
     public void modifyShopCategory(Integer categoryId, AdminModifyShopCategoryRequest adminModifyShopCategoryRequest) {
-        isExistCategoryName(adminModifyShopCategoryRequest.name(), categoryId);
+        validateExistCategoryName(adminModifyShopCategoryRequest.name(), categoryId);
         ShopCategory shopCategory = adminShopCategoryRepository.getById(categoryId);
         ShopParentCategory shopParentCategory =
             adminShopParentCategoryRepository.getById(adminModifyShopCategoryRequest.parentCategoryId());
@@ -267,7 +267,7 @@ public class AdminShopService {
         );
     }
 
-    private void isExistCategoryName(String name, Integer categoryId) {
+    private void validateExistCategoryName(String name, Integer categoryId) {
         if (adminShopCategoryRepository.existsByNameAndIdNot(name, categoryId)) {
             throw ShopCategoryDuplicationException.withDetail("name: " + name);
         }
