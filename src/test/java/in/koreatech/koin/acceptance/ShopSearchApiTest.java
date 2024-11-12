@@ -113,8 +113,8 @@ class ShopSearchApiTest extends AcceptanceTest {
                             "keywords": [
                                 {
                                     "keyword": "마슬랜 치킨",
-                                    "shopIds": [],
-                                    "shopId": 1
+                                    "shop_ids": [],
+                                    "shop_id": 1
                                 }
                             ]
                         }
