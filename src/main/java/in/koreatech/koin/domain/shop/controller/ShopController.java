@@ -203,7 +203,7 @@ public class ShopController implements ShopApi {
         return ResponseEntity.ok(shopReviewResponse);
     }
 
-    @GetMapping("/search/related/{query}")
+    @GetMapping("/shops/search/related/{query}")
     public ResponseEntity<RelatedKeyword> getRelatedKeyword(
             @PathVariable(name = "query") String query
     ) {

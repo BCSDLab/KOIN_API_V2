@@ -297,7 +297,7 @@ public interface ShopApi {
             }
     )
     @Operation(summary = "주변상점 검색어에 따른 연관검색어 조회")
-    @GetMapping("/search/related/{query}")
+    @GetMapping("/shops/search/related/{query}")
     ResponseEntity<RelatedKeyword> getRelatedKeyword(
             @PathVariable(name = "query") String query
     );
