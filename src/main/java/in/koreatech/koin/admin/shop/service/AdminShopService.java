@@ -126,7 +126,8 @@ public class AdminShopService {
 
     @Transactional
     public void createShop(AdminCreateShopRequest adminCreateShopRequest) {
-        Shop shop = adminCreateShopRequest.toShop();
+        ShopCategory shopCategory = adminShopCategoryRepository.getById(adminCreateShopRequest.mainCategoryId());
+        Shop shop = adminCreateShopRequest.toShop(shopCategory);
         Shop savedShop = adminShopRepository.save(shop);
         List<String> categoryNames = List.of("추천 메뉴", "메인 메뉴", "세트 메뉴", "사이드 메뉴");
         for (String categoryName : categoryNames) {
@@ -154,9 +155,9 @@ public class AdminShopService {
             savedShop.getShopOpens().add(shopOpen);
         }
         List<ShopCategory> categories = adminShopCategoryRepository.findAllByIdIn(adminCreateShopRequest.categoryIds());
-        for (ShopCategory shopCategory : categories) {
+        for (ShopCategory category : categories) {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
-                .shopCategory(shopCategory)
+                .shopCategory(category)
                 .shop(savedShop)
                 .build();
             savedShop.getShopCategories().add(shopCategoryMap);
@@ -234,6 +235,7 @@ public class AdminShopService {
     @Transactional
     public void modifyShop(Integer shopId, AdminModifyShopRequest adminModifyShopRequest) {
         Shop shop = adminShopRepository.getById(shopId);
+        ShopCategory shopMainCategory = adminShopCategoryRepository.getById(adminModifyShopRequest.mainCategoryId());
         shop.modifyShop(
             adminModifyShopRequest.name(),
             adminModifyShopRequest.phone(),
@@ -244,7 +246,8 @@ public class AdminShopService {
             adminModifyShopRequest.payCard(),
             adminModifyShopRequest.payBank(),
             adminModifyShopRequest.bank(),
-            adminModifyShopRequest.accountNumber()
+            adminModifyShopRequest.accountNumber(),
+            shopMainCategory
         );
         shop.modifyShopCategories(
             adminShopCategoryRepository.findAllByIdIn(adminModifyShopRequest.categoryIds()),

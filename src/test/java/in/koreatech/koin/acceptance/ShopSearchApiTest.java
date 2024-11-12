@@ -14,6 +14,9 @@ import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.menu.MenuSearchKeyWord;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
+import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.domain.shop.repository.menu.MenuSearchKeywordRepository;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.fixture.EventArticleFixture;
@@ -21,6 +24,8 @@ import in.koreatech.koin.fixture.MenuCategoryFixture;
 import in.koreatech.koin.fixture.MenuFixture;
 import in.koreatech.koin.fixture.ShopCategoryFixture;
 import in.koreatech.koin.fixture.ShopFixture;
+import in.koreatech.koin.fixture.ShopNotificationMessageFixture;
+import in.koreatech.koin.fixture.ShopParentCategoryFixture;
 import in.koreatech.koin.fixture.ShopReviewFixture;
 import in.koreatech.koin.fixture.ShopReviewReportFixture;
 import in.koreatech.koin.fixture.UserFixture;
@@ -30,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
 
 @Transactional
 @SuppressWarnings("NonAsciiCharacters")
@@ -51,14 +57,31 @@ class ShopSearchApiTest extends AcceptanceTest {
     @Autowired
     private MenuSearchKeywordRepository menuSearchKeywordRepository;
 
+    @Autowired
+    private ShopCategoryFixture shopCategoryFixture;
+
+    @Autowired
+    private ShopNotificationMessageFixture shopNotificationMessageFixture;
+
+    @Autowired
+    private ShopParentCategoryFixture shopParentCategoryFixture;
+
     private Shop 마슬랜;
     private Owner owner;
+
+    private ShopCategory shopCategory_치킨;
+    private ShopCategory shopCategory_일반;
+    private ShopParentCategory shopParentCategory_가게;
+    private ShopNotificationMessage notificationMessage_가게;
 
     @BeforeAll
     void setUp() {
         clear();
         owner = userFixture.준영_사장님();
-        마슬랜 = shopFixture.마슬랜(owner);
+        마슬랜 = shopFixture.마슬랜(owner, shopCategory_치킨);
+        notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
+        shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
+        shopCategory_치킨 = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
         menuSearchKeywordRepository.save(MenuSearchKeyWord.builder()
                 .keyword("짜장면")
                 .build());

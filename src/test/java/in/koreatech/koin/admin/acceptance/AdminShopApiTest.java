@@ -114,15 +114,15 @@ class AdminShopApiTest extends AcceptanceTest {
         token_admin = userFixture.getToken(admin.getUser());
         owner_현수 = userFixture.현수_사장님();
         owner_준영 = userFixture.준영_사장님();
-        shop_마슬랜 = shopFixture.마슬랜(owner_현수);
-        menuCategory_메인 = menuCategoryFixture.메인메뉴(shop_마슬랜);
-        menuCategory_사이드 = menuCategoryFixture.사이드메뉴(shop_마슬랜);
         notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
         notificationMessage_콜벤 = shopNotificationMessageFixture.알림메시지_콜벤();
         shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
         shopParentCategory_콜벤 = shopParentCategoryFixture.상위_카테고리_콜벤(notificationMessage_콜벤);
         shopCategory_치킨 = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
         shopCategory_일반 = shopCategoryFixture.카테고리_일반음식(shopParentCategory_콜벤);
+        shop_마슬랜 = shopFixture.마슬랜(owner_현수, shopCategory_치킨);
+        menuCategory_메인 = menuCategoryFixture.메인메뉴(shop_마슬랜);
+        menuCategory_사이드 = menuCategoryFixture.사이드메뉴(shop_마슬랜);
     }
 
     @Test
@@ -210,6 +210,7 @@ class AdminShopApiTest extends AcceptanceTest {
                      "shop_categories": [
                        
                      ],
+                     "main_category_id": 1,
                      "updated_at": "2024-01-15",
                      "is_deleted": false,
                      "is_event": false,
@@ -403,6 +404,7 @@ class AdminShopApiTest extends AcceptanceTest {
                     .content(String.format("""
                         {
                             "address": "대전광역시 유성구 대학로 291",
+                            "main_category_id": 1,
                             "category_ids": [
                                 %d
                             ],
@@ -647,6 +649,7 @@ class AdminShopApiTest extends AcceptanceTest {
                     .content(String.format("""
                         {
                           "address": "충청남도 천안시 동남구 병천면 충절로 1600",
+                          "main_category_id": 2,
                           "category_ids": [
                            %d, %d
                           ],
@@ -717,6 +720,7 @@ class AdminShopApiTest extends AcceptanceTest {
 
             assertSoftly(softly -> {
                 softly.assertThat(result.getAddress()).isEqualTo("충청남도 천안시 동남구 병천면 충절로 1600");
+                softly.assertThat(result.getShopMainCategory().getId()).isEqualTo(2);
                 softly.assertThat(result.isDeleted()).isFalse();
                 softly.assertThat(result.getDeliveryPrice()).isEqualTo(1000);
                 softly.assertThat(result.getDescription()).isEqualTo("이번주 전 메뉴 10% 할인 이벤트합니다.");

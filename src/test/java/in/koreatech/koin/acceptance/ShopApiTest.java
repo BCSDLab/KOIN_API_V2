@@ -20,6 +20,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.domain.student.model.Student;
@@ -78,16 +79,18 @@ class ShopApiTest extends AcceptanceTest {
     private ShopParentCategory shopParentCategory_가게;
     private ShopNotificationMessage notificationMessage_가게;
 
+    private ShopCategory shopCategory_치킨;
+
     @BeforeAll
     void setUp() {
         clear();
         owner = userFixture.준영_사장님();
-        마슬랜 = shopFixture.마슬랜(owner);
         익명_학생 = userFixture.익명_학생();
         token_익명 = userFixture.getToken(익명_학생.getUser());
-
         notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
         shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
+        shopCategory_치킨 = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
+        마슬랜 = shopFixture.마슬랜(owner, shopCategory_치킨);
     }
 
     @Test
@@ -198,7 +201,6 @@ class ShopApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-                            
                     {
                          "address": "천안시 동남구 병천면 1600",
                          "delivery": true,
@@ -420,7 +422,6 @@ class ShopApiTest extends AcceptanceTest {
     @Test
     void 상점들의_모든_카테고리를_조회한다() throws Exception {
         shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게);
-        shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
 
         mockMvc.perform(
                 get("/shops/categories")
@@ -432,14 +433,15 @@ class ShopApiTest extends AcceptanceTest {
                          "shop_categories": [
                              {
                                  "id": 1,
-                                 "image_url": "https://test-image.com/normal.jpg",
-                                 "name": "일반음식점"
+                                 "image_url": "https://test-image.com/ckicken.jpg",
+                                 "name": "치킨"
                              },
                              {
                                  "id": 2,
-                                 "image_url": "https://test-image.com/ckicken.jpg",
-                                 "name": "치킨"
-                             }
+                                 "image_url": "https://test-image.com/normal.jpg",
+                                 "name": "일반음식점"
+                             },
+                         
                          ]
                      }
                 """));

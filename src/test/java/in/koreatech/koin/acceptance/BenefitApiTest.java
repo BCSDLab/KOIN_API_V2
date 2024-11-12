@@ -14,10 +14,16 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
+import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.fixture.BenefitCategoryFixture;
 import in.koreatech.koin.fixture.BenefitCategoryMapFixture;
+import in.koreatech.koin.fixture.ShopCategoryFixture;
 import in.koreatech.koin.fixture.ShopFixture;
+import in.koreatech.koin.fixture.ShopNotificationMessageFixture;
+import in.koreatech.koin.fixture.ShopParentCategoryFixture;
 import in.koreatech.koin.fixture.ShopReviewFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
@@ -40,6 +46,15 @@ public class BenefitApiTest extends AcceptanceTest {
     @Autowired
     UserFixture userFixture;
 
+    @Autowired
+    ShopCategoryFixture shopCategoryFixture;
+
+    @Autowired
+    ShopParentCategoryFixture shopParentCategoryFixture;
+
+    @Autowired
+    ShopNotificationMessageFixture shopNotificationMessageFixture;
+
     BenefitCategory 배달비_무료;
     BenefitCategory 최소주문금액_무료;
     BenefitCategory 서비스_증정;
@@ -54,6 +69,11 @@ public class BenefitApiTest extends AcceptanceTest {
     Shop 영업중인_티바;
     Shop 영업중이_아닌_신전_떡볶이;
 
+    private ShopCategory shopCategory_치킨;
+    private ShopCategory shopCategory_일반;
+    private ShopParentCategory shopParentCategory_가게;
+    private ShopNotificationMessage notificationMessage_가게;
+
     @BeforeAll
     void setup() {
         clear();
@@ -63,10 +83,15 @@ public class BenefitApiTest extends AcceptanceTest {
         서비스_증정 = benefitCategoryFixture.서비스_증정();
         가게까지_픽업 = benefitCategoryFixture.가게까지_픽업();
 
-        마슬랜 = shopFixture.마슬랜(현수_사장님);
-        김밥천국 = shopFixture.김밥천국(현수_사장님);
+        마슬랜 = shopFixture.마슬랜(현수_사장님, shopCategory_치킨);
+        김밥천국 = shopFixture.김밥천국(현수_사장님, shopCategory_일반);
         영업중인_티바 = shopFixture.영업중인_티바(현수_사장님);
         영업중이_아닌_신전_떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(현수_사장님);
+
+        notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
+        shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
+        shopCategory_치킨 = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
+        shopCategory_일반 = shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게);
 
         성빈_학생 = userFixture.성빈_학생();
 

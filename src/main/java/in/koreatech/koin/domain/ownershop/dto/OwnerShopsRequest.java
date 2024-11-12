@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.global.validation.NotBlankElement;
 import in.koreatech.koin.global.validation.UniqueId;
 import in.koreatech.koin.global.validation.UniqueUrl;
@@ -27,6 +28,10 @@ public record OwnerShopsRequest(
     @Schema(description = "주소", example = "충청남도 천안시 동남구 병천면 충절로 1600", requiredMode = REQUIRED)
     @NotBlank(message = "주소를 입력해주세요.")
     String address,
+
+    @Schema(description = "메인 카테고리 고유 id", example = "2", requiredMode = REQUIRED)
+    @NotNull(message = "메인 카테고리는 필수입니다.")
+    Integer mainCategoryId,
 
     @Schema(description = "상점 카테고리 고유 id 리스트", example = "[1]", requiredMode = REQUIRED)
     @NotNull(message = "카테고리를 입력해주세요.")
@@ -79,9 +84,10 @@ public record OwnerShopsRequest(
     String phone
 ) {
 
-    public Shop toEntity(Owner owner) {
+    public Shop toEntity(Owner owner, ShopCategory shopMainCategory) {
         return Shop.builder()
             .owner(owner)
+            .shopMainCategory(shopMainCategory)
             .address(address)
             .deliveryPrice(deliveryPrice)
             .delivery(delivery)
