@@ -1060,6 +1060,7 @@ class ShopApiTest extends AcceptanceTest {
                         """, 마슬랜_영업여부, 신전_떡볶이_영업여부)));
     }
 
+    @Test
     void 전화하기_발생시_정보가_알림큐에_저장된다() throws Exception {
         mockMvc.perform(
                 post("/shops/{shopId}/call-notification", 마슬랜.getId())
