@@ -88,13 +88,13 @@ class ShopSearchApiTest extends AcceptanceTest {
                             "keywords": [
                                 {
                                     "keyword": "짜장",
-                                    "shopIds": [1],
-                                    "shopId": null
+                                    "shop_ids": [1],
+                                    "shop_id": null
                                 },
                                 {
                                     "keyword": "짜장면",
-                                    "shopIds": [1],
-                                    "shopId": null
+                                    "shop_ids": [1],
+                                    "shop_id": null
                                 }
                             ]
                         }
