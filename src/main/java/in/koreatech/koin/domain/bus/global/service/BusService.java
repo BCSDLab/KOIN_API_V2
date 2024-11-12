@@ -4,12 +4,9 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,11 +23,8 @@ import in.koreatech.koin.domain.bus.global.model.BusTimetable;
 import in.koreatech.koin.domain.bus.global.model.enums.BusType;
 import in.koreatech.koin.domain.bus.shuttle.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.shuttle.dto.BusRemainTimeResponse;
-import in.koreatech.koin.domain.bus.shuttle.model.BusCourse;
-import in.koreatech.koin.domain.bus.shuttle.model.Route;
-import in.koreatech.koin.domain.bus.shuttle.model.SchoolBusTimetable;
 import in.koreatech.koin.domain.bus.shuttle.model.enums.BusStation;
-import in.koreatech.koin.domain.bus.shuttle.repository.SchoolBusRepository;
+import in.koreatech.koin.domain.bus.shuttle.service.ShuttleBusService;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -43,8 +37,8 @@ public class BusService {
 
     private final Clock clock;
     private final CityBusService cityBusService;
-    private final SchoolBusRepository schoolBusRepository;
     private final ExpressBusService expressBusService;
+    private final ShuttleBusService shuttleBusService;
     private final VersionService versionService;
 
     @Transactional
@@ -57,19 +51,7 @@ public class BusService {
             return toResponse(busType, expressBusService.getBusRemainTime(depart, arrival));
         }
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-            List<BusCourse> busCourses = schoolBusRepository.findByBusType(busType.getName());
-            var remainTimes = busCourses.stream()
-                .map(BusCourse::getRoutes)
-                .flatMap(routes ->
-                    routes.stream()
-                        .filter(route -> route.isRunning(clock))
-                        .filter(route -> route.isCorrectRoute(depart, arrival, clock))
-                        .map(route -> route.getRemainTime(depart))
-                )
-                .distinct()
-                .sorted()
-                .toList();
-            return toResponse(busType, remainTimes);
+            return toResponse(busType, shuttleBusService.getBusRemainTime(busType, depart, arrival));
         }
         throw new KoinIllegalArgumentException("Invalid bus", "type: " + busType);
     }
@@ -95,32 +77,13 @@ public class BusService {
             }
 
             if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-                ZonedDateTime zonedAt = targetTime.atZone(clock.getZone());
-                Clock clockAt = Clock.fixed(zonedAt.toInstant(), zonedAt.getZone());
-
-                String todayName = targetTime.getDayOfWeek()
-                    .getDisplayName(TextStyle.SHORT, Locale.US)
-                    .toUpperCase();
-
-                LocalTime arrivalTime = schoolBusRepository.findByBusType(busType.getName()).stream()
-                    .filter(busCourse -> busCourse.getRegion().equals("천안"))
-                    .map(BusCourse::getRoutes)
-                    .flatMap(routes ->
-                        routes.stream()
-                            .filter(route -> route.getRunningDays().contains(todayName))
-                            .filter(route -> route.isRunning(clockAt))
-                            .filter(route -> route.isCorrectRoute(depart, arrival, clockAt))
-                            .flatMap(route ->
-                                route.getArrivalInfos().stream()
-                                    .filter(arrivalNode -> depart.getDisplayNames().contains(arrivalNode.getNodeName()))
-                            )
-                    )
-                    .min(Comparator.comparing(o -> LocalTime.parse(o.getArrivalTime())))
-                    .map(Route.ArrivalNode::getArrivalTime)
-                    .map(LocalTime::parse)
-                    .orElse(null);
-
-                busTimeResponse = new SingleBusTimeResponse(busType.getName(), arrivalTime);
+                busTimeResponse = shuttleBusService.searchShuttleBusTime(
+                    date,
+                    time,
+                    depart,
+                    arrival,
+                    busType
+                );
             }
 
             if (busTimeResponse == null) {
@@ -159,16 +122,7 @@ public class BusService {
         }
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-            BusCourse busCourse = schoolBusRepository
-                .getByBusTypeAndDirectionAndRegion(busType.getName(), direction, region);
-
-            return busCourse.getRoutes().stream()
-                .map(route -> new SchoolBusTimetable(
-                    route.getRouteName(),
-                    route.getArrivalInfos().stream()
-                        .map(node -> new SchoolBusTimetable.ArrivalNode(
-                            node.getNodeName(), node.getArrivalTime())
-                        ).toList())).toList();
+            return shuttleBusService.getShuttleBusTimetable(busType, direction, region);
         }
 
         throw BusTypeNotFoundException.withDetail(busType.name());
@@ -186,8 +140,6 @@ public class BusService {
     }
 
     public List<BusCourseResponse> getBusCourses() {
-        return schoolBusRepository.findAll().stream()
-            .map(BusCourseResponse::from)
-            .toList();
+        return shuttleBusService.getShuttleBusCourses();
     }
 }
