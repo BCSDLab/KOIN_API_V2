@@ -94,7 +94,7 @@ public class BusController implements BusApi {
     public ResponseEntity<BusScheduleResponse> getBusRouteSchedule(
         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
         @RequestParam String time,
-        @RequestParam BusRouteType busRouteType,
+        @RequestParam(value = "bus_type") BusRouteType busRouteType,
         @RequestParam BusStation depart,
         @RequestParam BusStation arrival
     ) {

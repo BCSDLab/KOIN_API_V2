@@ -100,15 +100,15 @@ public interface BusApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "버스 스케줄 조회")
+    @Operation(summary = "버스 교통편 조회")
     @GetMapping("/route")
     ResponseEntity<BusScheduleResponse> getBusRouteSchedule(
         @Parameter(description = "yyyy-MM-dd") @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
         @Parameter(description = "HH:mm") @RequestParam String time,
         @Parameter(
-            description = "CITY, EXPRESS, SHUTTLE, COMMUTING, ALL"
+            description = "CITY, EXPRESS, SHUTTLE, ALL"
         ) @RequestParam BusRouteType busRouteType,
-        @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation depart,
-        @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation arrival
+        @Parameter(description = "KOREATECH, TERMINAL, STATION") @RequestParam BusStation depart,
+        @Parameter(description = "KOREATECH, TERMINAL, STATION") @RequestParam BusStation arrival
     );
 }

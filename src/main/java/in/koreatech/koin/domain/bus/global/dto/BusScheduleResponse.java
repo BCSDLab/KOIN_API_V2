@@ -13,19 +13,25 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.bus.shuttle.model.enums.BusStation;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record BusScheduleResponse(
     @Schema(description = "출발 정류장", example = "KOREATECH", requiredMode = REQUIRED)
-    BusStation departFrom,
+    BusStation depart,
     @Schema(description = "도착 정류장", example = "TERMINAL", requiredMode = REQUIRED)
-    BusStation departTo,
+    BusStation arrival,
     @Schema(description = "출발 날짜", example = "2024-11-05", requiredMode = REQUIRED)
     LocalDate departDate,
     @Schema(description = "출발 시간", example = "12:00", requiredMode = REQUIRED)
     LocalTime departTime,
     @Schema(description = "교통편 조회 결과", example = """
         [
+            {
+            	"bus_type" : "express",
+            	"route_name" : "대성티앤이",
+            	"depart_time" : "16:50"
+            },
             {
             	"bus_type" : "city",
             	"route_name" : "400",
@@ -37,21 +43,16 @@ public record BusScheduleResponse(
             	"depart_time" : "17:30"
             },
             {
-            	"bus_type" : "express",
-            	"route_name" : "대성티앤이",
-            	"depart_time" : "16:50"
-            },
-            {
             	"bus_type" : "shuttle",
-            	"route_name" : "주중(11시 10분)",
-            	"depart_time" : "13:00"
+            	"route_name" : "주중(20시 00분)",
+            	"depart_time" : "20:00"
             }
         ]
         """, requiredMode = NOT_REQUIRED)
     List<ScheduleInfo> schedule
 
 ){
-        @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record ScheduleInfo(
         String busType,
         String busName,

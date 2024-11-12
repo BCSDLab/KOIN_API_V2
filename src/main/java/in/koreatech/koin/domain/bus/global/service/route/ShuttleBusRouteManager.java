@@ -30,23 +30,14 @@ public final class ShuttleBusRouteManager {
             BusStation arrive,
             LocalDate date
     ) {
-        List<Route> shuttleRoutesDirectionFrom = busCourseDirectionFrom.getBusRoutesByDate(date);
-        List<Route> shuttleRoutesDirectionTo = busCourseDirectionTo.getBusRoutesByDate(date);
+        List<Route> fromRoutes = busCourseDirectionFrom.getBusRoutesByDate(date);
+        List<Route> toRoutes = busCourseDirectionTo.getBusRoutesByDate(date);
 
-        switch (depart) {
-            case KOREATECH -> {
-                return getShuttleRoutesDepartKoreaTech(arrive, shuttleRoutesDirectionFrom);
-            }
-            case STATION -> {
-                return getShuttleRoutesDepartStation(arrive, shuttleRoutesDirectionFrom, shuttleRoutesDirectionTo);
-            }
-            case TERMINAL -> {
-                return getShuttleRoutesDepartTerminal(arrive, shuttleRoutesDirectionFrom, shuttleRoutesDirectionTo);
-            }
-            default -> {
-                return Collections.emptyList();
-            }
-        }
+        return switch (depart) {
+            case KOREATECH -> getShuttleRoutesDepartKoreaTech(arrive, fromRoutes);
+            case STATION -> getShuttleRoutesArriveKoreaTech(fromRoutes, toRoutes, STATION_NODE_NAME);
+            case TERMINAL -> getShuttleRoutesArriveKoreaTech(fromRoutes, toRoutes, TERMINAL_NODE_NAME);
+        };
     }
 
     public static List<ScheduleInfo> getCommutingBusSchedule(
@@ -56,107 +47,45 @@ public final class ShuttleBusRouteManager {
             BusStation arrive,
             LocalDate date
     ) {
-        List<Route> shuttleRoutesDirectionFrom = busCourseDirectionFrom.getBusRoutesByDate(date);
-        List<Route> shuttleRoutesDirectionTo = busCourseDirectionTo.getBusRoutesByDate(date);
+        List<Route> fromRoutes = busCourseDirectionFrom.getBusRoutesByDate(date);
+        List<Route> toRoutes = busCourseDirectionTo.getBusRoutesByDate(date);
 
-        switch (depart) {
-            case KOREATECH -> {
-                return getCommutingBusRoutesDepartKoreaTech(arrive, shuttleRoutesDirectionFrom);
-            }
-            case STATION -> {
-                return getCommutingBusRoutesDepartStation(arrive, shuttleRoutesDirectionTo);
-            }
-            case TERMINAL -> {
-                return getCommutingBusRoutesDepartTerminal(arrive, shuttleRoutesDirectionTo);
-            }
-            default -> {
-                return Collections.emptyList();
-            }
-        }
+        return switch (depart) {
+            case KOREATECH -> getCommutingBusRoutesDepartKoreaTech(arrive, fromRoutes);
+            case STATION -> getCommutingBusRoutesArriveKoreaTech(toRoutes, STATION_NODE_NAME);
+            case TERMINAL -> getCommutingBusRoutesArriveKoreaTech(toRoutes, TERMINAL_NODE_NAME);
+        };
     }
 
     private static List<ScheduleInfo> getShuttleRoutesDepartKoreaTech(BusStation arrive, List<Route> shuttleRoutes) {
         return switch (arrive) {
-            case TERMINAL -> getScheduleInfoDepartKoreaTech(shuttleRoutes, TERMINAL_NODE_NAME);
-            case STATION -> getScheduleInfoDepartKoreaTech(shuttleRoutes, STATION_NODE_NAME);
+            case TERMINAL -> getScheduleInfoDepartKoreaTech(shuttleRoutes, TERMINAL_NODE_NAME, "");
+            case STATION -> getScheduleInfoDepartKoreaTech(shuttleRoutes, STATION_NODE_NAME, "");
             default -> Collections.emptyList();
         };
     }
 
-    private static List<ScheduleInfo> getShuttleRoutesDepartTerminal(
-            BusStation arrive,
-            List<Route> shuttleRoutesDirectionFrom,
-            List<Route> shuttleRoutesDirectionTo
+    private static List<ScheduleInfo> getShuttleRoutesArriveKoreaTech(
+        List<Route> routeFrom,
+        List<Route> routeTo,
+        String departNodeName
     ) {
-        switch (arrive) {
-            case KOREATECH -> {
-                List<ScheduleInfo> scheduleInfo = new ArrayList<>();
-                scheduleInfo.addAll(getScheduleInfoForCircularRoute(shuttleRoutesDirectionFrom, TERMINAL_NODE_NAME));
-                scheduleInfo.addAll(getScheduleInfoDepartElse(shuttleRoutesDirectionTo, TERMINAL_NODE_NAME));
-                return scheduleInfo;
-            }
-            default -> {
-                return Collections.emptyList();
-            }
-        }
-    }
-
-    private static List<ScheduleInfo> getShuttleRoutesDepartStation(
-            BusStation arrive,
-            List<Route> shuttleRoutesDirectionFrom,
-            List<Route> shuttleRoutesDirectionTo
-    ) {
-        switch (arrive) {
-            case KOREATECH -> {
-                List<ScheduleInfo> scheduleInfo = new ArrayList<>();
-                scheduleInfo.addAll(getScheduleInfoForCircularRoute(shuttleRoutesDirectionFrom, STATION_NODE_NAME));
-                scheduleInfo.addAll(getScheduleInfoDepartElse(shuttleRoutesDirectionTo, STATION_NODE_NAME));
-                return scheduleInfo;
-            }
-            default -> {
-                return Collections.emptyList();
-            }
-        }
+        List<ScheduleInfo> scheduleInfo = new ArrayList<>();
+        scheduleInfo.addAll(getScheduleInfoForCircularRoute(routeFrom, departNodeName));
+        scheduleInfo.addAll(getScheduleInfoDepartElse(routeTo, departNodeName, ""));
+        return scheduleInfo;
     }
 
     public static List<ScheduleInfo> getCommutingBusRoutesDepartKoreaTech(BusStation arrive, List<Route> shuttleRoutes) {
-        switch (arrive) {
-            case TERMINAL -> {
-                return getScheduleInfoDepartKoreaTech(shuttleRoutes, TERMINAL_NODE_NAME, COMMUTING_BUS_ROUTE_DOWN);
-            }
-            case STATION -> {
-                return getScheduleInfoDepartKoreaTech(shuttleRoutes, STATION_NODE_NAME, COMMUTING_BUS_ROUTE_DOWN);
-            }
-            default -> {
-                return Collections.emptyList();
-            }
-        }
+        return switch (arrive) {
+            case TERMINAL -> getScheduleInfoDepartKoreaTech(shuttleRoutes, TERMINAL_NODE_NAME, COMMUTING_BUS_ROUTE_DOWN);
+            case STATION -> getScheduleInfoDepartKoreaTech(shuttleRoutes, STATION_NODE_NAME, COMMUTING_BUS_ROUTE_DOWN);
+            default -> Collections.emptyList();
+        };
     }
 
-    public static List<ScheduleInfo> getCommutingBusRoutesDepartTerminal(BusStation arrive, List<Route> shuttleRoutes) {
-        switch (arrive) {
-            case KOREATECH -> {
-                return getScheduleInfoDepartElse(shuttleRoutes, TERMINAL_NODE_NAME, COMMUTING_BUS_ROUTE_UP);
-            }
-            default -> {
-                return Collections.emptyList();
-            }
-        }
-    }
-
-    public static List<ScheduleInfo> getCommutingBusRoutesDepartStation(BusStation arrive, List<Route> shuttleRoutes) {
-        switch (arrive) {
-            case KOREATECH -> {
-                return getScheduleInfoDepartElse(shuttleRoutes, STATION_NODE_NAME, COMMUTING_BUS_ROUTE_UP);
-            }
-            default -> {
-                return Collections.emptyList();
-            }
-        }
-    }
-
-    private static List<ScheduleInfo> getScheduleInfoDepartKoreaTech(List<Route> shuttleRoutes, String arrivalNodeName) {
-        return getScheduleInfoDepartKoreaTech(shuttleRoutes, arrivalNodeName, "");
+    public static List<ScheduleInfo> getCommutingBusRoutesArriveKoreaTech(List<Route> shuttleRoutes, String departNodeName) {
+        return getScheduleInfoDepartElse(shuttleRoutes, departNodeName, COMMUTING_BUS_ROUTE_UP);
     }
 
     private static List<ScheduleInfo> getScheduleInfoDepartKoreaTech(List<Route> shuttleRoutes, String arrivalNodeName, String routeName) {
@@ -168,17 +97,13 @@ public final class ShuttleBusRouteManager {
                     if (arrivalNode != null && koreaTechNode != null) {
                         return new ScheduleInfo(
                                 BUS_TYPE,
-                                String.join(" ", route.getRouteName(), routeName),
+                                String.join(" ", route.getRouteName(), routeName).trim(),
                                 LocalTime.parse(koreaTechNode.getArrivalTime()));
                     }
                     return null;
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-    }
-
-    private static List<ScheduleInfo> getScheduleInfoDepartElse(List<Route> shuttleRoutes, String arrivalNodeName) {
-        return getScheduleInfoDepartElse(shuttleRoutes, arrivalNodeName, "");
     }
 
     private static List<ScheduleInfo> getScheduleInfoDepartElse(List<Route> shuttleRoutes, String arrivalNodeName, String routeName) {
@@ -190,7 +115,7 @@ public final class ShuttleBusRouteManager {
                     if (arrivalNode != null && koreaTechNode != null) {
                         return new ScheduleInfo(
                                 BUS_TYPE,
-                                String.join(" ", route.getRouteName(), routeName),
+                                String.join(" ", route.getRouteName(), routeName).trim(),
                                 LocalTime.parse(arrivalNode.getArrivalTime()));
                     }
                     return null;
