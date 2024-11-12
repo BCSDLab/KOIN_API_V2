@@ -20,9 +20,11 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
     Optional<TimetableFrame> findById(Integer id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT t FROM TimetableFrame t WHERE t.id = :id")
+    @Query("""
+        SELECT t FROM TimetableFrame t
+        WHERE t.id = :id
+        """)
     Optional<TimetableFrame> findByIdWithLock(@Param("id") Integer id);
-
 
     List<TimetableFrame> findByUserIdAndIsMainTrue(Integer userId);
 
@@ -56,7 +58,16 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
     }
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    TimetableFrame findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(Integer userId, Integer semesterId);
+    @Query(
+        """
+        SELECT t FROM TimetableFrame t
+        WHERE t.user.id = :userId
+        AND t.semester.id = :semesterId
+        AND t.isMain = false
+        ORDER BY t.createdAt ASC
+        LIMIT 1
+        """)
+    TimetableFrame findNextFirstTimetableFrame(@Param("userId") Integer userId, @Param("semesterId") Integer semesterId);
 
     @Query(
         """

@@ -93,6 +93,7 @@ public class TimetableServiceV2 {
             .toList();
     }
 
+    /*TODO. 락 3개 찾아보기 - 신관규*/
     @ConcurrencyGuard(lockName = "deleteFrame")
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {
         TimetableFrame frame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
@@ -101,12 +102,9 @@ public class TimetableServiceV2 {
         }
         timetableFrameRepositoryV2.deleteById(frameId);
         if (frame.isMain()) {
-            TimetableFrame nextMainFrame =
-                timetableFrameRepositoryV2.
-                    findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId,
-                        frame.getSemester().getId());
-            if (nextMainFrame != null) {
-                nextMainFrame.updateStatusMain(true);
+            TimetableFrame nextFrame = timetableFrameRepositoryV2.findNextFirstTimetableFrame(userId, frame.getSemester().getId());
+            if (nextFrame != null) {
+                nextFrame.updateStatusMain(true);
             }
         }
     }

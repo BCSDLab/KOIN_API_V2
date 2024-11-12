@@ -69,10 +69,6 @@ public class TimetableFrame extends BaseEntity {
     @OneToMany(mappedBy = "timetableFrame", orphanRemoval = true, cascade = ALL)
     private List<TimetableLecture> timetableLectures;
 
-    public void updateStatusMain(boolean isMain) {
-        this.isMain = isMain;
-    }
-
     @Builder
     private TimetableFrame(
         User user,
@@ -98,6 +94,10 @@ public class TimetableFrame extends BaseEntity {
 
     public void cancelMain() {
         isMain = false;
+    }
+
+    public void updateStatusMain(boolean isMain) {
+        this.isMain = isMain;
     }
 
     public static String getDefaultTimetableFrameName(int currentFrameCount) {
