@@ -80,7 +80,7 @@ class ShopSearchApiTest extends AcceptanceTest {
     @Test
     void 검색_문자와_관련된_키워드를_조회한다() throws Exception {
         mockMvc.perform(
-                        get("/search/related/짜")
+                        get("/shops/search/related/짜")
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().json(String.format("""
@@ -105,7 +105,7 @@ class ShopSearchApiTest extends AcceptanceTest {
     @Test
     void 검색_문자와_관련된_키워드를_조회한다_상점인_경우에는_상점id도_조회된다() throws Exception {
         mockMvc.perform(
-                        get("/search/related/마")
+                        get("/shops/search/related/마")
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().json(String.format("""
