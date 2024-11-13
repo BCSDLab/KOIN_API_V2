@@ -526,7 +526,7 @@ class ShopApiTest extends AcceptanceTest {
     void 이벤트_베너_조회() throws Exception {
         eventArticleFixture.참여_이벤트(마슬랜, LocalDate.now(clock), LocalDate.now(clock).plusDays(10));
         eventArticleFixture.할인_이벤트(마슬랜, LocalDate.now(clock).minusDays(10), LocalDate.now(clock).minusDays(1));
-
+        
         mockMvc.perform(
                 get("/shops/events")
             )
@@ -541,8 +541,7 @@ class ShopApiTest extends AcceptanceTest {
                             "title": "참여 이벤트",
                             "content": "사장님과 참여해요!!!",
                             "thumbnail_images": [
-                                "https://eventimage.com/참여_이벤트.jpg",
-                                "https://eventimage.com/참여_이벤트.jpg"
+                                "https://test-image.com/chicken-event.jpg"
                             ],
                             "start_date": "2024-01-15",
                             "end_date": "2024-01-25"

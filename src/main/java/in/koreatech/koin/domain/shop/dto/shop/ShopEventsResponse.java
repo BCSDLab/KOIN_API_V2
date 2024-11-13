@@ -57,7 +57,7 @@ public record ShopEventsResponse(
         LocalDate endDate
     ) {
 
-        public static InnerShopEventResponse from(EventArticle eventArticle) {
+        public static InnerShopEventResponse fromWithEventUrl(EventArticle eventArticle) {
             return new InnerShopEventResponse(
                 eventArticle.getShop().getId(),
                 eventArticle.getShop().getName(),
@@ -73,6 +73,21 @@ public record ShopEventsResponse(
                 eventArticle.getEndDate()
             );
         }
+
+        public static InnerShopEventResponse fromWithThumbnailUrl(EventArticle eventArticle) {
+            return new InnerShopEventResponse(
+                eventArticle.getShop().getId(),
+                eventArticle.getShop().getName(),
+                eventArticle.getId(),
+                eventArticle.getTitle(),
+                eventArticle.getContent(),
+                eventArticle.getThumbnailImages()
+                    .stream().map(EventArticleImage::getThumbnailImage)
+                    .toList(),
+                eventArticle.getStartDate(),
+                eventArticle.getEndDate()
+            );
+        }
     }
 
     public static ShopEventsResponse of(List<Shop> shops, Clock clock) {
@@ -81,7 +96,7 @@ public record ShopEventsResponse(
             for (EventArticle eventArticle : shop.getEventArticles()) {
                 if (!eventArticle.getStartDate().isAfter(LocalDate.now(clock)) &&
                     !eventArticle.getEndDate().isBefore(LocalDate.now(clock))) {
-                    innerShopEventResponses.add(InnerShopEventResponse.from(eventArticle));
+                    innerShopEventResponses.add(InnerShopEventResponse.fromWithEventUrl(eventArticle));
                 }
             }
         }
@@ -93,7 +108,7 @@ public record ShopEventsResponse(
         for (EventArticle eventArticle : shop.getEventArticles()) {
             if (!eventArticle.getStartDate().isAfter(LocalDate.now(clock)) &&
                 !eventArticle.getEndDate().isBefore(LocalDate.now(clock))) {
-                innerShopEventResponses.add(InnerShopEventResponse.from(eventArticle));
+                innerShopEventResponses.add(InnerShopEventResponse.fromWithThumbnailUrl(eventArticle));
             }
         }
         return new ShopEventsResponse(innerShopEventResponses);
