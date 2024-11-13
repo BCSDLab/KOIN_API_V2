@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.city.util;
+package in.koreatech.koin.domain.bus.city.client;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,10 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.domain.bus.city.dto.CityBusRouteApiResponse;
-import in.koreatech.koin.domain.bus.city.model.CityBusRoute;
+import in.koreatech.koin.domain.bus.city.dto.CityBusRoute;
 import in.koreatech.koin.domain.bus.city.model.CityBusRouteCache;
 import in.koreatech.koin.domain.bus.city.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.city.repository.CityBusRouteCacheRepository;
+import in.koreatech.koin.domain.bus.city.util.URIProvider;
 import in.koreatech.koin.domain.bus.global.exception.BusOpenApiException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;

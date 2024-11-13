@@ -3,8 +3,8 @@ package in.koreatech.koin.domain.bus.global.util;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.bus.city.util.CityBusClient;
-import in.koreatech.koin.domain.bus.city.util.CityBusRouteClient;
+import in.koreatech.koin.domain.bus.city.client.CityBusClient;
+import in.koreatech.koin.domain.bus.city.client.CityBusRouteClient;
 import in.koreatech.koin.domain.bus.express.util.ExpressBusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
+import in.koreatech.koin.domain.bus.city.dto.CityBusRoute;
 import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;

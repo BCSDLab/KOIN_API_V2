@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.city.util;
+package in.koreatech.koin.domain.bus.city.client;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -16,11 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.domain.bus.city.dto.CityBusApiResponse;
-import in.koreatech.koin.domain.bus.city.model.CityBusArrival;
+import in.koreatech.koin.domain.bus.city.dto.CityBusArrival;
 import in.koreatech.koin.domain.bus.city.model.CityBusCache;
 import in.koreatech.koin.domain.bus.city.model.CityBusCacheInfo;
 import in.koreatech.koin.domain.bus.city.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.city.repository.CityBusCacheRepository;
+import in.koreatech.koin.domain.bus.city.util.URIProvider;
 import in.koreatech.koin.domain.bus.global.exception.BusOpenApiException;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;

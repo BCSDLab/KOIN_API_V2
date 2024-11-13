@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.bus.global.dto.SingleBusTimeResponse;
-import in.koreatech.koin.domain.bus.city.model.CityBusArrival;
+import in.koreatech.koin.domain.bus.city.dto.CityBusArrival;
 import in.koreatech.koin.domain.bus.city.model.CityBusCache;
 import in.koreatech.koin.domain.bus.city.model.CityBusCacheInfo;
 import in.koreatech.koin.domain.bus.city.model.enums.BusDirection;

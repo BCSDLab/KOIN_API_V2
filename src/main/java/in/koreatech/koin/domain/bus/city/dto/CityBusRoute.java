@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.city.model;
+package in.koreatech.koin.domain.bus.city.dto;
 
 import lombok.Builder;
 

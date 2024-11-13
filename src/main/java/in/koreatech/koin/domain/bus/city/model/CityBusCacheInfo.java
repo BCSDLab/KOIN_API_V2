@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.bus.city.model;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import in.koreatech.koin.domain.bus.city.dto.CityBusArrival;
 import in.koreatech.koin.domain.bus.global.model.BusRemainTime;
 
 public record CityBusCacheInfo(
