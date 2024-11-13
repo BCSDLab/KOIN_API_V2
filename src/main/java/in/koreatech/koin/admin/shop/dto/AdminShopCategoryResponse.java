@@ -21,7 +21,7 @@ public record AdminShopCategoryResponse(
     Integer parentCategoryId,
 
     @Schema(description = "카테고리 이벤트 이미지 URL", example = "string")
-    String eventImageUrl
+    String eventBannerImageUrl
 ) {
 
     public static AdminShopCategoryResponse from(ShopCategory shopCategory) {
@@ -30,7 +30,7 @@ public record AdminShopCategoryResponse(
             shopCategory.getImageUrl(),
             shopCategory.getName(),
             shopCategory.getParentCategory().getId(),
-            shopCategory.getEventImageUrl()
+            shopCategory.getEventBannerImageUrl()
         );
     }
 }

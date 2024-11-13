@@ -22,7 +22,7 @@ public class ShopCategoryFixture {
                 .name("치킨")
                 .imageUrl("https://test-image.com/ckicken.jpg")
                 .parentCategory(parentCategory)
-                .eventImageUrl("https://test-image.com/chicken-event.jpg")
+                .eventBannerImageUrl("https://test-image.com/chicken-event.jpg")
                 .build()
         );
     }
@@ -33,7 +33,7 @@ public class ShopCategoryFixture {
                 .name("일반음식점")
                 .imageUrl("https://test-image.com/normal.jpg")
                 .parentCategory(parentCategory)
-                .eventImageUrl("https://test-image.com/normal-event.jpg")
+                .eventBannerImageUrl("https://test-image.com/normal-event.jpg")
                 .build()
         );
     }

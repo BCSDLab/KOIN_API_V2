@@ -267,7 +267,7 @@ public class AdminShopService {
             adminModifyShopCategoryRequest.name(),
             adminModifyShopCategoryRequest.imageUrl(),
             shopParentCategory,
-            adminModifyShopCategoryRequest.eventImageUrl()
+            adminModifyShopCategoryRequest.eventBannerImageUrl()
         );
     }
 

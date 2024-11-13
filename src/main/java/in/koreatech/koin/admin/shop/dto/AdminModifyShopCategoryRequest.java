@@ -29,7 +29,7 @@ public record AdminModifyShopCategoryRequest(
 
     @Schema(description = "이벤트 이미지 URL", example = "https://static.koreatech.in/test.png")
     @Size(max = 255, message = "이벤트 이미지 URL은 255자 이하로 입력해주세요.")
-    String eventImageUrl
+    String eventBannerImageUrl
 ) {
 
 }

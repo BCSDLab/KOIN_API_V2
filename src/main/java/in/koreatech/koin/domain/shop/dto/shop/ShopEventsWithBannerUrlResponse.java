@@ -65,7 +65,7 @@ public record ShopEventsWithBannerUrlResponse(
                 eventArticle.getContent(),
                 Optional.ofNullable(shop)
                     .map(Shop::getShopMainCategory)
-                    .map(ShopCategory::getEventImageUrl)
+                    .map(ShopCategory::getEventBannerImageUrl)
                     .map(List::of)
                     .orElse(null),
                 eventArticle.getStartDate(),

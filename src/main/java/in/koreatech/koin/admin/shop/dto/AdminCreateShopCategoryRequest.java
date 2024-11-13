@@ -31,7 +31,7 @@ public record AdminCreateShopCategoryRequest(
 
     @Schema(description = "이벤트 이미지 URL", example = "https://static.koreatech.in/test.png")
     @Size(max = 255, message = "이벤트 이미지 URL은 255자 이하로 입력해주세요.")
-    String eventImageUrl
+    String eventBannerImageUrl
 ) {
 
     public ShopCategory toShopCategory(ShopParentCategory shopParentCategory) {
@@ -39,7 +39,7 @@ public record AdminCreateShopCategoryRequest(
             .imageUrl(imageUrl)
             .name(name)
             .parentCategory(shopParentCategory)
-            .eventImageUrl(eventImageUrl)
+            .eventBannerImageUrl(eventBannerImageUrl)
             .build();
     }
 }
