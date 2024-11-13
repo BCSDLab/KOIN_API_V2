@@ -60,10 +60,11 @@ public record TimetableLectureCreateRequest(
                 grades = "0";
             }
         }
+
         public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame) {
             return new TimetableLecture(
                 classTitle,
-                Arrays.toString(classTime().stream().toArray()),
+                classTime().toString(),
                 classPlace,
                 professor,
                 grades,
@@ -77,7 +78,7 @@ public record TimetableLectureCreateRequest(
         public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame, Lecture lecture) {
             return new TimetableLecture(
                 classTitle,
-                Arrays.toString(classTime().stream().toArray()),
+                classTime().toString(),
                 classPlace,
                 professor,
                 grades,

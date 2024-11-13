@@ -12,6 +12,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -79,7 +80,9 @@ public record TimetableLectureResponse(
 
             for (TimetableLecture timetableLecture : timetableLectures) {
                 InnerTimetableLectureResponse response;
-                if (timetableLecture.getLecture() == null) {
+                Lecture lecture = timetableLecture.getLecture();
+
+                if (lecture == null) {
                     response = new InnerTimetableLectureResponse(
                         timetableLecture.getId(),
                         null,
@@ -99,28 +102,19 @@ public record TimetableLectureResponse(
                 } else {
                     response = new InnerTimetableLectureResponse(
                         timetableLecture.getId(),
-                        timetableLecture.getLecture().getId(),
-                        timetableLecture.getLecture().getRegularNumber(),
-                        timetableLecture.getLecture().getCode(),
-                        timetableLecture.getLecture().getDesignScore(),
-                        timetableLecture.getClassTime() == null
-                            ? parseIntegerClassTimesFromString(
-                            timetableLecture.getLecture().getClassTime())
-                            : parseIntegerClassTimesFromString(timetableLecture.getClassTime()),
+                        lecture.getId(),
+                        lecture.getRegularNumber(),
+                        lecture.getCode(),
+                        lecture.getDesignScore(),
+                        timetableLecture.getClassTime() == null ? parseIntegerClassTimesFromString(lecture.getClassTime()) : parseIntegerClassTimesFromString(timetableLecture.getClassTime()),
                         timetableLecture.getClassPlace(),
                         timetableLecture.getMemo(),
-                        Objects.equals(timetableLecture.getGrades(), "0")
-                            ? timetableLecture.getLecture().getGrades()
-                            : timetableLecture.getGrades(),
-                        timetableLecture.getClassTitle() == null
-                            ? timetableLecture.getLecture().getName()
-                            : timetableLecture.getClassTitle(),
-                        timetableLecture.getLecture().getLectureClass(),
-                        timetableLecture.getLecture().getTarget(),
-                        timetableLecture.getProfessor() == null
-                            ? timetableLecture.getLecture().getProfessor()
-                            : timetableLecture.getProfessor(),
-                        timetableLecture.getLecture().getDepartment()
+                        Objects.equals(timetableLecture.getGrades(), GRADE_ZERO) ? lecture.getGrades() : timetableLecture.getGrades(),
+                        timetableLecture.getClassTitle() == null ? lecture.getName() : timetableLecture.getClassTitle(),
+                        lecture.getLectureClass(),
+                        lecture.getTarget(),
+                        timetableLecture.getProfessor() == null ? lecture.getProfessor() : timetableLecture.getProfessor(),
+                        lecture.getDepartment()
                     );
                 }
                 timetableLectureList.add(response);
@@ -129,25 +123,31 @@ public record TimetableLectureResponse(
         }
     }
 
-    public static TimetableLectureResponse of(Integer timetableFrameId, List<TimetableLecture> timetableLectures,
-        Integer grades, Integer totalGrades) {
-        return new TimetableLectureResponse(timetableFrameId, InnerTimetableLectureResponse.from(timetableLectures),
-            grades, totalGrades);
-    }
-
+    private static final String GRADE_ZERO = "0";
     private static final int INITIAL_BRACE_INDEX = 1;
+    private static final String SEPARATOR = ",";
+
+    public static TimetableLectureResponse of(
+        Integer timetableFrameId, List<TimetableLecture> timetableLectures, Integer grades, Integer totalGrades
+    ) {
+        return new TimetableLectureResponse(
+            timetableFrameId,
+            InnerTimetableLectureResponse.from(timetableLectures),
+            grades,
+            totalGrades
+        );
+    }
 
     private static List<Integer> parseIntegerClassTimesFromString(String classTime) {
         String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
 
         if (!classTimeWithoutBrackets.isEmpty()) {
-            return Arrays.stream(classTimeWithoutBrackets.split(","))
+            return Arrays.stream(classTimeWithoutBrackets.split(SEPARATOR))
                 .map(String::strip)
                 .map(Integer::parseInt)
                 .toList();
-        } else {
-            return Collections.emptyList();
         }
+        return Collections.emptyList();
     }
 }
 

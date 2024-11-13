@@ -84,8 +84,8 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @Valid @RequestBody TimetableLectureCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableLectureResponse timeTableLectureResponse = timetableServiceV2.createTimetableLectures(userId, request);
-        return ResponseEntity.ok(timeTableLectureResponse);
+        TimetableLectureResponse response = timetableServiceV2.createTimetableLectures(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/v2/timetables/lecture")
