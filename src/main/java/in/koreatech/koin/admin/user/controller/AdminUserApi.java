@@ -152,6 +152,20 @@ public interface AdminUserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
+    @Operation(summary = "로그인 어드민 계정 정보 조회")
+    @GetMapping("/admin")
+    ResponseEntity<AdminResponse> getLoginAdminInfo(
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
     @Operation(summary = "어드민 계정 정보 조회")
     @GetMapping("/admin/{id}")
     ResponseEntity<AdminResponse> getAdmin(
