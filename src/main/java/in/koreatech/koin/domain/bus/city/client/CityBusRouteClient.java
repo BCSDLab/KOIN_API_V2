@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.bus.city.client;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.http.HttpEntity;
@@ -13,9 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import in.koreatech.koin.domain.bus.city.dto.CityBusRouteApiResponse;
 import in.koreatech.koin.domain.bus.city.dto.CityBusRoute;
-import in.koreatech.koin.domain.bus.city.model.CityBusRouteCache;
+import in.koreatech.koin.domain.bus.city.dto.CityBusRouteApiResponse;
 import in.koreatech.koin.domain.bus.city.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.city.repository.CityBusRouteCacheRepository;
 import in.koreatech.koin.domain.bus.city.util.URIProvider;
@@ -42,8 +39,8 @@ public class CityBusRouteClient {
     public void storeCityBusRoute() {
         BusStationNode.getNodeIds().forEach((nodeId) -> {
             try {
-                Set<CityBusRoute> routes = Set.copyOf(extractBusRouteInfo(getOpenApiResponse(nodeId)));
-                cityBusRouteCacheRepository.save(CityBusRouteCache.of(nodeId, routes));
+                Set<CityBusRoute> routes = Set.copyOf(getOpenApiResponse(nodeId).extractBusRouteInfo());
+                cityBusRouteCacheRepository.save(CityBusRoute.toCityBusRouteCache(nodeId, routes));
             } catch (BusOpenApiException ignored) {
             }
         });
@@ -64,13 +61,5 @@ public class CityBusRouteClient {
         } catch (Exception ignored) {
             throw BusOpenApiException.withDetail("nodeId: " + nodeId);
         }
-    }
-
-    private List<CityBusRoute> extractBusRouteInfo(CityBusRouteApiResponse response) {
-        if (!response.response().header().resultCode().equals("00")
-            || response.response().body().totalCount() == 0) {
-            return Collections.emptyList();
-        }
-        return response.response().body().items().item();
     }
 }

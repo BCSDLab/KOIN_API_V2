@@ -1,10 +1,9 @@
 package in.koreatech.koin.acceptance;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
 
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -23,19 +22,18 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.bus.global.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.city.dto.CityBusArrival;
 import in.koreatech.koin.domain.bus.city.model.CityBusCache;
-import in.koreatech.koin.domain.bus.city.model.CityBusCacheInfo;
 import in.koreatech.koin.domain.bus.city.model.enums.BusDirection;
-import in.koreatech.koin.domain.bus.shuttle.model.enums.BusStation;
-import in.koreatech.koin.domain.bus.global.model.enums.BusType;
+import in.koreatech.koin.domain.bus.city.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.express.model.ExpressBusCache;
 import in.koreatech.koin.domain.bus.express.model.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.express.model.ExpressBusRoute;
-import in.koreatech.koin.domain.bus.city.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.express.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.bus.express.util.ExpressBusService;
+import in.koreatech.koin.domain.bus.global.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.global.model.enums.BusType;
+import in.koreatech.koin.domain.bus.shuttle.model.enums.BusStation;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
@@ -176,12 +174,12 @@ class BusApiTest extends AcceptanceTest {
         cityBusCacheRepository.save(
             CityBusCache.of(
                 depart.getNodeId(direction).get(0),
-                List.of(CityBusCacheInfo.of(
+                List.of(
                     CityBusArrival.builder()
                         .routeno(busNumber)
                         .arrtime(remainTime)
-                        .build(),
-                    version.getUpdatedAt())
+                        .build()
+                        .toCityBusCacheInfo(version.getUpdatedAt())
                 )
             )
         );

@@ -1,5 +1,11 @@
 package in.koreatech.koin.domain.bus.city.dto;
 
+import static in.koreatech.koin.domain.bus.city.model.CityBusRouteCache.CACHE_EXPIRE_MINUTE;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import in.koreatech.koin.domain.bus.city.model.CityBusRouteCache;
 import lombok.Builder;
 
 @Builder
@@ -11,4 +17,14 @@ public record CityBusRoute(
     String startnodenm // 기점, 종합터미널
 ) {
 
+    public static CityBusRouteCache toCityBusRouteCache(String nodeId, Set<CityBusRoute> busRoutes) {
+        return CityBusRouteCache.builder()
+            .id(nodeId)
+            .busNumbers(busRoutes.stream()
+                .map(CityBusRoute::routeno)
+                .collect(Collectors.toSet())
+            )
+            .expiration(CACHE_EXPIRE_MINUTE)
+            .build();
+    }
 }

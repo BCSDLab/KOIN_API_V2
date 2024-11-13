@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.bus.city.client;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.http.HttpEntity;
@@ -18,7 +17,6 @@ import org.springframework.web.client.RestTemplate;
 import in.koreatech.koin.domain.bus.city.dto.CityBusApiResponse;
 import in.koreatech.koin.domain.bus.city.dto.CityBusArrival;
 import in.koreatech.koin.domain.bus.city.model.CityBusCache;
-import in.koreatech.koin.domain.bus.city.model.CityBusCacheInfo;
 import in.koreatech.koin.domain.bus.city.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.city.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.city.util.URIProvider;
@@ -46,11 +44,12 @@ public class CityBusClient {
 
     @Transactional
     @CircuitBreaker(name = "cityBus")
+    // TODO: 가독성 개선
     public void storeRemainTime() {
         List<List<CityBusArrival>> arrivalInfosList = new ArrayList<>();
         BusStationNode.getNodeIds().forEach((nodeId) -> {
             try {
-                arrivalInfosList.add(extractBusArrivalInfo(getOpenApiResponse(nodeId)));
+                arrivalInfosList.add(getOpenApiResponse(nodeId).extractBusArrivalInfo());
             } catch (BusOpenApiException ignored) {
             }
         });
@@ -59,7 +58,7 @@ public class CityBusClient {
             CityBusCache.of(
                 arrivalInfos.get(0).nodeid(),
                 arrivalInfos.stream()
-                    .map(busArrivalInfo -> CityBusCacheInfo.of(busArrivalInfo, updatedAt))
+                    .map(busArrivalInfo -> busArrivalInfo.toCityBusCacheInfo(updatedAt))
                     .toList()
             )
         ));
@@ -81,13 +80,5 @@ public class CityBusClient {
         } catch (Exception ignored) {
             throw BusOpenApiException.withDetail("nodeId : " + nodeId);
         }
-    }
-
-    private List<CityBusArrival> extractBusArrivalInfo(CityBusApiResponse response) {
-        if (!response.response().header().resultCode().equals("00")
-            || response.response().body().totalCount() == 0) {
-            return Collections.emptyList();
-        }
-        return response.response().body().items().item();
     }
 }

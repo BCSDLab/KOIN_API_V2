@@ -3,12 +3,10 @@ package in.koreatech.koin.domain.bus.city.model;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import in.koreatech.koin.domain.bus.city.dto.CityBusRoute;
 import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +15,7 @@ import lombok.Getter;
 @RedisHash("CityBusRoute")
 public class CityBusRouteCache {
 
-    private static final long CACHE_EXPIRE_MINUTE = 2L;
+    public static final long CACHE_EXPIRE_MINUTE = 2L;
 
     @Id
     private final String id;
@@ -32,16 +30,5 @@ public class CityBusRouteCache {
         this.id = id;
         this.busNumbers.addAll(busNumbers);
         this.expiration = expiration;
-    }
-
-    public static CityBusRouteCache of(String nodeId, Set<CityBusRoute> busRoutes) {
-        return CityBusRouteCache.builder()
-            .id(nodeId)
-            .busNumbers(busRoutes.stream()
-                .map(CityBusRoute::routeno)
-                .collect(Collectors.toSet())
-            )
-            .expiration(CACHE_EXPIRE_MINUTE)
-            .build();
     }
 }
