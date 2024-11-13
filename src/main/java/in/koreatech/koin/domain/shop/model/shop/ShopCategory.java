@@ -41,6 +41,10 @@ public class ShopCategory extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Size(max = 255)
+    @Column(name = "event_banner_image_url")
+    private String eventBannerImageUrl;
+
     @OneToMany(mappedBy = "shopCategory", orphanRemoval = true, cascade = {PERSIST, REMOVE})
     private List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();
 
@@ -49,15 +53,17 @@ public class ShopCategory extends BaseEntity {
     private ShopParentCategory parentCategory;
 
     @Builder
-    private ShopCategory(String name, String imageUrl, ShopParentCategory parentCategory) {
+    private ShopCategory(String name, String imageUrl, ShopParentCategory parentCategory, String eventBannerImageUrl) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.parentCategory = parentCategory;
+        this.eventBannerImageUrl = eventBannerImageUrl;
     }
 
-    public void modifyShopCategory(String name, String imageUrl, ShopParentCategory parentCategory) {
+    public void modifyShopCategory(String name, String imageUrl, ShopParentCategory parentCategory, String eventBannerImageUrl) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.parentCategory = parentCategory;
+        this.eventBannerImageUrl = eventBannerImageUrl;
     }
 }

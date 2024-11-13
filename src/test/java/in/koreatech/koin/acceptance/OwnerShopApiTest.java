@@ -100,12 +100,12 @@ class OwnerShopApiTest extends AcceptanceTest {
     private Owner owner_준영;
     private String token_준영;
     private Shop shop_마슬랜;
+    private ShopNotificationMessage notificationMessage_가게;
+    private ShopParentCategory shopParentCategory_가게;
     private ShopCategory shopCategory_치킨;
     private ShopCategory shopCategory_일반;
     private MenuCategory menuCategory_메인;
     private MenuCategory menuCategory_사이드;
-    private ShopParentCategory shopParentCategory_가게;
-    private ShopNotificationMessage notificationMessage_가게;
 
     @BeforeAll
     void setUp() {
@@ -114,13 +114,13 @@ class OwnerShopApiTest extends AcceptanceTest {
         token_현수 = userFixture.getToken(owner_현수.getUser());
         owner_준영 = userFixture.준영_사장님();
         token_준영 = userFixture.getToken(owner_준영.getUser());
-        shop_마슬랜 = shopFixture.마슬랜(owner_현수);
-        menuCategory_메인 = menuCategoryFixture.메인메뉴(shop_마슬랜);
-        menuCategory_사이드 = menuCategoryFixture.사이드메뉴(shop_마슬랜);
         notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
         shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
         shopCategory_치킨 = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
         shopCategory_일반 = shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게);
+        shop_마슬랜 = shopFixture.마슬랜(owner_현수, shopCategory_치킨);
+        menuCategory_메인 = menuCategoryFixture.메인메뉴(shop_마슬랜);
+        menuCategory_사이드 = menuCategoryFixture.사이드메뉴(shop_마슬랜);
     }
 
     @Test
@@ -162,6 +162,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                     .content(String.format("""
                         {
                             "address": "대전광역시 유성구 대학로 291",
+                            "main_category_id": 1,
                             "category_ids": [
                                 %d
                             ],
@@ -287,6 +288,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                      "pay_bank": true,
                      "pay_card": true,
                      "phone": "010-7574-1212",
+                     "main_category_id": 1,
                      "shop_categories": [
                      ],
                      "updated_at": "2024-01-15",
@@ -640,6 +642,7 @@ class OwnerShopApiTest extends AcceptanceTest {
                     .content(String.format("""
                             {
                               "address": "충청남도 천안시 동남구 병천면 충절로 1600",
+                              "main_category_id": 1,
                               "category_ids": [
                                %d, %d
                               ],
@@ -682,6 +685,7 @@ class OwnerShopApiTest extends AcceptanceTest {
             assertSoftly(
                 softly -> {
                     softly.assertThat(result.getAddress()).isEqualTo("충청남도 천안시 동남구 병천면 충절로 1600");
+                    softly.assertThat(result.getShopMainCategory().getId()).isEqualTo(1);
                     softly.assertThat(result.isDeleted()).isFalse();
                     softly.assertThat(result.getDeliveryPrice()).isEqualTo(1000);
                     softly.assertThat(result.getDescription()).isEqualTo("이번주 전 메뉴 10% 할인 이벤트합니다.");

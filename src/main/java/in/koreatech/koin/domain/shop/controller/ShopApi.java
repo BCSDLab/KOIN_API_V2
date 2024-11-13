@@ -21,9 +21,10 @@ import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.review.ModifyReviewRequest;
 import in.koreatech.koin.domain.shop.dto.review.ReviewsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopEventsResponse;
 import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.review.ShopMyReviewsResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopEventsWithBannerUrlResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopEventsWithThumbnailUrlResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.review.ShopReviewReportCategoryResponse;
 import in.koreatech.koin.domain.shop.dto.review.ShopReviewReportRequest;
@@ -134,7 +135,7 @@ public interface ShopApi {
     )
     @Operation(summary = "특정 상점의 모든 이벤트 조회")
     @GetMapping("/shops/{shopId}/events")
-    ResponseEntity<ShopEventsResponse> getShopEvents(
+    ResponseEntity<ShopEventsWithThumbnailUrlResponse> getShopEvents(
         @PathVariable Integer shopId
     );
 
@@ -148,7 +149,7 @@ public interface ShopApi {
     )
     @Operation(summary = "모든 상점의 모든 이벤트 조회")
     @GetMapping("/shops/events")
-    ResponseEntity<ShopEventsResponse> getShopAllEvent();
+    ResponseEntity<ShopEventsWithBannerUrlResponse> getShopAllEvent();
 
     @ApiResponses(
         value = {

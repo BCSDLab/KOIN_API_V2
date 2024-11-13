@@ -56,6 +56,9 @@ public record ShopResponse(
     @Schema(example = "041-000-0000", description = "전화번호", requiredMode = NOT_REQUIRED)
     String phone,
 
+    @Schema(description = "메인 카테고리 고유 id", example = "2")
+    Integer mainCategoryId,
+
     @Schema(description = "소속된 상점 카테고리 리스트")
     List<InnerShopCategory> shopCategories,
 
@@ -102,6 +105,7 @@ public record ShopResponse(
             shop.isPayBank(),
             shop.isPayCard(),
             shop.getPhone(),
+            shop.getShopMainCategory() != null ? shop.getShopMainCategory().getId() : null,
             shop.getShopCategories().stream().map(shopCategoryMap -> {
                 ShopCategory shopCategory = shopCategoryMap.getShopCategory();
                 return new InnerShopCategory(

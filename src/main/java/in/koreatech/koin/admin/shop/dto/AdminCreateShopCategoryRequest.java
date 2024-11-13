@@ -17,7 +17,7 @@ import jakarta.validation.constraints.Size;
 public record AdminCreateShopCategoryRequest(
     @Schema(description = "이미지 URL", example = "https://static.koreatech.in/test.png", requiredMode = RequiredMode.REQUIRED)
     @NotBlank(message = "이미지 URL은 필수입니다.")
-    @Size(max = 100, message = "이미지 URL은 255자 이하로 입력해주세요.")
+    @Size(max = 255, message = "이미지 URL은 255자 이하로 입력해주세요.")
     String imageUrl,
 
     @Schema(description = "이름", example = "햄버거", requiredMode = RequiredMode.REQUIRED)
@@ -27,7 +27,11 @@ public record AdminCreateShopCategoryRequest(
 
     @Schema(description = "상위 카테고리 id", example = "1", requiredMode = REQUIRED)
     @NotNull(message = "상위 카테고리는 필수입니다.")
-    Integer parentCategoryId
+    Integer parentCategoryId,
+
+    @Schema(description = "이벤트 이미지 URL", example = "https://static.koreatech.in/test.png")
+    @Size(max = 255, message = "이벤트 이미지 URL은 255자 이하로 입력해주세요.")
+    String eventBannerImageUrl
 ) {
 
     public ShopCategory toShopCategory(ShopParentCategory shopParentCategory) {
@@ -35,6 +39,7 @@ public record AdminCreateShopCategoryRequest(
             .imageUrl(imageUrl)
             .name(name)
             .parentCategory(shopParentCategory)
+            .eventBannerImageUrl(eventBannerImageUrl)
             .build();
     }
 }

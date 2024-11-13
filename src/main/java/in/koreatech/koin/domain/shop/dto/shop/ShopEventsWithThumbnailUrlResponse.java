@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.article.EventArticle;
@@ -17,14 +17,14 @@ import in.koreatech.koin.domain.shop.model.article.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = SnakeCaseStrategy.class)
-public record ShopEventsResponse(
+@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record ShopEventsWithThumbnailUrlResponse(
 
     @Schema(description = "이벤트 목록")
     List<InnerShopEventResponse> events
 ) {
 
-    @JsonNaming(value = SnakeCaseStrategy.class)
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record InnerShopEventResponse(
         @Schema(description = "상점 ID", example = "1", requiredMode = REQUIRED)
         Integer shopId,
@@ -71,20 +71,7 @@ public record ShopEventsResponse(
         }
     }
 
-    public static ShopEventsResponse of(List<Shop> shops, Clock clock) {
-        List<InnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
-        for (Shop shop : shops) {
-            for (EventArticle eventArticle : shop.getEventArticles()) {
-                if (!eventArticle.getStartDate().isAfter(LocalDate.now(clock)) &&
-                    !eventArticle.getEndDate().isBefore(LocalDate.now(clock))) {
-                    innerShopEventResponses.add(InnerShopEventResponse.from(eventArticle));
-                }
-            }
-        }
-        return new ShopEventsResponse(innerShopEventResponses);
-    }
-
-    public static ShopEventsResponse of(Shop shop, Clock clock) {
+    public static ShopEventsWithThumbnailUrlResponse of(Shop shop, Clock clock) {
         List<InnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
         for (EventArticle eventArticle : shop.getEventArticles()) {
             if (!eventArticle.getStartDate().isAfter(LocalDate.now(clock)) &&
@@ -92,6 +79,6 @@ public record ShopEventsResponse(
                 innerShopEventResponses.add(InnerShopEventResponse.from(eventArticle));
             }
         }
-        return new ShopEventsResponse(innerShopEventResponses);
+        return new ShopEventsWithThumbnailUrlResponse(innerShopEventResponses);
     }
 }

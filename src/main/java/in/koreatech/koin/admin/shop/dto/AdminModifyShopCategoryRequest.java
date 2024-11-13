@@ -25,7 +25,11 @@ public record AdminModifyShopCategoryRequest(
 
     @Schema(description = "상위 카테고리 id", example = "1", requiredMode = REQUIRED)
     @NotNull(message = "상위 카테고리는 필수입니다.")
-    Integer parentCategoryId
+    Integer parentCategoryId,
+
+    @Schema(description = "이벤트 이미지 URL", example = "https://static.koreatech.in/test.png")
+    @Size(max = 255, message = "이벤트 이미지 URL은 255자 이하로 입력해주세요.")
+    String eventBannerImageUrl
 ) {
 
 }

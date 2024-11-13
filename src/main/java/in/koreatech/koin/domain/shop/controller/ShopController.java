@@ -16,7 +16,8 @@ import in.koreatech.koin.domain.shop.dto.review.ShopReviewResponse;
 import in.koreatech.koin.domain.shop.dto.review.ShopReviewsResponse;
 import in.koreatech.koin.domain.shop.dto.search.RelatedKeyword;
 import in.koreatech.koin.domain.shop.dto.shop.ShopCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopEventsResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopEventsWithBannerUrlResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopEventsWithThumbnailUrlResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
@@ -97,7 +98,7 @@ public class ShopController implements ShopApi {
     }
 
     @GetMapping("/shops/{shopId}/events")
-    public ResponseEntity<ShopEventsResponse> getShopEvents(
+    public ResponseEntity<ShopEventsWithThumbnailUrlResponse> getShopEvents(
         @PathVariable Integer shopId
     ) {
         var response = shopService.getShopEvents(shopId);
@@ -105,7 +106,7 @@ public class ShopController implements ShopApi {
     }
 
     @GetMapping("/shops/events")
-    public ResponseEntity<ShopEventsResponse> getShopAllEvent() {
+    public ResponseEntity<ShopEventsWithBannerUrlResponse> getShopAllEvent() {
         var response = shopService.getAllEvents();
         return ResponseEntity.ok(response);
     }
