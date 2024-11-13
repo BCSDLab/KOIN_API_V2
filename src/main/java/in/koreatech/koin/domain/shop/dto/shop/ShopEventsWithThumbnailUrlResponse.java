@@ -7,26 +7,24 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.article.EventArticle;
 import in.koreatech.koin.domain.shop.model.article.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = SnakeCaseStrategy.class)
-public record ShopEventsResponse(
+@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record ShopEventsWithThumbnailUrlResponse(
 
     @Schema(description = "이벤트 목록")
     List<InnerShopEventResponse> events
 ) {
 
-    @JsonNaming(value = SnakeCaseStrategy.class)
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record InnerShopEventResponse(
         @Schema(description = "상점 ID", example = "1", requiredMode = REQUIRED)
         Integer shopId,
@@ -57,24 +55,7 @@ public record ShopEventsResponse(
         LocalDate endDate
     ) {
 
-        public static InnerShopEventResponse fromWithEventUrl(EventArticle eventArticle, Shop shop) {
-            return new InnerShopEventResponse(
-                shop.getId(),
-                shop.getName(),
-                eventArticle.getId(),
-                eventArticle.getTitle(),
-                eventArticle.getContent(),
-                Optional.ofNullable(shop)
-                    .map(Shop::getShopMainCategory)
-                    .map(ShopCategory::getEventImageUrl)
-                    .map(List::of)
-                    .orElse(null),
-                eventArticle.getStartDate(),
-                eventArticle.getEndDate()
-            );
-        }
-
-        public static InnerShopEventResponse fromWithThumbnailUrl(EventArticle eventArticle) {
+        public static InnerShopEventResponse from(EventArticle eventArticle) {
             return new InnerShopEventResponse(
                 eventArticle.getShop().getId(),
                 eventArticle.getShop().getName(),
@@ -90,27 +71,14 @@ public record ShopEventsResponse(
         }
     }
 
-    public static ShopEventsResponse of(List<Shop> shops, Clock clock) {
-        List<InnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
-        for (Shop shop : shops) {
-            for (EventArticle eventArticle : shop.getEventArticles()) {
-                if (!eventArticle.getStartDate().isAfter(LocalDate.now(clock)) &&
-                    !eventArticle.getEndDate().isBefore(LocalDate.now(clock))) {
-                    innerShopEventResponses.add(InnerShopEventResponse.fromWithEventUrl(eventArticle, shop));
-                }
-            }
-        }
-        return new ShopEventsResponse(innerShopEventResponses);
-    }
-
-    public static ShopEventsResponse of(Shop shop, Clock clock) {
+    public static ShopEventsWithThumbnailUrlResponse of(Shop shop, Clock clock) {
         List<InnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
         for (EventArticle eventArticle : shop.getEventArticles()) {
             if (!eventArticle.getStartDate().isAfter(LocalDate.now(clock)) &&
                 !eventArticle.getEndDate().isBefore(LocalDate.now(clock))) {
-                innerShopEventResponses.add(InnerShopEventResponse.fromWithThumbnailUrl(eventArticle));
+                innerShopEventResponses.add(InnerShopEventResponse.from(eventArticle));
             }
         }
-        return new ShopEventsResponse(innerShopEventResponses);
+        return new ShopEventsWithThumbnailUrlResponse(innerShopEventResponses);
     }
 }

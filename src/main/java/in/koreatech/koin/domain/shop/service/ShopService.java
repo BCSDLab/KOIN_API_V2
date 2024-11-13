@@ -8,7 +8,8 @@ import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopEventsResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopEventsWithBannerUrlResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopEventsWithThumbnailUrlResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
@@ -103,14 +104,14 @@ public class ShopService {
         return ShopCategoriesResponse.from(shopCategories);
     }
 
-    public ShopEventsResponse getShopEvents(Integer shopId) {
+    public ShopEventsWithThumbnailUrlResponse getShopEvents(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
-        return ShopEventsResponse.of(shop, clock);
+        return ShopEventsWithThumbnailUrlResponse.of(shop, clock);
     }
 
-    public ShopEventsResponse getAllEvents() {
+    public ShopEventsWithBannerUrlResponse getAllEvents() {
         List<Shop> shops = shopRepository.findAll();
-        return ShopEventsResponse.of(shops, clock);
+        return ShopEventsWithBannerUrlResponse.of(shops, clock);
     }
 
     public ShopsResponseV2 getShopsV2(
