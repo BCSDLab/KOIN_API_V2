@@ -57,14 +57,14 @@ public record ShopEventsResponse(
         LocalDate endDate
     ) {
 
-        public static InnerShopEventResponse fromWithEventUrl(EventArticle eventArticle) {
+        public static InnerShopEventResponse fromWithEventUrl(EventArticle eventArticle, Shop shop) {
             return new InnerShopEventResponse(
-                eventArticle.getShop().getId(),
-                eventArticle.getShop().getName(),
+                shop.getId(),
+                shop.getName(),
                 eventArticle.getId(),
                 eventArticle.getTitle(),
                 eventArticle.getContent(),
-                Optional.ofNullable(eventArticle.getShop())
+                Optional.ofNullable(shop)
                     .map(Shop::getShopMainCategory)
                     .map(ShopCategory::getEventImageUrl)
                     .map(List::of)
@@ -96,7 +96,7 @@ public record ShopEventsResponse(
             for (EventArticle eventArticle : shop.getEventArticles()) {
                 if (!eventArticle.getStartDate().isAfter(LocalDate.now(clock)) &&
                     !eventArticle.getEndDate().isBefore(LocalDate.now(clock))) {
-                    innerShopEventResponses.add(InnerShopEventResponse.fromWithEventUrl(eventArticle));
+                    innerShopEventResponses.add(InnerShopEventResponse.fromWithEventUrl(eventArticle, shop));
                 }
             }
         }
