@@ -7,6 +7,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.shop.model.article.EventArticle;
 import in.koreatech.koin.domain.shop.model.article.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -62,9 +64,11 @@ public record ShopEventsResponse(
                 eventArticle.getId(),
                 eventArticle.getTitle(),
                 eventArticle.getContent(),
-                eventArticle.getThumbnailImages()
-                    .stream().map(EventArticleImage::getThumbnailImage)
-                    .toList(),
+                Optional.ofNullable(eventArticle.getShop())
+                    .map(Shop::getShopMainCategory)
+                    .map(ShopCategory::getEventImageUrl)
+                    .map(List::of)
+                    .orElse(null),
                 eventArticle.getStartDate(),
                 eventArticle.getEndDate()
             );
