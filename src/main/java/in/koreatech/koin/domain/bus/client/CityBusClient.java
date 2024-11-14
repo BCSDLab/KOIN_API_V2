@@ -43,37 +43,13 @@ public class CityBusClient {
     private static final String CHEONAN_CITY_CODE = "34010";
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList";
 
-    private final VersionRepository versionRepository;
-    private final CityBusCacheRepository cityBusCacheRepository;
     private final RestTemplate restTemplate;
-    private final Clock clock;
 
     @Value("${OPEN_API_KEY_PUBLIC}")
     private String openApiKey;
 
-    @Transactional
     @CircuitBreaker(name = "cityBus")
-    public void storeRemainTime() {
-        List<List<CityBusArrival>> arrivalInfosList = new ArrayList<>();
-        BusStationNode.getNodeIds().forEach((nodeId) -> {
-            try {
-                arrivalInfosList.add(getOpenApiResponse(nodeId).extractBusArrivalInfo());
-            } catch (BusOpenApiException ignored) {
-            }
-        });
-        LocalDateTime updatedAt = LocalDateTime.now(clock);
-        arrivalInfosList.forEach((arrivalInfos) -> cityBusCacheRepository.save(
-            CityBusCache.of(
-                arrivalInfos.get(0).nodeid(),
-                arrivalInfos.stream()
-                    .map(busArrivalInfo -> busArrivalInfo.toCityBusCacheInfo(updatedAt))
-                    .toList()
-            )
-        ));
-        versionRepository.getByType(VersionType.CITY).update(clock);
-    }
-
-    private CityBusApiResponse getOpenApiResponse(String nodeId) {
+    public CityBusApiResponse getOpenApiResponse(String nodeId) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);

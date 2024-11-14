@@ -37,25 +37,13 @@ public class CityBusRouteClient {
     private static final String CHEONAN_CITY_CODE = "34010";
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/BusSttnInfoInqireService/getSttnThrghRouteList";
 
-    private final CityBusRouteCacheRepository cityBusRouteCacheRepository;
     private final RestTemplate restTemplate;
 
     @Value("${OPEN_API_KEY_PUBLIC}")
     private String openApiKey;
 
-    @Transactional
     @CircuitBreaker(name = "cityBusRoute")
-    public void storeCityBusRoute() {
-        BusStationNode.getNodeIds().forEach((nodeId) -> {
-            try {
-                Set<CityBusRoute> routes = Set.copyOf(getOpenApiResponse(nodeId).extractBusRouteInfo());
-                cityBusRouteCacheRepository.save(CityBusRoute.toCityBusRouteCache(nodeId, routes));
-            } catch (BusOpenApiException ignored) {
-            }
-        });
-    }
-
-    private CityBusRouteApiResponse getOpenApiResponse(String nodeId) {
+    public CityBusRouteApiResponse getOpenApiResponse(String nodeId) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
