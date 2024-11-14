@@ -79,6 +79,13 @@ public class TimetableFrameServiceV2 {
             .toList();
     }
 
+    @Transactional
+    public void deleteAllTimetablesFrame(Integer userId, String semester) {
+        User user = userRepository.getById(userId);
+        Semester timetableSemester = semesterRepositoryV2.getBySemester(semester);
+        timetableFrameRepositoryV2.deleteAllByUserAndSemester(user, timetableSemester);
+    }
+
     /*TODO. 락 3개 찾아보기 - 신관규*/
     @ConcurrencyGuard(lockName = "deleteFrame")
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {

@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class TimetableControllerV2 implements TimetableApiV2 {
-    private final TimetableFrameServiceV2 timetableFrameServiceV2;
+    private final TimetableFrameServiceV2 frameServiceV2;
     private final TimetableLectureServiceV2 lectureServiceV2;
 
     @PostMapping("/v2/timetables/frame")
@@ -38,7 +38,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @Valid @RequestBody TimetableFrameCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableFrameResponse response = timetableFrameServiceV2.createTimetablesFrame(userId, request);
+        TimetableFrameResponse response = frameServiceV2.createTimetablesFrame(userId, request);
         return ResponseEntity.ok(response);
     }
 
@@ -49,7 +49,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @Auth(permit = {STUDENT}) Integer userId
     ) {
         TimetableFrameUpdateResponse timetableFrameUpdateResponse =
-            timetableFrameServiceV2.updateTimetableFrame(request, timetableFrameId, userId);
+            frameServiceV2.updateTimetableFrame(request, timetableFrameId, userId);
         return ResponseEntity.ok(timetableFrameUpdateResponse);
     }
 
@@ -58,7 +58,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        List<TimetableFrameResponse> timeTableFrameResponse = timetableFrameServiceV2.getTimetablesFrame(userId,
+        List<TimetableFrameResponse> timeTableFrameResponse = frameServiceV2.getTimetablesFrame(userId,
             semester);
         return ResponseEntity.ok(timeTableFrameResponse);
     }
@@ -68,7 +68,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @RequestParam(name = "id") Integer frameId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        timetableFrameServiceV2.deleteTimetablesFrame(userId, frameId);
+        frameServiceV2.deleteTimetablesFrame(userId, frameId);
         return ResponseEntity.noContent().build();
     }
 
@@ -77,7 +77,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        lectureServiceV2.deleteAllTimetablesFrame(userId, semester);
+        frameServiceV2.deleteAllTimetablesFrame(userId, semester);
         return ResponseEntity.noContent().build();
     }
 

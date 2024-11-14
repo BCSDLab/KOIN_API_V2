@@ -92,13 +92,6 @@ public class TimetableLectureServiceV2 {
     }
 
     @Transactional
-    public void deleteAllTimetablesFrame(Integer userId, String semester) {
-        User user = userRepository.getById(userId);
-        Semester timetableSemester = semesterRepositoryV2.getBySemester(semester);
-        timetableFrameRepositoryV2.deleteAllByUserAndSemester(user, timetableSemester);
-    }
-
-    @Transactional
     public void deleteTimetableLectures(List<Integer> request, Integer userId) {
         for (int timetablesLectureId : request) {
             TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetablesLectureId);
