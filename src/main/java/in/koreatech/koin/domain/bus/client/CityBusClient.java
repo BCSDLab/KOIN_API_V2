@@ -1,10 +1,16 @@
 package in.koreatech.koin.domain.bus.client;
 
+import static java.net.URLEncoder.encode;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.net.URI;
+import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,10 +22,11 @@ import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.domain.bus.dto.city.CityBusApiResponse;
 import in.koreatech.koin.domain.bus.dto.city.CityBusArrival;
+import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
+import in.koreatech.koin.domain.bus.exception.MalformedApiUriException;
 import in.koreatech.koin.domain.bus.model.city.CityBusCache;
 import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
-import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -33,17 +40,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CityBusClient {
 
+    private static final String CHEONAN_CITY_CODE = "34010";
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList";
 
     private final VersionRepository versionRepository;
     private final CityBusCacheRepository cityBusCacheRepository;
     private final RestTemplate restTemplate;
-    private final URIProvider uriProvider;
     private final Clock clock;
+
+    @Value("${OPEN_API_KEY_PUBLIC}")
+    private String openApiKey;
 
     @Transactional
     @CircuitBreaker(name = "cityBus")
-    // TODO: 가독성 개선
     public void storeRemainTime() {
         List<List<CityBusArrival>> arrivalInfosList = new ArrayList<>();
         BusStationNode.getNodeIds().forEach((nodeId) -> {
@@ -70,7 +79,7 @@ public class CityBusClient {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Accept", "*/*");
             ResponseEntity<CityBusApiResponse> response = restTemplate.exchange(
-                uriProvider.getRequestURI(OPEN_API_URL, nodeId, "30"),
+                getRequestURI(nodeId),
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 CityBusApiResponse.class
@@ -78,6 +87,22 @@ public class CityBusClient {
             return response.getBody();
         } catch (Exception ignored) {
             throw BusOpenApiException.withDetail("nodeId : " + nodeId);
+        }
+    }
+
+    private URI getRequestURI(String nodeId) {
+        String uriString = MessageFormat.format(
+            "{0}?serviceKey={1}&numOfRows={2}&cityCode={3}&nodeId={4}&_type=json",
+            OPEN_API_URL,
+            encode(openApiKey, UTF_8),
+            encode("30", UTF_8),
+            encode(CHEONAN_CITY_CODE, UTF_8),
+            encode(nodeId, UTF_8)
+        );
+        try {
+            return new URI(uriString);
+        } catch (Exception e) {
+            throw MalformedApiUriException.withDetail("uri: " + uriString);
         }
     }
 }

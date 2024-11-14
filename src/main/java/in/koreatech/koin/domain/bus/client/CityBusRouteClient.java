@@ -1,7 +1,13 @@
 package in.koreatech.koin.domain.bus.client;
 
+import static java.net.URLEncoder.encode;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.net.URI;
+import java.text.MessageFormat;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -13,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.domain.bus.dto.city.CityBusRoute;
 import in.koreatech.koin.domain.bus.dto.city.CityBusRouteApiResponse;
+import in.koreatech.koin.domain.bus.exception.MalformedApiUriException;
 import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
 import in.koreatech.koin.domain.bus.repository.CityBusRouteCacheRepository;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
@@ -27,11 +34,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CityBusRouteClient {
 
+    private static final String CHEONAN_CITY_CODE = "34010";
     private static final String OPEN_API_URL = "https://apis.data.go.kr/1613000/BusSttnInfoInqireService/getSttnThrghRouteList";
 
     private final CityBusRouteCacheRepository cityBusRouteCacheRepository;
     private final RestTemplate restTemplate;
-    private final URIProvider uriProvider;
+
+    @Value("${OPEN_API_KEY_PUBLIC}")
+    private String openApiKey;
 
     @Transactional
     @CircuitBreaker(name = "cityBusRoute")
@@ -51,7 +61,7 @@ public class CityBusRouteClient {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Accept", "*/*");
             ResponseEntity<CityBusRouteApiResponse> response = restTemplate.exchange(
-                uriProvider.getRequestURI(OPEN_API_URL, nodeId, "50"),
+                getRequestURI(nodeId),
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 CityBusRouteApiResponse.class
@@ -59,6 +69,22 @@ public class CityBusRouteClient {
             return response.getBody();
         } catch (Exception ignored) {
             throw BusOpenApiException.withDetail("nodeId: " + nodeId);
+        }
+    }
+
+    private URI getRequestURI(String nodeId) {
+        String uriString = MessageFormat.format(
+            "{0}?serviceKey={1}&numOfRows={2}&cityCode={3}&nodeId={4}&_type=json",
+            OPEN_API_URL,
+            encode(openApiKey, UTF_8),
+            encode("30", UTF_8),
+            encode(CHEONAN_CITY_CODE, UTF_8),
+            encode(nodeId, UTF_8)
+        );
+        try {
+            return new URI(uriString);
+        } catch (Exception e) {
+            throw MalformedApiUriException.withDetail("uri: " + uriString);
         }
     }
 }
