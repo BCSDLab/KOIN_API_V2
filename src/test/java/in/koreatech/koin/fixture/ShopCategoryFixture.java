@@ -23,6 +23,7 @@ public class ShopCategoryFixture {
                 .imageUrl("https://test-image.com/ckicken.jpg")
                 .orderIndex(2)
                 .parentCategory(parentCategory)
+                .eventBannerImageUrl("https://test-image.com/chicken-event.jpg")
                 .build()
         );
     }
@@ -34,6 +35,7 @@ public class ShopCategoryFixture {
                 .imageUrl("https://test-image.com/normal.jpg")
                 .orderIndex(1)
                 .parentCategory(parentCategory)
+                .eventBannerImageUrl("https://test-image.com/normal-event.jpg")
                 .build()
         );
     }

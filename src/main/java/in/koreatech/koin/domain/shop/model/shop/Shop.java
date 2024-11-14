@@ -7,6 +7,7 @@ import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.domain.shop.model.menu.Menu;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
@@ -113,6 +114,10 @@ public class Shop extends BaseEntity {
     @Column(name = "hit", nullable = false)
     private Integer hit;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "main_category_id", referencedColumnName = "id")
+    private ShopCategory shopMainCategory;
+
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private Set<ShopCategoryMap> shopCategories = new HashSet<>();
 
@@ -121,6 +126,9 @@ public class Shop extends BaseEntity {
 
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<ShopImage> shopImages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
+    private List<Menu> menus = new ArrayList<>();
 
     @OneToMany(mappedBy = "shop", orphanRemoval = true, cascade = {PERSIST, REFRESH, MERGE, REMOVE})
     private List<MenuCategory> menuCategories = new ArrayList<>();
@@ -157,7 +165,8 @@ public class Shop extends BaseEntity {
         String remarks,
         Integer hit,
         String bank,
-        String accountNumber
+        String accountNumber,
+        ShopCategory shopMainCategory
     ) {
         this.owner = owner;
         this.name = name;
@@ -176,6 +185,7 @@ public class Shop extends BaseEntity {
         this.hit = hit;
         this.bank = bank;
         this.accountNumber = accountNumber;
+        this.shopMainCategory = shopMainCategory;
     }
 
     public void modifyShop(
@@ -188,7 +198,8 @@ public class Shop extends BaseEntity {
         Boolean payCard,
         boolean payBank,
         String bank,
-        String accountNumber
+        String accountNumber,
+        ShopCategory shopMainCategory
     ) {
         this.address = address;
         this.delivery = delivery;
@@ -200,6 +211,7 @@ public class Shop extends BaseEntity {
         this.phone = phone;
         this.bank = bank;
         this.accountNumber = accountNumber;
+        this.shopMainCategory = shopMainCategory;
     }
 
     public boolean isOpen(LocalDateTime now) {

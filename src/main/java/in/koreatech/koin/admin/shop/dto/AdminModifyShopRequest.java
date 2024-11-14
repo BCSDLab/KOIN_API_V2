@@ -31,7 +31,11 @@ public record AdminModifyShopRequest(
     @Size(min = 1, max = 100, message = "주소는 1자 이상, 100자 이하로 입력해주세요.")
     String address,
 
-    @Schema(description = "상점 카테고리 고유 id 리스트", example = "[1, 2]", requiredMode = REQUIRED)
+    @Schema(description = "메인 카테고리 고유 id", example = "2", requiredMode = REQUIRED)
+    @NotNull(message = "메인 카테고리는 필수입니다.")
+    Integer mainCategoryId,
+
+    @Schema(description = "상점 카테고리 고유 id 리스트(메인 카테고리 포함)", example = "[1, 2]", requiredMode = REQUIRED)
     @NotNull(message = "카테고리는 필수입니다.")
     @UniqueId(message = "카테고리 ID는 중복될 수 없습니다.")
     @Size(min = 1, message = "최소 한 개의 카테고리가 필요합니다.")

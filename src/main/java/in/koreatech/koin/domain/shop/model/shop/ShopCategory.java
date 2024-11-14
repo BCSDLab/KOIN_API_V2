@@ -43,6 +43,10 @@ public class ShopCategory extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Size(max = 255)
+    @Column(name = "event_banner_image_url")
+    private String eventBannerImageUrl;
+
     @NotNull
     @PositiveOrZero
     @Column(name = "order_index", nullable = false)
@@ -56,17 +60,25 @@ public class ShopCategory extends BaseEntity {
     private ShopParentCategory parentCategory;
 
     @Builder
-    private ShopCategory(String name, String imageUrl, Integer orderIndex, ShopParentCategory parentCategory) {
+    private ShopCategory(
+        String name,
+        String imageUrl,
+        ShopParentCategory parentCategory,
+        String eventBannerImageUrl,
+        Integer orderIndex
+    ) {
         this.name = name;
         this.imageUrl = imageUrl;
-        this.orderIndex = orderIndex == null ? 0 : orderIndex;
         this.parentCategory = parentCategory;
+        this.eventBannerImageUrl = eventBannerImageUrl;
+        this.orderIndex = orderIndex == null ? 0 : orderIndex;
     }
 
-    public void modifyShopCategory(String name, String imageUrl, ShopParentCategory parentCategory) {
+    public void modifyShopCategory(String name, String imageUrl, ShopParentCategory parentCategory, String eventBannerImageUrl) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.parentCategory = parentCategory;
+        this.eventBannerImageUrl = eventBannerImageUrl;
     }
 
     public void modifyOrderIndex(Integer orderIndex) {

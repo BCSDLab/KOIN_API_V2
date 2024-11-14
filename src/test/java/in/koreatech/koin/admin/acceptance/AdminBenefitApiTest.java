@@ -22,9 +22,15 @@ import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
+import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.fixture.BenefitCategoryFixture;
 import in.koreatech.koin.fixture.BenefitCategoryMapFixture;
+import in.koreatech.koin.fixture.ShopCategoryFixture;
 import in.koreatech.koin.fixture.ShopFixture;
+import in.koreatech.koin.fixture.ShopNotificationMessageFixture;
+import in.koreatech.koin.fixture.ShopParentCategoryFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
 @Transactional
@@ -49,6 +55,15 @@ public class AdminBenefitApiTest extends AcceptanceTest {
     @Autowired
     UserFixture userFixture;
 
+    @Autowired
+    ShopParentCategoryFixture shopParentCategoryFixture;
+
+    @Autowired
+    ShopCategoryFixture shopCategoryFixture;
+
+    @Autowired
+    ShopNotificationMessageFixture shopNotificationMessageFixture;
+
     Admin admin;
     String token_admin;
     Owner 현수_사장님;
@@ -63,6 +78,11 @@ public class AdminBenefitApiTest extends AcceptanceTest {
     Shop 영업중인_티바;
     Shop 영업중이_아닌_신전_떡볶이;
 
+    private ShopParentCategory shopParentCategory_가게;
+    private ShopNotificationMessage notificationMessage_가게;
+    private ShopCategory shopCategory_치킨;
+    private ShopCategory shopCategory_일반;
+
     @BeforeAll
     void setup() {
         clear();
@@ -74,8 +94,8 @@ public class AdminBenefitApiTest extends AcceptanceTest {
         서비스_증정 = benefitCategoryFixture.서비스_증정();
         가게까지_픽업 = benefitCategoryFixture.가게까지_픽업();
 
-        마슬랜 = shopFixture.마슬랜(현수_사장님);
-        김밥천국 = shopFixture.김밥천국(현수_사장님);
+        마슬랜 = shopFixture.마슬랜(현수_사장님, shopCategory_치킨);
+        김밥천국 = shopFixture.김밥천국(현수_사장님, shopCategory_일반);
         영업중인_티바 = shopFixture.영업중인_티바(현수_사장님);
         영업중이_아닌_신전_떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(현수_사장님);
 
@@ -83,6 +103,10 @@ public class AdminBenefitApiTest extends AcceptanceTest {
         benefitCategoryMapFixture.혜택_추가(마슬랜, 배달비_무료);
         benefitCategoryMapFixture.혜택_추가(영업중인_티바, 배달비_무료);
         benefitCategoryMapFixture.혜택_추가(영업중이_아닌_신전_떡볶이, 배달비_무료);
+
+        notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
+        shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
+        shopCategory_치킨 = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
     }
 
     @Test

@@ -13,11 +13,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.shop.cache.ShopsCacheService;
+import in.koreatech.koin.domain.shop.cache.dto.ShopsCache;
 import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
 import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopEventsResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopEventsWithBannerUrlResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopEventsWithThumbnailUrlResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
@@ -55,6 +58,7 @@ public class ShopService {
     private final ShopRepository shopRepository;
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
+    private final ShopsCacheService shopsCache;
     private final ShopCustomRepository shopCustomRepository;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
     private final ShopNotificationBufferRepository shopNotificationBufferRepository;
@@ -103,24 +107,35 @@ public class ShopService {
         return ShopCategoriesResponse.from(shopCategories);
     }
 
-    public ShopEventsResponse getShopEvents(Integer shopId) {
+    public ShopEventsWithThumbnailUrlResponse getShopEvents(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
-        return ShopEventsResponse.of(shop, clock);
+        return ShopEventsWithThumbnailUrlResponse.of(shop, clock);
     }
 
-    public ShopEventsResponse getAllEvents() {
+    public ShopEventsWithBannerUrlResponse getAllEvents() {
         List<Shop> shops = shopRepository.findAll();
-        return ShopEventsResponse.of(shops, clock);
+        return ShopEventsWithBannerUrlResponse.of(shops, clock);
     }
 
-    public ShopsResponseV2 getShopsV2(ShopsSortCriteria sortBy, List<ShopsFilterCriteria> shopsFilterCriterias) {
+    public ShopsResponseV2 getShopsV2(
+        ShopsSortCriteria sortBy,
+        List<ShopsFilterCriteria> shopsFilterCriterias,
+        String query
+    ) {
         if (shopsFilterCriterias.contains(null)) {
             throw KoinIllegalArgumentException.withDetail("유효하지 않은 필터입니다.");
         }
-        List<Shop> shops = shopRepository.findAll();
+        ShopsCache shopCaches = shopsCache.findAllShopCache();
         LocalDateTime now = LocalDateTime.now(clock);
         Map<Integer, ShopInfoV2> shopInfoMap = shopCustomRepository.findAllShopInfo(now);
-        return ShopsResponseV2.from(shops, shopInfoMap, sortBy, shopsFilterCriterias, now);
+        return ShopsResponseV2.from(
+            shopCaches.shopCaches(),
+            shopInfoMap,
+            sortBy,
+            shopsFilterCriterias,
+            now,
+            query
+        );
     }
 
     @Transactional

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.ShopImage;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
@@ -24,10 +25,11 @@ public final class ShopFixture {
         this.shopRepository = shopRepository;
     }
 
-    public Shop 김밥천국(Owner owner) {
+    public Shop 김밥천국(Owner owner, ShopCategory shopMainCategory) {
         var shop = shopRepository.save(
             Shop.builder()
                 .owner(owner)
+                .shopMainCategory(shopMainCategory)
                 .name("김밥천국")
                 .internalName("김천")
                 .chosung("김")
@@ -79,10 +81,11 @@ public final class ShopFixture {
         return shopRepository.save(shop);
     }
 
-    public Shop 마슬랜(Owner owner) {
+    public Shop 마슬랜(Owner owner, ShopCategory shopMainCategory) {
         var shop = shopRepository.save(
             Shop.builder()
                 .owner(owner)
+                .shopMainCategory(shopMainCategory)
                 .name("마슬랜 치킨")
                 .internalName("마슬랜")
                 .chosung("마")

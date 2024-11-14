@@ -1,12 +1,12 @@
 package in.koreatech.koin.domain.shop.repository.shop;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.data.repository.Repository;
-
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 public interface ShopRepository extends Repository<Shop, Integer> {
 
@@ -29,4 +29,7 @@ public interface ShopRepository extends Repository<Shop, Integer> {
     }
 
     List<Shop> findAll();
+
+    @Query("SELECT s FROM Shop s WHERE s.name LIKE %:query%")
+    List<Shop> findDistinctNameContains(@Param("query") String query);
 }

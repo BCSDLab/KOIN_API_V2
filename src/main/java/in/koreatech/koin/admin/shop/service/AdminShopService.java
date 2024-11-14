@@ -122,7 +122,8 @@ public class AdminShopService {
 
     @Transactional
     public void createShop(AdminCreateShopRequest adminCreateShopRequest) {
-        Shop shop = adminCreateShopRequest.toShop();
+        ShopCategory shopMainCategory = adminShopCategoryRepository.getById(adminCreateShopRequest.mainCategoryId());
+        Shop shop = adminCreateShopRequest.toShop(shopMainCategory);
         Shop savedShop = adminShopRepository.save(shop);
         List<String> categoryNames = List.of("추천 메뉴", "메인 메뉴", "세트 메뉴", "사이드 메뉴");
         for (String categoryName : categoryNames) {
@@ -173,8 +174,8 @@ public class AdminShopService {
 
     @Transactional
     public void createMenu(Integer shopId, AdminCreateMenuRequest adminCreateMenuRequest) {
-        adminShopRepository.getById(shopId);
-        Menu menu = adminCreateMenuRequest.toEntity(shopId);
+        Shop shop = adminShopRepository.getById(shopId);
+        Menu menu = adminCreateMenuRequest.toEntity(shop);
         Menu savedMenu = adminMenuRepository.save(menu);
         for (Integer categoryId : adminCreateMenuRequest.categoryIds()) {
             MenuCategory menuCategory = adminMenuCategoryRepository.getById(categoryId);
@@ -231,6 +232,7 @@ public class AdminShopService {
     @Transactional
     public void modifyShop(Integer shopId, AdminModifyShopRequest adminModifyShopRequest) {
         Shop shop = adminShopRepository.getById(shopId);
+        ShopCategory shopMainCategory = adminShopCategoryRepository.getById(adminModifyShopRequest.mainCategoryId());
         shop.modifyShop(
             adminModifyShopRequest.name(),
             adminModifyShopRequest.phone(),
@@ -241,7 +243,8 @@ public class AdminShopService {
             adminModifyShopRequest.payCard(),
             adminModifyShopRequest.payBank(),
             adminModifyShopRequest.bank(),
-            adminModifyShopRequest.accountNumber()
+            adminModifyShopRequest.accountNumber(),
+            shopMainCategory
         );
         shop.modifyShopCategories(
             adminShopCategoryRepository.findAllByIdIn(adminModifyShopRequest.categoryIds()),
@@ -260,7 +263,8 @@ public class AdminShopService {
         shopCategory.modifyShopCategory(
             adminModifyShopCategoryRequest.name(),
             adminModifyShopCategoryRequest.imageUrl(),
-            shopParentCategory
+            shopParentCategory,
+            adminModifyShopCategoryRequest.eventBannerImageUrl()
         );
     }
 
@@ -346,7 +350,7 @@ public class AdminShopService {
     @Transactional
     public void deleteMenu(Integer shopId, Integer menuId) {
         Menu menu = adminMenuRepository.getById(menuId);
-        if (!Objects.equals(menu.getShopId(), shopId)) {
+        if (!Objects.equals(menu.getShop().getId(), shopId)) {
             throw new KoinIllegalArgumentException("해당 상점의 카테고리가 아닙니다.");
         }
         adminMenuRepository.deleteById(menuId);
