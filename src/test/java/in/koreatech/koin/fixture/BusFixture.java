@@ -6,11 +6,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.bus.shuttle.model.BusCourse;
-import in.koreatech.koin.domain.bus.city.model.CityBusTimetable;
-import in.koreatech.koin.domain.bus.shuttle.model.Route;
-import in.koreatech.koin.domain.bus.shuttle.repository.SchoolBusRepository;
-import in.koreatech.koin.domain.bus.city.repository.CityBusTimetableRepository;
+import in.koreatech.koin.domain.bus.model.shuttle.BusCourse;
+import in.koreatech.koin.domain.bus.model.city.CityBusTimetable;
+import in.koreatech.koin.domain.bus.model.shuttle.Route;
+import in.koreatech.koin.domain.bus.repository.SchoolBusRepository;
+import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
