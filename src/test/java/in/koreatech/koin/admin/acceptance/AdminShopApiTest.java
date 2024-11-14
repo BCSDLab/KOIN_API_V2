@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -221,25 +222,16 @@ class AdminShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 어드민이_상점의_모든_카테고리를_조회한다() throws Exception {
-        for (int i = 0; i < 12; i++) {
-            ShopCategory request = ShopCategory.builder()
-                .name("카테고리" + i)
-                .build();
-            adminShopCategoryRepository.save(request);
-        }
-
+    void 어드민이_상점의_등록된_순서가_아닌_정렬된_모든_카테고리를_조회한다() throws Exception {
         mockMvc.perform(
                 get("/admin/shops/categories")
                     .header("Authorization", "Bearer " + token_admin)
-                    .param("page", "1")
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.total_count").value(14))
-            .andExpect(jsonPath("$.current_count").value(10))
-            .andExpect(jsonPath("$.total_page").value(2))
-            .andExpect(jsonPath("$.current_page").value(1))
-            .andExpect(jsonPath("$.categories.length()").value(10));
+            .andExpect(jsonPath("$[0].id").value(2))
+            .andExpect(jsonPath("$[0].name").value("일반음식점"))
+            .andExpect(jsonPath("$[1].id").value(1))
+            .andExpect(jsonPath("$[1].name").value("치킨"));
     }
 
     @Test
@@ -340,7 +332,7 @@ class AdminShopApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + token_admin)
             )
             .andExpect(status().isOk())
-                .andExpect(content().json("""
+            .andExpect(content().json("""
                 {
                     "count": 2,
                     "menu_categories": [
@@ -744,7 +736,6 @@ class AdminShopApiTest extends AcceptanceTest {
         });
     }
 
-
     @Test
     void 어드민이_상점_카테고리를_수정한다() throws Exception {
         ShopCategory shopCategory = shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게);
@@ -796,6 +787,29 @@ class AdminShopApiTest extends AcceptanceTest {
 
         MenuCategory menuCategory = adminMenuCategoryRepository.getById(menuCategory_메인.getId());
         assertSoftly(softly -> softly.assertThat(menuCategory.getName()).isEqualTo("사이드 메뉴"));
+    }
+
+    @Test
+    void 어드민이_상점_카테고리_순서를_변경한다() throws Exception {
+        mockMvc.perform(
+                put("/admin/shops/categories/order")
+                    .header("Authorization", "Bearer " + token_admin)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "shop_category_ids": [%d, %d]
+                        }
+                        """.formatted(shopCategory_치킨.getId(), shopCategory_일반.getId()))
+            )
+            .andExpect(status().isNoContent());
+
+        List<ShopCategory> shopCategories = adminShopCategoryRepository.findAll(Sort.by("orderIndex"));
+        assertSoftly(softly -> {
+            softly.assertThat(shopCategories.get(0).getId()).isEqualTo(shopCategory_치킨.getId());
+            softly.assertThat(shopCategories.get(0).getOrderIndex()).isEqualTo(0);
+            softly.assertThat(shopCategories.get(1).getId()).isEqualTo(shopCategory_일반.getId());
+            softly.assertThat(shopCategories.get(1).getOrderIndex()).isEqualTo(1);
+        });
     }
 
     @Test
@@ -923,7 +937,6 @@ class AdminShopApiTest extends AcceptanceTest {
             .andExpect(status().isBadRequest());
     }
 
-
     @Test
     void 어드민이_상점을_삭제한다() throws Exception {
         Shop shop = shopFixture.영업중이_아닌_신전_떡볶이(owner_현수);
@@ -962,7 +975,7 @@ class AdminShopApiTest extends AcceptanceTest {
         mockMvc.perform(
                 delete("/admin/shops/categories/{id}", shopCategory_치킨.getId())
                     .header("Authorization", "Bearer " + token_admin)
-                )
+            )
             .andExpect(status().isBadRequest());
     }
 

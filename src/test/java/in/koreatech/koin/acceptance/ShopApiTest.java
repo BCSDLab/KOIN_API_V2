@@ -420,31 +420,30 @@ class ShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 상점들의_모든_카테고리를_조회한다() throws Exception {
-        shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게);
+    void 상점의_정렬된_모든_카테고리_조회() throws Exception {
+        shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게); // 카테고리_치킨이 먼저 생성됨
 
         mockMvc.perform(
-                        get("/shops/categories")
-                )
-                .andExpect(status().isOk())
-                .andExpect(content().json("""
+                get("/shops/categories")
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
+                    "total_count": 2,
+                    "shop_categories": [
                         {
-                                 "total_count": 2,
-                                 "shop_categories": [
-                                     {
-                                         "id": 1,
-                                         "image_url": "https://test-image.com/ckicken.jpg",
-                                         "name": "치킨"
-                                     },
-                                     {
-                                         "id": 2,
-                                         "image_url": "https://test-image.com/normal.jpg",
-                                         "name": "일반음식점"
-                                     },
-                                 
-                                 ]
-                             }
-                        """));
+                            "id": 2,
+                            "name": "일반음식점",
+                            "image_url": "https://test-image.com/normal.jpg"
+                        },
+                        {
+                            "id": 1,
+                            "name": "치킨",
+                            "image_url": "https://test-image.com/ckicken.jpg"
+                        }
+                    ]
+                }
+                """));
     }
 
     @Test

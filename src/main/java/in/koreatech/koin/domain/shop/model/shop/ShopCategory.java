@@ -17,6 +17,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -45,6 +47,11 @@ public class ShopCategory extends BaseEntity {
     @Column(name = "event_banner_image_url")
     private String eventBannerImageUrl;
 
+    @NotNull
+    @PositiveOrZero
+    @Column(name = "order_index", nullable = false)
+    private Integer orderIndex = 0;
+
     @OneToMany(mappedBy = "shopCategory", orphanRemoval = true, cascade = {PERSIST, REMOVE})
     private List<ShopCategoryMap> shopCategoryMaps = new ArrayList<>();
 
@@ -53,11 +60,18 @@ public class ShopCategory extends BaseEntity {
     private ShopParentCategory parentCategory;
 
     @Builder
-    private ShopCategory(String name, String imageUrl, ShopParentCategory parentCategory, String eventBannerImageUrl) {
+    private ShopCategory(
+        String name,
+        String imageUrl,
+        ShopParentCategory parentCategory,
+        String eventBannerImageUrl,
+        Integer orderIndex
+    ) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.parentCategory = parentCategory;
         this.eventBannerImageUrl = eventBannerImageUrl;
+        this.orderIndex = orderIndex == null ? 0 : orderIndex;
     }
 
     public void modifyShopCategory(String name, String imageUrl, ShopParentCategory parentCategory, String eventBannerImageUrl) {
@@ -65,5 +79,9 @@ public class ShopCategory extends BaseEntity {
         this.imageUrl = imageUrl;
         this.parentCategory = parentCategory;
         this.eventBannerImageUrl = eventBannerImageUrl;
+    }
+
+    public void modifyOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
     }
 }

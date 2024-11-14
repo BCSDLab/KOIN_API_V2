@@ -34,10 +34,11 @@ public record AdminCreateShopCategoryRequest(
     String eventBannerImageUrl
 ) {
 
-    public ShopCategory toShopCategory(ShopParentCategory shopParentCategory) {
+    public ShopCategory toShopCategory(Integer orderIndex, ShopParentCategory shopParentCategory) {
         return ShopCategory.builder()
             .imageUrl(imageUrl)
             .name(name)
+            .orderIndex(orderIndex)
             .parentCategory(shopParentCategory)
             .eventBannerImageUrl(eventBannerImageUrl)
             .build();
