@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.city.service.CityBusService;
 import in.koreatech.koin.domain.bus.express.util.ExpressBusService;
+import in.koreatech.koin.domain.bus.global.dto.BusRouteCommand;
+import in.koreatech.koin.domain.bus.global.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.global.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.global.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.global.exception.BusIllegalStationException;
@@ -39,6 +41,7 @@ public class BusService {
     private final CityBusService cityBusService;
     private final ExpressBusService expressBusService;
     private final ShuttleBusService shuttleBusService;
+    private final BusRouteService busRouteService;
     private final VersionService versionService;
 
     @Transactional
@@ -137,6 +140,16 @@ public class BusService {
 
         VersionResponse version = versionService.getVersion(busType.getName() + "_bus_timetable");
         return new BusTimetableResponse(busTimetables, version.updatedAt());
+    }
+
+    public BusScheduleResponse getBusSchedule(BusRouteCommand request) {
+        List<BusScheduleResponse.ScheduleInfo> scheduleInfoList = switch(request.depart()) {
+            case KOREATECH -> busRouteService.getBusScheduleDepartFromKoreaTech(request);
+            case TERMINAL, STATION -> busRouteService.getBusScheduleDepartFromElse(request, request.depart());
+        };
+        return new BusScheduleResponse(
+            request.depart(), request.arrive(), request.date(), request.time(), scheduleInfoList
+        );
     }
 
     public List<BusCourseResponse> getBusCourses() {

@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.bus.city.service;
 
 import static in.koreatech.koin.domain.bus.shuttle.model.enums.BusStation.getDirection;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +22,8 @@ import in.koreatech.koin.domain.bus.city.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.city.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.city.repository.CityBusRouteCacheRepository;
 import in.koreatech.koin.domain.bus.city.repository.CityBusTimetableRepository;
+import in.koreatech.koin.domain.bus.global.dto.BusScheduleResponse;
+import in.koreatech.koin.domain.bus.global.service.route.CityBusRouteManager;
 import in.koreatech.koin.domain.bus.shuttle.model.enums.BusStation;
 import lombok.RequiredArgsConstructor;
 
@@ -75,5 +78,17 @@ public class CityBusService {
         CityBusTimetable timetable = cityBusTimetableRepository
             .getByBusInfoNumberAndBusInfoArrival(busNumber, direction.getName());
         return CityBusTimetableResponse.from(timetable);
+    }
+
+    public List<BusScheduleResponse.ScheduleInfo> getCityBusSchedule(
+        Long busNumber,
+        BusStation depart,
+        CityBusDirection arrival,
+        LocalDate date
+    ) {
+        CityBusTimetable timetable = cityBusTimetableRepository
+            .getByBusInfoNumberAndBusInfoArrival(busNumber, arrival.getName());
+
+        return CityBusRouteManager.getCityBusSchedule(timetable, busNumber, depart, arrival, date);
     }
 }

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -13,9 +14,12 @@ import java.util.Locale;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.bus.global.dto.BusRouteCommand;
+import in.koreatech.koin.domain.bus.global.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.global.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.global.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.global.model.enums.BusType;
+import in.koreatech.koin.domain.bus.global.service.route.ShuttleBusRouteManager;
 import in.koreatech.koin.domain.bus.shuttle.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.shuttle.model.BusCourse;
 import in.koreatech.koin.domain.bus.shuttle.model.Route;
@@ -99,6 +103,25 @@ public class ShuttleBusService {
         return schoolBusRepository.findAll().stream()
             .map(BusCourseResponse::from)
             .toList();
+    }
+
+    public List<BusScheduleResponse.ScheduleInfo> getShuttleBusSchedule(BusRouteCommand request, BusType busType) {
+        BusCourse busFrom = schoolBusRepository.getByBusTypeAndDirectionAndRegion(
+            busType.getName(), "from", "천안"
+        );
+        BusCourse busTo = schoolBusRepository.getByBusTypeAndDirectionAndRegion(
+            busType.getName(), "to", "천안"
+        );
+
+        return switch(busType) {
+            case SHUTTLE -> ShuttleBusRouteManager.getShuttleBusSchedule(
+                busFrom, busTo, request.depart(), request.arrive(), request.date()
+            );
+            case COMMUTING -> ShuttleBusRouteManager.getCommutingBusSchedule(
+                busFrom, busTo, request.depart(), request.arrive(), request.date()
+            );
+            default -> Collections.emptyList();
+        };
     }
 
 
