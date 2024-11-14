@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.shop.model.review.ReportStatus.DELETED;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -280,17 +281,13 @@ public class AdminShopService {
             .collect(Collectors.toMap(ShopCategory::getId, category -> category));
 
         List<Integer> shopCategoryIds = adminModifyShopCategoriesOrderRequest.shopCategoryIds();
-        if (shopCategoryIds.size() != shopCategoryMap.size()) {
-            throw ShopCategoryIllegalArgumentException.withDetail("카테고리 수가 일치하지 않습니다.");
+        if (!Objects.equals(shopCategoryMap.keySet(), new HashSet<>(shopCategoryIds))) {
+            throw ShopCategoryIllegalArgumentException.withDetail("카테고리 목록이 잘못되었습니다.");
         }
 
-        for (int orderIndex = 0; orderIndex < shopCategoryIds.size(); orderIndex++) {
-            Integer shopCategoryId = shopCategoryIds.get(orderIndex);
-            ShopCategory shopCategory = shopCategoryMap.remove(shopCategoryId);
-            if (shopCategory == null) {
-                throw ShopCategoryIllegalArgumentException.withDetail("중복 혹은 잘못된 카테고리입니다.:" + shopCategoryId);
-            }
-            shopCategory.modifyOrderIndex(orderIndex);
+        for (int i = 0; i < shopCategoryIds.size(); i++) {
+            ShopCategory shopCategory = shopCategoryMap.get(shopCategoryIds.get(i));
+            shopCategory.modifyOrderIndex(i);
         }
     }
 
