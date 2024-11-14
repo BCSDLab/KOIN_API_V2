@@ -154,10 +154,8 @@ public class TimetableServiceV2 {
     @Transactional
     public void deleteTimetableLecture(Integer userId, Integer timetableLectureId) {
         TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableLectureId);
-        TimetableFrame frame = timetableLecture.getTimetableFrame();
-        if (!Objects.equals(frame.getUser().getId(), userId)) {
-            throw AuthorizationException.withDetail("userId: " + userId);
-        }
+        TimetableFrame timetableFrame = timetableLecture.getTimetableFrame();
+        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
         timetableLectureRepositoryV2.deleteById(timetableLectureId);
     }
 
