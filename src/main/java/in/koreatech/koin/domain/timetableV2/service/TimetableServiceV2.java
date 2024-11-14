@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureU
 import static in.koreatech.koin.domain.timetableV2.model.TimetableFrame.getDefaultTimetableFrameName;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGrades;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
+import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
 import java.util.List;
 import java.util.Objects;
@@ -97,14 +98,13 @@ public class TimetableServiceV2 {
     /*TODO. 락 3개 찾아보기 - 신관규*/
     @ConcurrencyGuard(lockName = "deleteFrame")
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {
-        TimetableFrame frame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
-        if (!Objects.equals(frame.getUser().getId(), userId)) {
-            throw AuthorizationException.withDetail("userId: " + userId);
-        }
+        TimetableFrame timetableFrame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
+        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
+
         timetableFrameRepositoryV2.deleteById(frameId);
-        if (frame.isMain()) {
+        if (timetableFrame.isMain()) {
             TimetableFrame nextFrame = timetableFrameRepositoryV2.findNextFirstTimetableFrame(userId,
-                frame.getSemester().getId());
+                timetableFrame.getSemester().getId());
             if (nextFrame != null) {
                 nextFrame.updateStatusMain(true);
             }
@@ -114,9 +114,7 @@ public class TimetableServiceV2 {
     @Transactional
     public TimetableLectureResponse createTimetableLectures(Integer userId, TimetableLectureCreateRequest request) {
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(request.timetableFrameId());
-        if (!Objects.equals(timetableFrame.getUser().getId(), userId)) {
-            throw AuthorizationException.withDetail("userId: " + userId);
-        }
+        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
 
         for (InnerTimeTableLectureRequest timetableLectureRequest : request.timetableLecture()) {
             Lecture lecture = timetableLectureRequest.lectureId() == null ?
@@ -131,9 +129,7 @@ public class TimetableServiceV2 {
     @Transactional
     public TimetableLectureResponse updateTimetablesLectures(Integer userId, TimetableLectureUpdateRequest request) {
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(request.timetableFrameId());
-        if (!Objects.equals(timetableFrame.getUser().getId(), userId)) {
-            throw AuthorizationException.withDetail("userId: " + userId);
-        }
+        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
 
         for (InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
             TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
@@ -149,13 +145,10 @@ public class TimetableServiceV2 {
         return getTimetableLectureResponse(userId, timetableFrame);
     }
 
-    @Transactional
     public TimetableLectureResponse getTimetableLectures(Integer userId, Integer timetableFrameId) {
-        TimetableFrame frame = timetableFrameRepositoryV2.getById(timetableFrameId);
-        if (!Objects.equals(frame.getUser().getId(), userId)) {
-            throw AuthorizationException.withDetail("userId: " + userId);
-        }
-        return getTimetableLectureResponse(userId, frame);
+        TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(timetableFrameId);
+        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
+        return getTimetableLectureResponse(userId, timetableFrame);
     }
 
     @Transactional

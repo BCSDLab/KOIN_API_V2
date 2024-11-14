@@ -93,9 +93,8 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @Valid @RequestBody TimetableLectureUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableLectureResponse timetableLectureResponse = timetableServiceV2.updateTimetablesLectures(userId,
-            request);
-        return ResponseEntity.ok(timetableLectureResponse);
+        TimetableLectureResponse response = timetableServiceV2.updateTimetablesLectures(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/v2/timetables/lecture")
@@ -103,9 +102,8 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableLectureResponse timetableLectureResponse = timetableServiceV2.getTimetableLectures(userId,
-            timetableFrameId);
-        return ResponseEntity.ok(timetableLectureResponse);
+        TimetableLectureResponse response = timetableServiceV2.getTimetableLectures(userId, timetableFrameId);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/v2/timetables/lecture/{id}")
