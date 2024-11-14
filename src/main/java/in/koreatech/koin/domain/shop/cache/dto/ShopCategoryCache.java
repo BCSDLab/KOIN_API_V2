@@ -10,7 +10,7 @@ public record ShopCategoryCache(
 
     public static ShopCategoryCache from(ShopCategoryMap shopCategoryMap) {
         return new ShopCategoryCache(
-                shopCategoryMap.getId(),
+                shopCategoryMap.getShopCategory().getId(),
                 shopCategoryMap.getShopCategory().getName(),
                 shopCategoryMap.getShopCategory().getImageUrl()
         );
