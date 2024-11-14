@@ -5,25 +5,19 @@ import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculat
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.LectureRepositoryV2;
-import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,8 +27,6 @@ public class TimetableLectureServiceV2 {
     private final LectureRepositoryV2 lectureRepositoryV2;
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
-    private final UserRepository userRepository;
-    private final SemesterRepositoryV2 semesterRepositoryV2;
 
     @Transactional
     public TimetableLectureResponse createTimetableLectures(Integer userId, TimetableLectureCreateRequest request) {
@@ -85,29 +77,23 @@ public class TimetableLectureServiceV2 {
     }
 
     private TimetableLectureResponse getTimetableLectureResponse(Integer userId, TimetableFrame timetableFrame) {
-        List<TimetableLecture> timetableLectures = timetableFrame.getTimetableLectures();
-        int grades = calculateGrades(timetableFrame, timetableLectures);
+        int grades = calculateGrades(timetableFrame);
         int totalGrades = calculateTotalGrades(timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId));
-        return TimetableLectureResponse.of(timetableFrame.getId(), timetableLectures, grades, totalGrades);
+        return TimetableLectureResponse.of(timetableFrame, grades, totalGrades);
     }
 
     @Transactional
     public void deleteTimetableLectures(List<Integer> request, Integer userId) {
-        for (int timetablesLectureId : request) {
-            TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetablesLectureId);
-            if (!Objects.equals(timetableLecture.getTimetableFrame().getUser().getId(), userId)) {
-                throw AuthorizationException.withDetail("userId: " + userId);
-            }
-            timetableLectureRepositoryV2.deleteById(timetablesLectureId);
-        }
+        request.stream()
+            .map(timetableLectureRepositoryV2::getById)
+            .peek(lecture -> validateUserAuthorization(lecture.getTimetableFrame().getId(), userId))
+            .forEach(lecture -> timetableLectureRepositoryV2.deleteById(lecture.getId()));
     }
 
     @Transactional
     public void deleteTimetableLectureByFrameId(Integer frameId, Integer lectureId, Integer userId) {
-        TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(frameId);
-        if (!Objects.equals(timetableFrame.getUser().getId(), userId)) {
-            throw AuthorizationException.withDetail("userId: " + userId);
-        }
+        TimetableFrame frame = timetableFrameRepositoryV2.getById(frameId);
+        validateUserAuthorization(frame.getUser().getId(), userId);
         timetableLectureRepositoryV2.deleteByFrameIdAndLectureId(frameId, lectureId);
     }
 }
