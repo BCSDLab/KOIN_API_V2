@@ -103,9 +103,5 @@ public class Route {
             this.arrivalTime = arrivalTime;
         }
 
-        private boolean isNodeNameContains(String name) {
-            return nodeName.contains(name);
-        }
-
     }
 }
