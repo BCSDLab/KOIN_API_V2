@@ -95,7 +95,9 @@ class AdminShopApiTest extends AcceptanceTest {
     private MenuCategoryFixture menuCategoryFixture;
 
     private Owner owner_현수;
+    private Owner owner_준영;
     private Shop shop_마슬랜;
+    private Admin admin;
     private String token_admin;
     private ShopCategory shopCategory_치킨;
     private ShopCategory shopCategory_일반;
@@ -109,12 +111,10 @@ class AdminShopApiTest extends AcceptanceTest {
     @BeforeAll
     void setUp() {
         clear();
-        Admin admin = userFixture.코인_운영자();
+        admin = userFixture.코인_운영자();
         token_admin = userFixture.getToken(admin.getUser());
         owner_현수 = userFixture.현수_사장님();
-        shop_마슬랜 = shopFixture.마슬랜(owner_현수, shopCategory_치킨);
-        menuCategory_메인 = menuCategoryFixture.메인메뉴(shop_마슬랜);
-        menuCategory_사이드 = menuCategoryFixture.사이드메뉴(shop_마슬랜);
+        owner_준영 = userFixture.준영_사장님();
         notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
         notificationMessage_콜벤 = shopNotificationMessageFixture.알림메시지_콜벤();
         shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
@@ -208,14 +208,10 @@ class AdminShopApiTest extends AcceptanceTest {
                      "pay_bank": true,
                      "pay_card": true,
                      "phone": "010-7574-1212",
-<<<<<<< HEAD
-                     "shop_categories": [],
-=======
                      "shop_categories": [
                        
                      ],
                      "main_category_id": 1,
->>>>>>> develop
                      "updated_at": "2024-01-15",
                      "is_deleted": false,
                      "is_event": false,
@@ -608,11 +604,11 @@ class AdminShopApiTest extends AcceptanceTest {
                 post("/admin/shops/{id}/menus/categories", shop_마슬랜.getId())
                     .header("Authorization", "Bearer " + token_admin)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content("""
+                    .content(String.format("""
                         {
                            "name": "대박메뉴"
                         }
-                        """)
+                        """))
             )
             .andExpect(status().isCreated());
 
@@ -773,6 +769,27 @@ class AdminShopApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 어드민이_특정_상점의_메뉴_카테고리를_수정한다() throws Exception {
+        // given
+        Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
+        mockMvc.perform(
+                put("/admin/shops/{shopId}/menus/categories", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_admin)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(String.format("""
+                        {
+                           "id": %s,
+                           "name": "사이드 메뉴"
+                        }
+                        """, menuCategory_메인.getId()))
+            )
+            .andExpect(status().isCreated());
+
+        MenuCategory menuCategory = adminMenuCategoryRepository.getById(menuCategory_메인.getId());
+        assertSoftly(softly -> softly.assertThat(menuCategory.getName()).isEqualTo("사이드 메뉴"));
+    }
+
+    @Test
     void 어드민이_상점_카테고리_순서를_변경한다() throws Exception {
         mockMvc.perform(
                 put("/admin/shops/categories/order")
@@ -793,27 +810,6 @@ class AdminShopApiTest extends AcceptanceTest {
             softly.assertThat(shopCategories.get(1).getId()).isEqualTo(shopCategory_일반.getId());
             softly.assertThat(shopCategories.get(1).getOrderIndex()).isEqualTo(1);
         });
-    }
-
-    @Test
-    void 어드민이_특정_상점의_메뉴_카테고리를_수정한다() throws Exception {
-        // given
-        menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
-        mockMvc.perform(
-                put("/admin/shops/{shopId}/menus/categories", shop_마슬랜.getId())
-                    .header("Authorization", "Bearer " + token_admin)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(String.format("""
-                        {
-                           "id": %s,
-                           "name": "사이드 메뉴"
-                        }
-                        """, menuCategory_메인.getId()))
-            )
-            .andExpect(status().isCreated());
-
-        MenuCategory menuCategory = adminMenuCategoryRepository.getById(menuCategory_메인.getId());
-        assertSoftly(softly -> softly.assertThat(menuCategory.getName()).isEqualTo("사이드 메뉴"));
     }
 
     @Test
