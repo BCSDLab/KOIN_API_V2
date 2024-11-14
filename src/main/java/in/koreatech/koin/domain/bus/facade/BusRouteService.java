@@ -6,19 +6,19 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.bus.service.CityBusService;
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
+import in.koreatech.koin.domain.bus.facade.route.ExpressBusRouteManager;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
-import in.koreatech.koin.domain.bus.facade.route.ExpressBusRouteManager;
+import in.koreatech.koin.domain.bus.service.CityBusService;
 import in.koreatech.koin.domain.bus.service.ShuttleBusService;
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +31,17 @@ public class BusRouteService {
     private final CityBusService cityBusService;
     private final List<Long> cityBusList = new ArrayList<>(Arrays.asList(400L, 402L, 405L));
 
-    public List<ScheduleInfo> getBusScheduleDepartFromKoreaTech(BusRouteCommand request) {
+    public BusScheduleResponse getBusSchedule(BusRouteCommand request) {
+        List<BusScheduleResponse.ScheduleInfo> scheduleInfoList = switch(request.depart()) {
+            case KOREATECH -> getBusScheduleDepartFromKoreaTech(request);
+            case TERMINAL, STATION -> getBusScheduleDepartFromElse(request, request.depart());
+        };
+        return new BusScheduleResponse(
+            request.depart(), request.arrive(), request.date(), request.time(), scheduleInfoList
+        );
+    }
+
+    private List<ScheduleInfo> getBusScheduleDepartFromKoreaTech(BusRouteCommand request) {
         List<ScheduleInfo> scheduleInfoList = new ArrayList<>();
         scheduleInfoList.addAll(shuttleBusService.getShuttleBusSchedule(request, BusType.SHUTTLE));
         scheduleInfoList.addAll(shuttleBusService.getShuttleBusSchedule(request, BusType.COMMUTING));
@@ -53,7 +63,7 @@ public class BusRouteService {
             .toList();
     }
 
-    public List<ScheduleInfo> getBusScheduleDepartFromElse(BusRouteCommand request, BusStation depart) {
+    private List<ScheduleInfo> getBusScheduleDepartFromElse(BusRouteCommand request, BusStation depart) {
         if (request.arrive() == BusStation.STATION || request.arrive() == BusStation.TERMINAL) {
             return Collections.emptyList();
         }

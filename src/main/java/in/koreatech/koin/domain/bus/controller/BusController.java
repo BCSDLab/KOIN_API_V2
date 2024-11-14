@@ -11,20 +11,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
-import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
-import in.koreatech.koin.domain.bus.service.CityBusService;
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
-import in.koreatech.koin.domain.bus.model.BusTimetable;
-import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
-import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.facade.BusService;
+import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.shuttle.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.facade.BusRouteService;
+import in.koreatech.koin.domain.bus.facade.BusService;
+import in.koreatech.koin.domain.bus.model.BusTimetable;
+import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
+import in.koreatech.koin.domain.bus.model.enums.BusType;
+import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class BusController implements BusApi {
 
     private final BusService busService;
-    private final CityBusService cityBusService;
+    private final BusRouteService busRouteService;
 
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
@@ -68,7 +68,7 @@ public class BusController implements BusApi {
         @RequestParam(value = "bus_number") Long busNumber,
         @RequestParam(value = "direction") CityBusDirection direction
     ) {
-        return ResponseEntity.ok().body(cityBusService.getCityBusTimetable(busNumber, direction));
+        return ResponseEntity.ok().body(busService.getCityBusTimetable(busNumber, direction));
     }
 
     @GetMapping("/courses")
@@ -97,7 +97,7 @@ public class BusController implements BusApi {
         @RequestParam BusStation arrival
     ) {
         BusRouteCommand request = new BusRouteCommand(depart, arrival, busRouteType, date, LocalTime.parse(time));
-        BusScheduleResponse busSchedule = busService.getBusSchedule(request);
+        BusScheduleResponse busSchedule = busRouteService.getBusSchedule(request);
         return ResponseEntity.ok().body(busSchedule);
     }
 }

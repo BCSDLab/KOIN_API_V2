@@ -11,20 +11,20 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.bus.service.CityBusService;
-import in.koreatech.koin.domain.bus.service.ExpressBusService;
-import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
-import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
+import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
+import in.koreatech.koin.domain.bus.dto.shuttle.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
-import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
-import in.koreatech.koin.domain.bus.dto.shuttle.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
+import in.koreatech.koin.domain.bus.model.enums.BusType;
+import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
+import in.koreatech.koin.domain.bus.service.CityBusService;
+import in.koreatech.koin.domain.bus.service.ExpressBusService;
 import in.koreatech.koin.domain.bus.service.ShuttleBusService;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
@@ -39,7 +39,6 @@ public class BusService {
     private final CityBusService cityBusService;
     private final ExpressBusService expressBusService;
     private final ShuttleBusService shuttleBusService;
-    private final BusRouteService busRouteService;
     private final VersionService versionService;
 
     @Transactional
@@ -112,14 +111,8 @@ public class BusService {
         return new BusTimetableResponse(busTimetables, version.updatedAt());
     }
 
-    public BusScheduleResponse getBusSchedule(BusRouteCommand request) {
-        List<BusScheduleResponse.ScheduleInfo> scheduleInfoList = switch(request.depart()) {
-            case KOREATECH -> busRouteService.getBusScheduleDepartFromKoreaTech(request);
-            case TERMINAL, STATION -> busRouteService.getBusScheduleDepartFromElse(request, request.depart());
-        };
-        return new BusScheduleResponse(
-            request.depart(), request.arrive(), request.date(), request.time(), scheduleInfoList
-        );
+    public CityBusTimetableResponse getCityBusTimetable(Long busNumber, CityBusDirection direction) {
+        return cityBusService.getCityBusTimetable(busNumber, direction);
     }
 
     public List<BusCourseResponse> getBusCourses() {
