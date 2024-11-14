@@ -9,9 +9,9 @@ public class GradeCalculator {
     private GradeCalculator() {
     }
 
-    public static int calculateGrades(TimetableFrame timetableFrame, List<TimetableLecture> timetableLectures) {
+    public static int calculateGrades(TimetableFrame timetableFrame) {
         if (timetableFrame.isMain()) {
-            return calculateGrades(timetableLectures);
+            return calculateGrades(timetableFrame.getTimetableLectures());
         }
         return 0;
     }

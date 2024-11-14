@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -154,12 +155,10 @@ public record TimetableLectureResponse(
     private static final int INITIAL_BRACE_INDEX = 1;
     private static final String SEPARATOR = ",";
 
-    public static TimetableLectureResponse of(
-        Integer timetableFrameId, List<TimetableLecture> timetableLectures, Integer grades, Integer totalGrades
-    ) {
+    public static TimetableLectureResponse of(TimetableFrame timetableFrame, Integer grades, Integer totalGrades) {
         return new TimetableLectureResponse(
-            timetableFrameId,
-            InnerTimetableLectureResponse.from(timetableLectures),
+            timetableFrame.getId(),
+            InnerTimetableLectureResponse.from(timetableFrame.getTimetableLectures()),
             grades,
             totalGrades
         );
