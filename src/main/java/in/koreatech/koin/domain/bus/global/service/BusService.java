@@ -18,7 +18,6 @@ import in.koreatech.koin.domain.bus.global.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.global.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.global.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.global.exception.BusIllegalStationException;
-import in.koreatech.koin.domain.bus.global.exception.BusTypeNotFoundException;
 import in.koreatech.koin.domain.bus.global.exception.BusTypeNotSupportException;
 import in.koreatech.koin.domain.bus.global.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.global.model.BusTimetable;
@@ -29,7 +28,6 @@ import in.koreatech.koin.domain.bus.shuttle.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.shuttle.service.ShuttleBusService;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -47,16 +45,11 @@ public class BusService {
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
         validateBusCourse(depart, arrival);
-        if (busType == BusType.CITY) {
-            return toResponse(busType, cityBusService.getBusRemainTime(depart, arrival));
-        }
-        if (busType == BusType.EXPRESS) {
-            return toResponse(busType, expressBusService.getBusRemainTime(depart, arrival));
-        }
-        if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-            return toResponse(busType, shuttleBusService.getBusRemainTime(busType, depart, arrival));
-        }
-        throw new KoinIllegalArgumentException("Invalid bus", "type: " + busType);
+        return switch (busType) {
+            case CITY -> toResponse(busType, cityBusService.getBusRemainTime(depart, arrival));
+            case EXPRESS -> toResponse(busType, expressBusService.getBusRemainTime(depart, arrival));
+            case SHUTTLE, COMMUTING -> toResponse(busType, shuttleBusService.getBusRemainTime(busType, depart, arrival));
+        };
     }
 
     public List<SingleBusTimeResponse> searchTimetable(
@@ -68,26 +61,11 @@ public class BusService {
 
         LocalDateTime targetTime = LocalDateTime.of(date, time);
         for (BusType busType : BusType.values()) {
-            SingleBusTimeResponse busTimeResponse = null;
-
-            if (busType == BusType.EXPRESS) {
-                busTimeResponse = expressBusService.searchBusTime(
-                    busType.getName(),
-                    depart,
-                    arrival,
-                    targetTime
-                );
-            }
-
-            if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-                busTimeResponse = shuttleBusService.searchShuttleBusTime(
-                    date,
-                    time,
-                    depart,
-                    arrival,
-                    busType
-                );
-            }
+            SingleBusTimeResponse busTimeResponse = switch (busType) {
+                case EXPRESS -> expressBusService.searchBusTime(busType.getName(), depart, arrival, targetTime);
+                case SHUTTLE, COMMUTING -> shuttleBusService.searchShuttleBusTime(date, time, depart, arrival, busType);
+                default -> null;
+            };
 
             if (busTimeResponse == null) {
                 continue;
@@ -116,19 +94,11 @@ public class BusService {
     }
 
     public List<? extends BusTimetable> getBusTimetable(BusType busType, String direction, String region) {
-        if (busType == BusType.CITY) {
-            throw BusTypeNotSupportException.withDetail("busType: CITY");
-        }
-
-        if (busType == BusType.EXPRESS) {
-            return expressBusService.getExpressBusTimetable(direction);
-        }
-
-        if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-            return shuttleBusService.getShuttleBusTimetable(busType, direction, region);
-        }
-
-        throw BusTypeNotFoundException.withDetail(busType.name());
+        return switch (busType) {
+            case CITY -> throw BusTypeNotSupportException.withDetail("busType: CITY");
+            case EXPRESS -> expressBusService.getExpressBusTimetable(direction);
+            case SHUTTLE, COMMUTING -> shuttleBusService.getShuttleBusTimetable(busType, direction, region);
+        };
     }
 
     public BusTimetableResponse getBusTimetableWithUpdatedAt(BusType busType, String direction, String region) {
