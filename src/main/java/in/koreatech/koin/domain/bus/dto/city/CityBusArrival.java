@@ -2,8 +2,8 @@ package in.koreatech.koin.domain.bus.dto.city;
 
 import java.time.LocalDateTime;
 
-import in.koreatech.koin.domain.bus.model.city.CityBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.model.city.CityBusCacheInfo;
 import lombok.Builder;
 
 @Builder

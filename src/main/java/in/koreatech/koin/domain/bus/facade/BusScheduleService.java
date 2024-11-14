@@ -1,14 +1,12 @@
 package in.koreatech.koin.domain.bus.facade;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.service.CityBusService;
 import in.koreatech.koin.domain.bus.service.ExpressBusService;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BusScheduleService {
 

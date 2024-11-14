@@ -50,6 +50,6 @@ public class BusCourse {
 
         return routes.stream().filter(route -> route.getRunningDays()
                 .contains(dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.US).toUpperCase()))
-                .toList();
+            .toList();
     }
 }

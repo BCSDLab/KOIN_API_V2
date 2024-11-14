@@ -8,7 +8,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.bus.exception.BusNotFoundException;
 import in.koreatech.koin.domain.bus.model.shuttle.BusCourse;
 
-public interface SchoolBusRepository extends Repository<BusCourse, String> {
+public interface ShuttleBusRepository extends Repository<BusCourse, String> {
 
     BusCourse save(BusCourse busCourse);
 

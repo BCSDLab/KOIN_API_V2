@@ -10,8 +10,7 @@ public enum CityBusDirection {
     종합터미널,
     병천3리,
     황사동,
-    유관순열사사적지
-    ;
+    유관순열사사적지;
 
     @JsonCreator
     public static CityBusDirection from(String direction) {

@@ -17,18 +17,9 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
     private final LocalTime busArrivalTime;
     private String busArrivalTimeRaw;
 
-    public boolean isBefore(Clock clock) {
-        if (busArrivalTime == null) {
-            return false;
-        }
-        return LocalTime.now(clock).isBefore(busArrivalTime);
-    }
-
-    public Long getRemainSeconds(Clock clock) {
-        if (isBefore(clock)) {
-            return Duration.between(LocalTime.now(clock), busArrivalTime).toSeconds();
-        }
-        return null;
+    public BusRemainTime(LocalTime busArrivalTime, String busArrivalTimeRaw) {
+        this.busArrivalTime = busArrivalTime;
+        this.busArrivalTimeRaw = busArrivalTimeRaw;
     }
 
     public static BusRemainTime from(String arrivalTime) {
@@ -58,9 +49,18 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
         }
     }
 
-    public BusRemainTime(LocalTime busArrivalTime, String busArrivalTimeRaw) {
-        this.busArrivalTime = busArrivalTime;
-        this.busArrivalTimeRaw = busArrivalTimeRaw;
+    public boolean isBefore(Clock clock) {
+        if (busArrivalTime == null) {
+            return false;
+        }
+        return LocalTime.now(clock).isBefore(busArrivalTime);
+    }
+
+    public Long getRemainSeconds(Clock clock) {
+        if (isBefore(clock)) {
+            return Duration.between(LocalTime.now(clock), busArrivalTime).toSeconds();
+        }
+        return null;
     }
 
     @Override

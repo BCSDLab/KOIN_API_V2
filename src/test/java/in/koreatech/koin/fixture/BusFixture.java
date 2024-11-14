@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import in.koreatech.koin.domain.bus.model.shuttle.BusCourse;
 import in.koreatech.koin.domain.bus.model.city.CityBusTimetable;
 import in.koreatech.koin.domain.bus.model.shuttle.Route;
-import in.koreatech.koin.domain.bus.repository.SchoolBusRepository;
+import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
 
 @Component
@@ -17,18 +17,18 @@ import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
 public final class BusFixture {
 
     @Autowired
-    private final SchoolBusRepository schoolBusRepository;
+    private final ShuttleBusRepository shuttleBusRepository;
 
     @Autowired
     private final CityBusTimetableRepository cityBusTimetableRepository;
 
-    public BusFixture(SchoolBusRepository schoolBusRepository, CityBusTimetableRepository cityBusTimetableRepository) {
-        this.schoolBusRepository = schoolBusRepository;
+    public BusFixture(ShuttleBusRepository shuttleBusRepository, CityBusTimetableRepository cityBusTimetableRepository) {
+        this.shuttleBusRepository = shuttleBusRepository;
         this.cityBusTimetableRepository = cityBusTimetableRepository;
     }
 
     public void 버스_시간표_등록() {
-        schoolBusRepository.save(
+        shuttleBusRepository.save(
             BusCourse.builder()
                 .busType("shuttle")
                 .region("천안")

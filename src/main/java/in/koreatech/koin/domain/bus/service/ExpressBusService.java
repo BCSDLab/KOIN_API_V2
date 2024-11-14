@@ -16,9 +16,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.bus.dto.express.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.client.ExpressBusClient;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.dto.express.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusTimetable;

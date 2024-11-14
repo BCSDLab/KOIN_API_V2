@@ -7,6 +7,14 @@ public record CityBusApiResponse(
     InnerResponse response
 ) {
 
+    public List<CityBusArrival> extractBusArrivalInfo() {
+        if (!response().header().resultCode().equals("00")
+            || response().body().totalCount() == 0) {
+            return Collections.emptyList();
+        }
+        return response().body().items().item();
+    }
+
     public record InnerResponse(
         InnerHeader header,
         InnerBody body
@@ -30,13 +38,5 @@ public record CityBusApiResponse(
     public record InnerItems(
         List<CityBusArrival> item
     ) {
-    }
-
-    public List<CityBusArrival> extractBusArrivalInfo() {
-        if (!response().header().resultCode().equals("00")
-            || response().body().totalCount() == 0) {
-            return Collections.emptyList();
-        }
-        return response().body().items().item();
     }
 }

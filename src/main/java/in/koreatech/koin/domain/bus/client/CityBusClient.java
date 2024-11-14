@@ -5,10 +5,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URI;
 import java.text.MessageFormat;
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -17,19 +13,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import in.koreatech.koin.domain.bus.dto.city.CityBusApiResponse;
-import in.koreatech.koin.domain.bus.dto.city.CityBusArrival;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.exception.MalformedApiUriException;
-import in.koreatech.koin.domain.bus.model.city.CityBusCache;
-import in.koreatech.koin.domain.bus.model.enums.BusStationNode;
-import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
-import in.koreatech.koin.domain.version.model.VersionType;
-import in.koreatech.koin.domain.version.repository.VersionRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -48,7 +36,6 @@ public class CityBusClient {
     @Value("${OPEN_API_KEY_PUBLIC}")
     private String openApiKey;
 
-    @CircuitBreaker(name = "cityBus")
     public CityBusApiResponse getOpenApiResponse(String nodeId) {
         try {
             HttpHeaders headers = new HttpHeaders();

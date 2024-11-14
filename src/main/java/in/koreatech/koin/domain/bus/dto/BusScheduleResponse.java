@@ -50,14 +50,14 @@ public record BusScheduleResponse(
         """, requiredMode = NOT_REQUIRED)
     List<ScheduleInfo> schedule
 
-){
+) {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record ScheduleInfo(
         String busType,
         String busName,
         LocalTime departTime
     ) {
-        public static List<ScheduleInfo> toScheduleInfo(List<LocalTime> schedule, String busType, String busName){
+        public static List<ScheduleInfo> toScheduleInfo(List<LocalTime> schedule, String busType, String busName) {
             return schedule.stream()
                 .map(time -> new BusScheduleResponse.ScheduleInfo(busType, busName, time))
                 .collect(Collectors.toList());

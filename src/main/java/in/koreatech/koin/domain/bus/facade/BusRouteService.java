@@ -31,8 +31,16 @@ public class BusRouteService {
     private final CityBusService cityBusService;
     private final List<Long> cityBusList = new ArrayList<>(Arrays.asList(400L, 402L, 405L));
 
+    private static BusDirection getRouteDirection(BusStation depart, BusStation arrive) {
+        if (depart == BusStation.KOREATECH && arrive == BusStation.TERMINAL) {
+            return BusDirection.NORTH;
+        } else {
+            return BusDirection.SOUTH;
+        }
+    }
+
     public BusScheduleResponse getBusSchedule(BusRouteCommand request) {
-        List<BusScheduleResponse.ScheduleInfo> scheduleInfoList = switch(request.depart()) {
+        List<BusScheduleResponse.ScheduleInfo> scheduleInfoList = switch (request.depart()) {
             case KOREATECH -> getBusScheduleDepartFromKoreaTech(request);
             case TERMINAL, STATION -> getBusScheduleDepartFromElse(request, request.depart());
         };
@@ -47,18 +55,20 @@ public class BusRouteService {
         scheduleInfoList.addAll(shuttleBusService.getShuttleBusSchedule(request, BusType.COMMUTING));
         cityBusList.forEach(
             busNumber -> scheduleInfoList.addAll(
-                cityBusService.getCityBusSchedule(busNumber, BusStation.KOREATECH, CityBusDirection.종합터미널, request.date())
+                cityBusService.getCityBusSchedule(busNumber, BusStation.KOREATECH, CityBusDirection.종합터미널,
+                    request.date())
             )
         );
 
-        if(request.arrive() == BusStation.TERMINAL) {
+        if (request.arrive() == BusStation.TERMINAL) {
             BusDirection direction = getRouteDirection(request.depart(), request.arrive());
             scheduleInfoList.addAll(ExpressBusRouteManager.getExpressBusSchedule(direction));
         }
 
         return scheduleInfoList.stream()
             .filter(schedule -> schedule.departTime().isAfter(request.time()) &&
-                (request.busRouteType() == BusRouteType.ALL || schedule.busType().equals(request.busRouteType().getName())))
+                (request.busRouteType() == BusRouteType.ALL || schedule.busType()
+                    .equals(request.busRouteType().getName())))
             .sorted(Comparator.comparing(ScheduleInfo::departTime))
             .toList();
     }
@@ -70,27 +80,21 @@ public class BusRouteService {
         List<ScheduleInfo> scheduleInfoList = new ArrayList<>();
         BusDirection direction = getRouteDirection(request.depart(), request.arrive());
 
-        if(depart == BusStation.TERMINAL) {
+        if (depart == BusStation.TERMINAL) {
             scheduleInfoList.addAll(ExpressBusRouteManager.getExpressBusSchedule(direction));
         }
         scheduleInfoList.addAll(shuttleBusService.getShuttleBusSchedule(request, BusType.SHUTTLE));
         scheduleInfoList.addAll(shuttleBusService.getShuttleBusSchedule(request, BusType.COMMUTING));
         scheduleInfoList.addAll(cityBusService.getCityBusSchedule(400L, depart, CityBusDirection.병천3리, request.date()));
         scheduleInfoList.addAll(cityBusService.getCityBusSchedule(402L, depart, CityBusDirection.황사동, request.date()));
-        scheduleInfoList.addAll(cityBusService.getCityBusSchedule(405L, depart, CityBusDirection.유관순열사사적지, request.date()));
+        scheduleInfoList.addAll(
+            cityBusService.getCityBusSchedule(405L, depart, CityBusDirection.유관순열사사적지, request.date()));
 
         return scheduleInfoList.stream()
             .filter(schedule -> schedule.departTime().isAfter(request.time()) &&
-                (request.busRouteType() == BusRouteType.ALL || schedule.busType().equals(request.busRouteType().getName())))
+                (request.busRouteType() == BusRouteType.ALL || schedule.busType()
+                    .equals(request.busRouteType().getName())))
             .sorted(Comparator.comparing(ScheduleInfo::departTime))
             .toList();
-    }
-
-    private static BusDirection getRouteDirection(BusStation depart, BusStation arrive) {
-        if(depart == BusStation.KOREATECH && arrive == BusStation.TERMINAL) {
-            return BusDirection.NORTH;
-        } else {
-            return BusDirection.SOUTH;
-        }
     }
 }

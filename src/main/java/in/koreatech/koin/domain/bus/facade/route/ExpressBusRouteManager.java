@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo.
 import java.time.LocalTime;
 import java.util.List;
 
-
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusSchedule;

@@ -7,11 +7,11 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-import in.koreatech.koin.domain.bus.model.city.CityBusTimetable.BusTimetable;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
+import in.koreatech.koin.domain.bus.model.city.CityBusTimetable;
+import in.koreatech.koin.domain.bus.model.city.CityBusTimetable.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
-import in.koreatech.koin.domain.bus.model.city.CityBusTimetable;
 
 public class CityBusRouteManager {
 

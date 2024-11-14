@@ -50,6 +50,15 @@ public class CityBusTimetable {
         this.updatedAt = updatedAt;
     }
 
+    public Optional<BusTimetable> getBusTimetableByDate(LocalDate date) {
+        String dayOfWeek = (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) ?
+            "주말" : "평일";
+
+        return busTimetables.stream()
+            .filter(busTimetable -> busTimetable.getDayOfWeek().equals(dayOfWeek))
+            .findFirst();
+    }
+
     @Getter
     public static class BusInfo {
 
@@ -101,14 +110,5 @@ public class CityBusTimetable {
                 })
                 .collect(Collectors.toList());
         }
-    }
-
-    public Optional<BusTimetable> getBusTimetableByDate(LocalDate date) {
-        String dayOfWeek = (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) ?
-            "주말" : "평일";
-
-        return busTimetables.stream()
-            .filter(busTimetable -> busTimetable.getDayOfWeek().equals(dayOfWeek))
-            .findFirst();
     }
 }

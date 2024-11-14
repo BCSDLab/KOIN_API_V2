@@ -6,7 +6,7 @@ import java.time.LocalTime;
 import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 
-public record BusRouteCommand (
+public record BusRouteCommand(
 
     BusStation depart,
     BusStation arrive,
@@ -14,6 +14,5 @@ public record BusRouteCommand (
     LocalDate date,
     LocalTime time
 ) {
-
 
 }

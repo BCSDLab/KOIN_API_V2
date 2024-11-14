@@ -30,6 +30,13 @@ public class Route {
     @Field("arrival_info")
     private List<ArrivalNode> arrivalInfos = new ArrayList<>();
 
+    @Builder
+    private Route(String routeName, List<String> runningDays, List<ArrivalNode> arrivalInfos) {
+        this.routeName = routeName;
+        this.runningDays = runningDays;
+        this.arrivalInfos = arrivalInfos;
+    }
+
     public boolean isRunning(Clock clock) {
         if ("미운행".equals(routeName) || arrivalInfos.isEmpty()) {
             return false;
@@ -79,13 +86,6 @@ public class Route {
         return arrivalInfos.stream()
             .filter(node -> node.getNodeName().contains(name))
             .toList();
-    }
-
-    @Builder
-    private Route(String routeName, List<String> runningDays, List<ArrivalNode> arrivalInfos) {
-        this.routeName = routeName;
-        this.runningDays = runningDays;
-        this.arrivalInfos = arrivalInfos;
     }
 
     @Getter

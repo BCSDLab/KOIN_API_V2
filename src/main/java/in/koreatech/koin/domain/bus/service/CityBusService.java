@@ -109,6 +109,7 @@ public class CityBusService {
     }
 
     @Transactional
+    @CircuitBreaker(name = "cityBus")
     public void storeRemainTime() {
         List<List<CityBusArrival>> arrivalInfosList = new ArrayList<>();
         BusStationNode.getNodeIds().forEach((nodeId) -> {
@@ -130,10 +131,12 @@ public class CityBusService {
     }
 
     @Transactional
+    @CircuitBreaker(name = "cityBusRoute")
     public void storeCityBusRoute() {
         BusStationNode.getNodeIds().forEach((nodeId) -> {
             try {
-                Set<CityBusRoute> routes = Set.copyOf(cityBusRouteClient.getOpenApiResponse(nodeId).extractBusRouteInfo());
+                Set<CityBusRoute> routes = Set.copyOf(
+                    cityBusRouteClient.getOpenApiResponse(nodeId).extractBusRouteInfo());
                 cityBusRouteCacheRepository.save(CityBusRoute.toCityBusRouteCache(nodeId, routes));
             } catch (BusOpenApiException ignored) {
             }

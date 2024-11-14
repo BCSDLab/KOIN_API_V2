@@ -26,13 +26,13 @@ public enum BusStationNode {
         this.node = node;
     }
 
-    public List<String> getId(BusDirection direction) {
-        return node.get(direction);
-    }
-
     public static List<String> getNodeIds() {
         return Arrays.stream(values())
             .flatMap(station -> station.node.values().stream().flatMap(List::stream))
             .toList();
+    }
+
+    public List<String> getId(BusDirection direction) {
+        return node.get(direction);
     }
 }

@@ -25,7 +25,7 @@ import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.shuttle.BusCourse;
 import in.koreatech.koin.domain.bus.model.shuttle.Route;
 import in.koreatech.koin.domain.bus.model.shuttle.SchoolBusTimetable;
-import in.koreatech.koin.domain.bus.repository.SchoolBusRepository;
+import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -34,11 +34,11 @@ import lombok.RequiredArgsConstructor;
 public class ShuttleBusService {
 
     private final Clock clock;
-    private final SchoolBusRepository schoolBusRepository;
+    private final ShuttleBusRepository shuttleBusRepository;
 
     @Transactional
     public List<BusRemainTime> getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
-        List<BusCourse> busCourses = schoolBusRepository.findByBusType(busType.getName());
+        List<BusCourse> busCourses = shuttleBusRepository.findByBusType(busType.getName());
         return busCourses.stream()
             .map(BusCourse::getRoutes)
             .flatMap(routes ->
@@ -65,7 +65,7 @@ public class ShuttleBusService {
             .getDisplayName(TextStyle.SHORT, Locale.US)
             .toUpperCase();
 
-        LocalTime arrivalTime = schoolBusRepository.findByBusType(busType.getName()).stream()
+        LocalTime arrivalTime = shuttleBusRepository.findByBusType(busType.getName()).stream()
             .filter(busCourse -> busCourse.getRegion().equals("천안"))
             .map(BusCourse::getRoutes)
             .flatMap(routes ->
@@ -87,7 +87,7 @@ public class ShuttleBusService {
     }
 
     public List<SchoolBusTimetable> getShuttleBusTimetable(BusType busType, String direction, String region) {
-        BusCourse busCourse = schoolBusRepository
+        BusCourse busCourse = shuttleBusRepository
             .getByBusTypeAndDirectionAndRegion(busType.getName(), direction, region);
 
         return busCourse.getRoutes().stream()
@@ -100,20 +100,20 @@ public class ShuttleBusService {
     }
 
     public List<BusCourseResponse> getShuttleBusCourses() {
-        return schoolBusRepository.findAll().stream()
+        return shuttleBusRepository.findAll().stream()
             .map(BusCourseResponse::from)
             .toList();
     }
 
     public List<BusScheduleResponse.ScheduleInfo> getShuttleBusSchedule(BusRouteCommand request, BusType busType) {
-        BusCourse busFrom = schoolBusRepository.getByBusTypeAndDirectionAndRegion(
+        BusCourse busFrom = shuttleBusRepository.getByBusTypeAndDirectionAndRegion(
             busType.getName(), "from", "천안"
         );
-        BusCourse busTo = schoolBusRepository.getByBusTypeAndDirectionAndRegion(
+        BusCourse busTo = shuttleBusRepository.getByBusTypeAndDirectionAndRegion(
             busType.getName(), "to", "천안"
         );
 
-        return switch(busType) {
+        return switch (busType) {
             case SHUTTLE -> ShuttleBusRouteManager.getShuttleBusSchedule(
                 busFrom, busTo, request.depart(), request.arrive(), request.date()
             );

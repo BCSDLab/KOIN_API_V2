@@ -47,7 +47,8 @@ public class BusService {
         return switch (busType) {
             case CITY -> toResponse(busType, cityBusService.getBusRemainTime(depart, arrival));
             case EXPRESS -> toResponse(busType, expressBusService.getBusRemainTime(depart, arrival));
-            case SHUTTLE, COMMUTING -> toResponse(busType, shuttleBusService.getBusRemainTime(busType, depart, arrival));
+            case SHUTTLE, COMMUTING ->
+                toResponse(busType, shuttleBusService.getBusRemainTime(busType, depart, arrival));
         };
     }
 
@@ -65,13 +66,11 @@ public class BusService {
                 case SHUTTLE, COMMUTING -> shuttleBusService.searchShuttleBusTime(date, time, depart, arrival, busType);
                 default -> null;
             };
-
             if (busTimeResponse == null) {
                 continue;
             }
             result.add(busTimeResponse);
         }
-
         return result;
     }
 
@@ -102,11 +101,9 @@ public class BusService {
 
     public BusTimetableResponse getBusTimetableWithUpdatedAt(BusType busType, String direction, String region) {
         List<? extends BusTimetable> busTimetables = getBusTimetable(busType, direction, region);
-
         if (busType.equals(BusType.COMMUTING)) {
             busType = BusType.SHUTTLE;
         }
-
         VersionResponse version = versionService.getVersion(busType.getName() + "_bus_timetable");
         return new BusTimetableResponse(busTimetables, version.updatedAt());
     }

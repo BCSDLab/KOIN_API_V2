@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
-import in.koreatech.koin.domain.bus.dto.shuttle.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
+import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
+import in.koreatech.koin.domain.bus.dto.shuttle.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;

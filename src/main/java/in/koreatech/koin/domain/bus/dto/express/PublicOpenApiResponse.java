@@ -7,28 +7,28 @@ import in.koreatech.koin.domain.bus.model.express.PublicOpenApiExpressBusArrival
 public record PublicOpenApiResponse(
     InnerResponse response
 ) {
-    public record InnerResponse (
+    public record InnerResponse(
         InnerHeader header,
         InnerBody body
-    ){
+    ) {
 
     }
 
     public record InnerHeader(
         String resultCode,
         String resultMsg
-    ){
+    ) {
 
     }
 
-    public record InnerBody (
+    public record InnerBody(
         InnerItems items,
         Integer totalCount
-    ){
+    ) {
 
     }
 
-    public record InnerItems (
+    public record InnerItems(
         List<PublicOpenApiExpressBusArrival> item
     ) {
 
