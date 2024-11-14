@@ -421,8 +421,7 @@ class ShopApiTest extends AcceptanceTest {
 
     @Test
     void 상점의_정렬된_모든_카테고리_조회() throws Exception {
-        shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
-        shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게);
+        shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게); // 카테고리_치킨이 먼저 생성됨
 
         mockMvc.perform(
                 get("/shops/categories")
