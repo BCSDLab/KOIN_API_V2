@@ -143,7 +143,8 @@ public class TimetableServiceV2 {
                 timetableRequest.classPlace(),
                 timetableRequest.professor(),
                 timetableRequest.grades(),
-                timetableRequest.memo());
+                timetableRequest.memo()
+            );
         }
         return getTimetableLectureResponse(userId, timetableFrame);
     }

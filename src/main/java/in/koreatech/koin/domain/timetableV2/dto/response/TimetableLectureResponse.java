@@ -5,7 +5,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -79,8 +78,8 @@ public record TimetableLectureResponse(
             List<InnerTimetableLectureResponse> timetableLectureList = new ArrayList<>();
 
             for (TimetableLecture timetableLecture : timetableLectures) {
-                InnerTimetableLectureResponse response;
                 Lecture lecture = timetableLecture.getLecture();
+                InnerTimetableLectureResponse response;
 
                 if (lecture == null) {
                     response = new InnerTimetableLectureResponse(
@@ -89,7 +88,7 @@ public record TimetableLectureResponse(
                         null,
                         null,
                         null,
-                        parseIntegerClassTimesFromString(timetableLecture.getClassTime()),
+                        parseClassTimes(timetableLecture.getClassTime()),
                         timetableLecture.getClassPlace(),
                         timetableLecture.getMemo(),
                         timetableLecture.getGrades(),
@@ -106,20 +105,48 @@ public record TimetableLectureResponse(
                         lecture.getRegularNumber(),
                         lecture.getCode(),
                         lecture.getDesignScore(),
-                        timetableLecture.getClassTime() == null ? parseIntegerClassTimesFromString(lecture.getClassTime()) : parseIntegerClassTimesFromString(timetableLecture.getClassTime()),
+                        getClassTime(timetableLecture, lecture),
                         timetableLecture.getClassPlace(),
                         timetableLecture.getMemo(),
-                        Objects.equals(timetableLecture.getGrades(), GRADE_ZERO) ? lecture.getGrades() : timetableLecture.getGrades(),
-                        timetableLecture.getClassTitle() == null ? lecture.getName() : timetableLecture.getClassTitle(),
+                        getGrades(timetableLecture, lecture),
+                        getClassTitle(timetableLecture, lecture),
                         lecture.getLectureClass(),
                         lecture.getTarget(),
-                        timetableLecture.getProfessor() == null ? lecture.getProfessor() : timetableLecture.getProfessor(),
+                        getProfessor(timetableLecture, lecture),
                         lecture.getDepartment()
                     );
                 }
                 timetableLectureList.add(response);
             }
             return timetableLectureList;
+        }
+
+        private static String getProfessor(TimetableLecture timetableLecture, Lecture lecture) {
+            if (timetableLecture.getProfessor() == null) {
+                return lecture.getProfessor();
+            }
+            return timetableLecture.getProfessor();
+        }
+
+        private static String getClassTitle(TimetableLecture timetableLecture, Lecture lecture) {
+            if (timetableLecture.getGrades() == null) {
+                return lecture.getName();
+            }
+            return timetableLecture.getClassTitle();
+        }
+
+        private static String getGrades(TimetableLecture timetableLecture, Lecture lecture) {
+            if (Objects.equals(timetableLecture.getGrades(), GRADE_ZERO)) {
+                return lecture.getGrades();
+            }
+            return timetableLecture.getGrades();
+        }
+
+        private static List<Integer> getClassTime(TimetableLecture timetableLecture, Lecture lecture) {
+            if (timetableLecture.getClassTime() == null) {
+                return parseClassTimes(lecture.getClassTime());
+            }
+            return parseClassTimes(timetableLecture.getClassTime());
         }
     }
 
@@ -138,16 +165,13 @@ public record TimetableLectureResponse(
         );
     }
 
-    private static List<Integer> parseIntegerClassTimesFromString(String classTime) {
+    private static List<Integer> parseClassTimes(String classTime) {
         String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
 
-        if (!classTimeWithoutBrackets.isEmpty()) {
-            return Arrays.stream(classTimeWithoutBrackets.split(SEPARATOR))
-                .map(String::strip)
-                .map(Integer::parseInt)
-                .toList();
-        }
-        return Collections.emptyList();
+        return Arrays.stream(classTimeWithoutBrackets.split(SEPARATOR))
+            .map(String::strip)
+            .map(Integer::parseInt)
+            .toList();
     }
 }
 
