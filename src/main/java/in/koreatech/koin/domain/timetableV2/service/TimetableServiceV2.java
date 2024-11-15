@@ -79,18 +79,26 @@ public class TimetableServiceV2 {
             .toList();
     }
 
-    @ConcurrencyGuard(lockName = "deleteFrame")
+    @Transactional
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {
         TimetableFrame frame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
         if (!Objects.equals(frame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
+
+        deleteFrameAndUpdateMainStatusWithLock(frameId, frame);
+    }
+
+    @ConcurrencyGuard(lockName = "deleteFrame")
+    private void deleteFrameAndUpdateMainStatusWithLock(Integer frameId, TimetableFrame frame) {
         timetableFrameRepositoryV2.deleteById(frameId);
+
         if (frame.isMain()) {
             TimetableFrame nextMainFrame =
-                timetableFrameRepositoryV2.
-                    findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(userId,
-                        frame.getSemester().getId());
+                timetableFrameRepositoryV2.findFirstByUserIdAndSemesterIdAndIsMainFalseOrderByCreatedAtAsc(
+                    frame.getUser().getId(),
+                    frame.getSemester().getId()
+                );
             if (nextMainFrame != null) {
                 nextMainFrame.updateStatusMain(true);
             }

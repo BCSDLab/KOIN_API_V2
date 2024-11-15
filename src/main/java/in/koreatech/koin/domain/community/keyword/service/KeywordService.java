@@ -51,7 +51,7 @@ public class KeywordService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
 
-    @ConcurrencyGuard(lockName = "createKeyword", waitTime = 7, leaseTime = 5)
+    @ConcurrencyGuard(lockName = "createKeyword")
     public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
         String keyword = validateAndGetKeyword(request.keyword());
         if (articleKeywordUserMapRepository.countByUserId(userId) >= ARTICLE_KEYWORD_LIMIT) {
@@ -77,19 +77,23 @@ public class KeywordService {
         return new ArticleKeywordResponse(keywordUserMap.getId(), existingKeyword.getKeyword());
     }
 
-    @ConcurrencyGuard(lockName = "deleteKeyword")
+    @Transactional
     public void deleteKeyword(Integer userId, Integer keywordUserMapId) {
         ArticleKeywordUserMap articleKeywordUserMap = articleKeywordUserMapRepository.getById(keywordUserMapId);
         if (!Objects.equals(articleKeywordUserMap.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
 
+        deleteMappingAndUnusedKeywordWithLock(keywordUserMapId, articleKeywordUserMap.getArticleKeyword().getId());
+    }
+
+    @ConcurrencyGuard(lockName = "deleteKeyword")
+    private void deleteMappingAndUnusedKeywordWithLock(Integer keywordUserMapId, Integer articleKeywordId) {
         articleKeywordUserMapRepository.deleteById(keywordUserMapId);
 
-        boolean isKeywordUsedByOthers = articleKeywordUserMapRepository.existsByArticleKeywordId(
-            articleKeywordUserMap.getArticleKeyword().getId());
+        boolean isKeywordUsedByOthers = articleKeywordUserMapRepository.existsByArticleKeywordId(articleKeywordId);
         if (!isKeywordUsedByOthers) {
-            articleKeywordRepository.deleteById(articleKeywordUserMap.getArticleKeyword().getId());
+            articleKeywordRepository.deleteById(articleKeywordId);
         }
     }
 
