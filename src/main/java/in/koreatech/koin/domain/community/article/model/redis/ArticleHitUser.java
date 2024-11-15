@@ -14,12 +14,12 @@ import lombok.Getter;
 public class ArticleHitUser {
 
     public static final String DELIMITER = ":";
-    private static final long CACHE_EXPIRE_DAYS = 1L;
+    private static final long CACHE_EXPIRE_HOURS = 1L;
 
     @Id
     private String id;
 
-    @TimeToLive(unit = TimeUnit.DAYS)
+    @TimeToLive(unit = TimeUnit.HOURS)
     private final Long expiration;
 
     @Builder
@@ -31,7 +31,7 @@ public class ArticleHitUser {
     public static ArticleHitUser of(Integer articleId, String publicIp) {
         return ArticleHitUser.builder()
             .id(articleId + DELIMITER + publicIp)
-            .expiration(CACHE_EXPIRE_DAYS)
+            .expiration(CACHE_EXPIRE_HOURS)
             .build();
     }
 }
