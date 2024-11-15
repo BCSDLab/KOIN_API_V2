@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.bus.facade.route;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +11,6 @@ import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.shuttle.BusCourse;
 import in.koreatech.koin.domain.bus.model.shuttle.Route;
-import in.koreatech.koin.domain.bus.model.shuttle.Route.ArrivalNode;
 
 public final class ShuttleBusRouteManager {
 
@@ -71,7 +69,7 @@ public final class ShuttleBusRouteManager {
         String departNodeName
     ) {
         List<ScheduleInfo> scheduleInfo = new ArrayList<>();
-        scheduleInfo.addAll(getScheduleInfoForCircularRoute(routeFrom, departNodeName));
+        scheduleInfo.addAll(getScheduleInfoForCircularShuttle(routeFrom, departNodeName));
         scheduleInfo.addAll(getScheduleInfoDepartElse(routeTo, departNodeName, ""));
         return scheduleInfo;
     }
@@ -94,18 +92,8 @@ public final class ShuttleBusRouteManager {
     private static List<ScheduleInfo> getScheduleInfoDepartKoreaTech(List<Route> shuttleRoutes, String arrivalNodeName,
         String routeName) {
         return shuttleRoutes.stream()
-            .map(route -> {
-                Route.ArrivalNode arrivalNode = route.checkContainNode(arrivalNodeName);
-                Route.ArrivalNode koreaTechNode = route.checkContainNode(KOREATECH_NODE_NAME);
-
-                if (arrivalNode != null && koreaTechNode != null) {
-                    return new ScheduleInfo(
-                        BUS_TYPE,
-                        String.format("%s %s", route.getRouteName(), routeName),
-                        LocalTime.parse(koreaTechNode.getArrivalTime()));
-                }
-                return null;
-            })
+            .map(route -> route.getScheduleInfoForNormalShuttle(arrivalNodeName, KOREATECH_NODE_NAME, BUS_TYPE,
+                routeName, true))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }
@@ -113,35 +101,16 @@ public final class ShuttleBusRouteManager {
     private static List<ScheduleInfo> getScheduleInfoDepartElse(List<Route> shuttleRoutes, String arrivalNodeName,
         String routeName) {
         return shuttleRoutes.stream()
-            .map(route -> {
-                ArrivalNode arrivalNode = route.checkContainNode(arrivalNodeName);
-                ArrivalNode koreaTechNode = route.checkContainNode(KOREATECH_NODE_NAME);
-
-                if (arrivalNode != null && koreaTechNode != null) {
-                    return new ScheduleInfo(
-                        BUS_TYPE,
-                        String.format("%s %s", route.getRouteName(), routeName),
-                        LocalTime.parse(arrivalNode.getArrivalTime()));
-                }
-                return null;
-            })
+            .map(route -> route.getScheduleInfoForNormalShuttle(arrivalNodeName, KOREATECH_NODE_NAME, BUS_TYPE,
+                routeName, false))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }
 
-    private static List<ScheduleInfo> getScheduleInfoForCircularRoute(List<Route> shuttleRoutes,
+    private static List<ScheduleInfo> getScheduleInfoForCircularShuttle(List<Route> shuttleRoutes,
         String arrivalNodeName) {
         return shuttleRoutes.stream()
-            .map(route -> {
-                ArrivalNode arrivalNode = route.checkContainNode(arrivalNodeName);
-                List<ArrivalNode> koreaTechNode = route.checkContainNodes(KOREATECH_NODE_NAME);
-
-                if (koreaTechNode.size() == 2 && arrivalNode != null) {
-                    return new ScheduleInfo(BUS_TYPE, route.getRouteName(),
-                        LocalTime.parse(arrivalNode.getArrivalTime()));
-                }
-                return null;
-            })
+            .map(route -> route.getScheduleInfoForCircularShuttle(arrivalNodeName, KOREATECH_NODE_NAME, BUS_TYPE))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }

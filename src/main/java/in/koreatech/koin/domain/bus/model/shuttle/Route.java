@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.bus.model.shuttle;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Locale;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
 import in.koreatech.koin.domain.bus.exception.BusArrivalNodeNotFoundException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
@@ -75,17 +77,53 @@ public class Route {
                 "routeName: " + routeName + ", busStation: " + busStation.name()));
     }
 
-    public ArrivalNode checkContainNode(String name) {
+    private ArrivalNode checkContainNode(String name) {
         return arrivalInfos.stream()
             .filter(node -> node.getNodeName().contains(name))
             .findFirst()
             .orElse(null);
     }
 
-    public List<ArrivalNode> checkContainNodes(String name) {
+    private List<ArrivalNode> checkContainNodes(String name) {
         return arrivalInfos.stream()
             .filter(node -> node.getNodeName().contains(name))
             .toList();
+    }
+
+    public ScheduleInfo getScheduleInfoForNormalShuttle(
+        String arriveNodeName,
+        String departNodeName,
+        String busType,
+        String routeName,
+        boolean departKoreaTech
+    ) {
+        ArrivalNode arriveNode = checkContainNode(arriveNodeName);
+        ArrivalNode departNode = checkContainNode(departNodeName);
+        if (arriveNode != null && departNode != null) {
+            LocalTime time;
+            if (departKoreaTech) {
+                time = LocalTime.parse(departNode.getArrivalTime());
+            } else {
+                time = LocalTime.parse(arriveNode.getArrivalTime());
+            }
+            return new ScheduleInfo(busType, String.format("%s %s", this.routeName, routeName), time);
+        }
+        return null;
+    }
+
+    // 한기대에서 출발해서 한기대로 돌아오는 순환 셔틀 노선 대상
+    public ScheduleInfo getScheduleInfoForCircularShuttle(
+        String arriveNodeName,
+        String departNodeName,
+        String busType
+    ) {
+        ArrivalNode arriveNode = checkContainNode(arriveNodeName);
+        List<ArrivalNode> koreaTechNodes = checkContainNodes(departNodeName);
+        if (koreaTechNodes.size() == 2 && arriveNode != null) {
+            return new ScheduleInfo(busType, this.routeName,
+                LocalTime.parse(arriveNode.getArrivalTime()));
+        }
+        return null;
     }
 
     @Getter
