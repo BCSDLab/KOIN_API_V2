@@ -37,7 +37,8 @@ public interface ArticleApi {
     @GetMapping("/{id}")
     ResponseEntity<ArticleResponse> getArticle(
         @RequestParam(required = false) Integer boardId,
-        @Parameter(in = PATH) @PathVariable("id") Integer articleId
+        @Parameter(in = PATH) @PathVariable("id") Integer articleId,
+        @IpAddress String ipAddress
     );
 
     @ApiResponses(
