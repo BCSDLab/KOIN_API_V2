@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
@@ -28,7 +29,8 @@ import in.koreatech.koin.fixture.UserFixture;
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
 @TestInstance(Lifecycle.PER_CLASS)
-public class TimetableFrameV2ApiTest {
+public class TimetableFrameV2ApiTest extends AcceptanceTest {
+
     @Autowired
     private TimeTableV2Fixture timetableV2Fixture;
 
@@ -114,13 +116,13 @@ public class TimetableFrameV2ApiTest {
         mockMvc.perform(
                 put("/v2/timetables/frame/{id}", frameId)
                     .header("Authorization", "Bearer " + token)
-                    .content(String.format("""
+                    .content("""
                         {
                             "timetable_name": "새로운 이름",
                             "is_main": true
                         }
                         """
-                    ))
+                    )
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
