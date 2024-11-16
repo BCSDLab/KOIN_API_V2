@@ -16,8 +16,8 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
-import in.koreatech.koin.domain.timetableV2.util.TimetableLectureCreator;
-import in.koreatech.koin.domain.timetableV2.util.TimetableLectureUpdater;
+import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureCreator;
+import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureUpdater;
 import lombok.RequiredArgsConstructor;
 
 @Service

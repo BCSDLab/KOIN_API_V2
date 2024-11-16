@@ -16,8 +16,8 @@ import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateRes
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
-import in.koreatech.koin.domain.timetableV2.util.TimetableFrameCreator;
-import in.koreatech.koin.domain.timetableV2.util.TimetableFrameUpdater;
+import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameCreator;
+import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameUpdater;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
