@@ -24,12 +24,14 @@ public class GradeCalculator {
 
     private static int calculateGrades(List<TimetableLecture> timetableLectures) {
         return timetableLectures.stream()
-            .mapToInt(lecture -> {
-                if (lecture.getLecture() != null) {
-                    return Integer.parseInt(lecture.getLecture().getGrades());
-                }
-                return Integer.parseInt(lecture.getGrades());
-            })
+            .mapToInt(GradeCalculator::determineGrade)
             .sum();
+    }
+
+    private static Integer determineGrade(TimetableLecture timetableLecture) {
+        if (timetableLecture.getLecture() != null) {
+            return Integer.parseInt(timetableLecture.getLecture().getGrades());
+        }
+        return Integer.parseInt(timetableLecture.getGrades());
     }
 }
