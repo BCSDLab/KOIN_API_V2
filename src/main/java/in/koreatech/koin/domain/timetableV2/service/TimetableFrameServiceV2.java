@@ -16,10 +16,10 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.util.TimetableCreator;
+import in.koreatech.koin.domain.timetableV2.util.TimetableUpdater;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,6 +30,7 @@ public class TimetableFrameServiceV2 {
     private final UserRepository userRepository;
     private final SemesterRepositoryV2 semesterRepositoryV2;
     private final TimetableCreator timetableCreator;
+    private final TimetableUpdater timetableUpdater;
 
     @Transactional
     public TimetableFrameResponse createTimetablesFrame(Integer userId, TimetableFrameCreateRequest request) {
@@ -48,28 +49,7 @@ public class TimetableFrameServiceV2 {
         TimetableFrameUpdateRequest request, Integer timetableFrameId, Integer userId
     ) {
         TimetableFrame timeTableFrame = timetableFrameRepositoryV2.getById(timetableFrameId);
-        Semester semester = timeTableFrame.getSemester();
-        boolean isMain = request.isMain();
-        validateTimetableFrameUpdate(userId, isMain, semester, timeTableFrame);
-        timeTableFrame.updateTimetableFrame(semester, request.timetableName(), isMain);
-        return TimetableFrameUpdateResponse.from(timeTableFrame);
-    }
-
-    private void validateTimetableFrameUpdate(Integer userId, boolean isMain, Semester semester,
-        TimetableFrame timeTableFrame) {
-        if (isMain) {
-            cancelMainTimetable(userId, semester.getId());
-            return;
-        }
-        if (timeTableFrame.isMain()) {
-            throw new KoinIllegalArgumentException("메인 시간표는 필수입니다.");
-        }
-    }
-
-    private void cancelMainTimetable(Integer userId, Integer semesterId) {
-        TimetableFrame mainTimetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
-            semesterId);
-        mainTimetableFrame.updateMainFlag(false);
+        return timetableUpdater.updateTimetableFrame(timeTableFrame, userId, request.timetableName(), request.isMain());
     }
 
     public List<TimetableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
