@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.timetableV2.service;
 
-import static in.koreatech.koin.domain.timetableV2.model.TimetableFrame.getDefaultTimetableFrameName;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
 import java.util.List;
@@ -16,6 +15,7 @@ import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateRes
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
+import in.koreatech.koin.domain.timetableV2.util.TimetableCreator;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
@@ -29,18 +29,18 @@ public class TimetableFrameServiceV2 {
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final UserRepository userRepository;
     private final SemesterRepositoryV2 semesterRepositoryV2;
+    private final TimetableCreator timetableCreator;
 
     @Transactional
     public TimetableFrameResponse createTimetablesFrame(Integer userId, TimetableFrameCreateRequest request) {
         Semester semester = semesterRepositoryV2.getBySemester(request.semester());
         User user = userRepository.getById(userId);
         int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId, semester.getId());
-        boolean isMain = (currentFrameCount == 0);
-        String name = (request.timetableName() != null) ? request.timetableName() :
-            getDefaultTimetableFrameName(currentFrameCount + 1);
-        TimetableFrame timetableFrame = request.toTimetablesFrame(user, semester, name, isMain);
-        TimetableFrame savedTimetableFrame = timetableFrameRepositoryV2.save(timetableFrame);
-        return TimetableFrameResponse.from(savedTimetableFrame);
+
+        TimetableFrame frame = timetableCreator.createTimetableFrame(request, user, semester, currentFrameCount);
+        TimetableFrame saveFrame = timetableFrameRepositoryV2.save(frame);
+
+        return TimetableFrameResponse.from(saveFrame);
     }
 
     @Transactional
