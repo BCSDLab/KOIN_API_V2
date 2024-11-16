@@ -48,9 +48,8 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @PathVariable(value = "id") Integer timetableFrameId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableFrameUpdateResponse timetableFrameUpdateResponse =
-            frameServiceV2.updateTimetableFrame(request, timetableFrameId, userId);
-        return ResponseEntity.ok(timetableFrameUpdateResponse);
+        TimetableFrameUpdateResponse response = frameServiceV2.updateTimetableFrame(request, timetableFrameId, userId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/v2/timetables/frames")
@@ -58,9 +57,8 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        List<TimetableFrameResponse> timeTableFrameResponse = frameServiceV2.getTimetablesFrame(userId,
-            semester);
-        return ResponseEntity.ok(timeTableFrameResponse);
+        List<TimetableFrameResponse> response = frameServiceV2.getTimetablesFrame(userId, semester);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/v2/timetables/frame")
