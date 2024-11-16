@@ -9,17 +9,15 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest.InnerTimeTableLectureRequest;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
-import in.koreatech.koin.domain.timetableV2.repository.LectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.util.TimetableLectureCreator;
+import in.koreatech.koin.domain.timetableV2.util.TimetableLectureUpdater;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,6 +27,7 @@ public class TimetableLectureServiceV2 {
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final TimetableLectureCreator timetableLectureCreator;
+    private final TimetableLectureUpdater timetableLectureUpdater;
 
     @Transactional
     public TimetableLectureResponse createTimetableLectures(Integer userId, TimetableLectureCreateRequest request) {
@@ -40,21 +39,10 @@ public class TimetableLectureServiceV2 {
 
     @Transactional
     public TimetableLectureResponse updateTimetablesLectures(Integer userId, TimetableLectureUpdateRequest request) {
-        TimetableFrame timetableFrame = timetableFrameRepositoryV2.getById(request.timetableFrameId());
-        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
-
-        for (TimetableLectureUpdateRequest.InnerTimetableLectureRequest timetableRequest : request.timetableLecture()) {
-            TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
-            timetableLecture.update(
-                timetableRequest.classTitle(),
-                timetableRequest.classTime().toString(),
-                timetableRequest.classPlace(),
-                timetableRequest.professor(),
-                timetableRequest.grades(),
-                timetableRequest.memo()
-            );
-        }
-        return getTimetableLectureResponse(userId, timetableFrame);
+        TimetableFrame frame = timetableFrameRepositoryV2.getById(request.timetableFrameId());
+        validateUserAuthorization(frame.getUser().getId(), userId);
+        timetableLectureUpdater.updateTimetablesLectures(request);
+        return getTimetableLectureResponse(userId, frame);
     }
 
     public TimetableLectureResponse getTimetableLectures(Integer userId, Integer timetableFrameId) {
