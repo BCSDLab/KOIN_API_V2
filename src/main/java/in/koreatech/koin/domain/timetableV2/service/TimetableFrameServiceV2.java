@@ -15,8 +15,8 @@ import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateRes
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
-import in.koreatech.koin.domain.timetableV2.util.TimetableCreator;
-import in.koreatech.koin.domain.timetableV2.util.TimetableUpdater;
+import in.koreatech.koin.domain.timetableV2.util.TimetableFrameCreator;
+import in.koreatech.koin.domain.timetableV2.util.TimetableFrameUpdater;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
@@ -29,8 +29,8 @@ public class TimetableFrameServiceV2 {
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final UserRepository userRepository;
     private final SemesterRepositoryV2 semesterRepositoryV2;
-    private final TimetableCreator timetableCreator;
-    private final TimetableUpdater timetableUpdater;
+    private final TimetableFrameCreator timetableFrameCreator;
+    private final TimetableFrameUpdater timetableFrameUpdater;
 
     @Transactional
     public TimetableFrameResponse createTimetablesFrame(Integer userId, TimetableFrameCreateRequest request) {
@@ -38,7 +38,7 @@ public class TimetableFrameServiceV2 {
         User user = userRepository.getById(userId);
         int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId, semester.getId());
 
-        TimetableFrame frame = timetableCreator.createTimetableFrame(request, user, semester, currentFrameCount);
+        TimetableFrame frame = timetableFrameCreator.createTimetableFrame(request, user, semester, currentFrameCount);
         TimetableFrame saveFrame = timetableFrameRepositoryV2.save(frame);
 
         return TimetableFrameResponse.from(saveFrame);
@@ -48,8 +48,8 @@ public class TimetableFrameServiceV2 {
     public TimetableFrameUpdateResponse updateTimetableFrame(
         TimetableFrameUpdateRequest request, Integer timetableFrameId, Integer userId
     ) {
-        TimetableFrame timeTableFrame = timetableFrameRepositoryV2.getById(timetableFrameId);
-        return timetableUpdater.updateTimetableFrame(timeTableFrame, userId, request.timetableName(), request.isMain());
+        TimetableFrame frame = timetableFrameRepositoryV2.getById(timetableFrameId);
+        return timetableFrameUpdater.updateTimetableFrame(frame, userId, request.timetableName(), request.isMain());
     }
 
     public List<TimetableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {

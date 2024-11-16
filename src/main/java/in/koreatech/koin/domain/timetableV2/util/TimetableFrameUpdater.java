@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class TimetableUpdater {
+public class TimetableFrameUpdater {
 
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
 

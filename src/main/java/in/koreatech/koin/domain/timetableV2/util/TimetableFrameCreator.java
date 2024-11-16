@@ -8,7 +8,7 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.user.model.User;
 
 @Component
-public class TimetableCreator {
+public class TimetableFrameCreator {
 
     private static final String DEFAULT_TIMETABLE_FRAME_NAME = "시간표";
 
