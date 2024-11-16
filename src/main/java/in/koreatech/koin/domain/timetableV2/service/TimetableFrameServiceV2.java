@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV2.service;
 
+import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateTimetableFrameUpdate;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
 import java.util.List;
@@ -49,6 +50,7 @@ public class TimetableFrameServiceV2 {
         TimetableFrameUpdateRequest request, Integer timetableFrameId, Integer userId
     ) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(timetableFrameId);
+        validateTimetableFrameUpdate(frame, request.isMain());
         return timetableFrameUpdater.updateTimetableFrame(frame, userId, request.timetableName(), request.isMain());
     }
 

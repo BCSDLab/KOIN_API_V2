@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.timetableV2.util;
 
-import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateTimetableFrameUpdate;
-
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
@@ -18,7 +16,6 @@ public class TimetableFrameUpdater {
     public TimetableFrameUpdateResponse updateTimetableFrame(
         TimetableFrame timeTableFrame, Integer userId, String timetableName, boolean isMain
     ) {
-        validateTimetableFrameUpdate(timeTableFrame, isMain);
         cancelMainTimetable(userId, timeTableFrame.getSemester().getId(), isMain);
         timeTableFrame.updateTimetableFrame(timeTableFrame.getSemester(), timetableName, isMain);
         return TimetableFrameUpdateResponse.from(timeTableFrame);
