@@ -69,7 +69,7 @@ public class TimetableFrameServiceV2 {
     private void cancelMainTimetable(Integer userId, Integer semesterId) {
         TimetableFrame mainTimetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
             semesterId);
-        mainTimetableFrame.cancelMain();
+        mainTimetableFrame.updateMainFlag(false);
     }
 
     public List<TimetableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
@@ -97,7 +97,7 @@ public class TimetableFrameServiceV2 {
             TimetableFrame nextFrame = timetableFrameRepositoryV2.findNextFirstTimetableFrame(userId,
                 timetableFrame.getSemester().getId());
             if (nextFrame != null) {
-                nextFrame.updateStatusMain(true);
+                nextFrame.updateMainFlag(true);
             }
         }
     }

@@ -92,11 +92,7 @@ public class TimetableFrame extends BaseEntity {
         this.isMain = isMain;
     }
 
-    public void cancelMain() {
-        isMain = false;
-    }
-
-    public void updateStatusMain(boolean isMain) {
+    public void updateMainFlag(boolean isMain) {
         this.isMain = isMain;
     }
 
