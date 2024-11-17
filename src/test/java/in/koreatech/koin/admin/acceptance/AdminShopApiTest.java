@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -21,7 +22,9 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.shop.repository.AdminMenuCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.AdminMenuRepository;
 import in.koreatech.koin.admin.shop.repository.AdminShopCategoryRepository;
+import in.koreatech.koin.admin.shop.repository.AdminShopParentCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
@@ -32,12 +35,15 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.ShopImage;
+import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
-import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.fixture.MenuCategoryFixture;
 import in.koreatech.koin.fixture.MenuFixture;
 import in.koreatech.koin.fixture.ShopCategoryFixture;
 import in.koreatech.koin.fixture.ShopFixture;
+import in.koreatech.koin.fixture.ShopNotificationMessageFixture;
+import in.koreatech.koin.fixture.ShopParentCategoryFixture;
 import in.koreatech.koin.fixture.UserFixture;
 import jakarta.persistence.EntityManager;
 
@@ -54,6 +60,9 @@ class AdminShopApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminShopCategoryRepository adminShopCategoryRepository;
+
+    @Autowired
+    private AdminShopParentCategoryRepository adminShopParentCategoryRepository;
 
     @Autowired
     private AdminShopRepository adminShopRepository;
@@ -77,28 +86,42 @@ class AdminShopApiTest extends AcceptanceTest {
     private ShopCategoryFixture shopCategoryFixture;
 
     @Autowired
+    private ShopParentCategoryFixture shopParentCategoryFixture;
+
+    @Autowired
+    private ShopNotificationMessageFixture shopNotificationMessageFixture;
+
+    @Autowired
     private MenuCategoryFixture menuCategoryFixture;
 
     private Owner owner_현수;
     private Owner owner_준영;
     private Shop shop_마슬랜;
-    private User admin;
+    private Admin admin;
     private String token_admin;
     private ShopCategory shopCategory_치킨;
     private ShopCategory shopCategory_일반;
     private MenuCategory menuCategory_메인;
     private MenuCategory menuCategory_사이드;
+    private ShopParentCategory shopParentCategory_가게;
+    private ShopParentCategory shopParentCategory_콜벤;
+    private ShopNotificationMessage notificationMessage_가게;
+    private ShopNotificationMessage notificationMessage_콜벤;
 
     @BeforeAll
     void setUp() {
         clear();
         admin = userFixture.코인_운영자();
-        token_admin = userFixture.getToken(admin);
+        token_admin = userFixture.getToken(admin.getUser());
         owner_현수 = userFixture.현수_사장님();
         owner_준영 = userFixture.준영_사장님();
-        shop_마슬랜 = shopFixture.마슬랜(owner_현수);
-        shopCategory_치킨 = shopCategoryFixture.카테고리_치킨();
-        shopCategory_일반 = shopCategoryFixture.카테고리_일반음식();
+        notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
+        notificationMessage_콜벤 = shopNotificationMessageFixture.알림메시지_콜벤();
+        shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
+        shopParentCategory_콜벤 = shopParentCategoryFixture.상위_카테고리_콜벤(notificationMessage_콜벤);
+        shopCategory_치킨 = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
+        shopCategory_일반 = shopCategoryFixture.카테고리_일반음식(shopParentCategory_콜벤);
+        shop_마슬랜 = shopFixture.마슬랜(owner_현수, shopCategory_치킨);
         menuCategory_메인 = menuCategoryFixture.메인메뉴(shop_마슬랜);
         menuCategory_사이드 = menuCategoryFixture.사이드메뉴(shop_마슬랜);
     }
@@ -188,6 +211,7 @@ class AdminShopApiTest extends AcceptanceTest {
                      "shop_categories": [
                        
                      ],
+                     "main_category_id": 1,
                      "updated_at": "2024-01-15",
                      "is_deleted": false,
                      "is_event": false,
@@ -198,31 +222,21 @@ class AdminShopApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 어드민이_상점의_모든_카테고리를_조회한다() throws Exception {
-        for (int i = 0; i < 12; i++) {
-            ShopCategory request = ShopCategory.builder()
-                .name("카테고리" + i)
-                .build();
-            adminShopCategoryRepository.save(request);
-        }
-
+    void 어드민이_상점의_등록된_순서가_아닌_정렬된_모든_카테고리를_조회한다() throws Exception {
         mockMvc.perform(
                 get("/admin/shops/categories")
                     .header("Authorization", "Bearer " + token_admin)
-                    .param("page", "1")
-                    .param("is_deleted", "false")
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.total_count").value(14))
-            .andExpect(jsonPath("$.current_count").value(10))
-            .andExpect(jsonPath("$.total_page").value(2))
-            .andExpect(jsonPath("$.current_page").value(1))
-            .andExpect(jsonPath("$.categories.length()").value(10));
+            .andExpect(jsonPath("$[0].id").value(2))
+            .andExpect(jsonPath("$[0].name").value("일반음식점"))
+            .andExpect(jsonPath("$[1].id").value(1))
+            .andExpect(jsonPath("$[1].name").value("치킨"));
     }
 
     @Test
     void 어드민이_상점의_특정_카테고리를_조회한다() throws Exception {
-        ShopCategory shopCategory = shopCategoryFixture.카테고리_치킨();
+        ShopCategory shopCategory = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
 
         mockMvc.perform(
                 get("/admin/shops/categories/{id}", shopCategory.getId())
@@ -233,8 +247,30 @@ class AdminShopApiTest extends AcceptanceTest {
                 {
                   "id": 3,
                   "image_url": "https://test-image.com/ckicken.jpg",
-                  "name": "치킨"
+                  "name": "치킨",
+                  "parent_category_id": 1
                 }
+                """));
+    }
+
+    @Test
+    void 어드민이_상점의_모든_상위_카테고리를_조회한다() throws Exception {
+        mockMvc.perform(
+                get("/admin/shops/parent-categories")
+                    .header("Authorization", "Bearer " + token_admin)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                [
+                    {
+                         "id": 1,
+                         "name": "가게"
+                    },
+                    {
+                         "id": 2,
+                         "name": "콜벤"
+                    }
+                ]
                 """));
     }
 
@@ -296,7 +332,7 @@ class AdminShopApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + token_admin)
             )
             .andExpect(status().isOk())
-                .andExpect(content().json("""
+            .andExpect(content().json("""
                 {
                     "count": 2,
                     "menu_categories": [
@@ -360,6 +396,7 @@ class AdminShopApiTest extends AcceptanceTest {
                     .content(String.format("""
                         {
                             "address": "대전광역시 유성구 대학로 291",
+                            "main_category_id": 1,
                             "category_ids": [
                                 %d
                             ],
@@ -445,7 +482,8 @@ class AdminShopApiTest extends AcceptanceTest {
                     .content("""
                         {
                           "image_url": "https://image.png",
-                          "name": "새로운 카테고리"
+                          "name": "새로운 카테고리",
+                          "parent_category_id": "1"
                         }
                         """)
             )
@@ -453,10 +491,12 @@ class AdminShopApiTest extends AcceptanceTest {
 
         transactionTemplate.executeWithoutResult(status -> {
             ShopCategory result = adminShopCategoryRepository.getById(3);
+            ShopParentCategory shopParentCategory = adminShopParentCategoryRepository.getById(1);
             assertSoftly(
                 softly -> {
                     softly.assertThat(result.getImageUrl()).isEqualTo("https://image.png");
                     softly.assertThat(result.getName()).isEqualTo("새로운 카테고리");
+                    softly.assertThat(result.getParentCategory()).isEqualTo(shopParentCategory);
                 }
             );
         });
@@ -601,6 +641,7 @@ class AdminShopApiTest extends AcceptanceTest {
                     .content(String.format("""
                         {
                           "address": "충청남도 천안시 동남구 병천면 충절로 1600",
+                          "main_category_id": 2,
                           "category_ids": [
                            %d, %d
                           ],
@@ -671,6 +712,7 @@ class AdminShopApiTest extends AcceptanceTest {
 
             assertSoftly(softly -> {
                 softly.assertThat(result.getAddress()).isEqualTo("충청남도 천안시 동남구 병천면 충절로 1600");
+                softly.assertThat(result.getShopMainCategory().getId()).isEqualTo(2);
                 softly.assertThat(result.isDeleted()).isFalse();
                 softly.assertThat(result.getDeliveryPrice()).isEqualTo(1000);
                 softly.assertThat(result.getDescription()).isEqualTo("이번주 전 메뉴 10% 할인 이벤트합니다.");
@@ -694,10 +736,9 @@ class AdminShopApiTest extends AcceptanceTest {
         });
     }
 
-
     @Test
     void 어드민이_상점_카테고리를_수정한다() throws Exception {
-        ShopCategory shopCategory = shopCategoryFixture.카테고리_일반음식();
+        ShopCategory shopCategory = shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게);
 
         mockMvc.perform(
                 put("/admin/shops/categories/{id}", shopCategory.getId())
@@ -706,7 +747,8 @@ class AdminShopApiTest extends AcceptanceTest {
                     .content("""
                         {
                           "image_url": "http://image.png",
-                          "name": "수정된 카테고리 이름"
+                          "name": "수정된 카테고리 이름",
+                          "parent_category_id": "2"
                         }
                         """)
             )
@@ -714,11 +756,13 @@ class AdminShopApiTest extends AcceptanceTest {
 
         transactionTemplate.executeWithoutResult(status -> {
             ShopCategory updatedCategory = adminShopCategoryRepository.getById(shopCategory.getId());
+            ShopParentCategory shopParentCategory = adminShopParentCategoryRepository.getById(2);
             assertSoftly(
                 softly -> {
                     softly.assertThat(updatedCategory.getId()).isEqualTo(shopCategory.getId());
                     softly.assertThat(updatedCategory.getImageUrl()).isEqualTo("http://image.png");
                     softly.assertThat(updatedCategory.getName()).isEqualTo("수정된 카테고리 이름");
+                    softly.assertThat(updatedCategory.getParentCategory()).isEqualTo(shopParentCategory);
                 }
             );
         });
@@ -743,6 +787,29 @@ class AdminShopApiTest extends AcceptanceTest {
 
         MenuCategory menuCategory = adminMenuCategoryRepository.getById(menuCategory_메인.getId());
         assertSoftly(softly -> softly.assertThat(menuCategory.getName()).isEqualTo("사이드 메뉴"));
+    }
+
+    @Test
+    void 어드민이_상점_카테고리_순서를_변경한다() throws Exception {
+        mockMvc.perform(
+                put("/admin/shops/categories/order")
+                    .header("Authorization", "Bearer " + token_admin)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "shop_category_ids": [%d, %d]
+                        }
+                        """.formatted(shopCategory_치킨.getId(), shopCategory_일반.getId()))
+            )
+            .andExpect(status().isNoContent());
+
+        List<ShopCategory> shopCategories = adminShopCategoryRepository.findAll(Sort.by("orderIndex"));
+        assertSoftly(softly -> {
+            softly.assertThat(shopCategories.get(0).getId()).isEqualTo(shopCategory_치킨.getId());
+            softly.assertThat(shopCategories.get(0).getOrderIndex()).isEqualTo(0);
+            softly.assertThat(shopCategories.get(1).getId()).isEqualTo(shopCategory_일반.getId());
+            softly.assertThat(shopCategories.get(1).getOrderIndex()).isEqualTo(1);
+        });
     }
 
     @Test
@@ -870,7 +937,6 @@ class AdminShopApiTest extends AcceptanceTest {
             .andExpect(status().isBadRequest());
     }
 
-
     @Test
     void 어드민이_상점을_삭제한다() throws Exception {
         Shop shop = shopFixture.영업중이_아닌_신전_떡볶이(owner_현수);
@@ -887,7 +953,7 @@ class AdminShopApiTest extends AcceptanceTest {
 
     @Test
     void 어드민이_상점_카테고리를_삭제한다() throws Exception {
-        ShopCategory shopCategory = shopCategoryFixture.카테고리_치킨();
+        ShopCategory shopCategory = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
 
         mockMvc.perform(
                 delete("/admin/shops/categories/{id}", shopCategory.getId())
@@ -909,7 +975,7 @@ class AdminShopApiTest extends AcceptanceTest {
         mockMvc.perform(
                 delete("/admin/shops/categories/{id}", shopCategory_치킨.getId())
                     .header("Authorization", "Bearer " + token_admin)
-                )
+            )
             .andExpect(status().isBadRequest());
     }
 

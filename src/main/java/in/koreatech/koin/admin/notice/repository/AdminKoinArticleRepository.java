@@ -6,9 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.article.model.KoinArticle;
+import org.springframework.data.repository.query.Param;
 
 public interface AdminKoinArticleRepository extends Repository<KoinArticle, Integer> {
 
     @Query(value = "SELECT * FROM new_koin_articles WHERE article_id = :noticeId", nativeQuery = true)
-    Optional<KoinArticle> findByArticleId(Integer noticeId);
+    Optional<KoinArticle> findByArticleId(@Param("noticeId") Integer noticeId);
 }

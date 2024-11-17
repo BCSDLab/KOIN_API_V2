@@ -3,9 +3,36 @@ package in.koreatech.koin.domain.shop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
+import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
+import in.koreatech.koin.domain.shop.dto.review.CreateReviewRequest;
+import in.koreatech.koin.domain.shop.dto.review.ModifyReviewRequest;
+import in.koreatech.koin.domain.shop.dto.review.ReviewsSortCriteria;
+import in.koreatech.koin.domain.shop.dto.review.ShopMyReviewsResponse;
+import in.koreatech.koin.domain.shop.dto.review.ShopReviewReportCategoryResponse;
+import in.koreatech.koin.domain.shop.dto.review.ShopReviewReportRequest;
+import in.koreatech.koin.domain.shop.dto.review.ShopReviewResponse;
+import in.koreatech.koin.domain.shop.dto.review.ShopReviewsResponse;
+import in.koreatech.koin.domain.shop.dto.search.RelatedKeyword;
+import in.koreatech.koin.domain.shop.dto.shop.ShopCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopEventsWithBannerUrlResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopEventsWithThumbnailUrlResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsResponseV2;
+import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
+import in.koreatech.koin.domain.shop.service.SearchService;
+import in.koreatech.koin.domain.shop.service.ShopReviewService;
+import in.koreatech.koin.domain.shop.service.ShopService;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import java.util.Collections;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,38 +44,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.shop.dto.review.CreateReviewRequest;
-import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
-import in.koreatech.koin.domain.shop.dto.review.ModifyReviewRequest;
-import in.koreatech.koin.domain.shop.dto.review.ReviewsSortCriteria;
-import in.koreatech.koin.domain.shop.dto.shop.ShopCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopEventsResponse;
-import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
-import in.koreatech.koin.domain.shop.dto.review.ShopMyReviewsResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
-import in.koreatech.koin.domain.shop.dto.review.ShopReviewReportCategoryResponse;
-import in.koreatech.koin.domain.shop.dto.review.ShopReviewReportRequest;
-import in.koreatech.koin.domain.shop.dto.review.ShopReviewResponse;
-import in.koreatech.koin.domain.shop.dto.review.ShopReviewsResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsResponseV2;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
-import in.koreatech.koin.domain.shop.service.ShopReviewService;
-import in.koreatech.koin.domain.shop.service.ShopService;
-import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.auth.UserId;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequiredArgsConstructor
 public class ShopController implements ShopApi {
 
     private final ShopService shopService;
     private final ShopReviewService shopReviewService;
+    private final SearchService searchService;
 
     @GetMapping("/shops/{shopId}/menus/{menuId}")
     public ResponseEntity<MenuDetailResponse> findMenu(
@@ -96,7 +98,7 @@ public class ShopController implements ShopApi {
     }
 
     @GetMapping("/shops/{shopId}/events")
-    public ResponseEntity<ShopEventsResponse> getShopEvents(
+    public ResponseEntity<ShopEventsWithThumbnailUrlResponse> getShopEvents(
         @PathVariable Integer shopId
     ) {
         var response = shopService.getShopEvents(shopId);
@@ -104,7 +106,7 @@ public class ShopController implements ShopApi {
     }
 
     @GetMapping("/shops/events")
-    public ResponseEntity<ShopEventsResponse> getShopAllEvent() {
+    public ResponseEntity<ShopEventsWithBannerUrlResponse> getShopAllEvent() {
         var response = shopService.getAllEvents();
         return ResponseEntity.ok(response);
     }
@@ -183,12 +185,13 @@ public class ShopController implements ShopApi {
     @GetMapping("/v2/shops")
     public ResponseEntity<ShopsResponseV2> getShopsV2(
         @RequestParam(name = "sorter", defaultValue = "NONE") ShopsSortCriteria sortBy,
-        @RequestParam(name = "filter", required = false) List<ShopsFilterCriteria> shopsFilterCriterias
+        @RequestParam(name = "filter", required = false) List<ShopsFilterCriteria> shopsFilterCriterias,
+        @RequestParam(name = "query", required = false, defaultValue = "") String query
     ) {
         if (shopsFilterCriterias == null) {
             shopsFilterCriterias = Collections.emptyList();
         }
-        var shops = shopService.getShopsV2(sortBy, shopsFilterCriterias);
+        var shops = shopService.getShopsV2(sortBy, shopsFilterCriterias, query);
         return ResponseEntity.ok(shops);
     }
 
@@ -199,5 +202,21 @@ public class ShopController implements ShopApi {
     ) {
         ShopReviewResponse shopReviewResponse = shopReviewService.getReviewByReviewId(shopId, reviewId);
         return ResponseEntity.ok(shopReviewResponse);
+    }
+
+    @GetMapping("/shops/search/related/{query}")
+    public ResponseEntity<RelatedKeyword> getRelatedKeyword(
+            @PathVariable(name = "query") String query
+    ) {
+        return ResponseEntity.ok(searchService.getRelatedKeywordByQuery(query));
+    }
+
+    @PostMapping("/shops/{shopId}/call-notification")
+    public ResponseEntity<Void> createCallNotification(
+        @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
+        @Auth(permit = {STUDENT}) Integer studentId
+    ) {
+        shopService.publishCallNotification(shopId, studentId);
+        return ResponseEntity.ok().build();
     }
 }

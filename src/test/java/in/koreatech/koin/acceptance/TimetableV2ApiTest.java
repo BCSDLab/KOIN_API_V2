@@ -2,7 +2,11 @@ package in.koreatech.koin.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,6 +19,7 @@ import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
+import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.user.model.User;
@@ -290,46 +295,46 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-            {
-                "timetable_frame_id": 1,
-                "timetable": [
-                    {
-                        "id": 1,
-                        "lecture_id" : null,
-                        "regular_number": null,
-                        "code": null,
-                        "design_score": null,
-                        "class_time": [200, 201],
-                        "class_place": "한기대",
-                        "memo": "메모",
-                        "grades": "2",
-                        "class_title": "커스텀생성1",
-                        "lecture_class": null,
-                        "target": null,
-                        "professor": "서정빈",
-                        "department": null
-                    },
-                    {
-                        "id": 2,
-                        "lecture_id" : null,
-                        "regular_number": null,
-                        "code": null,
-                        "design_score": null,
-                        "class_time": [202, 203],
-                        "class_place": "참빛관 편의점",
-                        "memo": "메모",
-                        "grades": "1",
-                        "class_title": "커스텀생성2",
-                        "lecture_class": null,
-                        "target": null,
-                        "professor": "감사 서정빈",
-                        "department": null
-                    }
-                ],
-                "grades": 3,
-                "total_grades": 3
-            }
-            """));
+                {
+                    "timetable_frame_id": 1,
+                    "timetable": [
+                        {
+                            "id": 1,
+                            "lecture_id" : null,
+                            "regular_number": null,
+                            "code": null,
+                            "design_score": null,
+                            "class_time": [200, 201],
+                            "class_place": "한기대",
+                            "memo": "메모",
+                            "grades": "2",
+                            "class_title": "커스텀생성1",
+                            "lecture_class": null,
+                            "target": null,
+                            "professor": "서정빈",
+                            "department": null
+                        },
+                        {
+                            "id": 2,
+                            "lecture_id" : null,
+                            "regular_number": null,
+                            "code": null,
+                            "design_score": null,
+                            "class_time": [202, 203],
+                            "class_place": "참빛관 편의점",
+                            "memo": "메모",
+                            "grades": "1",
+                            "class_title": "커스텀생성2",
+                            "lecture_class": null,
+                            "target": null,
+                            "professor": "감사 서정빈",
+                            "department": null
+                        }
+                    ],
+                    "grades": 3,
+                    "total_grades": 3
+                }
+                """));
     }
 
     @Test
@@ -372,46 +377,46 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-            {
-                "timetable_frame_id": 1,
-                "timetable": [
-                    {
-                        "id": 1,
-                        "lecture_id" : null,
-                        "regular_number": null,
-                        "code": null,
-                        "design_score": null,
-                        "class_time": [200, 201],
-                        "class_place": "한기대",
-                        "memo": "메모한당 히히",
-                        "grades": "0",
-                        "class_title": "커스텀바꿔요1",
-                        "lecture_class": null,
-                        "target": null,
-                        "professor": "서정빈",
-                        "department": null
-                    },
-                    {
-                        "id": 2,
-                        "lecture_id" : null,
-                        "regular_number": null,
-                        "code": null,
-                        "design_score": null,
-                        "class_time": [202, 203],
-                        "class_place": "참빛관 편의점",
-                        "memo": "메모한당 히히",
-                        "grades": "0",
-                        "class_title": "커스텀바꿔요2",
-                        "lecture_class": null,
-                        "target": null,
-                        "professor": "알바 서정빈",
-                        "department": null
-                    }
-                ],
-                "grades": 0,
-                "total_grades": 0
-            }
-            """));
+                {
+                    "timetable_frame_id": 1,
+                    "timetable": [
+                        {
+                            "id": 1,
+                            "lecture_id" : null,
+                            "regular_number": null,
+                            "code": null,
+                            "design_score": null,
+                            "class_time": [200, 201],
+                            "class_place": "한기대",
+                            "memo": "메모한당 히히",
+                            "grades": "0",
+                            "class_title": "커스텀바꿔요1",
+                            "lecture_class": null,
+                            "target": null,
+                            "professor": "서정빈",
+                            "department": null
+                        },
+                        {
+                            "id": 2,
+                            "lecture_id" : null,
+                            "regular_number": null,
+                            "code": null,
+                            "design_score": null,
+                            "class_time": [202, 203],
+                            "class_place": "참빛관 편의점",
+                            "memo": "메모한당 히히",
+                            "grades": "0",
+                            "class_title": "커스텀바꿔요2",
+                            "lecture_class": null,
+                            "target": null,
+                            "professor": "알바 서정빈",
+                            "department": null
+                        }
+                    ],
+                    "grades": 0,
+                    "total_grades": 0
+                }
+                """));
     }
 
     @Test
@@ -433,46 +438,46 @@ public class TimetableV2ApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-            {
-                "timetable_frame_id": 1,
-                "timetable": [
-                    {
-                        "id" : 1,
-                        "lecture_id" : 1,
-                        "regular_number": "25",
-                        "code": "ARB244",
-                        "design_score": "0",
-                        "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
-                        "class_place": null,
-                        "memo": null,
-                        "grades": "3",
-                        "class_title": "건축구조의 이해 및 실습",
-                        "lecture_class": "01",
-                        "target": "디자 1 건축",
-                        "professor": "황현식",
-                        "department": "디자인ㆍ건축공학부"
-                    },
-                    {
-                        "id": 2,
-                        "lecture_id": 2,
-                        "regular_number": "22",
-                        "code": "BSM590",
-                        "design_score": "0",
-                        "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
-                        "class_place": null,
-                        "memo": null,
-                        "grades": "3",
-                        "class_title": "컴퓨팅사고",
-                        "lecture_class": "06",
-                        "target": "기공1",
-                        "professor": "박한수,최준호",
-                        "department": "기계공학부"
-                    }
-                ],
-                "grades": 6,
-                "total_grades": 6
-            }
-            """));
+                {
+                    "timetable_frame_id": 1,
+                    "timetable": [
+                        {
+                            "id" : 1,
+                            "lecture_id" : 1,
+                            "regular_number": "25",
+                            "code": "ARB244",
+                            "design_score": "0",
+                            "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
+                            "class_place": null,
+                            "memo": null,
+                            "grades": "3",
+                            "class_title": "건축구조의 이해 및 실습",
+                            "lecture_class": "01",
+                            "target": "디자 1 건축",
+                            "professor": "황현식",
+                            "department": "디자인ㆍ건축공학부"
+                        },
+                        {
+                            "id": 2,
+                            "lecture_id": 2,
+                            "regular_number": "22",
+                            "code": "BSM590",
+                            "design_score": "0",
+                            "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
+                            "class_place": null,
+                            "memo": null,
+                            "grades": "3",
+                            "class_title": "컴퓨팅사고",
+                            "lecture_class": "06",
+                            "target": "기공1",
+                            "professor": "박한수,최준호",
+                            "department": "기계공학부"
+                        }
+                    ],
+                    "grades": 6,
+                    "total_grades": 6
+                }
+                """));
     }
 
     @Test
@@ -490,6 +495,50 @@ public class TimetableV2ApiTest extends AcceptanceTest {
                 delete("/v2/timetables/lecture/{id}", lectureId)
                     .header("Authorization", "Bearer " + token)
                     .param("timetable_frame_id", String.valueOf(frame.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void 시간표에서_특정_강의를_삭제한다_V2() throws Exception {
+        User user1 = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user1);
+        Semester semester = semesterFixture.semester("20192");
+        Lecture lecture1 = lectureFixture.HRD_개론("20192");
+        Lecture lecture2 = lectureFixture.영어청해("20192");
+        TimetableFrame frame = timetableV2Fixture.시간표4(user1, semester, lecture1, lecture2);
+
+        Integer frameId = frame.getId();
+        Integer lectureId = lecture1.getId();
+
+        mockMvc.perform(
+                delete("/v2/timetables/frame/{frameId}/lecture/{lectureId}", frameId, lectureId)
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void 시간표에서_여러개의_강의를_한번에_삭제한다_V2() throws Exception {
+        User user1 = userFixture.준호_학생().getUser();
+        String token = userFixture.getToken(user1);
+        Semester semester = semesterFixture.semester("20192");
+        Lecture lecture1 = lectureFixture.HRD_개론("20192");
+        Lecture lecture2 = lectureFixture.영어청해("20192");
+        TimetableFrame frame = timetableV2Fixture.시간표4(user1, semester, lecture1, lecture2);
+
+        List<Integer> timetableLectureIds = frame.getTimetableLectures().stream()
+            .map(TimetableLecture::getId)
+            .toList();
+
+        mockMvc.perform(
+                delete("/v2/timetables/lectures")
+                    .header("Authorization", "Bearer " + token)
+                    .param("timetable_lecture_ids", timetableLectureIds.stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(",")))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isNoContent());

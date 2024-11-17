@@ -27,11 +27,13 @@ import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMap;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHit;
+import in.koreatech.koin.domain.community.article.model.redis.ArticleHitUser;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -60,13 +62,16 @@ public class ArticleService {
     private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
     private final ArticleHitRepository articleHitRepository;
     private final HotArticleRepository hotArticleRepository;
+    private final ArticleHitUserRepository articleHitUserRepository;
     private final Clock clock;
 
     @Transactional
-    public ArticleResponse getArticle(Integer boardId, Integer articleId) {
+    public ArticleResponse getArticle(Integer boardId, Integer articleId, String publicIp) {
         Article article = articleRepository.getById(articleId);
-        //TODO: 추후(Device 관련 로직 구현 후) 조회수 증가 제한 로직 부가 필요
-        article.increaseKoinHit();
+        if (articleHitUserRepository.findByArticleIdAndPublicIp(articleId, publicIp).isEmpty()) {
+            article.increaseKoinHit();
+            articleHitUserRepository.save(ArticleHitUser.of(articleId, publicIp));
+        }
         Board board = getBoard(boardId, article);
         Article prevArticle = articleRepository.getPreviousArticle(board, article);
         Article nextArticle = articleRepository.getNextArticle(board, article);

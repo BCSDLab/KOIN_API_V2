@@ -14,7 +14,6 @@ import in.koreatech.koin.admin.version.exception.VersionNotSupportedException;
 import in.koreatech.koin.admin.version.repository.AdminVersionRepository;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
 
@@ -64,7 +63,7 @@ public class AdminVersionService {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
             Sort.by(Sort.Direction.ASC, "id"));
 
-        Page<Version> result = adminVersionRepository.findAllByType(versionType.getValue(), pageRequest);
+        Page<Version> result = adminVersionRepository.findAllByTypeOrderByVersionDesc(versionType.getValue(), pageRequest);
 
         return AdminVersionHistoryResponse.of(result, criteria);
     }

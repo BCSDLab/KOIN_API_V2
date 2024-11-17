@@ -13,21 +13,29 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
+import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
+import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
+import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
-import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
-import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
+import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
+import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
+import in.koreatech.koin.admin.user.dto.AdminResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
-import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
-import in.koreatech.koin.admin.user.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
-import in.koreatech.koin.admin.user.dto.OwnersCondition;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
+import in.koreatech.koin.admin.user.dto.AdminUpdateRequest;
+import in.koreatech.koin.admin.user.dto.AdminsResponse;
+import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
+import in.koreatech.koin.admin.user.dto.OwnersCondition;
+import in.koreatech.koin.admin.user.enums.TeamType;
+import in.koreatech.koin.admin.user.enums.TrackType;
+import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -51,12 +59,29 @@ public interface AdminUserApi {
     @Operation(summary = "학생 리스트 조회(페이지네이션)")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/admin/students")
-    public ResponseEntity<AdminStudentsResponse> getStudents(
+    ResponseEntity<AdminStudentsResponse> getStudents(
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
         @RequestParam(required = false) Boolean isAuthed,
         @RequestParam(required = false) String nickname,
         @RequestParam(required = false) String email,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 회원가입")
+    @PostMapping("/admin")
+    ResponseEntity<Void> createAdmin(
+        @RequestBody @Valid CreateAdminRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
@@ -72,6 +97,22 @@ public interface AdminUserApi {
     @PostMapping("/admin/user/login")
     ResponseEntity<AdminLoginResponse> adminLogin(
         @RequestBody @Valid AdminLoginRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 비밀번호 변경")
+    @PutMapping("/admin/password")
+    ResponseEntity<Void> adminPasswordChange(
+        @RequestBody @Valid AdminPasswordChangeRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(
@@ -99,8 +140,105 @@ public interface AdminUserApi {
     )
     @Operation(summary = "어드민 액세스 토큰 재발급")
     @PostMapping("/admin/user/refresh")
-    public ResponseEntity<AdminTokenRefreshResponse> refresh(
+    ResponseEntity<AdminTokenRefreshResponse> refresh(
         @RequestBody @Valid AdminTokenRefreshRequest request
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "로그인 어드민 계정 정보 조회")
+    @GetMapping("/admin")
+    ResponseEntity<AdminResponse> getLoginAdminInfo(
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 계정 정보 조회")
+    @GetMapping("/admin/{id}")
+    ResponseEntity<AdminResponse> getAdmin(
+        @PathVariable("id") Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 계정 리스트 정보 조회")
+    @GetMapping("/admins")
+    ResponseEntity<AdminsResponse> getAdmins(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit,
+        @RequestParam(required = false) Boolean isAuthed,
+        @RequestParam(required = false) TrackType trackName,
+        @RequestParam(required = false) TeamType teamName,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 계정 인증 상태 변경")
+    @PutMapping("/admin/{id}/authed")
+    ResponseEntity<Void> adminAuthenticate(
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 계정 정보 수정")
+    @PutMapping("/admin/{id}")
+    ResponseEntity<Void> updateAdmin(
+        @RequestBody @Valid AdminUpdateRequest request,
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "어드민 계정 권한 수정")
+    @PutMapping("/admin/{id}/permission")
+    ResponseEntity<Void> updateAdminPermission(
+        @RequestBody @Valid AdminPermissionUpdateRequest request,
+        @PathVariable Integer id,
+        @Auth(permit = {ADMIN}) Integer adminId
     );
 
     @ApiResponses(

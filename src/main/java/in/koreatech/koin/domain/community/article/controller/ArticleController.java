@@ -27,9 +27,10 @@ public class ArticleController implements ArticleApi {
     @GetMapping("/{id}")
     public ResponseEntity<ArticleResponse> getArticle(
         @RequestParam(required = false) Integer boardId,
-        @PathVariable("id") Integer articleId
+        @PathVariable("id") Integer articleId,
+        @IpAddress String ipAddress
     ) {
-        ArticleResponse foundArticle = articleService.getArticle(boardId, articleId);
+        ArticleResponse foundArticle = articleService.getArticle(boardId, articleId, ipAddress);
         return ResponseEntity.ok().body(foundArticle);
     }
 

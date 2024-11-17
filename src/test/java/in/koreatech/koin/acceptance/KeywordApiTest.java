@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
@@ -27,7 +28,6 @@ import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepos
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.fixture.ArticleFixture;
 import in.koreatech.koin.fixture.BoardFixture;
 import in.koreatech.koin.fixture.KeywordFixture;
@@ -60,7 +60,7 @@ public class KeywordApiTest extends AcceptanceTest {
     private ArticleFixture articleFixture;
 
     private Student 준호_학생;
-    private User 관리자;
+    private Admin 관리자;
     private String token;
     private String adminToken;
 
@@ -70,7 +70,7 @@ public class KeywordApiTest extends AcceptanceTest {
         준호_학생 = userFixture.준호_학생();
         관리자 = userFixture.코인_운영자();
         token = userFixture.getToken(준호_학생.getUser());
-        adminToken = userFixture.getToken(관리자);
+        adminToken = userFixture.getToken(관리자.getUser());
     }
 
     @Test

@@ -28,6 +28,10 @@ public record ModifyShopRequest(
     @Schema(example = "충청남도 천안시 동남구 병천면", description = "주소", requiredMode = NOT_REQUIRED)
     String address,
 
+    @Schema(description = "메인 카테고리 고유 id", example = "2", requiredMode = REQUIRED)
+    @NotNull(message = "메인 카테고리는 필수입니다.")
+    Integer mainCategoryId,
+
     @Schema(example = "[1, 2]", description = "상점 카테고리 고유 id 리스트", requiredMode = REQUIRED)
     @NotNull(message = "카테고리는 필수입니다.")
     @UniqueId(message = "카테고리 ID는 중복될 수 없습니다.")
