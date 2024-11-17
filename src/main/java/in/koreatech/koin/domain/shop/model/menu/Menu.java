@@ -5,8 +5,8 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest;
-import in.koreatech.koin.domain.shop.dto.menu.ModifyMenuRequest;
-import in.koreatech.koin.domain.shop.dto.menu.ModifyMenuRequest.InnerOptionPrice;
+import in.koreatech.koin.domain.shop.dto.menu.request.ModifyMenuRequest;
+import in.koreatech.koin.domain.shop.dto.menu.request.ModifyMenuRequest.InnerOptionPrice;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;

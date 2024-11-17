@@ -21,8 +21,8 @@ import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.shop.dto.shop.ModifyShopRequest.InnerShopOpen;
-import in.koreatech.koin.domain.shop.model.article.EventArticle;
+import in.koreatech.koin.domain.shop.dto.shop.request.ModifyShopRequest.InnerShopOpen;
+import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.global.domain.BaseEntity;

@@ -15,16 +15,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.shop.cache.ShopsCacheService;
 import in.koreatech.koin.domain.shop.cache.dto.ShopsCache;
-import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
-import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopEventsWithBannerUrlResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopEventsWithThumbnailUrlResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.menu.response.MenuCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.menu.response.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.menu.response.ShopMenuResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.event.response.ShopEventsWithBannerUrlResponse;
+import in.koreatech.koin.domain.shop.dto.event.response.ShopEventsWithThumbnailUrlResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopsResponseV2;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
@@ -105,16 +105,6 @@ public class ShopService {
     public ShopCategoriesResponse getShopsCategories() {
         List<ShopCategory> shopCategories = shopCategoryRepository.findAll(Sort.by("orderIndex"));
         return ShopCategoriesResponse.from(shopCategories);
-    }
-
-    public ShopEventsWithThumbnailUrlResponse getShopEvents(Integer shopId) {
-        Shop shop = shopRepository.getById(shopId);
-        return ShopEventsWithThumbnailUrlResponse.of(shop, clock);
-    }
-
-    public ShopEventsWithBannerUrlResponse getAllEvents() {
-        List<Shop> shops = shopRepository.findAll();
-        return ShopEventsWithBannerUrlResponse.of(shops, clock);
     }
 
     public ShopsResponseV2 getShopsV2(
