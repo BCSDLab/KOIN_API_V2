@@ -36,5 +36,4 @@ public record FilteredKeywordsResponse(
                 .toList()
         );
     }
-
 }
