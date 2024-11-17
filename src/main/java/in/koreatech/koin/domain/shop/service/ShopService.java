@@ -17,7 +17,7 @@ import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopNotificationBufferRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
-import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV2;
+import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
@@ -74,7 +74,7 @@ public class ShopService {
         }
         ShopsCache shopCaches = shopsCache.findAllShopCache();
         LocalDateTime now = LocalDateTime.now(clock);
-        Map<Integer, ShopInfoV2> shopInfoMap = shopCustomRepository.findAllShopInfo(now);
+        Map<Integer, ShopInfo> shopInfoMap = shopCustomRepository.findAllShopInfo(now);
         return ShopsResponseV2.from(
             shopCaches.shopCaches(),
             shopInfoMap,

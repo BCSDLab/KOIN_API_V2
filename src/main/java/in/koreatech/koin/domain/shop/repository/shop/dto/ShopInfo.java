@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.shop.repository.shop.dto;
 
-public record ShopInfoV2(
+public record ShopInfo(
     Boolean durationEvent,
     Double averageRate,
     Long reviewCount

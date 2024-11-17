@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.shop.cache.dto.ShopCache;
 import in.koreatech.koin.domain.shop.cache.dto.ShopCategoryCache;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
-import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV2;
+import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -35,7 +35,7 @@ public record ShopsResponseV2(
 
     public static ShopsResponseV2 from(
             List<ShopCache> shops,
-            Map<Integer, ShopInfoV2> shopInfoMap,
+            Map<Integer, ShopInfo> shopInfoMap,
             ShopsSortCriteria sortBy,
             List<ShopsFilterCriteria> shopsFilterCriterias,
             LocalDateTime now,
@@ -44,7 +44,7 @@ public record ShopsResponseV2(
         List<InnerShopResponse> innerShopResponses = shops.stream()
                 .filter(queryPredicate(query))
                 .map(it -> {
-                    ShopInfoV2 shopInfo = shopInfoMap.get(it.id());
+                    ShopInfo shopInfo = shopInfoMap.get(it.id());
                     return InnerShopResponse.from(
                             it,
                             shopInfo.durationEvent(),

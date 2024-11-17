@@ -20,7 +20,7 @@ public class ShopCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public Map<Integer, ShopInfoV2> findAllShopInfo(LocalDateTime now) {
+    public Map<Integer, ShopInfo> findAllShopInfo(LocalDateTime now) {
         QShop shop = QShop.shop;
         QEventArticle eventArticle = QEventArticle.eventArticle;
         QShopReview shopReview = QShopReview.shopReview;
@@ -44,10 +44,10 @@ public class ShopCustomRepository {
             .groupBy(shop.id)
             .fetch();
 
-        Map<Integer, ShopInfoV2> map = new HashMap<>(results.size());
+        Map<Integer, ShopInfo> map = new HashMap<>(results.size());
 
         for (Tuple result : results) {
-            ShopInfoV2 shopResult = new ShopInfoV2(
+            ShopInfo shopResult = new ShopInfo(
                 result.get(1, Boolean.class),
                 result.get(2, Double.class),
                 result.get(3, Long.class)
