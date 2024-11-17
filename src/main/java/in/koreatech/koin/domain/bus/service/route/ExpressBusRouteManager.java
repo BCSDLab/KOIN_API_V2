@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.facade.route;
+package in.koreatech.koin.domain.bus.service.route;
 
 import static in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo.toScheduleInfo;
 

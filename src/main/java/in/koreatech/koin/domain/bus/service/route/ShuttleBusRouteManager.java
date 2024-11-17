@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.facade.route;
+package in.koreatech.koin.domain.bus.service.route;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

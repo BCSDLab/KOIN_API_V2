@@ -13,7 +13,7 @@ import in.koreatech.koin.domain.bus.dto.shuttle.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.shuttle.BusRemainTimeResponse.InnerBusResponse;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.facade.BusService;
+import in.koreatech.koin.domain.bus.facade.BusFacade;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
@@ -28,7 +28,7 @@ public class KakaoBotService {
 
     private final Clock clock;
     private final DiningRepository diningRepository;
-    private final BusService busService;
+    private final BusFacade busFacade;
 
     public String getDiningMenus(KakaoDiningRequest request) {
         DiningType diningType = request.diningType();
@@ -69,7 +69,7 @@ public class KakaoBotService {
         StringJoiner nextBuses = new StringJoiner(System.lineSeparator());
         for (BusType type : BusType.values()) {
             try {
-                BusRemainTimeResponse remainTime = busService.getBusRemainTime(
+                BusRemainTimeResponse remainTime = busFacade.getBusRemainTime(
                     type,
                     depart,
                     arrival

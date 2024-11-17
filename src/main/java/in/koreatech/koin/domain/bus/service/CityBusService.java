@@ -21,7 +21,7 @@ import in.koreatech.koin.domain.bus.dto.city.CityBusArrival;
 import in.koreatech.koin.domain.bus.dto.city.CityBusRoute;
 import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
-import in.koreatech.koin.domain.bus.facade.route.CityBusRouteManager;
+import in.koreatech.koin.domain.bus.service.route.CityBusRouteManager;
 import in.koreatech.koin.domain.bus.model.city.CityBusCache;
 import in.koreatech.koin.domain.bus.model.city.CityBusRemainTime;
 import in.koreatech.koin.domain.bus.model.city.CityBusRouteCache;

@@ -18,7 +18,7 @@ import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
-import in.koreatech.koin.domain.bus.facade.route.ShuttleBusRouteManager;
+import in.koreatech.koin.domain.bus.service.route.ShuttleBusRouteManager;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
