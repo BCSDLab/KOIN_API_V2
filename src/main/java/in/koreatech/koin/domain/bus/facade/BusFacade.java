@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class BusService {
+public class BusFacade {
 
     private final Clock clock;
     private final CityBusService cityBusService;

@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
-import in.koreatech.koin.domain.bus.facade.route.ExpressBusRouteManager;
+import in.koreatech.koin.domain.bus.service.route.ExpressBusRouteManager;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class BusRouteService {
+public class BusRouteFacade {
 
     private final ShuttleBusService shuttleBusService;
     private final CityBusService cityBusService;

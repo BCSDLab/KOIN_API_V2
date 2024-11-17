@@ -18,8 +18,8 @@ import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.shuttle.BusRemainTimeResponse;
-import in.koreatech.koin.domain.bus.facade.BusRouteService;
-import in.koreatech.koin.domain.bus.facade.BusService;
+import in.koreatech.koin.domain.bus.facade.BusRouteFacade;
+import in.koreatech.koin.domain.bus.facade.BusFacade;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
@@ -32,8 +32,8 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/bus")
 public class BusController implements BusApi {
 
-    private final BusService busService;
-    private final BusRouteService busRouteService;
+    private final BusFacade busFacade;
+    private final BusRouteFacade busRouteFacade;
 
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
@@ -41,7 +41,7 @@ public class BusController implements BusApi {
         @RequestParam BusStation depart,
         @RequestParam BusStation arrival
     ) {
-        BusRemainTimeResponse busRemainTime = busService.getBusRemainTime(busType, depart, arrival);
+        BusRemainTimeResponse busRemainTime = busFacade.getBusRemainTime(busType, depart, arrival);
         return ResponseEntity.ok().body(busRemainTime);
     }
 
@@ -51,7 +51,7 @@ public class BusController implements BusApi {
         @RequestParam(value = "direction") String direction,
         @RequestParam(value = "region") String region
     ) {
-        return ResponseEntity.ok().body(busService.getBusTimetable(busType, direction, region));
+        return ResponseEntity.ok().body(busFacade.getBusTimetable(busType, direction, region));
     }
 
     @GetMapping("/timetable/v2")
@@ -60,7 +60,7 @@ public class BusController implements BusApi {
         @RequestParam(value = "direction") String direction,
         @RequestParam(value = "region") String region
     ) {
-        return ResponseEntity.ok().body(busService.getBusTimetableWithUpdatedAt(busType, direction, region));
+        return ResponseEntity.ok().body(busFacade.getBusTimetableWithUpdatedAt(busType, direction, region));
     }
 
     @GetMapping("/timetable/city")
@@ -68,12 +68,12 @@ public class BusController implements BusApi {
         @RequestParam(value = "bus_number") Long busNumber,
         @RequestParam(value = "direction") CityBusDirection direction
     ) {
-        return ResponseEntity.ok().body(busService.getCityBusTimetable(busNumber, direction));
+        return ResponseEntity.ok().body(busFacade.getCityBusTimetable(busNumber, direction));
     }
 
     @GetMapping("/courses")
     public ResponseEntity<List<BusCourseResponse>> getBusCourses() {
-        return ResponseEntity.ok().body(busService.getBusCourses());
+        return ResponseEntity.ok().body(busFacade.getBusCourses());
     }
 
     @GetMapping("/search")
@@ -83,7 +83,7 @@ public class BusController implements BusApi {
         @RequestParam BusStation depart,
         @RequestParam BusStation arrival
     ) {
-        List<SingleBusTimeResponse> singleBusTimeResponses = busService.searchTimetable(date, LocalTime.parse(time),
+        List<SingleBusTimeResponse> singleBusTimeResponses = busFacade.searchTimetable(date, LocalTime.parse(time),
             depart, arrival);
         return ResponseEntity.ok().body(singleBusTimeResponses);
     }
@@ -97,7 +97,7 @@ public class BusController implements BusApi {
         @RequestParam BusStation arrival
     ) {
         BusRouteCommand request = new BusRouteCommand(depart, arrival, busRouteType, date, LocalTime.parse(time));
-        BusScheduleResponse busSchedule = busRouteService.getBusSchedule(request);
+        BusScheduleResponse busSchedule = busRouteFacade.getBusSchedule(request);
         return ResponseEntity.ok().body(busSchedule);
     }
 }
