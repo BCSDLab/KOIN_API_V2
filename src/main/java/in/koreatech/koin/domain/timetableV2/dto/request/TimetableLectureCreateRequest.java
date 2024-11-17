@@ -63,7 +63,7 @@ public record TimetableLectureCreateRequest(
         public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame) {
             return new TimetableLecture(
                 classTitle,
-                classTime().toString(),
+                classTime.toString(),
                 classPlace,
                 professor,
                 grades,
@@ -77,7 +77,7 @@ public record TimetableLectureCreateRequest(
         public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame, Lecture lecture) {
             return new TimetableLecture(
                 classTitle,
-                classTime().toString(),
+                classTime.toString(),
                 classPlace,
                 professor,
                 grades,

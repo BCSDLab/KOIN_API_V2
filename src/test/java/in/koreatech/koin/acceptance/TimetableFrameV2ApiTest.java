@@ -202,12 +202,10 @@ public class TimetableFrameV2ApiTest extends AcceptanceTest {
 
     @Test
     void 특정_시간표_frame을_삭제한다_본인_삭제가_아니면_403_반환() throws Exception {
-        User user1 = userFixture.준호_학생().getUser();
-        User user2 = userFixture.성빈_학생().getUser();
-        String token = userFixture.getToken(user2);
-        Semester semester = semesterFixture.semester("20192");
+        User user1 = userFixture.성빈_학생().getUser();
+        String token = userFixture.getToken(user1);
 
-        TimetableFrame frame1 = timetableV2Fixture.시간표1(user1, semester);
+        TimetableFrame frame1 = timetableV2Fixture.시간표1(user, semester);
 
         mockMvc.perform(
                 delete("/v2/timetables/frame")
