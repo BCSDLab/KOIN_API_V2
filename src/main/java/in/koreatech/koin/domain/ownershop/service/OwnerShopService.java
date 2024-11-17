@@ -129,8 +129,7 @@ public class OwnerShopService {
 
     public ShopResponse getShopByShopId(Integer ownerId, Integer shopId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        boolean eventDuration = eventArticleRepository.isDurationEvent(shopId, LocalDate.now(clock));
-        return ShopResponse.from(shop, eventDuration);
+        return ShopResponse.from(shop, LocalDate.now(clock));
     }
 
     private Shop getOwnerShopById(Integer shopId, Integer ownerId) {

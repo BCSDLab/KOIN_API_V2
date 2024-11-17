@@ -4,6 +4,8 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import in.koreatech.koin.global.util.DateTimes;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
@@ -76,7 +78,7 @@ public record ShopResponse(
     String accountNumber
 ) {
 
-    public static ShopResponse from(Shop shop, Boolean isEvent) {
+    public static ShopResponse from(Shop shop, LocalDate now) {
         Collections.sort(shop.getMenuCategories());
         return new ShopResponse(
             shop.getAddress(),
@@ -114,7 +116,7 @@ public record ShopResponse(
                 );
             }).toList(),
             shop.getUpdatedAt(),
-            isEvent,
+            shop.getEventArticles().stream().anyMatch(events -> events.isEventDuration(now)),
             shop.getBank(),
             shop.getAccountNumber()
         );

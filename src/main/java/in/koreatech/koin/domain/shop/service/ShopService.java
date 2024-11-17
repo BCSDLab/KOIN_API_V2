@@ -44,7 +44,6 @@ public class ShopService {
     private final Clock clock;
     private final ShopRepository shopRepository;
     private final ShopCategoryRepository shopCategoryRepository;
-    private final EventArticleRepository eventArticleRepository;
     private final ShopsCacheService shopsCache;
     private final ShopCustomRepository shopCustomRepository;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
@@ -53,8 +52,8 @@ public class ShopService {
 
     public ShopResponse getShop(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
-        boolean eventDuration = eventArticleRepository.isDurationEvent(shopId, LocalDate.now(clock));
-        return ShopResponse.from(shop, eventDuration);
+        LocalDate now = LocalDate.now(clock);
+        return ShopResponse.from(shop, now);
     }
 
     public ShopsResponse getShops() {

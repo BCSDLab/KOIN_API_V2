@@ -5,6 +5,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.global.util.DateTimes;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -136,6 +137,10 @@ public class EventArticle extends BaseEntity {
         this.ip = ip;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public boolean isEventDuration(LocalDate now) {
+        return DateTimes.isBetween(startDate,  endDate, now);
     }
 
     public void modifyArticle(
