@@ -13,14 +13,10 @@ import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationBuffer;
-import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
-import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
-import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopNotificationBufferRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
-import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV1;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV2;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -59,8 +55,8 @@ public class ShopService {
     public ShopsResponse getShops() {
         LocalDateTime now = LocalDateTime.now(clock);
         List<Shop> shops = shopRepository.findAll();
-        Map<Integer, ShopInfoV1> shopEventMap = shopCustomRepository.findAllShopEvent(now);
-        return ShopsResponse.from(shops, shopEventMap, now);
+        Map<Integer, Boolean> eventDuration = shopRepository.getAllShopEventDuration(now.toLocalDate());
+        return ShopsResponse.from(shops, eventDuration, now);
     }
 
     public ShopCategoriesResponse getShopsCategories() {
@@ -70,10 +66,10 @@ public class ShopService {
 
     public ShopsResponseV2 getShopsV2(
         ShopsSortCriteria sortBy,
-        List<ShopsFilterCriteria> shopsFilterCriterias,
+        List<ShopsFilterCriteria> filterCriteria,
         String query
     ) {
-        if (shopsFilterCriterias.contains(null)) {
+        if (filterCriteria.contains(null)) {
             throw KoinIllegalArgumentException.withDetail("유효하지 않은 필터입니다.");
         }
         ShopsCache shopCaches = shopsCache.findAllShopCache();
@@ -83,7 +79,7 @@ public class ShopService {
             shopCaches.shopCaches(),
             shopInfoMap,
             sortBy,
-            shopsFilterCriterias,
+            filterCriteria,
             now,
             query
         );

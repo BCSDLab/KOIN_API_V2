@@ -1,22 +1,18 @@
 package in.koreatech.koin.domain.shop.repository.shop.dto;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Repository;
-
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-
 import in.koreatech.koin.domain.shop.model.event.QEventArticle;
 import in.koreatech.koin.domain.shop.model.review.QShopReview;
 import in.koreatech.koin.domain.shop.model.shop.QShop;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
@@ -59,32 +55,5 @@ public class ShopCustomRepository {
             map.put(result.get(0, Integer.class), shopResult);
         }
         return map;
-    }
-
-    public Map<Integer, ShopInfoV1> findAllShopEvent(LocalDateTime now) {
-        QShop shop = QShop.shop;
-        QEventArticle eventArticle = QEventArticle.eventArticle;
-
-        List<Tuple> results = queryFactory
-            .select(
-                shop.id,
-                ExpressionUtils.as(eventArticle.id.count().gt(0L), "isEventActive")
-            )
-            .from(shop)
-            .leftJoin(shop.eventArticles, eventArticle)
-            .on(eventArticle.startDate.loe(now.toLocalDate()).and(eventArticle.endDate.goe(
-                LocalDate.from(now.toLocalDate()))))
-            .groupBy(shop.id)
-            .fetch();
-
-        Map<Integer, ShopInfoV1> shopEventMap = new HashMap<>(results.size());
-
-        for (Tuple result : results) {
-            ShopInfoV1 shopResult = new ShopInfoV1(
-                result.get(1, Boolean.class)
-            );
-            shopEventMap.put(result.get(0, Integer.class), shopResult);
-        }
-        return shopEventMap;
     }
 }
