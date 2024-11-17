@@ -4,18 +4,12 @@ import static in.koreatech.koin.global.domain.notification.model.NotificationSub
 
 import in.koreatech.koin.domain.shop.cache.ShopsCacheService;
 import in.koreatech.koin.domain.shop.cache.dto.ShopsCache;
-import in.koreatech.koin.domain.shop.dto.menu.response.MenuCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.menu.response.MenuDetailResponse;
-import in.koreatech.koin.domain.shop.dto.menu.response.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
-import in.koreatech.koin.domain.shop.model.menu.Menu;
-import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
-import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationBuffer;
@@ -35,7 +29,6 @@ import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -49,8 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ShopService {
 
     private final Clock clock;
-    private final MenuRepository menuRepository;
-    private final MenuCategoryRepository menuCategoryRepository;
     private final ShopRepository shopRepository;
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
