@@ -23,6 +23,7 @@ public class TimetableLectureCreator {
         for (InnerTimeTableLectureRequest lectureRequest : request.timetableLecture()) {
             Lecture lecture = determineLecture(lectureRequest.lectureId());
             TimetableLecture timetableLecture = lectureRequest.toTimetableLecture(frame, lecture);
+            frame.addTimeTableLecture(timetableLecture);
             timetableLectureRepositoryV2.save(timetableLecture);
         }
     }

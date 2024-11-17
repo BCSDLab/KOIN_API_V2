@@ -130,7 +130,7 @@ public record TimetableLectureResponse(
         }
 
         private static String getClassTitle(TimetableLecture timetableLecture, Lecture lecture) {
-            if (timetableLecture.getGrades() == null) {
+            if (timetableLecture.getClassTitle() == null) {
                 return lecture.getName();
             }
             return timetableLecture.getClassTitle();
