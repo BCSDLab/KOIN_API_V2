@@ -46,7 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class ShopService {
+public class ShopMenuService {
 
     private final Clock clock;
     private final MenuRepository menuRepository;
@@ -60,65 +60,28 @@ public class ShopService {
     private final ShopNotificationBufferRepository shopNotificationBufferRepository;
     private final UserRepository userRepository;
 
-    public ShopResponse getShop(Integer shopId) {
+    public MenuDetailResponse findMenu(Integer menuId) {
+        Menu menu = menuRepository.getById(menuId);
+
+        List<MenuCategory> menuCategories = menu.getMenuCategoryMaps()
+            .stream()
+            .map(MenuCategoryMap::getMenuCategory)
+            .toList();
+
+        return MenuDetailResponse.createMenuDetailResponse(menu, menuCategories);
+    }
+
+    public MenuCategoriesResponse getMenuCategories(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
-        boolean eventDuration = eventArticleRepository.isDurationEvent(shopId, LocalDate.now(clock));
-        return ShopResponse.from(shop, eventDuration);
+        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
+        Collections.sort(menuCategories);
+        return MenuCategoriesResponse.from(menuCategories);
     }
 
-    public ShopsResponse getShops() {
-        LocalDateTime now = LocalDateTime.now(clock);
-        List<Shop> shops = shopRepository.findAll();
-        Map<Integer, ShopInfoV1> shopEventMap = shopCustomRepository.findAllShopEvent(now);
-        return ShopsResponse.from(shops, shopEventMap, now);
-    }
-
-    public ShopCategoriesResponse getShopsCategories() {
-        List<ShopCategory> shopCategories = shopCategoryRepository.findAll(Sort.by("orderIndex"));
-        return ShopCategoriesResponse.from(shopCategories);
-    }
-
-    public ShopsResponseV2 getShopsV2(
-        ShopsSortCriteria sortBy,
-        List<ShopsFilterCriteria> shopsFilterCriterias,
-        String query
-    ) {
-        if (shopsFilterCriterias.contains(null)) {
-            throw KoinIllegalArgumentException.withDetail("유효하지 않은 필터입니다.");
-        }
-        ShopsCache shopCaches = shopsCache.findAllShopCache();
-        LocalDateTime now = LocalDateTime.now(clock);
-        Map<Integer, ShopInfoV2> shopInfoMap = shopCustomRepository.findAllShopInfo(now);
-        return ShopsResponseV2.from(
-            shopCaches.shopCaches(),
-            shopInfoMap,
-            sortBy,
-            shopsFilterCriterias,
-            now,
-            query
-        );
-    }
-
-    @Transactional
-    public void publishCallNotification(Integer shopId, Integer studentId) {
-        shopRepository.getById(shopId);
-
-        if (isSubscribeReviewNotification(studentId)) {
-            Shop shop = shopRepository.getById(shopId);
-            User user = userRepository.getById(studentId);
-
-            ShopNotificationBuffer shopNotificationBuffer = ShopNotificationBuffer.builder()
-                .shop(shop)
-                .user(user)
-                .notificationTime(LocalDateTime.now().plusHours(1))
-                .build();
-
-            shopNotificationBufferRepository.save(shopNotificationBuffer);
-        }
-    }
-
-    private boolean isSubscribeReviewNotification(Integer studentId) {
-        return notificationSubscribeRepository
-            .existsByUserIdAndSubscribeType(studentId, REVIEW_PROMPT);
+    public ShopMenuResponse getShopMenus(Integer shopId) {
+        Shop shop = shopRepository.getById(shopId);
+        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
+        Collections.sort(menuCategories);
+        return ShopMenuResponse.from(menuCategories);
     }
 }
