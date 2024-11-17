@@ -36,13 +36,17 @@ public class ArticleKeyword extends BaseEntity {
     @Column(name = "last_used_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastUsedAt;
 
+    @Column(name = "is_filtered", nullable = false)
+    private Boolean isFiltered;
+
     @OneToMany(mappedBy = "articleKeyword", cascade = CascadeType.PERSIST)
     private List<ArticleKeywordUserMap> articleKeywordUserMaps = new ArrayList<>();
 
     @Builder
-    private ArticleKeyword(String keyword, LocalDateTime lastUsedAt) {
+    private ArticleKeyword(String keyword, LocalDateTime lastUsedAt, Boolean isFiltered) {
         this.keyword = keyword;
         this.lastUsedAt = lastUsedAt;
+        this.isFiltered = isFiltered;
     }
 
     public void addUserMap(ArticleKeywordUserMap keywordUserMap) {
@@ -59,5 +63,9 @@ public class ArticleKeyword extends BaseEntity {
 
     private void updateLastUsedAt() {
         this.lastUsedAt = LocalDateTime.now();
+    }
+
+    public void applyFiltered(Boolean isFiltered) {
+        this.isFiltered = isFiltered;
     }
 }

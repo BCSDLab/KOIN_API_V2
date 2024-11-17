@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordCreateReques
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsSuggestionResponse;
+import in.koreatech.koin.domain.community.keyword.dto.FilteredKeywordsResponse;
 import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
@@ -103,6 +105,10 @@ public class KeywordService {
 
         List<String> suggestions = hotKeywords.stream()
             .map(ArticleKeywordSuggestCache::getKeyword)
+            .filter(keyword -> {
+                ArticleKeyword articleKeyword = articleKeywordRepository.findByKeyword(keyword).orElse(null);
+                return articleKeyword == null || Boolean.FALSE.equals(articleKeyword.getIsFiltered());
+            })
             .collect(Collectors.toList());
 
         return ArticleKeywordsSuggestionResponse.from(suggestions);
@@ -162,24 +168,97 @@ public class KeywordService {
     }
 
     @Transactional
+    public void filterKeyword(String keyword, Boolean isFiltered) {
+        ArticleKeyword articleKeyword = articleKeywordRepository.getByKeyword(keyword);
+
+        if (Objects.equals(articleKeyword.getIsFiltered(), isFiltered)) {
+            throw new KoinIllegalArgumentException(
+                isFiltered ? "이미 필터링 된 키워드입니다: " + keyword : "이미 필터링이 취소된 키워드입니다: " + keyword
+            );
+        }
+
+        articleKeyword.applyFiltered(isFiltered);
+    }
+
+    @Transactional(readOnly = true)
+    public FilteredKeywordsResponse getFilteredKeywords() {
+        List<ArticleKeyword> filteredKeywords = articleKeywordRepository.findByIsFiltered(true);
+        return FilteredKeywordsResponse.from(filteredKeywords);
+    }
+
+    @Transactional
     public void fetchTopKeywordsFromLastWeek() {
+        List<ArticleKeywordResult> topKeywords = fetchKeywordsFromLastWeek();
+
+        List<ArticleKeywordResult> filteredKeywords = excludeFilteredKeywords(topKeywords);
+
+        List<ArticleKeywordResult> completeKeywords = completeKeywordList(filteredKeywords, 15);
+
+        List<ArticleKeywordSuggestCache> hotKeywords = createHotKeywordCache(completeKeywords);
+        updateKeywordCache(hotKeywords);
+    }
+
+
+    private List<ArticleKeywordResult> fetchKeywordsFromLastWeek() {
         Pageable top15 = PageRequest.of(0, 15);
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
-        List<ArticleKeywordResult> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeek(oneWeekAgo, top15);
 
-        if(topKeywords.size() < 15) {
-            topKeywords = articleKeywordRepository.findTop15Keywords(top15);
+        return articleKeywordRepository.findTopKeywordsInLastWeek(oneWeekAgo, top15);
+    }
+
+    private List<ArticleKeywordResult> excludeFilteredKeywords(List<ArticleKeywordResult> keywords) {
+        return keywords.stream()
+            .filter(result -> {
+                ArticleKeyword keyword = articleKeywordRepository.findByKeyword(result.keyword()).orElse(null);
+                return keyword == null || Boolean.FALSE.equals(keyword.getIsFiltered());
+            })
+            .toList();
+    }
+
+    private List<ArticleKeywordResult> completeKeywordList(List<ArticleKeywordResult> currentKeywords, int targetCount) {
+        int remainingCount = targetCount - currentKeywords.size();
+
+        while (remainingCount > 0) {
+            List<ArticleKeywordResult> additionalKeywords = fetchAdditionalKeywords(remainingCount);
+
+            List<ArticleKeywordResult> filteredAdditionalKeywords = excludeFilteredKeywords(additionalKeywords);
+
+            currentKeywords = Stream.concat(currentKeywords.stream(), filteredAdditionalKeywords.stream())
+                .distinct()
+                .limit(targetCount)
+                .toList();
+
+            remainingCount = targetCount - currentKeywords.size();
+
+            if (filteredAdditionalKeywords.isEmpty()) {
+                break;
+            }
         }
-        List<ArticleKeywordSuggestCache> hotKeywords = topKeywords.stream()
+
+        return currentKeywords;
+    }
+
+    private List<ArticleKeywordResult> fetchAdditionalKeywords(int count) {
+        Pageable pageable = PageRequest.of(0, count);
+        return articleKeywordRepository.findTop15Keywords(pageable);
+    }
+
+    private List<ArticleKeywordSuggestCache> createHotKeywordCache(List<ArticleKeywordResult> topKeywords) {
+        return topKeywords.stream()
+            .filter(result -> {
+                ArticleKeyword keyword = articleKeywordRepository.findByKeyword(result.keyword()).orElse(null);
+                return keyword == null || Boolean.FALSE.equals(keyword.getIsFiltered());
+            })
             .map(result -> ArticleKeywordSuggestCache.builder()
                 .hotKeywordId(result.hotKeywordId())
                 .keyword(result.keyword())
                 .count(result.count().intValue())
                 .build())
             .toList();
+    }
 
+    private void updateKeywordCache(List<ArticleKeywordSuggestCache> hotKeywords) {
         articleKeywordSuggestRepository.deleteAll();
-
         for(ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
             articleKeywordSuggestRepository.save(hotKeyword);
         }

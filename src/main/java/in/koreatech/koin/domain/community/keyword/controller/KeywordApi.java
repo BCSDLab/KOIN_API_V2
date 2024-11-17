@@ -14,6 +14,8 @@ import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordCreateReques
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsSuggestionResponse;
+import in.koreatech.koin.domain.community.keyword.dto.FilteredKeywordsResponse;
+import in.koreatech.koin.domain.community.keyword.dto.KeywordFilterRequest;
 import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -86,6 +88,35 @@ public interface KeywordApi {
     @PostMapping("/notification")
     ResponseEntity<Void> pushKeywordNotification(
         @Valid @RequestBody KeywordNotificationRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "키워드 필터링")
+    @PostMapping("/filter")
+    ResponseEntity<Void> toggleKeywordFilter(
+        @Valid @RequestBody KeywordFilterRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "필터링 된 키워드 조회", hidden = true)
+    @GetMapping("/filtered")
+    ResponseEntity<FilteredKeywordsResponse> getFilteredKeywords(
         @Auth(permit = {ADMIN}) Integer adminId
     );
 }

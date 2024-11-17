@@ -9,11 +9,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
+import in.koreatech.koin.domain.community.keyword.exception.ArticleKeywordNotFoundException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 
 public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Integer> {
 
     Optional<ArticleKeyword> findByKeyword(String keyword);
+
+    default ArticleKeyword getByKeyword(String keyword) {
+        return findByKeyword(keyword)
+            .orElseThrow(() -> ArticleKeywordNotFoundException.withDetail("keyword : " + keyword));
+    }
 
     ArticleKeyword save(ArticleKeyword articleKeyword);
 
@@ -41,4 +47,6 @@ public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Int
     List<ArticleKeywordResult> findTop15Keywords(Pageable pageable);
 
     List<ArticleKeyword> findAll(Pageable pageable);
+
+    List<ArticleKeyword> findByIsFiltered(boolean b);
 }
