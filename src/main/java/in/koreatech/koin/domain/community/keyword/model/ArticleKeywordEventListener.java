@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.keyword.service.KeywordService;
 import in.koreatech.koin.global.domain.notification.model.Notification;
@@ -32,16 +33,19 @@ public class ArticleKeywordEventListener {
     private final NotificationSubscribeRepository notificationSubscribeRepository;
     private final UserNotificationStatusRepository userNotificationStatusRepository;
     private final KeywordService keywordService;
+    private final ArticleRepository articleRepository;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onKeywordRequest(ArticleKeywordEvent event) {
+        String articleTitle = articleRepository.getTitleById(event.articleId());
+
         List<Notification> notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailType(ARTICLE_KEYWORD, null)
             .stream()
             .filter(this::hasDeviceToken)
             .filter(subscribe -> isKeywordRegistered(event, subscribe))
             .filter(subscribe -> isNewArticle(event, subscribe))
-            .map(subscribe -> createAndRecordNotification(event, subscribe))
+            .map(subscribe -> createAndRecordNotification(event, articleTitle, subscribe))
             .toList();
 
         notificationService.push(notifications);
@@ -64,15 +68,28 @@ public class ArticleKeywordEventListener {
         return !lastNotifiedId.equals(event.articleId());
     }
 
-    private Notification createAndRecordNotification(ArticleKeywordEvent event, NotificationSubscribe subscribe) {
+    private Notification createAndRecordNotification(
+        ArticleKeywordEvent event,
+        String articleTitle,
+        NotificationSubscribe subscribe
+    ) {
         Integer userId = subscribe.getUser().getId();
+        String keyword = event.keyword().getKeyword();
+        String description = generateDescription(keyword); // 템플릿 메시지 생성
+
         Notification notification = notificationFactory.generateKeywordNotification(
             KEYWORD,
             event.articleId(),
-            event.keyword().getKeyword(),
+            articleTitle,
+            description,
             subscribe.getUser()
         );
+
         keywordService.updateLastNotifiedArticle(userId, event.articleId());
         return notification;
+    }
+
+    private String generateDescription(String keyword) {
+        return "방금 등록된 {%s} 공지를 확인해보세요!".formatted(keyword);
     }
 }
