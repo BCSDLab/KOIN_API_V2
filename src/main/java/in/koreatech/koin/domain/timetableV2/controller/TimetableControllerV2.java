@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class TimetableControllerV2 implements TimetableApiV2 {
+
     private final TimetableFrameServiceV2 frameServiceV2;
     private final TimetableLectureServiceV2 lectureServiceV2;
 

@@ -6,6 +6,7 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 
 public class GradeCalculator {
+
     private GradeCalculator() {
     }
 

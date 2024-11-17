@@ -7,6 +7,7 @@ import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 
 public class TimetableFrameValidate {
+
     public static void validateUserAuthorization(Integer frameUserId, Integer userId) {
         if (!Objects.equals(frameUserId, userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
