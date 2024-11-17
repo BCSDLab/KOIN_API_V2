@@ -2,12 +2,9 @@ package in.koreatech.koin.domain.community.keyword.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
@@ -101,14 +98,9 @@ public class KeywordService {
     }
 
     public ArticleKeywordsSuggestionResponse suggestKeywords() {
-        List<ArticleKeywordSuggestCache> hotKeywords = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc();
-
-        List<String> suggestions = hotKeywords.stream()
+        List<String> suggestions = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc()
+            .stream()
             .map(ArticleKeywordSuggestCache::getKeyword)
-            .filter(keyword -> {
-                ArticleKeyword articleKeyword = articleKeywordRepository.findByKeyword(keyword).orElse(null);
-                return articleKeyword == null || Boolean.FALSE.equals(articleKeyword.getIsFiltered());
-            })
             .collect(Collectors.toList());
 
         return ArticleKeywordsSuggestionResponse.from(suggestions);
@@ -188,76 +180,23 @@ public class KeywordService {
 
     @Transactional
     public void fetchTopKeywordsFromLastWeek() {
-        List<ArticleKeywordResult> topKeywords = fetchKeywordsFromLastWeek();
-
-        List<ArticleKeywordResult> filteredKeywords = excludeFilteredKeywords(topKeywords);
-
-        List<ArticleKeywordResult> completeKeywords = completeKeywordList(filteredKeywords, 15);
-
-        List<ArticleKeywordSuggestCache> hotKeywords = createHotKeywordCache(completeKeywords);
-        updateKeywordCache(hotKeywords);
-    }
-
-
-    private List<ArticleKeywordResult> fetchKeywordsFromLastWeek() {
         Pageable top15 = PageRequest.of(0, 15);
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
 
-        return articleKeywordRepository.findTopKeywordsInLastWeek(oneWeekAgo, top15);
-    }
+        List<ArticleKeywordResult> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeekExcludingFiltered(oneWeekAgo, top15);
 
-    private List<ArticleKeywordResult> excludeFilteredKeywords(List<ArticleKeywordResult> keywords) {
-        return keywords.stream()
-            .filter(result -> {
-                ArticleKeyword keyword = articleKeywordRepository.findByKeyword(result.keyword()).orElse(null);
-                return keyword == null || Boolean.FALSE.equals(keyword.getIsFiltered());
-            })
-            .toList();
-    }
-
-    private List<ArticleKeywordResult> completeKeywordList(List<ArticleKeywordResult> currentKeywords, int targetCount) {
-        int remainingCount = targetCount - currentKeywords.size();
-
-        while (remainingCount > 0) {
-            List<ArticleKeywordResult> additionalKeywords = fetchAdditionalKeywords(remainingCount);
-
-            List<ArticleKeywordResult> filteredAdditionalKeywords = excludeFilteredKeywords(additionalKeywords);
-
-            currentKeywords = Stream.concat(currentKeywords.stream(), filteredAdditionalKeywords.stream())
-                .distinct()
-                .limit(targetCount)
-                .toList();
-
-            remainingCount = targetCount - currentKeywords.size();
-
-            if (filteredAdditionalKeywords.isEmpty()) {
-                break;
-            }
+        if (topKeywords.size() < 15) {
+            topKeywords = articleKeywordRepository.findTop15KeywordsExcludingFiltered(top15);
         }
 
-        return currentKeywords;
-    }
-
-    private List<ArticleKeywordResult> fetchAdditionalKeywords(int count) {
-        Pageable pageable = PageRequest.of(0, count);
-        return articleKeywordRepository.findTop15Keywords(pageable);
-    }
-
-    private List<ArticleKeywordSuggestCache> createHotKeywordCache(List<ArticleKeywordResult> topKeywords) {
-        return topKeywords.stream()
-            .filter(result -> {
-                ArticleKeyword keyword = articleKeywordRepository.findByKeyword(result.keyword()).orElse(null);
-                return keyword == null || Boolean.FALSE.equals(keyword.getIsFiltered());
-            })
+        List<ArticleKeywordSuggestCache> hotKeywords = topKeywords.stream()
             .map(result -> ArticleKeywordSuggestCache.builder()
                 .hotKeywordId(result.hotKeywordId())
                 .keyword(result.keyword())
                 .count(result.count().intValue())
                 .build())
             .toList();
-    }
 
-    private void updateKeywordCache(List<ArticleKeywordSuggestCache> hotKeywords) {
         articleKeywordSuggestRepository.deleteAll();
         for(ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
             articleKeywordSuggestRepository.save(hotKeyword);

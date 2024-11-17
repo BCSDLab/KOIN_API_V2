@@ -27,26 +27,27 @@ public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Int
 
     Optional<ArticleKeyword> findById(Integer id);
 
-    @Query("""
-        SELECT new in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult(k.id, k.keyword, COUNT(u))
-        FROM ArticleKeywordUserMap u
-        JOIN u.articleKeyword k
-        WHERE k.lastUsedAt >= :oneWeekAgo
-        GROUP BY k.id, k.keyword
-        ORDER BY COUNT(u) DESC
-        """)
-    List<ArticleKeywordResult> findTopKeywordsInLastWeek(LocalDateTime oneWeekAgo, Pageable pageable);
-
-    @Query("""
-        SELECT new in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult(k.id, k.keyword, COUNT(u))
-        FROM ArticleKeyword k
-        LEFT JOIN k.articleKeywordUserMaps u
-        GROUP BY k.id, k.keyword
-        ORDER BY k.createdAt DESC
-        """)
-    List<ArticleKeywordResult> findTop15Keywords(Pageable pageable);
-
     List<ArticleKeyword> findAll(Pageable pageable);
 
     List<ArticleKeyword> findByIsFiltered(boolean b);
+
+    @Query("""
+    SELECT new in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult(k.id, k.keyword, COUNT(u))
+    FROM ArticleKeywordUserMap u
+    JOIN u.articleKeyword k
+    WHERE k.lastUsedAt >= :oneWeekAgo AND k.isFiltered = false
+    GROUP BY k.id, k.keyword
+    ORDER BY COUNT(u) DESC
+    """)
+    List<ArticleKeywordResult> findTopKeywordsInLastWeekExcludingFiltered(LocalDateTime oneWeekAgo, Pageable top15);
+
+    @Query("""
+    SELECT new in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult(k.id, k.keyword, COUNT(u))
+    FROM ArticleKeyword k
+    LEFT JOIN k.articleKeywordUserMaps u
+    WHERE k.isFiltered = false
+    GROUP BY k.id, k.keyword
+    ORDER BY k.createdAt DESC
+    """)
+    List<ArticleKeywordResult> findTop15KeywordsExcludingFiltered(Pageable top15);
 }

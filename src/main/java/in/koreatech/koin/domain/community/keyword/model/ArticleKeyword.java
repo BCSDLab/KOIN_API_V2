@@ -37,7 +37,7 @@ public class ArticleKeyword extends BaseEntity {
     private LocalDateTime lastUsedAt;
 
     @Column(name = "is_filtered", nullable = false)
-    private Boolean isFiltered;
+    private Boolean isFiltered = false;
 
     @OneToMany(mappedBy = "articleKeyword", cascade = CascadeType.PERSIST)
     private List<ArticleKeywordUserMap> articleKeywordUserMaps = new ArrayList<>();
@@ -46,7 +46,7 @@ public class ArticleKeyword extends BaseEntity {
     private ArticleKeyword(String keyword, LocalDateTime lastUsedAt, Boolean isFiltered) {
         this.keyword = keyword;
         this.lastUsedAt = lastUsedAt;
-        this.isFiltered = isFiltered;
+        this.isFiltered = isFiltered != null ? isFiltered : false;
     }
 
     public void addUserMap(ArticleKeywordUserMap keywordUserMap) {

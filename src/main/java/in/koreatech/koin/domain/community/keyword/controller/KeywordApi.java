@@ -114,7 +114,7 @@ public interface KeywordApi {
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "필터링 된 키워드 조회", hidden = true)
+    @Operation(summary = "필터링 된 키워드 조회")
     @GetMapping("/filtered")
     ResponseEntity<FilteredKeywordsResponse> getFilteredKeywords(
         @Auth(permit = {ADMIN}) Integer adminId
