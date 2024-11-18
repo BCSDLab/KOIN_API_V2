@@ -2,10 +2,8 @@ package in.koreatech.koin.domain.community.keyword.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -99,9 +97,8 @@ public class KeywordService {
     }
 
     public ArticleKeywordsSuggestionResponse suggestKeywords() {
-        List<ArticleKeywordSuggestCache> hotKeywords = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc();
-
-        List<String> suggestions = hotKeywords.stream()
+        List<String> suggestions = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc()
+            .stream()
             .map(ArticleKeywordSuggestCache::getKeyword)
             .collect(Collectors.toList());
 
@@ -165,11 +162,13 @@ public class KeywordService {
     public void fetchTopKeywordsFromLastWeek() {
         Pageable top15 = PageRequest.of(0, 15);
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
-        List<ArticleKeywordResult> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeek(oneWeekAgo, top15);
 
-        if(topKeywords.size() < 15) {
-            topKeywords = articleKeywordRepository.findTop15Keywords(top15);
+        List<ArticleKeywordResult> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeekExcludingFiltered(oneWeekAgo, top15);
+
+        if (topKeywords.size() < 15) {
+            topKeywords = articleKeywordRepository.findTop15KeywordsExcludingFiltered(top15);
         }
+
         List<ArticleKeywordSuggestCache> hotKeywords = topKeywords.stream()
             .map(result -> ArticleKeywordSuggestCache.builder()
                 .hotKeywordId(result.hotKeywordId())
@@ -179,7 +178,6 @@ public class KeywordService {
             .toList();
 
         articleKeywordSuggestRepository.deleteAll();
-
         for(ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
             articleKeywordSuggestRepository.save(hotKeyword);
         }
