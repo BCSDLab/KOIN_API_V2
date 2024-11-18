@@ -43,7 +43,7 @@ public class ExpressBusService {
     private final ExpressBusCacheRepository expressBusCacheRepository;
     private final CallController<ExpressBusClient> callController;
 
-    public void storeRemainTimeByRatio() {
+    public void cacheRemainTimeByRatio() {
         ExpressBusClient selectedBus = callController.getInstanceByRatio(expressBusTypes, apiCallListByRatio);
         List<ExpressBusClient> fallBackableTypes = new ArrayList<>(expressBusTypes);
         while (true) {

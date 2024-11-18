@@ -110,7 +110,7 @@ public class CityBusService {
 
     @Transactional
     @CircuitBreaker(name = "cityBus")
-    public void storeRemainTime() {
+    public void cacheRemainTime() {
         List<List<CityBusArrival>> arrivalInfosList = new ArrayList<>();
         BusStationNode.getNodeIds().forEach((nodeId) -> {
             try {
@@ -132,7 +132,7 @@ public class CityBusService {
 
     @Transactional
     @CircuitBreaker(name = "cityBusRoute")
-    public void storeCityBusRoute() {
+    public void cacheCityBusRoute() {
         BusStationNode.getNodeIds().forEach((nodeId) -> {
             try {
                 Set<CityBusRoute> routes = Set.copyOf(

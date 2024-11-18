@@ -310,7 +310,7 @@ class BusApiTest extends AcceptanceTest {
         doNothing().when(tmoneyExpressBusClient).storeRemainTime();
         doNothing().when(staticExpressBusClient).storeRemainTime();
 
-        expressBusService.storeRemainTimeByRatio();
+        expressBusService.cacheRemainTimeByRatio();
 
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, never()).storeRemainTime();
@@ -325,7 +325,7 @@ class BusApiTest extends AcceptanceTest {
         doNothing().when(tmoneyExpressBusClient).storeRemainTime();
         doNothing().when(staticExpressBusClient).storeRemainTime();
 
-        expressBusService.storeRemainTimeByRatio();
+        expressBusService.cacheRemainTimeByRatio();
 
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, times(1)).storeRemainTime();
