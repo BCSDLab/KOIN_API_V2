@@ -69,8 +69,6 @@ public class CoopService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    private final int EXCEL_COLUMN_COUNT = 8;
-
     @Transactional
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
         Dining dining = diningRepository.getById(soldOutRequest.menuId());
@@ -123,7 +121,7 @@ public class CoopService {
     public ByteArrayInputStream generateDiningExcel(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
         validateDates(startDate, endDate);
         List<Dining> dinings = fetchDiningData(startDate, endDate, isCafeteria);
-        System.out.println(startDate + " " + endDate);
+
         try (SXSSFWorkbook workbook = new SXSSFWorkbook()) {
             SXSSFSheet sheet = createSheet(workbook, "식단 메뉴");
             CellStyle headerStyle = createHeaderStyle(workbook);
