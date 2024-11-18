@@ -1,15 +1,15 @@
 package in.koreatech.koin.domain.owner.controller;
 
-import in.koreatech.koin.domain.owner.dto.OwnerAccountCheckExistsRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerLoginRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerLoginResponse;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifySmsRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateSmsRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerRegisterByPhoneRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerSendSmsRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerSmsVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.sms.OwnerAccountCheckExistsRequest;
+import in.koreatech.koin.domain.owner.dto.sms.OwnerLoginRequest;
+import in.koreatech.koin.domain.owner.dto.sms.OwnerLoginResponse;
+import in.koreatech.koin.domain.owner.dto.sms.OwnerPasswordResetVerifySmsRequest;
+import in.koreatech.koin.domain.owner.dto.sms.OwnerPasswordUpdateSmsRequest;
+import in.koreatech.koin.domain.owner.dto.sms.OwnerRegisterByPhoneRequest;
+import in.koreatech.koin.domain.owner.dto.sms.OwnerSendSmsRequest;
+import in.koreatech.koin.domain.owner.dto.sms.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
-import in.koreatech.koin.domain.owner.dto.VerifySmsRequest;
+import in.koreatech.koin.domain.owner.dto.sms.VerifySmsRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

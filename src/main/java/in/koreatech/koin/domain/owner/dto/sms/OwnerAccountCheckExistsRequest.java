@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.owner.dto;
+package in.koreatech.koin.domain.owner.dto.sms;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

@@ -1,12 +1,12 @@
 package in.koreatech.koin.domain.owner.service;
 
-import in.koreatech.koin.domain.owner.dto.OwnerEmailVerifyRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordResetVerifyEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerPasswordUpdateEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerRegisterRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerSendEmailRequest;
+import in.koreatech.koin.domain.owner.dto.email.OwnerEmailVerifyRequest;
+import in.koreatech.koin.domain.owner.dto.email.OwnerPasswordResetVerifyEmailRequest;
+import in.koreatech.koin.domain.owner.dto.email.OwnerPasswordUpdateEmailRequest;
+import in.koreatech.koin.domain.owner.dto.email.OwnerRegisterRequest;
+import in.koreatech.koin.domain.owner.dto.email.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
-import in.koreatech.koin.domain.owner.dto.VerifyEmailRequest;
+import in.koreatech.koin.domain.owner.dto.email.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
 import in.koreatech.koin.domain.owner.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.owner.model.Owner;
