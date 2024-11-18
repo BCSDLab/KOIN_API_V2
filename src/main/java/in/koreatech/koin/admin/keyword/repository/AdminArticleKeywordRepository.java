@@ -17,6 +17,5 @@ public interface AdminArticleKeywordRepository extends Repository<ArticleKeyword
             .orElseThrow(() -> ArticleKeywordNotFoundException.withDetail("keyword : " + keyword));
     }
 
-    List<ArticleKeyword> findByIsFiltered(boolean b);
-
+    List<ArticleKeyword> findByIsFiltered(boolean isFiltered);
 }

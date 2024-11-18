@@ -24,9 +24,8 @@ public class AdminKeywordService {
         ArticleKeyword articleKeyword = adminArticleKeywordRepository.getByKeyword(keyword);
 
         if (Objects.equals(articleKeyword.getIsFiltered(), isFiltered)) {
-            throw new KoinIllegalArgumentException(
-                isFiltered ? "이미 필터링 된 키워드입니다: " + keyword : "이미 필터링이 취소된 키워드입니다: " + keyword
-            );
+            String action = isFiltered ? "필터링 된" : "필터링이 취소된";
+            throw new KoinIllegalArgumentException("이미 " + action + " 키워드입니다: " + keyword);
         }
 
         articleKeyword.applyFiltered(isFiltered);
