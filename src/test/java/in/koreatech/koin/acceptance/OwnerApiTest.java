@@ -207,7 +207,7 @@ class OwnerApiTest extends AcceptanceTest {
                                  }
                                ],
                                "company_number": "012-34-56789",
-                               "account": "helloworld@koreatech.ac.kr",
+                               "email": "helloworld@koreatech.ac.kr",
                                "name": "최준호",
                                "password": "a0240120305812krlakdsflsa;1235",
                                "phone_number": "010-0000-0000",
@@ -381,7 +381,7 @@ class OwnerApiTest extends AcceptanceTest {
                                  }
                                ],
                                "company_number": "011-34-12312",
-                               "account": "helloworld@koreatech.ac.kr",
+                               "email": "helloworld@koreatech.ac.kr",
                                "name": "주노",
                                "password": "a0240120305812krlakdsflsa;1235",
                                "phone_number": "010-0000-0000",
@@ -416,7 +416,7 @@ class OwnerApiTest extends AcceptanceTest {
                                      }
                                    ],
                                    "company_number": "011-34-56789",
-                                   "account": "helloworld@koreatech.ac.kr",
+                                   "email": "helloworld@koreatech.ac.kr",
                                    "name": "주노",
                                    "password": "a0240120305812krlakdsflsa;1235",
                                    "phone_number": "010-0000-0000",

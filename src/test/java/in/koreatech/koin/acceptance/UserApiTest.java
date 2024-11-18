@@ -71,7 +71,7 @@ class UserApiTest extends AcceptanceTest {
                 post("/user/login")
                     .content("""
                         {
-                          "account" : "%s",
+                          "email" : "%s",
                           "password" : "%s"
                         }
                         """.formatted(email, password))
@@ -90,7 +90,7 @@ class UserApiTest extends AcceptanceTest {
                 post("/student/login")
                     .content("""
                         {
-                          "account" : "%s",
+                          "email" : "%s",
                           "password" : "%s"
                         }
                         """.formatted(email, password))
@@ -515,7 +515,7 @@ class UserApiTest extends AcceptanceTest {
                     .content("""
                         {
                           "major": "컴퓨터공학부",
-                          "account": "koko123@koreatech.ac.kr",
+                          "email": "koko123@koreatech.ac.kr",
                           "name": "김철수",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "nickname": "koko",
@@ -554,7 +554,7 @@ class UserApiTest extends AcceptanceTest {
                     .content("""
                         {
                           "major": "컴퓨터공학부",
-                          "account": "koko123@koreatech.ac.kr",
+                          "email": "koko123@koreatech.ac.kr",
                           "name": "김철수",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "nickname": "koko",
@@ -728,7 +728,7 @@ class UserApiTest extends AcceptanceTest {
                 post("/user/login")
                     .content("""
                         {
-                          "account": "%s",
+                          "email": "%s",
                           "password": "%s"
                         }
                         """.formatted(student.getUser().getEmail(), newPassword))
