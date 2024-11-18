@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -64,6 +65,7 @@ public class ArticleService {
     private final HotArticleRepository hotArticleRepository;
     private final ArticleHitUserRepository articleHitUserRepository;
     private final Clock clock;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public ArticleResponse getArticle(Integer boardId, Integer articleId, String publicIp) {
@@ -136,7 +138,7 @@ public class ArticleService {
             articles = articleRepository.findAllByBoardIdAndTitleContaining(boardId, query, pageRequest);
         }
 
-        saveOrUpdateSearchLog(query, ipAddress);
+        eventPublisher.publishEvent(new SearchLogEvent(query, ipAddress));
 
         return ArticlesResponse.of(articles, criteria);
     }
@@ -152,90 +154,6 @@ public class ArticleService {
         }
 
         return ArticleHotKeywordResponse.from(topKeywords);
-    }
-
-    @ConcurrencyGuard(lockName = "searchLog")
-    private void saveOrUpdateSearchLog(String query, String ipAddress) {
-        if (query == null || query.trim().isEmpty()) {
-            return;
-        }
-
-        String[] keywords = query.split("\\s+");
-
-        for (String keywordStr : keywords) {
-            ArticleSearchKeyword keyword = articleSearchKeywordRepository.findByKeyword(keywordStr)
-                .orElseGet(() -> {
-                    ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
-                        .keyword(keywordStr)
-                        .weight(1.0)
-                        .lastSearchedAt(LocalDateTime.now())
-                        .totalSearch(1)
-                        .build();
-                    articleSearchKeywordRepository.save(newKeyword);
-                    return newKeyword;
-                });
-
-            ArticleSearchKeywordIpMap map = articleSearchKeywordIpMapRepository.findByArticleSearchKeywordAndIpAddress(
-                    keyword, ipAddress)
-                .orElseGet(() -> {
-                    ArticleSearchKeywordIpMap newMap = ArticleSearchKeywordIpMap.builder()
-                        .articleSearchKeyword(keyword)
-                        .ipAddress(ipAddress)
-                        .searchCount(1)
-                        .build();
-                    articleSearchKeywordIpMapRepository.save(newMap);
-                    return newMap;
-                });
-
-            updateKeywordWeightAndCount(keyword, map);
-        }
-    }
-
-    /*
-     * 추가될 가중치를 계산합니다. 검색 횟수(map.getSearchCount())에 따라 가중치를 다르게 부여합니다:
-     * - 검색 횟수가 5회 이하인 경우: 1.0 / 2^(검색 횟수 - 1)
-     *   예:
-     *     첫 번째 검색: 1.0
-     *     두 번째 검색: 0.5
-     *     세 번째 검색: 0.25
-     *     네 번째 검색: 0.125
-     *     다섯 번째 검색: 0.0625
-     * - 검색 횟수가 5회를 초과하면: 1.0 / 2^4 (즉, 0.0625) 고정 가중치를 부여합니다.
-     * - 검색 횟수가 10회를 초과할 경우: 추가 가중치를 부여하지 않습니다.
-     */
-    private void updateKeywordWeightAndCount(ArticleSearchKeyword keyword, ArticleSearchKeywordIpMap map) {
-        map.incrementSearchCount();
-        double additionalWeight = 0.0;
-
-        if (map.getSearchCount() <= 5) {
-            additionalWeight = 1.0 / Math.pow(2, map.getSearchCount() - 1);
-        } else if (map.getSearchCount() <= 10) {
-            additionalWeight = 1.0 / Math.pow(2, 4);
-        }
-
-        if (map.getSearchCount() <= 10) {
-            keyword.updateWeight(keyword.getWeight() + additionalWeight);
-        }
-        articleSearchKeywordRepository.save(keyword);
-    }
-
-    @Transactional
-    public void resetWeightsAndCounts() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime before = now.minusHours(6).minusMinutes(30);
-
-        List<ArticleSearchKeyword> keywordsToUpdate = articleSearchKeywordRepository.findByUpdatedAtBetween(
-            before, now);
-        List<ArticleSearchKeywordIpMap> ipMapsToUpdate = articleSearchKeywordIpMapRepository.findByUpdatedAtBetween(
-            before, now);
-
-        for (ArticleSearchKeyword keyword : keywordsToUpdate) {
-            keyword.resetWeight();
-        }
-
-        for (ArticleSearchKeywordIpMap ipMap : ipMapsToUpdate) {
-            ipMap.resetSearchCount();
-        }
     }
 
     @Transactional
