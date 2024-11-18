@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.ownershop.service;
 
-import in.koreatech.koin.domain.ownershop.EventArticleCreateShopEvent;
+import in.koreatech.koin.domain.ownershop.dto.EventArticleCreateShopEvent;
 import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopEventsResponse;
@@ -24,72 +24,61 @@ import org.springframework.transaction.annotation.Transactional;
 public class OwnerEventService {
 
     private final EntityManager entityManager;
-    private final ShopRepository shopRepository;
     private final EventArticleRepository eventArticleRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final OwnerUtiltService ownerUtiltService;
 
     @Transactional
-    public void createEvent(Integer ownerId, Integer shopId, CreateEventRequest shopEventRequest) {
-        Shop shop = getOwnerShopById(shopId, ownerId);
-        EventArticle eventArticle = EventArticle.builder()
-            .shop(shop)
-            .startDate(shopEventRequest.startDate())
-            .endDate(shopEventRequest.endDate())
-            .title(shopEventRequest.title())
-            .content(shopEventRequest.content())
-            .user(shop.getOwner().getUser())
-            .hit(0)
-            .ip("")
-            .build();
-        EventArticle savedEventArticle = eventArticleRepository.save(eventArticle);
-        for (String image : shopEventRequest.thumbnailImages()) {
-            savedEventArticle.getThumbnailImages()
-                .add(EventArticleImage.builder()
-                    .eventArticle(eventArticle)
-                    .thumbnailImage(image)
-                    .build());
-        }
-        List<EventArticleImage> eventArticleImages = savedEventArticle.getThumbnailImages();
-        eventPublisher.publishEvent(
-            new EventArticleCreateShopEvent(
+    public void createEvent(Integer ownerId, Integer shopId, CreateEventRequest createEventRequest) {
+        Shop shop = ownerUtiltService.getOwnerShopById(shopId, ownerId);
+        EventArticle savedEventArticle = createEventArticle(createEventRequest, shop);
+        List<EventArticleImage> savedThumbnailImages = savedEventArticle.getThumbnailImages();
+        eventPublisher.publishEvent(new EventArticleCreateShopEvent(
                 shop.getId(),
                 shop.getName(),
                 savedEventArticle.getTitle(),
-                eventArticleImages.isEmpty() ? null : eventArticleImages.get(0).getThumbnailImage()
-            )
-        );
+                savedThumbnailImages.isEmpty() ? null : savedThumbnailImages.get(0).getThumbnailImage()
+        ));
     }
 
     @Transactional
     public void modifyEvent(Integer ownerId, Integer shopId, Integer eventId, ModifyEventRequest modifyEventRequest) {
-        getOwnerShopById(shopId, ownerId);
+        ownerUtiltService.getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = eventArticleRepository.getById(eventId);
         eventArticle.modifyArticle(
-            modifyEventRequest.title(),
-            modifyEventRequest.content(),
-            modifyEventRequest.thumbnailImages(),
-            modifyEventRequest.startDate(),
-            modifyEventRequest.endDate(),
-            entityManager
+                modifyEventRequest.title(),
+                modifyEventRequest.content(),
+                modifyEventRequest.thumbnailImages(),
+                modifyEventRequest.startDate(),
+                modifyEventRequest.endDate(),
+                entityManager
         );
     }
 
     @Transactional
     public void deleteEvent(Integer ownerId, Integer shopId, Integer eventId) {
-        getOwnerShopById(shopId, ownerId);
+        ownerUtiltService.getOwnerShopById(shopId, ownerId);
         eventArticleRepository.deleteById(eventId);
     }
 
     public OwnerShopEventsResponse getShopEvent(Integer shopId, Integer ownerId) {
-        Shop shop = getOwnerShopById(shopId, ownerId);
+        Shop shop = ownerUtiltService.getOwnerShopById(shopId, ownerId);
         return OwnerShopEventsResponse.from(shop);
     }
 
-    private Shop getOwnerShopById(Integer shopId, Integer ownerId) {
-        Shop shop = shopRepository.getById(shopId);
-        if (!Objects.equals(shop.getOwner().getId(), ownerId)) {
-            throw AuthorizationException.withDetail("ownerId: " + ownerId);
-        }
-        return shop;
+    private EventArticle createEventArticle(CreateEventRequest createEventRequest, Shop shop) {
+        EventArticle eventArticle = EventArticle.builder()
+                .shop(shop)
+                .startDate(createEventRequest.startDate())
+                .endDate(createEventRequest.endDate())
+                .title(createEventRequest.title())
+                .content(createEventRequest.content())
+                .user(shop.getOwner().getUser())
+                .hit(0)
+                .ip("")
+                .build();
+        EventArticle savedEventArticle = eventArticleRepository.save(eventArticle);
+        savedEventArticle.addThumbnailImages(createEventRequest.thumbnailImages());
+        return savedEventArticle;
     }
 }

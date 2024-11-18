@@ -119,14 +119,14 @@ public class EventArticle extends BaseEntity {
 
     @Builder
     private EventArticle(
-        Shop shop,
-        String title,
-        String content,
-        User user,
-        Integer hit,
-        String ip,
-        LocalDate startDate,
-        LocalDate endDate
+            Shop shop,
+            String title,
+            String content,
+            User user,
+            Integer hit,
+            String ip,
+            LocalDate startDate,
+            LocalDate endDate
     ) {
         this.shop = shop;
         this.title = title;
@@ -139,12 +139,12 @@ public class EventArticle extends BaseEntity {
     }
 
     public void modifyArticle(
-        String title,
-        String content,
-        List<String> thumbnailImages,
-        LocalDate startDate,
-        LocalDate endDate,
-        EntityManager entityManager
+            String title,
+            String content,
+            List<String> thumbnailImages,
+            LocalDate startDate,
+            LocalDate endDate,
+            EntityManager entityManager
     ) {
         this.title = title;
         this.content = content;
@@ -152,11 +152,20 @@ public class EventArticle extends BaseEntity {
         this.endDate = endDate;
         this.thumbnailImages.clear();
         entityManager.flush();
-        for (String imageUrl : thumbnailImages) {
-            this.thumbnailImages.add(EventArticleImage.builder()
+        addThumbnailImages(thumbnailImages);
+    }
+
+    public List<EventArticleImage> addThumbnailImages(List<String> thumbnailImages) {
+        for (String image : thumbnailImages) {
+            addThumbnailImage(image);
+        }
+        return this.thumbnailImages;
+    }
+
+    private void addThumbnailImage(String imageUrl) {
+        this.thumbnailImages.add(EventArticleImage.builder()
                 .eventArticle(this)
                 .thumbnailImage(imageUrl)
                 .build());
-        }
     }
 }
