@@ -22,7 +22,6 @@ import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.domain.email.form.OwnerRegistrationData;
 import in.koreatech.koin.global.domain.email.service.MailService;
 import in.koreatech.koin.global.domain.random.model.CertificateNumberGenerator;
@@ -38,19 +37,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class OwnerEmailVerificationService {
+public class OwnerEmailService {
 
     private final JwtProvider jwtProvider;
-    private final MailService mailService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
-    private final OwnerVerificationStatusRepository ownerVerificationStatusRepository;
-    private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
     private final OwnerRepository ownerRepository;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
-    private final ShopRepository shopRepository;
     private final OwnerValidator ownerValidator;
+    private final OwnerVerificationService ownerVerificationService;
+    private final OwnerUtilService ownerUtilService;
 
     @Transactional
     public void register(OwnerRegisterRequest request) {
@@ -60,10 +57,7 @@ public class OwnerEmailVerificationService {
         Owner owner = request.toOwner(passwordEncoder);
         Owner saved = ownerRepository.save(owner);
         OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(owner.getId());
-        if (request.shopId() != null) {
-            Shop shop = shopRepository.getById(request.shopId());
-            ownerShopBuilder.shopId(shop.getId());
-        }
+        ownerUtilService.setShopId(request.shopId(), ownerShopBuilder);
         ownerShopRedisRepository.save(ownerShopBuilder.build());
         eventPublisher.publishEvent(new OwnerRegisterEvent(saved));
     }
@@ -71,12 +65,12 @@ public class OwnerEmailVerificationService {
     @Transactional
     public void requestSignUpEmailVerification(VerifyEmailRequest request) {
         ownerValidator.validateExistEmailNumber(request.address());
-        sendCertificationEmail(request.address());
+        ownerVerificationService.sendCertificationEmail(request.address());
     }
 
     @Transactional
     public OwnerVerifyResponse verifyCodeByEmail(OwnerEmailVerifyRequest request) {
-        verifyCode(request.address(), request.certificationCode());
+        ownerVerificationService.verifyCode(request.address(), request.certificationCode());
         String token = jwtProvider.createTemporaryToken();
         return new OwnerVerifyResponse(token);
     }
@@ -84,48 +78,17 @@ public class OwnerEmailVerificationService {
     @Transactional
     public void sendResetPasswordByEmail(OwnerSendEmailRequest request) {
         User user = userRepository.getByEmail(request.address());
-        sendCertificationEmail(user.getEmail());
+        ownerVerificationService.sendCertificationEmail(user.getEmail());
     }
 
     @Transactional
     public void verifyResetPasswordCodeByEmail(OwnerPasswordResetVerifyEmailRequest request) {
-        verifyCode(request.address(), request.certificationCode());
+        ownerVerificationService.verifyCode(request.address(), request.certificationCode());
     }
 
     @Transactional
     public void updatePasswordByEmail(OwnerPasswordUpdateEmailRequest request) {
         User user = userRepository.getByEmail(request.address());
         user.updatePassword(passwordEncoder, request.password());
-    }
-
-    private void setVerificationCount(String key) {
-        Optional<DailyVerificationLimit> dailyVerificationLimit = dailyVerificationLimitRedisRepository.findById(key);
-        if (dailyVerificationLimit.isEmpty()) {
-            dailyVerificationLimitRedisRepository.save(new DailyVerificationLimit(key));
-        } else {
-            DailyVerificationLimit dailyVerification = dailyVerificationLimit.get();
-            dailyVerification.requestVerification();
-            dailyVerificationLimitRedisRepository.save(dailyVerification);
-        }
-    }
-
-    private void sendCertificationEmail(String email) {
-        setVerificationCount(email);
-        String certificationCode = CertificateNumberGenerator.generate();
-        mailService.sendMail(email, new OwnerRegistrationData(certificationCode));
-        OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
-            email,
-            certificationCode
-        );
-        ownerVerificationStatusRepository.save(ownerVerificationStatus);
-        eventPublisher.publishEvent(new OwnerEmailRequestEvent(email));
-    }
-
-    private void verifyCode(String key, String code) {
-        OwnerVerificationStatus verify = ownerVerificationStatusRepository.getByVerify(key);
-        if (!Objects.equals(verify.getCertificationCode(), code)) {
-            throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
-        }
-        ownerVerificationStatusRepository.deleteById(key);
     }
 }

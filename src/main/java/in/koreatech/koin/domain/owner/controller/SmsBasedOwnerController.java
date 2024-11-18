@@ -10,7 +10,7 @@ import in.koreatech.koin.domain.owner.dto.sms.OwnerSendSmsRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.sms.VerifySmsRequest;
-import in.koreatech.koin.domain.owner.service.OwnerSmsVerificationService;
+import in.koreatech.koin.domain.owner.service.OwnerSmsService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SmsBasedOwnerController implements SmsBasedOwnerApi {
 
-    private final OwnerSmsVerificationService ownerSmsService;
+    private final OwnerSmsService ownerSmsService;
 
     @PostMapping("/owner/login")
     public ResponseEntity<OwnerLoginResponse> ownerLogin(

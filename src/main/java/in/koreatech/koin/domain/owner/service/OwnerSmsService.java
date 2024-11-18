@@ -46,28 +46,25 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class OwnerSmsVerificationService {
+public class OwnerSmsService {
 
     private final JwtProvider jwtProvider;
-    private final UserTokenRepository userTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
-    private final OwnerVerificationStatusRepository ownerVerificationStatusRepository;
-    private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
     private final UserRepository userRepository;
     private final OwnerRepository ownerRepository;
-    private final ShopRepository shopRepository;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
     private final OwnerValidator ownerValidator;
-    private final NaverSmsService naverSmsService;
+    private final OwnerUtilService ownerUtilService;
+    private final OwnerVerificationService ownerVerificationService;
 
     @Transactional
     public OwnerLoginResponse ownerLogin(OwnerLoginRequest request) {
-        User user = extractUserByAccount(request.account());
+        User user = ownerUtilService.extractUserByAccount(request.account());
         ownerValidator.validatePassword(user, request.password());
         ownerValidator.validateAuth(user);
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = saveRefreshToken(user);
+        String refreshToken = ownerUtilService.saveRefreshToken(user);
         user.updateLastLoggedTime(LocalDateTime.now());
         return OwnerLoginResponse.of(accessToken, refreshToken);
     }
@@ -79,7 +76,7 @@ public class OwnerSmsVerificationService {
         Owner owner = request.toOwner(passwordEncoder);
         Owner saved = ownerRepository.save(owner);
         OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(owner.getId());
-        setShopId(request.shopId(), ownerShopBuilder);
+        ownerUtilService.setShopId(request.shopId(), ownerShopBuilder);
         ownerShopRedisRepository.save(ownerShopBuilder.build());
         eventPublisher.publishEvent(new OwnerRegisterBySmsEvent(saved));
     }
@@ -87,24 +84,24 @@ public class OwnerSmsVerificationService {
     @Transactional
     public void requestSignUpSmsVerification(VerifySmsRequest request) {
         ownerValidator.validateExistPhoneNumber(request.phoneNumber());
-        sendCertificationSms(request.phoneNumber());
+        ownerVerificationService.sendCertificationSms(request.phoneNumber());
     }
 
     @Transactional
     public OwnerVerifyResponse verifyCodeBySms(OwnerSmsVerifyRequest request) {
-        verifyCode(request.phoneNumber(), request.certificationCode());
+        ownerVerificationService.verifyCode(request.phoneNumber(), request.certificationCode());
         return new OwnerVerifyResponse(jwtProvider.createTemporaryToken());
     }
 
     @Transactional
     public void sendResetPasswordBySms(OwnerSendSmsRequest request) {
         User user = userRepository.getByPhoneNumber(request.phoneNumber(), OWNER);
-        sendCertificationSms(user.getPhoneNumber());
+        ownerVerificationService.sendCertificationSms(user.getPhoneNumber());
     }
 
     @Transactional
     public void verifyResetPasswordCodeBySms(OwnerPasswordResetVerifySmsRequest request) {
-        verifyCode(request.phoneNumber(), request.certificationCode());
+        ownerVerificationService.verifyCode(request.phoneNumber(), request.certificationCode());
     }
 
     @Transactional
@@ -113,58 +110,9 @@ public class OwnerSmsVerificationService {
         user.updatePassword(passwordEncoder, request.password());
     }
 
-    private void setVerificationCount(String key) {
-        Optional<DailyVerificationLimit> dailyVerificationLimit = dailyVerificationLimitRedisRepository.findById(key);
-        if (dailyVerificationLimit.isEmpty()) {
-            dailyVerificationLimitRedisRepository.save(new DailyVerificationLimit(key));
-        } else {
-            DailyVerificationLimit dailyVerification = dailyVerificationLimit.get();
-            dailyVerification.requestVerification();
-            dailyVerificationLimitRedisRepository.save(dailyVerification);
-        }
-    }
-
-    private void sendCertificationSms(String phoneNumber) {
-        setVerificationCount(phoneNumber);
-        String certificationCode = CertificateNumberGenerator.generate();
-        naverSmsService.sendVerificationCode(certificationCode, phoneNumber);
-        OwnerVerificationStatus ownerVerificationStatus = new OwnerVerificationStatus(
-            phoneNumber,
-            certificationCode
-        );
-        ownerVerificationStatusRepository.save(ownerVerificationStatus);
-        eventPublisher.publishEvent(new OwnerSmsRequestEvent(phoneNumber));
-    }
-
-    private void verifyCode(String key, String code) {
-        OwnerVerificationStatus verify = ownerVerificationStatusRepository.getByVerify(key);
-        if (!Objects.equals(verify.getCertificationCode(), code)) {
-            throw new KoinIllegalArgumentException("인증번호가 일치하지 않습니다.");
-        }
-        ownerVerificationStatusRepository.deleteById(key);
-    }
-
     public void checkExistsAccount(OwnerAccountCheckExistsRequest request) {
         ownerRepository.findByAccount(request.account()).ifPresent(user -> {
             throw DuplicationPhoneNumberException.withDetail("account: " + request.account());
         });
-    }
-
-    private String saveRefreshToken(User user) {
-        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
-        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
-        return savedToken.getRefreshToken();
-    }
-
-    private void setShopId(Integer shopId, OwnerShop.OwnerShopBuilder builder) {
-        if (shopId != null) {
-            Shop shop = shopRepository.getById(shopId);
-            builder.shopId(shop.getId());
-        }
-    }
-
-    private User extractUserByAccount(String account) {
-        Owner owner = ownerRepository.getByAccount(account);
-        return owner.getUser();
     }
 }

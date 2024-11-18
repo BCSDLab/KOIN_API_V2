@@ -7,7 +7,7 @@ import in.koreatech.koin.domain.owner.dto.email.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.email.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.email.VerifyEmailRequest;
-import in.koreatech.koin.domain.owner.service.OwnerEmailVerificationService;
+import in.koreatech.koin.domain.owner.service.OwnerEmailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class EmailBasedOwnerController implements EmailBasedOwnerApi {
 
-    private final OwnerEmailVerificationService ownerEmailService;
+    private final OwnerEmailService ownerEmailService;
 
     @PostMapping("/owners/register")
     public ResponseEntity<Void> register(
