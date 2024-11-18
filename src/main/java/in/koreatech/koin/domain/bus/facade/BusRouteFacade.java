@@ -40,7 +40,7 @@ public class BusRouteFacade {
     }
 
     public BusScheduleResponse getBusSchedule(BusRouteCommand request) {
-        List<BusScheduleResponse.ScheduleInfo> scheduleInfoList = switch (request.depart()) {
+        List<ScheduleInfo> scheduleInfoList = switch (request.depart()) {
             case KOREATECH -> getBusScheduleDepartFromKoreaTech(request);
             case TERMINAL, STATION -> getBusScheduleDepartFromElse(request, request.depart());
         };
