@@ -103,7 +103,7 @@ class OwnerApiTest extends AcceptanceTest {
     void 로그인된_사장님_정보를_조회한다() throws Exception {
         // given
         Owner owner = userFixture.현수_사장님();
-        Shop shop = shopFixture.마슬랜(owner);
+        Shop shop = shopFixture.마슬랜(owner, null);
         String token = userFixture.getToken(owner.getUser());
 
         mockMvc.perform(
@@ -370,7 +370,7 @@ class OwnerApiTest extends AcceptanceTest {
         @Test
         void 사장님이_회원가입_요청을_한다_기존에_존재하는_상점과_함께_회원가입() throws Exception {
             // given
-            Shop shop = shopFixture.마슬랜(null);
+            Shop shop = shopFixture.마슬랜(null, null);
             mockMvc.perform(
                     post("/owners/register")
                         .content(String.format("""

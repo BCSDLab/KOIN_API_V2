@@ -1,7 +1,6 @@
 package in.koreatech.koin.admin.shop.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
@@ -17,10 +16,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminShopsReviewsResponse(
 
     @Schema(description = "총 상점의 수", example = "57", requiredMode = REQUIRED)

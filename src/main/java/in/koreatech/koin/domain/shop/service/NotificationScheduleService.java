@@ -55,7 +55,7 @@ public class NotificationScheduleService {
         ShopNotificationMessage shopNotificationMessage = shop.getShopCategories().stream()
             .findFirst()
             .map(ShopCategoryMap::getShopCategory)
-            .map(shopCategory -> shopCategory.getMainCategory().getNotificationMessage())
+            .map(shopCategory -> shopCategory.getParentCategory().getNotificationMessage())
             .orElseThrow(() -> NotificationMessageNotFoundException.withDetail("shopId: " + shop.getId()));
 
         return notificationFactory.generateReviewPromptNotification(

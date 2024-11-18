@@ -59,6 +59,9 @@ public record AdminShopResponse(
     @Schema(description = "소속된 상점 카테고리 리스트")
     List<InnerShopCategory> shopCategories,
 
+    @Schema(description = "메인 카테고리 id", example = "1")
+    Integer mainCategoryId,
+
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Schema(description = "업데이트 날짜", example = "2024-03-01", requiredMode = REQUIRED)
     LocalDateTime updatedAt,
@@ -112,6 +115,7 @@ public record AdminShopResponse(
                     shopCategory.getName()
                 );
             }).toList(),
+            shop.getShopMainCategory() != null ? shop.getShopMainCategory().getId() : null,
             shop.getUpdatedAt(),
             shop.isDeleted(),
             isEvent,
