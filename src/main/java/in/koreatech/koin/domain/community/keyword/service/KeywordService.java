@@ -19,7 +19,6 @@ import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordCreateReques
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsSuggestionResponse;
-import in.koreatech.koin.domain.community.keyword.dto.FilteredKeywordsResponse;
 import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
@@ -157,25 +156,6 @@ public class KeywordService {
         }
 
         return keywordEvents;
-    }
-
-    @Transactional
-    public void filterKeyword(String keyword, Boolean isFiltered) {
-        ArticleKeyword articleKeyword = articleKeywordRepository.getByKeyword(keyword);
-
-        if (Objects.equals(articleKeyword.getIsFiltered(), isFiltered)) {
-            throw new KoinIllegalArgumentException(
-                isFiltered ? "이미 필터링 된 키워드입니다: " + keyword : "이미 필터링이 취소된 키워드입니다: " + keyword
-            );
-        }
-
-        articleKeyword.applyFiltered(isFiltered);
-    }
-
-    @Transactional(readOnly = true)
-    public FilteredKeywordsResponse getFilteredKeywords() {
-        List<ArticleKeyword> filteredKeywords = articleKeywordRepository.findByIsFiltered(true);
-        return FilteredKeywordsResponse.from(filteredKeywords);
     }
 
     @Transactional

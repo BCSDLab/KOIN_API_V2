@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.community.keyword.dto;
+package in.koreatech.koin.admin.keyword.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -11,7 +11,7 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record FilteredKeywordsResponse(
+public record AdminFilteredKeywordsResponse(
     @Schema(description = "필터링된 키워드 목록", requiredMode = REQUIRED)
     List<InnerFilteredKeywordResponse> keywords
 ) {
@@ -29,8 +29,8 @@ public record FilteredKeywordsResponse(
         }
     }
 
-    public static FilteredKeywordsResponse from(List<ArticleKeyword> filteredKeywords) {
-        return new FilteredKeywordsResponse(
+    public static AdminFilteredKeywordsResponse from(List<ArticleKeyword> filteredKeywords) {
+        return new AdminFilteredKeywordsResponse(
             filteredKeywords.stream()
                 .map(InnerFilteredKeywordResponse::from)
                 .toList()

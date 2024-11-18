@@ -16,11 +16,6 @@ public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Int
 
     Optional<ArticleKeyword> findByKeyword(String keyword);
 
-    default ArticleKeyword getByKeyword(String keyword) {
-        return findByKeyword(keyword)
-            .orElseThrow(() -> ArticleKeywordNotFoundException.withDetail("keyword : " + keyword));
-    }
-
     ArticleKeyword save(ArticleKeyword articleKeyword);
 
     void deleteById(Integer id);
@@ -28,8 +23,6 @@ public interface ArticleKeywordRepository extends Repository<ArticleKeyword, Int
     Optional<ArticleKeyword> findById(Integer id);
 
     List<ArticleKeyword> findAll(Pageable pageable);
-
-    List<ArticleKeyword> findByIsFiltered(boolean b);
 
     @Query("""
     SELECT new in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult(k.id, k.keyword, COUNT(u))

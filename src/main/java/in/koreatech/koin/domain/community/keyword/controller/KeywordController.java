@@ -3,8 +3,6 @@ package in.koreatech.koin.domain.community.keyword.controller;
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,14 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.community.keyword.dto.FilteredKeywordsResponse;
-import in.koreatech.koin.domain.community.keyword.dto.KeywordFilterRequest;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordCreateRequest;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsResponse;
 import in.koreatech.koin.domain.community.keyword.dto.ArticleKeywordsSuggestionResponse;
 import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.service.KeywordService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
@@ -75,22 +70,4 @@ public class KeywordController implements KeywordApi{
         keywordService.sendKeywordNotification(request);
         return ResponseEntity.ok().build();
     }
-
-    @PostMapping("/filter")
-    public ResponseEntity<Void> toggleKeywordFilter(
-        @Valid @RequestBody KeywordFilterRequest request,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        keywordService.filterKeyword(request.keyword(), request.isFiltered());
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/filtered")
-    public ResponseEntity<FilteredKeywordsResponse> getFilteredKeywords(
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        FilteredKeywordsResponse response = keywordService.getFilteredKeywords();
-        return ResponseEntity.ok(response);
-    }
-
 }
