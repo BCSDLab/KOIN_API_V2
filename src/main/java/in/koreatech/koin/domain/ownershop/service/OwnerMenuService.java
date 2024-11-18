@@ -10,17 +10,12 @@ import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
-import in.koreatech.koin.domain.shop.model.menu.MenuImage;
-import in.koreatech.koin.domain.shop.model.menu.MenuOption;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
-import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import jakarta.persistence.EntityManager;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,38 +71,10 @@ public class OwnerMenuService {
     public void createMenu(Integer shopId, Integer ownerId, CreateMenuRequest createMenuRequest) {
         Shop shop = ownerUtiltService.getOwnerShopById(shopId, ownerId);
         Menu savedMenu = menuRepository.save(createMenuRequest.toEntity(shop));
-        for (Integer categoryId : createMenuRequest.categoryIds()) {
-            MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
-            MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
-                .menuCategory(menuCategory)
-                .menu(savedMenu)
-                .build();
-            savedMenu.getMenuCategoryMaps().add(menuCategoryMap);
-        }
-        for (String imageUrl : createMenuRequest.imageUrls()) {
-            MenuImage menuImage = MenuImage.builder()
-                .imageUrl(imageUrl)
-                .menu(savedMenu)
-                .build();
-            savedMenu.getMenuImages().add(menuImage);
-        }
-        if (createMenuRequest.optionPrices() == null) {
-            MenuOption menuOption = MenuOption.builder()
-                .option(savedMenu.getName())
-                .price(createMenuRequest.singlePrice())
-                .menu(menu)
-                .build();
-            savedMenu.getMenuOptions().add(menuOption);
-        } else {
-            for (var option : createMenuRequest.optionPrices()) {
-                MenuOption menuOption = MenuOption.builder()
-                    .option(option.option())
-                    .price(option.price())
-                    .menu(menu)
-                    .build();
-                savedMenu.getMenuOptions().add(menuOption);
-            }
-        }
+        List<MenuCategory> menuCategories = menuCategoryRepository.findAllByIdIn(createMenuRequest.categoryIds());
+        savedMenu.addMenuCategories(menuCategories);
+        savedMenu.addMenuImages(createMenuRequest.imageUrls());
+        savedMenu.addMenuOptions(createMenuRequest.toMenuOption(savedMenu));
     }
 
     @Transactional
@@ -124,17 +91,10 @@ public class OwnerMenuService {
     public void modifyMenu(Integer ownerId, Integer menuId, ModifyMenuRequest modifyMenuRequest) {
         Menu menu = menuRepository.getById(menuId);
         ownerUtiltService.getOwnerShopById(menu.getShop().getId(), ownerId);
-        menu.modifyMenu(
-            modifyMenuRequest.name(),
-            modifyMenuRequest.description()
-        );
+        menu.modifyMenu(modifyMenuRequest.name(), modifyMenuRequest.description());
         menu.modifyMenuImages(modifyMenuRequest.imageUrls(), entityManager);
         menu.modifyMenuCategories(menuCategoryRepository.findAllByIdIn(modifyMenuRequest.categoryIds()), entityManager);
-        if (modifyMenuRequest.isSingle()) {
-            menu.modifyMenuSingleOptions(modifyMenuRequest, entityManager);
-        } else {
-            menu.modifyMenuMultipleOptions(modifyMenuRequest.optionPrices(), entityManager);
-        }
+        menu.modifyOptions(modifyMenuRequest.toMenuOption(menu), entityManager);
     }
 
     @Transactional

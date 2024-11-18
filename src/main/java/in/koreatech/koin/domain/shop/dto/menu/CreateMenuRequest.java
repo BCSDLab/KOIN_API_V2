@@ -6,6 +6,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
+import in.koreatech.koin.domain.shop.model.menu.MenuOption;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.global.validation.NotBlankElement;
 import in.koreatech.koin.global.validation.SingleMenuPrice;
@@ -66,6 +67,17 @@ public record CreateMenuRequest(
             .build();
     }
 
+    public List<MenuOption> toMenuOption(Menu menu) {
+        if (isSingle) {
+            return List.of(MenuOption.builder()
+                    .menu(menu)
+                    .option(name)
+                    .price(singlePrice)
+                    .build());
+        }
+        return optionPrices.stream().map(option -> option.toEntity(menu)).toList();
+    }
+
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerOptionPrice(
         @Schema(example = "대", description = "옵션명", requiredMode = REQUIRED)
@@ -75,6 +87,12 @@ public record CreateMenuRequest(
         @PositiveOrZero(message = "가격은 0원 이상이어야 합니다.")
         @NotNull Integer price
     ) {
-
+        public MenuOption toEntity(Menu menu) {
+            return MenuOption.builder()
+                    .menu(menu)
+                    .option(option)
+                    .price(price)
+                    .build();
+        }
     }
 }
