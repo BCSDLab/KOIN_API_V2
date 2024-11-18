@@ -1,7 +1,9 @@
 package in.koreatech.koin.domain.user.repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.repository.Repository;
 
@@ -64,4 +66,11 @@ public interface UserRepository extends Repository<User, Integer> {
     Optional<User> findByPhoneNumber(String phoneNumber);
 
     List<User> findAllByName(String name);
+
+    List<User> findAllByIdIn(List<Integer> ids);
+
+    default Map<Integer, User> findAllByIdInMap(List<Integer> ids) {
+        return findAllByIdIn(ids).stream()
+            .collect(Collectors.toMap(User::getId, user -> user));
+    }
 }
