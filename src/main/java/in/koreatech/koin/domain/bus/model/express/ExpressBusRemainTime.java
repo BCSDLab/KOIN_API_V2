@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.dto.express;
+package in.koreatech.koin.domain.bus.model.express;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 

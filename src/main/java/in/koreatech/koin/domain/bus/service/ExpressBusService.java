@@ -18,15 +18,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.client.ExpressBusClient;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
-import in.koreatech.koin.domain.bus.dto.express.ExpressBusRemainTime;
+import in.koreatech.koin.domain.bus.model.express.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
-import in.koreatech.koin.domain.bus.model.BusTimetable;
+import in.koreatech.koin.domain.bus.dto.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
-import in.koreatech.koin.domain.bus.model.express.ExpressBusTimetable;
+import in.koreatech.koin.domain.bus.dto.express.ExpressBusTimetable;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.global.domain.callcontoller.CallController;
 import lombok.RequiredArgsConstructor;

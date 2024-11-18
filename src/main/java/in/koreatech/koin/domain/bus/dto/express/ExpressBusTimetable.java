@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.model.express;
+package in.koreatech.koin.domain.bus.dto.express;
 
 import java.time.format.DateTimeFormatter;
 
@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.bus.model.BusTimetable;
+import in.koreatech.koin.domain.bus.dto.BusTimetable;
+import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import lombok.Getter;
 
 @Getter

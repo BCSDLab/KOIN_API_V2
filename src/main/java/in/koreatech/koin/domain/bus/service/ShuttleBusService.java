@@ -24,7 +24,7 @@ import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.shuttle.BusCourse;
 import in.koreatech.koin.domain.bus.model.shuttle.Route;
-import in.koreatech.koin.domain.bus.model.shuttle.SchoolBusTimetable;
+import in.koreatech.koin.domain.bus.dto.shuttle.SchoolBusTimetable;
 import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
 import lombok.RequiredArgsConstructor;
 

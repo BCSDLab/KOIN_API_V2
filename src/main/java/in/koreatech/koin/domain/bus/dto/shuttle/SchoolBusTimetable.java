@@ -1,11 +1,11 @@
-package in.koreatech.koin.domain.bus.model.shuttle;
+package in.koreatech.koin.domain.bus.dto.shuttle;
 
 import java.util.List;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.bus.model.BusTimetable;
+import in.koreatech.koin.domain.bus.dto.BusTimetable;
 import lombok.Getter;
 
 @Getter

@@ -9,8 +9,8 @@ import java.util.StringJoiner;
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.bus.dto.shuttle.BusRemainTimeResponse;
-import in.koreatech.koin.domain.bus.dto.shuttle.BusRemainTimeResponse.InnerBusResponse;
+import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse.InnerBusResponse;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.facade.BusFacade;
