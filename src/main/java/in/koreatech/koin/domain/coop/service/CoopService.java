@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -50,7 +49,6 @@ import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
@@ -117,7 +115,6 @@ public class CoopService {
         return CoopLoginResponse.of(accessToken, savedToken.getRefreshToken());
     }
 
-    @ConcurrencyGuard(lockName = "excelDownload", waitTime = 1, leaseTime = 5000, timeUnit = TimeUnit.MILLISECONDS)
     public ByteArrayInputStream generateDiningExcel(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
         validateDates(startDate, endDate);
         List<Dining> dinings = fetchDiningData(startDate, endDate, isCafeteria);
