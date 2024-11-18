@@ -2,6 +2,10 @@ package in.koreatech.koin.domain.owner.model;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
+import in.koreatech.koin.domain.owner.model.dto.OwnerEmailRequestEvent;
+import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterBySmsEvent;
+import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterEvent;
+import in.koreatech.koin.domain.owner.model.dto.OwnerSmsRequestEvent;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
