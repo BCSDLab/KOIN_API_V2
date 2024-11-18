@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class NotificationService {
 
     private final UserRepository userRepository;
@@ -36,9 +35,6 @@ public class NotificationService {
     }
 
     public void push(Notification notification) {
-        log.info("Saving notification: userId={}, title={}, description={}",
-            notification.getUser().getId(), notification.getTitle(), notification.getMessage());
-
         notificationRepository.save(notification);
         String deviceToken = notification.getUser().getDeviceToken();
         fcmClient.sendMessage(
