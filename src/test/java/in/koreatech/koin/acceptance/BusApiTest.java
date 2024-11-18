@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,18 +23,19 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.dto.city.CityBusArrival;
 import in.koreatech.koin.domain.bus.model.city.CityBusCache;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
-import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
+import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
+import in.koreatech.koin.domain.bus.model.enums.BusStation;
+import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
+import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
 import in.koreatech.koin.domain.bus.service.ExpressBusService;
-import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
-import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
@@ -149,7 +151,7 @@ class BusApiTest extends AcceptanceTest {
                     .containsExactly(
                         new SingleBusTimeResponse("express", LocalTime.parse(arrivalTime)),
                         new SingleBusTimeResponse("shuttle", LocalTime.parse(arrivalTime)),
-                        new SingleBusTimeResponse("commuting", null)
+                        new SingleBusTimeResponse("commuting", LocalTime.parse(arrivalTime))
                     );
             }
         );
@@ -211,7 +213,7 @@ class BusApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$.length()").value(4))
             .andExpect(jsonPath("$[0].bus_type").value("shuttle"))
             .andExpect(jsonPath("$[0].direction").value("from"))
             .andExpect(jsonPath("$[0].region").value("천안"));
@@ -332,5 +334,25 @@ class BusApiTest extends AcceptanceTest {
         verify(staticExpressBusClient, never()).storeRemainTime();
         clear();
         setUp();
+    }
+
+    @Test
+    void 버스_교통편을_조회한다() throws Exception {
+        LocalDate date = LocalDate.of(2024, 11, 18);
+        String time = "00:00";
+        BusRouteType busRouteType = BusRouteType.ALL;
+        BusStation depart = BusStation.TERMINAL;
+        BusStation arrival = BusStation.KOREATECH;
+
+        mockMvc.perform(
+                get("/bus/route")
+                    .param("bus_type", busRouteType.name())
+                    .param("date", date.toString())
+                    .param("time", time)
+                    .param("depart", depart.name())
+                    .param("arrival", arrival.name())
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
     }
 }
