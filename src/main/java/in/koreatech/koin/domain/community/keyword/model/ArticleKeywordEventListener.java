@@ -75,7 +75,7 @@ public class ArticleKeywordEventListener {
     ) {
         Integer userId = subscribe.getUser().getId();
         String keyword = event.keyword().getKeyword();
-        String description = generateDescription(keyword); // 템플릿 메시지 생성
+        String description = generateDescription(keyword);
 
         Notification notification = notificationFactory.generateKeywordNotification(
             KEYWORD,
