@@ -12,7 +12,6 @@ import in.koreatech.koin.domain.owner.dto.sms.OwnerSendSmsRequest;
 import in.koreatech.koin.domain.owner.dto.sms.OwnerSmsVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.sms.VerifySmsRequest;
-import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
 import in.koreatech.koin.domain.owner.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterBySmsEvent;
@@ -31,7 +30,6 @@ import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.domain.random.model.CertificateNumberGenerator;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.naver.service.NaverSmsService;
@@ -52,69 +50,50 @@ public class OwnerSmsVerificationService {
 
     private final JwtProvider jwtProvider;
     private final UserTokenRepository userTokenRepository;
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final OwnerVerificationStatusRepository ownerVerificationStatusRepository;
     private final DailyVerificationLimitRepository dailyVerificationLimitRedisRepository;
+    private final UserRepository userRepository;
     private final OwnerRepository ownerRepository;
     private final ShopRepository shopRepository;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
+    private final OwnerValidator ownerValidator;
     private final NaverSmsService naverSmsService;
 
     @Transactional
     public OwnerLoginResponse ownerLogin(OwnerLoginRequest request) {
-        Owner owner = ownerRepository.getByAccount(request.account());
-        User user = owner.getUser();
-
-        if (!user.isSamePassword(passwordEncoder, request.password())) {
-            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
-        }
-
-        if (!user.isAuthed()) {
-            throw new AuthorizationException("미인증 상태입니다. 인증을 진행해주세요.");
-        }
-
+        User user = extractUserByAccount(request.account());
+        ownerValidator.validatePassword(user, request.password());
+        ownerValidator.validateAuth(user);
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
-        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        String refreshToken = saveRefreshToken(user);
         user.updateLastLoggedTime(LocalDateTime.now());
-
-        return OwnerLoginResponse.of(accessToken, savedToken.getRefreshToken());
+        return OwnerLoginResponse.of(accessToken, refreshToken);
     }
 
     @Transactional
     public void registerByPhone(OwnerRegisterByPhoneRequest request) {
-        if (userRepository.findByPhoneNumberAndUserType(request.phoneNumber(), OWNER).isPresent()) {
-            throw DuplicationPhoneNumberException.withDetail("account: " + request.phoneNumber());
-        }
-        if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
-            throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
-        }
+        ownerValidator.validateExistPhoneNumber(request.phoneNumber());
+        ownerValidator.validateExistCompanyNumber(request.companyNumber());
         Owner owner = request.toOwner(passwordEncoder);
         Owner saved = ownerRepository.save(owner);
         OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(owner.getId());
-        if (request.shopId() != null) {
-            Shop shop = shopRepository.getById(request.shopId());
-            ownerShopBuilder.shopId(shop.getId());
-        }
+        setShopId(request.shopId(), ownerShopBuilder);
         ownerShopRedisRepository.save(ownerShopBuilder.build());
         eventPublisher.publishEvent(new OwnerRegisterBySmsEvent(saved));
     }
 
     @Transactional
     public void requestSignUpSmsVerification(VerifySmsRequest request) {
-        userRepository.findByPhoneNumberAndUserType(request.phoneNumber(), OWNER).ifPresent(user -> {
-            throw DuplicationPhoneNumberException.withDetail("account: " + request.phoneNumber());
-        });
+        ownerValidator.validateExistPhoneNumber(request.phoneNumber());
         sendCertificationSms(request.phoneNumber());
     }
 
     @Transactional
     public OwnerVerifyResponse verifyCodeBySms(OwnerSmsVerifyRequest request) {
         verifyCode(request.phoneNumber(), request.certificationCode());
-        String token = jwtProvider.createTemporaryToken();
-        return new OwnerVerifyResponse(token);
+        return new OwnerVerifyResponse(jwtProvider.createTemporaryToken());
     }
 
     @Transactional
@@ -169,5 +148,23 @@ public class OwnerSmsVerificationService {
         ownerRepository.findByAccount(request.account()).ifPresent(user -> {
             throw DuplicationPhoneNumberException.withDetail("account: " + request.account());
         });
+    }
+
+    private String saveRefreshToken(User user) {
+        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
+        UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        return savedToken.getRefreshToken();
+    }
+
+    private void setShopId(Integer shopId, OwnerShop.OwnerShopBuilder builder) {
+        if (shopId != null) {
+            Shop shop = shopRepository.getById(shopId);
+            builder.shopId(shop.getId());
+        }
+    }
+
+    private User extractUserByAccount(String account) {
+        Owner owner = ownerRepository.getByAccount(account);
+        return owner.getUser();
     }
 }

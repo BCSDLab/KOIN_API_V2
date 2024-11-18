@@ -7,8 +7,6 @@ import in.koreatech.koin.domain.owner.dto.email.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.email.OwnerSendEmailRequest;
 import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.email.VerifyEmailRequest;
-import in.koreatech.koin.domain.owner.exception.DuplicationCompanyNumberException;
-import in.koreatech.koin.domain.owner.exception.DuplicationPhoneNumberException;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.dto.OwnerEmailRequestEvent;
 import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterEvent;
@@ -52,18 +50,13 @@ public class OwnerEmailVerificationService {
     private final OwnerRepository ownerRepository;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
     private final ShopRepository shopRepository;
+    private final OwnerValidator ownerValidator;
 
     @Transactional
     public void register(OwnerRegisterRequest request) {
-        if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw DuplicationEmailException.withDetail("email: " + request.email());
-        }
-        if (ownerRepository.findByCompanyRegistrationNumber(request.companyNumber()).isPresent()) {
-            throw DuplicationCompanyNumberException.withDetail("companyNumber: " + request.companyNumber());
-        }
-        if (ownerRepository.findByAccount(request.phoneNumber()).isPresent()) {
-            throw DuplicationPhoneNumberException.withDetail("account: " + request.phoneNumber());
-        }
+        ownerValidator.validateExistEmailNumber(request.email());
+        ownerValidator.validateExistCompanyNumber(request.companyNumber());
+        ownerValidator.validateExistPhoneNumber(request.phoneNumber());
         Owner owner = request.toOwner(passwordEncoder);
         Owner saved = ownerRepository.save(owner);
         OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(owner.getId());
@@ -77,9 +70,7 @@ public class OwnerEmailVerificationService {
 
     @Transactional
     public void requestSignUpEmailVerification(VerifyEmailRequest request) {
-        userRepository.findByEmail(request.address()).ifPresent(user -> {
-            throw DuplicationEmailException.withDetail("email: " + request.address());
-        });
+        ownerValidator.validateExistEmailNumber(request.address());
         sendCertificationEmail(request.address());
     }
 

@@ -39,7 +39,7 @@ public class OwnerEventListener {
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerPhoneRequest(OwnerSmsRequestEvent ownerPhoneRequestEvent) {
         var notification = slackNotificationFactory.generateOwnerPhoneVerificationRequestNotification(
-            ownerPhoneRequestEvent.phoneNumber());
+                ownerPhoneRequestEvent.phoneNumber());
         slackClient.sendMessage(notification);
     }
 
@@ -53,10 +53,10 @@ public class OwnerEventListener {
         Owner owner = event.owner();
         ownerInVerificationRedisRepository.deleteByVerify(owner.getUser().getEmail());
         String shopsName = shopRepository.findAllByOwnerId(owner.getId())
-            .stream().map(Shop::getName).collect(Collectors.joining(", "));
+                .stream().map(Shop::getName).collect(Collectors.joining(", "));
         var notification = slackNotificationFactory.generateOwnerRegisterRequestNotification(
-            owner.getUser().getName(),
-            shopsName
+                owner.getUser().getName(),
+                shopsName
         );
         slackClient.sendMessage(notification);
     }
@@ -66,10 +66,12 @@ public class OwnerEventListener {
         Owner owner = event.owner();
         ownerInVerificationRedisRepository.deleteByVerify(owner.getAccount());
         String shopsName = shopRepository.findAllByOwnerId(owner.getId())
-            .stream().map(Shop::getName).collect(Collectors.joining(", "));
+                .stream()
+                .map(Shop::getName)
+                .collect(Collectors.joining(", "));
         var notification = slackNotificationFactory.generateOwnerRegisterRequestNotification(
-            owner.getUser().getName(),
-            shopsName
+                owner.getUser().getName(),
+                shopsName
         );
         slackClient.sendMessage(notification);
     }
