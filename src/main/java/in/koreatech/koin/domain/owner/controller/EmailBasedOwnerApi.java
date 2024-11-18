@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "(Normal) Owner(email): 사장님", description = "이메일 기반으로 사장님 정보를 관리한다.")
+@Tag(name = "(Normal) Owner(account): 사장님", description = "이메일 기반으로 사장님 정보를 관리한다.")
 public interface EmailBasedOwnerApi {
 
     @ApiResponses(

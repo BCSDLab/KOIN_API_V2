@@ -1,35 +1,20 @@
 package in.koreatech.koin.domain.owner.service;
 
+import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.email.OwnerEmailVerifyRequest;
 import in.koreatech.koin.domain.owner.dto.email.OwnerPasswordResetVerifyEmailRequest;
 import in.koreatech.koin.domain.owner.dto.email.OwnerPasswordUpdateEmailRequest;
 import in.koreatech.koin.domain.owner.dto.email.OwnerRegisterRequest;
 import in.koreatech.koin.domain.owner.dto.email.OwnerSendEmailRequest;
-import in.koreatech.koin.domain.owner.dto.OwnerVerifyResponse;
 import in.koreatech.koin.domain.owner.dto.email.VerifyEmailRequest;
 import in.koreatech.koin.domain.owner.model.Owner;
-import in.koreatech.koin.domain.owner.model.dto.OwnerEmailRequestEvent;
-import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterEvent;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
-import in.koreatech.koin.domain.owner.model.redis.DailyVerificationLimit;
-import in.koreatech.koin.domain.owner.model.redis.OwnerVerificationStatus;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
-import in.koreatech.koin.domain.owner.repository.redis.DailyVerificationLimitRepository;
-import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
-import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
-import in.koreatech.koin.global.domain.email.form.OwnerRegistrationData;
-import in.koreatech.koin.global.domain.email.service.MailService;
-import in.koreatech.koin.global.domain.random.model.CertificateNumberGenerator;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
-import java.util.Objects;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +27,6 @@ public class OwnerEmailService {
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ApplicationEventPublisher eventPublisher;
     private final OwnerRepository ownerRepository;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
     private final OwnerValidator ownerValidator;
@@ -54,12 +38,11 @@ public class OwnerEmailService {
         ownerValidator.validateExistEmailNumber(request.email());
         ownerValidator.validateExistCompanyNumber(request.companyNumber());
         ownerValidator.validateExistPhoneNumber(request.phoneNumber());
-        Owner owner = request.toOwner(passwordEncoder);
-        Owner saved = ownerRepository.save(owner);
-        OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(owner.getId());
+        Owner savedOwner = ownerRepository.save(request.toOwner(passwordEncoder));
+        OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(savedOwner.getId());
         ownerUtilService.setShopId(request.shopId(), ownerShopBuilder);
         ownerShopRedisRepository.save(ownerShopBuilder.build());
-        eventPublisher.publishEvent(new OwnerRegisterEvent(saved));
+        ownerUtilService.sendSlackNotification(savedOwner);
     }
 
     @Transactional

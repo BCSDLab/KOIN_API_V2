@@ -125,7 +125,7 @@ public class UserService {
 
     public void checkExistsEmail(EmailCheckExistsRequest request) {
         userRepository.findByEmail(request.email()).ifPresent(user -> {
-            throw DuplicationEmailException.withDetail("email: " + user.getEmail());
+            throw DuplicationEmailException.withDetail("account: " + user.getEmail());
         });
     }
 

@@ -218,7 +218,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                         {
-                          "email" : "%s",
+                          "account" : "%s",
                           "password" : "%s"
                         }
                         """.formatted(email, password))
@@ -237,7 +237,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                         {
-                          "email" : "%s",
+                          "account" : "%s",
                           "password" : "%s"
                         }
                         """.formatted(email, password))
@@ -256,7 +256,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                         {
-                          "email" : "%s",
+                          "account" : "%s",
                           "password" : "%s"
                         }
                         """.formatted(email, password))
@@ -290,7 +290,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                         {
-                          "email" : "%s",
+                          "account" : "%s",
                           "password" : "%s"
                         }
                         """.formatted(email, password))
@@ -460,7 +460,7 @@ public class AdminUserApiTest extends AcceptanceTest {
             .andExpect(content().json(String.format("""
                 {
                     "id": 1,
-                    "email": "hysoo@naver.com",
+                    "account": "hysoo@naver.com",
                     "name": "테스트용_현수",
                     "nickname": "현수",
                     "company_registration_number": "123-45-67190",
@@ -719,7 +719,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + token)
                     .content("""
                         {
-                          "email": "koin01234@koreatech.ac.kr",
+                          "account": "koin01234@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
                           "track_type": "BACKEND",
@@ -741,7 +741,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + token)
                     .content("""
                         {
-                          "email": "koin12345@koreatech.ac.kr",
+                          "account": "koin12345@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
                           "track_type": "BACKEND",
@@ -763,7 +763,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + token)
                     .content("""
                         {
-                          "email": "admin123456@koreatech.ac.kr",
+                          "account": "admin123456@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
                           "track_type": "BACKEND",
@@ -790,7 +790,7 @@ public class AdminUserApiTest extends AcceptanceTest {
             .andExpect(content().json(String.format("""
                 {
                     "id": %d,
-                    "email": "koinadmin1@koreatech.ac.kr",
+                    "account": "koinadmin1@koreatech.ac.kr",
                     "name": "테스트용_코인운영자",
                     "track_name": "Backend",
                     "team_name": "Business",
@@ -822,7 +822,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                   "admins": [
                     {
                       "id": %d,
-                      "email": "juno@koreatech.ac.kr",
+                      "account": "juno@koreatech.ac.kr",
                       "name": "테스트용_코인운영자",
                       "team_name": "User",
                       "track_name": "Backend",
@@ -831,7 +831,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     },
                     {
                       "id": %d,
-                      "email": "koinadmin1@koreatech.ac.kr",
+                      "account": "koinadmin1@koreatech.ac.kr",
                       "name": "테스트용_코인운영자",
                       "team_name": "Business",
                       "track_name": "Backend",
@@ -840,7 +840,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     },
                     {
                       "id": %d,
-                      "email": "koinadmin2@koreatech.ac.kr",
+                      "account": "koinadmin2@koreatech.ac.kr",
                       "name": "테스트용_코인운영자",
                       "team_name": "Campus",
                       "track_name": "Backend",

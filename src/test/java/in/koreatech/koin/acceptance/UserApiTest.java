@@ -71,7 +71,7 @@ class UserApiTest extends AcceptanceTest {
                 post("/user/login")
                     .content("""
                         {
-                          "email" : "%s",
+                          "account" : "%s",
                           "password" : "%s"
                         }
                         """.formatted(email, password))
@@ -90,7 +90,7 @@ class UserApiTest extends AcceptanceTest {
                 post("/student/login")
                     .content("""
                         {
-                          "email" : "%s",
+                          "account" : "%s",
                           "password" : "%s"
                         }
                         """.formatted(email, password))
@@ -393,7 +393,7 @@ class UserApiTest extends AcceptanceTest {
 
     @Test
     void 이메일이_중복인지_확인한다_잘못된_이메일_형식이면_400() throws Exception {
-        String email = "wrong email format";
+        String email = "wrong account format";
 
         mockMvc.perform(
                 get("/user/check/email")
@@ -515,7 +515,7 @@ class UserApiTest extends AcceptanceTest {
                     .content("""
                         {
                           "major": "컴퓨터공학부",
-                          "email": "koko123@koreatech.ac.kr",
+                          "account": "koko123@koreatech.ac.kr",
                           "name": "김철수",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "nickname": "koko",
@@ -554,7 +554,7 @@ class UserApiTest extends AcceptanceTest {
                     .content("""
                         {
                           "major": "컴퓨터공학부",
-                          "email": "koko123@koreatech.ac.kr",
+                          "account": "koko123@koreatech.ac.kr",
                           "name": "김철수",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "nickname": "koko",
@@ -592,7 +592,7 @@ class UserApiTest extends AcceptanceTest {
                     .content("""
                         {
                           "major": "컴퓨터공학부",
-                          "email": null,
+                          "account": null,
                           "name": "김철수",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "nickname": "koko",
@@ -614,7 +614,7 @@ class UserApiTest extends AcceptanceTest {
                     .content("""
                         {
                           "major": "컴퓨터공학부",
-                          "email": "koko123@gmail.com",
+                          "account": "koko123@gmail.com",
                           "name": "김철수",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "nickname": "koko",
@@ -636,7 +636,7 @@ class UserApiTest extends AcceptanceTest {
                     .content("""
                         {
                           "major": "컴퓨터공학부",
-                          "email": "koko123@gmail.com",
+                          "account": "koko123@gmail.com",
                           "name": "김철수",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "nickname": "koko",
@@ -655,7 +655,7 @@ class UserApiTest extends AcceptanceTest {
                     .content("""
                         {
                           "major": "컴퓨터공학부",
-                          "email": "koko123@gmail.com",
+                          "account": "koko123@gmail.com",
                           "name": "김철수",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "nickname": "koko",
@@ -728,7 +728,7 @@ class UserApiTest extends AcceptanceTest {
                 post("/user/login")
                     .content("""
                         {
-                          "email": "%s",
+                          "account": "%s",
                           "password": "%s"
                         }
                         """.formatted(student.getUser().getEmail(), newPassword))
@@ -740,7 +740,7 @@ class UserApiTest extends AcceptanceTest {
                 post("/user/login")
                     .content("""
                         {
-                          "email": "%s",
+                          "account": "%s",
                           "password": "%s"
                         }
                         """.formatted(student.getUser().getEmail(), "1234"))
