@@ -273,7 +273,7 @@ public class AdminShopService {
             entityManager
         );
         shop.modifyShopImages(adminModifyShopRequest.imageUrls(), entityManager);
-        shop.modifyAdminShopOpens(adminModifyShopRequest.open(), entityManager);
+        shop.modifyShopOpens(adminModifyShopRequest.toShopOpens(shop), entityManager);
     }
 
     @Transactional

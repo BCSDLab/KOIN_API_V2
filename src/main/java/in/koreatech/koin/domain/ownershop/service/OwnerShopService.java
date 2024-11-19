@@ -37,6 +37,7 @@ public class OwnerShopService {
     private final OwnerRepository ownerRepository;
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
+    private final OwnerUtiltService ownerUtiltService;
 
     public OwnerShopsResponse getOwnerShops(Integer ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
@@ -52,60 +53,23 @@ public class OwnerShopService {
     public void createOwnerShops(Integer ownerId, OwnerShopsRequest ownerShopsRequest) {
         Owner owner = ownerRepository.getById(ownerId);
         ShopCategory shopMainCategory = shopCategoryRepository.getById(ownerShopsRequest.mainCategoryId());
-        Shop newShop = ownerShopsRequest.toEntity(owner, shopMainCategory);
-        Shop savedShop = shopRepository.save(newShop);
-        List<String> categoryNames = List.of("추천 메뉴", "메인 메뉴", "세트 메뉴", "사이드 메뉴");
-        for (String categoryName : categoryNames) {
-            MenuCategory menuCategory = MenuCategory.builder()
-                    .shop(savedShop)
-                    .name(categoryName)
-                    .build();
-            savedShop.getMenuCategories().add(menuCategory);
-        }
-        for (String imageUrl : ownerShopsRequest.imageUrls()) {
-            ShopImage shopImage = ShopImage.builder()
-                    .shop(savedShop)
-                    .imageUrl(imageUrl)
-                    .build();
-            savedShop.getShopImages().add(shopImage);
-        }
-        for (OwnerShopsRequest.InnerOpenRequest open : ownerShopsRequest.open()) {
-            ShopOpen shopOpen = ShopOpen.builder()
-                    .shop(savedShop)
-                    .openTime(open.openTime())
-                    .closeTime(open.closeTime())
-                    .dayOfWeek(open.dayOfWeek())
-                    .closed(open.closed())
-                    .build();
-            savedShop.getShopOpens().add(shopOpen);
-        }
+        Shop savedShop = shopRepository.save(ownerShopsRequest.toEntity(owner, shopMainCategory));
         List<ShopCategory> shopCategories = shopCategoryRepository.findAllByIdIn(ownerShopsRequest.categoryIds());
-        for (ShopCategory shopCategory : shopCategories) {
-            ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
-                    .shopCategory(shopCategory)
-                    .shop(savedShop)
-                    .build();
-            savedShop.getShopCategories().add(shopCategoryMap);
-        }
+        savedShop.addDefaultMenuCategory();
+        savedShop.addShopImages(ownerShopsRequest.imageUrls());
+        savedShop.addOpens(ownerShopsRequest.toShopOpens(savedShop));
+        savedShop.addShopCategories(shopCategories);
     }
 
     public ShopResponse getShopByShopId(Integer ownerId, Integer shopId) {
-        Shop shop = getOwnerShopById(shopId, ownerId);
+        Shop shop = ownerUtiltService.getOwnerShopById(shopId, ownerId);
         boolean eventDuration = eventArticleRepository.isDurationEvent(shopId, LocalDate.now(clock));
         return ShopResponse.from(shop, eventDuration);
     }
 
-    private Shop getOwnerShopById(Integer shopId, Integer ownerId) {
-        Shop shop = shopRepository.getById(shopId);
-        if (!Objects.equals(shop.getOwner().getId(), ownerId)) {
-            throw AuthorizationException.withDetail("ownerId: " + ownerId);
-        }
-        return shop;
-    }
-
     @Transactional
     public void modifyShop(Integer ownerId, Integer shopId, ModifyShopRequest modifyShopRequest) {
-        Shop shop = getOwnerShopById(shopId, ownerId);
+        Shop shop = ownerUtiltService.getOwnerShopById(shopId, ownerId);
         ShopCategory shopCategory = shopCategoryRepository.getById(modifyShopRequest.mainCategoryId());
         shop.modifyShop(
                 modifyShopRequest.name(),
@@ -121,7 +85,7 @@ public class OwnerShopService {
                 shopCategory
         );
         shop.modifyShopImages(modifyShopRequest.imageUrls(), entityManager);
-        shop.modifyShopOpens(modifyShopRequest.open(), entityManager);
+        shop.modifyShopOpens(modifyShopRequest.toShopOpens(shop), entityManager);
         shop.modifyShopCategories(shopCategoryRepository.findAllByIdIn(modifyShopRequest.categoryIds()), entityManager);
         shopRepository.save(shop);
     }

@@ -7,6 +7,7 @@ import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -247,38 +248,53 @@ public class Shop extends BaseEntity {
     public void modifyShopImages(List<String> imageUrls, EntityManager entityManager) {
         this.shopImages.clear();
         entityManager.flush();
-        for (String imageUrl : imageUrls) {
-            ShopImage shopImage = ShopImage.builder().shop(this).imageUrl(imageUrl).build();
-            this.shopImages.add(shopImage);
-        }
+        addShopImages(imageUrls);
     }
 
-    public void modifyShopOpens(List<InnerShopOpen> innerShopOpens, EntityManager entityManager) {
+    public void modifyShopOpens(List<ShopOpen> shopOpens, EntityManager entityManager) {
         this.shopOpens.clear();
         entityManager.flush();
-        for (var open : innerShopOpens) {
-            ShopOpen shopOpen = open.toEntity(this);
-            this.shopOpens.add(shopOpen);
-        }
-    }
-
-    public void modifyAdminShopOpens(
-        List<AdminModifyShopRequest.InnerShopOpen> innerShopOpens,
-        EntityManager entityManager
-    ) {
-        this.shopOpens.clear();
-        entityManager.flush();
-        for (var open : innerShopOpens) {
-            ShopOpen shopOpen = open.toEntity(this);
-            this.shopOpens.add(shopOpen);
-        }
+        addOpens(shopOpens);
     }
 
     public void modifyShopCategories(List<ShopCategory> shopCategories, EntityManager entityManager) {
         this.shopCategories.clear();
         entityManager.flush();
+        addShopCategories(shopCategories);
+    }
+
+    public void addDefaultMenuCategory() {
+        List<String> categoryNames = List.of("추천 메뉴", "메인 메뉴", "세트 메뉴", "사이드 메뉴");
+        for (String categoryName : categoryNames) {
+            MenuCategory menuCategory = MenuCategory.builder()
+                    .shop(this)
+                    .name(categoryName)
+                    .build();
+            this.menuCategories.add(menuCategory);
+        }
+        this.getMenuCategories().addAll(menuCategories);
+    }
+
+    public void addShopImages(List<String> imageUrls) {
+        for (String imageUrl : imageUrls) {
+            ShopImage shopImage = ShopImage.builder()
+                    .shop(this)
+                    .imageUrl(imageUrl)
+                    .build();
+            this.shopImages.add(shopImage);
+        }
+    }
+
+    public void addOpens(List<ShopOpen> shopOpens) {
+        this.shopOpens.addAll(shopOpens);
+    }
+
+    public void addShopCategories(List<ShopCategory> shopCategories) {
         for (ShopCategory shopCategory : shopCategories) {
-            ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder().shop(this).shopCategory(shopCategory).build();
+            ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
+                    .shopCategory(shopCategory)
+                    .shop(this)
+                    .build();
             this.shopCategories.add(shopCategoryMap);
         }
     }
