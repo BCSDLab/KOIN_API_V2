@@ -14,10 +14,12 @@ public interface AdminShopParentCategoryRepository extends Repository<ShopParent
 
     Optional<ShopParentCategory> findById(Integer shopParentCategoryId);
 
+    List<ShopParentCategory> findAll();
+
     default ShopParentCategory getById(Integer shopParentCategoryId) {
         return findById(shopParentCategoryId)
-            .orElseThrow(() -> ShopParentCategoryNotFoundException.withDetail("shopParentCategoryId: " + shopParentCategoryId));
+            .orElseThrow(
+                () -> ShopParentCategoryNotFoundException.withDetail("shopParentCategoryId: " + shopParentCategoryId)
+            );
     }
-
-    List<ShopParentCategory> findAll();
 }

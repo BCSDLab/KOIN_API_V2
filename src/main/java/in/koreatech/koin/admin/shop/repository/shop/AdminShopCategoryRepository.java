@@ -12,9 +12,7 @@ import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 
 public interface AdminShopCategoryRepository extends Repository<ShopCategory, Integer> {
 
-    boolean existsByName(String name);
-
-    boolean existsByNameAndIdNot(String name, Integer shopCategoryId);
+    ShopCategory save(ShopCategory shopCategory);
 
     List<ShopCategory> findAll();
 
@@ -27,14 +25,16 @@ public interface AdminShopCategoryRepository extends Repository<ShopCategory, In
     @Query("SELECT MAX(c.orderIndex) FROM ShopCategory c")
     Integer findMaxOrderIndex();
 
-    ShopCategory save(ShopCategory shopCategory);
+    void deleteById(Integer shopCategoryId);
+
+    Integer count();
+
+    boolean existsByName(String name);
+
+    boolean existsByNameAndIdNot(String name, Integer shopCategoryId);
 
     default ShopCategory getById(Integer shopCategoryId) {
         return findById(shopCategoryId)
             .orElseThrow(() -> ShopCategoryNotFoundException.withDetail("shopCategoryId: " + shopCategoryId));
     }
-
-    Integer count();
-
-    void deleteById(Integer shopCategoryId);
 }

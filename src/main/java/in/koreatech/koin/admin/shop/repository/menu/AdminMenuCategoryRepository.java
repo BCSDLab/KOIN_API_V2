@@ -12,9 +12,9 @@ public interface AdminMenuCategoryRepository extends Repository<MenuCategory, In
 
     MenuCategory save(MenuCategory menuCategory);
 
-    List<MenuCategory> findAllByShopId(Integer shopId);
-
     Optional<MenuCategory> findById(Integer id);
+
+    List<MenuCategory> findAllByShopId(Integer shopId);
 
     List<MenuCategory> findAllByIdIn(List<Integer> ids);
 

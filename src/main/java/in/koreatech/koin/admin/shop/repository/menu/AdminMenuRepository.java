@@ -10,15 +10,13 @@ import in.koreatech.koin.domain.shop.model.menu.Menu;
 
 public interface AdminMenuRepository extends Repository<Menu, Integer> {
 
-    Optional<Menu> findById(Integer menuId);
-
     Menu save(Menu menu);
+
+    Optional<Menu> findById(Integer menuId);
 
     void deleteById(Integer id);
 
     default Menu getById(Integer menuId) {
         return findById(menuId).orElseThrow(() -> MenuNotFoundException.withDetail("menuId: " + menuId));
     }
-
-    List<Menu> findAllByShopId(Integer shopId);
 }
