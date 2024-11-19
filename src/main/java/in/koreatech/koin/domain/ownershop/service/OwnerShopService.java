@@ -19,17 +19,17 @@ import in.koreatech.koin.domain.ownershop.dto.OwnerShopEventsResponse;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse.InnerShopResponse;
-import in.koreatech.koin.domain.shop.dto.menu.CreateCategoryRequest;
-import in.koreatech.koin.domain.shop.dto.menu.CreateMenuRequest;
-import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
-import in.koreatech.koin.domain.shop.dto.menu.ModifyCategoryRequest;
-import in.koreatech.koin.domain.shop.dto.menu.ModifyMenuRequest;
-import in.koreatech.koin.domain.shop.dto.shop.ModifyShopRequest;
-import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
-import in.koreatech.koin.domain.shop.model.article.EventArticle;
-import in.koreatech.koin.domain.shop.model.article.EventArticleImage;
+import in.koreatech.koin.domain.shop.dto.menu.request.CreateCategoryRequest;
+import in.koreatech.koin.domain.shop.dto.menu.request.CreateMenuRequest;
+import in.koreatech.koin.domain.shop.dto.menu.response.MenuCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.menu.response.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.menu.request.ModifyCategoryRequest;
+import in.koreatech.koin.domain.shop.dto.menu.request.ModifyMenuRequest;
+import in.koreatech.koin.domain.shop.dto.shop.request.ModifyShopRequest;
+import in.koreatech.koin.domain.shop.dto.menu.response.ShopMenuResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
+import in.koreatech.koin.domain.shop.model.event.EventArticle;
+import in.koreatech.koin.domain.shop.model.event.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
@@ -129,8 +129,7 @@ public class OwnerShopService {
 
     public ShopResponse getShopByShopId(Integer ownerId, Integer shopId) {
         Shop shop = getOwnerShopById(shopId, ownerId);
-        boolean eventDuration = eventArticleRepository.isDurationEvent(shopId, LocalDate.now(clock));
-        return ShopResponse.from(shop, eventDuration);
+        return ShopResponse.from(shop, LocalDate.now(clock));
     }
 
     private Shop getOwnerShopById(Integer shopId, Integer ownerId) {
