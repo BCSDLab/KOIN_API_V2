@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.shop.dto;
+package in.koreatech.koin.admin.shop.dto.review;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

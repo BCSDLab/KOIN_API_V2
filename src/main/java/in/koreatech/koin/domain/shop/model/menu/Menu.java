@@ -4,7 +4,7 @@ import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest;
+import in.koreatech.koin.admin.shop.dto.menu.AdminModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.menu.ModifyMenuRequest;
 import in.koreatech.koin.domain.shop.dto.menu.ModifyMenuRequest.InnerOptionPrice;
 import in.koreatech.koin.domain.shop.model.shop.Shop;

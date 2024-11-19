@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.shop.dto;
+package in.koreatech.koin.admin.shop.dto.menu;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 

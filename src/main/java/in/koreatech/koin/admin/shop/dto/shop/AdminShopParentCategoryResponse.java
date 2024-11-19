@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.shop.dto;
+package in.koreatech.koin.admin.shop.dto.shop;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 
