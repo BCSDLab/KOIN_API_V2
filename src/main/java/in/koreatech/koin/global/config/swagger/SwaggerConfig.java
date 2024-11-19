@@ -108,4 +108,20 @@ public class SwaggerConfig {
             .packagesToScan(packagePath)
             .build();
     }
+
+    @Bean
+    public GroupedOpenApi bcsdApi() {
+        String[] packagePath = {
+            "in.koreatech.koin.domain.activity",
+            "in.koreatech.koin.domain.dept",
+            "in.koreatech.koin.domain.kakao",
+            "in.koreatech.koin.domain.member",
+            "in.koreatech.koin.domain.version",
+        };
+
+        return GroupedOpenApi.builder()
+            .group("bcsd API")
+            .packagesToScan(packagePath)
+            .build();
+    }
 }
