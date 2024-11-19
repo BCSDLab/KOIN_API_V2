@@ -20,7 +20,7 @@ import in.koreatech.koin.admin.shop.dto.menu.AdminMenuDetailResponse;
 import in.koreatech.koin.admin.shop.dto.menu.AdminModifyMenuCategoryRequest;
 import in.koreatech.koin.admin.shop.dto.menu.AdminModifyMenuRequest;
 import in.koreatech.koin.admin.shop.dto.menu.AdminShopMenuResponse;
-import in.koreatech.koin.admin.shop.service.AdminShopService;
+import in.koreatech.koin.admin.shop.service.AdminShopMenuService;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -30,14 +30,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminShopMenuController implements AdminShopMenuApi {
 
-    private final AdminShopService adminShopService;
+    private final AdminShopMenuService adminShopMenuService;
 
     @GetMapping("/admin/shops/{id}/menus")
     public ResponseEntity<AdminShopMenuResponse> getAllMenus(
         @Parameter(in = PATH) @PathVariable("id") Integer shopId,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminShopMenuResponse response = adminShopService.getAllMenus(shopId);
+        AdminShopMenuResponse response = adminShopMenuService.getAllMenus(shopId);
         return ResponseEntity.ok(response);
     }
 
@@ -46,7 +46,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
         @Parameter(in = PATH) @PathVariable("id") Integer shopId,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminMenuCategoriesResponse response = adminShopService.getAllMenuCategories(shopId);
+        AdminMenuCategoriesResponse response = adminShopMenuService.getAllMenuCategories(shopId);
         return ResponseEntity.ok(response);
     }
 
@@ -56,7 +56,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
         @Parameter(in = PATH) @PathVariable("menuId") Integer menuId,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminMenuDetailResponse response = adminShopService.getMenu(shopId, menuId);
+        AdminMenuDetailResponse response = adminShopMenuService.getMenu(shopId, menuId);
         return ResponseEntity.ok(response);
     }
 
@@ -66,7 +66,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
         @RequestBody @Valid AdminModifyMenuCategoryRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminShopService.modifyMenuCategory(shopId, request);
+        adminShopMenuService.modifyMenuCategory(shopId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -77,7 +77,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
         @RequestBody @Valid AdminModifyMenuRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminShopService.modifyMenu(shopId, menuId, request);
+        adminShopMenuService.modifyMenu(shopId, menuId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -87,7 +87,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
         @RequestBody @Valid AdminCreateMenuRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminShopService.createMenu(shopId, request);
+        adminShopMenuService.createMenu(shopId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -97,7 +97,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
         @RequestBody @Valid AdminCreateMenuCategoryRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminShopService.createMenuCategory(shopId, request);
+        adminShopMenuService.createMenuCategory(shopId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -107,7 +107,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
         @Parameter(in = PATH) @PathVariable("categoryId") Integer categoryId,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminShopService.deleteMenuCategory(shopId, categoryId);
+        adminShopMenuService.deleteMenuCategory(shopId, categoryId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -117,7 +117,7 @@ public class AdminShopMenuController implements AdminShopMenuApi {
         @Parameter(in = PATH) @PathVariable("menuId") Integer menuId,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminShopService.deleteMenu(shopId, menuId);
+        adminShopMenuService.deleteMenu(shopId, menuId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

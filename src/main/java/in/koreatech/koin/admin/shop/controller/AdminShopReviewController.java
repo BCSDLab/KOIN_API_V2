@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.shop.dto.review.AdminModifyShopReviewReportStatusRequest;
 import in.koreatech.koin.admin.shop.dto.review.AdminShopsReviewsResponse;
-import in.koreatech.koin.admin.shop.service.AdminShopService;
+import in.koreatech.koin.admin.shop.service.AdminShopReviewService;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminShopReviewController implements AdminShopReviewApi {
 
-    private final AdminShopService adminShopService;
+    private final AdminShopReviewService adminShopReviewService;
 
     @GetMapping("/admin/shops/reviews")
     public ResponseEntity<AdminShopsReviewsResponse> getReviews(
@@ -36,7 +36,7 @@ public class AdminShopReviewController implements AdminShopReviewApi {
         @RequestParam(name = "shop_id", required = false) Integer shopId,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminShopsReviewsResponse response = adminShopService.getReviews(
+        AdminShopsReviewsResponse response = adminShopReviewService.getReviews(
             page, limit, isReported, hasUnhandledReport, shopId
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -48,7 +48,7 @@ public class AdminShopReviewController implements AdminShopReviewApi {
         @RequestBody @Valid AdminModifyShopReviewReportStatusRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminShopService.modifyShopReviewReportStatus(id, request);
+        adminShopReviewService.modifyShopReviewReportStatus(id, request);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -57,7 +57,7 @@ public class AdminShopReviewController implements AdminShopReviewApi {
         @Parameter(in = PATH) @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminShopService.deleteShopReview(id);
+        adminShopReviewService.deleteShopReview(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
