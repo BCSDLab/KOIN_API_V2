@@ -114,21 +114,10 @@ public class AdminShopMenuService {
     public void modifyMenu(Integer shopId, Integer menuId, AdminModifyMenuRequest request) {
         Menu menu = adminMenuRepository.getById(menuId);
         adminShopRepository.getById(shopId);
-        menu.modifyMenu(
-            request.name(),
-            request.description()
-        );
+        menu.modifyMenu(request.name(), request.description());
         menu.modifyMenuImages(request.imageUrls(), entityManager);
-        menu.modifyMenuCategories(
-            adminMenuCategoryRepository.findAllByIdIn(request.categoryIds()),
-            entityManager
-        );
-
-        if (request.isSingle()) {
-            menu.adminModifyMenuSingleOptions(request, entityManager);
-        } else {
-            menu.adminModifyMenuMultipleOptions(request.optionPrices(), entityManager);
-        }
+        menu.modifyMenuCategories(adminMenuCategoryRepository.findAllByIdIn(request.categoryIds()), entityManager);
+        menu.modifyOptions(request.toMenuOption(menu), entityManager);
     }
 
     @Transactional
