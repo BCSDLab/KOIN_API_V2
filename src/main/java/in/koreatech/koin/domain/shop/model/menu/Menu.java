@@ -4,9 +4,6 @@ import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest;
-import in.koreatech.koin.domain.shop.dto.menu.ModifyMenuRequest;
-import in.koreatech.koin.domain.shop.dto.menu.ModifyMenuRequest.InnerOptionPrice;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -91,72 +88,42 @@ public class Menu extends BaseEntity {
     public void modifyMenuImages(List<String> imageUrls, EntityManager entityManager) {
         this.menuImages.clear();
         entityManager.flush();
-        for (String imageUrl : imageUrls) {
-            MenuImage newMenuImage = MenuImage.builder()
-                .imageUrl(imageUrl)
-                .menu(this)
-                .build();
-            this.menuImages.add(newMenuImage);
-        }
+        addMenuImages(imageUrls);
     }
 
     public void modifyMenuCategories(List<MenuCategory> menuCategories, EntityManager entityManager) {
         this.menuCategoryMaps.clear();
         entityManager.flush();
+        addMenuCategories(menuCategories);
+    }
+
+    public void modifyOptions(List<MenuOption> menuOptions, EntityManager entityManager) {
+        this.menuOptions.clear();
+        entityManager.flush();
+        addMenuOptions(menuOptions);
+    }
+
+    public void addMenuCategories(List<MenuCategory> menuCategories) {
         for (MenuCategory menuCategory : menuCategories) {
             MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
-                .menu(this)
-                .menuCategory(menuCategory)
-                .build();
+                    .menu(this)
+                    .menuCategory(menuCategory)
+                    .build();
             this.menuCategoryMaps.add(menuCategoryMap);
         }
     }
 
-    public void modifyMenuSingleOptions(ModifyMenuRequest modifyMenuRequest, EntityManager entityManager) {
-        this.menuOptions.clear();
-        entityManager.flush();
-        MenuOption menuOption = MenuOption.builder()
-            .price(modifyMenuRequest.singlePrice())
-            .menu(this)
-            .build();
-        this.menuOptions.add(menuOption);
-    }
-
-    public void adminModifyMenuSingleOptions(AdminModifyMenuRequest adminModifyMenuRequest,
-        EntityManager entityManager) {
-        this.menuOptions.clear();
-        entityManager.flush();
-        MenuOption menuOption = MenuOption.builder()
-            .price(adminModifyMenuRequest.singlePrice())
-            .menu(this)
-            .build();
-        this.menuOptions.add(menuOption);
-    }
-
-    public void modifyMenuMultipleOptions(List<InnerOptionPrice> innerOptionPrice, EntityManager entityManager) {
-        this.menuOptions.clear();
-        entityManager.flush();
-        for (var option : innerOptionPrice) {
-            MenuOption menuOption = MenuOption.builder()
-                .option(option.option())
-                .price(option.price())
-                .menu(this)
-                .build();
-            this.menuOptions.add(menuOption);
+    public void addMenuImages(List<String> imageUrls) {
+        for (String imageUrl : imageUrls) {
+            MenuImage menuImage = MenuImage.builder()
+                    .imageUrl(imageUrl)
+                    .menu(this)
+                    .build();
+            this.menuImages.add(menuImage);
         }
     }
 
-    public void adminModifyMenuMultipleOptions(List<AdminModifyMenuRequest.InnerOptionPrice> innerOptionPrice,
-        EntityManager entityManager) {
-        this.menuOptions.clear();
-        entityManager.flush();
-        for (var option : innerOptionPrice) {
-            MenuOption menuOption = MenuOption.builder()
-                .option(option.option())
-                .price(option.price())
-                .menu(this)
-                .build();
-            this.menuOptions.add(menuOption);
-        }
+    public void addMenuOptions(List<MenuOption> menuOptions) {
+        this.menuOptions.addAll(menuOptions);
     }
 }

@@ -95,6 +95,9 @@ public record AdminModifyShopRequest(
     @Size(max = 20, message = "계좌번호는 20자 이내로 입력해주세요")
     String accountNumber
 ) {
+    public List<ShopOpen> toShopOpens(Shop shop) {
+        return open.stream().map(open -> open.toEntity(shop)).toList();
+    }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerShopOpen(
