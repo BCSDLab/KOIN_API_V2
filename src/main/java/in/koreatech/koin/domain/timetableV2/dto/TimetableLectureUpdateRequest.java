@@ -32,7 +32,7 @@ public record TimetableLectureUpdateRequest(
         @Schema(description = "강의 id", example = "1", requiredMode = NOT_REQUIRED)
         Integer lectureId,
 
-        @Schema(description = "강의 이름", example = "운영체제", requiredMode = NOT_REQUIRED)
+        @Schema(description = "강의 이름", example = "null", requiredMode = NOT_REQUIRED)
         @Size(max = 100, message = "강의 이름의 최대 글자는 100글자입니다.")
         String classTitle,
 
@@ -44,12 +44,12 @@ public record TimetableLectureUpdateRequest(
         @Size(max = 30, message = "강의 장소의 최대 글자는 30글자입니다.")
         String classPlace,
 
-        @Schema(description = "강의 교수", example = "이돈우", requiredMode = NOT_REQUIRED)
+        @Schema(description = "강의 교수", example = "null", requiredMode = NOT_REQUIRED)
         @Size(max = 30, message = "교수 명의 최대 글자는 30글자입니다.")
         String professor,
 
-        @Schema(description = "학점", example = "3", requiredMode = NOT_REQUIRED)
-        @Size(max = 2, message = "학점은 두 글자 이상일 수 없습니다.")
+        @Schema(description = "학점", example = "3", requiredMode = REQUIRED)
+        @Size(max = 2, message = "학점은 두 글자 이상일 수 없습니다. (0-9)")
         String grades,
 
         @Schema(description = "memo", example = "메모메모", requiredMode = NOT_REQUIRED)
