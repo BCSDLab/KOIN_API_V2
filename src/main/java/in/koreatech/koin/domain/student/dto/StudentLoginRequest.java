@@ -1,10 +1,15 @@
 package in.koreatech.koin.domain.student.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record StudentLoginRequest(
     @Schema(description = "이메일", example = "koin123@koreatech.ac.kr", requiredMode = REQUIRED)
     @NotBlank(message = "이메일을 입력해주세요.")
