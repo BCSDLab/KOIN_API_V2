@@ -26,10 +26,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.model.Admin;
-import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
-import in.koreatech.koin.admin.user.repository.AdminOwnerShopRedisRepository;
+import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
+import in.koreatech.koin.admin.owner.repository.AdminOwnerShopRedisRepository;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
-import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
+import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
