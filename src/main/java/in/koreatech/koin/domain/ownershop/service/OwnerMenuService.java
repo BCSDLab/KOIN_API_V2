@@ -28,11 +28,11 @@ public class OwnerMenuService {
     private final EntityManager entityManager;
     private final MenuRepository menuRepository;
     private final MenuCategoryRepository menuCategoryRepository;
-    private final OwnerUtilService ownerUtiltService;
+    private final OwnerUtilService ownerUtilService;
 
     public MenuDetailResponse getMenuByMenuId(Integer ownerId, Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
-        ownerUtiltService.getOwnerShopById(menu.getShop().getId(), ownerId);
+        ownerUtilService.getOwnerShopById(menu.getShop().getId(), ownerId);
         List<MenuCategory> menuCategories = menu.getMenuCategoryMaps()
             .stream()
             .map(MenuCategoryMap::getMenuCategory)
@@ -41,14 +41,14 @@ public class OwnerMenuService {
     }
 
     public ShopMenuResponse getMenus(Integer shopId, Integer ownerId) {
-        Shop shop = ownerUtiltService.getOwnerShopById(shopId, ownerId);
+        Shop shop = ownerUtilService.getOwnerShopById(shopId, ownerId);
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
         Collections.sort(menuCategories);
         return ShopMenuResponse.from(menuCategories);
     }
 
     public MenuCategoriesResponse getCategories(Integer shopId, Integer ownerId) {
-        Shop shop = ownerUtiltService.getOwnerShopById(shopId, ownerId);
+        Shop shop = ownerUtilService.getOwnerShopById(shopId, ownerId);
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByShopId(shop.getId());
         return MenuCategoriesResponse.from(menuCategories);
     }
@@ -56,20 +56,20 @@ public class OwnerMenuService {
     @Transactional
     public void deleteMenuByMenuId(Integer ownerId, Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
-        ownerUtiltService.getOwnerShopById(menu.getShop().getId(), ownerId);
+        ownerUtilService.getOwnerShopById(menu.getShop().getId(), ownerId);
         menuRepository.deleteById(menuId);
     }
 
     @Transactional
     public void deleteCategory(Integer ownerId, Integer categoryId) {
         MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
-        ownerUtiltService.getOwnerShopById(menuCategory.getShop().getId(), ownerId);
+        ownerUtilService.getOwnerShopById(menuCategory.getShop().getId(), ownerId);
         menuCategoryRepository.deleteById(categoryId);
     }
 
     @Transactional
     public void createMenu(Integer shopId, Integer ownerId, CreateMenuRequest createMenuRequest) {
-        Shop shop = ownerUtiltService.getOwnerShopById(shopId, ownerId);
+        Shop shop = ownerUtilService.getOwnerShopById(shopId, ownerId);
         Menu savedMenu = menuRepository.save(createMenuRequest.toEntity(shop));
         List<MenuCategory> menuCategories = menuCategoryRepository.findAllByIdIn(createMenuRequest.categoryIds());
         savedMenu.addMenuCategories(menuCategories);
@@ -79,7 +79,7 @@ public class OwnerMenuService {
 
     @Transactional
     public void createMenuCategory(Integer shopId, Integer ownerId, CreateCategoryRequest createCategoryRequest) {
-        Shop shop = ownerUtiltService.getOwnerShopById(shopId, ownerId);
+        Shop shop = ownerUtilService.getOwnerShopById(shopId, ownerId);
         MenuCategory menuCategory = MenuCategory.builder()
             .shop(shop)
             .name(createCategoryRequest.name())
@@ -90,7 +90,7 @@ public class OwnerMenuService {
     @Transactional
     public void modifyMenu(Integer ownerId, Integer menuId, ModifyMenuRequest modifyMenuRequest) {
         Menu menu = menuRepository.getById(menuId);
-        ownerUtiltService.getOwnerShopById(menu.getShop().getId(), ownerId);
+        ownerUtilService.getOwnerShopById(menu.getShop().getId(), ownerId);
         menu.modifyMenu(modifyMenuRequest.name(), modifyMenuRequest.description());
         menu.modifyMenuImages(modifyMenuRequest.imageUrls(), entityManager);
         menu.modifyMenuCategories(menuCategoryRepository.findAllByIdIn(modifyMenuRequest.categoryIds()), entityManager);
@@ -100,7 +100,7 @@ public class OwnerMenuService {
     @Transactional
     public void modifyCategory(Integer ownerId, Integer categoryId, ModifyCategoryRequest modifyCategoryRequest) {
         MenuCategory menuCategory = menuCategoryRepository.getById(categoryId);
-        ownerUtiltService.getOwnerShopById(menuCategory.getShop().getId(), ownerId);
+        ownerUtilService.getOwnerShopById(menuCategory.getShop().getId(), ownerId);
         menuCategory.modifyName(modifyCategoryRequest.name());
     }
 }
