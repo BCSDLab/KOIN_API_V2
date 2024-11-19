@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.shop.repository;
+package in.koreatech.koin.admin.shop.repository.review;
 
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import org.springframework.data.domain.Page;

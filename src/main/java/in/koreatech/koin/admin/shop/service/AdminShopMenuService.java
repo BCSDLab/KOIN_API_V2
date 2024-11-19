@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.shop.dto.menu.*;
-import in.koreatech.koin.admin.shop.repository.*;
+import in.koreatech.koin.admin.shop.repository.menu.AdminMenuCategoryRepository;
+import in.koreatech.koin.admin.shop.repository.menu.AdminMenuRepository;
+import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
 import in.koreatech.koin.domain.shop.model.menu.*;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -21,9 +23,9 @@ import lombok.RequiredArgsConstructor;
 public class AdminShopMenuService {
 
     private final EntityManager entityManager;
-    private final AdminMenuCategoryRepository adminMenuCategoryRepository;
     private final AdminShopRepository adminShopRepository;
     private final AdminMenuRepository adminMenuRepository;
+    private final AdminMenuCategoryRepository adminMenuCategoryRepository;
 
     public AdminShopMenuResponse getAllMenus(Integer shopId) {
         Shop shop = adminShopRepository.getById(shopId);

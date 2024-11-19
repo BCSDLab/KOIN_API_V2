@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.shop.dto.review.AdminModifyShopReviewReportStatusRequest;
 import in.koreatech.koin.admin.shop.dto.review.AdminShopsReviewsResponse;
-import in.koreatech.koin.admin.shop.repository.AdminShopReviewCustomRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopReviewRepository;
+import in.koreatech.koin.admin.shop.repository.review.AdminShopReviewCustomRepository;
+import in.koreatech.koin.admin.shop.repository.review.AdminShopReviewRepository;
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;

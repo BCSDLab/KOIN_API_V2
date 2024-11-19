@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.shop.repository;
+package in.koreatech.koin.admin.shop.repository.menu;
 
 import org.springframework.data.repository.Repository;
 

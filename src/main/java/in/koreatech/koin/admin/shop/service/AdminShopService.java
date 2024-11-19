@@ -13,7 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.admin.shop.dto.shop.*;
 import in.koreatech.koin.admin.shop.exception.*;
-import in.koreatech.koin.admin.shop.repository.*;
+import in.koreatech.koin.admin.shop.repository.shop.AdminEventArticleRepository;
+import in.koreatech.koin.admin.shop.repository.shop.AdminShopCategoryMapRepository;
+import in.koreatech.koin.admin.shop.repository.shop.AdminShopCategoryRepository;
+import in.koreatech.koin.admin.shop.repository.shop.AdminShopParentCategoryRepository;
+import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.shop.*;
@@ -28,11 +32,11 @@ public class AdminShopService {
 
     private final Clock clock;
     private final EntityManager entityManager;
-    private final AdminEventArticleRepository adminEventArticleRepository;
-    private final AdminShopCategoryMapRepository adminShopCategoryMapRepository;
-    private final AdminShopCategoryRepository adminShopCategoryRepository;
-    private final AdminShopParentCategoryRepository adminShopParentCategoryRepository;
     private final AdminShopRepository adminShopRepository;
+    private final AdminEventArticleRepository adminEventArticleRepository;
+    private final AdminShopCategoryRepository adminShopCategoryRepository;
+    private final AdminShopCategoryMapRepository adminShopCategoryMapRepository;
+    private final AdminShopParentCategoryRepository adminShopParentCategoryRepository;
 
     public AdminShopsResponse getShops(Integer page, Integer limit, Boolean isDeleted) {
         Integer total = adminShopRepository.countAllByIsDeleted(isDeleted);

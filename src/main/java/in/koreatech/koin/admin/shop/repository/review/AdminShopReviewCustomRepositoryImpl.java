@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.shop.repository;
+package in.koreatech.koin.admin.shop.repository.review;
 
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 
