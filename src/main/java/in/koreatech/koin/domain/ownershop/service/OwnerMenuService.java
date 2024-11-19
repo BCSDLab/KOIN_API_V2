@@ -28,7 +28,7 @@ public class OwnerMenuService {
     private final EntityManager entityManager;
     private final MenuRepository menuRepository;
     private final MenuCategoryRepository menuCategoryRepository;
-    private final OwnerUtiltService ownerUtiltService;
+    private final OwnerUtilService ownerUtiltService;
 
     public MenuDetailResponse getMenuByMenuId(Integer ownerId, Integer menuId) {
         Menu menu = menuRepository.getById(menuId);

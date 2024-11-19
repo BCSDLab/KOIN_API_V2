@@ -8,11 +8,9 @@ import in.koreatech.koin.domain.shop.model.article.EventArticle;
 import in.koreatech.koin.domain.shop.model.article.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
-import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import jakarta.persistence.EntityManager;
 import java.util.List;
-import java.util.Objects;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -26,7 +24,7 @@ public class OwnerEventService {
     private final EntityManager entityManager;
     private final EventArticleRepository eventArticleRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final OwnerUtiltService ownerUtiltService;
+    private final OwnerUtilService ownerUtiltService;
 
     @Transactional
     public void createEvent(Integer ownerId, Integer shopId, CreateEventRequest createEventRequest) {

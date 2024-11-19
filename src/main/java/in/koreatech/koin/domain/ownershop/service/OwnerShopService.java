@@ -7,21 +7,16 @@ import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse.InnerShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.ModifyShopRequest;
 import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
-import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
-import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
-import in.koreatech.koin.domain.shop.model.shop.ShopImage;
-import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
 import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import jakarta.persistence.EntityManager;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +32,7 @@ public class OwnerShopService {
     private final OwnerRepository ownerRepository;
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
-    private final OwnerUtiltService ownerUtiltService;
+    private final OwnerUtilService ownerUtiltService;
 
     public OwnerShopsResponse getOwnerShops(Integer ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
