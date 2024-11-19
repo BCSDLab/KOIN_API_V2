@@ -103,14 +103,13 @@ public class AdminBenefitService {
     ) {
         List<Shop> shops = adminShopRepository.findAllByIdIn(request.shopIds());
         BenefitCategory benefitCategory = adminBenefitCategoryRepository.getById(benefitId);
-
-        List<BenefitCategoryMap> benefitCategoryMaps = shops.stream()
-            .map(shop -> BenefitCategoryMap.builder()
+        for (Shop shop : shops) {
+            BenefitCategoryMap benefitCategoryMap = BenefitCategoryMap.builder()
                 .shop(shop)
                 .benefitCategory(benefitCategory)
-                .build())
-            .toList();
-        adminBenefitCategoryMapRepository.saveAll(benefitCategoryMaps);
+                .build();
+            adminBenefitCategoryMapRepository.save(benefitCategoryMap);
+        }
         return AdminCreateBenefitShopsResponse.from(shops);
     }
 

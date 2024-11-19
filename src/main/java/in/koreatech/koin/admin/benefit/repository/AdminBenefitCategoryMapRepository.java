@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCategoryMap, Integer> {
 
-    void saveAll(List<BenefitCategoryMap> benefitCategoryMaps);
+    void save(BenefitCategoryMap benefitCategoryMap);
 
     @Query("""
         SELECT bcm 
