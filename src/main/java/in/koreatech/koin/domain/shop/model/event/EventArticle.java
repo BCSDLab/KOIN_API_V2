@@ -55,15 +55,6 @@ public class EventArticle extends BaseEntity {
     @OneToMany(mappedBy = "eventArticle", orphanRemoval = true, cascade = ALL)
     private List<EventArticleImage> thumbnailImages = new ArrayList<>();
 
-    /**
-     * 미사용 컬럼
-     * TODO: 마이그레이션 종료 후 flyway로 제거
-     */
-    @Size(max = 50)
-    @NotNull
-    @Column(name = "event_title", nullable = false)
-    private String eventTitle = "";
-
     @NotNull
     @Column(name = "content", nullable = false)
     private String content;
@@ -71,23 +62,6 @@ public class EventArticle extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
-    /**
-     * 미사용 컬럼
-     * TODO: 마이그레이션 종료 후 flyway로 제거
-     */
-    @Size(max = 50)
-    @NotNull
-    @Column(name = "nickname", nullable = false)
-    private String nickname = "";
-
-    /**
-     * 미사용 컬럼
-     * TODO: 마이그레이션 종료 후 flyway로 제거
-     */
-    @Size(max = 255)
-    @Column(name = "thumbnail")
-    private String thumbnail;
 
     @NotNull
     @Column(name = "hit", nullable = false)
@@ -105,14 +79,6 @@ public class EventArticle extends BaseEntity {
     @NotNull
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
-
-    /**
-     * 미사용 컬럼
-     * TODO: 마이그레이션 종료 후 flyway로 제거
-     */
-    @NotNull
-    @Column(name = "comment_count", nullable = false)
-    private boolean commentCount = false;
 
     @NotNull
     @Column(name = "is_deleted", nullable = false)
