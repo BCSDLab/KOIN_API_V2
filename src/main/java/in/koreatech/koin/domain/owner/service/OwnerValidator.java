@@ -40,7 +40,7 @@ public class OwnerValidator {
         }
     }
 
-    public void validateExistEmailNumber(String email) {
+    public void validateExistEmailAddress(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw DuplicationEmailException.withDetail("account: " + email);
         }

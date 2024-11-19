@@ -35,7 +35,7 @@ public class OwnerEmailService {
 
     @Transactional
     public void register(OwnerRegisterRequest request) {
-        ownerValidator.validateExistEmailNumber(request.email());
+        ownerValidator.validateExistEmailAddress(request.email());
         ownerValidator.validateExistCompanyNumber(request.companyNumber());
         ownerValidator.validateExistPhoneNumber(request.phoneNumber());
         Owner savedOwner = ownerRepository.save(request.toOwner(passwordEncoder));
@@ -47,7 +47,7 @@ public class OwnerEmailService {
 
     @Transactional
     public void requestSignUpEmailVerification(VerifyEmailRequest request) {
-        ownerValidator.validateExistEmailNumber(request.address());
+        ownerValidator.validateExistEmailAddress(request.address());
         ownerVerificationService.sendCertificationEmail(request.address());
     }
 
