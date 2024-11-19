@@ -59,6 +59,7 @@ public class SwaggerConfig {
             "in.koreatech.koin.domain.benefit",
             "in.koreatech.koin.domain.ownershop",
             "in.koreatech.koin.domain.shop",
+            "in.koreatech.koin.domain.land",
         };
 
         return GroupedOpenApi.builder()
