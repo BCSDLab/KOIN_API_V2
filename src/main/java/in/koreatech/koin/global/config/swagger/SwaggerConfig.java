@@ -66,4 +66,21 @@ public class SwaggerConfig {
             .packagesToScan(packagePath)
             .build();
     }
+
+    @Bean
+    public GroupedOpenApi campusOpenApi() {
+        String[] packagePath = {
+            "in.koreatech.koin.domain.bus",
+            "in.koreatech.koin.domain.community",
+            "in.koreatech.koin.domain.coop",
+            "in.koreatech.koin.domain.coopshop",
+            "in.koreatech.koin.domain.dining",
+            "in.koreatech.koin.domain.coop",
+        };
+
+        return GroupedOpenApi.builder()
+            .group("Campus API")
+            .packagesToScan(packagePath)
+            .build();
+    }
 }
