@@ -9,6 +9,7 @@ public interface StudentRedisRepository extends Repository<StudentTemporaryStatu
 
     StudentTemporaryStatus save(StudentTemporaryStatus studentTemporaryStatus);
 
+    // Redis에서는 Email 대신에 Id를 사용해야 한다고 함
     Optional<StudentTemporaryStatus> findById(String email);
 
     Optional<StudentTemporaryStatus> findByNickname(String nickname);
