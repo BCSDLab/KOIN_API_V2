@@ -29,7 +29,7 @@ public interface AdminUserRepository extends Repository<User, Integer> {
 
     default User getByEmail(String email) {
         return findByEmail(email)
-            .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
+            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + email));
     }
 
     void delete(User user);
