@@ -984,7 +984,7 @@ create table if not exists users
     name              varchar(50)                          null comment '이름',
     phone_number      varchar(255)                         null comment '휴대 전화 번호',
     user_type         varchar(255)                         not null comment '유저 타입(Students or Owners)',
-    email             varchar(100)                         not null comment '학교 account',
+    email             varchar(100)                         not null comment '학교 email',
     gender            int unsigned                         null comment '성별',
     is_authed         tinyint(1) default 0                 not null comment '인증 여부',
     last_logged_at    timestamp                            null comment '최근 로그인 일자',
