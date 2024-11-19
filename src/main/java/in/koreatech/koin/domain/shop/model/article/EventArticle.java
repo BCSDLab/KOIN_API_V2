@@ -155,11 +155,10 @@ public class EventArticle extends BaseEntity {
         addThumbnailImages(thumbnailImages);
     }
 
-    public List<EventArticleImage> addThumbnailImages(List<String> thumbnailImages) {
+    public void addThumbnailImages(List<String> thumbnailImages) {
         for (String image : thumbnailImages) {
             addThumbnailImage(image);
         }
-        return this.thumbnailImages;
     }
 
     private void addThumbnailImage(String imageUrl) {
