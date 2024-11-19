@@ -1,5 +1,10 @@
 package in.koreatech.koin.domain.student.model;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import lombok.Getter;
 
 @Getter
@@ -22,12 +27,10 @@ public enum StudentDepartment {
         this.value = value;
     }
 
+    private static final Map<String, StudentDepartment> map = Arrays.stream(values())
+        .collect(Collectors.toMap(StudentDepartment::getValue, Function.identity()));
+
     public static boolean isValid(String department) {
-        for (StudentDepartment value : StudentDepartment.values()) {
-            if (value.getValue().equals(department)) {
-                return true;
-            }
-        }
-        return false;
+        return map.containsKey(department);
     }
 }
