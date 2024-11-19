@@ -125,26 +125,6 @@ public class User extends BaseEntity {
         this.deviceToken = deviceToken;
     }
 
-    public boolean isSamePassword(PasswordEncoder passwordEncoder, String password) {
-        return passwordEncoder.matches(password, this.password);
-    }
-
-    public void permitNotification(String deviceToken) {
-        this.deviceToken = deviceToken;
-    }
-
-    public void rejectNotification() {
-        this.deviceToken = null;
-    }
-
-    public void updateLastLoggedTime(LocalDateTime lastLoggedTime) {
-        lastLoggedAt = lastLoggedTime;
-    }
-
-    public void updatePassword(PasswordEncoder passwordEncoder, String password) {
-        this.password = passwordEncoder.encode(password);
-    }
-
     public void generateResetTokenForFindPassword(Clock clock) {
         this.resetExpiredAt = LocalDateTime.now(clock).plusHours(1);
         this.resetToken = this.email + this.resetExpiredAt;
@@ -157,17 +137,20 @@ public class User extends BaseEntity {
         this.gender = gender;
     }
 
-    public void updateStudentPassword(PasswordEncoder passwordEncoder, String password) {
-        if (password != null && !password.isEmpty())
-            this.password = passwordEncoder.encode(password);
-    }
-
-    public void auth() {
-        this.isAuthed = true;
-    }
-
     public void updateName(String name) {
         this.name = name;
+    }
+
+    public void updateLastLoggedTime(LocalDateTime lastLoggedTime) {
+        lastLoggedAt = lastLoggedTime;
+    }
+
+    public void updatePassword(PasswordEncoder passwordEncoder, String password) {
+        this.password = passwordEncoder.encode(password);
+    }
+
+    public boolean isSamePassword(PasswordEncoder passwordEncoder, String password) {
+        return passwordEncoder.matches(password, this.password);
     }
 
     public void validateResetToken() {
@@ -176,6 +159,19 @@ public class User extends BaseEntity {
         }
     }
 
+    public void auth() {
+        this.isAuthed = true;
+    }
+
+    public void permitNotification(String deviceToken) {
+        this.deviceToken = deviceToken;
+    }
+
+    public void rejectNotification() {
+        this.deviceToken = null;
+    }
+
+    // 어드민 측에서 코드 삭제시 이 쪽도 삭제
     public void undelete() {
         this.isDeleted = false;
     }
