@@ -30,15 +30,15 @@ import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
-import in.koreatech.koin.domain.shop.model.redis.ShopNotificationBuffer;
+import in.koreatech.koin.domain.shop.model.redis.ShopReviewNotification;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuCategoryRepository;
 import in.koreatech.koin.domain.shop.repository.menu.MenuRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryRepository;
-import in.koreatech.koin.domain.shop.repository.shop.ShopNotificationBufferRedisRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopReviewNotificationRedisRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV1;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfoV2;
@@ -60,7 +60,7 @@ public class ShopService {
     private final ShopsCacheService shopsCache;
     private final ShopCustomRepository shopCustomRepository;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
-    private final ShopNotificationBufferRedisRepository shopNotificationBufferRedisRepository;
+    private final ShopReviewNotificationRedisRepository shopReviewNotificationRedisRepository;
 
     public MenuDetailResponse findMenu(Integer menuId) {
         Menu menu = menuRepository.getById(menuId);
@@ -140,13 +140,13 @@ public class ShopService {
         shopRepository.getById(shopId);
 
         if (isSubscribeReviewNotification(studentId)) {
-            ShopNotificationBuffer shopNotificationBuffer = ShopNotificationBuffer.builder()
+            ShopReviewNotification shopReviewNotification = ShopReviewNotification .builder()
                 .shopId(shopId)
                 .studentId(studentId)
                 .build();
 
             double score = LocalDateTime.now(clock).plusHours(1).toEpochSecond(ZoneOffset.UTC);
-            shopNotificationBufferRedisRepository.save(shopNotificationBuffer, score);
+            shopReviewNotificationRedisRepository.save(shopReviewNotification, score);
         }
     }
 

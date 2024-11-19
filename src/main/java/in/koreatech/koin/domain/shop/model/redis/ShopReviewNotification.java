@@ -4,14 +4,14 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class ShopNotificationBuffer {
+public class ShopReviewNotification {
 
     private Integer shopId;
 
     private Integer studentId;
 
     @Builder
-    private ShopNotificationBuffer(Integer shopId, Integer studentId) {
+    private ShopReviewNotification(Integer shopId, Integer studentId) {
         this.shopId = shopId;
         this.studentId = studentId;
     }
