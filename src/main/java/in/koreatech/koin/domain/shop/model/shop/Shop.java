@@ -20,7 +20,7 @@ import java.util.Set;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
+import in.koreatech.koin.admin.shop.dto.shop.AdminModifyShopRequest;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.dto.shop.request.ModifyShopRequest.InnerShopOpen;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;

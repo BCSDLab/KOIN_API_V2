@@ -4,6 +4,9 @@ import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -18,8 +21,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -106,9 +107,9 @@ public class Menu extends BaseEntity {
     public void addMenuCategories(List<MenuCategory> menuCategories) {
         for (MenuCategory menuCategory : menuCategories) {
             MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
-                    .menu(this)
-                    .menuCategory(menuCategory)
-                    .build();
+                .menu(this)
+                .menuCategory(menuCategory)
+                .build();
             this.menuCategoryMaps.add(menuCategoryMap);
         }
     }
@@ -116,9 +117,9 @@ public class Menu extends BaseEntity {
     public void addMenuImages(List<String> imageUrls) {
         for (String imageUrl : imageUrls) {
             MenuImage menuImage = MenuImage.builder()
-                    .imageUrl(imageUrl)
-                    .menu(this)
-                    .build();
+                .imageUrl(imageUrl)
+                .menu(this)
+                .build();
             this.menuImages.add(menuImage);
         }
     }
