@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCategoryMap, Integer> {
 
-    void save(BenefitCategoryMap benefitCategoryMap);
+    void saveAll(List<BenefitCategoryMap> benefitCategoryMaps);
 
     @Query("""
         SELECT bcm 
@@ -38,5 +38,4 @@ public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCat
         WHERE bcm.benefitCategory.id = :benefitId
         """)
     void deleteByBenefitCategoryId(@Param("benefitId") Integer benefitId);
-
 }

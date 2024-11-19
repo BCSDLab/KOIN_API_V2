@@ -54,10 +54,7 @@ public class AdminShopReviewService {
     }
 
     @Transactional
-    public void modifyShopReviewReportStatus(
-        Integer reviewId,
-        AdminModifyShopReviewReportStatusRequest request
-    ) {
+    public void modifyShopReviewReportStatus(Integer reviewId, AdminModifyShopReviewReportStatusRequest request) {
         ShopReview shopReview = adminShopReviewRepository.findById(reviewId)
             .orElseThrow(() -> ReviewNotFoundException.withDetail("해당 리뷰를 찾을 수 없습니다.: " + reviewId));
 
@@ -65,8 +62,7 @@ public class AdminShopReviewService {
             .filter(report -> report.getReportStatus() == ReportStatus.UNHANDLED)
             .toList();
 
-        unhandledReports.forEach(
-            report -> report.modifyReportStatus(request.reportStatus()));
+        unhandledReports.forEach(report -> report.modifyReportStatus(request.reportStatus()));
     }
 
     @Transactional
