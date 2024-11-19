@@ -2,11 +2,7 @@ package in.koreatech.koin.admin.shop.service;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -15,31 +11,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.admin.shop.dto.shop.AdminCreateShopCategoryRequest;
-import in.koreatech.koin.admin.shop.dto.shop.AdminCreateShopRequest;
-import in.koreatech.koin.admin.shop.dto.shop.AdminCreateShopRequest.InnerShopOpen;
-import in.koreatech.koin.admin.shop.dto.shop.AdminModifyShopCategoriesOrderRequest;
-import in.koreatech.koin.admin.shop.dto.shop.AdminModifyShopCategoryRequest;
-import in.koreatech.koin.admin.shop.dto.shop.AdminModifyShopRequest;
-import in.koreatech.koin.admin.shop.dto.shop.AdminShopCategoryResponse;
-import in.koreatech.koin.admin.shop.dto.shop.AdminShopParentCategoryResponse;
-import in.koreatech.koin.admin.shop.dto.shop.AdminShopResponse;
-import in.koreatech.koin.admin.shop.dto.shop.AdminShopsResponse;
-import in.koreatech.koin.admin.shop.exception.ShopCategoryDuplicationException;
-import in.koreatech.koin.admin.shop.exception.ShopCategoryIllegalArgumentException;
-import in.koreatech.koin.admin.shop.exception.ShopCategoryNotEmptyException;
-import in.koreatech.koin.admin.shop.repository.AdminEventArticleRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopCategoryMapRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopCategoryRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopParentCategoryRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
+import in.koreatech.koin.admin.shop.dto.shop.*;
+import in.koreatech.koin.admin.shop.exception.*;
+import in.koreatech.koin.admin.shop.repository.*;
+import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
-import in.koreatech.koin.domain.shop.model.shop.Shop;
-import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
-import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
-import in.koreatech.koin.domain.shop.model.shop.ShopImage;
-import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
-import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
+import in.koreatech.koin.domain.shop.model.shop.*;
 import in.koreatech.koin.global.model.Criteria;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -60,8 +37,11 @@ public class AdminShopService {
     public AdminShopsResponse getShops(Integer page, Integer limit, Boolean isDeleted) {
         Integer total = adminShopRepository.countAllByIsDeleted(isDeleted);
         Criteria criteria = Criteria.of(page, limit, total);
-        Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), sort);
+        PageRequest pageRequest = PageRequest.of(
+            criteria.getPage(),
+            criteria.getLimit(),
+            Sort.by(Sort.Direction.ASC, "id")
+        );
         Page<Shop> result = adminShopRepository.findAllByIsDeleted(isDeleted, pageRequest);
         return AdminShopsResponse.of(result, criteria);
     }
@@ -92,26 +72,29 @@ public class AdminShopService {
     }
 
     @Transactional
-    public void createShop(AdminCreateShopRequest adminCreateShopRequest) {
-        ShopCategory shopMainCategory = adminShopCategoryRepository.getById(adminCreateShopRequest.mainCategoryId());
-        Shop shop = adminCreateShopRequest.toShop(shopMainCategory);
+    public void createShop(AdminCreateShopRequest request) {
+        ShopCategory shopMainCategory = adminShopCategoryRepository.getById(request.mainCategoryId());
+        Shop shop = request.toShop(shopMainCategory);
         Shop savedShop = adminShopRepository.save(shop);
+
         List<String> categoryNames = List.of("추천 메뉴", "메인 메뉴", "세트 메뉴", "사이드 메뉴");
-        for (String categoryName : categoryNames) {
+        categoryNames.forEach(categoryName -> {
             MenuCategory menuCategory = MenuCategory.builder()
                 .shop(savedShop)
                 .name(categoryName)
                 .build();
             savedShop.getMenuCategories().add(menuCategory);
-        }
-        for (String imageUrl : adminCreateShopRequest.imageUrls()) {
+        });
+
+        request.imageUrls().forEach(imageUrl -> {
             ShopImage shopImage = ShopImage.builder()
                 .shop(savedShop)
                 .imageUrl(imageUrl)
                 .build();
             savedShop.getShopImages().add(shopImage);
-        }
-        for (InnerShopOpen open : adminCreateShopRequest.open()) {
+        });
+
+        request.open().forEach(open -> {
             ShopOpen shopOpen = ShopOpen.builder()
                 .shop(savedShop)
                 .openTime(open.openTime())
@@ -120,83 +103,83 @@ public class AdminShopService {
                 .closed(open.closed())
                 .build();
             savedShop.getShopOpens().add(shopOpen);
-        }
-        List<ShopCategory> categories = adminShopCategoryRepository.findAllByIdIn(adminCreateShopRequest.categoryIds());
-        for (ShopCategory shopCategory : categories) {
+        });
+
+        List<ShopCategory> categories = adminShopCategoryRepository.findAllByIdIn(request.categoryIds());
+        categories.forEach(shopCategory -> {
             ShopCategoryMap shopCategoryMap = ShopCategoryMap.builder()
                 .shopCategory(shopCategory)
                 .shop(savedShop)
                 .build();
             savedShop.getShopCategories().add(shopCategoryMap);
-        }
+        });
     }
 
     @Transactional
-    public void createShopCategory(AdminCreateShopCategoryRequest adminCreateShopCategoryRequest) {
-        if (adminShopCategoryRepository.findByName(adminCreateShopCategoryRequest.name()).isPresent()) {
-            throw ShopCategoryDuplicationException.withDetail("name: " + adminCreateShopCategoryRequest.name());
+    public void createShopCategory(AdminCreateShopCategoryRequest request) {
+        String categoryName = request.name();
+        if (adminShopCategoryRepository.existsByName(categoryName)) {
+            throw ShopCategoryDuplicationException.withDetail("중복되는 상점 카테고리명이 존재합니다.: " + categoryName);
         }
         Integer maxOrderIndex = adminShopCategoryRepository.findMaxOrderIndex();
-        ShopParentCategory shopParentCategory =
-            adminShopParentCategoryRepository.getById(adminCreateShopCategoryRequest.parentCategoryId());
-        ShopCategory shopCategory = adminCreateShopCategoryRequest.toShopCategory(maxOrderIndex, shopParentCategory);
+        ShopParentCategory shopParentCategory = adminShopParentCategoryRepository.getById(request.parentCategoryId());
+        ShopCategory shopCategory = request.toShopCategory(maxOrderIndex, shopParentCategory);
         adminShopCategoryRepository.save(shopCategory);
     }
 
     @Transactional
     public void cancelShopDelete(Integer shopId) {
-        Optional<Shop> shop = adminShopRepository.findDeletedShopById(shopId);
-        if (shop.isPresent()) {
-            shop.get().cancelDelete();
-        }
+        Shop shop = adminShopRepository.findDeletedShopById(shopId)
+            .orElseThrow(() -> new ShopNotFoundException("해당 상점이 존재하지 않습니다.: " + shopId));
+        shop.cancelDelete();
     }
 
     @Transactional
-    public void modifyShop(Integer shopId, AdminModifyShopRequest adminModifyShopRequest) {
+    public void modifyShop(Integer shopId, AdminModifyShopRequest request) {
         Shop shop = adminShopRepository.getById(shopId);
-        ShopCategory shopMainCategory = adminShopCategoryRepository.getById(adminModifyShopRequest.mainCategoryId());
+        ShopCategory shopMainCategory = adminShopCategoryRepository.getById(request.mainCategoryId());
         shop.modifyShop(
-            adminModifyShopRequest.name(),
-            adminModifyShopRequest.phone(),
-            adminModifyShopRequest.address(),
-            adminModifyShopRequest.description(),
-            adminModifyShopRequest.delivery(),
-            adminModifyShopRequest.deliveryPrice(),
-            adminModifyShopRequest.payCard(),
-            adminModifyShopRequest.payBank(),
-            adminModifyShopRequest.bank(),
-            adminModifyShopRequest.accountNumber(),
+            request.name(),
+            request.phone(),
+            request.address(),
+            request.description(),
+            request.delivery(),
+            request.deliveryPrice(),
+            request.payCard(),
+            request.payBank(),
+            request.bank(),
+            request.accountNumber(),
             shopMainCategory
         );
         shop.modifyShopCategories(
-            adminShopCategoryRepository.findAllByIdIn(adminModifyShopRequest.categoryIds()),
+            adminShopCategoryRepository.findAllByIdIn(request.categoryIds()),
             entityManager
         );
-        shop.modifyShopImages(adminModifyShopRequest.imageUrls(), entityManager);
-        shop.modifyAdminShopOpens(adminModifyShopRequest.open(), entityManager);
+        shop.modifyShopImages(request.imageUrls(), entityManager);
+        shop.modifyAdminShopOpens(request.open(), entityManager);
     }
 
     @Transactional
-    public void modifyShopCategory(Integer categoryId, AdminModifyShopCategoryRequest adminModifyShopCategoryRequest) {
-        validateExistCategoryName(adminModifyShopCategoryRequest.name(), categoryId);
+    public void modifyShopCategory(Integer categoryId, AdminModifyShopCategoryRequest request) {
+        validateExistCategoryName(request.name(), categoryId);
         ShopCategory shopCategory = adminShopCategoryRepository.getById(categoryId);
-        ShopParentCategory shopParentCategory =
-            adminShopParentCategoryRepository.getById(adminModifyShopCategoryRequest.parentCategoryId());
+        ShopParentCategory shopParentCategory = adminShopParentCategoryRepository.getById(request.parentCategoryId());
         shopCategory.modifyShopCategory(
-            adminModifyShopCategoryRequest.name(),
-            adminModifyShopCategoryRequest.imageUrl(),
+            request.name(),
+            request.imageUrl(),
             shopParentCategory,
-            adminModifyShopCategoryRequest.eventBannerImageUrl()
+            request.eventBannerImageUrl()
         );
     }
 
     @Transactional
-    public void modifyShopCategoriesOrder(AdminModifyShopCategoriesOrderRequest adminModifyShopCategoriesOrderRequest) {
+    public void modifyShopCategoriesOrder(AdminModifyShopCategoriesOrderRequest request) {
         Map<Integer, ShopCategory> shopCategoryMap = adminShopCategoryRepository.findAll().stream()
             .collect(Collectors.toMap(ShopCategory::getId, category -> category));
 
-        List<Integer> shopCategoryIds = adminModifyShopCategoriesOrderRequest.shopCategoryIds();
-        if (!Objects.equals(shopCategoryMap.keySet(), new HashSet<>(shopCategoryIds))) {
+        List<Integer> shopCategoryIds = request.shopCategoryIds();
+        Set<Integer> shopCategoryIdsSet = new HashSet<>(shopCategoryIds);
+        if (!Objects.equals(shopCategoryMap.keySet(), shopCategoryIdsSet)) {
             throw ShopCategoryIllegalArgumentException.withDetail("카테고리 목록이 잘못되었습니다.");
         }
 
@@ -214,19 +197,19 @@ public class AdminShopService {
 
     @Transactional
     public void deleteShopCategory(Integer categoryId) {
-        if (hasShops(categoryId)) {
-            throw ShopCategoryNotEmptyException.withDetail("category: " + categoryId);
-        }
+        validateHasShops(categoryId);
         adminShopCategoryRepository.deleteById(categoryId);
     }
 
     private void validateExistCategoryName(String name, Integer categoryId) {
         if (adminShopCategoryRepository.existsByNameAndIdNot(name, categoryId)) {
-            throw ShopCategoryDuplicationException.withDetail("중복되는 상점 카테고리명이 있습니다.: " + name);
+            throw ShopCategoryDuplicationException.withDetail("중복되는 상점 카테고리명이 존재합니다.: " + name);
         }
     }
 
-    private boolean hasShops(Integer categoryId) {
-        return adminShopCategoryMapRepository.existsByShopCategoryId(categoryId);
+    private void validateHasShops(Integer categoryId) {
+        if (adminShopCategoryMapRepository.existsByShopCategoryId(categoryId)) {
+            throw ShopCategoryNotEmptyException.withDetail("카테고리에 상점이 존재합니다." + categoryId);
+        }
     }
 }

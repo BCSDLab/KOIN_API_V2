@@ -7,21 +7,9 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.admin.shop.dto.menu.AdminCreateMenuCategoryRequest;
-import in.koreatech.koin.admin.shop.dto.menu.AdminCreateMenuRequest;
-import in.koreatech.koin.admin.shop.dto.menu.AdminMenuCategoriesResponse;
-import in.koreatech.koin.admin.shop.dto.menu.AdminMenuDetailResponse;
-import in.koreatech.koin.admin.shop.dto.menu.AdminModifyMenuCategoryRequest;
-import in.koreatech.koin.admin.shop.dto.menu.AdminModifyMenuRequest;
-import in.koreatech.koin.admin.shop.dto.menu.AdminShopMenuResponse;
-import in.koreatech.koin.admin.shop.repository.AdminMenuCategoryRepository;
-import in.koreatech.koin.admin.shop.repository.AdminMenuRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
-import in.koreatech.koin.domain.shop.model.menu.Menu;
-import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
-import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
-import in.koreatech.koin.domain.shop.model.menu.MenuImage;
-import in.koreatech.koin.domain.shop.model.menu.MenuOption;
+import in.koreatech.koin.admin.shop.dto.menu.*;
+import in.koreatech.koin.admin.shop.repository.*;
+import in.koreatech.koin.domain.shop.model.menu.*;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import jakarta.persistence.EntityManager;
@@ -62,77 +50,82 @@ public class AdminShopMenuService {
     }
 
     @Transactional
-    public void createMenu(Integer shopId, AdminCreateMenuRequest adminCreateMenuRequest) {
+    public void createMenu(Integer shopId, AdminCreateMenuRequest request) {
         Shop shop = adminShopRepository.getById(shopId);
-        Menu menu = adminCreateMenuRequest.toEntity(shop);
+        Menu menu = request.toEntity(shop);
         Menu savedMenu = adminMenuRepository.save(menu);
-        for (Integer categoryId : adminCreateMenuRequest.categoryIds()) {
+
+        request.categoryIds().forEach(categoryId -> {
             MenuCategory menuCategory = adminMenuCategoryRepository.getById(categoryId);
             MenuCategoryMap menuCategoryMap = MenuCategoryMap.builder()
                 .menuCategory(menuCategory)
                 .menu(savedMenu)
                 .build();
             savedMenu.getMenuCategoryMaps().add(menuCategoryMap);
-        }
-        for (String imageUrl : adminCreateMenuRequest.imageUrls()) {
+        });
+
+        request.imageUrls().forEach(imageUrl -> {
             MenuImage menuImage = MenuImage.builder()
                 .imageUrl(imageUrl)
                 .menu(savedMenu)
                 .build();
             savedMenu.getMenuImages().add(menuImage);
-        }
-        if (adminCreateMenuRequest.optionPrices() == null) {
+        });
+
+        if (request.optionPrices() == null) {
             MenuOption menuOption = MenuOption.builder()
                 .option(savedMenu.getName())
-                .price(adminCreateMenuRequest.singlePrice())
+                .price(request.singlePrice())
                 .menu(menu)
                 .build();
             savedMenu.getMenuOptions().add(menuOption);
         } else {
-            for (var option : adminCreateMenuRequest.optionPrices()) {
+            request.optionPrices().forEach(option -> {
                 MenuOption menuOption = MenuOption.builder()
                     .option(option.option())
                     .price(option.price())
                     .menu(menu)
                     .build();
                 savedMenu.getMenuOptions().add(menuOption);
-            }
+            });
         }
     }
 
     @Transactional
-    public void createMenuCategory(Integer shopId, AdminCreateMenuCategoryRequest adminCreateMenuCategoryRequest) {
+    public void createMenuCategory(Integer shopId, AdminCreateMenuCategoryRequest request) {
         Shop shop = adminShopRepository.getById(shopId);
         MenuCategory menuCategory = MenuCategory.builder()
             .shop(shop)
-            .name(adminCreateMenuCategoryRequest.name())
+            .name(request.name())
             .build();
         adminMenuCategoryRepository.save(menuCategory);
     }
 
     @Transactional
-    public void modifyMenuCategory(Integer shopId, AdminModifyMenuCategoryRequest adminModifyMenuCategoryRequest) {
+    public void modifyMenuCategory(Integer shopId, AdminModifyMenuCategoryRequest request) {
         adminShopRepository.getById(shopId);
-        MenuCategory menuCategory = adminMenuCategoryRepository.getById(adminModifyMenuCategoryRequest.id());
-        menuCategory.modifyName(adminModifyMenuCategoryRequest.name());
+        MenuCategory menuCategory = adminMenuCategoryRepository.getById(request.id());
+        menuCategory.modifyName(request.name());
     }
 
     @Transactional
-    public void modifyMenu(Integer shopId, Integer menuId, AdminModifyMenuRequest adminModifyMenuRequest) {
+    public void modifyMenu(Integer shopId, Integer menuId, AdminModifyMenuRequest request) {
         Menu menu = adminMenuRepository.getById(menuId);
         adminShopRepository.getById(shopId);
         menu.modifyMenu(
-            adminModifyMenuRequest.name(),
-            adminModifyMenuRequest.description()
+            request.name(),
+            request.description()
         );
-        menu.modifyMenuImages(adminModifyMenuRequest.imageUrls(), entityManager);
-        menu.modifyMenuCategories(adminMenuCategoryRepository.findAllByIdIn(adminModifyMenuRequest.categoryIds()),
-            entityManager);
-        if (adminModifyMenuRequest.isSingle()) {
-            menu.adminModifyMenuSingleOptions(adminModifyMenuRequest, entityManager);
+        menu.modifyMenuImages(request.imageUrls(), entityManager);
+        menu.modifyMenuCategories(
+            adminMenuCategoryRepository.findAllByIdIn(request.categoryIds()),
+            entityManager
+        );
+
+        if (request.isSingle()) {
+            menu.adminModifyMenuSingleOptions(request, entityManager);
         } else {
-            List<AdminModifyMenuRequest.InnerOptionPrice> optionPrices = adminModifyMenuRequest.optionPrices();
-            menu.adminModifyMenuMultipleOptions(optionPrices, entityManager);
+            menu.adminModifyMenuMultipleOptions(request.optionPrices(), entityManager);
         }
     }
 
@@ -149,7 +142,7 @@ public class AdminShopMenuService {
     public void deleteMenu(Integer shopId, Integer menuId) {
         Menu menu = adminMenuRepository.getById(menuId);
         if (!Objects.equals(menu.getShop().getId(), shopId)) {
-            throw new KoinIllegalArgumentException("해당 상점의 카테고리가 아닙니다.");
+            throw new KoinIllegalArgumentException("해당 상점의 메뉴가 아닙니다.");
         }
         adminMenuRepository.deleteById(menuId);
     }

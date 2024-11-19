@@ -29,7 +29,6 @@ public class AdminShopReviewService {
     private final AdminShopReviewRepository adminShopReviewRepository;
     private final AdminShopReviewCustomRepository adminShopReviewCustomRepository;
 
-    @Transactional(readOnly = true)
     public AdminShopsReviewsResponse getReviews(
         Integer page,
         Integer limit,
@@ -57,23 +56,23 @@ public class AdminShopReviewService {
     @Transactional
     public void modifyShopReviewReportStatus(
         Integer reviewId,
-        AdminModifyShopReviewReportStatusRequest adminModifyShopReviewReportStatusRequest
+        AdminModifyShopReviewReportStatusRequest request
     ) {
         ShopReview shopReview = adminShopReviewRepository.findById(reviewId)
-            .orElseThrow(() -> ReviewNotFoundException.withDetail("reviewId: " + reviewId));
+            .orElseThrow(() -> ReviewNotFoundException.withDetail("해당 리뷰를 찾을 수 없습니다.: " + reviewId));
 
         List<ShopReviewReport> unhandledReports = shopReview.getReports().stream()
             .filter(report -> report.getReportStatus() == ReportStatus.UNHANDLED)
             .toList();
 
         unhandledReports.forEach(
-            report -> report.modifyReportStatus(adminModifyShopReviewReportStatusRequest.reportStatus()));
+            report -> report.modifyReportStatus(request.reportStatus()));
     }
 
     @Transactional
     public void deleteShopReview(Integer reviewId) {
         ShopReview shopReview = adminShopReviewRepository.findById(reviewId)
-            .orElseThrow(() -> ReviewNotFoundException.withDetail("reviewId: " + reviewId));
+            .orElseThrow(() -> ReviewNotFoundException.withDetail("해당 리뷰를 찾을 수 없습니다.: " + reviewId));
 
         shopReview.getReports().forEach(report -> report.modifyReportStatus(DELETED));
         shopReview.deleteReview();

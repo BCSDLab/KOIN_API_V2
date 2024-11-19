@@ -12,6 +12,8 @@ import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 
 public interface AdminShopCategoryRepository extends Repository<ShopCategory, Integer> {
 
+    boolean existsByName(String name);
+
     boolean existsByNameAndIdNot(String name, Integer shopCategoryId);
 
     List<ShopCategory> findAll();
@@ -19,8 +21,6 @@ public interface AdminShopCategoryRepository extends Repository<ShopCategory, In
     List<ShopCategory> findAll(Sort sort);
 
     Optional<ShopCategory> findById(Integer shopCategoryId);
-
-    Optional<ShopCategory> findByName(String name);
 
     List<ShopCategory> findAllByIdIn(List<Integer> ids);
 
