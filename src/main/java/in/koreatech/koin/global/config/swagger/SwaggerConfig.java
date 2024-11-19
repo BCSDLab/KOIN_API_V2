@@ -83,4 +83,19 @@ public class SwaggerConfig {
             .packagesToScan(packagePath)
             .build();
     }
+
+    @Bean
+    public GroupedOpenApi userOpenApi() {
+        String[] packagePath = {
+            "in.koreatech.koin.domain.user",
+            "in.koreatech.koin.domain.user",
+            "in.koreatech.koin.domain.timetable",
+            "in.koreatech.koin.domain.timetableV2",
+        };
+
+        return GroupedOpenApi.builder()
+            .group("User API")
+            .packagesToScan(packagePath)
+            .build();
+    }
 }
