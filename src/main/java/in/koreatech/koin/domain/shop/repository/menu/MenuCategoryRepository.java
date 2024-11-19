@@ -22,5 +22,7 @@ public interface MenuCategoryRepository extends Repository<MenuCategory, Integer
         return findById(id).orElseThrow(() -> MenuCategoryNotFoundException.withDetail("categoryId: " + id));
     }
 
+    List<MenuCategory> findByIdIn(List<Long> ids);
+
     Void deleteById(Integer id);
 }

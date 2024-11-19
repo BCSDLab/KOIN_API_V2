@@ -2,31 +2,38 @@ package in.koreatech.koin.admin.shop.service;
 
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.DELETED;
 
-import java.time.Clock;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import in.koreatech.koin.admin.shop.dto.*;
-import in.koreatech.koin.admin.shop.exception.ShopCategoryNotEmptyException;
-import in.koreatech.koin.admin.shop.exception.ShopCategoryIllegalArgumentException;
-import in.koreatech.koin.admin.shop.repository.*;
-import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import in.koreatech.koin.admin.shop.dto.AdminCreateMenuCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.AdminCreateMenuRequest;
+import in.koreatech.koin.admin.shop.dto.AdminCreateShopCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.AdminCreateShopRequest;
 import in.koreatech.koin.admin.shop.dto.AdminCreateShopRequest.InnerShopOpen;
-import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest.InnerOptionPrice;
+import in.koreatech.koin.admin.shop.dto.AdminMenuCategoriesResponse;
+import in.koreatech.koin.admin.shop.dto.AdminMenuDetailResponse;
+import in.koreatech.koin.admin.shop.dto.AdminModifyMenuCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyMenuRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyShopCategoriesOrderRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyShopCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyShopRequest;
+import in.koreatech.koin.admin.shop.dto.AdminModifyShopReviewReportStatusRequest;
+import in.koreatech.koin.admin.shop.dto.AdminShopCategoryResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopMenuResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopParentCategoryResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopsResponse;
+import in.koreatech.koin.admin.shop.dto.AdminShopsReviewsResponse;
 import in.koreatech.koin.admin.shop.exception.ShopCategoryDuplicationException;
+import in.koreatech.koin.admin.shop.exception.ShopCategoryIllegalArgumentException;
+import in.koreatech.koin.admin.shop.exception.ShopCategoryNotEmptyException;
+import in.koreatech.koin.admin.shop.repository.AdminEventArticleRepository;
+import in.koreatech.koin.admin.shop.repository.AdminMenuCategoryRepository;
+import in.koreatech.koin.admin.shop.repository.AdminMenuRepository;
+import in.koreatech.koin.admin.shop.repository.AdminShopCategoryMapRepository;
+import in.koreatech.koin.admin.shop.repository.AdminShopCategoryRepository;
+import in.koreatech.koin.admin.shop.repository.AdminShopParentCategoryRepository;
+import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
+import in.koreatech.koin.admin.shop.repository.AdminShopReviewCustomRepository;
+import in.koreatech.koin.admin.shop.repository.AdminShopReviewRepository;
+import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;
@@ -44,7 +51,21 @@ import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import jakarta.persistence.EntityManager;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -252,7 +273,7 @@ public class AdminShopService {
             entityManager
         );
         shop.modifyShopImages(adminModifyShopRequest.imageUrls(), entityManager);
-        shop.modifyAdminShopOpens(adminModifyShopRequest.open(), entityManager);
+        shop.modifyShopOpens(adminModifyShopRequest.toShopOpens(shop), entityManager);
     }
 
     @Transactional
@@ -309,12 +330,7 @@ public class AdminShopService {
         menu.modifyMenuImages(adminModifyMenuRequest.imageUrls(), entityManager);
         menu.modifyMenuCategories(adminMenuCategoryRepository.findAllByIdIn(adminModifyMenuRequest.categoryIds()),
             entityManager);
-        if (adminModifyMenuRequest.isSingle()) {
-            menu.adminModifyMenuSingleOptions(adminModifyMenuRequest, entityManager);
-        } else {
-            List<InnerOptionPrice> optionPrices = adminModifyMenuRequest.optionPrices();
-            menu.adminModifyMenuMultipleOptions(optionPrices, entityManager);
-        }
+        menu.modifyOptions(adminModifyMenuRequest.toMenuOption(menu), entityManager);
     }
 
     @Transactional

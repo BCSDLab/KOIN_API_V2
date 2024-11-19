@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.ownershop;
+package in.koreatech.koin.domain.ownershop.dto;
 
 public record EventArticleCreateShopEvent(
     Integer shopId,

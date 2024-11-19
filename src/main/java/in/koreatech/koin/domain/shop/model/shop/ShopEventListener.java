@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.domain.ownershop.EventArticleCreateShopEvent;
+import in.koreatech.koin.domain.ownershop.dto.EventArticleCreateShopEvent;
 import in.koreatech.koin.global.domain.notification.model.Notification;
 import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
