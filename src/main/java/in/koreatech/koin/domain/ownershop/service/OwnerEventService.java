@@ -4,13 +4,13 @@ import in.koreatech.koin.domain.ownershop.dto.EventArticleCreateShopEvent;
 import in.koreatech.koin.domain.ownershop.dto.CreateEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.ModifyEventRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopEventsResponse;
-import in.koreatech.koin.domain.shop.model.article.EventArticle;
-import in.koreatech.koin.domain.shop.model.article.EventArticleImage;
+import in.koreatech.koin.domain.shop.model.event.EventArticle;
+import in.koreatech.koin.domain.shop.model.event.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
 import jakarta.persistence.EntityManager;
-import java.util.List;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

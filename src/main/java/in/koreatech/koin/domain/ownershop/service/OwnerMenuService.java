@@ -1,12 +1,12 @@
 package in.koreatech.koin.domain.ownershop.service;
 
-import in.koreatech.koin.domain.shop.dto.menu.CreateCategoryRequest;
-import in.koreatech.koin.domain.shop.dto.menu.CreateMenuRequest;
-import in.koreatech.koin.domain.shop.dto.menu.MenuCategoriesResponse;
-import in.koreatech.koin.domain.shop.dto.menu.MenuDetailResponse;
-import in.koreatech.koin.domain.shop.dto.menu.ModifyCategoryRequest;
-import in.koreatech.koin.domain.shop.dto.menu.ModifyMenuRequest;
-import in.koreatech.koin.domain.shop.dto.menu.ShopMenuResponse;
+import in.koreatech.koin.domain.shop.dto.menu.request.CreateCategoryRequest;
+import in.koreatech.koin.domain.shop.dto.menu.request.CreateMenuRequest;
+import in.koreatech.koin.domain.shop.dto.menu.request.ModifyCategoryRequest;
+import in.koreatech.koin.domain.shop.dto.menu.request.ModifyMenuRequest;
+import in.koreatech.koin.domain.shop.dto.menu.response.MenuCategoriesResponse;
+import in.koreatech.koin.domain.shop.dto.menu.response.MenuDetailResponse;
+import in.koreatech.koin.domain.shop.dto.menu.response.ShopMenuResponse;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategoryMap;

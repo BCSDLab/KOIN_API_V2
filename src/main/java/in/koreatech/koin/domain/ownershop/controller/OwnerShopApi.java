@@ -4,8 +4,8 @@ import static in.koreatech.koin.domain.user.model.UserType.OWNER;
 
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ModifyShopRequest;
-import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.shop.request.ModifyShopRequest;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

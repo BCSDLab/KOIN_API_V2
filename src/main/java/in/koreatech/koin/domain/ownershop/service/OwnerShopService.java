@@ -5,8 +5,8 @@ import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsRequest;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse;
 import in.koreatech.koin.domain.ownershop.dto.OwnerShopsResponse.InnerShopResponse;
-import in.koreatech.koin.domain.shop.dto.shop.ModifyShopRequest;
-import in.koreatech.koin.domain.shop.dto.shop.ShopResponse;
+import in.koreatech.koin.domain.shop.dto.shop.request.ModifyShopRequest;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import in.koreatech.koin.domain.shop.repository.event.EventArticleRepository;
@@ -58,8 +58,7 @@ public class OwnerShopService {
 
     public ShopResponse getShopByShopId(Integer ownerId, Integer shopId) {
         Shop shop = ownerUtilService.getOwnerShopById(shopId, ownerId);
-        boolean eventDuration = eventArticleRepository.isDurationEvent(shopId, LocalDate.now(clock));
-        return ShopResponse.from(shop, eventDuration);
+        return ShopResponse.from(shop, LocalDate.now(clock));
     }
 
     @Transactional
