@@ -16,7 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
+import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
 import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
 import in.koreatech.koin.admin.user.dto.AdminNewOwnersResponse;
@@ -116,7 +116,7 @@ public class AdminUserService {
     private void validateDuplicateEmail(CreateAdminRequest request) {
         adminUserRepository.findByEmail(request.email())
             .ifPresent(user -> {
-                throw DuplicationEmailException.withDetail("email: " + request.email());
+                throw DuplicationEmailException.withDetail("account: " + request.email());
             });
     }
 
@@ -146,11 +146,11 @@ public class AdminUserService {
     private void validateAdminLogin(User user, AdminLoginRequest request) {
         /* 어드민 권한이 없으면 없는 회원으로 간주 */
         if (user.getUserType() != ADMIN) {
-            throw UserNotFoundException.withDetail("email" + request.email());
+            throw UserNotFoundException.withDetail("account" + request.email());
         }
 
         if (adminRepository.findById(user.getId()).isEmpty()) {
-            throw UserNotFoundException.withDetail("email" + request.email());
+            throw UserNotFoundException.withDetail("account" + request.email());
         }
 
         if (!user.isSamePassword(passwordEncoder, request.password())) {
@@ -287,7 +287,7 @@ public class AdminUserService {
                     })
                     .orElseGet(() -> OwnerIncludingShop.of(owner, null));
             })
-            .collect(Collectors.toList());
+            .toList();
 
         return AdminNewOwnersResponse.of(ownerIncludingShops, result, criteria);
     }

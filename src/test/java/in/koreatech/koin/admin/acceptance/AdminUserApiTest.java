@@ -46,7 +46,7 @@ import in.koreatech.koin.support.JsonAssertions;
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
-public class AdminUserApiTest extends AcceptanceTest {
+class AdminUserApiTest extends AcceptanceTest {
 
     @Autowired
     private AdminStudentRepository adminStudentRepository;
@@ -763,7 +763,7 @@ public class AdminUserApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + token)
                     .content("""
                         {
-                          "email": "admin123456@koreatech.ac.kr",
+                          "account": "admin123456@koreatech.ac.kr",
                           "password": "cd06f8c2b0dd065faf6ef910c7f15934363df71c33740fd245590665286ed268",
                           "name": "신관규",
                           "track_type": "BACKEND",
@@ -865,7 +865,7 @@ public class AdminUserApiTest extends AcceptanceTest {
             .andExpect(status().isOk());
 
         Admin updateAdmin = adminRepository.getById(admin1.getId());
-        assertThat(updateAdmin.getUser().isAuthed()).isEqualTo(true);
+        assertThat(updateAdmin.getUser().isAuthed()).isTrue();
     }
 
     @Test

@@ -55,4 +55,12 @@ public class BenefitCategory extends BaseEntity {
         this.onImageUrl = onImageUrl;
         this.offImageUrl = offImageUrl;
     }
+
+    public static boolean isExceededMaxCategoryCount(int currentCategoryCount) {
+        return currentCategoryCount >= MAX_BENEFIT_CATEGORIES;
+    }
+
+    public static boolean isBelowMinCategoryCount(int currentCategoryCount) {
+        return currentCategoryCount <= MIN_BENEFIT_CATEGORIES;
+    }
 }

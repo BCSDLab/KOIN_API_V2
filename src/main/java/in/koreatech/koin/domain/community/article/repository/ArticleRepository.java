@@ -118,4 +118,6 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         + "AND a.is_deleted = false ", nativeQuery = true)
     List<Article> findAllByRegisteredAtIsAfter(LocalDate registeredAt);
 
+    @Query("SELECT a.title FROM Article a WHERE a.id = :id")
+    String getTitleById(@Param("id") Integer id);
 }

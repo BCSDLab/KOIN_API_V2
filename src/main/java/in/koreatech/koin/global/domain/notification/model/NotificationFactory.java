@@ -83,14 +83,15 @@ public class NotificationFactory {
     public Notification generateKeywordNotification(
         MobileAppPath path,
         Integer eventKeywordId,
-        String keywordName,
+        String title,
+        String description,
         User target
     ) {
         return new Notification(
             path,
             generateSchemeUri(path, eventKeywordId),
-            "공지사항이 등록됐어요!",
-            "%s 공지가 등록되었습니다.".formatted(keywordName),
+            title,
+            description,
             null,
             NotificationType.MESSAGE,
             target
