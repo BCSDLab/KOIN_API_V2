@@ -56,6 +56,7 @@ public class SwaggerConfig {
     public GroupedOpenApi businessOpenApi() {
         String[] packagePath = {
             "in.koreatech.koin.domain.owner",
+            "in.koreatech.koin.domain.benefit",
             "in.koreatech.koin.domain.ownershop",
             "in.koreatech.koin.domain.shop",
         };
