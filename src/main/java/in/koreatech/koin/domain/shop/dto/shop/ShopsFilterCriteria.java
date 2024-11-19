@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.shop.dto.shop;
 import java.util.List;
 import java.util.function.Predicate;
 
-import in.koreatech.koin.domain.shop.dto.shop.ShopsResponseV2.InnerShopResponse;
+import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2.InnerShopResponse;
 import lombok.Getter;
 
 @Getter

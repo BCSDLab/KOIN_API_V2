@@ -2,7 +2,11 @@ package in.koreatech.koin.admin.shop.service;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -11,8 +15,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.admin.shop.dto.shop.*;
-import in.koreatech.koin.admin.shop.exception.*;
+import in.koreatech.koin.admin.shop.dto.shop.AdminCreateShopCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.shop.AdminCreateShopRequest;
+import in.koreatech.koin.admin.shop.dto.shop.AdminModifyShopCategoriesOrderRequest;
+import in.koreatech.koin.admin.shop.dto.shop.AdminModifyShopCategoryRequest;
+import in.koreatech.koin.admin.shop.dto.shop.AdminModifyShopRequest;
+import in.koreatech.koin.admin.shop.dto.shop.AdminShopCategoryResponse;
+import in.koreatech.koin.admin.shop.dto.shop.AdminShopParentCategoryResponse;
+import in.koreatech.koin.admin.shop.dto.shop.AdminShopResponse;
+import in.koreatech.koin.admin.shop.dto.shop.AdminShopsResponse;
+import in.koreatech.koin.admin.shop.exception.ShopCategoryDuplicationException;
+import in.koreatech.koin.admin.shop.exception.ShopCategoryIllegalArgumentException;
+import in.koreatech.koin.admin.shop.exception.ShopCategoryNotEmptyException;
 import in.koreatech.koin.admin.shop.repository.shop.AdminEventArticleRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopCategoryMapRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopCategoryRepository;
@@ -20,7 +34,12 @@ import in.koreatech.koin.admin.shop.repository.shop.AdminShopParentCategoryRepos
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
 import in.koreatech.koin.domain.shop.exception.ShopNotFoundException;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
-import in.koreatech.koin.domain.shop.model.shop.*;
+import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategoryMap;
+import in.koreatech.koin.domain.shop.model.shop.ShopImage;
+import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
+import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.global.model.Criteria;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -160,7 +179,7 @@ public class AdminShopService {
             entityManager
         );
         shop.modifyShopImages(request.imageUrls(), entityManager);
-        shop.modifyAdminShopOpens(request.open(), entityManager);
+        shop.modifyShopOpens(request.toShopOpens(shop), entityManager);
     }
 
     @Transactional
