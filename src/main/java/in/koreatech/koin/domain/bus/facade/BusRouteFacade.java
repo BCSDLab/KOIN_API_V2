@@ -42,7 +42,7 @@ public class BusRouteFacade {
     public BusScheduleResponse getBusSchedule(BusRouteCommand request) {
         List<ScheduleInfo> scheduleInfoList = switch (request.depart()) {
             case KOREATECH -> getBusScheduleDepartFromKoreaTech(request);
-            case TERMINAL, STATION -> getBusScheduleDepartFromElse(request, request.depart());
+            case TERMINAL, STATION -> getBusScheduleDepartFromElse(request);
         };
         return new BusScheduleResponse(
             request.depart(), request.arrive(), request.date(), request.time(), scheduleInfoList
@@ -73,22 +73,24 @@ public class BusRouteFacade {
             .toList();
     }
 
-    private List<ScheduleInfo> getBusScheduleDepartFromElse(BusRouteCommand request, BusStation depart) {
+    private List<ScheduleInfo> getBusScheduleDepartFromElse(BusRouteCommand request) {
         if (request.arrive() == BusStation.STATION || request.arrive() == BusStation.TERMINAL) {
             return Collections.emptyList();
         }
         List<ScheduleInfo> scheduleInfoList = new ArrayList<>();
         BusDirection direction = getRouteDirection(request.depart(), request.arrive());
 
-        if (depart == BusStation.TERMINAL) {
+        if (request.depart() == BusStation.TERMINAL) {
             scheduleInfoList.addAll(ExpressBusRouteManager.getExpressBusSchedule(direction));
         }
         scheduleInfoList.addAll(shuttleBusService.getShuttleBusSchedule(request, BusType.SHUTTLE));
         scheduleInfoList.addAll(shuttleBusService.getShuttleBusSchedule(request, BusType.COMMUTING));
-        scheduleInfoList.addAll(cityBusService.getCityBusSchedule(400L, depart, CityBusDirection.병천3리, request.date()));
-        scheduleInfoList.addAll(cityBusService.getCityBusSchedule(402L, depart, CityBusDirection.황사동, request.date()));
         scheduleInfoList.addAll(
-            cityBusService.getCityBusSchedule(405L, depart, CityBusDirection.유관순열사사적지, request.date()));
+            cityBusService.getCityBusSchedule(400L, request.depart(), CityBusDirection.병천3리, request.date()));
+        scheduleInfoList.addAll(
+            cityBusService.getCityBusSchedule(402L, request.depart(), CityBusDirection.황사동, request.date()));
+        scheduleInfoList.addAll(
+            cityBusService.getCityBusSchedule(405L, request.depart(), CityBusDirection.유관순열사사적지, request.date()));
 
         return scheduleInfoList.stream()
             .filter(schedule -> schedule.departTime().isAfter(request.time()) &&
