@@ -1,5 +1,6 @@
 package in.koreatech.koin.global.config.swagger;
 
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,5 +50,19 @@ public class SwaggerConfig {
             .title("KOIN API")
             .description("KOIN API 문서입니다.")
             .version("0.0.1");
+    }
+
+    @Bean
+    public GroupedOpenApi businessOpenApi() {
+        String[] packagePath = {
+            "in.koreatech.koin.domain.owner",
+            "in.koreatech.koin.domain.ownershop",
+            "in.koreatech.koin.domain.shop",
+        };
+
+        return GroupedOpenApi.builder()
+            .group("Business API")
+            .packagesToScan(packagePath)
+            .build();
     }
 }
