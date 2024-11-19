@@ -125,4 +125,14 @@ public class SwaggerConfig {
             .packagesToScan(packagePath)
             .build();
     }
+
+    @Bean
+    public GroupedOpenApi adminApi() {
+        String packagePath = "in.koreatech.koin.admin";
+
+        return GroupedOpenApi.builder()
+            .group("admin API")
+            .packagesToScan(packagePath)
+            .build();
+    }
 }
