@@ -1,30 +1,32 @@
-package in.koreatech.koin.domain.ownershop.dto;
+package in.koreatech.koin.domain.shop.dto.event.response;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
-import in.koreatech.koin.domain.shop.model.event.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(SnakeCaseStrategy.class)
-public record OwnerShopEventsResponse(
+@JsonNaming(value = SnakeCaseStrategy.class)
+public record ShopEventsWithBannerUrlResponse(
 
-    @Schema(description = "이벤트 목록", requiredMode = NOT_REQUIRED)
-    List<InnerOwnerShopEventResponse> events
+    @Schema(description = "이벤트 목록")
+    List<InnerShopEventResponse> events
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerOwnerShopEventResponse(
+    public record InnerShopEventResponse(
         @Schema(description = "상점 ID", example = "1", requiredMode = REQUIRED)
         Integer shopId,
 
@@ -40,48 +42,48 @@ public record OwnerShopEventsResponse(
         @Schema(description = "이벤트 내용", example = "콩순이 가게 전메뉴 90% 할인! 가게 폐업 임박...", requiredMode = REQUIRED)
         String content,
 
-        @Schema(description = "이벤트 이미지")
+        @Schema(description = "이벤트 이미지", example = """
+            [ "https://static.koreatech.in/example.png" ]
+            """, requiredMode = NOT_REQUIRED)
         List<String> thumbnailImages,
 
         @JsonFormat(pattern = "yyyy-MM-dd")
         @Schema(description = "시작일", example = "2024-10-22", requiredMode = REQUIRED)
         LocalDate startDate,
 
-        @Schema(description = "종료일", example = "2024-10-25", requiredMode = REQUIRED)
         @JsonFormat(pattern = "yyyy-MM-dd")
+        @Schema(description = "종료일", example = "2024-10-25", requiredMode = REQUIRED)
         LocalDate endDate
     ) {
 
-        public static InnerOwnerShopEventResponse from(EventArticle eventArticle) {
-            return new InnerOwnerShopEventResponse(
-                eventArticle.getShop().getId(),
-                eventArticle.getShop().getName(),
+        public static InnerShopEventResponse from(EventArticle eventArticle, Shop shop) {
+            return new InnerShopEventResponse(
+                shop.getId(),
+                shop.getName(),
                 eventArticle.getId(),
                 eventArticle.getTitle(),
                 eventArticle.getContent(),
-                eventArticle.getThumbnailImages()
-                    .stream().map(EventArticleImage::getThumbnailImage)
-                    .toList(),
+                Optional.ofNullable(shop)
+                    .map(Shop::getShopMainCategory)
+                    .map(ShopCategory::getEventBannerImageUrl)
+                    .map(List::of)
+                    .orElse(null),
                 eventArticle.getStartDate(),
                 eventArticle.getEndDate()
             );
         }
     }
 
-    public static OwnerShopEventsResponse from(List<Shop> shops) {
-        List<InnerOwnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
+    public static ShopEventsWithBannerUrlResponse of(List<Shop> shops, Clock clock) {
+        List<InnerShopEventResponse> innerShopEventResponses = new ArrayList<>();
         for (Shop shop : shops) {
-            shop.getEventArticles().stream()
-                .map(InnerOwnerShopEventResponse::from)
-                .forEach(innerShopEventResponses::add);
+            for (EventArticle eventArticle : shop.getEventArticles()) {
+                if (!eventArticle.getStartDate().isAfter(LocalDate.now(clock)) &&
+                    !eventArticle.getEndDate().isBefore(LocalDate.now(clock))) {
+                    innerShopEventResponses.add(InnerShopEventResponse.from(eventArticle, shop));
+                }
+            }
         }
-        return new OwnerShopEventsResponse(innerShopEventResponses);
-    }
-
-    public static OwnerShopEventsResponse from(Shop shop) {
-        var innerShopEventResponses = shop.getEventArticles().stream()
-            .map(InnerOwnerShopEventResponse::from)
-            .toList();
-        return new OwnerShopEventsResponse(innerShopEventResponses);
+        return new ShopEventsWithBannerUrlResponse(innerShopEventResponses);
     }
 }

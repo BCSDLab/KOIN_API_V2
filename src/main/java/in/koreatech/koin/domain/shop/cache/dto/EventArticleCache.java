@@ -1,7 +1,7 @@
 package in.koreatech.koin.domain.shop.cache.dto;
 
-import in.koreatech.koin.domain.shop.model.article.EventArticle;
-import in.koreatech.koin.domain.shop.model.article.EventArticleImage;
+import in.koreatech.koin.domain.shop.model.event.EventArticle;
+import in.koreatech.koin.domain.shop.model.event.EventArticleImage;
 import java.util.List;
 
 public record EventArticleCache(
