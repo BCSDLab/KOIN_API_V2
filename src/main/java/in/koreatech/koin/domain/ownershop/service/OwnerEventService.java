@@ -24,11 +24,11 @@ public class OwnerEventService {
     private final EntityManager entityManager;
     private final EventArticleRepository eventArticleRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final OwnerUtilService ownerUtilService;
+    private final OwnerShopUtilService ownerShopUtilService;
 
     @Transactional
     public void createEvent(Integer ownerId, Integer shopId, CreateEventRequest createEventRequest) {
-        Shop shop = ownerUtilService.getOwnerShopById(shopId, ownerId);
+        Shop shop = ownerShopUtilService.getOwnerShopById(shopId, ownerId);
         EventArticle savedEventArticle = createEventArticle(createEventRequest, shop);
         List<EventArticleImage> savedThumbnailImages = savedEventArticle.getThumbnailImages();
         eventPublisher.publishEvent(new EventArticleCreateShopEvent(
@@ -41,7 +41,7 @@ public class OwnerEventService {
 
     @Transactional
     public void modifyEvent(Integer ownerId, Integer shopId, Integer eventId, ModifyEventRequest modifyEventRequest) {
-        ownerUtilService.getOwnerShopById(shopId, ownerId);
+        ownerShopUtilService.getOwnerShopById(shopId, ownerId);
         EventArticle eventArticle = eventArticleRepository.getById(eventId);
         eventArticle.modifyArticle(
                 modifyEventRequest.title(),
@@ -55,12 +55,12 @@ public class OwnerEventService {
 
     @Transactional
     public void deleteEvent(Integer ownerId, Integer shopId, Integer eventId) {
-        ownerUtilService.getOwnerShopById(shopId, ownerId);
+        ownerShopUtilService.getOwnerShopById(shopId, ownerId);
         eventArticleRepository.deleteById(eventId);
     }
 
     public OwnerShopEventsResponse getShopEvent(Integer shopId, Integer ownerId) {
-        Shop shop = ownerUtilService.getOwnerShopById(shopId, ownerId);
+        Shop shop = ownerShopUtilService.getOwnerShopById(shopId, ownerId);
         return OwnerShopEventsResponse.from(shop);
     }
 

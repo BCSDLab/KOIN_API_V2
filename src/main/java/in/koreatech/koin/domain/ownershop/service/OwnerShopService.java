@@ -32,7 +32,7 @@ public class OwnerShopService {
     private final OwnerRepository ownerRepository;
     private final ShopCategoryRepository shopCategoryRepository;
     private final EventArticleRepository eventArticleRepository;
-    private final OwnerUtilService ownerUtilService;
+    private final OwnerShopUtilService ownerShopUtilService;
 
     public OwnerShopsResponse getOwnerShops(Integer ownerId) {
         List<Shop> shops = shopRepository.findAllByOwnerId(ownerId);
@@ -57,13 +57,13 @@ public class OwnerShopService {
     }
 
     public ShopResponse getShopByShopId(Integer ownerId, Integer shopId) {
-        Shop shop = ownerUtilService.getOwnerShopById(shopId, ownerId);
+        Shop shop = ownerShopUtilService.getOwnerShopById(shopId, ownerId);
         return ShopResponse.from(shop, LocalDate.now(clock));
     }
 
     @Transactional
     public void modifyShop(Integer ownerId, Integer shopId, ModifyShopRequest modifyShopRequest) {
-        Shop shop = ownerUtilService.getOwnerShopById(shopId, ownerId);
+        Shop shop = ownerShopUtilService.getOwnerShopById(shopId, ownerId);
         ShopCategory shopCategory = shopCategoryRepository.getById(modifyShopRequest.mainCategoryId());
         shop.modifyShop(
                 modifyShopRequest.name(),
