@@ -1,38 +1,27 @@
 package in.koreatech.koin.domain.student.service;
 
-import java.time.Clock;
-import java.util.Optional;
-import java.util.UUID;
-
-import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.student.model.StudentDepartment;
-import in.koreatech.koin.domain.student.model.StudentEmailRequestEvent;
-import in.koreatech.koin.domain.student.model.StudentRegisterEvent;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
-import in.koreatech.koin.domain.user.model.*;
-import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
-import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
-
-import org.joda.time.LocalDateTime;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.ModelAndView;
-
-import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
-import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
 import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.dto.StudentResponse;
 import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
 import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
-import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
-import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.student.exception.StudentNumberNotValidException;
+import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.student.model.StudentDepartment;
+import in.koreatech.koin.domain.student.model.StudentEmailRequestEvent;
+import in.koreatech.koin.domain.student.model.StudentRegisterEvent;
+import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.user.dto.AuthTokenRequest;
+import in.koreatech.koin.domain.user.dto.FindPasswordRequest;
+import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
+import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
+import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
@@ -43,10 +32,17 @@ import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
 import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.domain.email.service.MailService;
-import in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType;
-import in.koreatech.koin.global.domain.notification.service.NotificationService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import java.time.Clock;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.joda.time.LocalDateTime;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.ModelAndView;
 
 @Service
 @RequiredArgsConstructor
@@ -166,11 +162,11 @@ public class StudentService {
     private void validateDataExist(StudentRegisterRequest request) {
         userRepository.findByEmail(request.email())
             .ifPresent(user -> {
-                throw DuplicationEmailException.withDetail("email: " + request.email());
+                throw DuplicationEmailException.withDetail("account: " + request.email());
             });
         studentRedisRepository.findById(request.email())
             .ifPresent(studentTemporaryStatus -> {
-                throw DuplicationEmailException.withDetail("email: " + request.email());
+                throw DuplicationEmailException.withDetail("account: " + request.email());
             });
 
         if (request.nickname() != null) {

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.owner.dto;
+package in.koreatech.koin.domain.owner.dto.sms;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
