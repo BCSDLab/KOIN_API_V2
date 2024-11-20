@@ -136,7 +136,7 @@ public class StudentService {
         userRepository.save(student.getUser());
 
         studentRedisRepository.deleteById(student.getUser().getEmail());
-        eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail()));
+        eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail(), student.getId()));
 
         return new ModelAndView("success_register_config");
     }
