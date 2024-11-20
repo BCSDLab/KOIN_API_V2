@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
 import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
@@ -25,6 +25,8 @@ import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
+import in.koreatech.koin.domain.bus.service.CityBusService;
+import in.koreatech.koin.domain.bus.service.ShuttleBusService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -34,6 +36,8 @@ public class BusController implements BusApi {
 
     private final BusFacade busFacade;
     private final BusRouteFacade busRouteFacade;
+    private final CityBusService cityBusService;
+    private final ShuttleBusService shuttleBusService;
 
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
@@ -68,24 +72,24 @@ public class BusController implements BusApi {
         @RequestParam(value = "bus_number") Long busNumber,
         @RequestParam(value = "direction") CityBusDirection direction
     ) {
-        return ResponseEntity.ok().body(busFacade.getCityBusTimetable(busNumber, direction));
+        return ResponseEntity.ok().body(cityBusService.getCityBusTimetable(busNumber, direction));
     }
 
     @GetMapping("/courses")
     public ResponseEntity<List<BusCourseResponse>> getBusCourses() {
-        return ResponseEntity.ok().body(busFacade.getBusCourses());
+        return ResponseEntity.ok().body(shuttleBusService.getShuttleBusCourses());
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<SingleBusTimeResponse>> getSearchTimetable(
+    public ResponseEntity<List<SingleArrivalTimeResponse>> getSearchTimetable(
         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
         @RequestParam String time,
         @RequestParam BusStation depart,
         @RequestParam BusStation arrival
     ) {
-        List<SingleBusTimeResponse> singleBusTimeResponses = busFacade.searchTimetable(date, LocalTime.parse(time),
+        List<SingleArrivalTimeResponse> singleArrivalTimeRespons = busFacade.searchNearestBusArrivals(date, LocalTime.parse(time),
             depart, arrival);
-        return ResponseEntity.ok().body(singleBusTimeResponses);
+        return ResponseEntity.ok().body(singleArrivalTimeRespons);
     }
 
     @GetMapping("/route")

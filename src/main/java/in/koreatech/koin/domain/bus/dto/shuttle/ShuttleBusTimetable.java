@@ -10,11 +10,12 @@ import lombok.Getter;
 
 @Getter
 @JsonNaming(value = SnakeCaseStrategy.class)
-public class SchoolBusTimetable extends BusTimetable {
+public class ShuttleBusTimetable extends BusTimetable {
+
     private final String routeName;
     private final List<ArrivalNode> arrivalInfo;
 
-    public SchoolBusTimetable(String routeName, List<ArrivalNode> arrivalInfo) {
+    public ShuttleBusTimetable(String routeName, List<ArrivalNode> arrivalInfo) {
         this.routeName = routeName;
         this.arrivalInfo = arrivalInfo;
     }

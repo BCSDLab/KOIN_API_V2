@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.client.ExpressBusClient;
-import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
@@ -59,8 +59,7 @@ public class ExpressBusService {
         }
     }
 
-    public SingleBusTimeResponse searchBusTime(
-        String busType,
+    public SingleArrivalTimeResponse searchBusTime(
         BusStation depart, BusStation arrival,
         LocalDateTime targetTime
     ) {
@@ -75,7 +74,7 @@ public class ExpressBusService {
             .map(BusRemainTime::getBusArrivalTime)
             .orElse(null);
 
-        return new SingleBusTimeResponse(busType, arrivalTime);
+        return new SingleArrivalTimeResponse(EXPRESS.getName(), arrivalTime);
     }
 
     public List<ExpressBusRemainTime> getBusRemainTime(BusStation depart, BusStation arrival) {

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
 import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
@@ -77,7 +77,7 @@ public interface BusApi {
     )
     @Operation(summary = "날짜 & 시간 기준 버스 검색")
     @GetMapping("/search")
-    ResponseEntity<List<SingleBusTimeResponse>> getSearchTimetable(
+    ResponseEntity<List<SingleArrivalTimeResponse>> getSearchTimetable(
         @Parameter(description = "yyyy-MM-dd") @RequestParam LocalDate date,
         @Parameter(description = "HH:mm") @RequestParam String time,
         @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation depart,

@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
-import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
 import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
 import in.koreatech.koin.domain.bus.service.route.ShuttleBusRouteManager;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
@@ -24,7 +24,7 @@ import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.shuttle.BusCourse;
 import in.koreatech.koin.domain.bus.model.shuttle.Route;
-import in.koreatech.koin.domain.bus.dto.shuttle.SchoolBusTimetable;
+import in.koreatech.koin.domain.bus.dto.shuttle.ShuttleBusTimetable;
 import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -52,7 +52,7 @@ public class ShuttleBusService {
             .toList();
     }
 
-    public SingleBusTimeResponse searchShuttleBusTime(
+    public SingleArrivalTimeResponse searchShuttleBusTime(
         LocalDate date, LocalTime time,
         BusStation depart, BusStation arrival, BusType busType
     ) {
@@ -83,18 +83,18 @@ public class ShuttleBusService {
             .map(LocalTime::parse)
             .orElse(null);
 
-        return new SingleBusTimeResponse(busType.getName(), arrivalTime);
+        return new SingleArrivalTimeResponse(busType.getName(), arrivalTime);
     }
 
-    public List<SchoolBusTimetable> getShuttleBusTimetable(BusType busType, String direction, String region) {
+    public List<ShuttleBusTimetable> getShuttleBusTimetable(BusType busType, String direction, String region) {
         BusCourse busCourse = shuttleBusRepository
             .getByBusTypeAndDirectionAndRegion(busType.getName(), direction, region);
 
         return busCourse.getRoutes().stream()
-            .map(route -> new SchoolBusTimetable(
+            .map(route -> new ShuttleBusTimetable(
                 route.getRouteName(),
                 route.getArrivalInfos().stream()
-                    .map(node -> new SchoolBusTimetable.ArrivalNode(
+                    .map(node -> new ShuttleBusTimetable.ArrivalNode(
                         node.getNodeName(), node.getArrivalTime())
                     ).toList())).toList();
     }

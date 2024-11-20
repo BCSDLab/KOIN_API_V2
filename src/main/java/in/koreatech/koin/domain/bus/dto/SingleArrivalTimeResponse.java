@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record SingleBusTimeResponse(
+public record SingleArrivalTimeResponse(
     @Schema(description = "버스 타입", example = "shuttle")
     String busName,
 

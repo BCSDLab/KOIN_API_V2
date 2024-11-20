@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
 import in.koreatech.koin.domain.bus.dto.city.CityBusArrival;
 import in.koreatech.koin.domain.bus.model.city.CityBusCache;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
@@ -145,13 +145,13 @@ class BusApiTest extends AcceptanceTest {
         SoftAssertions.assertSoftly(
             softly -> {
                 JsonNode jsonNode = JsonAssertions.convertJsonNode(result);
-                List<SingleBusTimeResponse> actualResponseList = JsonAssertions.convertToList(jsonNode,
-                    SingleBusTimeResponse.class);
+                List<SingleArrivalTimeResponse> actualResponseList = JsonAssertions.convertToList(jsonNode,
+                    SingleArrivalTimeResponse.class);
                 softly.assertThat(actualResponseList)
                     .containsExactly(
-                        new SingleBusTimeResponse("express", LocalTime.parse(arrivalTime)),
-                        new SingleBusTimeResponse("shuttle", LocalTime.parse(arrivalTime)),
-                        new SingleBusTimeResponse("commuting", LocalTime.parse(arrivalTime))
+                        new SingleArrivalTimeResponse("express", LocalTime.parse(arrivalTime)),
+                        new SingleArrivalTimeResponse("shuttle", LocalTime.parse(arrivalTime)),
+                        new SingleArrivalTimeResponse("commuting", LocalTime.parse(arrivalTime))
                     );
             }
         );

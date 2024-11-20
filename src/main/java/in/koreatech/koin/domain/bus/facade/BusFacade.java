@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.bus.facade;
 
+import static in.koreatech.koin.domain.bus.model.enums.BusType.COMMUTING;
+import static in.koreatech.koin.domain.bus.model.enums.BusType.SHUTTLE;
+
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,18 +14,15 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
-import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.dto.BusTimetable;
+import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
+import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
-import in.koreatech.koin.domain.bus.dto.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.service.CityBusService;
 import in.koreatech.koin.domain.bus.service.ExpressBusService;
 import in.koreatech.koin.domain.bus.service.ShuttleBusService;
@@ -41,54 +41,40 @@ public class BusFacade {
     private final ShuttleBusService shuttleBusService;
     private final VersionService versionService;
 
-    @Transactional
     public BusRemainTimeResponse getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
         validateBusCourse(depart, arrival);
-        return switch (busType) {
-            case CITY -> toResponse(busType, cityBusService.getBusRemainTime(depart, arrival));
-            case EXPRESS -> toResponse(busType, expressBusService.getBusRemainTime(depart, arrival));
-            case SHUTTLE, COMMUTING ->
-                toResponse(busType, shuttleBusService.getBusRemainTime(busType, depart, arrival));
+        List<? extends BusRemainTime> busRemainTimes = switch (busType) {
+            case CITY -> cityBusService.getBusRemainTime(depart, arrival);
+            case EXPRESS -> expressBusService.getBusRemainTime(depart, arrival);
+            case SHUTTLE, COMMUTING -> shuttleBusService.getBusRemainTime(busType, depart, arrival);
         };
-    }
-
-    public List<SingleBusTimeResponse> searchTimetable(
-        LocalDate date, LocalTime time,
-        BusStation depart, BusStation arrival
-    ) {
-        validateBusCourse(depart, arrival); // 정류장 검증
-        List<SingleBusTimeResponse> result = new ArrayList<>();
-
-        LocalDateTime targetTime = LocalDateTime.of(date, time);
-        for (BusType busType : BusType.values()) {
-            SingleBusTimeResponse busTimeResponse = switch (busType) {
-                case EXPRESS -> expressBusService.searchBusTime(busType.getName(), depart, arrival, targetTime);
-                case SHUTTLE, COMMUTING -> shuttleBusService.searchShuttleBusTime(date, time, depart, arrival, busType);
-                default -> null;
-            };
-            if (busTimeResponse == null) {
-                continue;
-            }
-            result.add(busTimeResponse);
-        }
-        return result;
-    }
-
-    private BusRemainTimeResponse toResponse(BusType busType, List<? extends BusRemainTime> remainTimes) {
-        return BusRemainTimeResponse.of(
-            busType,
-            remainTimes.stream()
-                .filter(bus -> bus.getRemainSeconds(clock) != null)
-                .sorted(Comparator.naturalOrder())
-                .toList(),
-            clock
-        );
+        return BusRemainTimeResponse.of(busType, getResolvedRemainTimes(busRemainTimes), clock);
     }
 
     private void validateBusCourse(BusStation depart, BusStation arrival) {
         if (depart.equals(arrival)) {
             throw BusIllegalStationException.withDetail("depart: " + depart.name() + ", arrival: " + arrival.name());
         }
+    }
+
+    private List<? extends BusRemainTime> getResolvedRemainTimes(List<? extends BusRemainTime> remainTimes) {
+        return remainTimes.stream()
+            .filter(bus -> bus.getRemainSeconds(clock) != null)
+            .sorted(Comparator.naturalOrder())
+            .toList();
+    }
+
+    public List<SingleArrivalTimeResponse> searchNearestBusArrivals(
+        LocalDate date, LocalTime time, BusStation depart, BusStation arrival
+    ) {
+        validateBusCourse(depart, arrival);
+        LocalDateTime targetTime = LocalDateTime.of(date, time);
+        List<SingleArrivalTimeResponse> arrivalTImeResponseList = new ArrayList<>();
+        arrivalTImeResponseList.add(expressBusService.searchBusTime(depart, arrival, targetTime));
+        arrivalTImeResponseList.add(shuttleBusService.searchShuttleBusTime(date, time, depart, arrival, SHUTTLE));
+        arrivalTImeResponseList.add(shuttleBusService.searchShuttleBusTime(date, time, depart, arrival, COMMUTING));
+        // CityBus 제외
+        return arrivalTImeResponseList;
     }
 
     public List<? extends BusTimetable> getBusTimetable(BusType busType, String direction, String region) {
@@ -101,18 +87,9 @@ public class BusFacade {
 
     public BusTimetableResponse getBusTimetableWithUpdatedAt(BusType busType, String direction, String region) {
         List<? extends BusTimetable> busTimetables = getBusTimetable(busType, direction, region);
-        if (busType.equals(BusType.COMMUTING)) {
-            busType = BusType.SHUTTLE;
-        }
-        VersionResponse version = versionService.getVersion(busType.getName() + "_bus_timetable");
+        BusType resolvedBusType = busType.equals(COMMUTING) ? SHUTTLE : busType;
+        String versionType = resolvedBusType.getName() + "_bus_timetable";
+        VersionResponse version = versionService.getVersion(versionType);
         return new BusTimetableResponse(busTimetables, version.updatedAt());
-    }
-
-    public CityBusTimetableResponse getCityBusTimetable(Long busNumber, CityBusDirection direction) {
-        return cityBusService.getCityBusTimetable(busNumber, direction);
-    }
-
-    public List<BusCourseResponse> getBusCourses() {
-        return shuttleBusService.getShuttleBusCourses();
     }
 }
