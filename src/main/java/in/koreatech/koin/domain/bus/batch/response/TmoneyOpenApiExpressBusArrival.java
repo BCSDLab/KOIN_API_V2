@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.model.express;
+package in.koreatech.koin.domain.bus.batch.response;
 
 public record TmoneyOpenApiExpressBusArrival(
     String TER_FR_O,    // 출발지

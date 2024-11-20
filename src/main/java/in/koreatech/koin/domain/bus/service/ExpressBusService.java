@@ -6,7 +6,6 @@ import static in.koreatech.koin.domain.bus.model.enums.BusType.EXPRESS;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -16,48 +15,24 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.bus.client.ExpressBusClient;
-import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
-import in.koreatech.koin.domain.bus.model.express.ExpressBusRemainTime;
-import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
-import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.dto.BusTimetable;
+import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
+import in.koreatech.koin.domain.bus.dto.express.ExpressBusTimetable;
+import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCache;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
+import in.koreatech.koin.domain.bus.model.express.ExpressBusRemainTime;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
-import in.koreatech.koin.domain.bus.dto.express.ExpressBusTimetable;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
-import in.koreatech.koin.global.domain.callcontoller.CallController;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Component
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ExpressBusService {
 
-    private final List<ExpressBusClient> expressBusTypes;
-    private final List<ExpressBusClient> apiCallListByRatio = new ArrayList<>();
     private final ExpressBusCacheRepository expressBusCacheRepository;
-    private final CallController<ExpressBusClient> callController;
-
-    public void cacheRemainTimeByRatio() {
-        ExpressBusClient selectedBus = callController.getInstanceByRatio(expressBusTypes, apiCallListByRatio);
-        List<ExpressBusClient> fallBackableTypes = new ArrayList<>(expressBusTypes);
-        while (true) {
-            try {
-                selectedBus.storeRemainTime();
-                break;
-            } catch (IndexOutOfBoundsException e) {
-                throw new BusOpenApiException("호출할 수 있는 버스 API가 없습니다.");
-            } catch (Exception e) {
-                log.warn(String.format("%s 호출 중 문제가 발생했습니다.", selectedBus));
-                selectedBus = callController.fallBack(selectedBus, fallBackableTypes);
-            }
-        }
-    }
 
     public SingleArrivalTimeResponse searchBusTime(
         BusStation depart, BusStation arrival,

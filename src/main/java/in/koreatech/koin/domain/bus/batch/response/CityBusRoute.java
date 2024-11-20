@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.dto.city;
+package in.koreatech.koin.domain.bus.batch.response;
 
 import static in.koreatech.koin.domain.bus.model.city.CityBusRouteCache.CACHE_EXPIRE_MINUTE;
 

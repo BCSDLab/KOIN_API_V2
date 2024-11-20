@@ -36,7 +36,6 @@ public class ShuttleBusService {
     private final Clock clock;
     private final ShuttleBusRepository shuttleBusRepository;
 
-    @Transactional
     public List<BusRemainTime> getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
         List<BusCourse> busCourses = shuttleBusRepository.findByBusType(busType.getName());
         return busCourses.stream()

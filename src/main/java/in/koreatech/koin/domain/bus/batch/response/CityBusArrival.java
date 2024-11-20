@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.dto.city;
+package in.koreatech.koin.domain.bus.batch.response;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.client;
+package in.koreatech.koin.domain.bus.batch.client;
 
 import java.time.Clock;
 import java.time.LocalTime;

@@ -1,8 +1,6 @@
-package in.koreatech.koin.domain.bus.dto.express;
+package in.koreatech.koin.domain.bus.batch.response;
 
 import java.util.List;
-
-import in.koreatech.koin.domain.bus.model.express.PublicOpenApiExpressBusArrival;
 
 public record PublicOpenApiResponse(
     InnerResponse response

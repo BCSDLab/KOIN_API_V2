@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.client;
+package in.koreatech.koin.domain.bus.batch.client;
 
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -18,10 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import in.koreatech.koin.domain.bus.dto.city.CityBusApiResponse;
-import in.koreatech.koin.domain.bus.dto.city.CityBusArrival;
-import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
-import in.koreatech.koin.domain.bus.exception.MalformedApiUriException;
+import in.koreatech.koin.domain.bus.batch.response.CityBusApiResponse;
+import in.koreatech.koin.domain.bus.batch.response.CityBusArrival;
+import in.koreatech.koin.domain.bus.batch.exception.BusOpenApiException;
+import in.koreatech.koin.domain.bus.batch.exception.MalformedApiUriException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 

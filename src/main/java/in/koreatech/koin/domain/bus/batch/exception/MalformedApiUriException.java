@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.bus.exception;
+package in.koreatech.koin.domain.bus.batch.exception;
 
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 

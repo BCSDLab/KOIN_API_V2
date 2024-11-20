@@ -23,8 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.bus.batch.service.ExpressBusCacheService;
 import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
-import in.koreatech.koin.domain.bus.dto.city.CityBusArrival;
+import in.koreatech.koin.domain.bus.batch.response.CityBusArrival;
 import in.koreatech.koin.domain.bus.model.city.CityBusCache;
 import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
@@ -61,6 +62,9 @@ class BusApiTest extends AcceptanceTest {
 
     @Autowired
     private ExpressBusService expressBusService;
+
+    @Autowired
+    private ExpressBusCacheService expressBusCacheService;
 
     @BeforeAll
     void setUp() {
@@ -312,7 +316,7 @@ class BusApiTest extends AcceptanceTest {
         doNothing().when(tmoneyExpressBusClient).storeRemainTime();
         doNothing().when(staticExpressBusClient).storeRemainTime();
 
-        expressBusService.cacheRemainTimeByRatio();
+        expressBusCacheService.cacheRemainTimeByRatio();
 
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, never()).storeRemainTime();
@@ -327,7 +331,7 @@ class BusApiTest extends AcceptanceTest {
         doNothing().when(tmoneyExpressBusClient).storeRemainTime();
         doNothing().when(staticExpressBusClient).storeRemainTime();
 
-        expressBusService.cacheRemainTimeByRatio();
+        expressBusCacheService.cacheRemainTimeByRatio();
 
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, times(1)).storeRemainTime();
