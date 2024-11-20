@@ -36,7 +36,7 @@ public class LectureFixture {
         );
     }
 
-    public Lecture HRD_개론(String semester) {
+    public Lecture HRD_개론(Semester semester) {
         return lectureRepository.save(
             Lecture.builder()
                 .code("BSM590")
@@ -56,7 +56,7 @@ public class LectureFixture {
         );
     }
 
-    public Lecture 재료역학(String semester) {
+    public Lecture 재료역학(Semester semester) {
         return lectureRepository.save(
             Lecture.builder()
                 .code("MEB311")
@@ -76,7 +76,7 @@ public class LectureFixture {
         );
     }
 
-    public Lecture 영어청해(String semester) {
+    public Lecture 영어청해(Semester semester) {
         return lectureRepository.save(
             Lecture.builder()
                 .code("LAN324")
