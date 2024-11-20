@@ -3,7 +3,6 @@ package in.koreatech.koin.fixture;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
-import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryRepository;
 
 @Component
@@ -16,26 +15,20 @@ public class ShopCategoryFixture {
         this.categoryRepository = categoryRepository;
     }
 
-    public ShopCategory 카테고리_치킨(ShopParentCategory parentCategory) {
+    public ShopCategory 카테고리_치킨() {
         return categoryRepository.save(
             ShopCategory.builder()
                 .name("치킨")
                 .imageUrl("https://test-image.com/ckicken.jpg")
-                .orderIndex(2)
-                .parentCategory(parentCategory)
-                .eventBannerImageUrl("https://test-image.com/chicken-event.jpg")
                 .build()
         );
     }
 
-    public ShopCategory 카테고리_일반음식(ShopParentCategory parentCategory) {
+    public ShopCategory 카테고리_일반음식() {
         return categoryRepository.save(
             ShopCategory.builder()
                 .name("일반음식점")
                 .imageUrl("https://test-image.com/normal.jpg")
-                .orderIndex(1)
-                .parentCategory(parentCategory)
-                .eventBannerImageUrl("https://test-image.com/normal-event.jpg")
                 .build()
         );
     }

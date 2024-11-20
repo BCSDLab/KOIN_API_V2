@@ -14,15 +14,14 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "shop_parent_categories")
-public class ShopParentCategory extends BaseEntity {
+@Table(name = "shop_main_categories")
+public class ShopMainCategory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,11 +35,4 @@ public class ShopParentCategory extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notification_message_id", referencedColumnName = "id", nullable = false)
     private ShopNotificationMessage notificationMessage;
-
-    @Builder
-    private ShopParentCategory(Integer id, String name, ShopNotificationMessage notificationMessage) {
-        this.id = id;
-        this.name = name;
-        this.notificationMessage = notificationMessage;
-    }
 }
