@@ -42,8 +42,8 @@ public class TimetableLecture extends BaseEntity {
     @Column(name = "class_time", columnDefinition = "TEXT")
     private String classTime;
 
-    @Size(max = 30)
-    @Column(name = "class_place", length = 30)
+    @Size(max = 255)
+    @Column(name = "class_place", length = 255)
     private String classPlace;
 
     @Size(max = 30)
