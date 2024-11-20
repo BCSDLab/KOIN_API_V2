@@ -33,7 +33,7 @@ public class Semester {
     @Column(name = "semester", nullable = false, unique = true)
     private String semester;
 
-    @OneToMany(mappedBy = "semesters")
+    @OneToMany(mappedBy = "semester")
     private List<Lecture> lectures = new ArrayList<>();
 
     @Builder

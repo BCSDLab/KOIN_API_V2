@@ -29,11 +29,6 @@ public class Lecture {
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "semester_date", nullable = false)
-    private String semester;
-
-    @Size(max = 255)
-    @NotNull
     @Column(name = "code", nullable = false)
     private String code;
 
@@ -91,19 +86,19 @@ public class Lecture {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "semester_id")
-    private Semester semesters;
+    private Semester semester;
 
     @Builder
-    private Lecture(
-        String code, String semester,
-        String name, String grades, String lectureClass,
+    public Lecture(
+        String code, String name,
+        String grades, String lectureClass,
         String regularNumber, String department,
         String target, String professor,
         String isEnglish, String designScore,
-        String isElearning, String classTime
+        String isElearning, String classTime,
+        Semester semester
     ) {
         this.code = code;
-        this.semester = semester;
         this.name = name;
         this.grades = grades;
         this.lectureClass = lectureClass;
@@ -115,5 +110,6 @@ public class Lecture {
         this.designScore = designScore;
         this.isElearning = isElearning;
         this.classTime = classTime;
+        this.semester = semester;
     }
 }

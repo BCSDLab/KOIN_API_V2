@@ -3,6 +3,7 @@ package in.koreatech.koin.fixture;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 
 @Component
@@ -15,7 +16,7 @@ public class LectureFixture {
         this.lectureRepository = lectureRepository;
     }
 
-    public Lecture 건축구조의_이해_및_실습(String semester) {
+    public Lecture 건축구조의_이해_및_실습(Semester semester) {
         return lectureRepository.save(
             Lecture.builder()
                 .code("ARB244")
