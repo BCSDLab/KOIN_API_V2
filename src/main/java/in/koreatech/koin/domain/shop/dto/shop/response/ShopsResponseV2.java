@@ -4,14 +4,17 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.shop.cache.dto.ShopCache;
 import in.koreatech.koin.domain.shop.cache.dto.ShopCategoryCache;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsSortCriteria;
+import in.koreatech.koin.domain.shop.model.shop.ShopOpen;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +88,9 @@ public record ShopsResponseV2(
             @Schema(example = "041-000-0000", description = "전화번호", requiredMode = NOT_REQUIRED)
             String phone,
 
+            @Schema(description = "요일별 휴무 여부 및 장사 시간")
+            List<InnerShopOpen> open,
+
             @Schema(example = "true", description = "삭제 여부", requiredMode = REQUIRED)
             boolean isEvent,
 
@@ -97,6 +103,35 @@ public record ShopsResponseV2(
             @Schema(example = "10", description = "리뷰 개수", requiredMode = REQUIRED)
             long reviewCount
     ) {
+
+        @JsonNaming(value = SnakeCaseStrategy.class)
+        public record InnerShopOpen(
+                @Schema(example = "MONDAY", description = """
+            요일 = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
+            """, requiredMode = REQUIRED)
+                String dayOfWeek,
+
+                @Schema(example = "false", description = "휴무 여부", requiredMode = REQUIRED)
+                Boolean closed,
+
+                @JsonFormat(pattern = "HH:mm")
+                @Schema(example = "02:00", description = "오픈 시간", requiredMode = NOT_REQUIRED)
+                LocalTime openTime,
+
+                @JsonFormat(pattern = "HH:mm")
+                @Schema(example = "16:00", description = "마감 시간", requiredMode = NOT_REQUIRED)
+                LocalTime closeTime
+        ) {
+
+            public static ShopResponse.InnerShopOpen from(ShopOpen shopOpen) {
+                return new ShopResponse.InnerShopOpen(
+                        shopOpen.getDayOfWeek(),
+                        shopOpen.isClosed(),
+                        shopOpen.getOpenTime(),
+                        shopOpen.getCloseTime()
+                );
+            }
+        }
 
         public static InnerShopResponse from(
                 ShopCache shop,
@@ -113,6 +148,14 @@ public record ShopsResponseV2(
                     shop.payBank(),
                     shop.payCard(),
                     shop.phone(),
+                    shop.shopOpens().stream().map(shopOpen ->
+                            new InnerShopOpen(
+                                    shopOpen.dayOfWeek(),
+                                    shopOpen.closed(),
+                                    shopOpen.openTime(),
+                                    shopOpen.closeTime()
+                            )
+                    ).toList(),
                     isEvent,
                     isOpen,
                     averageRate,
