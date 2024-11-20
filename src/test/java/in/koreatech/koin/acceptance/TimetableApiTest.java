@@ -48,15 +48,14 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 특정_학기_강의를_조회한다() throws Exception {
-        semesterFixture.semester("20192");
-        semesterFixture.semester("20201");
-        String semester = "20201";
-        lectureFixture.HRD_개론(semesterFixture.semester(semester));
-        lectureFixture.건축구조의_이해_및_실습(semesterFixture.semester("20192"));
+        Semester semester1 = semesterFixture.semester("20192");
+        Semester semester = semesterFixture.semester("20201");
+        lectureFixture.HRD_개론(semester);
+        lectureFixture.건축구조의_이해_및_실습(semester1);
 
         mockMvc.perform(
                 get("/lectures")
-                    .param("semester_date", semester)
+                    .param("semester_date", semester.getSemester())
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
