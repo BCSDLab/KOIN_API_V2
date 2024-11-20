@@ -24,8 +24,14 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewReport;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
+import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
+import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
+import in.koreatech.koin.domain.shop.model.shop.ShopParentCategory;
 import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.fixture.ShopCategoryFixture;
 import in.koreatech.koin.fixture.ShopFixture;
+import in.koreatech.koin.fixture.ShopNotificationMessageFixture;
+import in.koreatech.koin.fixture.ShopParentCategoryFixture;
 import in.koreatech.koin.fixture.ShopReviewFixture;
 import in.koreatech.koin.fixture.ShopReviewReportFixture;
 import in.koreatech.koin.fixture.UserFixture;
@@ -51,6 +57,15 @@ class AdminShopReviewApiTest extends AcceptanceTest {
     private ShopFixture shopFixture;
 
     @Autowired
+    private ShopNotificationMessageFixture shopNotificationMessageFixture;
+
+    @Autowired
+    private ShopParentCategoryFixture shopParentCategoryFixture;
+
+    @Autowired
+    private ShopCategoryFixture shopCategoryFixture;
+
+    @Autowired
     private AdminShopReviewRepository adminShopReviewRepository;
 
     private Admin admin;
@@ -59,6 +74,9 @@ class AdminShopReviewApiTest extends AcceptanceTest {
     private ShopReview 준호_리뷰;
     private Shop shop_마슬랜;
     private String token_admin;
+    private ShopCategory shopCategory_치킨;
+    private ShopParentCategory shopParentCategory_가게;
+    private ShopNotificationMessage notificationMessage_가게;
 
     @BeforeAll
     void setUp() {
@@ -67,8 +85,11 @@ class AdminShopReviewApiTest extends AcceptanceTest {
         student_익명 = userFixture.익명_학생();
         token_admin = userFixture.getToken(admin.getUser());
         owner_현수 = userFixture.현수_사장님();
-        shop_마슬랜 = shopFixture.마슬랜(owner_현수);
+        shop_마슬랜 = shopFixture.마슬랜(owner_현수, shopCategory_치킨);
         준호_리뷰 = shopReviewFixture.리뷰_4점(student_익명, shop_마슬랜);
+        notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
+        shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
+        shopCategory_치킨 = shopCategoryFixture.카테고리_치킨(shopParentCategory_가게);
     }
 
     @Test

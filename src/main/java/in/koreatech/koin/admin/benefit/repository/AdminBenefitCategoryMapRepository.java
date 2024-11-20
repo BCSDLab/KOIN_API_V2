@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
+import org.springframework.data.repository.query.Param;
 
 public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCategoryMap, Integer> {
 
@@ -19,7 +20,7 @@ public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCat
         WHERE bcm.benefitCategory.id = :benefitId
         ORDER BY bcm.shop.name ASC
         """)
-    List<BenefitCategoryMap> findAllByBenefitCategoryIdOrderByShopName(Integer benefitId);
+    List<BenefitCategoryMap> findAllByBenefitCategoryIdOrderByShopName(@Param("benefitId") Integer benefitId);
 
     @Modifying
     @Query("""
@@ -27,13 +28,15 @@ public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCat
         WHERE bcm.benefitCategory.id = :benefitId 
         AND bcm.shop.id IN :shopIds
         """)
-    void deleteByBenefitCategoryIdAndShopIds(Integer benefitId, List<Integer> shopIds);
+    void deleteByBenefitCategoryIdAndShopIds(
+            @Param("benefitId") Integer benefitId,
+            @Param("shopIds") List<Integer> shopIds);
 
     @Modifying
     @Query("""
         DELETE FROM BenefitCategoryMap bcm 
         WHERE bcm.benefitCategory.id = :benefitId
         """)
-    void deleteByBenefitCategoryId(Integer benefitId);
+    void deleteByBenefitCategoryId(@Param("benefitId") Integer benefitId);
 
 }

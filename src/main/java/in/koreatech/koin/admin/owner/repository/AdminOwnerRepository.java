@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.user.repository;
+package in.koreatech.koin.admin.owner.repository;
 
 import java.util.Optional;
 
@@ -10,7 +10,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.owner.exception.OwnerNotFoundException;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.user.model.UserType;
-import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.repository.query.Param;
 
 public interface AdminOwnerRepository extends Repository<Owner, Integer> {
 

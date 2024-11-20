@@ -21,7 +21,7 @@ public interface AdminVersionRepository extends Repository<Version, Integer> {
 
     Page<Version> findAllByIsPrevious(boolean isPrevious, Pageable pageable);
 
-    Page<Version> findAllByType(String type, PageRequest pageRequest);
+    Page<Version> findAllByTypeOrderByVersionDesc(String type, PageRequest pageRequest);
 
     Optional<Version> findById(Integer id);
 

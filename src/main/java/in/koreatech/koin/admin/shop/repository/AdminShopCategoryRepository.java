@@ -3,29 +3,31 @@ package in.koreatech.koin.admin.shop.repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
-import org.springframework.data.repository.query.Param;
 
 import in.koreatech.koin.domain.shop.exception.ShopCategoryNotFoundException;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
 
 public interface AdminShopCategoryRepository extends Repository<ShopCategory, Integer> {
 
-    Page<ShopCategory> findAll(Pageable pageable);
+    boolean existsByNameAndIdNot(String name, Integer shopCategoryId);
 
-    @Query(value = "SELECT * FROM shop_categories WHERE id = :shopCategoryId", nativeQuery = true)
-    Optional<ShopCategory> findById(@Param("shopCategoryId") Integer shopCategoryId);
+    List<ShopCategory> findAll();
 
-    ShopCategory save(ShopCategory shopCategory);
+    List<ShopCategory> findAll(Sort sort);
 
-    List<ShopCategory> findAllByIdIn(List<Integer> ids);
+    Optional<ShopCategory> findById(Integer shopCategoryId);
 
     Optional<ShopCategory> findByName(String name);
 
-    List<ShopCategory> findAll();
+    List<ShopCategory> findAllByIdIn(List<Integer> ids);
+
+    @Query("SELECT MAX(c.orderIndex) FROM ShopCategory c")
+    Integer findMaxOrderIndex();
+
+    ShopCategory save(ShopCategory shopCategory);
 
     default ShopCategory getById(Integer shopCategoryId) {
         return findById(shopCategoryId)

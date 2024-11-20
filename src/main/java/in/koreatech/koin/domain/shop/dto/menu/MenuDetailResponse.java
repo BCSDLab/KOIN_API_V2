@@ -58,7 +58,7 @@ public record MenuDetailResponse(
 
         return new MenuDetailResponse(
             menu.getId(),
-            menu.getShopId(),
+            menu.getShop().getId(),
             menu.getName(),
             menu.isHidden(),
             true,
@@ -85,7 +85,7 @@ public record MenuDetailResponse(
 
         return new MenuDetailResponse(
             menu.getId(),
-            menu.getShopId(),
+            menu.getShop().getId(),
             menu.getName(),
             menu.isHidden(),
             false,
