@@ -48,8 +48,8 @@ public record TimetableLectureUpdateRequest(
         @Size(max = 30, message = "교수 명의 최대 글자는 30글자입니다.")
         String professor,
 
-        @Schema(description = "학점", example = "3", requiredMode = NOT_REQUIRED)
-        @Size(max = 2, message = "학점은 두 글자 이상일 수 없습니다.")
+        @Schema(description = "학점", example = "3", requiredMode = REQUIRED)
+        @Size(max = 2, message = "학점은 두 글자 이상일 수 없습니다. (0-9)")
         String grades,
 
         @Schema(description = "memo", example = "메모메모", requiredMode = NOT_REQUIRED)
