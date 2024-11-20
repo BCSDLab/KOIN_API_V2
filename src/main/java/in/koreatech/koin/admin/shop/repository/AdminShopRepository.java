@@ -48,5 +48,5 @@ public interface AdminShopRepository extends Repository<Shop, Integer> {
     int deleteById(@Param("shopId") Integer shopId);
 
     @Query("SELECT s FROM Shop s WHERE s.name LIKE :searchKeyword%")
-    List<Shop> searchByName(String searchKeyword);
+    List<Shop> searchByName(@Param("searchKeyword") String searchKeyword);
 }

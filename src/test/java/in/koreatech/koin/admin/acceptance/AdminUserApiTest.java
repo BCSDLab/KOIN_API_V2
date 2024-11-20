@@ -26,10 +26,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.user.model.Admin;
-import in.koreatech.koin.admin.user.repository.AdminOwnerRepository;
-import in.koreatech.koin.admin.user.repository.AdminOwnerShopRedisRepository;
+import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
+import in.koreatech.koin.admin.owner.repository.AdminOwnerShopRedisRepository;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
-import in.koreatech.koin.admin.user.repository.AdminStudentRepository;
+import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerAttachment;
@@ -316,7 +316,7 @@ public class AdminUserApiTest extends AcceptanceTest {
     @Test
     void 관리자가_사장님_권한_요청을_허용한다() throws Exception {
         Owner owner = userFixture.철수_사장님();
-        Shop shop = shopFixture.마슬랜(null);
+        Shop shop = shopFixture.마슬랜(null, null);
 
         Admin adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser.getUser());
@@ -447,7 +447,7 @@ public class AdminUserApiTest extends AcceptanceTest {
     @Test
     void 관리자가_특정_사장을_조회한다() throws Exception {
         Owner owner = userFixture.현수_사장님();
-        Shop shop = shopFixture.마슬랜(owner);
+        Shop shop = shopFixture.마슬랜(owner, null);
 
         Admin adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser.getUser());
@@ -485,7 +485,7 @@ public class AdminUserApiTest extends AcceptanceTest {
     @Test
     void 관리자가_특정_사장을_수정한다() throws Exception {
         Owner owner = userFixture.현수_사장님();
-        Shop shop = shopFixture.마슬랜(owner);
+        Shop shop = shopFixture.마슬랜(owner, null);
 
         Admin adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser.getUser());
@@ -520,7 +520,7 @@ public class AdminUserApiTest extends AcceptanceTest {
     @Test
     void 관리자가_가입_신청한_사장님_리스트_조회한다() throws Exception {
         Owner owner = userFixture.철수_사장님();
-        Shop shop = shopFixture.마슬랜(null);
+        Shop shop = shopFixture.마슬랜(null, null);
 
         Admin adminUser = userFixture.코인_운영자();
         String token = userFixture.getToken(adminUser.getUser());

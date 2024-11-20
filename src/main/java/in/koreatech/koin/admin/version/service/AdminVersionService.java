@@ -63,7 +63,7 @@ public class AdminVersionService {
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
             Sort.by(Sort.Direction.ASC, "id"));
 
-        Page<Version> result = adminVersionRepository.findAllByType(versionType.getValue(), pageRequest);
+        Page<Version> result = adminVersionRepository.findAllByTypeOrderByVersionDesc(versionType.getValue(), pageRequest);
 
         return AdminVersionHistoryResponse.of(result, criteria);
     }

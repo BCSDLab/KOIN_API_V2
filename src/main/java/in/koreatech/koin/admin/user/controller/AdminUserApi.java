@@ -48,25 +48,6 @@ import jakarta.validation.Valid;
 
 @Tag(name = "(Admin) User: 회원", description = "관리자 권한으로 회원 정보를 관리한다")
 public interface AdminUserApi {
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "학생 리스트 조회(페이지네이션)")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/admin/students")
-    ResponseEntity<AdminStudentsResponse> getStudents(
-        @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit,
-        @RequestParam(required = false) Boolean isAuthed,
-        @RequestParam(required = false) String nickname,
-        @RequestParam(required = false) String email,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
 
     @ApiResponses(
         value = {
@@ -152,6 +133,20 @@ public interface AdminUserApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
+    @Operation(summary = "로그인 어드민 계정 정보 조회")
+    @GetMapping("/admin")
+    ResponseEntity<AdminResponse> getLoginAdminInfo(
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
     @Operation(summary = "어드민 계정 정보 조회")
     @GetMapping("/admin/{id}")
     ResponseEntity<AdminResponse> getAdmin(
@@ -224,120 +219,6 @@ public interface AdminUserApi {
     ResponseEntity<Void> updateAdminPermission(
         @RequestBody @Valid AdminPermissionUpdateRequest request,
         @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "사장님 권한 요청 허용")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/admin/owner/{id}/authed")
-    ResponseEntity<Void> allowOwnerPermission(
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "회원 정보 조회")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/admin/users/student/{id}")
-    ResponseEntity<AdminStudentResponse> getStudent(
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "회원 정보 수정")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/admin/users/student/{id}")
-    ResponseEntity<AdminStudentUpdateResponse> updateStudent(
-        @Valid @RequestBody AdminStudentUpdateRequest adminRequest,
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "특정 사장님 조회")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/admin/users/owner/{id}")
-    ResponseEntity<AdminOwnerResponse> getOwner(
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "특정 사장님 수정")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/admin/users/owner/{id}")
-    ResponseEntity<AdminOwnerUpdateResponse> updateOwner(
-        @PathVariable Integer id,
-        @RequestBody @Valid AdminOwnerUpdateRequest request,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "가입 신청한 사장님 리스트 조회 (페이지네이션)")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/admin/users/new-owners")
-    ResponseEntity<AdminNewOwnersResponse> getNewOwners(
-        @ParameterObject @ModelAttribute OwnersCondition ownersCondition,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "사장 리스트 조회 (페이지네이션)")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/admin/users/owners")
-    ResponseEntity<AdminOwnersResponse> getOwners(
-        @ParameterObject @ModelAttribute OwnersCondition ownersCondition,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 

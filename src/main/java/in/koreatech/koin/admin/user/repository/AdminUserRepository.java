@@ -8,12 +8,13 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserType;
+import org.springframework.data.repository.query.Param;
 
 public interface AdminUserRepository extends Repository<User, Integer> {
 
     User save(User user);
 
-    Optional<User> findByEmail(String Email);
+    Optional<User> findByEmail(String email);
 
     Optional<User> findById(Integer id);
 
@@ -22,7 +23,9 @@ public interface AdminUserRepository extends Repository<User, Integer> {
         WHERE u.userType = :userType
         AND u.isAuthed = :isAuthed
         """)
-    Integer findUsersCountByUserTypeAndIsAuthed(UserType userType, Boolean isAuthed);
+    Integer findUsersCountByUserTypeAndIsAuthed(
+            @Param("userType") UserType userType,
+            @Param("isAuthed") Boolean isAuthed);
 
     default User getByEmail(String email) {
         return findByEmail(email)
