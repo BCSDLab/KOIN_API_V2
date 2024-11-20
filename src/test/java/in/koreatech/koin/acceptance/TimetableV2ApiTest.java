@@ -178,7 +178,7 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
-        Lecture lecture = lectureFixture.HRD_개론(semester.getSemester());
+        Lecture lecture = lectureFixture.HRD_개론(semester);
 
         TimetableFrame frame1 = timetableV2Fixture.시간표5(user, semester, lecture);
 
@@ -425,8 +425,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
 
-        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
-        Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester);
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester);
 
         TimetableFrame frame = timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
 
@@ -485,8 +485,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         User user1 = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user1);
         Semester semester = semesterFixture.semester("20192");
-        Lecture lecture1 = lectureFixture.HRD_개론("20192");
-        Lecture lecture2 = lectureFixture.영어청해("20192");
+        Lecture lecture1 = lectureFixture.HRD_개론(semester);
+        Lecture lecture2 = lectureFixture.영어청해(semester);
         TimetableFrame frame = timetableV2Fixture.시간표4(user1, semester, lecture1, lecture2);
 
         Integer lectureId = lecture1.getId();
@@ -505,8 +505,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         User user1 = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user1);
         Semester semester = semesterFixture.semester("20192");
-        Lecture lecture1 = lectureFixture.HRD_개론("20192");
-        Lecture lecture2 = lectureFixture.영어청해("20192");
+        Lecture lecture1 = lectureFixture.HRD_개론(semester);
+        Lecture lecture2 = lectureFixture.영어청해(semester);
         TimetableFrame frame = timetableV2Fixture.시간표4(user1, semester, lecture1, lecture2);
 
         Integer frameId = frame.getId();
@@ -525,8 +525,8 @@ public class TimetableV2ApiTest extends AcceptanceTest {
         User user1 = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user1);
         Semester semester = semesterFixture.semester("20192");
-        Lecture lecture1 = lectureFixture.HRD_개론("20192");
-        Lecture lecture2 = lectureFixture.영어청해("20192");
+        Lecture lecture1 = lectureFixture.HRD_개론(semester);
+        Lecture lecture2 = lectureFixture.영어청해(semester);
         TimetableFrame frame = timetableV2Fixture.시간표4(user1, semester, lecture1, lecture2);
 
         List<Integer> timetableLectureIds = frame.getTimetableLectures().stream()
