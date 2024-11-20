@@ -107,8 +107,8 @@ public record ShopsResponseV2(
         @JsonNaming(value = SnakeCaseStrategy.class)
         public record InnerShopOpen(
                 @Schema(example = "MONDAY", description = """
-            요일 = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
-            """, requiredMode = REQUIRED)
+                        요일 = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
+                        """, requiredMode = REQUIRED)
                 String dayOfWeek,
 
                 @Schema(example = "false", description = "휴무 여부", requiredMode = REQUIRED)
