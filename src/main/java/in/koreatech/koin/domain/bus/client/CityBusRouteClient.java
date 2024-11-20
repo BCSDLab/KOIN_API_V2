@@ -5,6 +5,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.net.URI;
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -15,9 +18,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import in.koreatech.koin.domain.bus.dto.city.CityBusRoute;
 import in.koreatech.koin.domain.bus.dto.city.CityBusRouteApiResponse;
 import in.koreatech.koin.domain.bus.exception.BusOpenApiException;
 import in.koreatech.koin.domain.bus.exception.MalformedApiUriException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -36,7 +41,8 @@ public class CityBusRouteClient {
     @Value("${OPEN_API_KEY_PUBLIC}")
     private String openApiKey;
 
-    public CityBusRouteApiResponse getOpenApiResponse(String nodeId) {
+    @CircuitBreaker(name = "cityBusRoute")
+    public List<CityBusRoute> fetchBusRouteList(String nodeId) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -47,7 +53,9 @@ public class CityBusRouteClient {
                 new HttpEntity<>(headers),
                 CityBusRouteApiResponse.class
             );
-            return response.getBody();
+            return Optional.ofNullable(response.getBody())
+                .map(CityBusRouteApiResponse::extractBusRouteInfo)
+                .orElse(Collections.emptyList());
         } catch (Exception ignored) {
             throw BusOpenApiException.withDetail("nodeId: " + nodeId);
         }
