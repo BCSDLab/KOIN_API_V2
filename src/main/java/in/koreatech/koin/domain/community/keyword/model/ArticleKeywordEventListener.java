@@ -90,6 +90,6 @@ public class ArticleKeywordEventListener {
     }
 
     private String generateDescription(String keyword) {
-        return "방금 등록된 {%s} 공지를 확인해보세요!".formatted(keyword);
+        return "방금 등록된 %s 공지를 확인해보세요!".formatted(keyword);
     }
 }
