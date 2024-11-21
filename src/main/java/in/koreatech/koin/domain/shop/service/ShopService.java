@@ -10,21 +10,20 @@ import in.koreatech.koin.domain.shop.dto.shop.response.ShopCategoriesResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponse;
 import in.koreatech.koin.domain.shop.dto.shop.response.ShopsResponseV2;
+import in.koreatech.koin.domain.shop.model.redis.ShopReviewNotification;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.shop.ShopCategory;
-import in.koreatech.koin.domain.shop.model.shop.ShopNotificationBuffer;
 import in.koreatech.koin.domain.shop.repository.shop.ShopCategoryRepository;
-import in.koreatech.koin.domain.shop.repository.shop.ShopNotificationBufferRepository;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
+import in.koreatech.koin.domain.shop.repository.shop.ShopReviewNotificationRedisRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
-import in.koreatech.koin.domain.user.model.User;
-import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -43,8 +42,7 @@ public class ShopService {
     private final ShopsCacheService shopsCache;
     private final ShopCustomRepository shopCustomRepository;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
-    private final ShopNotificationBufferRepository shopNotificationBufferRepository;
-    private final UserRepository userRepository;
+    private final ShopReviewNotificationRedisRepository shopReviewNotificationRedisRepository;
 
     public ShopResponse getShop(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
@@ -85,26 +83,21 @@ public class ShopService {
         );
     }
 
-    @Transactional
     public void publishCallNotification(Integer shopId, Integer studentId) {
         shopRepository.getById(shopId);
 
         if (isSubscribeReviewNotification(studentId)) {
-            Shop shop = shopRepository.getById(shopId);
-            User user = userRepository.getById(studentId);
-
-            ShopNotificationBuffer shopNotificationBuffer = ShopNotificationBuffer.builder()
-                .shop(shop)
-                .user(user)
-                .notificationTime(LocalDateTime.now().plusHours(1))
+            ShopReviewNotification shopReviewNotification = ShopReviewNotification.builder()
+                .shopId(shopId)
+                .studentId(studentId)
                 .build();
 
-            shopNotificationBufferRepository.save(shopNotificationBuffer);
+            double score = LocalDateTime.now(clock).plusHours(1).toEpochSecond(ZoneOffset.UTC);
+            shopReviewNotificationRedisRepository.save(shopReviewNotification, score);
         }
     }
 
     private boolean isSubscribeReviewNotification(Integer studentId) {
-        return notificationSubscribeRepository
-            .existsByUserIdAndSubscribeType(studentId, REVIEW_PROMPT);
+        return notificationSubscribeRepository.existsByUserIdAndSubscribeType(studentId, REVIEW_PROMPT);
     }
 }

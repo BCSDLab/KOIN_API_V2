@@ -116,10 +116,9 @@ public class StudentService {
         }
     }
 
-    @ConcurrencyGuard(lockName = "studentAuthenticate")
+    @Transactional
     public ModelAndView authenticate(AuthTokenRequest request) {
-        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findByAuthToken(
-            request.authToken());
+        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findByAuthToken(request.authToken());
 
         if (studentTemporaryStatus.isEmpty()) {
             ModelAndView modelAndView = new ModelAndView("error_config");
@@ -128,13 +127,18 @@ public class StudentService {
         }
 
         Student student = studentTemporaryStatus.get().toStudent(passwordEncoder);
-        studentRepository.save(student);
-        userRepository.save(student.getUser());
+        saveStudentDataAndPublishEvent(student);
 
         studentRedisRepository.deleteById(student.getUser().getEmail());
-        eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail()));
 
         return new ModelAndView("success_register_config");
+    }
+
+    @ConcurrencyGuard(lockName = "studentAuthenticate")
+    private void saveStudentDataAndPublishEvent(Student student) {
+        studentRepository.save(student);
+        userRepository.save(student.getUser());
+        eventPublisher.publishEvent(new StudentRegisterEvent(student.getUser().getEmail()));
     }
 
     @Transactional
