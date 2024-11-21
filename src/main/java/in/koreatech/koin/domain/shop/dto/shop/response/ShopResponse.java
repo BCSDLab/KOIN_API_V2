@@ -107,7 +107,7 @@ public record ShopResponse(
             shop.isPayBank(),
             shop.isPayCard(),
             shop.getPhone(),
-            shop.getShopMainCategory() != null ? shop.getShopMainCategory().getId() : null,
+            shop.getShopMainCategory() != null ? shop.getShopMainCategory().getId() : null, // TODO: NOTNULL 해제되면 삭제
             shop.getShopCategories().stream().map(shopCategoryMap -> {
                 ShopCategory shopCategory = shopCategoryMap.getShopCategory();
                 return new InnerShopCategory(

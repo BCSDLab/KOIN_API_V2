@@ -82,6 +82,8 @@ public interface ShopApi {
         @RequestParam(name = "query", required = false) String query
     );
 
+
+    // TODO: 관련 기능명세 피그마 링크 첨부
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200"),

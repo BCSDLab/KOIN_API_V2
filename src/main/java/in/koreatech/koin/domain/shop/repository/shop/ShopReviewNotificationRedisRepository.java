@@ -29,6 +29,7 @@ public class ShopReviewNotificationRedisRepository {
         redisTemplate.opsForZSet().add(KEY, shopReviewNotification, score);
     }
 
+    // TODO: 모듈화를 통한 각 함수 설명 or 상수화
     public List<ShopReviewNotification> findAllByNotificationTimeBefore(LocalDateTime notificationTime) {
         double currentTimeScore = notificationTime.toEpochSecond(ZoneOffset.UTC);
         Set<Object> rawResults = redisTemplate.opsForZSet().rangeByScore(KEY, Double.NEGATIVE_INFINITY, currentTimeScore);

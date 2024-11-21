@@ -20,13 +20,16 @@ import in.koreatech.koin.domain.shop.repository.shop.dto.ShopCustomRepository;
 import in.koreatech.koin.domain.shop.repository.shop.dto.ShopInfo;
 import in.koreatech.koin.global.domain.notification.repository.NotificationSubscribeRepository;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +56,7 @@ public class ShopService {
     public ShopsResponse getShops() {
         LocalDateTime now = LocalDateTime.now(clock);
         List<Shop> shops = shopRepository.findAll();
+        // TODO: Integer에 shopId?
         Map<Integer, Boolean> eventDuration = shopRepository.getAllShopEventDuration(now.toLocalDate());
         return ShopsResponse.from(shops, eventDuration, now);
     }
@@ -62,6 +66,7 @@ public class ShopService {
         return ShopCategoriesResponse.from(shopCategories);
     }
 
+    // TODO: query가 뭐지?
     public ShopsResponseV2 getShopsV2(
         ShopsSortCriteria sortBy,
         List<ShopsFilterCriteria> filterCriteria,
@@ -83,18 +88,20 @@ public class ShopService {
         );
     }
 
+    // TODO: 한시간 뒤에 어디서 쏘나요?
     public void publishCallNotification(Integer shopId, Integer studentId) {
-        shopRepository.getById(shopId);
-
-        if (isSubscribeReviewNotification(studentId)) {
-            ShopReviewNotification shopReviewNotification = ShopReviewNotification.builder()
-                .shopId(shopId)
-                .studentId(studentId)
-                .build();
-
-            double score = LocalDateTime.now(clock).plusHours(1).toEpochSecond(ZoneOffset.UTC);
-            shopReviewNotificationRedisRepository.save(shopReviewNotification, score);
+        if (!isSubscribeReviewNotification(studentId)) {
+            return;
         }
+        shopRepository.getById(shopId); // TODO: 메서드 이름 개선 ex) validateShopId
+        ShopReviewNotification shopReviewNotification = ShopReviewNotification.builder()
+            .shopId(shopId)
+            .studentId(studentId)
+            .build();
+        // TODO: 갑자기 score가 나옴 save에 숨기자
+        double score = LocalDateTime.now(clock).plusHours(1).toEpochSecond(ZoneOffset.UTC);
+        // TODO: score대신 now를 인자로 받자
+        shopReviewNotificationRedisRepository.save(shopReviewNotification, score);
     }
 
     private boolean isSubscribeReviewNotification(Integer studentId) {

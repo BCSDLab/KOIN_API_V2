@@ -34,6 +34,10 @@ public class NotificationScheduleService {
     private final ShopRepository shopRepository;
     private final UserRepository userRepository;
 
+    /*
+        TODO: swagger 기능 정책 설명 추가
+     */
+
     @Transactional
     public void sendDueNotifications() {
         LocalDateTime now = LocalDateTime.now(clock);
@@ -42,11 +46,15 @@ public class NotificationScheduleService {
             return;
         }
 
+        // TODO: Batch라는 단어가 필요 있나?
         Map<Integer, ShopNotificationQueryResponse> shopNotificationQueryResponseMap = getShopNotificationBatch(dueNotifications);
         Map<Integer, User> userMap = getUserBatch(dueNotifications);
 
+
+        // TODO: 메서드로 분리
         List<Notification> notifications = dueNotifications.stream()
             .map(dueNotification -> {
+                // TODO: 모듈화
                 ShopNotificationQueryResponse shopNotification = shopNotificationQueryResponseMap.get(dueNotification.getShopId());
                 User user = userMap.get(dueNotification.getStudentId());
                 return createNotification(shopNotification, user);
