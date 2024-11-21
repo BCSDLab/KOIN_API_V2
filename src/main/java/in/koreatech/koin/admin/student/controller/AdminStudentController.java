@@ -36,8 +36,8 @@ public class AdminStudentController implements AdminStudentApi{
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         StudentsCondition studentsCondition = new StudentsCondition(page, limit, isAuthed, nickname, email);
-        AdminStudentsResponse adminStudentsResponse = adminStudentService.getStudents(studentsCondition);
-        return ResponseEntity.ok().body(adminStudentsResponse);
+        AdminStudentsResponse response = adminStudentService.getStudents(studentsCondition);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/admin/users/student/{id}")
@@ -45,8 +45,8 @@ public class AdminStudentController implements AdminStudentApi{
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminStudentResponse adminStudentResponse = adminStudentService.getStudent(id);
-        return ResponseEntity.ok().body(adminStudentResponse);
+        AdminStudentResponse response = adminStudentService.getStudent(id);
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping("/admin/users/student/{id}")
@@ -55,7 +55,7 @@ public class AdminStudentController implements AdminStudentApi{
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminStudentUpdateResponse adminStudentUpdateResponse = adminStudentService.updateStudent(id, adminRequest);
-        return ResponseEntity.ok().body(adminStudentUpdateResponse);
+        AdminStudentUpdateResponse response = adminStudentService.updateStudent(id, adminRequest);
+        return ResponseEntity.ok().body(response);
     }
 }

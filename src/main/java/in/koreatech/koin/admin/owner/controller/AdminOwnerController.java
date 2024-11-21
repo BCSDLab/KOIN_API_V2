@@ -41,8 +41,8 @@ public class AdminOwnerController implements AdminOwnerApi{
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminOwnerResponse adminOwnerResponse = adminOwnerService.getOwner(id);
-        return ResponseEntity.ok().body(adminOwnerResponse);
+        AdminOwnerResponse response = adminOwnerService.getOwner(id);
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping("/admin/users/owner/{id}")
@@ -51,8 +51,8 @@ public class AdminOwnerController implements AdminOwnerApi{
         @RequestBody @Valid AdminOwnerUpdateRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminOwnerUpdateResponse adminOwnerUpdateResponse = adminOwnerService.updateOwner(id, request);
-        return ResponseEntity.ok().body(adminOwnerUpdateResponse);
+        AdminOwnerUpdateResponse response = adminOwnerService.updateOwner(id, request);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/admin/users/new-owners")

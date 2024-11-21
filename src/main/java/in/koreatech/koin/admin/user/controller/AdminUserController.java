@@ -91,9 +91,9 @@ public class AdminUserController implements AdminUserApi{
     public ResponseEntity<AdminTokenRefreshResponse> refresh(
         @RequestBody @Valid AdminTokenRefreshRequest request
     ) {
-        AdminTokenRefreshResponse tokenGroupResponse = adminUserService.adminRefresh(request);
+        AdminTokenRefreshResponse response = adminUserService.adminRefresh(request);
         return ResponseEntity.created(URI.create("/"))
-            .body(tokenGroupResponse);
+            .body(response);
     }
 
     @GetMapping("/admin/{id}")
@@ -101,8 +101,8 @@ public class AdminUserController implements AdminUserApi{
         @PathVariable("id") Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminResponse adminResponse = adminUserService.getAdmin(id);
-        return ResponseEntity.ok(adminResponse);
+        AdminResponse response = adminUserService.getAdmin(id);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/admins")
@@ -115,8 +115,8 @@ public class AdminUserController implements AdminUserApi{
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminsCondition adminsCondition = new AdminsCondition(page, limit, isAuthed, trackName, teamName);
-        AdminsResponse adminsResponse = adminUserService.getAdmins(adminsCondition);
-        return ResponseEntity.ok(adminsResponse);
+        AdminsResponse response = adminUserService.getAdmins(adminsCondition);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/admin/{id}/authed")
