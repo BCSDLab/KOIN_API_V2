@@ -128,13 +128,20 @@ public class TimetableServiceV2 {
             timetableLecture.update(
                 timetableRequest.classTitle(),
                 timetableRequest.classTime().toString(),
-                timetableRequest.classPlace(),
+                getClassPlaceToString(timetableRequest.classPlace().toString()),
                 timetableRequest.professor(),
                 timetableRequest.grades(),
                 timetableRequest.memo());
         }
         List<TimetableLecture> timetableLectures = timetableFrame.getTimetableLectures();
         return getTimetableLectureResponse(userId, timetableFrame, timetableLectures);
+    }
+
+    private String getClassPlaceToString(String classPlace) {
+        if (classPlace != null) {
+            return classPlace.substring(1, classPlace.length() - 1);
+        }
+        return null;
     }
 
     @Transactional
