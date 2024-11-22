@@ -196,7 +196,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         log.warn(e.getMessage());
         requestLogging(((ServletWebRequest)request).getRequest());
-        return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
+        return buildErrorResponse(HttpStatus.CONFLICT, "이미 처리된 요청입니다.");
     }
 
     @ExceptionHandler(Exception.class)
