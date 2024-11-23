@@ -3,10 +3,14 @@ package in.koreatech.koin.admin.history.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import in.koreatech.koin.admin.history.enums.DomainType;
+import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -32,14 +36,14 @@ public class AdminActivityHistory extends BaseEntity {
     private Integer domainId;
 
     @NotNull
-    @Size(max = 10)
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "request_method", nullable = false, length = 10)
-    private String requestMethod;
+    private HttpMethodType requestMethod;
 
     @NotNull
-    @Size(max = 20)
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "domain_name", nullable = false, length = 20)
-    private String domainName;
+    private DomainType domainName;
 
     @Column(name = "request_message", columnDefinition = "TEXT")
     private String requestMessage;
@@ -49,8 +53,11 @@ public class AdminActivityHistory extends BaseEntity {
     private Admin admin;
 
     @Builder
-    public AdminActivityHistory(Integer domainId, String requestMethod, String domainName, String requestMessage,
-        Admin admin) {
+
+    public AdminActivityHistory(
+        Integer domainId, HttpMethodType requestMethod,
+        DomainType domainName, String requestMessage, Admin admin
+    ) {
         this.domainId = domainId;
         this.requestMethod = requestMethod;
         this.domainName = domainName;

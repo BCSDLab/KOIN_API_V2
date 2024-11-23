@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.history.dto.AdminHistoryResponse;
 import in.koreatech.koin.admin.history.dto.AdminHistorysResponse;
+import in.koreatech.koin.admin.history.enums.DomainType;
+import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,8 +36,8 @@ public interface HistoryApi {
     ResponseEntity<AdminHistorysResponse> getHistorys(
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
-        @RequestParam(required = false) String requestMethod,
-        @RequestParam(required = false) String domainName,
+        @RequestParam(required = false) HttpMethodType requestMethod,
+        @RequestParam(required = false) DomainType domainName,
         @RequestParam(required = false) Integer domainId,
         @RequestParam(required = false) Sort sort,
         @Auth(permit = {ADMIN}) Integer adminId

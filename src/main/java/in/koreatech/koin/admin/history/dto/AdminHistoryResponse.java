@@ -49,8 +49,8 @@ public record AdminHistoryResponse(
             adminActivityHistory.getId(),
             adminActivityHistory.getDomainId(),
             adminActivityHistory.getAdmin().getUser().getName(),
-            DomainType.valueOf(adminActivityHistory.getDomainName()).getDescription(),
-            HttpMethodType.valueOf(adminActivityHistory.getRequestMethod()).getValue(),
+            adminActivityHistory.getDomainName().getDescription(),
+            adminActivityHistory.getRequestMethod().getValue(),
             adminActivityHistory.getRequestMessage(),
             adminActivityHistory.getCreatedAt()
         );

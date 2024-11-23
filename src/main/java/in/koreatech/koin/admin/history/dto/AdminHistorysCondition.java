@@ -10,6 +10,8 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.admin.history.enums.DomainType;
+import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -21,10 +23,10 @@ public record AdminHistorysCondition(
     Integer limit,
 
     @Schema(description = "HTTP 메소드", example = "POST", requiredMode = NOT_REQUIRED)
-    String requestMethod,
+    HttpMethodType requestMethod,
 
     @Schema(description = "도메인 이름", example = "NOTICE", requiredMode = NOT_REQUIRED)
-    String domainName,
+    DomainType domainName,
 
     @Schema(description = "특정 엔티티 id", requiredMode = NOT_REQUIRED)
     Integer domainId,

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import in.koreatech.koin.admin.history.dto.AdminHistoryResponse;
 import in.koreatech.koin.admin.history.dto.AdminHistorysCondition;
 import in.koreatech.koin.admin.history.dto.AdminHistorysResponse;
+import in.koreatech.koin.admin.history.enums.DomainType;
+import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import in.koreatech.koin.admin.history.service.HistoryService;
 import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +28,8 @@ public class HistoryController implements HistoryApi {
     public ResponseEntity<AdminHistorysResponse> getHistorys(
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
-        @RequestParam(required = false) String requestMethod,
-        @RequestParam(required = false) String domainName,
+        @RequestParam(required = false) HttpMethodType requestMethod,
+        @RequestParam(required = false) DomainType domainName,
         @RequestParam(required = false) Integer domainId,
         @RequestParam(required = false) Sort sort,
         @Auth(permit = {ADMIN}) Integer adminId

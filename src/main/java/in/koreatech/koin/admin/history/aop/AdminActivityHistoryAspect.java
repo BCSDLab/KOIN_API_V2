@@ -12,6 +12,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import in.koreatech.koin.admin.history.enums.DomainType;
+import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import in.koreatech.koin.admin.history.model.AdminActivityHistory;
 import in.koreatech.koin.admin.history.repository.AdminActivityHistoryRepository;
 import in.koreatech.koin.admin.user.model.Admin;
@@ -57,7 +58,7 @@ public class AdminActivityHistoryAspect {
     public Object logAdminActivity(ProceedingJoinPoint joinPoint) throws Throwable {
         HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
         String requestURI = request.getRequestURI();
-        String requestMethod = request.getMethod();
+        HttpMethodType requestMethod = HttpMethodType.valueOf(request.getMethod());
 
         ContentCachingRequestWrapper cachingRequest = (ContentCachingRequestWrapper)request;
         String requestMessage = new String(cachingRequest.getContentAsByteArray());
@@ -71,7 +72,7 @@ public class AdminActivityHistoryAspect {
             .domainId(domainInfo.domainId())
             .admin(admin)
             .requestMethod(requestMethod)
-            .domainName(domainInfo.domainName())
+            .domainName(DomainType.valueOf(domainInfo.domainName()))
             .requestMessage(requestMessage)
             .build());
 

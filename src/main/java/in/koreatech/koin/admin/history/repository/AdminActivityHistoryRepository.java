@@ -27,8 +27,8 @@ public interface AdminActivityHistoryRepository extends Repository<AdminActivity
 
     @Query("""
         SELECT a FROM AdminActivityHistory a WHERE
-        (:#{#condition.requestMethod} IS NULL OR a.requestMethod = :#{#condition.requestMethod}) AND
-        (:#{#condition.domainName} IS NULL OR a.domainName = :#{#condition.domainName}) AND
+        (:#{#condition.requestMethod?.name()} IS NULL OR a.requestMethod = :#{#condition.requestMethod}) AND
+        (:#{#condition.domainName?.name()} IS NULL OR a.domainName = :#{#condition.domainName}) AND
         (:#{#condition.domainId} IS NULL OR a.domainId = :#{#condition.domainId})
         """)
     Page<AdminActivityHistory> findByConditions(@Param("condition") AdminHistorysCondition adminsCondition,
