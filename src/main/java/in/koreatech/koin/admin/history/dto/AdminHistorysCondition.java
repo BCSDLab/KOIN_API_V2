@@ -1,13 +1,15 @@
 package in.koreatech.koin.admin.history.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static in.koreatech.koin.global.model.Criteria.*;
+import static in.koreatech.koin.global.model.Criteria.Sort.CREATED_AT_DESC;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static org.springframework.data.domain.Sort.Direction;
 
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -25,14 +27,27 @@ public record AdminHistorysCondition(
     String domainName,
 
     @Schema(description = "특정 엔티티 id", requiredMode = NOT_REQUIRED)
-    Integer domainId
+    Integer domainId,
+
+    @Schema(description = "정렬 기준", requiredMode = NOT_REQUIRED)
+    Sort sort
 ) {
     public AdminHistorysCondition {
         if (Objects.isNull(page)) {
-            page = Criteria.DEFAULT_PAGE;
+            page = DEFAULT_PAGE;
         }
         if (Objects.isNull(limit)) {
-            limit = Criteria.DEFAULT_LIMIT;
+            limit = DEFAULT_LIMIT;
         }
+        if (Objects.isNull(sort)) {
+            sort = CREATED_AT_DESC;
+        }
+    }
+
+    public Direction getSortDir() {
+        if (sort == Sort.CREATED_AT_ASC) {
+            return Direction.ASC;
+        }
+        return Direction.DESC;
     }
 }

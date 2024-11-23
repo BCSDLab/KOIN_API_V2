@@ -1,6 +1,7 @@
 package in.koreatech.koin.admin.history.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+import static in.koreatech.koin.global.model.Criteria.Sort;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,10 +29,11 @@ public class HistoryController implements HistoryApi {
         @RequestParam(required = false) String requestMethod,
         @RequestParam(required = false) String domainName,
         @RequestParam(required = false) Integer domainId,
+        @RequestParam(required = false) Sort sort,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminHistorysCondition adminHistorysCondition = new AdminHistorysCondition(page, limit, requestMethod,
-            domainName, domainId);
+            domainName, domainId, sort);
         AdminHistorysResponse historys = historyService.getHistorys(adminHistorysCondition);
         return ResponseEntity.ok(historys);
     }

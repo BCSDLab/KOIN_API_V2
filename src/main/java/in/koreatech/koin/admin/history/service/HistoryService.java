@@ -2,6 +2,7 @@ package in.koreatech.koin.admin.history.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.admin.history.dto.AdminHistoryResponse;
@@ -22,12 +23,14 @@ public class HistoryService {
         Integer total = adminActivityHistoryRepository.countAdminActivityHistory();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), total);
 
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit());
-        Page<AdminActivityHistory> adminActivityHistoryRepositoryPage = adminActivityHistoryRepository.findByConditions(
-            condition,
-            pageRequest);
+        PageRequest pageRequest = PageRequest.of(
+            criteria.getPage(), criteria.getLimit(),
+            Sort.by(condition.getSortDir(), "createdAt")
+        );
+        Page<AdminActivityHistory> adminActivityHistoryPage = adminActivityHistoryRepository.findByConditions(
+            condition, pageRequest);
 
-        return AdminHistorysResponse.of(adminActivityHistoryRepositoryPage);
+        return AdminHistorysResponse.of(adminActivityHistoryPage);
     }
 
     public AdminHistoryResponse getHistory(Integer id) {
