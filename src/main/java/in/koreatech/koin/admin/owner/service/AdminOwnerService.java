@@ -1,5 +1,6 @@
 package in.koreatech.koin.admin.owner.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -80,17 +81,18 @@ public class AdminOwnerService {
 
         Page<Owner> result = getNewOwnersResultPage(ownersCondition, criteria, direction);
 
-        List<OwnerIncludingShop> ownerIncludingShops = result.getContent().stream()
-            .map(owner -> {
-                Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(owner.getId());
-                return ownerShop
-                    .map(os -> {
-                        Shop shop = adminShopRepository.findById(os.getShopId()).orElse(null);
-                        return OwnerIncludingShop.of(owner, shop);
-                    })
-                    .orElseGet(() -> OwnerIncludingShop.of(owner, null));
-            })
-            .collect(Collectors.toList());
+        List<OwnerIncludingShop> ownerIncludingShops = new ArrayList<>();
+        for (Owner owner : result.getContent()) {
+            Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(owner.getId());
+
+            Shop shop = null;
+            if (ownerShop.isPresent()) {
+                shop = adminShopRepository.findById(ownerShop.get().getShopId()).orElse(null);
+            }
+
+            OwnerIncludingShop ownerIncludingShop = OwnerIncludingShop.of(owner, shop);
+            ownerIncludingShops.add(ownerIncludingShop);
+        }
 
         return AdminNewOwnersResponse.of(ownerIncludingShops, result, criteria);
     }
