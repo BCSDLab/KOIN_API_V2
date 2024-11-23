@@ -42,16 +42,15 @@ public class AdminOwnerService {
     public void allowOwnerPermission(Integer id) {
         Owner owner = adminOwnerRepository.getById(id);
         owner.getUser().auth();
-        Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(id);
-        if (ownerShop.isPresent()) {
-            Integer shopId = ownerShop.get().getShopId();
+        adminOwnerShopRedisRepository.findById(id).ifPresent(ownerShop -> {
+            Integer shopId = ownerShop.getShopId();
             if (shopId != null) {
                 Shop shop = adminShopRepository.getById(shopId);
                 shop.updateOwner(owner);
                 owner.setGrantShop(true);
             }
             adminOwnerShopRedisRepository.deleteById(id);
-        }
+        });
     }
 
     public AdminOwnerResponse getOwner(Integer ownerId) {
@@ -110,37 +109,35 @@ public class AdminOwnerService {
 
     private Page<Owner> getNewOwnersResultPage(OwnersCondition ownersCondition, Criteria criteria,
         Sort.Direction direction) {
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-            Sort.by(direction, "user.createdAt"));
-
-        Page<Owner> result;
+        PageRequest pageRequest = PageRequest.of(
+            criteria.getPage(),
+            criteria.getLimit(),
+            Sort.by(direction, "user.createdAt")
+        );
 
         if (ownersCondition.searchType() == OwnersCondition.SearchType.EMAIL) {
-            result = adminOwnerRepository.findPageUnauthenticatedOwnersByEmail(ownersCondition.query(), pageRequest);
+            return adminOwnerRepository.findPageUnauthenticatedOwnersByEmail(ownersCondition.query(), pageRequest);
         } else if (ownersCondition.searchType() == OwnersCondition.SearchType.NAME) {
-            result = adminOwnerRepository.findPageUnauthenticatedOwnersByName(ownersCondition.query(), pageRequest);
-        } else {
-            result = adminOwnerRepository.findPageUnauthenticatedOwners(pageRequest);
+            return adminOwnerRepository.findPageUnauthenticatedOwnersByName(ownersCondition.query(), pageRequest);
         }
 
-        return result;
+        return adminOwnerRepository.findPageUnauthenticatedOwners(pageRequest);
     }
 
     private Page<Owner> getOwnersResultPage(OwnersCondition ownersCondition, Criteria criteria,
         Sort.Direction direction) {
-        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(),
-            Sort.by(direction, "user.createdAt"));
-
-        Page<Owner> result;
+        PageRequest pageRequest = PageRequest.of(
+            criteria.getPage(),
+            criteria.getLimit(),
+            Sort.by(direction, "user.createdAt")
+        );
 
         if (ownersCondition.searchType() == OwnersCondition.SearchType.EMAIL) {
-            result = adminOwnerRepository.findPageOwnersByEmail(ownersCondition.query(), pageRequest);
+            return adminOwnerRepository.findPageOwnersByEmail(ownersCondition.query(), pageRequest);
         } else if (ownersCondition.searchType() == OwnersCondition.SearchType.NAME) {
-            result = adminOwnerRepository.findPageOwnersByName(ownersCondition.query(), pageRequest);
-        } else {
-            result = adminOwnerRepository.findPageOwners(pageRequest);
+            return adminOwnerRepository.findPageOwnersByName(ownersCondition.query(), pageRequest);
         }
 
-        return result;
+        return adminOwnerRepository.findPageOwners(pageRequest);
     }
 }
