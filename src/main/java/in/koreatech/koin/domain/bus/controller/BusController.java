@@ -11,22 +11,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
+import in.koreatech.koin.domain.bus.dto.BusTimetable;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
 import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
-import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
-import in.koreatech.koin.domain.bus.facade.BusRouteFacade;
 import in.koreatech.koin.domain.bus.facade.BusFacade;
-import in.koreatech.koin.domain.bus.dto.BusTimetable;
+import in.koreatech.koin.domain.bus.facade.BusRouteFacade;
 import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
-import in.koreatech.koin.domain.bus.service.CityBusService;
-import in.koreatech.koin.domain.bus.service.ShuttleBusService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -85,9 +83,9 @@ public class BusController implements BusApi {
         @RequestParam BusStation depart,
         @RequestParam BusStation arrival
     ) {
-        List<SingleArrivalTimeResponse> singleArrivalTimeRespons = busFacade.searchNearestBusArrivals(date, LocalTime.parse(time),
+        List<SingleArrivalTimeResponse> singleArrivalTimeResponses = busFacade.searchNearestBusArrivals(date, LocalTime.parse(time),
             depart, arrival);
-        return ResponseEntity.ok().body(singleArrivalTimeRespons);
+        return ResponseEntity.ok().body(singleArrivalTimeResponses);
     }
 
     @GetMapping("/route")
