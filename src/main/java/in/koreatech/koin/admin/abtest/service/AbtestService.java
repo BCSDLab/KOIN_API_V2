@@ -140,27 +140,54 @@ public class AbtestService {
     }
 
     @Transactional
-    public AbtestAssignResponse assignOrGetVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo,
+    public AbtestAssignResponse assignOrGetVariable(
+        Integer accessHistoryId,
+        UserAgentInfo userAgentInfo,
         Integer userId,
-        AbtestAssignRequest request) {
+        AbtestAssignRequest request
+    ) {
+        AccessHistory accessHistory;
+        if (accessHistoryId == null) {
+            accessHistory = accessHistoryRepository.save(AccessHistory.builder().build());
+        } else {
+            accessHistory = accessHistoryRepository.getById(accessHistoryId);
+        }
         Abtest abtest = abtestRepository.getByTitle(request.title());
-        AccessHistory accessHistory = findOrCreateAccessHistory(accessHistoryId);
-        Optional<AbtestVariable> winnerResponse = returnWinnerIfClosed(abtest);
+
+        Optional<AbtestVariable> winnerResponse;
+        if (abtest.getStatus() == AbtestStatus.CLOSED) {
+            if (abtest.getWinner() != null) {
+                winnerResponse = Optional.of(abtest.getWinner());
+            }
+            throw AbtestWinnerNotDecidedException.withDetail("abtestId: " + abtest.getId());
+        } else {
+            winnerResponse = Optional.empty();
+        }
+
         if (winnerResponse.isPresent()) {
             return AbtestAssignResponse.of(winnerResponse.get(), accessHistory);
         }
+
         if (isAssignedUser(abtest, accessHistory.getId(), userId)) {
             return AbtestAssignResponse.of(
-                getMyVariable(accessHistory.getId(), userAgentInfo, userId, request.title()), accessHistory);
+                getMyVariable(accessHistory.getId(), userAgentInfo, userId, request.title()),
+                accessHistory
+            );
         }
         List<AbtestVariableCount> cacheCount = loadCacheCount(abtest);
         AbtestVariable variable = abtest.findAssignVariable(cacheCount);
+
         if (userId != null) {
             createDeviceIfNotExists(userId, userAgentInfo, accessHistory, abtest);
         }
+
         accessHistory.addAbtestVariable(variable);
-        countCacheUpdate(variable);
-        variableAssignCacheSave(variable, accessHistory.getId());
+
+        AbtestVariableCount countCache = abtestVariableCountRepository.findOrCreateIfNotExists(variable.getId());
+        countCache.addCount();
+        abtestVariableCountRepository.save(countCache);
+
+        abtestVariableAssignRepository.save(AbtestVariableAssign.of(variable.getId(), accessHistoryId));
         accessHistory.updateLastAccessedAt(clock);
         return AbtestAssignResponse.of(variable, accessHistory);
     }
@@ -183,22 +210,25 @@ public class AbtestService {
             .toList();
     }
 
-    private void countCacheUpdate(AbtestVariable variable) {
-        AbtestVariableCount countCache = abtestVariableCountRepository.findOrCreateIfNotExists(variable.getId());
-        countCache.addCount();
-        abtestVariableCountRepository.save(countCache);
-    }
-
-    private void variableAssignCacheSave(AbtestVariable variable, Integer accessHistoryId) {
-        abtestVariableAssignRepository.save(AbtestVariableAssign.of(variable.getId(), accessHistoryId));
-    }
-
-    private AbtestVariable getMyVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo, Integer userId,
-        String title) {
+    private AbtestVariable getMyVariable(
+        Integer accessHistoryId,
+        UserAgentInfo userAgentInfo,
+        Integer userId,
+        String title
+    ) {
         Abtest abtest = abtestRepository.getByTitle(title);
         AccessHistory accessHistory = accessHistoryRepository.getById(accessHistoryId);
         syncCacheCountToDB(abtest);
-        Optional<AbtestVariable> winner = returnWinnerIfClosed(abtest);
+        Optional<AbtestVariable> winner;
+        if (abtest.getStatus() == AbtestStatus.CLOSED) {
+            if (abtest.getWinner() != null) {
+                winner = Optional.of(abtest.getWinner());
+            }
+            throw AbtestWinnerNotDecidedException.withDetail("abtestId: " + abtest.getId());
+        } else {
+            winner = Optional.empty();
+        }
+
         if (winner.isPresent()) {
             return winner.get();
         }
@@ -284,11 +314,13 @@ public class AbtestService {
             abtestVariable -> abtestVariableAssignRepository.deleteByVariableIdAndAccessHistoryId(
                 abtestVariable.getId(),
                 accessHistory.getId()));
-        variableAssignCacheSave(afterVariable, accessHistory.getId());
+        abtestVariableAssignRepository.save(AbtestVariableAssign.of(afterVariable.getId(), accessHistory.getId()));
     }
 
-    private static void validateDuplicatedVariables(Optional<AbtestVariable> beforeVariable,
-        AbtestVariable afterVariable) {
+    private static void validateDuplicatedVariables(
+        Optional<AbtestVariable> beforeVariable,
+        AbtestVariable afterVariable
+    ) {
         if (beforeVariable.isEmpty()) {
             return;
         }
@@ -304,25 +336,12 @@ public class AbtestService {
         }
     }
 
-    private static Optional<AbtestVariable> returnWinnerIfClosed(Abtest abtest) {
-        if (abtest.getStatus() == AbtestStatus.CLOSED) {
-            if (abtest.getWinner() != null) {
-                return Optional.of(abtest.getWinner());
-            }
-            throw AbtestWinnerNotDecidedException.withDetail("abtestId: " + abtest.getId());
-        }
-        return Optional.empty();
-    }
-
-    public AccessHistory findOrCreateAccessHistory(Integer id) {
-        if (id == null) {
-            return accessHistoryRepository.save(AccessHistory.builder().build());
-        }
-        return accessHistoryRepository.getById(id);
-    }
-
-    private void createDeviceIfNotExists(Integer userId, UserAgentInfo userAgentInfo,
-        AccessHistory accessHistory, Abtest abtest) {
+    private void createDeviceIfNotExists(
+        Integer userId,
+        UserAgentInfo userAgentInfo,
+        AccessHistory accessHistory,
+        Abtest abtest
+    ) {
         userRepository.getById(userId);
         if (accessHistory.getDevice() == null) {
             Device device = deviceRepository.save(

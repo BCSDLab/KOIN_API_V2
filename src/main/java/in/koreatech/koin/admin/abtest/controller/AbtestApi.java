@@ -189,7 +189,7 @@ public interface AbtestApi {
     @Operation(summary = "(NORMAL) 실험군 편입 정보 확인")
     @PostMapping("/assign")
     ResponseEntity<AbtestAssignResponse> assignOrGetAbtestVariable(
-        @RequestHeader("accessHistoryId") Integer accessHistoryId,
+        @RequestHeader("access_history_id") Integer accessHistoryId,
         @UserAgent UserAgentInfo userAgentInfo,
         @UserId Integer userId,
         @RequestBody @Valid AbtestAssignRequest abtestAssignRequest
