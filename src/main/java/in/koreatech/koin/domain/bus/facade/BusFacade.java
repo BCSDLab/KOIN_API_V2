@@ -18,11 +18,14 @@ import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetable;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
+import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
+import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
+import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.service.CityBusService;
 import in.koreatech.koin.domain.bus.service.ExpressBusService;
 import in.koreatech.koin.domain.bus.service.ShuttleBusService;
@@ -85,11 +88,19 @@ public class BusFacade {
         };
     }
 
+    public CityBusTimetableResponse getCityBusTimetable(Long busNumber, CityBusDirection direction) {
+        return cityBusService.getCityBusTimetable(busNumber, direction);
+    }
+
     public BusTimetableResponse getBusTimetableWithUpdatedAt(BusType busType, String direction, String region) {
         List<? extends BusTimetable> busTimetables = getBusTimetable(busType, direction, region);
         BusType resolvedBusType = busType.equals(COMMUTING) ? SHUTTLE : busType;
         String versionType = resolvedBusType.getName() + "_bus_timetable";
         VersionResponse version = versionService.getVersion(versionType);
         return new BusTimetableResponse(busTimetables, version.updatedAt());
+    }
+
+    public List<BusCourseResponse> getShuttleBusCourses() {
+        return shuttleBusService.getShuttleBusCourses();
     }
 }

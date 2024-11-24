@@ -36,8 +36,6 @@ public class BusController implements BusApi {
 
     private final BusFacade busFacade;
     private final BusRouteFacade busRouteFacade;
-    private final CityBusService cityBusService;
-    private final ShuttleBusService shuttleBusService;
 
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
@@ -72,12 +70,12 @@ public class BusController implements BusApi {
         @RequestParam(value = "bus_number") Long busNumber,
         @RequestParam(value = "direction") CityBusDirection direction
     ) {
-        return ResponseEntity.ok().body(cityBusService.getCityBusTimetable(busNumber, direction));
+        return ResponseEntity.ok().body(busFacade.getCityBusTimetable(busNumber, direction));
     }
 
     @GetMapping("/courses")
-    public ResponseEntity<List<BusCourseResponse>> getBusCourses() {
-        return ResponseEntity.ok().body(shuttleBusService.getShuttleBusCourses());
+    public ResponseEntity<List<BusCourseResponse>> getShuttleBusCourses() {
+        return ResponseEntity.ok().body(busFacade.getShuttleBusCourses());
     }
 
     @GetMapping("/search")
