@@ -8,7 +8,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableAssign;
 
-public interface AbtestVariableAssignRepository extends Repository<AbtestVariableAssign, String> {
+public interface AbtestVariableAssignRedisRepository extends Repository<AbtestVariableAssign, String> {
 
     AbtestVariableAssign save(AbtestVariableAssign abtestVariableAssign);
 
@@ -16,8 +16,10 @@ public interface AbtestVariableAssignRepository extends Repository<AbtestVariabl
 
     void deleteById(String id);
 
-    default Optional<AbtestVariableAssign> findByVariableIdAndAccessHistoryId(Integer variableId,
-        Integer accessHistoryId) {
+    default Optional<AbtestVariableAssign> findByVariableIdAndAccessHistoryId(
+        Integer variableId,
+        Integer accessHistoryId
+    ) {
         return findById(variableId + DELIMITER + accessHistoryId);
     }
 

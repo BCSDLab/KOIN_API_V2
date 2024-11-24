@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 
-public interface AbtestVariableCountRepository extends CrudRepository<AbtestVariableCount, Integer> {
+public interface AbtestVariableCountRedisRepository extends CrudRepository<AbtestVariableCount, Integer> {
 
     List<AbtestVariableCount> findAll();
 
