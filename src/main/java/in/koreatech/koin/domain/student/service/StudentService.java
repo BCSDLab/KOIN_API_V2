@@ -31,6 +31,7 @@ import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.domain.user.service.UserService;
+import in.koreatech.koin.domain.user.service.UserTokenService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
@@ -49,13 +50,13 @@ public class StudentService {
     private final UserValidationService userValidationService;
     private final StudentValidationService studentValidationService;
     private final UserRepository userRepository;
+    private final UserTokenService userTokenService;
     private final UserTokenRepository userTokenRepository;
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
-    private final JwtProvider jwtProvider;
 
     @Transactional
     public void studentRegister(StudentRegisterRequest request, String serverURL) {
@@ -74,8 +75,8 @@ public class StudentService {
         User user = userValidationService.checkLoginCredentials(request.email(), request.password());
         userValidationService.checkUserAuthentication(request.email());
 
-        String accessToken = jwtProvider.createToken(user);
-        String refreshToken = userService.generateRefreshToken(user);
+        String accessToken = userTokenService.createAccessToken(user);
+        String refreshToken = userTokenService.generateRefreshToken(user);
         UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
         userService.updateLastLoginTime(user);
 
