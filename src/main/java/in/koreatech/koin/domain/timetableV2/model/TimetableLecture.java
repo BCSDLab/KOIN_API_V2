@@ -85,8 +85,11 @@ public class TimetableLecture extends BaseEntity {
         this.timetableFrame = timetableFrame;
     }
 
-    public void update(String classTitle, String classTime, String classPlace, String professor,
-        String grades, String memo) {
+    public void update(
+        String classTitle, String classTime,
+        String classPlace, String professor,
+        String grades, String memo
+    ) {
         this.classTitle = classTitle;
         this.classTime = classTime;
         this.classPlace = classPlace;

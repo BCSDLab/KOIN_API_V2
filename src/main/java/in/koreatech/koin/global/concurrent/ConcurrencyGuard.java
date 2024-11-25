@@ -18,9 +18,9 @@ public @interface ConcurrencyGuard {
 
     String lockName();
 
-    long waitTime() default 5L;
+    long waitTime() default 7L;
 
-    long leaseTime() default 3L;
+    long leaseTime() default 5L;
 
     TimeUnit timeUnit() default TimeUnit.SECONDS;
 }

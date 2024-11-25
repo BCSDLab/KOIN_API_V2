@@ -4,6 +4,7 @@ import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.Where;
@@ -67,12 +68,8 @@ public class TimetableFrame extends BaseEntity {
     @OneToMany(mappedBy = "timetableFrame", orphanRemoval = true, cascade = ALL)
     private List<TimetableLecture> timetableLectures;
 
-    public void updateStatusMain(boolean isMain) {
-        this.isMain = isMain;
-    }
-
     @Builder
-    private TimetableFrame(
+    public TimetableFrame(
         User user,
         Semester semester,
         String name,
@@ -94,7 +91,14 @@ public class TimetableFrame extends BaseEntity {
         this.isMain = isMain;
     }
 
-    public void cancelMain() {
-        isMain = false;
+    public void updateMainFlag(boolean isMain) {
+        this.isMain = isMain;
+    }
+
+    public void addTimeTableLecture(TimetableLecture lecture) {
+        if (timetableLectures == null) {
+            timetableLectures = new ArrayList<>();
+        }
+        timetableLectures.add(lecture);
     }
 }
