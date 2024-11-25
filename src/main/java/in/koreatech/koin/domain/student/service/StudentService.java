@@ -31,6 +31,7 @@ import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.domain.user.service.UserService;
+import in.koreatech.koin.domain.user.service.UserValidationService;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
@@ -45,6 +46,7 @@ public class StudentService {
 
     private final MailService mailService;
     private final UserService userService;
+    private final UserValidationService userValidationService;
     private final StudentValidationService studentValidationService;
     private final UserRepository userRepository;
     private final UserTokenRepository userTokenRepository;
@@ -69,13 +71,13 @@ public class StudentService {
 
     @Transactional
     public StudentLoginResponse studentLogin(StudentLoginRequest request) {
-        User user = userService.checkLoginCredentials(request.email(), request.password());
-        userService.checkUserAuthentication(request.email());
+        User user = userValidationService.checkLoginCredentials(request.email(), request.password());
+        userValidationService.checkUserAuthentication(request.email());
 
         String accessToken = jwtProvider.createToken(user);
-        String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
+        String refreshToken = userService.generateRefreshToken(user);
         UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
-        user.updateLastLoggedTime(java.time.LocalDateTime.now());
+        userService.updateLastLoginTime(user);
 
         return StudentLoginResponse.of(accessToken, savedToken.getRefreshToken());
     }
@@ -88,9 +90,9 @@ public class StudentService {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
 
-        updateUserDetails(user, request);
+        user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updatePassword(passwordEncoder, request.password());
-        student.updateStudentInfo(request.studentNumber(), request.major());
+        student.updateInfo(request.studentNumber(), request.major());
         studentRepository.save(student);
 
         return StudentUpdateResponse.from(student);
@@ -128,10 +130,6 @@ public class StudentService {
     public StudentResponse getStudent(Integer userId) {
         Student student = studentRepository.getById(userId);
         return StudentResponse.from(student);
-    }
-
-    private void updateUserDetails(User user, StudentUpdateRequest request) {
-        user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
     }
 
     @Transactional

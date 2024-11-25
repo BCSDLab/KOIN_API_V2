@@ -41,23 +41,22 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
-    private final StudentRedisRepository studentRedisRepository;
     private final OwnerRepository ownerRepository;
-    private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
-    private final ApplicationEventPublisher eventPublisher;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
+    private final ApplicationEventPublisher eventPublisher;
+    private final UserValidationService userValidationService;
 
     @Transactional
     public UserLoginResponse login(UserLoginRequest request) {
-        User user = checkLoginCredentials(request.email(), request.password());
-        checkUserAuthentication(request.email());
+        User user = userValidationService.checkLoginCredentials(request.email(), request.password());
+        userValidationService.checkUserAuthentication(request.email());
 
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = generateRefreshToken(user);
         UserToken savedToken = userTokenRepository.save(UserToken.create(user.getId(), refreshToken));
-
         updateLastLoginTime(user);
+
         return UserLoginResponse.of(accessToken, savedToken.getRefreshToken(), user.getUserType().getValue());
     }
 
@@ -100,6 +99,7 @@ public class UserService {
         return AuthResponse.from(user);
     }
 
+    // 이거 옮길 예정
     public CoopResponse getCoop(Integer userId) {
         User user = userRepository.getById(userId);
         return CoopResponse.from(user);
@@ -111,21 +111,6 @@ public class UserService {
             throw new AuthorizationException("올바르지 않은 인증 토큰입니다. refreshToken: " + refreshToken);
         }
         return split[split.length - 1];
-    }
-
-    public User checkLoginCredentials(String email, String password) {
-        User user = userRepository.getByEmail(email);
-        if (!user.isSamePassword(passwordEncoder, password)) {
-            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
-        }
-        return user;
-    }
-
-    public void checkUserAuthentication(String email) {
-        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findById(email);
-        if (studentTemporaryStatus.isPresent()) {
-            throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
-        }
     }
 
     public String generateRefreshToken(User user) {
