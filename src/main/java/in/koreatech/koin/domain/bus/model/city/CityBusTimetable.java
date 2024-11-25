@@ -50,13 +50,20 @@ public class CityBusTimetable {
         this.updatedAt = updatedAt;
     }
 
-    public Optional<BusTimetable> getBusTimetableByDate(LocalDate date) {
+    public Optional<BusTimetable> filterTimeTableByDate(LocalDate date) {
         String dayOfWeek = (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) ?
             "주말" : "평일";
 
         return busTimetables.stream()
             .filter(busTimetable -> busTimetable.getDayOfWeek().equals(dayOfWeek))
             .findFirst();
+    }
+
+    public void filterBusTimeTablesByDayOfWeek(LocalDate date) {
+        String dayOfWeek = (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) ?
+            "주말" : "평일";
+
+        busTimetables.removeIf(busTimetable -> !busTimetable.getDayOfWeek().equals(dayOfWeek));
     }
 
     @Getter
@@ -93,7 +100,7 @@ public class CityBusTimetable {
             this.departInfo = departInfo;
         }
 
-        public List<LocalTime> adjustDepartTimes(Long busNumber, CityBusDirection arrival, BusStation depart) {
+        public List<LocalTime> applyTimeOffset(Long busNumber, CityBusDirection arrival, BusStation depart) {
             return departInfo.stream()
                 .map(time -> {
                     LocalTime schedule = LocalTime.parse(time);

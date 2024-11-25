@@ -1,8 +1,10 @@
 package in.koreatech.koin.domain.bus.service;
 
+import static in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo.toScheduleInfo;
 import static in.koreatech.koin.domain.bus.model.enums.BusStation.getDirection;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +14,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
 import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.model.city.CityBusRemainTime;
 import in.koreatech.koin.domain.bus.model.city.CityBusTimetable;
@@ -22,7 +24,6 @@ import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusRouteCacheRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
-import in.koreatech.koin.domain.bus.service.route.CityBusRouteManager;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -70,10 +71,23 @@ public class CityBusService {
         return CityBusTimetableResponse.from(timetable);
     }
 
-    public List<BusScheduleResponse.ScheduleInfo> getCityBusSchedule(Long busNumber, BusStation depart,
-        CityBusDirection arrival, LocalDate date) {
-        CityBusTimetable timetable = cityBusTimetableRepository
+    public List<ScheduleInfo> getCityBusSchedule(
+        Long busNumber,
+        BusStation depart,
+        CityBusDirection arrival,
+        LocalDate date
+    ) {
+        CityBusTimetable cityBusSchedule = cityBusTimetableRepository
             .getByBusInfoNumberAndBusInfoArrival(busNumber, arrival.getName());
-        return CityBusRouteManager.getCityBusSchedule(timetable, busNumber, depart, arrival, date);
+
+        cityBusSchedule.filterBusTimeTablesByDayOfWeek(date);
+
+        List<LocalTime> adjustedTimetable = cityBusSchedule.getBusTimetables()
+            .stream()
+            .findFirst()
+            .get()
+            .applyTimeOffset(busNumber, arrival, depart);
+
+        return toScheduleInfo(adjustedTimetable, "city", busNumber.toString());
     }
 }

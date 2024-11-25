@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
 import in.koreatech.koin.domain.bus.dto.BusTimetable;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
@@ -29,6 +32,7 @@ import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.service.CityBusService;
 import in.koreatech.koin.domain.bus.service.ExpressBusService;
 import in.koreatech.koin.domain.bus.service.ShuttleBusService;
+import in.koreatech.koin.domain.bus.service.route.BusRouteStrategy;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +42,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BusFacade {
 
+    private final List<BusRouteStrategy> busRouteStrategies;
     private final Clock clock;
     private final CityBusService cityBusService;
     private final ExpressBusService expressBusService;
@@ -102,5 +107,19 @@ public class BusFacade {
 
     public List<BusCourseResponse> getShuttleBusCourses() {
         return shuttleBusService.getShuttleBusCourses();
+    }
+
+    public BusScheduleResponse getBusSchedule(BusRouteCommand request) {
+        List<ScheduleInfo> scheduleInfoList = busRouteStrategies.stream()
+            .filter(strategy -> strategy.support(request.busRouteType()))
+            .flatMap(strategy -> strategy.findSchedule(request).stream())
+            .filter(schedule -> schedule.departTime().isAfter(request.time()))
+            .sorted(Comparator.comparing(ScheduleInfo::departTime))
+            .toList();
+
+        return new BusScheduleResponse(
+            request.depart(), request.arrive(), request.date(), request.time(),
+            scheduleInfoList
+        );
     }
 }

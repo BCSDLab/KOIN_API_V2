@@ -111,7 +111,6 @@ public class Route {
         return null;
     }
 
-    // 한기대에서 출발해서 한기대로 돌아오는 순환 셔틀 노선 대상
     public ScheduleInfo getScheduleInfoForCircularShuttle(
         String arriveNodeName,
         String departNodeName,

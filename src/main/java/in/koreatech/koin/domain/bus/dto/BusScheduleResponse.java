@@ -57,8 +57,8 @@ public record BusScheduleResponse(
         String busName,
         LocalTime departTime
     ) {
-        public static List<ScheduleInfo> toScheduleInfo(List<LocalTime> schedule, String busType, String busName) {
-            return schedule.stream()
+        public static List<ScheduleInfo> toScheduleInfo(List<LocalTime> timetable, String busType, String busName) {
+            return timetable.stream()
                 .map(time -> new BusScheduleResponse.ScheduleInfo(busType, busName, time))
                 .collect(Collectors.toList());
         }

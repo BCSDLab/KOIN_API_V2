@@ -20,7 +20,6 @@ import in.koreatech.koin.domain.bus.dto.SingleArrivalTimeResponse;
 import in.koreatech.koin.domain.bus.dto.city.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.shuttle.BusCourseResponse;
 import in.koreatech.koin.domain.bus.facade.BusFacade;
-import in.koreatech.koin.domain.bus.facade.BusRouteFacade;
 import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
@@ -33,7 +32,6 @@ import lombok.RequiredArgsConstructor;
 public class BusController implements BusApi {
 
     private final BusFacade busFacade;
-    private final BusRouteFacade busRouteFacade;
 
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
@@ -97,7 +95,7 @@ public class BusController implements BusApi {
         @RequestParam BusStation arrival
     ) {
         BusRouteCommand request = new BusRouteCommand(depart, arrival, busRouteType, date, LocalTime.parse(time));
-        BusScheduleResponse busSchedule = busRouteFacade.getBusSchedule(request);
+        BusScheduleResponse busSchedule = busFacade.getBusSchedule(request);
         return ResponseEntity.ok().body(busSchedule);
     }
 }
