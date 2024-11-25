@@ -38,7 +38,7 @@ public interface StudentApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "회원 정보 조회")
+    @Operation(summary = "학생 정보 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/user/student/me")
     ResponseEntity<StudentResponse> getStudent(
@@ -54,7 +54,7 @@ public interface StudentApi {
             @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "회원 정보 수정")
+    @Operation(summary = "학생 정보 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/user/student/me")
     ResponseEntity<StudentUpdateResponse> updateStudent(
@@ -85,7 +85,7 @@ public interface StudentApi {
             @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "회원가입")
+    @Operation(summary = "학생 회원가입")
     @PostMapping("/user/student/register")
     ResponseEntity<Void> studentRegister(
         @RequestBody @Valid StudentRegisterRequest studentRegisterRequest,
