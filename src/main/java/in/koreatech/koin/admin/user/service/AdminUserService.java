@@ -262,7 +262,7 @@ public class AdminUserService {
         user.update(adminRequest.nickname(), adminRequest.name(),
             adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
         user.updatePassword(passwordEncoder, adminRequest.password());
-        student.updateStudentInfo(adminRequest.studentNumber(), adminRequest.major());
+        student.updateInfo(adminRequest.studentNumber(), adminRequest.major());
         adminStudentRepository.save(student);
 
         return AdminStudentUpdateResponse.from(student);
