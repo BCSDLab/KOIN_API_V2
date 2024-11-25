@@ -113,11 +113,8 @@ public class NotificationFactory {
     }
 
     private String generateKeywordSchemeUri(MobileAppPath path, Integer eventId, String keyword) {
-        if (eventId == null) {
-            return path.getPath();
-        }
         if (keyword == null) {
-            return path.getPath();
+            return generateSchemeUri(path, eventId);
         }
         return String.format("%s?id=%d&keyword=%s", path.getPath(), eventId, keyword);
     }
