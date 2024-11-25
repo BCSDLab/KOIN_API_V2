@@ -1,11 +1,15 @@
 package in.koreatech.koin.domain.timetableV2.validation;
 
+import static lombok.AccessLevel.PRIVATE;
+
 import java.util.Objects;
 
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = PRIVATE)
 public class TimetableFrameValidate {
 
     public static void validateUserAuthorization(Integer frameUserId, Integer userId) {

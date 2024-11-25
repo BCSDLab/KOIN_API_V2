@@ -1,16 +1,17 @@
 package in.koreatech.koin.domain.timetableV2.util;
 
+import static lombok.AccessLevel.PRIVATE;
+
 import java.util.List;
 
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = PRIVATE)
 public class GradeCalculator {
 
-    private GradeCalculator() {
-    }
-
-    public static int calculateGrades(TimetableFrame timetableFrame) {
+    public static int calculateGradesMainFrame(TimetableFrame timetableFrame) {
         if (timetableFrame.isMain()) {
             return calculateGrades(timetableFrame.getTimetableLectures());
         }
@@ -29,7 +30,7 @@ public class GradeCalculator {
             .sum();
     }
 
-    private static Integer determineGrade(TimetableLecture timetableLecture) {
+    private static int determineGrade(TimetableLecture timetableLecture) {
         if (timetableLecture.getLecture() != null) {
             return Integer.parseInt(timetableLecture.getLecture().getGrades());
         }

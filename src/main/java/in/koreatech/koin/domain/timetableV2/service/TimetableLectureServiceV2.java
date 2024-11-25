@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.timetableV2.service;
 
-import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGrades;
+import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGradesMainFrame;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
@@ -61,7 +61,7 @@ public class TimetableLectureServiceV2 {
     }
 
     private TimetableLectureResponse getTimetableLectureResponse(Integer userId, TimetableFrame timetableFrame) {
-        int grades = calculateGrades(timetableFrame);
+        int grades = calculateGradesMainFrame(timetableFrame);
         int totalGrades = calculateTotalGrades(timetableFrameRepositoryV2.findByUserIdAndIsMainTrue(userId));
         return TimetableLectureResponse.of(timetableFrame, grades, totalGrades);
     }
