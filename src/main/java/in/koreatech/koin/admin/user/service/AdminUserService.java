@@ -29,6 +29,7 @@ import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminTokenRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
+import in.koreatech.koin.admin.user.validation.AdminUserValidation;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
@@ -53,6 +54,7 @@ public class AdminUserService {
     private final PasswordEncoder passwordEncoder;
     private final AdminTokenRepository adminTokenRepository;
     private final AdminRepository adminRepository;
+    private final AdminUserValidation adminUserValidation;
 
 
     @Transactional
@@ -62,25 +64,10 @@ public class AdminUserService {
             throw new AuthorizationException("어드민 계정 생성 권한이 없습니다.");
         }
 
-        validateAdminCreate(request);
+        adminUserValidation.validateEmailForAdminCreated(request.email());
         Admin createAdmin = adminRepository.save(request.toEntity(passwordEncoder));
 
         return AdminResponse.from(createAdmin);
-    }
-
-    private void validateAdminCreate(CreateAdminRequest request) {
-        EmailAddress emailAddress = EmailAddress.from(request.email());
-        emailAddress.validateKoreatechEmail();
-        emailAddress.validateAdminEmail();
-
-        validateDuplicateEmail(request);
-    }
-
-    private void validateDuplicateEmail(CreateAdminRequest request) {
-        adminUserRepository.findByEmail(request.email())
-            .ifPresent(user -> {
-                throw DuplicationEmailException.withDetail("email: " + request.email());
-            });
     }
 
     @Transactional
@@ -96,33 +83,14 @@ public class AdminUserService {
     @Transactional
     public AdminLoginResponse adminLogin(AdminLoginRequest request) {
         User user = adminUserRepository.getByEmail(request.email());
-        validateAdminLogin(user, request);
+        adminUserValidation.validateAdminLogin(user, request);
 
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
-        UserToken savedtoken = adminTokenRepository.save(UserToken.create(user.getId(), refreshToken));
+        UserToken savedToken = adminTokenRepository.save(UserToken.create(user.getId(), refreshToken));
         user.updateLastLoggedTime(LocalDateTime.now());
 
-        return AdminLoginResponse.of(accessToken, savedtoken.getRefreshToken());
-    }
-
-    private void validateAdminLogin(User user, AdminLoginRequest request) {
-        /* 어드민 권한이 없으면 없는 회원으로 간주 */
-        if (user.getUserType() != ADMIN) {
-            throw UserNotFoundException.withDetail("email" + request.email());
-        }
-
-        if (adminRepository.findById(user.getId()).isEmpty()) {
-            throw UserNotFoundException.withDetail("email" + request.email());
-        }
-
-        if (!user.isSamePassword(passwordEncoder, request.password())) {
-            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
-        }
-
-        if (!user.isAuthed()) {
-            throw new AuthorizationException("PL 인증 대기중입니다.");
-        }
+        return AdminLoginResponse.of(accessToken, savedToken.getRefreshToken());
     }
 
     @Transactional
