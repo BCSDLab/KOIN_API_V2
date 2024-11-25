@@ -7,10 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
 import in.koreatech.koin.domain.student.exception.StudentNumberNotValidException;
-import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.model.StudentDepartment;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
-import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -23,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class StudentValidationService {
 
-    private final StudentRepository studentRepository;
     private final UserRepository userRepository;
     private final StudentRedisRepository studentRedisRepository;
 
@@ -86,7 +84,7 @@ public class StudentValidationService {
         if (studentNumber == null) {
             return;
         }
-        int studentNumberYear = Student.parseStudentNumberYear(studentNumber);
+        int studentNumberYear = StudentUtil.parseStudentNumberYear(studentNumber);
         if (studentNumberYear < MIN_YEAR
             || LocalDateTime.now().getYear() < studentNumberYear) {
             throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);

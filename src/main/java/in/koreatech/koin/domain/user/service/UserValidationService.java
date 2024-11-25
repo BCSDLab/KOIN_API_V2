@@ -1,15 +1,20 @@
 package in.koreatech.koin.domain.user.service;
 
+import java.util.Optional;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
+import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
 import in.koreatech.koin.domain.user.dto.EmailCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.NicknameCheckExistsRequest;
 import in.koreatech.koin.domain.user.dto.UserPasswordCheckRequest;
 import in.koreatech.koin.domain.user.exception.DuplicationNicknameException;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +26,7 @@ public class UserValidationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final StudentRedisRepository studentRedisRepository;
 
     public void checkPassword(UserPasswordCheckRequest request, Integer userId) {
         User user = userRepository.getById(userId);
@@ -39,5 +45,20 @@ public class UserValidationService {
         userRepository.findByNickname(request.nickname()).ifPresent(user -> {
             throw DuplicationNicknameException.withDetail("nickname: " + request.nickname());
         });
+    }
+
+    public User checkLoginCredentials(String email, String password) {
+        User user = userRepository.getByEmail(email);
+        if (!user.isSamePassword(passwordEncoder, password)) {
+            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+        return user;
+    }
+
+    public void checkUserAuthentication(String email) {
+        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findById(email);
+        if (studentTemporaryStatus.isPresent()) {
+            throw new AuthorizationException("미인증 상태입니다. 아우누리에서 인증메일을 확인해주세요");
+        }
     }
 }
