@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class TimetableFrameServiceV2 {
+public class TimetableFrameService {
 
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final UserRepository userRepository;

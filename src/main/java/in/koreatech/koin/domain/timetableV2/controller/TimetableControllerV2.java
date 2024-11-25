@@ -21,8 +21,8 @@ import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRe
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
-import in.koreatech.koin.domain.timetableV2.service.TimetableFrameServiceV2;
-import in.koreatech.koin.domain.timetableV2.service.TimetableLectureServiceV2;
+import in.koreatech.koin.domain.timetableV2.service.TimetableFrameService;
+import in.koreatech.koin.domain.timetableV2.service.TimetableLectureService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +31,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TimetableControllerV2 implements TimetableApiV2 {
 
-    private final TimetableFrameServiceV2 frameServiceV2;
-    private final TimetableLectureServiceV2 lectureServiceV2;
+    private final TimetableFrameService frameServiceV2;
+    private final TimetableLectureService lectureServiceV2;
 
     @PostMapping("/v2/timetables/frame")
     public ResponseEntity<TimetableFrameResponse> createTimetablesFrame(

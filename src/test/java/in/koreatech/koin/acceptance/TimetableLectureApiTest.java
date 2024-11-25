@@ -28,7 +28,7 @@ import in.koreatech.koin.fixture.UserFixture;
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TimetableLectureV2ApiTest extends AcceptanceTest {
+public class TimetableLectureApiTest extends AcceptanceTest {
 
     @Autowired
     private TimeTableV2Fixture timetableV2Fixture;

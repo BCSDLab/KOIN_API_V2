@@ -16,12 +16,12 @@ public class TimetableFrameUpdater {
     public TimetableFrameUpdateResponse updateTimetableFrame(
         TimetableFrame timeTableFrame, Integer userId, String timetableName, boolean isMain
     ) {
-        cancelMainTimetable(userId, timeTableFrame.getSemester().getId(), isMain);
+        cancelIfMainTimetable(userId, timeTableFrame.getSemester().getId(), isMain);
         timeTableFrame.updateTimetableFrame(timeTableFrame.getSemester(), timetableName, isMain);
         return TimetableFrameUpdateResponse.from(timeTableFrame);
     }
 
-    private void cancelMainTimetable(Integer userId, Integer semesterId, boolean isMain) {
+    private void cancelIfMainTimetable(Integer userId, Integer semesterId, boolean isMain) {
         if (isMain) {
             TimetableFrame mainTimetableFrame = timetableFrameRepositoryV2.getMainTimetableByUserIdAndSemesterId(userId,
                 semesterId);

@@ -66,7 +66,7 @@ public class TimetableFrame extends BaseEntity {
     private boolean isDeleted = false;
 
     @OneToMany(mappedBy = "timetableFrame", orphanRemoval = true, cascade = ALL)
-    private List<TimetableLecture> timetableLectures = new ArrayList<>();
+    private List<TimetableLecture> timetableLectures;
 
     @Builder
     private TimetableFrame(
