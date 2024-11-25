@@ -80,6 +80,7 @@ public class ArticleKeywordEventListener {
         Notification notification = notificationFactory.generateKeywordNotification(
             KEYWORD,
             event.articleId(),
+            keyword,
             articleTitle,
             description,
             subscribe.getUser()
