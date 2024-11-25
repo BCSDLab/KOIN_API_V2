@@ -71,7 +71,7 @@ public class TimetableFrameService {
         timetableFrameRepositoryV2.deleteAllByUserAndSemester(user, timetableSemester);
     }
 
-    @ConcurrencyGuard(lockName = "deleteFrame")
+    @Transactional
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
         validateUserAuthorization(timetableFrame.getUser().getId(), userId);
