@@ -224,6 +224,7 @@ public class TimetableServiceV2 {
         if (!Objects.equals(timetableFrame.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
+
         timetableLectureRepositoryV2.deleteByFrameIdAndLectureId(frameId, lectureId);
     }
 }
