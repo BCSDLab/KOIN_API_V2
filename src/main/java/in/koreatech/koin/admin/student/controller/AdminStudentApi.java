@@ -70,7 +70,7 @@ public interface AdminStudentApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "회원 정보 수정")
+    @Operation(summary = "학생 정보 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/admin/users/student/{id}")
     ResponseEntity<AdminStudentUpdateResponse> updateStudent(
