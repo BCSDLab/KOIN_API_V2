@@ -70,8 +70,4 @@ public class Student {
         this.studentNumber = studentNumber;
         this.department = department;
     }
-
-    public static Integer parseStudentNumberYear(String studentNumber) {
-        return Integer.parseInt(studentNumber.substring(0, 4));
-    }
 }
