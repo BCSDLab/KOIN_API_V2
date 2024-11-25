@@ -50,6 +50,7 @@ public class AdminStudentApiTest extends AcceptanceTest {
 
     @Test
     void 관리자가_학생_리스트를_파라미터가_없이_조회한다_페이지네이션() throws Exception {
+        Student student = userFixture.준호_학생();
         Admin adminUser = userFixture.코인_운영자();
 
         String token = userFixture.getToken(adminUser.getUser());
