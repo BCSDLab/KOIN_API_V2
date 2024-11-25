@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class AdminStudentController implements AdminStudentApi{
+public class AdminStudentController implements AdminStudentApi {
 
     private final AdminStudentService adminStudentService;
 
