@@ -82,16 +82,12 @@ public class AdminOwnerService {
         Page<Owner> result = getNewOwnersResultPage(ownersCondition, criteria, direction);
 
         List<OwnerIncludingShop> ownerIncludingShops = new ArrayList<>();
-        for (Owner owner : result.getContent()) {
-            Optional<OwnerShop> ownerShop = adminOwnerShopRedisRepository.findById(owner.getId());
-
-            Shop shop = null;
-            if (ownerShop.isPresent()) {
-                shop = adminShopRepository.findById(ownerShop.get().getShopId()).orElse(null);
-            }
-
+        for (Owner owner: result.getContent()) {
+            adminOwnerShopRedisRepository.findById(owner.getId()).ifPresent(ownerShop -> {
+                Shop shop = adminShopRepository.findById(ownerShop.getShopId()).orElse(null);
             OwnerIncludingShop ownerIncludingShop = OwnerIncludingShop.of(owner, shop);
             ownerIncludingShops.add(ownerIncludingShop);
+            });
         }
 
         return AdminNewOwnersResponse.of(ownerIncludingShops, result, criteria);
@@ -119,10 +115,10 @@ public class AdminOwnerService {
 
         if (ownersCondition.searchType() == OwnersCondition.SearchType.EMAIL) {
             return adminOwnerRepository.findPageUnauthenticatedOwnersByEmail(ownersCondition.query(), pageRequest);
-        } else if (ownersCondition.searchType() == OwnersCondition.SearchType.NAME) {
+        }
+        if (ownersCondition.searchType() == OwnersCondition.SearchType.NAME) {
             return adminOwnerRepository.findPageUnauthenticatedOwnersByName(ownersCondition.query(), pageRequest);
         }
-
         return adminOwnerRepository.findPageUnauthenticatedOwners(pageRequest);
     }
 
@@ -136,10 +132,10 @@ public class AdminOwnerService {
 
         if (ownersCondition.searchType() == OwnersCondition.SearchType.EMAIL) {
             return adminOwnerRepository.findPageOwnersByEmail(ownersCondition.query(), pageRequest);
-        } else if (ownersCondition.searchType() == OwnersCondition.SearchType.NAME) {
+        }
+        if (ownersCondition.searchType() == OwnersCondition.SearchType.NAME) {
             return adminOwnerRepository.findPageOwnersByName(ownersCondition.query(), pageRequest);
         }
-
         return adminOwnerRepository.findPageOwners(pageRequest);
     }
 }
