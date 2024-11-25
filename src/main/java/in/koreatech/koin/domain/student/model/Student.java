@@ -70,4 +70,9 @@ public class Student {
         this.studentNumber = studentNumber;
         this.department = department;
     }
+
+    public void update(String studentNumber, String department) {
+        this.studentNumber = studentNumber;
+        this.department = department;
+    }
 }

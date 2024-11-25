@@ -125,8 +125,10 @@ public class User extends BaseEntity {
         this.deviceToken = deviceToken;
     }
 
+    private static final int ONE_HOUR = 1;
+
     public void generateResetTokenForFindPassword(Clock clock) {
-        this.resetExpiredAt = LocalDateTime.now(clock).plusHours(1);
+        this.resetExpiredAt = LocalDateTime.now(clock).plusHours(ONE_HOUR);
         this.resetToken = this.email + this.resetExpiredAt;
     }
 
@@ -147,6 +149,11 @@ public class User extends BaseEntity {
 
     public void updatePassword(PasswordEncoder passwordEncoder, String password) {
         this.password = passwordEncoder.encode(password);
+    }
+
+    public void updateStudentPassword(PasswordEncoder passwordEncoder, String password) {
+        if (password != null && !password.isEmpty())
+            this.password = passwordEncoder.encode(password);
     }
 
     public boolean isSamePassword(PasswordEncoder passwordEncoder, String password) {

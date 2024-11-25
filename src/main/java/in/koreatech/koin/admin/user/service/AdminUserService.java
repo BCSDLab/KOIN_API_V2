@@ -261,8 +261,8 @@ public class AdminUserService {
         validateDepartmentValid(adminRequest.major());
         user.update(adminRequest.nickname(), adminRequest.name(),
             adminRequest.phoneNumber(), UserGender.from(adminRequest.gender()));
-        user.updatePassword(passwordEncoder, adminRequest.password());
-        student.updateInfo(adminRequest.studentNumber(), adminRequest.major());
+        user.updateStudentPassword(passwordEncoder, adminRequest.password());
+        student.update(adminRequest.studentNumber(), adminRequest.major());
         adminStudentRepository.save(student);
 
         return AdminStudentUpdateResponse.from(student);
