@@ -66,7 +66,7 @@ public class Student {
         this.user = user;
     }
 
-    public void updateStudentInfo(String studentNumber, String department) {
+    public void updateInfo(String studentNumber, String department) {
         this.studentNumber = studentNumber;
         this.department = department;
     }
