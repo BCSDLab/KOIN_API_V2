@@ -52,28 +52,6 @@ public class AdminUserController implements AdminUserApi{
 
     private final AdminUserService adminUserService;
 
-    @PutMapping("/admin/owner/{id}/authed")
-    public ResponseEntity<Void> allowOwnerPermission(
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId) {
-        adminUserService.allowOwnerPermission(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/admin/students")
-    public ResponseEntity<AdminStudentsResponse> getStudents(
-        @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit,
-        @RequestParam(required = false) Boolean isAuthed,
-        @RequestParam(required = false) String nickname,
-        @RequestParam(required = false) String email,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        StudentsCondition studentsCondition = new StudentsCondition(page, limit, isAuthed, nickname, email);
-        AdminStudentsResponse adminStudentsResponse = adminUserService.getStudents(studentsCondition);
-        return ResponseEntity.ok().body(adminStudentsResponse);
-    }
-
     @PostMapping("/admin")
     public ResponseEntity<Void> createAdmin(
         @RequestBody @Valid CreateAdminRequest request,
@@ -113,9 +91,9 @@ public class AdminUserController implements AdminUserApi{
     public ResponseEntity<AdminTokenRefreshResponse> refresh(
         @RequestBody @Valid AdminTokenRefreshRequest request
     ) {
-        AdminTokenRefreshResponse tokenGroupResponse = adminUserService.adminRefresh(request);
+        AdminTokenRefreshResponse response = adminUserService.adminRefresh(request);
         return ResponseEntity.created(URI.create("/"))
-            .body(tokenGroupResponse);
+            .body(response);
     }
 
     @GetMapping("/admin/{id}")
@@ -123,8 +101,8 @@ public class AdminUserController implements AdminUserApi{
         @PathVariable("id") Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminResponse adminResponse = adminUserService.getAdmin(id);
-        return ResponseEntity.ok(adminResponse);
+        AdminResponse response = adminUserService.getAdmin(id);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/admins")
@@ -137,8 +115,8 @@ public class AdminUserController implements AdminUserApi{
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
         AdminsCondition adminsCondition = new AdminsCondition(page, limit, isAuthed, trackName, teamName);
-        AdminsResponse adminsResponse = adminUserService.getAdmins(adminsCondition);
-        return ResponseEntity.ok(adminsResponse);
+        AdminsResponse response = adminUserService.getAdmins(adminsCondition);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/admin/{id}/authed")
@@ -168,60 +146,6 @@ public class AdminUserController implements AdminUserApi{
     ) {
         adminUserService.updateAdminPermission(request, id, adminId);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/admin/users/student/{id}")
-    public ResponseEntity<AdminStudentResponse> getStudent(
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        AdminStudentResponse adminStudentResponse = adminUserService.getStudent(id);
-        return ResponseEntity.ok().body(adminStudentResponse);
-    }
-
-    @PutMapping("/admin/users/student/{id}")
-    public ResponseEntity<AdminStudentUpdateResponse> updateStudent(
-        @Valid @RequestBody AdminStudentUpdateRequest adminRequest,
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        AdminStudentUpdateResponse adminStudentUpdateResponse = adminUserService.updateStudent(id, adminRequest);
-        return ResponseEntity.ok().body(adminStudentUpdateResponse);
-    }
-
-    @GetMapping("/admin/users/owner/{id}")
-    public ResponseEntity<AdminOwnerResponse> getOwner(
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        AdminOwnerResponse adminOwnerResponse = adminUserService.getOwner(id);
-        return ResponseEntity.ok().body(adminOwnerResponse);
-    }
-
-    @PutMapping("/admin/users/owner/{id}")
-    public ResponseEntity<AdminOwnerUpdateResponse> updateOwner(
-        @PathVariable Integer id,
-        @RequestBody @Valid AdminOwnerUpdateRequest request,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        AdminOwnerUpdateResponse adminOwnerUpdateResponse = adminUserService.updateOwner(id, request);
-        return ResponseEntity.ok().body(adminOwnerUpdateResponse);
-    }
-
-    @GetMapping("/admin/users/new-owners")
-    public ResponseEntity<AdminNewOwnersResponse> getNewOwners(
-        @ParameterObject @ModelAttribute OwnersCondition ownersCondition,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        return ResponseEntity.ok().body(adminUserService.getNewOwners(ownersCondition));
-    }
-
-    @GetMapping("/admin/users/owners")
-    public ResponseEntity<AdminOwnersResponse> getOwners(
-        @ParameterObject @ModelAttribute OwnersCondition ownersCondition,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        return ResponseEntity.ok().body(adminUserService.getOwners(ownersCondition));
     }
 
     @GetMapping("/admin/users/{id}")
