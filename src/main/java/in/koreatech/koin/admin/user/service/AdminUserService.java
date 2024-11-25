@@ -1,7 +1,5 @@
 package in.koreatech.koin.admin.user.service;
 
-import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -12,7 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
 import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
 import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
@@ -26,19 +23,16 @@ import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
-import in.koreatech.koin.admin.owner.repository.AdminOwnerShopRedisRepository;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
 import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminTokenRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
-import in.koreatech.koin.domain.user.exception.UserNotFoundException;
+import in.koreatech.koin.admin.user.validation.AdminUserValidation;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
-import in.koreatech.koin.global.domain.email.exception.DuplicationEmailException;
-import in.koreatech.koin.global.domain.email.model.EmailAddress;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +49,7 @@ public class AdminUserService {
     private final PasswordEncoder passwordEncoder;
     private final AdminTokenRepository adminTokenRepository;
     private final AdminRepository adminRepository;
+    private final AdminUserValidation adminUserValidation;
 
     @Transactional
     public AdminResponse createAdmin(CreateAdminRequest request, Integer adminId) {
@@ -63,25 +58,10 @@ public class AdminUserService {
             throw new AuthorizationException("어드민 계정 생성 권한이 없습니다.");
         }
 
-        validateAdminCreate(request);
+        adminUserValidation.validateEmailForAdminCreated(request.email());
         Admin createAdmin = adminRepository.save(request.toEntity(passwordEncoder));
 
         return AdminResponse.from(createAdmin);
-    }
-
-    private void validateAdminCreate(CreateAdminRequest request) {
-        EmailAddress emailAddress = EmailAddress.from(request.email());
-        emailAddress.validateKoreatechEmail();
-        emailAddress.validateAdminEmail();
-
-        validateDuplicateEmail(request);
-    }
-
-    private void validateDuplicateEmail(CreateAdminRequest request) {
-        adminUserRepository.findByEmail(request.email())
-            .ifPresent(user -> {
-                throw DuplicationEmailException.withDetail("account: " + request.email());
-            });
     }
 
     @Transactional
@@ -97,7 +77,7 @@ public class AdminUserService {
     @Transactional
     public AdminLoginResponse adminLogin(AdminLoginRequest request) {
         User user = adminUserRepository.getByEmail(request.email());
-        validateAdminLogin(user, request);
+        adminUserValidation.validateAdminLogin(user, request);
 
         String accessToken = jwtProvider.createToken(user);
         String refreshToken = String.format("%s-%d", UUID.randomUUID(), user.getId());
@@ -105,25 +85,6 @@ public class AdminUserService {
         user.updateLastLoggedTime(LocalDateTime.now());
 
         return AdminLoginResponse.of(accessToken, savedtoken.getRefreshToken());
-    }
-
-    private void validateAdminLogin(User user, AdminLoginRequest request) {
-        /* 어드민 권한이 없으면 없는 회원으로 간주 */
-        if (user.getUserType() != ADMIN) {
-            throw UserNotFoundException.withDetail("account" + request.email());
-        }
-
-        if (adminRepository.findById(user.getId()).isEmpty()) {
-            throw UserNotFoundException.withDetail("account" + request.email());
-        }
-
-        if (!user.isSamePassword(passwordEncoder, request.password())) {
-            throw new KoinIllegalArgumentException("비밀번호가 틀렸습니다.");
-        }
-
-        if (!user.isAuthed()) {
-            throw new AuthorizationException("PL 인증 대기중입니다.");
-        }
     }
 
     @Transactional
