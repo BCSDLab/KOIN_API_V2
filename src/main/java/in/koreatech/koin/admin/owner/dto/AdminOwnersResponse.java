@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.user.dto;
+package in.koreatech.koin.admin.owner.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -10,16 +10,15 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
-import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = SnakeCaseStrategy.class)
-public record AdminNewOwnersResponse(
+@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record AdminOwnersResponse(
     @Schema(description = "조건에 해당하는 총 사장님의 수", example = "57", requiredMode = REQUIRED)
     Long totalCount,
 
@@ -33,10 +32,10 @@ public record AdminNewOwnersResponse(
     Integer currentPage,
 
     @Schema(description = "사장님 리스트", requiredMode = REQUIRED)
-    List<InnerNewOwnerResponse> owners
+    List<InnerOwnersResponse> owners
 ) {
-    @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerNewOwnerResponse(
+    @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public record InnerOwnersResponse(
         @Schema(description = "고유 id", requiredMode = REQUIRED)
         Integer id,
 
@@ -49,38 +48,29 @@ public record AdminNewOwnersResponse(
         @Schema(description = "전화번호", requiredMode = NOT_REQUIRED)
         String phoneNumber,
 
-        @Schema(description = "요청한 상점ID", requiredMode = NOT_REQUIRED)
-        Integer shopId,
-
-        @Schema(description = "요청한 상점명", requiredMode = NOT_REQUIRED)
-        String shopName,
-
         @Schema(description = "가입 신청 일자", requiredMode = REQUIRED)
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt
     ) {
-        public static InnerNewOwnerResponse from(OwnerIncludingShop ownerIncludingShop) {
-            User user = ownerIncludingShop.getOwner().getUser();
-            return new InnerNewOwnerResponse(
-                user.getId(),
-                user.getEmail(),
-                user.getName(),
-                user.getPhoneNumber(),
-                ownerIncludingShop.getShop_id(),
-                ownerIncludingShop.getShop_name(),
-                user.getCreatedAt()
+        public static InnerOwnersResponse from(Owner owner) {
+            return new InnerOwnersResponse(
+                owner.getUser().getId(),
+                owner.getUser().getEmail(),
+                owner.getUser().getName(),
+                owner.getUser().getPhoneNumber(),
+                owner.getUser().getCreatedAt()
             );
         }
     }
 
-    public static AdminNewOwnersResponse of(List<OwnerIncludingShop> ownerIncludingShops, Page pagedResult, Criteria criteria) {
-        return new AdminNewOwnersResponse(
+    public static AdminOwnersResponse of(Page<Owner> pagedResult, Criteria criteria) {
+        return new AdminOwnersResponse(
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),
             pagedResult.getTotalPages(),
             criteria.getPage() + 1,
-            ownerIncludingShops.stream()
-                .map(InnerNewOwnerResponse::from)
+            pagedResult.getContent().stream()
+                .map(InnerOwnersResponse::from)
                 .collect(Collectors.toList())
         );
     }
