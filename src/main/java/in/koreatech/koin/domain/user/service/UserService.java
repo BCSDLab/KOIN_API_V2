@@ -21,7 +21,6 @@ import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
-import in.koreatech.koin.global.auth.JwtProvider;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -96,6 +95,5 @@ public class UserService {
 
     public void updateLastLoginTime(User user) {
         user.updateLastLoggedTime(LocalDateTime.now());
-        userRepository.save(user);
     }
 }

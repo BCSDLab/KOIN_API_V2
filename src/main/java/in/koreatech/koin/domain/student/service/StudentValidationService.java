@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.student.service;
 
 import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
 import in.koreatech.koin.domain.student.exception.StudentDepartmentNotValidException;
@@ -19,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class StudentValidationService {
 
     private final UserRepository userRepository;

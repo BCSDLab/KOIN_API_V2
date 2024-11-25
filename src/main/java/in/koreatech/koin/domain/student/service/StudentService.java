@@ -33,7 +33,6 @@ import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserTokenService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
-import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.domain.email.form.StudentPasswordChangeData;
 import in.koreatech.koin.global.domain.email.form.StudentRegistrationData;
@@ -94,7 +93,6 @@ public class StudentService {
         user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updatePassword(passwordEncoder, request.password());
         student.updateInfo(request.studentNumber(), request.major());
-        studentRepository.save(student);
 
         return StudentUpdateResponse.from(student);
     }
@@ -145,7 +143,6 @@ public class StudentService {
         User authedUser = userRepository.getByResetToken(resetToken);
         authedUser.validateResetToken();
         authedUser.updatePassword(passwordEncoder, request.password());
-        userRepository.save(authedUser);
     }
 
     public ModelAndView checkResetToken(String resetToken, String serverUrl) {

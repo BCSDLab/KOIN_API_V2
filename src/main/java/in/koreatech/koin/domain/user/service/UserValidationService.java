@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
 import in.koreatech.koin.domain.student.repository.StudentRedisRepository;
@@ -21,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class UserValidationService {
 
     private final UserRepository userRepository;
