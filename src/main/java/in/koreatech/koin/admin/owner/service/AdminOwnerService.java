@@ -79,12 +79,13 @@ public class AdminOwnerService {
         Page<Owner> result = getNewOwnersResultPage(ownersCondition, criteria, direction);
 
         List<OwnerIncludingShop> ownerIncludingShops = new ArrayList<>();
-        for (Owner owner: result.getContent()) {
-            adminOwnerShopRedisRepository.findById(owner.getId()).ifPresent(ownerShop -> {
-                Shop shop = adminShopRepository.findById(ownerShop.getShopId()).orElse(null);
-                OwnerIncludingShop ownerIncludingShop = OwnerIncludingShop.of(owner, shop);
-                ownerIncludingShops.add(ownerIncludingShop);
-            });
+        for (Owner owner : result.getContent()) {
+            Shop shop = adminOwnerShopRedisRepository.findById(owner.getId())
+                .map(ownerShop -> adminShopRepository.findById(ownerShop.getShopId()).orElse(null))
+                .orElse(null);
+
+            OwnerIncludingShop ownerIncludingShop = OwnerIncludingShop.of(owner, shop);
+            ownerIncludingShops.add(ownerIncludingShop);
         }
 
         return AdminNewOwnersResponse.of(ownerIncludingShops, result, criteria);
