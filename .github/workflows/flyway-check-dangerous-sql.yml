@@ -22,11 +22,11 @@ jobs:
               ${{ github.event.pull_request.base.sha }} \
               ${{ github.event.pull_request.head.sha }}
           )
-          NON_FLYWAY_CHANGES=$(
+          NON_FLYWAY_FILES_CHANGES=$(
             echo "$CHANGED_FILES" | grep -v '^src/main/resources/db.migration/' || true
           )
           
-          SQL_COMMANDS=$(
+          DANGEROUS_SQL_COMMANDS=$(
             git diff --unified=0 \
               ${{ github.event.pull_request.base.sha }} \
               ${{ github.event.pull_request.head.sha }} \
@@ -34,10 +34,10 @@ jobs:
               grep -i -wE "^\+.*\b(DROP|TRUNCATE|RENAME|CONSTRAINT|MODIFY|CHANGE)\b" || true
           )
           
-          if [[ -n "$SQL_COMMANDS" && -n "$NON_FLYWAY_CHANGES" ]]; then
+          if [[ -n "$DANGEROUS_SQL_COMMANDS" && -n "$NON_FLYWAY_FILES_CHANGES" ]]; then
             echo "::error:: Flyway 스크립트에서 위험한 SQL 명령어가 발견되었습니다:"
-            echo "$SQL_COMMANDS"
+            echo "$DANGEROUS_SQL_COMMANDS"
             echo "::error:: Flyway 디렉토리를 제외하고 변경된 파일이 감지되었습니다:"
-            echo "$NON_FLYWAY_CHANGES"
+            echo "$NON_FLYWAY_FILES_CHANGES"
             exit 1
           fi
