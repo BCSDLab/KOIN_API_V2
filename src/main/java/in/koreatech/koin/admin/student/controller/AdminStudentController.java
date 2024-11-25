@@ -15,7 +15,7 @@ import in.koreatech.koin.admin.student.dto.AdminStudentResponse;
 import in.koreatech.koin.admin.student.dto.AdminStudentUpdateRequest;
 import in.koreatech.koin.admin.student.dto.AdminStudentUpdateResponse;
 import in.koreatech.koin.admin.student.dto.AdminStudentsResponse;
-import in.koreatech.koin.admin.user.dto.StudentsCondition;
+import in.koreatech.koin.admin.student.dto.StudentsCondition;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

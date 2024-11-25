@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin.admin.user.dto.StudentsCondition;
+import in.koreatech.koin.admin.student.dto.StudentsCondition;
 import in.koreatech.koin.domain.user.exception.UserNotFoundException;
 import in.koreatech.koin.domain.student.model.Student;
 
