@@ -69,7 +69,7 @@ public class TimetableFrame extends BaseEntity {
     private List<TimetableLecture> timetableLectures;
 
     @Builder
-    private TimetableFrame(
+    public TimetableFrame(
         User user,
         Semester semester,
         String name,
