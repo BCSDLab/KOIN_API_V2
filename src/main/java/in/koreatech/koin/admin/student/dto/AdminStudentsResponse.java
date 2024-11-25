@@ -1,4 +1,4 @@
-package in.koreatech.koin.admin.user.dto;
+package in.koreatech.koin.admin.student.dto;
 
 import java.util.List;
 import java.util.stream.Collectors;

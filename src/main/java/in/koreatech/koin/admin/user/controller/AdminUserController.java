@@ -26,10 +26,6 @@ import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
 import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminResponse;
-import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
-import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
-import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
-import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
 import in.koreatech.koin.admin.user.dto.AdminUpdateRequest;
@@ -37,7 +33,6 @@ import in.koreatech.koin.admin.user.dto.AdminsCondition;
 import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.dto.OwnersCondition;
-import in.koreatech.koin.admin.user.dto.StudentsCondition;
 import in.koreatech.koin.admin.user.enums.TeamType;
 import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.admin.user.service.AdminUserService;
@@ -58,20 +53,6 @@ public class AdminUserController implements AdminUserApi{
         @Auth(permit = {ADMIN}) Integer adminId) {
         adminUserService.allowOwnerPermission(id);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/admin/students")
-    public ResponseEntity<AdminStudentsResponse> getStudents(
-        @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit,
-        @RequestParam(required = false) Boolean isAuthed,
-        @RequestParam(required = false) String nickname,
-        @RequestParam(required = false) String email,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        StudentsCondition studentsCondition = new StudentsCondition(page, limit, isAuthed, nickname, email);
-        AdminStudentsResponse adminStudentsResponse = adminUserService.getStudents(studentsCondition);
-        return ResponseEntity.ok().body(adminStudentsResponse);
     }
 
     @PostMapping("/admin")
@@ -176,25 +157,6 @@ public class AdminUserController implements AdminUserApi{
     ) {
         adminUserService.updateAdminPermission(request, id, adminId);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/admin/users/student/{id}")
-    public ResponseEntity<AdminStudentResponse> getStudent(
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        AdminStudentResponse adminStudentResponse = adminUserService.getStudent(id);
-        return ResponseEntity.ok().body(adminStudentResponse);
-    }
-
-    @PutMapping("/admin/users/student/{id}")
-    public ResponseEntity<AdminStudentUpdateResponse> updateStudent(
-        @Valid @RequestBody AdminStudentUpdateRequest adminRequest,
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    ) {
-        AdminStudentUpdateResponse adminStudentUpdateResponse = adminUserService.updateStudent(id, adminRequest);
-        return ResponseEntity.ok().body(adminStudentUpdateResponse);
     }
 
     @GetMapping("/admin/users/owner/{id}")

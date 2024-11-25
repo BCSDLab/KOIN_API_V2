@@ -23,10 +23,6 @@ import in.koreatech.koin.admin.user.dto.AdminOwnersResponse;
 import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
 import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
 import in.koreatech.koin.admin.user.dto.AdminResponse;
-import in.koreatech.koin.admin.user.dto.AdminStudentResponse;
-import in.koreatech.koin.admin.user.dto.AdminStudentUpdateRequest;
-import in.koreatech.koin.admin.user.dto.AdminStudentUpdateResponse;
-import in.koreatech.koin.admin.user.dto.AdminStudentsResponse;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshRequest;
 import in.koreatech.koin.admin.user.dto.AdminTokenRefreshResponse;
 import in.koreatech.koin.admin.user.dto.AdminUpdateRequest;
@@ -48,25 +44,6 @@ import jakarta.validation.Valid;
 
 @Tag(name = "(Admin) User: 회원", description = "관리자 권한으로 회원 정보를 관리한다")
 public interface AdminUserApi {
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "학생 리스트 조회(페이지네이션)")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/admin/students")
-    ResponseEntity<AdminStudentsResponse> getStudents(
-        @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer limit,
-        @RequestParam(required = false) Boolean isAuthed,
-        @RequestParam(required = false) String nickname,
-        @RequestParam(required = false) String email,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
 
     @ApiResponses(
         value = {
@@ -253,39 +230,6 @@ public interface AdminUserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/admin/owner/{id}/authed")
     ResponseEntity<Void> allowOwnerPermission(
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "회원 정보 조회")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/admin/users/student/{id}")
-    ResponseEntity<AdminStudentResponse> getStudent(
-        @PathVariable Integer id,
-        @Auth(permit = {ADMIN}) Integer adminId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "회원 정보 수정")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @PutMapping("/admin/users/student/{id}")
-    ResponseEntity<AdminStudentUpdateResponse> updateStudent(
-        @Valid @RequestBody AdminStudentUpdateRequest adminRequest,
         @PathVariable Integer id,
         @Auth(permit = {ADMIN}) Integer adminId
     );
