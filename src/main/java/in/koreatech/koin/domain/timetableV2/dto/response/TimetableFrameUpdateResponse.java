@@ -19,11 +19,11 @@ public record TimetableFrameUpdateResponse(
     @Schema(description = "메인 시간표 여부", example = "false", requiredMode = REQUIRED)
     Boolean isMain
 ) {
-
     public static TimetableFrameUpdateResponse from(TimetableFrame timetableFrame) {
         return new TimetableFrameUpdateResponse(
             timetableFrame.getId(),
             timetableFrame.getName(),
-            timetableFrame.isMain());
+            timetableFrame.isMain()
+        );
     }
 }
