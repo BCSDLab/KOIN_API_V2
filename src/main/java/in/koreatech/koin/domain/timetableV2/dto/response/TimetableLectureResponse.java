@@ -1,17 +1,18 @@
-package in.koreatech.koin.domain.timetableV2.dto;
+package in.koreatech.koin.domain.timetableV2.dto.response;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -78,15 +79,17 @@ public record TimetableLectureResponse(
             List<InnerTimetableLectureResponse> timetableLectureList = new ArrayList<>();
 
             for (TimetableLecture timetableLecture : timetableLectures) {
+                Lecture lecture = timetableLecture.getLecture();
                 InnerTimetableLectureResponse response;
-                if (timetableLecture.getLecture() == null) {
+
+                if (lecture == null) {
                     response = new InnerTimetableLectureResponse(
                         timetableLecture.getId(),
                         null,
                         null,
                         null,
                         null,
-                        parseIntegerClassTimesFromString(timetableLecture.getClassTime()),
+                        parseClassTimes(timetableLecture.getClassTime()),
                         timetableLecture.getClassPlace(),
                         timetableLecture.getMemo(),
                         timetableLecture.getGrades(),
@@ -99,55 +102,74 @@ public record TimetableLectureResponse(
                 } else {
                     response = new InnerTimetableLectureResponse(
                         timetableLecture.getId(),
-                        timetableLecture.getLecture().getId(),
-                        timetableLecture.getLecture().getRegularNumber(),
-                        timetableLecture.getLecture().getCode(),
-                        timetableLecture.getLecture().getDesignScore(),
-                        timetableLecture.getClassTime() == null
-                            ? parseIntegerClassTimesFromString(
-                            timetableLecture.getLecture().getClassTime())
-                            : parseIntegerClassTimesFromString(timetableLecture.getClassTime()),
+                        lecture.getId(),
+                        lecture.getRegularNumber(),
+                        lecture.getCode(),
+                        lecture.getDesignScore(),
+                        getClassTime(timetableLecture, lecture),
                         timetableLecture.getClassPlace(),
                         timetableLecture.getMemo(),
-                        Objects.equals(timetableLecture.getGrades(), "0")
-                            ? timetableLecture.getLecture().getGrades()
-                            : timetableLecture.getGrades(),
-                        timetableLecture.getClassTitle() == null
-                            ? timetableLecture.getLecture().getName()
-                            : timetableLecture.getClassTitle(),
-                        timetableLecture.getLecture().getLectureClass(),
-                        timetableLecture.getLecture().getTarget(),
-                        timetableLecture.getProfessor() == null
-                            ? timetableLecture.getLecture().getProfessor()
-                            : timetableLecture.getProfessor(),
-                        timetableLecture.getLecture().getDepartment()
+                        getGrades(timetableLecture, lecture),
+                        getClassTitle(timetableLecture, lecture),
+                        lecture.getLectureClass(),
+                        lecture.getTarget(),
+                        getProfessor(timetableLecture, lecture),
+                        lecture.getDepartment()
                     );
                 }
                 timetableLectureList.add(response);
             }
             return timetableLectureList;
         }
-    }
 
-    public static TimetableLectureResponse of(Integer timetableFrameId, List<TimetableLecture> timetableLectures,
-        Integer grades, Integer totalGrades) {
-        return new TimetableLectureResponse(timetableFrameId, InnerTimetableLectureResponse.from(timetableLectures),
-            grades, totalGrades);
-    }
+        private static String getProfessor(TimetableLecture timetableLecture, Lecture lecture) {
+            if (timetableLecture.getProfessor() == null) {
+                return lecture.getProfessor();
+            }
+            return timetableLecture.getProfessor();
+        }
 
-    private static final int INITIAL_BRACE_INDEX = 1;
+        private static String getClassTitle(TimetableLecture timetableLecture, Lecture lecture) {
+            if (timetableLecture.getClassTitle() == null) {
+                return lecture.getName();
+            }
+            return timetableLecture.getClassTitle();
+        }
 
-    private static List<Integer> parseIntegerClassTimesFromString(String classTime) {
-        String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
+        private static String getGrades(TimetableLecture timetableLecture, Lecture lecture) {
+            if (Objects.equals(timetableLecture.getGrades(), GRADE_ZERO)) {
+                return lecture.getGrades();
+            }
+            return timetableLecture.getGrades();
+        }
 
-        if (!classTimeWithoutBrackets.isEmpty()) {
-            return Arrays.stream(classTimeWithoutBrackets.split(","))
-                .map(String::strip)
-                .map(Integer::parseInt)
-                .toList();
-        } else {
-            return Collections.emptyList();
+        private static List<Integer> getClassTime(TimetableLecture timetableLecture, Lecture lecture) {
+            if (timetableLecture.getClassTime() == null) {
+                return parseClassTimes(lecture.getClassTime());
+            }
+            return parseClassTimes(timetableLecture.getClassTime());
         }
     }
-}
 
+    private static final String GRADE_ZERO = "0";
+    private static final int INITIAL_BRACE_INDEX = 1;
+    private static final String SEPARATOR = ",";
+
+    public static TimetableLectureResponse of(TimetableFrame timetableFrame, Integer grades, Integer totalGrades) {
+        return new TimetableLectureResponse(
+            timetableFrame.getId(),
+            InnerTimetableLectureResponse.from(timetableFrame.getTimetableLectures()),
+            grades,
+            totalGrades
+        );
+    }
+
+    private static List<Integer> parseClassTimes(String classTime) {
+        String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
+
+        return Arrays.stream(classTimeWithoutBrackets.split(SEPARATOR))
+            .map(String::strip)
+            .map(Integer::parseInt)
+            .toList();
+    }
+}

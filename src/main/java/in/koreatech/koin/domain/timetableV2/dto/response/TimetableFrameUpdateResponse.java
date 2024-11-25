@@ -1,15 +1,15 @@
-package in.koreatech.koin.domain.timetableV2.dto;
+package in.koreatech.koin.domain.timetableV2.dto.response;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record TimetableFrameResponse(
+public record TimetableFrameUpdateResponse(
     @Schema(description = "id", example = "1", requiredMode = REQUIRED)
     Integer id,
 
@@ -19,8 +19,8 @@ public record TimetableFrameResponse(
     @Schema(description = "메인 시간표 여부", example = "false", requiredMode = REQUIRED)
     Boolean isMain
 ) {
-    public static TimetableFrameResponse from(TimetableFrame timetableFrame) {
-        return new TimetableFrameResponse(
+    public static TimetableFrameUpdateResponse from(TimetableFrame timetableFrame) {
+        return new TimetableFrameUpdateResponse(
             timetableFrame.getId(),
             timetableFrame.getName(),
             timetableFrame.isMain()
