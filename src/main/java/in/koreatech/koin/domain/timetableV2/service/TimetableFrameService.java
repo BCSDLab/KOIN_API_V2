@@ -69,8 +69,6 @@ public class TimetableFrameService {
         timetableFrameRepositoryV2.deleteAllByUserAndSemester(user, timetableSemester);
     }
 
-    /*TODO. 락 3개 찾아보기 - 신관규
-    *  찾아보고 리펙토링 진행*/
     @ConcurrencyGuard(lockName = "deleteFrame")
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
