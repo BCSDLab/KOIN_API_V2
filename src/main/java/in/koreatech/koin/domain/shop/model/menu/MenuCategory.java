@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "shop_menu_categories")
 @NoArgsConstructor(access = PROTECTED)
-public final class MenuCategory extends BaseEntity implements Comparable<MenuCategory> {
+public class MenuCategory extends BaseEntity implements Comparable<MenuCategory> {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)

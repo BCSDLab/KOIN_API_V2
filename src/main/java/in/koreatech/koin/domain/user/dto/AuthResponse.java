@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record AuthResponse(
     @Schema(description = "사용자 권한 타입", example = "STUDENT", requiredMode = REQUIRED)
     String userType

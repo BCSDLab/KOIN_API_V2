@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.shop.model.article.EventArticle;
-import in.koreatech.koin.domain.shop.model.article.EventArticleImage;
+import in.koreatech.koin.domain.shop.model.event.EventArticle;
+import in.koreatech.koin.domain.shop.model.event.EventArticleImage;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
