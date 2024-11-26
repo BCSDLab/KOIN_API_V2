@@ -4,7 +4,6 @@ import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameVali
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +20,6 @@ import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameCreator;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameUpdater;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import lombok.RequiredArgsConstructor;
 
@@ -37,35 +35,40 @@ public class TimetableFrameService {
     private final TimetableFrameUpdater timetableFrameUpdater;
 
     @Transactional
-    public TimetableFrameResponse createTimetablesFrame(Integer userId, TimetableFrameCreateRequest request) {
+    public TimetableFrameResponse createTimetableFrame(Integer userId, TimetableFrameCreateRequest request) {
+        // TODO: semester enum으로 변경
         Semester semester = semesterRepositoryV2.getBySemester(request.semester());
         User user = userRepository.getById(userId);
         int currentFrameCount = timetableFrameRepositoryV2.countByUserIdAndSemesterId(userId, semester.getId());
 
         TimetableFrame frame = timetableFrameCreator.createTimetableFrame(request, user, semester, currentFrameCount);
-        TimetableFrame saveFrame = timetableFrameRepositoryV2.save(frame);
+        TimetableFrame savedFrame = timetableFrameRepositoryV2.save(frame);
 
-        return TimetableFrameResponse.from(saveFrame);
+        return TimetableFrameResponse.from(savedFrame);
     }
 
     @Transactional
     public TimetableFrameUpdateResponse updateTimetableFrame(
-        TimetableFrameUpdateRequest request, Integer timetableFrameId, Integer userId
+        TimetableFrameUpdateRequest request,
+        Integer timetableFrameId,
+        Integer userId
     ) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(timetableFrameId);
+        // TODO: 메소드 이름 생각해보기
         validateTimetableFrameUpdate(frame, request.isMain());
         return timetableFrameUpdater.updateTimetableFrame(frame, userId, request.timetableName(), request.isMain());
     }
 
     public List<TimetableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
         Semester semester = semesterRepositoryV2.getBySemester(semesterRequest);
+        // TODO: DTO에서 변환하는 정적 함수 만들어보기
         return timetableFrameRepositoryV2.findAllByUserIdAndSemesterId(userId, semester.getId()).stream()
             .map(TimetableFrameResponse::from)
             .toList();
     }
 
     @Transactional
-    public void deleteAllTimetablesFrame(Integer userId, String semester) {
+    public void deleteAllTimetableFrame(Integer userId, String semester) {
         User user = userRepository.getById(userId);
         Semester timetableSemester = semesterRepositoryV2.getBySemester(semester);
         timetableFrameRepositoryV2.deleteAllByUserAndSemester(user, timetableSemester);
@@ -79,6 +82,7 @@ public class TimetableFrameService {
         deleteFrameAndUpdateMainStatusWithLock(frameId, userId, timetableFrame);
     }
 
+    // TODO: isMain대신에 해볼만한 방법 생각해보기?
     @ConcurrencyGuard(lockName = "deleteFrame")
     private void deleteFrameAndUpdateMainStatusWithLock(Integer frameId, Integer userId, TimetableFrame frame) {
         timetableFrameRepositoryV2.deleteById(frameId);

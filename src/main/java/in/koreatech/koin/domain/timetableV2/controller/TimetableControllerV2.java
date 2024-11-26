@@ -39,7 +39,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @Valid @RequestBody TimetableFrameCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableFrameResponse response = frameServiceV2.createTimetablesFrame(userId, request);
+        TimetableFrameResponse response = frameServiceV2.createTimetableFrame(userId, request);
         return ResponseEntity.ok(response);
     }
 
@@ -76,7 +76,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        frameServiceV2.deleteAllTimetablesFrame(userId, semester);
+        frameServiceV2.deleteAllTimetableFrame(userId, semester);
         return ResponseEntity.noContent().build();
     }
 

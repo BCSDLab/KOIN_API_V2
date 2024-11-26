@@ -10,21 +10,27 @@ import in.koreatech.koin.domain.user.model.User;
 @Component
 public class TimetableFrameCreator {
 
-    private static final String DEFAULT_TIMETABLE_FRAME_NAME = "시간표";
+    private static final String DEFAULT_TIMETABLE_FRAME_NAME = "시간표 %d";
 
     public TimetableFrame createTimetableFrame(
         TimetableFrameCreateRequest request, User user, Semester semester, int currentFrameCount
     ) {
-        boolean isMain = determineIfMain(currentFrameCount);
+        boolean isMain = isDetermineMain(currentFrameCount);
         String name = determineTimetableName(request.timetableName(), currentFrameCount);
         return request.toTimetablesFrame(user, semester, name, isMain);
     }
 
-    private boolean determineIfMain(int currentFrameCount) {
+    private boolean isDetermineMain(int currentFrameCount) {
         return currentFrameCount == 0;
     }
 
     private String determineTimetableName(String requestedName, int currentFrameCount) {
+        /*
+            TODO
+            - 공백인 경우가 있으면?
+            - isBlank~~ 이런 메소드 만들어서 사용하기
+            - if(requestName == null || requestName.isBlank)
+         */
         if (requestedName != null) {
             return requestedName;
         }
@@ -32,6 +38,6 @@ public class TimetableFrameCreator {
     }
 
     private String getDefaultTimetableFrameName(int currentFrameCount) {
-        return DEFAULT_TIMETABLE_FRAME_NAME + (currentFrameCount);
+        return String.format(DEFAULT_TIMETABLE_FRAME_NAME, currentFrameCount);
     }
 }

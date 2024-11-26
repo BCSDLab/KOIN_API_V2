@@ -28,7 +28,7 @@ import in.koreatech.koin.fixture.UserFixture;
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TimetableLectureApiTest extends AcceptanceTest {
+class TimetableLectureApiTest extends AcceptanceTest {
 
     @Autowired
     private TimeTableV2Fixture timetableV2Fixture;
@@ -320,60 +320,61 @@ public class TimetableLectureApiTest extends AcceptanceTest {
             .andExpect(status().isNoContent());
     }
 
-    /*@Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    void isMain이_false인_frame과_true인_frame을_동시에_삭제한다() {
-        User user = userFixture.준호_학생().getUser();
-        String token = userFixture.getToken(user);
-        Semester semester = semesterFixture.semester("20192");
-
-        TimetableFrame mainFrame = timetableV2Fixture.시간표1(user, semester);
-        TimetableFrame frame1 = timetableV2Fixture.시간표2(user, semester);
-        TimetableFrame frame2 = timetableV2Fixture.시간표3(user, semester);
-
-        int threadCount = 2;
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-        CountDownLatch latch = new CountDownLatch(threadCount);
-
-        executorService.execute(() -> {
-            try {
-                RestAssured
-                    .given()
-                    .header("Authorization", "Bearer " + token)
-                    .when()
-                    .param("id", frame1.getId())
-                    .delete("/v2/timetables/frame")
-                    .then()
-                    .statusCode(HttpStatus.NO_CONTENT.value());
-            } finally {
-                latch.countDown();
-            }
-        });
-
-        executorService.execute(() -> {
-            try {
-                RestAssured
-                    .given()
-                    .header("Authorization", "Bearer " + token)
-                    .when()
-                    .param("id", mainFrame.getId())
-                    .delete("/v2/timetables/frame")
-                    .then()
-                    .statusCode(HttpStatus.NO_CONTENT.value());
-            } finally {
-                latch.countDown();
-            }
-        });
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } finally {
-            executorService.shutdown();
-        }
-
-        TimetableFrame reloadedFrame2 = timetableFrameRepositoryV2.findById(frame2.getId()).orElseThrow();
-        assertThat(reloadedFrame2.isMain()).isTrue();
-    }*/
+    // TODO: 테스트코드 완성하기
+//    @Test
+//    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+//    void isMain이_false인_frame과_true인_frame을_동시에_삭제한다() {
+//        User user = userFixture.준호_학생().getUser();
+//        String token = userFixture.getToken(user);
+//        Semester semester = semesterFixture.semester("20192");
+//
+//        TimetableFrame mainFrame = timetableV2Fixture.시간표1(user, semester);
+//        TimetableFrame frame1 = timetableV2Fixture.시간표2(user, semester);
+//        TimetableFrame frame2 = timetableV2Fixture.시간표3(user, semester);
+//
+//        int threadCount = 2;
+//        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+//        CountDownLatch latch = new CountDownLatch(threadCount);
+//
+//        executorService.execute(() -> {
+//            try {
+//                RestAssured
+//                    .given()
+//                    .header("Authorization", "Bearer " + token)
+//                    .when()
+//                    .param("id", frame1.getId())
+//                    .delete("/v2/timetables/frame")
+//                    .then()
+//                    .statusCode(HttpStatus.NO_CONTENT.value());
+//            } finally {
+//                latch.countDown();
+//            }
+//        });
+//
+//        executorService.execute(() -> {
+//            try {
+//                RestAssured
+//                    .given()
+//                    .header("Authorization", "Bearer " + token)
+//                    .when()
+//                    .param("id", mainFrame.getId())
+//                    .delete("/v2/timetables/frame")
+//                    .then()
+//                    .statusCode(HttpStatus.NO_CONTENT.value());
+//            } finally {
+//                latch.countDown();
+//            }
+//        });
+//
+//        try {
+//            latch.await();
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//        } finally {
+//            executorService.shutdown();
+//        }
+//
+//        TimetableFrame reloadedFrame2 = timetableFrameRepositoryV2.findById(frame2.getId()).orElseThrow();
+//        assertThat(reloadedFrame2.isMain()).isTrue();
+//    }
 }

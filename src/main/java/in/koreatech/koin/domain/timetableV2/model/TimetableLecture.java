@@ -72,8 +72,17 @@ public class TimetableLecture extends BaseEntity {
     private TimetableFrame timetableFrame;
 
     @Builder
-    public TimetableLecture(String classTitle, String classTime, String classPlace, String professor,
-        String grades, String memo, boolean isDeleted, Lecture lecture, TimetableFrame timetableFrame) {
+    public TimetableLecture(
+            String classTitle,
+            String classTime,
+            String classPlace,
+            String professor,
+            String grades,
+            String memo,
+            boolean isDeleted,
+            Lecture lecture,
+            TimetableFrame timetableFrame
+    ) {
         this.classTitle = classTitle;
         this.classTime = classTime;
         this.classPlace = classPlace;
@@ -86,9 +95,12 @@ public class TimetableLecture extends BaseEntity {
     }
 
     public void update(
-        String classTitle, String classTime,
-        String classPlace, String professor,
-        String grades, String memo
+            String classTitle,
+            String classTime,
+            String classPlace,
+            String professor,
+            String grades,
+            String memo
     ) {
         this.classTitle = classTitle;
         this.classTime = classTime;
@@ -98,12 +110,12 @@ public class TimetableLecture extends BaseEntity {
         this.memo = memo;
     }
 
+    // TODO: dto를 이용한 update 대신 위에 있는 함수 사용하기
     public void update(TimetableUpdateRequest.InnerTimetableRequest request) {
         this.classTitle = request.classTitle();
         this.classTime = request.classTime().toString();
         this.classPlace = request.classPlace();
         this.professor = request.professor();
-        this.grades = grades;
         this.memo = request.memo();
     }
 }
