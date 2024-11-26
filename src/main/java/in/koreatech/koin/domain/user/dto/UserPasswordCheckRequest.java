@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
-@JsonNaming(SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record UserPasswordCheckRequest(
     @Schema(
         description = "확인할 비밀번호 (SHA 256 해싱된 값)",
