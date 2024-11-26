@@ -113,7 +113,7 @@ public class Route {
         String busType = "한기대".equals(depart.getQueryName()) ? "하교셔틀" : "등교셔틀";
         ArrivalNode findDepartNode = findArrivalNodeByStation(depart);
 
-        return new ScheduleInfo("shuttle", String.format("%s, %s", routeName, busType),
+        return new ScheduleInfo("shuttle", String.format("%s %s", routeName, busType),
             LocalTime.parse(findDepartNode.getArrivalTime()));
     }
 

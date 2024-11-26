@@ -59,7 +59,7 @@ public record BusScheduleResponse(
     ) {
         public static List<ScheduleInfo> toScheduleInfo(List<LocalTime> timetable, String busType, String busName) {
             return timetable.stream()
-                .map(time -> new BusScheduleResponse.ScheduleInfo(busType, busName, time))
+                .map(time -> new ScheduleInfo(busType, busName, time))
                 .collect(Collectors.toList());
         }
     }
