@@ -72,7 +72,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                                             "class_time" : [200, 201],
                                             "class_place" : "한기대"
                                         }
-                                    ]
+                                    ],
                                     "professor" : "서정빈",
                                     "grades": "2",
                                     "memo" : "메모"
@@ -105,7 +105,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": null,
                             "code": null,
                             "design_score": null,
-                            "class_time": [200, 201],
+                            "class_time": [200, 201, -1],
                             "class_place": "한기대",
                             "memo": "메모",
                             "grades": "2",
@@ -121,7 +121,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": null,
                             "code": null,
                             "design_score": null,
-                            "class_time": [202, 203],
+                            "class_time": [202, 203, -1],
                             "class_place": "참빛관 편의점",
                             "memo": "메모",
                             "grades": "1",
@@ -191,7 +191,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": null,
                             "code": null,
                             "design_score": null,
-                            "class_time": [200, 201],
+                            "class_time": [200, 201, -1],
                             "class_place": "한기대",
                             "memo": "메모한당 히히",
                             "grades": "0",
@@ -207,7 +207,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": null,
                             "code": null,
                             "design_score": null,
-                            "class_time": [202, 203],
+                            "class_time": [202, 203, -1],
                             "class_place": "참빛관 편의점",
                             "memo": "메모한당 히히",
                             "grades": "0",
