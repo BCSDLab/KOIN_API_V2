@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimetableLectureResponse(
@@ -47,11 +48,8 @@ public record TimetableLectureResponse(
         @Schema(description = "설계 학점", example = "0", requiredMode = NOT_REQUIRED)
         String designScore,
 
-        @Schema(description = "강의(커스텀) 시간", example = "[204, 205, 206, 207, 302, 303]", requiredMode = REQUIRED)
-        List<Integer> classTime,
-
-        @Schema(description = "강의 장소", example = "2공학관", requiredMode = NOT_REQUIRED)
-        String classPlace,
+        @Schema(description = "강의 정보", requiredMode = NOT_REQUIRED)
+        List<ClassInfo> classInfos,
 
         @Schema(description = "메모", example = "null", requiredMode = NOT_REQUIRED)
         String memo,
@@ -74,6 +72,18 @@ public record TimetableLectureResponse(
         @Schema(description = "학부", example = "디자인ㆍ건축공학부", requiredMode = NOT_REQUIRED)
         String department
     ) {
+        @JsonNaming(value = SnakeCaseStrategy.class)
+        public record ClassInfo(
+            @Schema(description = "강의 시간", example = "null", requiredMode = NOT_REQUIRED)
+            List<Integer> classTime,
+
+            @Schema(description = "강의 장소", example = "도서관", requiredMode = NOT_REQUIRED)
+            String classPlace
+        ) {
+            public static List<ClassInfo> of(String classTime, String classPlace) {
+                String[] classPlaceSegment = classPlace.split(",");
+            }
+        }
 
         public static List<InnerTimetableLectureResponse> from(List<TimetableLecture> timetableLectures) {
             List<InnerTimetableLectureResponse> timetableLectureList = new ArrayList<>();
@@ -89,8 +99,7 @@ public record TimetableLectureResponse(
                         null,
                         null,
                         null,
-                        parseClassTimes(timetableLecture.getClassTime()),
-                        timetableLecture.getClassPlace(),
+                        /**/,
                         timetableLecture.getMemo(),
                         timetableLecture.getGrades(),
                         timetableLecture.getClassTitle(),
