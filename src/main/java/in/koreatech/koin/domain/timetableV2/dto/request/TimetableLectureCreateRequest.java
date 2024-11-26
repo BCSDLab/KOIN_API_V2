@@ -5,6 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -102,9 +103,11 @@ public record TimetableLectureCreateRequest(
 
         private String getClassTimeToString() {
             if (classInfos != null) {
-                List<Integer> classTimes = classInfos.stream()
-                    .flatMap(c -> concat(c.classTime().stream(), of(-1)))
-                    .toList();
+                List<Integer> classTimes = new ArrayList<>();
+                for (int i = 0; i < classInfos.size(); i++) {
+                    if (i > 0) classTimes.add(-1);
+                    classTimes.addAll(classInfos.get(i).classTime);
+                }
                 return classTimes.toString();
             }
             return null;
