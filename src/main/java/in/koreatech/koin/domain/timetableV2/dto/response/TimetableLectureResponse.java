@@ -165,8 +165,9 @@ public record TimetableLectureResponse(
     }
 
     private static List<Integer> parseClassTimes(String classTime) {
-        String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
+        if (classTime == null) return null;
 
+        String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
         return Arrays.stream(classTimeWithoutBrackets.split(SEPARATOR))
             .map(String::strip)
             .map(Integer::parseInt)
