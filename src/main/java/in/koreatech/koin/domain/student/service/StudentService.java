@@ -27,7 +27,7 @@ import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeSubmitRequest;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.domain.user.service.UserService;
 import in.koreatech.koin.domain.user.service.UserTokenService;
 import in.koreatech.koin.domain.user.service.UserValidationService;
@@ -48,7 +48,7 @@ public class StudentService {
     private final StudentValidationService studentValidationService;
     private final UserRepository userRepository;
     private final UserTokenService userTokenService;
-    private final UserTokenRepository userTokenRepository;
+    private final UserTokenRedisRepository userTokenRepository;
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
     private final PasswordEncoder passwordEncoder;
@@ -60,6 +60,7 @@ public class StudentService {
         studentValidationService.validateStudentRegister(request);
         String authToken = UUID.randomUUID().toString();
 
+        // TODO : 변환 로직을 util 클래스에 분리하면 좋을 듯
         StudentTemporaryStatus studentTemporaryStatus = StudentTemporaryStatus.of(request, authToken);
         studentRedisRepository.save(studentTemporaryStatus);
 
@@ -97,8 +98,8 @@ public class StudentService {
 
     @ConcurrencyGuard(lockName = "studentAuthenticate")
     public ModelAndView authenticate(AuthTokenRequest request) {
-        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository.findByAuthToken(
-            request.authToken());
+        Optional<StudentTemporaryStatus> studentTemporaryStatus = studentRedisRepository
+            .findByAuthToken(request.authToken());
         if (studentTemporaryStatus.isEmpty()) {
             ModelAndView modelAndView = new ModelAndView("error_config");
             modelAndView.addObject("errorMessage", "토큰이 유효하지 않습니다.");
@@ -141,6 +142,7 @@ public class StudentService {
 
     public ModelAndView checkResetToken(String resetToken, String serverUrl) {
         ModelAndView modelAndView = new ModelAndView("change_password_config");
+        // TODO : 메소드명으로 설명달고 분리하기
         modelAndView.addObject("contextPath", serverUrl);
         modelAndView.addObject("resetToken", resetToken);
         return modelAndView;

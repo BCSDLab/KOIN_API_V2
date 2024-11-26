@@ -60,8 +60,7 @@ public class StudentController implements StudentApi{
         @RequestBody @Valid StudentLoginRequest request
     ) {
         StudentLoginResponse response = studentService.studentLogin(request);
-        return ResponseEntity.created(URI.create("/"))
-            .body(response);
+        return ResponseEntity.created(URI.create("/")).body(response);
     }
 
     @PostMapping("/user/student/register")

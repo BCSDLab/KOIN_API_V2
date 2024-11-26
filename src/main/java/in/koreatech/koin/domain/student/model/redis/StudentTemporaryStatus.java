@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
 @RedisHash(value = "StudentTemporaryStatus")
+// TODO : 이름 바꿀 생각?? -> 인증되지 않은 학생정보(unauthenticationStudentInfo)
 public class StudentTemporaryStatus {
 
     private static final long CACHE_EXPIRE_SECOND = 60 * 60 * 10L;
@@ -43,8 +44,18 @@ public class StudentTemporaryStatus {
     @TimeToLive
     private Long expiration;
 
-    public StudentTemporaryStatus(String email, String authToken, String nickname, String name, String password,
-                                  UserGender gender, boolean isGraduated, String department, String studentNumber, String phoneNumber) {
+    public StudentTemporaryStatus(
+        String email,
+        String authToken,
+        String nickname,
+        String name,
+        String password,
+        UserGender gender,
+        boolean isGraduated,
+        String department,
+        String studentNumber,
+        String phoneNumber
+    ) {
         this.email = email;
         this.authToken = authToken;
         this.nickname = nickname;
@@ -59,8 +70,17 @@ public class StudentTemporaryStatus {
     }
 
     public static StudentTemporaryStatus of(StudentRegisterRequest request, String authToken) {
-        return new StudentTemporaryStatus(request.email(), authToken, request.nickname(), request.name(), request.password(), request.gender(),
-                request.isGraduated(), request.major(), request.studentNumber(), request.phoneNumber());
+        return new StudentTemporaryStatus(request.email(),
+            authToken,
+            request.nickname(),
+            request.name(),
+            request.password(),
+            request.gender(),
+            request.isGraduated(),
+            request.major(),
+            request.studentNumber(),
+            request.phoneNumber()
+        );
     }
 
     public Student toStudent(PasswordEncoder passwordEncoder) {

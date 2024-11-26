@@ -49,7 +49,7 @@ import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +64,7 @@ public class CoopService {
     private final DiningRepository diningRepository;
     private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
     private final CoopRepository coopRepository;
-    private final UserTokenRepository userTokenRepository;
+    private final UserTokenRedisRepository userTokenRepository;
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;

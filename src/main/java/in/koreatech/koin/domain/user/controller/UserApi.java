@@ -160,7 +160,7 @@ public interface UserApi {
             @Valid UserAccessTokenRequest request
     );
 
-    // 추후 이동
+    // TODO: 영양사로 옮기기
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),

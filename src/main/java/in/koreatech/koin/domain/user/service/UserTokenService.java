@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -18,12 +18,13 @@ import lombok.RequiredArgsConstructor;
 public class UserTokenService {
 
     private final JwtProvider jwtProvider;
-    private final UserTokenRepository userTokenRepository;
+    private final UserTokenRedisRepository userTokenRepository;
 
     public String createAccessToken(User user) {
         return jwtProvider.createToken(user);
     }
 
+    // TODO : "%s-%d" 상수 선언하기
     public String generateRefreshToken(User user) {
         return String.format("%s-%d", UUID.randomUUID(), user.getId());
     }
@@ -32,6 +33,7 @@ public class UserTokenService {
         jwtProvider.getUserId(accessToken);
     }
 
+    // TODO : Validation과 Check의 컨벤션 정해보기
     public UserToken validateRefreshToken(String refreshToken, Integer userId) {
         UserToken userToken = userTokenRepository.getById(userId);
         if (!Objects.equals(userToken.getRefreshToken(), refreshToken)) {

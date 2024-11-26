@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.student.model;
 
+import java.util.Arrays;
+
 import lombok.Getter;
 
 @Getter
@@ -22,6 +24,7 @@ public enum StudentDepartment {
         this.value = value;
     }
 
+    // TODO : Stream으로 수정..
     public static boolean isValid(String department) {
         for (StudentDepartment value : StudentDepartment.values()) {
             if (value.getValue().equals(department)) {

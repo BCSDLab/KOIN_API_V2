@@ -8,7 +8,7 @@ import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.repository.shop.ShopRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
-import in.koreatech.koin.domain.user.repository.UserTokenRepository;
+import in.koreatech.koin.domain.user.repository.UserTokenRedisRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class OwnerUtilService {
 
     private final OwnerRepository ownerRepository;
-    private final UserTokenRepository userTokenRepository;
+    private final UserTokenRedisRepository userTokenRepository;
     private final ShopRepository shopRepository;
     private final ApplicationEventPublisher eventPublisher;
 

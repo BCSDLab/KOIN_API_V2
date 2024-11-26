@@ -25,6 +25,7 @@ public class StudentValidationService {
 
     private static final int MIN_YEAR = 1992;
 
+    // TODO : validation, check 컨벤션 세우기
     public void validateStudentRegister(StudentRegisterRequest request) {
         EmailAddress emailAddress = EmailAddress.from(request.email());
         emailAddress.validateKoreatechEmail();
@@ -54,10 +55,9 @@ public class StudentValidationService {
     }
 
     public void validateEmailExist(String email) {
-        userRepository.findByEmail(email)
-            .ifPresent(user -> {
+        userRepository.findByEmail(email).ifPresent(user -> {
                 throw DuplicationEmailException.withDetail("email: " + email);
-            });
+        });
         studentRedisRepository.findById(email)
             .ifPresent(status -> {
                 throw DuplicationEmailException.withDetail("email: " + email);
@@ -83,8 +83,9 @@ public class StudentValidationService {
             return;
         }
         int studentNumberYear = StudentUtil.parseStudentNumberYear(studentNumber);
-        if (studentNumberYear < MIN_YEAR
-            || LocalDateTime.now().getYear() < studentNumberYear) {
+        if (studentNumberYear < MIN_YEAR ||
+            LocalDateTime.now().getYear() < studentNumberYear
+        ) {
             throw StudentNumberNotValidException.withDetail("studentNumber: " + studentNumber);
         }
     }

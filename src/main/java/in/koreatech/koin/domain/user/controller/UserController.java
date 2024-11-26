@@ -35,8 +35,7 @@ public class UserController implements UserApi {
         @RequestBody @Valid UserLoginRequest request
     ) {
         UserLoginResponse response = userService.login(request);
-        return ResponseEntity.created(URI.create("/"))
-            .body(response);
+        return ResponseEntity.created(URI.create("/")).body(response);
     }
 
     @PostMapping("/user/logout")
@@ -52,8 +51,7 @@ public class UserController implements UserApi {
         @RequestBody @Valid UserTokenRefreshRequest request
     ) {
         UserTokenRefreshResponse tokenGroupResponse = userService.refresh(request);
-        return ResponseEntity.created(URI.create("/"))
-            .body(tokenGroupResponse);
+        return ResponseEntity.created(URI.create("/")).body(tokenGroupResponse);
     }
 
     @GetMapping("/user/auth")
@@ -108,7 +106,7 @@ public class UserController implements UserApi {
         return ResponseEntity.ok().build();
     }
 
-    // 영양사로 옮길 예정
+    // TODO: 영양사로 옮길 예정
     @GetMapping("/user/coop/me")
     public ResponseEntity<CoopResponse> getCoop(
         @Auth(permit = COOP) Integer userId
