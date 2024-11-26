@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
-import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -49,11 +49,13 @@ public class CityBusTimetable {
         this.updatedAt = updatedAt;
     }
 
-    public void filterBusTimeTablesByDayOfWeek(LocalDate date) {
-        String dayOfWeek = (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) ?
-            "주말" : "평일";
-
-        busTimetables.removeIf(busTimetable -> !busTimetable.getDayOfWeek().equals(dayOfWeek));
+    public List<ScheduleInfo> getScheduleInfo(LocalDate date, BusStation depart) {
+        Long busNumber = busInfo.getNumber();
+        return busTimetables.stream()
+            .filter(busTimetable -> busTimetable.filterByDayOfWeek(date))
+            .flatMap(busTimetable -> busTimetable.applyTimeOffset(busNumber, depart).stream()
+                .map(time -> new ScheduleInfo("city", busNumber.toString(), time)))
+            .collect(Collectors.toList());
     }
 
     @Getter
@@ -90,15 +92,23 @@ public class CityBusTimetable {
             this.departInfo = departInfo;
         }
 
-        public List<LocalTime> applyTimeOffset(Long busNumber, CityBusDirection arrival, BusStation depart) {
+        public boolean filterByDayOfWeek(LocalDate date) {
+            return switch (dayOfWeek) {
+                case "평일" -> date.getDayOfWeek() != DayOfWeek.SATURDAY && date.getDayOfWeek() != DayOfWeek.SUNDAY;
+                case "주말" -> date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
+                default -> false;
+            };
+        }
+
+        public List<LocalTime> applyTimeOffset(Long busNumber, BusStation depart) {
             return departInfo.stream()
                 .map(time -> {
                     LocalTime schedule = LocalTime.parse(time);
-                    if (busNumber == 400 && arrival == CityBusDirection.종합터미널) {
+                    if (busNumber == 400 && depart == BusStation.KOREATECH) {
                         schedule = schedule.plusMinutes(ADDITIONAL_TIME_DEPART_TO_KOREATECH_400);
-                    } else if (busNumber == 402 && arrival == CityBusDirection.종합터미널) {
+                    } else if (busNumber == 402 && depart == BusStation.KOREATECH) {
                         schedule = schedule.plusMinutes(ADDITIONAL_TIME_DEPART_TO_KOREATECH_402);
-                    } else if (busNumber == 405 && arrival == CityBusDirection.종합터미널) {
+                    } else if (busNumber == 405 && depart == BusStation.KOREATECH) {
                         schedule = schedule.plusMinutes(ADDITIONAL_TIME_DEPART_TO_KOREATECH_405);
                     } else if (depart == BusStation.STATION) {
                         schedule = schedule.plusMinutes(ADDITIONAL_TIME_DEPART_TO_STATION);
