@@ -6,6 +6,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import javax.annotation.Nullable;
+
 import io.swagger.v3.oas.annotations.Hidden;
 
 /**
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.Hidden;
  * Nullable: 사용자 ID가 없을 수도 있다.
  */
 @Hidden // Swagger 문서에 표시하지 않음
+@Nullable
 @Target(PARAMETER)
 @Retention(RUNTIME)
 public @interface UserId {

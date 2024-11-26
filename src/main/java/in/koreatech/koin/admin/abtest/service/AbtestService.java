@@ -33,9 +33,9 @@ import in.koreatech.koin.admin.abtest.model.Device;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableAssign;
 import in.koreatech.koin.admin.abtest.model.redis.AbtestVariableCount;
 import in.koreatech.koin.admin.abtest.repository.AbtestRepository;
-import in.koreatech.koin.admin.abtest.repository.AbtestVariableAssignRepository;
+import in.koreatech.koin.admin.abtest.repository.AbtestVariableAssignRedisRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableAssignTemplateRepository;
-import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRepository;
+import in.koreatech.koin.admin.abtest.repository.AbtestVariableCountRedisRepository;
 import in.koreatech.koin.admin.abtest.repository.AbtestVariableRepository;
 import in.koreatech.koin.admin.abtest.repository.AccessHistoryRepository;
 import in.koreatech.koin.admin.abtest.repository.DeviceRepository;
@@ -53,13 +53,13 @@ public class AbtestService {
 
     private final Clock clock;
     private final EntityManager entityManager;
-    private final AbtestVariableCountRepository abtestVariableCountRepository;
+    private final AbtestVariableCountRedisRepository abtestVariableCountRedisRepository;
     private final AbtestRepository abtestRepository;
     private final AbtestVariableRepository abtestVariableRepository;
     private final AccessHistoryRepository accessHistoryRepository;
     private final DeviceRepository deviceRepository;
     private final UserRepository userRepository;
-    private final AbtestVariableAssignRepository abtestVariableAssignRepository;
+    private final AbtestVariableAssignRedisRepository abtestVariableAssignRedisRepository;
     private final AbtestVariableAssignTemplateRepository abtestVariableAssignTemplateRepository;
 
     @Transactional
@@ -113,7 +113,7 @@ public class AbtestService {
 
     private void deleteCountCache(Abtest abtest) {
         abtest.getAbtestVariables()
-            .forEach(abtestVariable -> abtestVariableCountRepository.deleteById(abtestVariable.getId()));
+            .forEach(abtestVariable -> abtestVariableCountRedisRepository.deleteById(abtestVariable.getId()));
     }
 
     public AbtestsResponse getAbtests(Integer page, Integer limit) {
@@ -140,27 +140,140 @@ public class AbtestService {
     }
 
     @Transactional
-    public AbtestAssignResponse assignOrGetVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo,
+    public AbtestAssignResponse assignOrGetVariable(
+        Integer accessHistoryId,
+        // 이 값은 어디에쓰이는지?
+        UserAgentInfo userAgentInfo,
         Integer userId,
-        AbtestAssignRequest request) {
-        Abtest abtest = abtestRepository.getByTitle(request.title());
-        AccessHistory accessHistory = findOrCreateAccessHistory(accessHistoryId);
-        Optional<AbtestVariable> winnerResponse = returnWinnerIfClosed(abtest);
-        if (winnerResponse.isPresent()) {
-            return AbtestAssignResponse.of(winnerResponse.get(), accessHistory);
+        AbtestAssignRequest request
+    ) {
+        AccessHistory accessHistory;
+        if (accessHistoryId == null) {
+            accessHistory = accessHistoryRepository.save(AccessHistory.builder().build());
+        } else {
+            accessHistory = accessHistoryRepository.getById(accessHistoryId);
         }
-        if (isAssignedUser(abtest, accessHistory.getId(), userId)) {
-            return AbtestAssignResponse.of(
-                getMyVariable(accessHistory.getId(), userAgentInfo, userId, request.title()), accessHistory);
+        Abtest abtest = abtestRepository.getByTitle(request.title());
+        AbtestVariable winnerResponse = abtest.getWinner();
+
+        // 종료된 경우 우승자 반환을 위한 분기처리
+        if (abtest.getStatus() == AbtestStatus.CLOSED) {
+            // 종료되었는데 우승자가 결정되지 않은 AB테스트인 경우 예외 발생
+            if (winnerResponse == null) {
+                throw AbtestWinnerNotDecidedException.withDetail("abtestId: " + abtest.getId());
+            }
+            return AbtestAssignResponse.of(winnerResponse, accessHistory);
+        }
+
+        Device device = accessHistory.getDevice();
+        if (device != null && userId != null // nullable한 객체에 대해 not null 보장
+            && Objects.equals(device.getUser().getId(), userId) // accessHistory의 유저와 API 요청한 유저가 같아야함
+        ) {
+            // accessHistory가 abtest의 변수에 포함되어있다면 True
+            boolean isContainedVariable = abtest.getAbtestVariables().stream()
+                .anyMatch(abtestVariable -> accessHistory.hasVariable(abtestVariable.getId()));
+
+            if (isContainedVariable) {
+                // -- getMyVariable 시작
+
+                // -- syncCacheCount 시작
+                // abTest 변수들 중 Redis에 올라와있는 변수를 가져온다.
+                List<AbtestVariableCount> cachedCount = abtest.getAbtestVariables().stream()
+                    .map(AbtestVariable::getId)
+                    .filter(Objects::nonNull)
+                    .map(abtestVariableCountRedisRepository::findById)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .toList();
+
+                // Redis에 캐싱되어있는 count 값을 RDB로 동기화시킨다.
+                for (AbtestVariableCount abtestVariableCount : cachedCount) {
+                    // RDB에서 abtestVariable 값을 영속성 컨텍스트에 올린다. (Dirty Checking 대상으로 등록)
+                    AbtestVariable variable = abtestVariableRepository.getById(abtestVariableCount.getVariableId());
+                    variable.addCount(abtestVariableCount.getCount()); // RDB count update
+                    abtestVariableCount.resetCount(); // Redis reset
+                }
+                // reset된 값들을 반영
+                abtestVariableCountRedisRepository.saveAll(cachedCount);
+                // -- syncCacheCount 끝
+
+                /*
+                TODO : 해당 부분 설명 필요
+                조건문 진입 시점에서 유저아이디가 Null이 아님을 보장하고있는데 이 로직이 존재하는 이유는?
+                기존
+                if (userId != null) {
+                    createDeviceIfNotExists(userId, userAgentInfo, accessHistory, abtest);
+                }
+//                 */
+//                if (userId != null) {
+//
+//                    userRepository.getById(userId);
+//                    if (accessHistory.getDevice() == null) {
+//                        Device device = deviceRepository.save(
+//                            Device.builder()
+//                                .user(userRepository.getById(userId))
+//                                .model(userAgentInfo.getModel())
+//                                .type(userAgentInfo.getType())
+//                                .build()
+//                        );
+//                        accessHistory.connectDevice(device);
+//                    }
+//                    Device device = accessHistory.getDevice();
+//                    if (device.getModel() == null || device.getType() == null) {
+//                        device.setModelInfo(userAgentInfo.getModel(), userAgentInfo.getType());
+//                    }
+//                    if (!Objects.equals(device.getUser().getId(), userId)) {
+//                        device.changeUser(userRepository.getById(userId));
+//                        removeBeforeUserCache(accessHistory, abtest);
+//                    }
+//                }
+
+                // abTest 변수들에 대해서
+                Optional<AbtestVariable> cacheVariable = abtest.getAbtestVariables().stream()
+                    .filter(abtestVariable ->
+                        abtestVariableAssignRedisRepository.findByVariableIdAndAccessHistoryId(
+                            abtestVariable.getId(),
+                            accessHistory.getId()).isPresent()
+                    )
+                    .findAny();
+
+                AbtestVariable myVariable;
+                // 캐시가 비어있으면..
+                if (cacheVariable.isEmpty()) {
+                    AbtestVariable dbVariable = accessHistory.findVariableByAbtestId(abtest.getId())
+                        .orElseThrow(
+                            () -> AbtestNotAssignedUserException.withDetail(
+                                "abtestId: " + abtest.getId() + ", "
+                                    + "accessHistoryId: " + accessHistory.getId())
+                        );
+                    abtestVariableAssignRedisRepository.save(
+                        AbtestVariableAssign.of(dbVariable.getId(), accessHistory.getId()));
+                    myVariable = dbVariable;
+                } else {
+                    accessHistory.updateLastAccessedAt(clock);
+                    myVariable = cacheVariable.get();
+                }
+
+                return AbtestAssignResponse.of(
+                    myVariable,
+                    accessHistory
+                );
+            }
         }
         List<AbtestVariableCount> cacheCount = loadCacheCount(abtest);
         AbtestVariable variable = abtest.findAssignVariable(cacheCount);
-        if (userId != null) {
-            createDeviceIfNotExists(userId, userAgentInfo, accessHistory, abtest);
-        }
+//      TODO: 설명 필요
+//        if (userId != null) {
+//            createDeviceIfNotExists(userId, userAgentInfo, accessHistory, abtest);
+//        }
+
         accessHistory.addAbtestVariable(variable);
-        countCacheUpdate(variable);
-        variableAssignCacheSave(variable, accessHistory.getId());
+
+        AbtestVariableCount countCache = abtestVariableCountRedisRepository.findOrCreateIfNotExists(variable.getId());
+        countCache.addCount();
+        abtestVariableCountRedisRepository.save(countCache);
+
+        abtestVariableAssignRedisRepository.save(AbtestVariableAssign.of(variable.getId(), accessHistoryId));
         accessHistory.updateLastAccessedAt(clock);
         return AbtestAssignResponse.of(variable, accessHistory);
     }
@@ -168,89 +281,41 @@ public class AbtestService {
     // 기기를 다른 사용자가 사용한 이력이 있는 경우 기존 사용자의 캐시를 삭제
     private void removeBeforeUserCache(AccessHistory accessHistory, Abtest abtest) {
         for (AbtestVariable removeVariable : accessHistory.getVariableBy(abtest)) {
-            abtestVariableAssignRepository.deleteByVariableIdAndAccessHistoryId(removeVariable.getId(),
+            abtestVariableAssignRedisRepository.deleteByVariableIdAndAccessHistoryId(removeVariable.getId(),
                 accessHistory.getId());
-            AbtestVariableCount countCache = abtestVariableCountRepository.findOrCreateIfNotExists(
+            AbtestVariableCount countCache = abtestVariableCountRedisRepository.findOrCreateIfNotExists(
                 removeVariable.getId());
             countCache.minusCount();
-            abtestVariableCountRepository.save(countCache);
+            abtestVariableCountRedisRepository.save(countCache);
         }
     }
 
     private List<AbtestVariableCount> loadCacheCount(Abtest abtest) {
         return abtest.getAbtestVariables().stream()
-            .map(abtestVariable -> abtestVariableCountRepository.findOrCreateIfNotExists(abtestVariable.getId()))
+            .map(abtestVariable -> abtestVariableCountRedisRepository.findOrCreateIfNotExists(abtestVariable.getId()))
             .toList();
-    }
-
-    private void countCacheUpdate(AbtestVariable variable) {
-        AbtestVariableCount countCache = abtestVariableCountRepository.findOrCreateIfNotExists(variable.getId());
-        countCache.addCount();
-        abtestVariableCountRepository.save(countCache);
-    }
-
-    private void variableAssignCacheSave(AbtestVariable variable, Integer accessHistoryId) {
-        abtestVariableAssignRepository.save(AbtestVariableAssign.of(variable.getId(), accessHistoryId));
-    }
-
-    private AbtestVariable getMyVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo, Integer userId,
-        String title) {
-        Abtest abtest = abtestRepository.getByTitle(title);
-        AccessHistory accessHistory = accessHistoryRepository.getById(accessHistoryId);
-        syncCacheCountToDB(abtest);
-        Optional<AbtestVariable> winner = returnWinnerIfClosed(abtest);
-        if (winner.isPresent()) {
-            return winner.get();
-        }
-        if (userId != null) {
-            createDeviceIfNotExists(userId, userAgentInfo, accessHistory, abtest);
-        }
-        Optional<AbtestVariable> cacheVariable = abtest.getAbtestVariables().stream()
-            .filter(abtestVariable ->
-                abtestVariableAssignRepository.findByVariableIdAndAccessHistoryId(abtestVariable.getId(),
-                    accessHistory.getId()).isPresent())
-            .findAny();
-        if (cacheVariable.isEmpty()) {
-            AbtestVariable dbVariable = accessHistory.findVariableByAbtestId(abtest.getId())
-                .orElseThrow(() -> AbtestNotAssignedUserException.withDetail("abtestId: " + abtest.getId() + ", "
-                    + "accessHistoryId: " + accessHistory.getId()));
-            abtestVariableAssignRepository.save(AbtestVariableAssign.of(dbVariable.getId(), accessHistory.getId()));
-            return dbVariable;
-        }
-        accessHistory.updateLastAccessedAt(clock);
-        return cacheVariable.get();
-    }
-
-    private boolean isAssignedUser(Abtest abtest, Integer accessHistoryId, Integer userId) {
-        AccessHistory accessHistory = accessHistoryRepository.getById(accessHistoryId);
-        if (userId != null && accessHistory.getDevice() != null
-            && !Objects.equals(accessHistory.getDevice().getUser().getId(), userId)) {
-            return false;
-        }
-        return abtest.getAbtestVariables().stream()
-            .anyMatch(abtestVariable -> accessHistory.hasVariable(abtestVariable.getId()));
     }
 
     @Transactional
     public void syncCacheCountToDB() {
-        List<AbtestVariableCount> cacheCount = abtestVariableCountRepository.findAll();
+        List<AbtestVariableCount> cacheCount = abtestVariableCountRedisRepository.findAll();
         cacheCount.removeIf(Objects::isNull);
         cacheCount.forEach(abtestVariableCount -> {
             Optional<AbtestVariable> variable = abtestVariableRepository.findById(abtestVariableCount.getVariableId());
             if (variable.isEmpty()) {
-                abtestVariableCountRepository.deleteById(abtestVariableCount.getVariableId());
+                abtestVariableCountRedisRepository.deleteById(abtestVariableCount.getVariableId());
                 return;
             }
             variable.get().addCount(abtestVariableCount.getCount());
             abtestVariableCount.resetCount();
         });
-        abtestVariableCountRepository.saveAll(cacheCount);
+        abtestVariableCountRedisRepository.saveAll(cacheCount);
     }
 
     public void syncCacheCountToDB(Abtest abtest) {
         List<AbtestVariableCount> cacheCount = abtest.getAbtestVariables().stream()
             .map(AbtestVariable::getId)
-            .map(abtestVariableCountRepository::findById)
+            .map(abtestVariableCountRedisRepository::findById)
             .filter(Optional::isPresent)
             .map(Optional::get)
             .toList();
@@ -259,7 +324,7 @@ public class AbtestService {
             variable.addCount(abtestVariableCount.getCount());
             abtestVariableCount.resetCount();
         });
-        abtestVariableCountRepository.saveAll(cacheCount);
+        abtestVariableCountRedisRepository.saveAll(cacheCount);
     }
 
     public AbtestUsersResponse getUsersByName(String userName) {
@@ -281,14 +346,16 @@ public class AbtestService {
         validateDuplicatedVariables(beforeVariable, afterVariable);
         abtest.assignVariableByAdmin(accessHistory, request.variableName());
         beforeVariable.ifPresent(
-            abtestVariable -> abtestVariableAssignRepository.deleteByVariableIdAndAccessHistoryId(
+            abtestVariable -> abtestVariableAssignRedisRepository.deleteByVariableIdAndAccessHistoryId(
                 abtestVariable.getId(),
                 accessHistory.getId()));
-        variableAssignCacheSave(afterVariable, accessHistory.getId());
+        abtestVariableAssignRedisRepository.save(AbtestVariableAssign.of(afterVariable.getId(), accessHistory.getId()));
     }
 
-    private static void validateDuplicatedVariables(Optional<AbtestVariable> beforeVariable,
-        AbtestVariable afterVariable) {
+    private static void validateDuplicatedVariables(
+        Optional<AbtestVariable> beforeVariable,
+        AbtestVariable afterVariable
+    ) {
         if (beforeVariable.isEmpty()) {
             return;
         }
@@ -304,25 +371,12 @@ public class AbtestService {
         }
     }
 
-    private static Optional<AbtestVariable> returnWinnerIfClosed(Abtest abtest) {
-        if (abtest.getStatus() == AbtestStatus.CLOSED) {
-            if (abtest.getWinner() != null) {
-                return Optional.of(abtest.getWinner());
-            }
-            throw AbtestWinnerNotDecidedException.withDetail("abtestId: " + abtest.getId());
-        }
-        return Optional.empty();
-    }
-
-    public AccessHistory findOrCreateAccessHistory(Integer id) {
-        if (id == null) {
-            return accessHistoryRepository.save(AccessHistory.builder().build());
-        }
-        return accessHistoryRepository.getById(id);
-    }
-
-    private void createDeviceIfNotExists(Integer userId, UserAgentInfo userAgentInfo,
-        AccessHistory accessHistory, Abtest abtest) {
+    private void createDeviceIfNotExists(
+        Integer userId,
+        UserAgentInfo userAgentInfo,
+        AccessHistory accessHistory,
+        Abtest abtest
+    ) {
         userRepository.getById(userId);
         if (accessHistory.getDevice() == null) {
             Device device = deviceRepository.save(
