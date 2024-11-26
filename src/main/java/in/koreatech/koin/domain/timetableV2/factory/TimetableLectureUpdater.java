@@ -1,6 +1,12 @@
 package in.koreatech.koin.domain.timetableV2.factory;
 
 import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest.InnerTimetableLectureRequest;
+import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest.InnerTimetableLectureRequest.ClassInfo;
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -20,8 +26,8 @@ public class TimetableLectureUpdater {
             TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
             timetableLecture.update(
                 timetableRequest.classTitle(),
-                timetableRequest.classTime().toString(),
-                getClassPlaceToString(timetableRequest.classPlace().toString()),
+                getClassTimeToString(timetableRequest.classInfos()),
+                getClassPlaceToString(timetableRequest.classInfos()),
                 timetableRequest.professor(),
                 timetableRequest.grades(),
                 timetableRequest.memo()
@@ -29,9 +35,21 @@ public class TimetableLectureUpdater {
         }
     }
 
-    private String getClassPlaceToString(String classPlace) {
-        if (classPlace != null) {
-            return classPlace.substring(1, classPlace.length() - 1);
+    private String getClassTimeToString(List<ClassInfo> classInfos) {
+        if (classInfos != null) {
+            List<Integer> classTimes = classInfos.stream()
+                .flatMap(c -> concat(c.classTime().stream(), of(-1)))
+                .toList();
+            return classTimes.toString();
+        }
+        return null;
+    }
+
+    private String getClassPlaceToString(List<ClassInfo> classInfos) {
+        if (classInfos != null) {
+            return classInfos.stream()
+                .map(ClassInfo::classPlace)
+                .collect(Collectors.joining(", "));
         }
         return null;
     }

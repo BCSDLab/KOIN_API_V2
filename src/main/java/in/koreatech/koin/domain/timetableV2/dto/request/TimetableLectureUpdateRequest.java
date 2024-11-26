@@ -36,11 +36,9 @@ public record TimetableLectureUpdateRequest(
         @Size(max = 100, message = "강의 이름의 최대 글자는 100글자입니다.")
         String classTitle,
 
-        @Schema(description = "강의 시간", example = "[210, 211]", requiredMode = NOT_REQUIRED)
-        List<Integer> classTime,
-
-        @Schema(description = "강의 장소", example = "null", requiredMode = NOT_REQUIRED)
-        List<String> classPlace,
+        @Valid
+        @Schema(description = "강의 정보", requiredMode = NOT_REQUIRED)
+        List<ClassInfo> classInfos,
 
         @Schema(description = "강의 교수", example = "이돈우", requiredMode = NOT_REQUIRED)
         @Size(max = 30, message = "교수 명의 최대 글자는 30글자입니다.")
@@ -54,6 +52,16 @@ public record TimetableLectureUpdateRequest(
         @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
         String memo
     ) {
+        @JsonNaming(value = SnakeCaseStrategy.class)
+        public record ClassInfo(
+            @Schema(description = "강의 시간", example = "null", requiredMode = NOT_REQUIRED)
+            List<Integer> classTime,
 
+            @Schema(description = "강의 장소", example = "도서관", requiredMode = NOT_REQUIRED)
+            @Size(max = 255, message = "강의 장소의 최대 글자는 255글자입니다.")
+            String classPlace
+        ) {
+
+        }
     }
 }
