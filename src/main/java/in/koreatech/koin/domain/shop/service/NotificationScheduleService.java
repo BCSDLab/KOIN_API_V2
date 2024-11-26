@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.shop.service;
 
-import static in.koreatech.koin.global.fcm.MobileAppPath.SHOP;
-
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +18,7 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.domain.notification.model.Notification;
 import in.koreatech.koin.global.domain.notification.model.NotificationFactory;
 import in.koreatech.koin.global.domain.notification.service.NotificationService;
+import in.koreatech.koin.global.fcm.MobileAppPath;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -49,7 +48,6 @@ public class NotificationScheduleService {
         // TODO: Batch라는 단어가 필요 있나?
         Map<Integer, ShopNotificationQueryResponse> shopNotificationQueryResponseMap = getShopNotificationBatch(dueNotifications);
         Map<Integer, User> userMap = getUserBatch(dueNotifications);
-
 
         // TODO: 메서드로 분리
         List<Notification> notifications = dueNotifications.stream()
@@ -83,7 +81,7 @@ public class NotificationScheduleService {
 
     private Notification createNotification(ShopNotificationQueryResponse notificationQueryResponse, User user) {
         return notificationFactory.generateReviewPromptNotification(
-            SHOP,
+            MobileAppPath.SHOP,
             notificationQueryResponse.shopId(),
             notificationQueryResponse.shopName(),
             notificationQueryResponse.notificationTitle(),

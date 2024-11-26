@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class OwnerValidator {
+public class OwnerValidator { //TODO: 패키지로 빼내기
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;

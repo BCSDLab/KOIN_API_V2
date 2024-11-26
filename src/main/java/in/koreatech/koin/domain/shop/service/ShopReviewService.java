@@ -47,7 +47,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class ShopReviewService {
+public class ShopReviewService { //TODO: 리팩토링 안되어있음 -> 하기
 
     private final ShopRepository shopRepository;
     private final ShopReviewRepository shopReviewRepository;
@@ -159,6 +159,7 @@ public class ShopReviewService {
         return ShopReviewReportCategoryResponse.from(shopReviewReportCategories);
     }
 
+    //TODO: 하드코딩 enum으로
     private Map<Integer, Integer> getRating(Integer shopId) {
         Map<Integer, Integer> ratings = new HashMap<>(Map.of(
             1, 0,
@@ -167,7 +168,7 @@ public class ShopReviewService {
             4, 0,
             5, 0
         ));
-        for (Integer rating : ratings.keySet()) {
+        for (Integer rating : ratings.keySet()) { //TODO: 레포지토리 메서드명 정리
             Integer count = shopReviewRepository.countByShopIdAndRatingAndIsDeletedFalse(shopId, rating);
             ratings.put(rating, count);
         }

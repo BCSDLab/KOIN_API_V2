@@ -33,6 +33,7 @@ public class OwnerEmailService {
     private final OwnerVerificationService ownerVerificationService;
     private final OwnerUtilService ownerUtilService;
 
+    // TODO: 사장님 회원가입 시 상점 선택 정책 설명하기
     @Transactional
     public void register(OwnerRegisterRequest request) {
         ownerValidator.validateExistEmailAddress(request.email());

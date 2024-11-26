@@ -7,6 +7,7 @@ import org.springframework.data.repository.Repository;
 import in.koreatech.koin.domain.owner.exception.OwnerNotFoundException;
 import in.koreatech.koin.domain.owner.model.Owner;
 
+//TODO: 안쓰는 레포지토리들 정리하기 (이거말하는게 아니고 전체적으로 찾아서 정리하기)
 public interface OwnerRepository extends Repository<Owner, Integer> {
 
     Optional<Owner> findById(Integer ownerId);

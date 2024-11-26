@@ -51,6 +51,7 @@ public class OwnerSmsService {
         return OwnerLoginResponse.of(accessToken, refreshToken);
     }
 
+    //TODO: 이미 사장님이 등록되어있는 상점인 경우 어떻게 할까?
     @Transactional
     public void registerByPhone(OwnerRegisterByPhoneRequest request) {
         ownerValidator.validateExistPhoneNumber(request.phoneNumber());
