@@ -67,16 +67,24 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "timetable_lecture": [
                                 {
                                     "class_title": "커스텀생성1",
-                                    "class_time" : [200, 201],
-                                    "class_place" : ["한기대"],
+                                    "class_infos": [
+                                        {
+                                            "class_time" : [200, 201],
+                                            "class_place" : "한기대"
+                                        }
+                                    ]
                                     "professor" : "서정빈",
                                     "grades": "2",
                                     "memo" : "메모"
                                 },
                                 {
                                     "class_title": "커스텀생성2",
-                                    "class_time" : [202, 203],
-                                    "class_place" : ["참빛관 편의점"],
+                                    "class_infos": [
+                                        {
+                                            "class_time" : [202, 203],
+                                            "class_place" : "참빛관 편의점"
+                                        }
+                                    ],
                                     "professor" : "감사 서정빈",
                                     "grades": "1",
                                     "memo" : "메모"
@@ -144,8 +152,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                                 {
                                     "id": 1,
                                     "class_title": "커스텀바꿔요1",
-                                    "class_time" : [200, 201],
-                                    "class_place" : ["한기대"],
+                                    "class_infos": [
+                                        {
+                                            "class_time" : [200, 201],
+                                            "class_place" : "한기대"
+                                        }
+                                    ],
                                     "professor" : "서정빈",
                                     "grades" : "0",
                                     "memo" : "메모한당 히히"
@@ -153,8 +165,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                                 {
                                     "id": 2,
                                     "class_title": "커스텀바꿔요2",
-                                    "class_time" : [202, 203],
-                                    "class_place" : ["참빛관 편의점"],
+                                    "class_infos": [
+                                        {
+                                            "class_time" : [202, 203],
+                                            "class_place" : "참빛관 편의점"
+                                        }
+                                    ],
                                     "professor" : "알바 서정빈",
                                     "grades" : "0",
                                     "memo" : "메모한당 히히"
