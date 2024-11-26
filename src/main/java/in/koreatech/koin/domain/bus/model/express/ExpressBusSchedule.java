@@ -3,7 +3,7 @@ package in.koreatech.koin.domain.bus.model.express;
 import java.time.LocalTime;
 import java.util.List;
 
-public final class ExpressBusRouteSchedule {
+public final class ExpressBusSchedule {
     private static final List<LocalTime> KOREA_TECH_SCHEDULE = List.of(
         LocalTime.of(7, 0),
         LocalTime.of(8, 30),
