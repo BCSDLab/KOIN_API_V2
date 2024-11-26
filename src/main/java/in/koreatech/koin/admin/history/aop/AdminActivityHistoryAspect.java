@@ -74,7 +74,8 @@ public class AdminActivityHistoryAspect {
             .requestMethod(requestMethod)
             .domainName(DomainType.valueOf(domainInfo.domainName()))
             .requestMessage(requestMessage)
-            .build());
+            .build()
+        );
 
         return result;
     }
