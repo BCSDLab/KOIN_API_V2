@@ -150,6 +150,11 @@ public class User extends BaseEntity {
         this.password = passwordEncoder.encode(password);
     }
 
+    public void updateStudentPassword(PasswordEncoder passwordEncoder, String password) {
+        if (password != null && !password.isEmpty())
+            this.password = passwordEncoder.encode(password);
+    }
+
     public boolean isSamePassword(PasswordEncoder passwordEncoder, String password) {
         return passwordEncoder.matches(password, this.password);
     }
