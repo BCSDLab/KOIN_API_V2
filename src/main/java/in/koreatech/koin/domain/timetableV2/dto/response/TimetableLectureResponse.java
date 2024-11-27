@@ -90,16 +90,14 @@ public record TimetableLectureResponse(
                     for (String str : split) {
                         int num = Integer.parseInt(str);
                         if (!currentTimes.isEmpty() && currentTimes.get(currentTimes.size() - 1) + 1 != num) {
-                            classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), ""));
+                            classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), null));
                             currentTimes.clear();
                         }
-                        else {
-                            currentTimes.add(num);
-                        }
+                        currentTimes.add(num);
                     }
 
                     if (!currentTimes.isEmpty()) {
-                        classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), ""));
+                        classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), null));
                     }
 
                     return classInfos;
