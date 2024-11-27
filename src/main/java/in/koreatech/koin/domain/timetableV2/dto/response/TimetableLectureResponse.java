@@ -81,35 +81,37 @@ public record TimetableLectureResponse(
             String classPlace
         ) {
             public static List<ClassInfo> of(String classTime, String classPlace) {
+                // 정규 강의인 경우 강의 장소가 없기 때문에 바로 반환
                 if (classPlace == null) {
                     return List.of(new ClassInfo(parseClassTimes(classTime), null));
                 }
 
+                // 구분자를 바탕으로 강의 시간과 강의 장소 분리
                 String[] classPlaceSegment = classPlace.split(",\\s*");
                 String[] classTimeSegment = classTime.substring(1, classTime.length() - 1).trim().split(",\\s*");
 
-                List<ClassInfo> result = new ArrayList<>();
-                List<Integer> currentList = new ArrayList<>();
+                List<ClassInfo> classInfos = new ArrayList<>();
+                List<Integer> tempClassTimes = new ArrayList<>();
                 int index = 0;
 
-                for (String numStr : classTimeSegment) {
-                    int num = Integer.parseInt(numStr);
-                    if (num == -1) {
-                        if (!currentList.isEmpty()) {
-                            result.add(new ClassInfo(new ArrayList<>(currentList), classPlaceSegment[index++]));
-                            currentList.clear();
+                for (String segment : classTimeSegment) {
+                    int parseInt = Integer.parseInt(segment);
+                    if (parseInt == -1) {
+                        if (!tempClassTimes.isEmpty()) {
+                            classInfos.add(new ClassInfo(new ArrayList<>(tempClassTimes), classPlaceSegment[index++]));
+                            tempClassTimes.clear();
                         }
                     }
                     else {
-                        currentList.add(num);
+                        tempClassTimes.add(parseInt);
                     }
                 }
 
-                if (!currentList.isEmpty()) {
-                    result.add(new ClassInfo(new ArrayList<>(currentList), classPlaceSegment[index]));
+                if (!tempClassTimes.isEmpty()) {
+                    classInfos.add(new ClassInfo(new ArrayList<>(tempClassTimes), classPlaceSegment[index]));
                 }
 
-                return result;
+                return classInfos;
             }
 
             private static List<Integer> parseClassTimes(String classTime) {
