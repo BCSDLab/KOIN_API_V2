@@ -82,25 +82,7 @@ public record TimetableLectureResponse(
             public static List<ClassInfo> of(String classTime, String classPlace) {
                 // 정규 강의인 경우 강의 장소가 없기 때문에 바로 반환
                 if (classPlace == null) {
-                    String[] split = classTime.substring(1, classTime.length() - 1).trim().split(",\\s*");
-
-                    List<ClassInfo> classInfos = new ArrayList<>();
-                    List<Integer> currentTimes = new ArrayList<>();
-
-                    for (String str : split) {
-                        int num = Integer.parseInt(str);
-                        if (!currentTimes.isEmpty() && currentTimes.get(currentTimes.size() - 1) + 1 != num) {
-                            classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), null));
-                            currentTimes.clear();
-                        }
-                        currentTimes.add(num);
-                    }
-
-                    if (!currentTimes.isEmpty()) {
-                        classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), null));
-                    }
-
-                    return classInfos;
+                    return List.of(new ClassInfo(parseClassTimes(classTime), null));
                 }
 
                 // 구분자를 바탕으로 강의 시간과 강의 장소 분리
@@ -133,6 +115,17 @@ public record TimetableLectureResponse(
                 }
 
                 return classInfos;
+            }
+
+            private static List<Integer> parseClassTimes(String classTime) {
+                if (classTime == null)
+                    return null;
+
+                String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
+                return Arrays.stream(classTimeWithoutBrackets.split(SEPARATOR))
+                    .map(String::strip)
+                    .map(Integer::parseInt)
+                    .toList();
             }
         }
 
@@ -211,6 +204,8 @@ public record TimetableLectureResponse(
     }
 
     private static final String GRADE_ZERO = "0";
+    private static final int INITIAL_BRACE_INDEX = 1;
+    private static final String SEPARATOR = ",";
 
     public static TimetableLectureResponse of(TimetableFrame timetableFrame, Integer grades, Integer totalGrades) {
         return new TimetableLectureResponse(
