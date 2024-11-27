@@ -85,8 +85,8 @@ public record TimetableLectureResponse(
                     return List.of(new ClassInfo(parseClassTimes(classTime), null));
                 }
 
-                String[] classPlaceSegment = classPlace.split(",");
-                String[] classTimeSegment = classTime.substring(1, classTime.length() - 1).trim().split(",");
+                String[] classPlaceSegment = classPlace.split(",\\s*");
+                String[] classTimeSegment = classTime.substring(1, classTime.length() - 1).trim().split(",\\s*");
 
                 List<ClassInfo> result = new ArrayList<>();
                 List<Integer> currentList = new ArrayList<>();
