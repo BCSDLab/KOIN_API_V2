@@ -91,24 +91,24 @@ public record TimetableLectureResponse(
                 String[] classTimeSegment = classTime.substring(1, classTime.length() - 1).trim().split(",\\s*");
 
                 List<ClassInfo> classInfos = new ArrayList<>();
-                List<Integer> tempClassTimes = new ArrayList<>();
+                List<Integer> currentTimes = new ArrayList<>();
                 int index = 0;
 
                 for (String segment : classTimeSegment) {
                     int parseInt = Integer.parseInt(segment);
                     if (parseInt == -1) {
-                        if (!tempClassTimes.isEmpty()) {
-                            classInfos.add(new ClassInfo(new ArrayList<>(tempClassTimes), classPlaceSegment[index++]));
-                            tempClassTimes.clear();
+                        if (!currentTimes.isEmpty()) {
+                            classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), classPlaceSegment[index++]));
+                            currentTimes.clear();
                         }
                     }
                     else {
-                        tempClassTimes.add(parseInt);
+                        currentTimes.add(parseInt);
                     }
                 }
 
-                if (!tempClassTimes.isEmpty()) {
-                    classInfos.add(new ClassInfo(new ArrayList<>(tempClassTimes), classPlaceSegment[index]));
+                if (!currentTimes.isEmpty()) {
+                    classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), classPlaceSegment[index]));
                 }
 
                 return classInfos;
