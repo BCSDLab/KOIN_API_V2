@@ -80,7 +80,7 @@ public record TimetableLectureResponse(
             String classPlace
         ) {
             public static List<ClassInfo> of(String classTime, String classPlace) {
-                // 정규 강의인 경우 강의 장소가 없기 때문에 바로 반환
+                // 강의 장소가 없는 경우 강의 시간과 매핑을 못하기 때문에 바로 반환
                 if (classPlace == null) {
                     return List.of(new ClassInfo(parseClassTimes(classTime), null));
                 }
@@ -111,7 +111,12 @@ public record TimetableLectureResponse(
                 }
 
                 if (!currentTimes.isEmpty()) {
-                    classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), classPlaceSegment[index]));
+                    if (classPlaceSegment.length <= index + 1) {
+                        classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), ""));
+                    } else {
+                        classInfos.add(
+                            new ClassInfo(new ArrayList<>(currentTimes), classPlaceSegment[index++]));
+                    }
                 }
 
                 return classInfos;
