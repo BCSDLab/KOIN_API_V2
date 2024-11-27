@@ -105,8 +105,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": null,
                             "code": null,
                             "design_score": null,
-                            "class_time": [200, 201],
-                            "class_place": "한기대",
+                            "class_infos": [
+                              {
+                                "class_time": [200, 201],
+                                "class_place": "한기대"
+                              }
+                            ],
                             "memo": "메모",
                             "grades": "2",
                             "class_title": "커스텀생성1",
@@ -121,8 +125,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": null,
                             "code": null,
                             "design_score": null,
-                            "class_time": [202, 203],
-                            "class_place": "참빛관 편의점",
+                            "class_infos": [
+                              {
+                                "class_time": [202, 203],
+                                "class_place": "참빛관 편의점"
+                              }
+                            ],
                             "memo": "메모",
                             "grades": "1",
                             "class_title": "커스텀생성2",
@@ -191,8 +199,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": null,
                             "code": null,
                             "design_score": null,
-                            "class_time": [200, 201],
-                            "class_place": "한기대",
+                            "class_infos": [
+                              {
+                                "class_time": [200, 201],
+                                "class_place": "한기대"
+                              }
+                            ],
                             "memo": "메모한당 히히",
                             "grades": "0",
                             "class_title": "커스텀바꿔요1",
@@ -207,8 +219,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": null,
                             "code": null,
                             "design_score": null,
-                            "class_time": [202, 203],
-                            "class_place": "참빛관 편의점",
+                            "class_infos": [
+                              {
+                                "class_time": [202, 203],
+                                "class_place": "참빛관 편의점"
+                              }
+                            ],
                             "memo": "메모한당 히히",
                             "grades": "0",
                             "class_title": "커스텀바꿔요2",
@@ -248,8 +264,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": "25",
                             "code": "ARB244",
                             "design_score": "0",
-                            "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
-                            "class_place": null,
+                            "class_infos": [
+                              {
+                                "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
+                                "class_place": null
+                              }
+                            ],
                             "memo": null,
                             "grades": "3",
                             "class_title": "건축구조의 이해 및 실습",
@@ -264,8 +284,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": "22",
                             "code": "BSM590",
                             "design_score": "0",
-                            "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
-                            "class_place": null,
+                            "class_infos": [
+                              {
+                                "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
+                                "class_place": null
+                              }
+                            ],
                             "memo": null,
                             "grades": "3",
                             "class_title": "컴퓨팅사고",
