@@ -80,66 +80,61 @@ public record TimetableLectureResponse(
             String classPlace
         ) {
             public static List<ClassInfo> of(String classTime, String classPlace) {
+                // 정규 강의인 경우 강의 장소가 없기 때문에 바로 반환
                 if (classPlace == null) {
-                    return parseClassInfosWithoutPlace(classTime);
-                }
-                return parseClassInfosWithPlace(classTime, classPlace);
-            }
+                    String[] split = classTime.substring(1, classTime.length() - 1).trim().split(",\\s*");
 
-            private static List<ClassInfo> parseClassInfosWithoutPlace(String classTime) {
-                List<ClassInfo> classInfos = new ArrayList<>();
-                List<Integer> currentTimes = new ArrayList<>();
-                String[] timeSegments = parseTimeSegments(classTime);
+                    List<ClassInfo> classInfos = new ArrayList<>();
+                    List<Integer> currentTimes = new ArrayList<>();
 
-                for (String segment : timeSegments) {
-                    int time = Integer.parseInt(segment);
-                    if (isNonConsecutive(currentTimes, time)) {
-                        addClassInfo(classInfos, currentTimes, null);
+                    for (String str : split) {
+                        int num = Integer.parseInt(str);
+                        if (!currentTimes.isEmpty() && currentTimes.get(currentTimes.size() - 1) + 1 != num) {
+                            classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), ""));
+                            currentTimes.clear();
+                        }
+                        else {
+                            currentTimes.add(num);
+                        }
                     }
-                    currentTimes.add(time);
+
+                    if (!currentTimes.isEmpty()) {
+                        classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), ""));
+                    }
+
+                    return classInfos;
                 }
 
-                addClassInfo(classInfos, currentTimes, null);
-                return classInfos;
-            }
+                // 구분자를 바탕으로 강의 시간과 강의 장소 분리
+                String[] classPlaceSegment = classPlace.split(",\\s*");
+                String[] classTimeSegment = classTime.substring(1, classTime.length() - 1).trim().split(",\\s*");
 
-            private static List<ClassInfo> parseClassInfosWithPlace(String classTime, String classPlace) {
                 List<ClassInfo> classInfos = new ArrayList<>();
                 List<Integer> currentTimes = new ArrayList<>();
-                String[] timeSegments = parseTimeSegments(classTime);
-                String[] placeSegments = classPlace.split(",\\s*");
-                int placeIndex = 0;
+                int index = 0;
 
-                for (String segment : timeSegments) {
-                    int time = Integer.parseInt(segment);
-                    if (time == -1) {
-                        addClassInfo(classInfos, currentTimes, getPlace(placeSegments, placeIndex++));
+                for (String segment : classTimeSegment) {
+                    int parseInt = Integer.parseInt(segment);
+                    if (parseInt == -1) {
+                        if (!currentTimes.isEmpty()) {
+                            if (classPlaceSegment.length <= index + 1) {
+                                classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), ""));
+                            } else {
+                                classInfos.add(
+                                    new ClassInfo(new ArrayList<>(currentTimes), classPlaceSegment[index++]));
+                            }
+                            currentTimes.clear();
+                        }
                     } else {
-                        currentTimes.add(time);
+                        currentTimes.add(parseInt);
                     }
                 }
 
-                addClassInfo(classInfos, currentTimes, getPlace(placeSegments, placeIndex));
-                return classInfos;
-            }
-
-            private static String[] parseTimeSegments(String classTime) {
-                return classTime.substring(1, classTime.length() - 1).trim().split(",\\s*");
-            }
-
-            private static boolean isNonConsecutive(List<Integer> times, int time) {
-                return !times.isEmpty() && times.get(times.size() - 1) + 1 != time;
-            }
-
-            private static void addClassInfo(List<ClassInfo> classInfos, List<Integer> times, String place) {
-                if (!times.isEmpty()) {
-                    classInfos.add(new ClassInfo(new ArrayList<>(times), place));
-                    times.clear();
+                if (!currentTimes.isEmpty()) {
+                    classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), classPlaceSegment[index]));
                 }
-            }
 
-            private static String getPlace(String[] places, int index) {
-                return (index < places.length) ? places[index] : "";
+                return classInfos;
             }
         }
 
