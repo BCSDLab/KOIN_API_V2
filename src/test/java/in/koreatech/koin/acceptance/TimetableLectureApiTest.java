@@ -286,7 +286,11 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "design_score": "0",
                             "class_infos": [
                               {
-                                "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
+                                "class_time": [12, 13, 14, 15],
+                                "class_place": null
+                              },
+                              {
+                                "class_time": [210, 211, 212, 213],
                                 "class_place": null
                               }
                             ],
