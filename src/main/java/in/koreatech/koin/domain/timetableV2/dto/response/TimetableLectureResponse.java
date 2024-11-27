@@ -81,7 +81,45 @@ public record TimetableLectureResponse(
             String classPlace
         ) {
             public static List<ClassInfo> of(String classTime, String classPlace) {
+                if (classPlace == null) {
+                    return List.of(new ClassInfo(parseClassTimes(classTime), null));
+                }
+
                 String[] classPlaceSegment = classPlace.split(",");
+                String[] classTimeSegment = classTime.substring(1, classTime.length() - 1).trim().split(",");
+
+                List<ClassInfo> result = new ArrayList<>();
+                List<Integer> currentList = new ArrayList<>();
+                int index = 0;
+
+                for (String numStr : classTimeSegment) {
+                    int num = Integer.parseInt(numStr);
+                    if (num == -1) {
+                        if (!currentList.isEmpty()) {
+                            result.add(new ClassInfo(new ArrayList<>(currentList), classPlaceSegment[index++]));
+                            currentList.clear();
+                        }
+                    }
+                    else {
+                        currentList.add(num);
+                    }
+                }
+
+                if (!currentList.isEmpty()) {
+                    result.add(new ClassInfo(new ArrayList<>(currentList), classPlaceSegment[index]));
+                }
+
+                return result;
+            }
+
+            private static List<Integer> parseClassTimes(String classTime) {
+                if (classTime == null) return null;
+
+                String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
+                return Arrays.stream(classTimeWithoutBrackets.split(SEPARATOR))
+                    .map(String::strip)
+                    .map(Integer::parseInt)
+                    .toList();
             }
         }
 
@@ -99,7 +137,7 @@ public record TimetableLectureResponse(
                         null,
                         null,
                         null,
-                        /**/,
+                        ClassInfo.of(timetableLecture.getClassTime(), timetableLecture.getClassPlace()),
                         timetableLecture.getMemo(),
                         timetableLecture.getGrades(),
                         timetableLecture.getClassTitle(),
@@ -115,8 +153,7 @@ public record TimetableLectureResponse(
                         lecture.getRegularNumber(),
                         lecture.getCode(),
                         lecture.getDesignScore(),
-                        getClassTime(timetableLecture, lecture),
-                        timetableLecture.getClassPlace(),
+                        ClassInfo.of(getClassTime(timetableLecture, lecture), timetableLecture.getClassPlace()),
                         timetableLecture.getMemo(),
                         getGrades(timetableLecture, lecture),
                         getClassTitle(timetableLecture, lecture),
@@ -152,11 +189,11 @@ public record TimetableLectureResponse(
             return timetableLecture.getGrades();
         }
 
-        private static List<Integer> getClassTime(TimetableLecture timetableLecture, Lecture lecture) {
+        private static String getClassTime(TimetableLecture timetableLecture, Lecture lecture) {
             if (timetableLecture.getClassTime() == null) {
-                return parseClassTimes(lecture.getClassTime());
+                return lecture.getClassTime();
             }
-            return parseClassTimes(timetableLecture.getClassTime());
+            return timetableLecture.getClassTime();
         }
     }
 
@@ -171,15 +208,5 @@ public record TimetableLectureResponse(
             grades,
             totalGrades
         );
-    }
-
-    private static List<Integer> parseClassTimes(String classTime) {
-        if (classTime == null) return null;
-
-        String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
-        return Arrays.stream(classTimeWithoutBrackets.split(SEPARATOR))
-            .map(String::strip)
-            .map(Integer::parseInt)
-            .toList();
     }
 }
