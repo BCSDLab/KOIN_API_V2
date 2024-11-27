@@ -15,7 +15,6 @@ import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimetableLectureResponse(
@@ -100,14 +99,13 @@ public record TimetableLectureResponse(
                         if (!currentTimes.isEmpty()) {
                             if (classPlaceSegment.length <= index + 1) {
                                 classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), ""));
-                            }
-                            else {
-                                classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), classPlaceSegment[index++]));
+                            } else {
+                                classInfos.add(
+                                    new ClassInfo(new ArrayList<>(currentTimes), classPlaceSegment[index++]));
                             }
                             currentTimes.clear();
                         }
-                    }
-                    else {
+                    } else {
                         currentTimes.add(parseInt);
                     }
                 }
@@ -120,7 +118,8 @@ public record TimetableLectureResponse(
             }
 
             private static List<Integer> parseClassTimes(String classTime) {
-                if (classTime == null) return null;
+                if (classTime == null)
+                    return null;
 
                 String classTimeWithoutBrackets = classTime.substring(INITIAL_BRACE_INDEX, classTime.length() - 1);
                 return Arrays.stream(classTimeWithoutBrackets.split(SEPARATOR))
