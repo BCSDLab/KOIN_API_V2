@@ -97,7 +97,7 @@ public record TimetableLectureResponse(
                     int parseInt = Integer.parseInt(segment);
                     if (parseInt == -1) {
                         if (!currentTimes.isEmpty()) {
-                            if (classPlaceSegment.length <= index + 1) {
+                            if (classPlaceSegment.length < index + 1) {
                                 classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), ""));
                             } else {
                                 classInfos.add(
@@ -111,7 +111,7 @@ public record TimetableLectureResponse(
                 }
 
                 if (!currentTimes.isEmpty()) {
-                    if (classPlaceSegment.length <= index + 1) {
+                    if (classPlaceSegment.length < index + 1) {
                         classInfos.add(new ClassInfo(new ArrayList<>(currentTimes), ""));
                     } else {
                         classInfos.add(
