@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
-import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
 import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
@@ -19,7 +19,7 @@ public class ShuttleBusRouteStrategy implements BusRouteStrategy{
     private static final String REGION = "천안";
 
     @Override
-    public List<BusScheduleResponse.ScheduleInfo> findSchedule(BusRouteCommand command) {
+    public List<ScheduleInfo> findSchedule(BusRouteCommand command) {
         return busRepository.findByBusTypeAndRegion(BUS_TYPE, REGION).stream()
             .map(BusCourse::getRoutes)
             .flatMap(routes ->
