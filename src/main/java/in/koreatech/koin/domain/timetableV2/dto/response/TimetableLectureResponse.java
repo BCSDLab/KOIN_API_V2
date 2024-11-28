@@ -86,6 +86,7 @@ public record TimetableLectureResponse(
                 }
 
                 // 구분자를 바탕으로 강의 시간과 강의 장소 분리
+                // TODO. StringBuilder으로 리펙토링
                 String[] classPlaceSegment = classPlace.split(",\\s*");
                 String[] classTimeSegment = classTime.substring(1, classTime.length() - 1).trim().split(",\\s*");
 
