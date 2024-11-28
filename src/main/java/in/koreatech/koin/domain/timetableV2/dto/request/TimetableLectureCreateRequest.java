@@ -5,6 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
@@ -113,9 +114,15 @@ public record TimetableLectureCreateRequest(
 
         private String getClassPlaceToString() {
             if (classInfos != null) {
-                return classInfos.stream()
-                    .map(c -> c.classPlace)
-                    .collect(Collectors.joining(", "));
+                StringBuilder classPlaceSegment = new StringBuilder();
+                for (int i = 0; i < classInfos.size(); i++) {
+                    if (i > 0) classPlaceSegment.append(", ");
+                    if (Objects.equals(classInfos.get(i).classPlace,null)) {
+                        classPlaceSegment.append("");
+                    }
+                    else classPlaceSegment.append(classInfos.get(i).classPlace);
+                }
+                return classPlaceSegment.toString();
             }
             return null;
         }
