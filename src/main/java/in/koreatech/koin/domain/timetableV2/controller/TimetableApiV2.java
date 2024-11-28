@@ -123,8 +123,8 @@ public interface TimetableApiV2 {
     )
     @Operation(summary = "시간표에 강의 정보 추가",
         description = """
-            lecture_id가 있는 경우 class_title, class_time, professor은 null, grades는 '0'으로 입력해야합니다.\n
-            lecture_id가 없는 경우 class_title, class_time, professor, grades을 선택적으로 입력합니다.
+            lecture_id가 있는 경우 class_infos, professor은 null, grades는 '0'으로 입력해야합니다.\n
+            lecture_id가 없는 경우 class_infos, professor, grades을 선택적으로 입력합니다.
             """)
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/timetables/lecture")
