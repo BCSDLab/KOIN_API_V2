@@ -13,7 +13,8 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class ShuttleBusRouteStrategy implements BusRouteStrategy{
+public class ShuttleBusRouteStrategy implements BusRouteStrategy {
+
     private final BusRepository busRepository;
     private static final String BUS_TYPE = "shuttle";
     private static final String REGION = "천안";

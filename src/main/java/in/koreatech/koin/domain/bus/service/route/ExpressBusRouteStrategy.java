@@ -14,7 +14,7 @@ import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusSchedule;
 
 @Component
-public class ExpressBusRouteStrategy implements BusRouteStrategy{
+public class ExpressBusRouteStrategy implements BusRouteStrategy {
 
     private static final String BUS_TYPE = "express";
     private static final String BUS_NAME = "대성티엔이";

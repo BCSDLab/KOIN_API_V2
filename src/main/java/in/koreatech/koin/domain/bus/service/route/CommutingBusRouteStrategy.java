@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class CommutingBusRouteStrategy implements BusRouteStrategy{
+public class CommutingBusRouteStrategy implements BusRouteStrategy {
 
     private final BusRepository busRepository;
     private static final String BUS_TYPE = "commuting";

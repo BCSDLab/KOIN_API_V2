@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 public final class ExpressBusSchedule {
+
     private static final List<LocalTime> KOREA_TECH_SCHEDULE = List.of(
         LocalTime.of(7, 0),
         LocalTime.of(8, 30),
