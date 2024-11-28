@@ -13,14 +13,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.timetableV2.dto.TimeTableLecturesDeleteRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameResponse;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateResponse;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureResponse;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -62,8 +61,8 @@ public interface TimetableApiV2 {
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/v2/timetables/frame/{id}")
     ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
+        @Valid @RequestBody TimetableFrameUpdateRequest request,
         @PathVariable(value = "id") Integer timetableFrameId,
-        @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -109,7 +108,7 @@ public interface TimetableApiV2 {
     )
     @Operation(summary = "시간표 프레임 모두 삭제")
     @DeleteMapping("/v2/all/timetables/frame")
-    public ResponseEntity<Void> deleteAllTimetablesFrame(
+    ResponseEntity<Void> deleteAllTimetablesFrame(
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     );
@@ -124,8 +123,8 @@ public interface TimetableApiV2 {
     )
     @Operation(summary = "시간표에 강의 정보 추가",
         description = """
-            lecture_id가 있는 경우 class_title, class_time, professor은 null, grades는 '0'으로 입력해야합니다.\n
-            lecture_id가 없는 경우 class_title, class_time, professor, grades을 선택적으로 입력합니다.
+            lecture_id가 있는 경우 class_infos, professor은 null, grades는 '0'으로 입력해야합니다.\n
+            lecture_id가 없는 경우 class_infos, professor, grades을 선택적으로 입력합니다.
             """)
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/timetables/lecture")

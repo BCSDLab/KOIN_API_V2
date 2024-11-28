@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -186,6 +187,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn("유효하지 않은 API 경로입니다. " + e.getRequestURL());
         requestLogging(((ServletWebRequest)request).getRequest());
         return buildErrorResponse(HttpStatus.NOT_FOUND, "유효하지 않은 API 경로입니다.");
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<Object> handleOptimisticLockException(
+        HttpServletRequest request,
+        ObjectOptimisticLockingFailureException e
+    ) {
+        log.warn(e.getMessage());
+        requestLogging(((ServletWebRequest)request).getRequest());
+        return buildErrorResponse(HttpStatus.CONFLICT, "이미 처리된 요청입니다.");
     }
 
     @ExceptionHandler(Exception.class)

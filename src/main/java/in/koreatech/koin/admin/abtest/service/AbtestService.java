@@ -1,6 +1,5 @@
 package in.koreatech.koin.admin.abtest.service;
 
-import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -51,7 +50,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class AbtestService {
 
-    private final Clock clock;
     private final EntityManager entityManager;
     private final AbtestVariableCountRepository abtestVariableCountRepository;
     private final AbtestRepository abtestRepository;
@@ -161,7 +159,6 @@ public class AbtestService {
         accessHistory.addAbtestVariable(variable);
         countCacheUpdate(variable);
         variableAssignCacheSave(variable, accessHistory.getId());
-        accessHistory.updateLastAccessedAt(clock);
         return AbtestAssignResponse.of(variable, accessHistory);
     }
 
@@ -217,7 +214,6 @@ public class AbtestService {
             abtestVariableAssignRepository.save(AbtestVariableAssign.of(dbVariable.getId(), accessHistory.getId()));
             return dbVariable;
         }
-        accessHistory.updateLastAccessedAt(clock);
         return cacheVariable.get();
     }
 

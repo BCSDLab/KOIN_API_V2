@@ -9,7 +9,7 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
-import in.koreatech.koin.admin.user.dto.AdminOwnerUpdateRequest;
+import in.koreatech.koin.admin.owner.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

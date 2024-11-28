@@ -83,13 +83,14 @@ public class NotificationFactory {
     public Notification generateKeywordNotification(
         MobileAppPath path,
         Integer eventKeywordId,
+        String keyword,
         String title,
         String description,
         User target
     ) {
         return new Notification(
             path,
-            generateSchemeUri(path, eventKeywordId),
+            generateKeywordSchemeUri(path, eventKeywordId, keyword),
             title,
             description,
             null,
@@ -109,5 +110,12 @@ public class NotificationFactory {
         char lastChar = place.charAt(place.length() - 1);
         String result = (lastChar - 0xAC00) % 28 > 0 ? firstPost : secondPost;
         return place + result;
+    }
+
+    private String generateKeywordSchemeUri(MobileAppPath path, Integer eventId, String keyword) {
+        if (keyword == null) {
+            return generateSchemeUri(path, eventId);
+        }
+        return String.format("%s?id=%d&keyword=%s", path.getPath(), eventId, keyword);
     }
 }
