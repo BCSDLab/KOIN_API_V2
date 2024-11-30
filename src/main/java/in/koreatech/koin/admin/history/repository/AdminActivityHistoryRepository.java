@@ -13,6 +13,7 @@ import in.koreatech.koin.admin.history.exception.AdminActivityHistoryNotFoundExc
 import in.koreatech.koin.admin.history.model.AdminActivityHistory;
 
 public interface AdminActivityHistoryRepository extends Repository<AdminActivityHistory, Integer> {
+
     AdminActivityHistory save(AdminActivityHistory adminActivityHistory);
 
     Optional<AdminActivityHistory> findById(Integer id);

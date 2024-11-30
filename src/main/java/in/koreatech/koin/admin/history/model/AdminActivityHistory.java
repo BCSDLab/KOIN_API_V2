@@ -53,8 +53,11 @@ public class AdminActivityHistory extends BaseEntity {
 
     @Builder
     public AdminActivityHistory(
-        Integer domainId, HttpMethodType requestMethod,
-        DomainType domainName, String requestMessage, Admin admin
+        Integer domainId,
+        HttpMethodType requestMethod,
+        DomainType domainName,
+        String requestMessage,
+        Admin admin
     ) {
         this.domainId = domainId;
         this.requestMethod = requestMethod;
