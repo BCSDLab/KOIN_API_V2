@@ -6,8 +6,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.admin.history.dto.AdminHistoryResponse;
-import in.koreatech.koin.admin.history.dto.AdminHistorysCondition;
-import in.koreatech.koin.admin.history.dto.AdminHistorysResponse;
+import in.koreatech.koin.admin.history.dto.AdminHistoriesCondition;
+import in.koreatech.koin.admin.history.dto.AdminHistoriesResponse;
 import in.koreatech.koin.admin.history.model.AdminActivityHistory;
 import in.koreatech.koin.admin.history.repository.AdminActivityHistoryRepository;
 import in.koreatech.koin.global.model.Criteria;
@@ -19,7 +19,7 @@ public class HistoryService {
 
     private final AdminActivityHistoryRepository adminActivityHistoryRepository;
 
-    public AdminHistorysResponse getHistorys(AdminHistorysCondition condition) {
+    public AdminHistoriesResponse getHistories(AdminHistoriesCondition condition) {
         Integer total = adminActivityHistoryRepository.countAdminActivityHistory();
         Criteria criteria = Criteria.of(condition.page(), condition.limit(), total);
 
@@ -30,7 +30,7 @@ public class HistoryService {
         Page<AdminActivityHistory> adminActivityHistoryPage = adminActivityHistoryRepository.findByConditions(
             condition, pageRequest);
 
-        return AdminHistorysResponse.of(adminActivityHistoryPage);
+        return AdminHistoriesResponse.of(adminActivityHistoryPage);
     }
 
     public AdminHistoryResponse getHistory(Integer id) {

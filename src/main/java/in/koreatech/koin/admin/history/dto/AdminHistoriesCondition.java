@@ -15,7 +15,7 @@ import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record AdminHistorysCondition(
+public record AdminHistoriesCondition(
     @Schema(description = "페이지", example = "1", defaultValue = "1", requiredMode = NOT_REQUIRED)
     Integer page,
 
@@ -34,7 +34,7 @@ public record AdminHistorysCondition(
     @Schema(description = "정렬 기준", requiredMode = NOT_REQUIRED)
     Sort sort
 ) {
-    public AdminHistorysCondition {
+    public AdminHistoriesCondition {
         if (Objects.isNull(page)) {
             page = DEFAULT_PAGE;
         }

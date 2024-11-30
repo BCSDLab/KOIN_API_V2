@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.history.dto.AdminHistoryResponse;
-import in.koreatech.koin.admin.history.dto.AdminHistorysResponse;
+import in.koreatech.koin.admin.history.dto.AdminHistoriesResponse;
 import in.koreatech.koin.admin.history.enums.DomainType;
 import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import in.koreatech.koin.global.auth.Auth;
@@ -32,8 +32,8 @@ public interface HistoryApi {
         }
     )
     @Operation(summary = "히스토리 리스트 조회")
-    @GetMapping("/admin/historys")
-    ResponseEntity<AdminHistorysResponse> getHistorys(
+    @GetMapping("/admin/histories")
+    ResponseEntity<AdminHistoriesResponse> getHistories(
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
         @RequestParam(required = false) HttpMethodType requestMethod,

@@ -12,13 +12,11 @@ import org.springframework.data.domain.Page;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.admin.history.enums.DomainType;
-import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import in.koreatech.koin.admin.history.model.AdminActivityHistory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record AdminHistorysResponse(
+public record AdminHistoriesResponse(
     @Schema(description = "조건에 해당하는 히스토리 수", example = "10", requiredMode = REQUIRED)
     Long totalCount,
 
@@ -32,10 +30,10 @@ public record AdminHistorysResponse(
     Integer currentPage,
 
     @Schema(description = "어드민 계정 리스트", requiredMode = REQUIRED)
-    List<InnerAdminHistorysResponse> historys
+    List<InnerAdminHistoriesResponse> histories
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
-    public record InnerAdminHistorysResponse(
+    public record InnerAdminHistoriesResponse(
         @Schema(description = "고유 id", example = "1", requiredMode = REQUIRED)
         Integer id,
 
@@ -65,8 +63,8 @@ public record AdminHistorysResponse(
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt
     ) {
-        public static InnerAdminHistorysResponse from(AdminActivityHistory adminActivityHistory) {
-            return new InnerAdminHistorysResponse(
+        public static InnerAdminHistoriesResponse from(AdminActivityHistory adminActivityHistory) {
+            return new InnerAdminHistoriesResponse(
                 adminActivityHistory.getId(),
                 adminActivityHistory.getDomainId(),
                 adminActivityHistory.getAdmin().getUser().getName(),
@@ -78,14 +76,14 @@ public record AdminHistorysResponse(
         }
     }
 
-    public static AdminHistorysResponse of(Page<AdminActivityHistory> adminActivityHistoryPage) {
-        return new AdminHistorysResponse(
+    public static AdminHistoriesResponse of(Page<AdminActivityHistory> adminActivityHistoryPage) {
+        return new AdminHistoriesResponse(
             adminActivityHistoryPage.getTotalElements(),
             adminActivityHistoryPage.getContent().size(),
             adminActivityHistoryPage.getTotalPages(),
             adminActivityHistoryPage.getNumber() + 1,
             adminActivityHistoryPage.getContent().stream()
-                .map(InnerAdminHistorysResponse::from)
+                .map(InnerAdminHistoriesResponse::from)
                 .collect(Collectors.toList())
         );
     }
