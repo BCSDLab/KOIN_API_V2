@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Admin) History: 기록", description = "관리자 기록 관련 API")
 public interface HistoryApi {
+
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
