@@ -30,7 +30,7 @@ public class HistoryService {
         Page<AdminActivityHistory> adminActivityHistoryPage = adminActivityHistoryRepository.findByConditions(
             condition, pageRequest);
 
-        return AdminHistoriesResponse.of(adminActivityHistoryPage);
+        return AdminHistoriesResponse.from(adminActivityHistoryPage);
     }
 
     public AdminHistoryResponse getHistory(Integer id) {

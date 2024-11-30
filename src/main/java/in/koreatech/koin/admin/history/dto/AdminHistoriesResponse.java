@@ -76,7 +76,7 @@ public record AdminHistoriesResponse(
         }
     }
 
-    public static AdminHistoriesResponse of(Page<AdminActivityHistory> adminActivityHistoryPage) {
+    public static AdminHistoriesResponse from(Page<AdminActivityHistory> adminActivityHistoryPage) {
         return new AdminHistoriesResponse(
             adminActivityHistoryPage.getTotalElements(),
             adminActivityHistoryPage.getContent().size(),
