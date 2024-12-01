@@ -91,13 +91,14 @@ public class UserService {
         eventPublisher.publishEvent(new UserDeleteEvent(user.getEmail(), user.getUserType()));
     }
 
-    // TODO: 이거 옮길 예정
+    // TODO: 이거 옮길 예정 (옮기랍니당)
     public CoopResponse getCoop(Integer userId) {
         User user = userRepository.getById(userId);
         return CoopResponse.from(user);
     }
 
     // TODO : User로 뺴기
+    // TODO : 공통으로 묶을 수 있는 부분 묶어서 하기
     public void updateLastLoginTime(User user) {
         user.updateLastLoggedTime(LocalDateTime.now());
     }

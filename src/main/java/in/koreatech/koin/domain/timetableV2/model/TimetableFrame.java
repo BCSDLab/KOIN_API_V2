@@ -65,6 +65,7 @@ public class TimetableFrame extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
+    // TODO. NPE 터지는거 디버깅 확인
     @OneToMany(mappedBy = "timetableFrame", orphanRemoval = true, cascade = ALL)
     private List<TimetableLecture> timetableLectures;
 
@@ -85,12 +86,14 @@ public class TimetableFrame extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
+    // TODO. 업데이트 메소드명 잘 바꿔보기
     public void updateTimetableFrame(Semester semester, String name, boolean isMain) {
         this.semester = semester;
         this.name = name;
         this.isMain = isMain;
     }
 
+    // TODO. 업데이트 메소드명 잘 바꿔보기
     public void updateMainFlag(boolean isMain) {
         this.isMain = isMain;
     }

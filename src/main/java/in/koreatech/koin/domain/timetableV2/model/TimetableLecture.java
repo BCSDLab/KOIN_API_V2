@@ -59,6 +59,7 @@ public class TimetableLecture extends BaseEntity {
     @Column(name = "memo", length = 200)
     private String memo;
 
+    // TODO. 하드 딜리트 -> flaway로 날리고 컬럼 삭제
     @NotNull
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;

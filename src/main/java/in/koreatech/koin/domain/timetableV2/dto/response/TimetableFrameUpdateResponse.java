@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+// TODO. TimetableLectureResponse와 통합 -> 해당 DTO 삭제
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimetableFrameUpdateResponse(
     @Schema(description = "id", example = "1", requiredMode = REQUIRED)

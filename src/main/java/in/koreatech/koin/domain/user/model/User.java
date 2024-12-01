@@ -70,6 +70,15 @@ public class User extends BaseEntity {
     @Column(name = "is_authed", nullable = false)
     private boolean isAuthed = false;
 
+    /**
+     * TODO. 이거 지울 수 있을까용 ? 클라이언트 QA ->
+     *  device_access_at 초기화 구문 넣을 수 있으면
+     *     access_history_id 가져와서 디바이스를 특정
+     *        이거 클라이언트에게 요청해야함, 그럼 request 요청을 바꿔야함
+     *           모든 로그인에서 access_history_id를 요청하도록 변경
+     *               사이드 이펙트 x -> 선택적으로 가져올수 있음
+     *                   발급 기준 -> 해당 페이지에 한번이라도 들어간적이 있는가
+     */
     @Column(name = "last_logged_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastLoggedAt;
 
@@ -81,6 +90,7 @@ public class User extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
+    // TODO. 백로그였다고 함. 옮기기
     @Size(max = 255)
     @Column(name = "reset_token")
     private String resetToken;
@@ -89,6 +99,11 @@ public class User extends BaseEntity {
     @Column(name = "reset_expired_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime resetExpiredAt;
 
+    /**
+     * TODO. null이 많다. 분리하면 좋을 것 같음.
+     *  1:N으로 변경할 수 있을까 ?
+     *   다중기기 알림이 안되고 있다.
+     */
     @Column(name = "device_token", nullable = true)
     private String deviceToken;
 

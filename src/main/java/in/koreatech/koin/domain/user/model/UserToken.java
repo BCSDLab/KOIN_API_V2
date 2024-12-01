@@ -12,6 +12,11 @@ import lombok.Getter;
 @RedisHash("refreshToken")
 public class UserToken {
 
+    /**
+     * TODO. 설정 파일로 분리
+     *  -> stage와 prod를 다르게 가져갈 수 있을 것 같다.
+     *   현재 accessToken은 설정 파일로 관리
+     */
     private static final long REFRESH_TOKEN_EXPIRE_DAY = 90L;
 
     @Id

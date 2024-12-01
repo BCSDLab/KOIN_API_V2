@@ -20,6 +20,7 @@ public record UserLoginResponse(
     @JsonProperty("refresh_token")
     String refreshToken,
 
+    // TODO. enum화 이전에 했다가 취소한 이유 ?? -> 할 수 있으면 enum
     @Schema(
         description = """
             로그인한 회원의 신원
