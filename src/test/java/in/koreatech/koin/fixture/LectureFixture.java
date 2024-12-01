@@ -20,6 +20,7 @@ public class LectureFixture {
         return lectureRepository.save(
             Lecture.builder()
                 .code("ARB244")
+                .semesterDate(semester.getSemester())
                 .semester(semester)
                 .name("건축구조의 이해 및 실습")
                 .grades("3")
@@ -40,6 +41,7 @@ public class LectureFixture {
         return lectureRepository.save(
             Lecture.builder()
                 .code("BSM590")
+                .semesterDate(semester.getSemester())
                 .semester(semester)
                 .name("컴퓨팅사고")
                 .grades("3")
@@ -60,6 +62,7 @@ public class LectureFixture {
         return lectureRepository.save(
             Lecture.builder()
                 .code("MEB311")
+                .semesterDate(semester.getSemester())
                 .semester(semester)
                 .name("재료역학")
                 .grades("3")
@@ -80,6 +83,7 @@ public class LectureFixture {
         return lectureRepository.save(
             Lecture.builder()
                 .code("LAN324")
+                .semesterDate(semester.getSemester())
                 .semester(semester)
                 .name("영어청해")
                 .grades("1")
