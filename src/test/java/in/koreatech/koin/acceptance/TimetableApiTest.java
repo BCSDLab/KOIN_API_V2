@@ -48,15 +48,14 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 특정_학기_강의를_조회한다() throws Exception {
-        semesterFixture.semester("20192");
-        semesterFixture.semester("20201");
-        String semester = "20201";
+        Semester semester1 = semesterFixture.semester("20192");
+        Semester semester = semesterFixture.semester("20201");
         lectureFixture.HRD_개론(semester);
-        lectureFixture.건축구조의_이해_및_실습("20192");
+        lectureFixture.건축구조의_이해_및_실습(semester1);
 
         mockMvc.perform(
                 get("/lectures")
-                    .param("semester_date", semester)
+                    .param("semester_date", semester.getSemester())
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -85,15 +84,14 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 특정_학기_강의들을_조회한다() throws Exception {
-        semesterFixture.semester("20201");
-        String semester = "20201";
+        Semester semester = semesterFixture.semester("20201");
         lectureFixture.HRD_개론(semester);
         lectureFixture.건축구조의_이해_및_실습(semester);
         lectureFixture.재료역학(semester);
 
         mockMvc.perform(
                 get("/lectures")
-                    .param("semester_date", semester)
+                    .param("semester_date", semester.getSemester())
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -156,7 +154,7 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 존재하지_않는_학기를_조회하면_404() throws Exception {
-        String semester = "20201";
+        Semester semester = semesterFixture.semester("20201");
         lectureFixture.HRD_개론(semester);
         lectureFixture.건축구조의_이해_및_실습(semester);
 
@@ -239,8 +237,8 @@ class TimetableApiTest extends AcceptanceTest {
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
 
-        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
-        Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester);
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester);
 
         timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
 
@@ -322,8 +320,8 @@ class TimetableApiTest extends AcceptanceTest {
         String token = userFixture.getToken(user);
         Semester semester1 = semesterFixture.semester("20192");
         Semester semester2 = semesterFixture.semester("20201");
-        Lecture HRD_개론 = lectureFixture.HRD_개론(semester1.getSemester());
-        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester2.getSemester());
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester1);
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester2);
         timetableV2Fixture.시간표6(user, semester1, HRD_개론, null);
         timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null);
 
@@ -350,8 +348,8 @@ class TimetableApiTest extends AcceptanceTest {
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
 
-       lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
-       lectureFixture.HRD_개론(semester.getSemester());
+       lectureFixture.건축구조의_이해_및_실습(semester);
+       lectureFixture.HRD_개론(semester);
 
        timetableV2Fixture.시간표1(user, semester);
 
@@ -443,8 +441,8 @@ class TimetableApiTest extends AcceptanceTest {
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
 
-        lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
-        lectureFixture.HRD_개론(semester.getSemester());
+        lectureFixture.건축구조의_이해_및_실습(semester);
+        lectureFixture.HRD_개론(semester);
 
         timetableV2Fixture.시간표1(user, semester);
 
@@ -550,8 +548,8 @@ class TimetableApiTest extends AcceptanceTest {
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
 
-        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
-        Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester);
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester);
 
         timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
 
