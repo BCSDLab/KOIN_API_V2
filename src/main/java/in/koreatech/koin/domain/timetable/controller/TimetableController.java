@@ -89,5 +89,4 @@ public class TimetableController implements TimetableApi {
         timetableService.deleteTimetableLecture(userId, timetableId);
         return ResponseEntity.ok().build();
     }
-
 }

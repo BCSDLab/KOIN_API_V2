@@ -41,8 +41,8 @@ public class TimetableService {
     private final UserRepository userRepository;
     private final EntityManager entityManager;
 
-    public List<LectureResponse> getLecturesBySemester(String semester) {
-        semesterRepositoryV2.getBySemester(semester);
+    public List<LectureResponse> getLecturesBySemester(String requestSemester) {
+        Semester semester = semesterRepositoryV2.getBySemester(requestSemester);
         List<Lecture> lectures = lectureRepositoryV2.findBySemester(semester);
         return lectures.stream()
             .map(LectureResponse::from)
@@ -57,7 +57,7 @@ public class TimetableService {
             semester.getId());
 
         for (TimetableCreateRequest.InnerTimetableRequest timeTable : request.timetable()) {
-            Lecture lecture = lectureRepositoryV2.getBySemesterAndCodeAndLectureClass(request.semester(),
+            Lecture lecture = lectureRepositoryV2.getBySemesterAndCodeAndLectureClass(semester,
                 timeTable.code(), timeTable.lectureClass());
             TimetableLecture timetableLecture = TimetableLecture.builder()
                 .classPlace(timeTable.classPlace())
