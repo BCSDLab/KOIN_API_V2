@@ -29,6 +29,11 @@ public class Lecture {
 
     @Size(max = 255)
     @NotNull
+    @Column(name = "semester_date", nullable = false)
+    private String semesterDate;
+
+    @Size(max = 255)
+    @NotNull
     @Column(name = "code", nullable = false)
     private String code;
 
@@ -89,15 +94,22 @@ public class Lecture {
     private Semester semester;
 
     @Builder
-    private Lecture(
-        String code, String name,
-        String grades, String lectureClass,
-        String regularNumber, String department,
-        String target, String professor,
-        String isEnglish, String designScore,
-        String isElearning, String classTime,
+    public Lecture(String semesterDate,
+        String code,
+        String name,
+        String grades,
+        String lectureClass,
+        String regularNumber,
+        String department,
+        String target,
+        String professor,
+        String isEnglish,
+        String designScore,
+        String isElearning,
+        String classTime,
         Semester semester
     ) {
+        this.semesterDate = semesterDate;
         this.code = code;
         this.name = name;
         this.grades = grades;
