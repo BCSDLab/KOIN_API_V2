@@ -43,6 +43,11 @@ public record TimetableLectureCreateRequest(
         @Size(max = 30, message = "교수 명의 최대 글자는 30글자입니다.")
         String professor,
 
+        /**
+         * TODO. 핫픽스 여부 확인 변경 해보기
+         *  범위는 왜 0 ~ 9인건가 ??
+         *  범위 제한을 두는게 불편하다는 의견 존재
+         */
         @Schema(description = "학점", example = "0", requiredMode = REQUIRED)
         @Size(max = 2, message = "학점은 두 글자 이상일 수 없습니다. (0~9)")
         String grades,
