@@ -89,7 +89,7 @@ public class Lecture {
     private Semester semester;
 
     @Builder
-    public Lecture(
+    private Lecture(
         String code, String name,
         String grades, String lectureClass,
         String regularNumber, String department,

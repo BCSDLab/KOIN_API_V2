@@ -37,7 +37,7 @@ public class Semester {
     private List<Lecture> lectures = new ArrayList<>();
 
     @Builder
-    public Semester(String semester, List<Lecture> lectures) {
+    private Semester(String semester, List<Lecture> lectures) {
         this.semester = semester;
         this.lectures = lectures;
     }
