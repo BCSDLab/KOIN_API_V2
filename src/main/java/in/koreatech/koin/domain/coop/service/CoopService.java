@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -40,12 +41,15 @@ import in.koreatech.koin.domain.coop.exception.DiningNowDateException;
 import in.koreatech.koin.domain.coop.exception.StartDateAfterEndDateException;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.coop.model.DiningImageUploadEvent;
+import in.koreatech.koin.domain.coop.model.DiningNotifyCache;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
+import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRepository;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.domain.dining.model.Dining;
+import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
@@ -63,11 +67,13 @@ public class CoopService {
     private final ApplicationEventPublisher eventPublisher;
     private final DiningRepository diningRepository;
     private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
+    private final DiningNotifyCacheRepository diningNotifyCacheRepository;
     private final CoopRepository coopRepository;
     private final UserTokenRepository userTokenRepository;
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    List<String> placeFilters = Arrays.asList("A코너", "B코너", "C코너");
 
     private final int EXCEL_COLUMN_COUNT = 8;
 
@@ -91,15 +97,50 @@ public class CoopService {
     @Transactional
     public void saveDiningImage(DiningImageRequest imageRequest) {
         Dining dining = diningRepository.getById(imageRequest.menuId());
-        boolean isImageExist = diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(dining.getDate(),
-            dining.getType());
-
-        LocalDateTime now = LocalDateTime.now(clock);
-        boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType(), true);
-        if (isOpened && !isImageExist) {
-            eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getId(), dining.getImageUrl()));
-        }
         dining.setImageUrl(imageRequest.imageUrl());
+    }
+
+    public void sendDiningNotify() {
+        DiningType diningType = coopShopService.getDiningType();
+        LocalDate now = LocalDate.now();
+        List<Dining> dinings = diningRepository.findAllByDateAndType(now, diningType);
+
+        if (dinings.isEmpty()) {
+            return;
+        }
+
+        boolean allImageExist = diningRepository.allExistsByDateAndTypeAndPlacesAndImageUrlIsNotNull(
+            now, diningType, placeFilters
+        );
+        boolean isOpened = coopShopService.getIsOpened(LocalDateTime.now(), CoopShopType.CAFETERIA, diningType, true);
+        String diningNotifyId = now.toString() + diningType;
+
+        if (isOpened && allImageExist) {
+            if (alreadyNotify(diningNotifyId))
+                return;
+
+            if (!diningNotifyCacheRepository.existsById(diningNotifyId)) {
+                sendDiningNotify(diningNotifyId, dinings);
+            }
+
+            if (LocalTime.now().isAfter(diningType.getStartTime().minusMinutes(10))
+                && !diningNotifyCacheRepository.existsById(diningNotifyId)
+            ) {
+                sendDiningNotify(diningNotifyId, dinings);
+            }
+        }
+    }
+
+    private boolean alreadyNotify(String diningNotifyId) {
+        if (diningNotifyCacheRepository.existsById(diningNotifyId)) {
+            return true;
+        }
+        return false;
+    }
+
+    private void sendDiningNotify(String diningNotifyId, List<Dining> dinings) {
+        diningNotifyCacheRepository.save(DiningNotifyCache.from(diningNotifyId));
+        eventPublisher.publishEvent(new DiningImageUploadEvent(dinings.get(0).getId(), dinings.get(0).getImageUrl()));
     }
 
     @Transactional
@@ -125,7 +166,6 @@ public class CoopService {
         List<Dining> dinings;
 
         if (isCafeteria) {
-            List<String> placeFilters = Arrays.asList("A코너", "B코너", "C코너");
             dinings = diningRepository.findByDateBetweenAndPlaceIn(startDate, endDate, placeFilters);
         } else {
             dinings = diningRepository.findByDateBetween(startDate, endDate);
