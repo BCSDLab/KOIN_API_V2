@@ -66,12 +66,8 @@ public class Student {
         this.user = user;
     }
 
-    public void update(String studentNumber, String department) {
+    public void updateInfo(String studentNumber, String department) {
         this.studentNumber = studentNumber;
         this.department = department;
-    }
-
-    public static Integer parseStudentNumberYear(String studentNumber) {
-        return Integer.parseInt(studentNumber.substring(0, 4));
     }
 }
