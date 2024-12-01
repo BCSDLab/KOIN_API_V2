@@ -111,6 +111,7 @@ public class AccessHistory extends BaseEntity {
         );
     }
 
+    // TODO: 각 로그인 및 리프레시 요청에 추가 필요
     public void updateLastAccessedAt(Clock clock) {
         this.lastAccessedAt = LocalDateTime.now(clock);
     }

@@ -1,6 +1,13 @@
 package in.koreatech.koin.domain.timetableV2.factory;
 
 import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest.InnerTimetableLectureRequest;
+import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest.InnerTimetableLectureRequest.ClassInfo;
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -20,12 +27,33 @@ public class TimetableLectureUpdater {
             TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableRequest.id());
             timetableLecture.update(
                 timetableRequest.classTitle(),
-                timetableRequest.classTime().toString(),
-                timetableRequest.classPlace(),
+                getClassTimeToString(timetableRequest.classInfos()),
+                getClassPlaceToString(timetableRequest.classInfos()),
                 timetableRequest.professor(),
                 timetableRequest.grades(),
                 timetableRequest.memo()
             );
         }
+    }
+
+    private String getClassTimeToString(List<ClassInfo> classInfos) {
+        if (classInfos != null) {
+            List<Integer> classTimes = new ArrayList<>();
+            for (int i = 0; i < classInfos.size(); i++) {
+                if (i > 0) classTimes.add(-1);
+                classTimes.addAll(classInfos.get(i).classTime());
+            }
+            return classTimes.toString();
+        }
+        return null;
+    }
+
+    private String getClassPlaceToString(List<ClassInfo> classInfos) {
+        if (classInfos != null) {
+            return classInfos.stream()
+                .map(ClassInfo::classPlace)
+                .collect(Collectors.joining(", "));
+        }
+        return null;
     }
 }

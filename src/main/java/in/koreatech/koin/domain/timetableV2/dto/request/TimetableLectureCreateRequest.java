@@ -3,7 +3,9 @@ package in.koreatech.koin.domain.timetableV2.dto.request;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -33,22 +35,14 @@ public record TimetableLectureCreateRequest(
         @Size(max = 100, message = "강의 이름의 최대 글자는 100글자입니다.")
         String classTitle,
 
-        @Schema(description = "강의 시간", example = "null", requiredMode = NOT_REQUIRED)
-        List<Integer> classTime,
-
-        @Schema(description = "강의 장소", example = "도서관", requiredMode = NOT_REQUIRED)
-        @Size(max = 30, message = "강의 장소의 최대 글자는 30글자입니다.")
-        String classPlace,
+        @Valid
+        @Schema(description = "강의 정보", requiredMode = NOT_REQUIRED)
+        List<ClassInfo> classInfos,
 
         @Schema(description = "교수명", example = "null", requiredMode = NOT_REQUIRED)
         @Size(max = 30, message = "교수 명의 최대 글자는 30글자입니다.")
         String professor,
 
-        /**
-         * TODO. 핫픽스 여부 확인 변경 해보기
-         *  범위는 왜 0 ~ 9인건가 ??
-         *  범위 제한을 두는게 불편하다는 의견 존재
-         */
         @Schema(description = "학점", example = "0", requiredMode = REQUIRED)
         @Size(max = 2, message = "학점은 두 글자 이상일 수 없습니다. (0~9)")
         String grades,
@@ -60,6 +54,18 @@ public record TimetableLectureCreateRequest(
         @Schema(description = "강의 고유 번호", example = "14", requiredMode = NOT_REQUIRED)
         Integer lectureId
     ) {
+        @JsonNaming(value = SnakeCaseStrategy.class)
+        public record ClassInfo(
+            @Schema(description = "강의 시간", example = "null", requiredMode = NOT_REQUIRED)
+            List<Integer> classTime,
+
+            @Schema(description = "강의 장소", example = "도서관", requiredMode = NOT_REQUIRED)
+            @Size(max = 30, message = "강의 장소의 최대 글자는 30글자입니다.")
+            String classPlace
+        ) {
+
+        }
+
         // TODO. 사용 이유
         public InnerTimeTableLectureRequest {
             if (grades == null) {
@@ -72,7 +78,7 @@ public record TimetableLectureCreateRequest(
             return new TimetableLecture(
                 classTitle,
                 getClassTimeToString(),
-                classPlace,
+                getClassPlaceToString(),
                 professor,
                 grades,
                 memo,
@@ -86,7 +92,7 @@ public record TimetableLectureCreateRequest(
             return new TimetableLecture(
                 classTitle,
                 getClassTimeToString(),
-                classPlace,
+                getClassPlaceToString(),
                 professor,
                 grades,
                 memo,
@@ -97,8 +103,28 @@ public record TimetableLectureCreateRequest(
         }
 
         private String getClassTimeToString() {
-            if (classTime != null) {
-                return classTime.toString();
+            if (classInfos != null) {
+                List<Integer> classTimes = new ArrayList<>();
+                for (int i = 0; i < classInfos.size(); i++) {
+                    if (i > 0) classTimes.add(-1);
+                    classTimes.addAll(classInfos.get(i).classTime);
+                }
+                return classTimes.toString();
+            }
+            return null;
+        }
+
+        private String getClassPlaceToString() {
+            if (classInfos != null) {
+                StringBuilder classPlaceSegment = new StringBuilder();
+                for (int i = 0; i < classInfos.size(); i++) {
+                    if (i > 0) classPlaceSegment.append(", ");
+                    if (Objects.equals(classInfos.get(i).classPlace,null)) {
+                        classPlaceSegment.append("");
+                    }
+                    else classPlaceSegment.append(classInfos.get(i).classPlace);
+                }
+                return classPlaceSegment.toString();
             }
             return null;
         }

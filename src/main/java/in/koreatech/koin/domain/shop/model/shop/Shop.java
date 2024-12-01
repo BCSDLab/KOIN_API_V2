@@ -305,9 +305,11 @@ public class Shop extends BaseEntity {
 
     public void delete() {
         this.isDeleted = true;
+        reviews.forEach(ShopReview::deleteReview);
     }
 
     public void cancelDelete() {
         this.isDeleted = false;
+        reviews.forEach(ShopReview::cancelReview);
     }
 }
