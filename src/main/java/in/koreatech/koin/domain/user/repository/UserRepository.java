@@ -1,7 +1,9 @@
 package in.koreatech.koin.domain.user.repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.repository.Repository;
 
@@ -27,7 +29,7 @@ public interface UserRepository extends Repository<User, Integer> {
 
     default User getByEmail(String email) {
         return findByEmail(email)
-            .orElseThrow(() -> UserNotFoundException.withDetail("email: " + email));
+            .orElseThrow(() -> UserNotFoundException.withDetail("account: " + email));
     }
 
     default User getByPhoneNumber(String phoneNumber, UserType userType) {
@@ -45,11 +47,6 @@ public interface UserRepository extends Repository<User, Integer> {
             .orElseThrow(() -> UserNotFoundException.withDetail("id: " + id));
     }
 
-    default User getByNickname(String nickname) {
-        return findByNickname(nickname)
-            .orElseThrow(() -> UserNotFoundException.withDetail("nickname: " + nickname));
-    }
-
     default User getByResetToken(String resetToken) {
         return findAllByResetToken(resetToken)
             .orElseThrow(() -> UserNotFoundException.withDetail("resetToken: " + resetToken));
@@ -59,9 +56,12 @@ public interface UserRepository extends Repository<User, Integer> {
 
     void delete(User user);
 
-    List<User> findAllByDeviceTokenIsNotNull();
-
-    Optional<User> findByPhoneNumber(String phoneNumber);
-
     List<User> findAllByName(String name);
+
+    List<User> findAllByIdIn(List<Integer> ids);
+
+    default Map<Integer, User> findAllByIdInMap(List<Integer> ids) {
+        return findAllByIdIn(ids).stream()
+            .collect(Collectors.toMap(User::getId, user -> user));
+    }
 }

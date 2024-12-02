@@ -424,26 +424,26 @@ class ShopApiTest extends AcceptanceTest {
         shopCategoryFixture.카테고리_일반음식(shopParentCategory_가게); // 카테고리_치킨이 먼저 생성됨
 
         mockMvc.perform(
-                get("/shops/categories")
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().json("""
-                {
-                    "total_count": 2,
-                    "shop_categories": [
+                        get("/shops/categories")
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().json("""
                         {
-                            "id": 2,
-                            "name": "일반음식점",
-                            "image_url": "https://test-image.com/normal.jpg"
-                        },
-                        {
-                            "id": 1,
-                            "name": "치킨",
-                            "image_url": "https://test-image.com/ckicken.jpg"
+                            "total_count": 2,
+                            "shop_categories": [
+                                {
+                                    "id": 2,
+                                    "name": "일반음식점",
+                                    "image_url": "https://test-image.com/normal.jpg"
+                                },
+                                {
+                                    "id": 1,
+                                    "name": "치킨",
+                                    "image_url": "https://test-image.com/ckicken.jpg"
+                                }
+                            ]
                         }
-                    ]
-                }
-                """));
+                        """));
     }
 
     @Test
@@ -575,6 +575,50 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7788-9900",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "TUESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "WEDNESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "THURSDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SATURDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SUNDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -589,6 +633,20 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7574-1212",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "21:00"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 0.0,
@@ -628,6 +686,20 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7574-1212",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "21:00"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -642,6 +714,50 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7788-9900",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "TUESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "WEDNESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "THURSDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SATURDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SUNDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -681,6 +797,20 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7574-1212",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "21:00"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -695,6 +825,50 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7788-9900",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "12:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "TUESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "WEDNESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "THURSDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SATURDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SUNDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -735,6 +909,20 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7574-1212",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "21:00"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -772,6 +960,20 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7574-1212",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "21:00"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -813,6 +1015,20 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7574-1212",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "21:00"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -855,6 +1071,50 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7788-9900",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "TUESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "WEDNESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "THURSDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SATURDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SUNDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -869,6 +1129,20 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7574-1212",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "21:00"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -908,6 +1182,20 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7574-1212",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "21:00"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -922,6 +1210,50 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7788-9900",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "TUESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "WEDNESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "THURSDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SATURDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SUNDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -960,6 +1292,20 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7574-1212",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "21:00"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -974,6 +1320,50 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7788-9900",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "TUESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "WEDNESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "THURSDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SATURDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SUNDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -1013,6 +1403,20 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7574-1212",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "21:00"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -1027,6 +1431,50 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7788-9900",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        },
+                                        {
+                                            "day_of_week": "TUESDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        },
+                                        {
+                                            "day_of_week": "WEDNESDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        },
+                                        {
+                                            "day_of_week": "THURSDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        },
+                                        {
+                                            "day_of_week": "SATURDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        },
+                                        {
+                                            "day_of_week": "SUNDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -1066,6 +1514,50 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7788-9900",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "TUESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "WEDNESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "THURSDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SATURDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SUNDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -1101,6 +1593,20 @@ class ShopApiTest extends AcceptanceTest {
                                         "pay_bank": true,
                                         "pay_card": true,
                                         "phone": "010-7574-1212",
+                                        "open": [
+                                            {
+                                                "day_of_week": "MONDAY",
+                                                "closed": false,
+                                                "open_time": "00:00",
+                                                "close_time": "21:00"
+                                            },
+                                            {
+                                                "day_of_week": "FRIDAY",
+                                                "closed": false,
+                                                "open_time": "00:00",
+                                                "close_time": "00:00"
+                                            }
+                                        ],
                                         "is_event": false,
                                         "is_open": %s,
                                         "average_rate": 0.0,
@@ -1116,6 +1622,50 @@ class ShopApiTest extends AcceptanceTest {
                                     "pay_bank": true,
                                     "pay_card": true,
                                     "phone": "010-7788-9900",
+                                    "open": [
+                                        {
+                                            "day_of_week": "MONDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "TUESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "WEDNESDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "THURSDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "FRIDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SATURDAY",
+                                            "closed": false,
+                                            "open_time": "11:30",
+                                            "close_time": "21:30"
+                                        },
+                                        {
+                                            "day_of_week": "SUNDAY",
+                                            "closed": false,
+                                            "open_time": "00:00",
+                                            "close_time": "00:00"
+                                        }
+                                    ],
                                     "is_event": false,
                                     "is_open": %s,
                                     "average_rate": 4.0,
@@ -1155,6 +1705,50 @@ class ShopApiTest extends AcceptanceTest {
                                 "pay_bank": true,
                                 "pay_card": true,
                                 "phone": "010-7788-9900",
+                                "open": [
+                                    {
+                                        "day_of_week": "MONDAY",
+                                        "closed": false,
+                                        "open_time": "11:30",
+                                        "close_time": "21:30"
+                                    },
+                                    {
+                                        "day_of_week": "TUESDAY",
+                                        "closed": false,
+                                        "open_time": "11:30",
+                                        "close_time": "21:30"
+                                    },
+                                    {
+                                        "day_of_week": "WEDNESDAY",
+                                        "closed": false,
+                                        "open_time": "11:30",
+                                        "close_time": "21:30"
+                                    },
+                                    {
+                                        "day_of_week": "THURSDAY",
+                                        "closed": false,
+                                        "open_time": "11:30",
+                                        "close_time": "21:30"
+                                    },
+                                    {
+                                        "day_of_week": "FRIDAY",
+                                        "closed": false,
+                                        "open_time": "11:30",
+                                        "close_time": "21:30"
+                                    },
+                                    {
+                                        "day_of_week": "SATURDAY",
+                                        "closed": false,
+                                        "open_time": "11:30",
+                                        "close_time": "21:30"
+                                    },
+                                    {
+                                        "day_of_week": "SUNDAY",
+                                        "closed": false,
+                                        "open_time": "00:00",
+                                        "close_time": "00:00"
+                                    }
+                                ],
                                 "is_event": false,
                                 "is_open": %s,
                                 "average_rate": 4.0,
@@ -1169,6 +1763,20 @@ class ShopApiTest extends AcceptanceTest {
                                 "pay_bank": true,
                                 "pay_card": true,
                                 "phone": "010-7574-1212",
+                                "open": [
+                                    {
+                                        "day_of_week": "MONDAY",
+                                        "closed": false,
+                                        "open_time": "00:00",
+                                        "close_time": "21:00"
+                                    },
+                                    {
+                                        "day_of_week": "FRIDAY",
+                                        "closed": false,
+                                        "open_time": "00:00",
+                                        "close_time": "00:00"
+                                    }
+                                ],
                                 "is_event": false,
                                 "is_open": %s,
                                 "average_rate": 4.0,

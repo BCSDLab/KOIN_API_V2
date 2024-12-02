@@ -13,10 +13,10 @@ public interface UserTokenRepository extends Repository<UserToken, Integer> {
 
     Optional<UserToken> findById(Integer userId);
 
-    void deleteById(Integer id);
-
     default UserToken getById(Integer userId) {
         return findById(userId)
             .orElseThrow(() -> new KoinIllegalArgumentException("refresh token이 존재하지 않습니다.", "userId: " + userId));
     }
+
+    void deleteById(Integer id);
 }
