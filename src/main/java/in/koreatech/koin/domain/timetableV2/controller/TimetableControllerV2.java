@@ -33,6 +33,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
 
     private final TimetableFrameService frameServiceV2;
     private final TimetableLectureService lectureServiceV2;
+    private final TimetableLectureService timetableLectureService;
 
     @PostMapping("/v2/timetables/frame")
     public ResponseEntity<TimetableFrameResponse> createTimetablesFrame(
@@ -133,5 +134,14 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     ) {
         lectureServiceV2.deleteTimetableLectureByFrameId(frameId, lectureId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/v2/rollback/timetables/lecture")
+    public ResponseEntity<TimetableLectureResponse> rollbackTimetableLecture(
+        @RequestParam(name = "timetable_lectures_id") List<Integer> request,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        TimetableLectureResponse response = timetableLectureService.rollbackTimetableLecture(request, userId);
+        return ResponseEntity.ok(response);
     }
 }

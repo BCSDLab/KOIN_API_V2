@@ -210,4 +210,20 @@ public interface TimetableApiV2 {
         @PathVariable(value = "lectureId") Integer lectureId,
         @Auth(permit = {STUDENT}) Integer userId
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "삭제한 시간표 강의 복구")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/v2/rollback/timetables/lecture")
+    ResponseEntity<TimetableLectureResponse> rollbackTimetableLecture(
+        @RequestBody List<Integer> request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
 }

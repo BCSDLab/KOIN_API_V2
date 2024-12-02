@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculat
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +18,6 @@ import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureCreator;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureUpdater;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -81,5 +79,15 @@ public class TimetableLectureService {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(frameId);
         validateUserAuthorization(frame.getUser().getId(), userId);
         timetableLectureRepositoryV2.deleteByFrameIdAndLectureId(frameId, lectureId);
+    }
+
+    @Transactional
+    public TimetableLectureResponse rollbackTimetableLecture(List<Integer> request, Integer userId) {
+        request.stream()
+            .map(timetableLectureRepositoryV2::getByIdWithDeleted)
+            .peek(lecture -> validateUserAuthorization(lecture.getTimetableFrame().getUser().getId(), userId))
+            .forEach(TimetableLecture::undelete);
+        TimetableLecture lecture = timetableLectureRepositoryV2.getById(request.get(0));
+        return getTimetableLectureResponse(userId, lecture.getTimetableFrame());
     }
 }

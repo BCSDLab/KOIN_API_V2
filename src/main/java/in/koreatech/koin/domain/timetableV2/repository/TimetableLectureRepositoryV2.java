@@ -33,4 +33,13 @@ public interface TimetableLectureRepositoryV2 extends Repository<TimetableLectur
         AND lectures_id = :lectureId
         """, nativeQuery = true)
     void deleteByFrameIdAndLectureId(@Param("frameId") Integer frameId, @Param("lectureId") Integer lectureId);
+
+
+    @Query("SELECT t FROM TimetableLecture t WHERE t.id = :id")
+    Optional<TimetableLecture> findByIdWithDeleted(@Param("id") Integer id);
+
+    default TimetableLecture getByIdWithDeleted(Integer id) {
+        return findByIdWithDeleted(id)
+            .orElseThrow(() -> TimetableLectureNotFoundException.withDetail("id: " + id));
+    }
 }
