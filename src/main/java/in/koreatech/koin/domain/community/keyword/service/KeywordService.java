@@ -130,11 +130,11 @@ public class KeywordService {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
 
-        articleKeywordUserMap.Delete();
+        articleKeywordUserMap.delete();
 
         boolean isKeywordUsedByOthers = articleKeywordUserMapRepository.existsByArticleKeywordId(articleKeywordUserMap.getArticleKeyword().getId());
         if (!isKeywordUsedByOthers) {
-            articleKeywordUserMap.getArticleKeyword().Delete();
+            articleKeywordUserMap.getArticleKeyword().delete();
         }
     }
 

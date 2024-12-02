@@ -49,7 +49,7 @@ public class ArticleKeywordUserMap extends BaseEntity {
         this.user = user;
     }
 
-    public void Delete() {
+    public void delete() {
         this.isDeleted = true;
     }
 

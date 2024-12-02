@@ -68,7 +68,7 @@ public class ArticleKeyword extends BaseEntity {
         this.isFiltered = isFiltered;
     }
 
-    public void Delete() {
+    public void delete() {
         this.isDeleted = true;
     }
 
