@@ -360,6 +360,76 @@ public class TimetableLectureApiTest extends AcceptanceTest {
             .andExpect(status().isNoContent());
     }
 
+    @Test
+    void 시간표에서_삭제된_강의를_복구한다_V2() throws Exception {
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester);
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester);
+        TimetableFrame frame = timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+
+        List<Integer> timetableLecturesId = frame.getTimetableLectures().stream()
+            .map(TimetableLecture::getId)
+            .toList();
+
+        mockMvc.perform(
+            post("/v2/rollback/timetables/lecture")
+                .header("Authorization", "Bearer " + token)
+                .param("timetable_lectures_id", timetableLecturesId.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(",")))
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
+                    "timetable_frame_id": 1,
+                    "timetable": [
+                        {
+                            "id" : 1,
+                            "lecture_id" : 1,
+                            "regular_number": "25",
+                            "code": "ARB244",
+                            "design_score": "0",
+                            "class_infos": [
+                              {
+                                "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
+                                "class_place": null
+                              }
+                            ],
+                            "memo": null,
+                            "grades": "3",
+                            "class_title": "건축구조의 이해 및 실습",
+                            "lecture_class": "01",
+                            "target": "디자 1 건축",
+                            "professor": "황현식",
+                            "department": "디자인ㆍ건축공학부"
+                        },
+                        {
+                            "id": 2,
+                            "lecture_id": 2,
+                            "regular_number": "22",
+                            "code": "BSM590",
+                            "design_score": "0",
+                            "class_infos": [
+                              {
+                                "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
+                                "class_place": null
+                              }
+                            ],
+                            "memo": null,
+                            "grades": "3",
+                            "class_title": "컴퓨팅사고",
+                            "lecture_class": "06",
+                            "target": "기공1",
+                            "professor": "박한수,최준호",
+                            "department": "기계공학부"
+                        }
+                    ],
+                    "grades": 6,
+                    "total_grades": 6
+                }
+                """));
+    }
+
     /*@Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void isMain이_false인_frame과_true인_frame을_동시에_삭제한다() {
