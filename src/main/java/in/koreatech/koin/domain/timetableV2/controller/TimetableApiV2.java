@@ -77,7 +77,7 @@ public interface TimetableApiV2 {
     @Operation(summary = "시간표 프레임 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/v2/timetables/frame")
-    ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
+    ResponseEntity<Object> getTimetablesFrame(
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     );

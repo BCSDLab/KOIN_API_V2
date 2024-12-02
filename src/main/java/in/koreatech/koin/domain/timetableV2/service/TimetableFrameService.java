@@ -4,7 +4,9 @@ import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameVali
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,11 +59,28 @@ public class TimetableFrameService {
         return timetableFrameUpdater.updateTimetableFrame(frame, userId, request.timetableName(), request.isMain());
     }
 
-    public List<TimetableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
+    public Object getTimetablesFrame(Integer userId, String semesterRequest) {
+        if (semesterRequest == null) {
+            return getAllTimetablesFrame(userId);
+        }
+
         Semester semester = semesterRepositoryV2.getBySemester(semesterRequest);
         return timetableFrameRepositoryV2.findAllByUserIdAndSemesterId(userId, semester.getId()).stream()
             .map(TimetableFrameResponse::from)
             .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Map<String, List<TimetableFrameResponse>>> getAllTimetablesFrame(Integer userId) {
+        List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findAllByUserId(userId);
+
+        Map<String, List<TimetableFrameResponse>> groupedBySemester = timetableFrames.stream()
+            .collect(Collectors.groupingBy(
+                frame -> frame.getSemester().getSemester(),
+                Collectors.mapping(TimetableFrameResponse::from, Collectors.toList())
+            ));
+
+        return Map.of("semesters", groupedBySemester);
     }
 
     @Transactional
