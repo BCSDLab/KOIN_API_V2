@@ -223,7 +223,7 @@ public interface TimetableApiV2 {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/timetables/lecture/rollback")
     ResponseEntity<TimetableLectureResponse> rollbackTimetableLecture(
-        @RequestBody List<Integer> timetableLecturesId,
+        @RequestParam(name = "timetable_lectures_id") List<Integer> timetableLecturesId,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -243,7 +243,7 @@ public interface TimetableApiV2 {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/timetables/frame/rollback")
     ResponseEntity<TimetableLectureResponse> rollbackTimetableFrame(
-        @RequestBody @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
+        @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }
