@@ -104,6 +104,9 @@ public class TimetableFrame extends BaseEntity {
 
     public void delete() {
         this.isDeleted = true;
+        if (timetableLectures != null) {
+            timetableLectures.forEach(TimetableLecture::delete);
+        }
     }
 
     public void undelete() {

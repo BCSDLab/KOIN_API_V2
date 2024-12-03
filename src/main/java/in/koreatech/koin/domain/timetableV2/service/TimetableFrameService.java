@@ -78,9 +78,9 @@ public class TimetableFrameService {
     }
 
     private void deleteFrameAndUpdateMainStatus(Integer userId, TimetableFrame frame) {
-        frame.updateMainFlag(false);
         frame.delete();
         if (frame.isMain()) {
+            frame.updateMainFlag(false);
             TimetableFrame nextFrame = timetableFrameRepositoryV2.findNextFirstTimetableFrame(userId,
                 frame.getSemester().getId());
             if (nextFrame != null) {

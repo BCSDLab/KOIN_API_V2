@@ -364,7 +364,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
     void 시간표에서_삭제된_강의를_복구한다_V2() throws Exception {
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester);
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester);
-        TimetableFrame frame = timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+        TimetableFrame frame = timetableV2Fixture.시간표8(user, semester, 건축구조의_이해_및_실습, HRD_개론);
 
         List<Integer> timetableLecturesId = frame.getTimetableLectures().stream()
             .map(TimetableLecture::getId)
