@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.admin.abtest.model.AccessHistory;
 import in.koreatech.koin.admin.abtest.model.Device;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -37,11 +38,12 @@ public record AbtestDevicesResponse(
     ) {
 
         public static InnerDeviceResponse from(Device device) {
+            AccessHistory accessHistory = device.getAccessHistory();
             return new InnerDeviceResponse(
                 device.getId(),
                 device.getType(),
                 device.getModel(),
-                device.getAccessHistory().getLastAccessedAt().toLocalDate());
+                accessHistory != null ? accessHistory.getLastAccessedAt().toLocalDate() : null);
         }
     }
 }
