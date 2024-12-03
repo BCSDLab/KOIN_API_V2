@@ -26,10 +26,10 @@ public interface TimetableLectureRepositoryV2 extends Repository<TimetableLectur
 
     TimetableLecture save(TimetableLecture timetableLecture);
 
-    Optional<TimetableLecture> findByFrameIdAndLectureId(Integer frameId, Integer lectureId);
+    Optional<TimetableLecture> findByTimetableFrameIdAndLectureId(Integer frameId, Integer lectureId);
 
     default TimetableLecture getByFrameIdAndLectureId(Integer frameId, Integer lectureId) {
-        return findByFrameIdAndLectureId(frameId, lectureId)
+        return findByTimetableFrameIdAndLectureId(frameId, lectureId)
             .orElseThrow(() -> TimetableLectureNotFoundException.withDetail("frameId: " + frameId + ", lectureId: " + lectureId));
     }
 
