@@ -119,10 +119,7 @@ public record TimetableResponse(
         }
 
         private static boolean isValidClassTime(int classTime) {
-            if (classTime < 100) {
-                return classTime < 19;
-            }
-            return classTime % 100 < 19;
+            return classTime < 19 || classTime % 100 < 19;
         }
     }
 
