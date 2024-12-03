@@ -154,14 +154,14 @@ public class TimeTableV2Fixture {
 
         TimetableLecture timetableLecture1 = TimetableLecture.builder()
             .grades("0")
-            .isDeleted(false)
+            .isDeleted(true)
             .lecture(lecture1)
             .timetableFrame(frame)
             .build();
 
         TimetableLecture timetableLecture2 = TimetableLecture.builder()
             .grades("0")
-            .isDeleted(false)
+            .isDeleted(true)
             .lecture(lecture2)
             .timetableFrame(frame)
             .build();
@@ -175,6 +175,7 @@ public class TimeTableV2Fixture {
     public TimetableFrame 시간표7(User user, Semester semester, Lecture lecture1, Lecture lecture2) {
         TimetableFrame frame = TimetableFrame.builder()
             .user(user)
+            .isDeleted(true)
             .semester(semester)
             .name("시간표7")
             .isMain(true)
@@ -183,14 +184,14 @@ public class TimeTableV2Fixture {
 
         TimetableLecture timetableLecture1 = TimetableLecture.builder()
             .grades("0")
-            .isDeleted(false)
+            .isDeleted(true)
             .lecture(lecture1)
             .timetableFrame(frame)
             .build();
 
         TimetableLecture timetableLecture2 = TimetableLecture.builder()
             .grades("0")
-            .isDeleted(false)
+            .isDeleted(true)
             .lecture(lecture2)
             .timetableFrame(frame)
             .build();

@@ -371,7 +371,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
             .toList();
 
         mockMvc.perform(
-            post("/v2/rollback/timetables/lecture")
+            post("/v2/timetables/lecture/rollback")
                 .header("Authorization", "Bearer " + token)
                 .param("timetable_lectures_id", timetableLecturesId.stream()
                     .map(String::valueOf)
@@ -437,7 +437,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
         TimetableFrame frame = timetableV2Fixture.시간표7(user, semester, 건축구조의_이해_및_실습, HRD_개론);
 
         mockMvc.perform(
-                post("/v2/rollback/timetables/frame")
+                post("/v2/timetables/frame/rollback")
                     .header("Authorization", "Bearer " + token)
                     .param("timetable_frame_id", String.valueOf(frame.getId()))
                     .contentType(MediaType.APPLICATION_JSON)

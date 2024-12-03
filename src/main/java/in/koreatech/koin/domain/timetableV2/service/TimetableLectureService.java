@@ -97,7 +97,7 @@ public class TimetableLectureService {
         validateUserAuthorization(timetableFrame.getUser().getId(), userId);
         timetableFrame.undelete();
 
-        timetableFrameRepositoryV2.getByIdWithDeleted(frameId).getTimetableLectures().stream()
+        timetableFrame.getTimetableLectures().stream()
             .map(TimetableLecture::getId)
             .map(timetableLectureRepositoryV2::getByIdWithDeleted)
             .forEach(TimetableLecture::undelete);
