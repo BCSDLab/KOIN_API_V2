@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameVali
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameCreator;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameUpdater;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import lombok.RequiredArgsConstructor;
 
@@ -70,7 +68,6 @@ public class TimetableFrameService {
             .toList();
     }
 
-    @Transactional(readOnly = true)
     public Map<String, Map<String, List<TimetableFrameResponse>>> getAllTimetablesFrame(Integer userId) {
         List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findAllByUserId(userId);
 
