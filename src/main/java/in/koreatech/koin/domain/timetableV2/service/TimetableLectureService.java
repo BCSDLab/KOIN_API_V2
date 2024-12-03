@@ -82,12 +82,26 @@ public class TimetableLectureService {
     }
 
     @Transactional
-    public TimetableLectureResponse rollbackTimetableLecture(List<Integer> request, Integer userId) {
-        request.stream()
+    public TimetableLectureResponse rollbackTimetableLecture(List<Integer> timetableLecturesId, Integer userId) {
+        timetableLecturesId.stream()
             .map(timetableLectureRepositoryV2::getByIdWithDeleted)
             .peek(lecture -> validateUserAuthorization(lecture.getTimetableFrame().getUser().getId(), userId))
             .forEach(TimetableLecture::undelete);
-        TimetableLecture lecture = timetableLectureRepositoryV2.getById(request.get(0));
-        return getTimetableLectureResponse(userId, lecture.getTimetableFrame());
+        TimetableLecture timeTableLecture = timetableLectureRepositoryV2.getById(timetableLecturesId.get(0));
+        return getTimetableLectureResponse(userId, timeTableLecture.getTimetableFrame());
+    }
+
+    @Transactional
+    public TimetableLectureResponse rollbackTimetableFrame(Integer frameId, Integer userId) {
+        TimetableFrame timetableFrame = timetableFrameRepositoryV2.getByIdWithDeleted(frameId);
+        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
+        timetableFrame.undelete();
+
+        timetableFrameRepositoryV2.getByIdWithDeleted(frameId).getTimetableLectures().stream()
+            .map(TimetableLecture::getId)
+            .map(timetableLectureRepositoryV2::getByIdWithDeleted)
+            .forEach(TimetableLecture::undelete);
+
+        return getTimetableLectureResponse(userId, timetableFrame);
     }
 }

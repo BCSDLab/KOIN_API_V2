@@ -4,7 +4,6 @@ import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameVali
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +20,6 @@ import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameCreator;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameUpdater;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import lombok.RequiredArgsConstructor;
 

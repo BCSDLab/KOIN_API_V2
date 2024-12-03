@@ -136,12 +136,21 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/v2/rollback/timetables/lecture")
+    @PostMapping("/v2/timetables/lecture/rollback")
     public ResponseEntity<TimetableLectureResponse> rollbackTimetableLecture(
-        @RequestParam(name = "timetable_lectures_id") List<Integer> request,
+        @RequestParam(name = "timetable_lectures_id") List<Integer> timetableLecturesId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableLectureResponse response = timetableLectureService.rollbackTimetableLecture(request, userId);
+        TimetableLectureResponse response = timetableLectureService.rollbackTimetableLecture(timetableLecturesId, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/v2/timetables/frame/rollback")
+    public ResponseEntity<TimetableLectureResponse> rollbackTimetableFrame(
+        @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        TimetableLectureResponse response = timetableLectureService.rollbackTimetableFrame(timetableFrameId, userId);
         return ResponseEntity.ok(response);
     }
 }

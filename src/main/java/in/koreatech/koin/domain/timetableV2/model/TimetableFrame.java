@@ -101,4 +101,8 @@ public class TimetableFrame extends BaseEntity {
         }
         timetableLectures.add(lecture);
     }
+
+    public void undelete() {
+        this.isDeleted = false;
+    }
 }

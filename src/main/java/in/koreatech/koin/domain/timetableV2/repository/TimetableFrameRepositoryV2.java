@@ -11,7 +11,9 @@ import org.springframework.data.repository.query.Param;
 import in.koreatech.koin.domain.timetable.exception.TimetableNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.exception.TimetableFrameNotFoundException;
+import in.koreatech.koin.domain.timetableV2.exception.TimetableLectureNotFoundException;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
+import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.LockModeType;
 
@@ -82,4 +84,12 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
     void deleteAllByUser(User user);
 
     void deleteAllByUserAndSemester(User user, Semester semester);
+
+    @Query("SELECT t FROM TimetableFrame t WHERE t.id = :id")
+    Optional<TimetableFrame> findByIdWithDeleted(@Param("id") Integer id);
+
+    default TimetableFrame getByIdWithDeleted(Integer id) {
+        return findByIdWithDeleted(id)
+            .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("id: " + id));
+    }
 }
