@@ -57,7 +57,7 @@ public class TimetableLectureService {
         TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableLectureId);
         TimetableFrame timetableFrame = timetableLecture.getTimetableFrame();
         validateUserAuthorization(timetableFrame.getUser().getId(), userId);
-        timetableLectureRepositoryV2.deleteById(timetableLectureId);
+        timetableLecture.delete();
     }
 
     private TimetableLectureResponse getTimetableLectureResponse(Integer userId, TimetableFrame timetableFrame) {
@@ -71,14 +71,15 @@ public class TimetableLectureService {
         request.stream()
             .map(timetableLectureRepositoryV2::getById)
             .peek(lecture -> validateUserAuthorization(lecture.getTimetableFrame().getUser().getId(), userId))
-            .forEach(lecture -> timetableLectureRepositoryV2.deleteById(lecture.getId()));
+            .forEach(TimetableLecture::delete);
     }
 
     @Transactional
     public void deleteTimetableLectureByFrameId(Integer frameId, Integer lectureId, Integer userId) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(frameId);
         validateUserAuthorization(frame.getUser().getId(), userId);
-        timetableLectureRepositoryV2.deleteByFrameIdAndLectureId(frameId, lectureId);
+        TimetableLecture timetableLecture = timetableLectureRepositoryV2.getByFrameIdAndLectureId(frameId, lectureId);
+        timetableLecture.delete();
     }
 
     @Transactional

@@ -107,6 +107,10 @@ public class TimetableLecture extends BaseEntity {
         this.memo = request.memo();
     }
 
+    public void delete() {
+        this.isDeleted = true;
+    }
+
     public void undelete() {
         this.isDeleted = false;
     }

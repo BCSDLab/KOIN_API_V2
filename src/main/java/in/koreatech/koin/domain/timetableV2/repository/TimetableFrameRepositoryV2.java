@@ -81,6 +81,8 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
 
     void deleteById(Integer id);
 
+     List<TimetableFrame> findAllByUserAndSemester(User user, Semester semester);
+
     void deleteAllByUser(User user);
 
     void deleteAllByUserAndSemester(User user, Semester semester);
