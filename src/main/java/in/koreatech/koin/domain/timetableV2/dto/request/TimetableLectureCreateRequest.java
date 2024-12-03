@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV2.dto.request;
 
+import static in.koreatech.koin.domain.timetableV2.exception.TimetableLectureClassTimeNullException.DEFAULT_MESSAGE;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetableV2.exception.TimetableLectureClassTimeNullException;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -66,6 +68,14 @@ public record TimetableLectureCreateRequest(
         }
 
         public InnerTimeTableLectureRequest {
+            if (lectureId == null) {
+                for (ClassInfo classInfo : classInfos) {
+                    if (Objects.isNull(classInfo.classTime)) {
+                        throw new TimetableLectureClassTimeNullException(DEFAULT_MESSAGE);
+                    }
+                }
+            }
+
             if (grades == null) {
                 grades = "0";
             }
@@ -103,7 +113,8 @@ public record TimetableLectureCreateRequest(
             if (classInfos != null) {
                 List<Integer> classTimes = new ArrayList<>();
                 for (int i = 0; i < classInfos.size(); i++) {
-                    if (i > 0) classTimes.add(-1);
+                    if (i > 0)
+                        classTimes.add(-1);
                     classTimes.addAll(classInfos.get(i).classTime);
                 }
                 return classTimes.toString();
@@ -115,11 +126,12 @@ public record TimetableLectureCreateRequest(
             if (classInfos != null) {
                 StringBuilder classPlaceSegment = new StringBuilder();
                 for (int i = 0; i < classInfos.size(); i++) {
-                    if (i > 0) classPlaceSegment.append(", ");
-                    if (Objects.equals(classInfos.get(i).classPlace,null)) {
+                    if (i > 0)
+                        classPlaceSegment.append(", ");
+                    if (Objects.equals(classInfos.get(i).classPlace, null)) {
                         classPlaceSegment.append("");
-                    }
-                    else classPlaceSegment.append(classInfos.get(i).classPlace);
+                    } else
+                        classPlaceSegment.append(classInfos.get(i).classPlace);
                 }
                 return classPlaceSegment.toString();
             }
