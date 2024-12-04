@@ -33,12 +33,8 @@ public class Semester {
     @Column(name = "semester", nullable = false, unique = true)
     private String semester;
 
-    @OneToMany(mappedBy = "semester")
-    private List<Lecture> lectures = new ArrayList<>();
-
     @Builder
-    private Semester(String semester, List<Lecture> lectures) {
+    public Semester(String semester) {
         this.semester = semester;
-        this.lectures = lectures;
     }
 }
