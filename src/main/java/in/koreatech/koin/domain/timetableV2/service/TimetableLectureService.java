@@ -18,6 +18,8 @@ import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureCreator;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureUpdater;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,6 +27,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class TimetableLectureService {
 
+    @PersistenceContext
+    private EntityManager entityManager;
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final TimetableLectureCreator timetableLectureCreator;
@@ -88,6 +92,7 @@ public class TimetableLectureService {
             .map(timetableLectureRepositoryV2::getByIdWithDeleted)
             .peek(lecture -> validateUserAuthorization(lecture.getTimetableFrame().getUser().getId(), userId))
             .forEach(TimetableLecture::undelete);
+        entityManager.flush();
         TimetableLecture timeTableLecture = timetableLectureRepositoryV2.getById(timetableLecturesId.get(0));
         return getTimetableLectureResponse(userId, timeTableLecture.getTimetableFrame());
     }
@@ -98,11 +103,11 @@ public class TimetableLectureService {
         validateUserAuthorization(timetableFrame.getUser().getId(), userId);
         timetableFrame.undelete();
 
-        timetableFrame.getTimetableLectures().stream()
+        timetableLectureRepositoryV2.findAllByFrameIdWithDeleted(timetableFrame.getId()).stream()
             .map(TimetableLecture::getId)
             .map(timetableLectureRepositoryV2::getByIdWithDeleted)
             .forEach(TimetableLecture::undelete);
-
+        entityManager.flush();
         return getTimetableLectureResponse(userId, timetableFrame);
     }
 }
