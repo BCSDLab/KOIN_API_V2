@@ -8,6 +8,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.timetableV2.dto.validation.InnerTimetableLectureRequestValid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -21,7 +22,7 @@ public record TimetableLectureUpdateRequest(
 
     @Valid
     @Schema(description = "시간표 정보", requiredMode = NOT_REQUIRED)
-    @NotNull(message = "시간표 정보를 입력해주세요.")
+    @InnerTimetableLectureRequestValid
     List<InnerTimetableLectureRequest> timetableLecture
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
