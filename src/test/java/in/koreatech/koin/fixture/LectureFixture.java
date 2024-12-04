@@ -3,7 +3,6 @@ package in.koreatech.koin.fixture;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 
 @Component
