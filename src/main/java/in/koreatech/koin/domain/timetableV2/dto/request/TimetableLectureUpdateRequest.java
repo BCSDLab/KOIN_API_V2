@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -20,13 +21,14 @@ public record TimetableLectureUpdateRequest(
     Integer timetableFrameId,
 
     @Valid
+    @NotEmpty(message = "시간표 정보를 입력해주세요.")
     @Schema(description = "시간표 정보", requiredMode = NOT_REQUIRED)
-    @NotNull(message = "시간표 정보를 입력해주세요.")
     List<InnerTimetableLectureRequest> timetableLecture
 ) {
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record InnerTimetableLectureRequest(
         @Schema(description = "시간표 강의 id", example = "1", requiredMode = REQUIRED)
+        @NotNull(message = "강의 id를 입력해주세요.")
         Integer id,
 
         @Schema(description = "강의 id", example = "1", requiredMode = NOT_REQUIRED)
