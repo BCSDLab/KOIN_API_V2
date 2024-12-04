@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequ
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFramesResponse;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -68,16 +69,9 @@ public class TimetableFrameService {
             .toList();
     }
 
-    public Map<String, Map<String, List<TimetableFrameResponse>>> getAllTimetablesFrame(Integer userId) {
+    public TimetableFramesResponse getAllTimetablesFrame(Integer userId) {
         List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findAllByUserId(userId);
-
-        Map<String, List<TimetableFrameResponse>> groupedBySemester = timetableFrames.stream()
-            .collect(Collectors.groupingBy(
-                frame -> frame.getSemester().getSemester(),
-                Collectors.mapping(TimetableFrameResponse::from, Collectors.toList())
-            ));
-
-        return Map.of("semesters", groupedBySemester);
+        return TimetableFramesResponse.from(timetableFrames);
     }
 
     @Transactional
