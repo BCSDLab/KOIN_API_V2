@@ -235,7 +235,7 @@ public interface TimetableApiV2 {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "삭제한 시간표 프레임 복구",
+    @Operation(summary = "삭제한 시간표 프레임과 강의 복구",
         description = """
             1. 삭제된 시간표 프레임: 삭제된 시간표 프레임과 그에 속한 강의 정보를 복구합니다. \n
             2. 삭제되지 않은 시간표 프레임: 시간표 프레임에 속한 강의 정보를 복구합니다.
