@@ -12,11 +12,13 @@ import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
+import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
+import in.koreatech.koin.domain.bus.model.mongo.ShuttleBusRoute;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -90,4 +92,23 @@ public interface BusApi {
     @Operation(summary = "버스 노선 조회")
     @GetMapping("/courses")
     ResponseEntity<List<BusCourseResponse>> getBusCourses();
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+        }
+    )
+    @Operation(summary = "학교버스 노선 조회")
+    @GetMapping("/courses/shuttle")
+    ResponseEntity<ShuttleBusRoutesResponse> getShuttleBusRoutes();
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "학교버스 시간표 조회")
+    @GetMapping("/timetable/shuttle")
+    ResponseEntity<ShuttleBusRoute> getCityBusTimetable(@RequestParam String id);
 }

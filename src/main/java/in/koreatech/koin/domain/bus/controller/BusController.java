@@ -15,12 +15,16 @@ import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
+import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
+import in.koreatech.koin.domain.bus.model.mongo.ShuttleBusRoute;
+import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
 import in.koreatech.koin.domain.bus.service.BusService;
+import in.koreatech.koin.domain.version.service.VersionService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -29,6 +33,8 @@ import lombok.RequiredArgsConstructor;
 public class BusController implements BusApi {
 
     private final BusService busService;
+    private final ShuttleBusRepository shuttleBusRepository;
+    private final VersionService versionService;
 
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
@@ -81,5 +87,17 @@ public class BusController implements BusApi {
         List<SingleBusTimeResponse> singleBusTimeResponses = busService.searchTimetable(date, LocalTime.parse(time),
             depart, arrival);
         return ResponseEntity.ok().body(singleBusTimeResponses);
+    }
+
+    @GetMapping("/courses/shuttle")
+    public ResponseEntity<ShuttleBusRoutesResponse> getShuttleBusRoutes() {
+        return ResponseEntity.ok()
+            .body(ShuttleBusRoutesResponse.from(shuttleBusRepository.findAll(),
+                versionService.getVersionWithMessage("shuttle_bus_timetable")));
+    }
+
+    @GetMapping("/timetable/shuttle")
+    public ResponseEntity<ShuttleBusRoute> getCityBusTimetable(@RequestParam String id) {
+        return ResponseEntity.ok().body(shuttleBusRepository.getById(id));
     }
 }
