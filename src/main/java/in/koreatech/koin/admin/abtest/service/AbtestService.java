@@ -14,6 +14,7 @@ import in.koreatech.koin.admin.abtest.dto.request.AbtestAdminAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.request.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.request.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.request.AbtestRequest;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestAccessHistoryResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestAssignResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestDevicesResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestResponse;
@@ -139,8 +140,7 @@ public class AbtestService {
 
     @Transactional
     public AbtestAssignResponse assignOrGetVariable(Integer accessHistoryId, UserAgentInfo userAgentInfo,
-        Integer userId,
-        AbtestAssignRequest request) {
+        Integer userId, AbtestAssignRequest request) {
         Abtest abtest = abtestRepository.getByTitle(request.title());
         AccessHistory accessHistory = findOrCreateAccessHistory(accessHistoryId);
         Optional<AbtestVariable> winnerResponse = returnWinnerIfClosed(abtest);
@@ -312,31 +312,42 @@ public class AbtestService {
 
     public AccessHistory findOrCreateAccessHistory(Integer id) {
         if (id == null) {
-            return accessHistoryRepository.save(AccessHistory.builder().build());
+            return accessHistoryRepository.save(AccessHistory.create());
         }
         return accessHistoryRepository.getById(id);
     }
 
+    @Transactional
+    public AbtestAccessHistoryResponse issueAccessHistoryId(UserAgentInfo userAgentInfo, Integer userId) {
+        AccessHistory accessHistory = accessHistoryRepository.save(AccessHistory.create());
+        if (userId != null) {
+            createDeviceIfNotExists(userId, userAgentInfo, accessHistory, null);
+        }
+        return AbtestAccessHistoryResponse.from(accessHistory);
+    }
+
     private void createDeviceIfNotExists(Integer userId, UserAgentInfo userAgentInfo,
         AccessHistory accessHistory, Abtest abtest) {
-        userRepository.getById(userId);
-        if (accessHistory.getDevice() == null) {
-            Device device = deviceRepository.save(
+        User user = userRepository.getById(userId);
+        Device device = accessHistory.getDevice();
+        if (device == null) {
+            device = deviceRepository.save(
                 Device.builder()
-                    .user(userRepository.getById(userId))
+                    .user(user)
                     .model(userAgentInfo.getModel())
                     .type(userAgentInfo.getType())
                     .build()
             );
             accessHistory.connectDevice(device);
         }
-        Device device = accessHistory.getDevice();
         if (device.getModel() == null || device.getType() == null) {
             device.setModelInfo(userAgentInfo.getModel(), userAgentInfo.getType());
         }
         if (!Objects.equals(device.getUser().getId(), userId)) {
-            device.changeUser(userRepository.getById(userId));
-            removeBeforeUserCache(accessHistory, abtest);
+            device.changeUser(user);
+            if (abtest != null) {
+                removeBeforeUserCache(accessHistory, abtest);
+            }
         }
     }
 }
