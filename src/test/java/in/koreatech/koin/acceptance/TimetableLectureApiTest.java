@@ -242,8 +242,8 @@ public class TimetableLectureApiTest extends AcceptanceTest {
 
     @Test
     void 시간표를_조회한다_TimetableLecture() throws Exception {
-        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester);
-        Lecture HRD_개론 = lectureFixture.HRD_개론(semester);
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
 
         TimetableFrame frame = timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
 
@@ -307,8 +307,8 @@ public class TimetableLectureApiTest extends AcceptanceTest {
 
     @Test
     void 시간표에서_특정_강의를_삭제한다() throws Exception {
-        Lecture lecture1 = lectureFixture.HRD_개론(semester);
-        Lecture lecture2 = lectureFixture.영어청해(semester);
+        Lecture lecture1 = lectureFixture.HRD_개론("20192");
+        Lecture lecture2 = lectureFixture.영어청해("20192");
         TimetableFrame frame = timetableV2Fixture.시간표4(user, semester, lecture1, lecture2);
 
         Integer lectureId = lecture1.getId();
@@ -324,8 +324,8 @@ public class TimetableLectureApiTest extends AcceptanceTest {
 
     @Test
     void 시간표에서_특정_강의를_삭제한다_V2() throws Exception {
-        Lecture lecture1 = lectureFixture.HRD_개론(semester);
-        Lecture lecture2 = lectureFixture.영어청해(semester);
+        Lecture lecture1 = lectureFixture.HRD_개론("20192");
+        Lecture lecture2 = lectureFixture.영어청해("20192");
         TimetableFrame frame = timetableV2Fixture.시간표4(user, semester, lecture1, lecture2);
 
         Integer frameId = frame.getId();
@@ -341,8 +341,8 @@ public class TimetableLectureApiTest extends AcceptanceTest {
 
     @Test
     void 시간표에서_여러개의_강의를_한번에_삭제한다_V2() throws Exception {
-        Lecture lecture1 = lectureFixture.HRD_개론(semester);
-        Lecture lecture2 = lectureFixture.영어청해(semester);
+        Lecture lecture1 = lectureFixture.HRD_개론("20192");
+        Lecture lecture2 = lectureFixture.영어청해("20192");
         TimetableFrame frame = timetableV2Fixture.시간표4(user, semester, lecture1, lecture2);
 
         List<Integer> timetableLectureIds = frame.getTimetableLectures().stream()
@@ -362,8 +362,8 @@ public class TimetableLectureApiTest extends AcceptanceTest {
 
     @Test
     void 시간표에서_삭제된_강의를_복구한다_V2() throws Exception {
-        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester);
-        Lecture HRD_개론 = lectureFixture.HRD_개론(semester);
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
         TimetableFrame frame = timetableV2Fixture.시간표8(user, semester, 건축구조의_이해_및_실습, HRD_개론);
 
         List<Integer> timetableLecturesId = frame.getTimetableLectures().stream()
@@ -432,8 +432,8 @@ public class TimetableLectureApiTest extends AcceptanceTest {
 
     @Test
     void 삭제된_시간표프레임과_그에_해당하는_강의를_복구한다_V2() throws Exception {
-        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester);
-        Lecture HRD_개론 = lectureFixture.HRD_개론(semester);
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
         TimetableFrame frame = timetableV2Fixture.시간표7(user, semester, 건축구조의_이해_및_실습, HRD_개론);
 
         mockMvc.perform(

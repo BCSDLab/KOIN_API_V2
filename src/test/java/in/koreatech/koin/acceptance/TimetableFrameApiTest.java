@@ -165,7 +165,7 @@ public class TimetableFrameApiTest extends AcceptanceTest {
 
     @Test
     void 강의를_담고_있는_특정_시간표_frame을_삭제한다() throws Exception {
-        Lecture lecture = lectureFixture.HRD_개론(semester);
+        Lecture lecture = lectureFixture.HRD_개론(semester.getSemester());
 
         TimetableFrame frame1 = timetableV2Fixture.시간표5(user, semester, lecture);
 
