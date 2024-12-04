@@ -73,13 +73,6 @@ public record TimetableResponse(
 
         public static List<InnerTimetableResponse> from(List<TimetableLecture> timetableLectures) {
             return timetableLectures.stream()
-                .filter(timeTableLecture -> {
-                    if (timeTableLecture.getLecture() == null) {
-                        List<Integer> classTimes = parseIntegerClassTimesFromString(timeTableLecture.getClassTime());
-                        return classTimes.stream().allMatch(InnerTimetableResponse::isValidClassTime);
-                    }
-                    return true;
-                })
                 .map(timeTableLecture -> {
                     if (timeTableLecture.getLecture() == null) {
                         return new InnerTimetableResponse(
@@ -116,10 +109,6 @@ public record TimetableResponse(
                     }
                 })
                 .toList();
-        }
-
-        private static boolean isValidClassTime(int classTime) {
-            return classTime < 19 || classTime % 100 < 19;
         }
     }
 
