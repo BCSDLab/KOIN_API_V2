@@ -120,7 +120,7 @@ public class TimetableService {
             if (!Objects.equals(frame.getUser().getId(), userId)) {
                 throw AuthorizationException.withDetail("userId: " + userId);
             }
-            timetableLectureRepositoryV2.deleteById(timetableLectureId);
+            timetableLecture.delete();
             entityManager.flush();
         } catch (OptimisticLockException e) {
             throw new RequestTooFastException("요청이 너무 빠릅니다. 다시 시도해주세요.");
