@@ -177,8 +177,8 @@ public class TimetableFrameApiTest extends AcceptanceTest {
             )
             .andExpect(status().isNoContent());
 
-        assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isNotPresent();
-        assertThat(timetableLectureRepositoryV2.findById(frame1.getTimetableLectures().get(1).getId())).isNotPresent();
+        assertThat(frame1.isDeleted()).isTrue();
+        assertThat(frame1.getTimetableLectures().get(1).isDeleted()).isTrue();
     }
 
     @Test
@@ -194,7 +194,7 @@ public class TimetableFrameApiTest extends AcceptanceTest {
             )
             .andExpect(status().isNoContent());
 
-        assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isNotPresent();
+        assertThat(frame1.isDeleted()).isTrue();
 
         TimetableFrame reloadedFrame2 = timetableFrameRepositoryV2.findById(frame2.getId()).orElseThrow();
         assertThat(reloadedFrame2.isMain()).isTrue();
@@ -230,9 +230,9 @@ public class TimetableFrameApiTest extends AcceptanceTest {
             )
             .andExpect(status().isNoContent());
 
-        assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isNotPresent();
-        assertThat(timetableFrameRepositoryV2.findById(frame2.getId())).isNotPresent();
-        assertThat(timetableFrameRepositoryV2.findById(frame3.getId())).isNotPresent();
+        assertThat(frame1.isDeleted()).isTrue();
+        assertThat(frame2.isDeleted()).isTrue();
+        assertThat(frame3.isDeleted()).isTrue();
     }
 
     @Test

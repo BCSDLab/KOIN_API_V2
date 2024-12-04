@@ -4,8 +4,7 @@ import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameVali
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +22,7 @@ import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameCreator;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameUpdater;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import lombok.RequiredArgsConstructor;
 
@@ -78,7 +78,8 @@ public class TimetableFrameService {
     public void deleteAllTimetablesFrame(Integer userId, String semester) {
         User user = userRepository.getById(userId);
         Semester timetableSemester = semesterRepositoryV2.getBySemester(semester);
-        timetableFrameRepositoryV2.deleteAllByUserAndSemester(user, timetableSemester);
+        timetableFrameRepositoryV2.findAllByUserAndSemester(user, timetableSemester)
+            .forEach(TimetableFrame::delete);
     }
 
     @Transactional
@@ -86,13 +87,13 @@ public class TimetableFrameService {
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
         validateUserAuthorization(timetableFrame.getUser().getId(), userId);
 
-        deleteFrameAndUpdateMainStatusWithLock(frameId, userId, timetableFrame);
+        deleteFrameAndUpdateMainStatus(userId, timetableFrame);
     }
 
-    @ConcurrencyGuard(lockName = "deleteFrame")
-    private void deleteFrameAndUpdateMainStatusWithLock(Integer frameId, Integer userId, TimetableFrame frame) {
-        timetableFrameRepositoryV2.deleteById(frameId);
+    private void deleteFrameAndUpdateMainStatus(Integer userId, TimetableFrame frame) {
+        frame.delete();
         if (frame.isMain()) {
+            frame.updateMainFlag(false);
             TimetableFrame nextFrame = timetableFrameRepositoryV2.findNextFirstTimetableFrame(userId,
                 frame.getSemester().getId());
             if (nextFrame != null) {

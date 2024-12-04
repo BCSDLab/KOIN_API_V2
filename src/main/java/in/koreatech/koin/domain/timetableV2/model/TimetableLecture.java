@@ -106,4 +106,12 @@ public class TimetableLecture extends BaseEntity {
         this.grades = grades;
         this.memo = request.memo();
     }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
+
+    public void undelete() {
+        this.isDeleted = false;
+    }
 }
