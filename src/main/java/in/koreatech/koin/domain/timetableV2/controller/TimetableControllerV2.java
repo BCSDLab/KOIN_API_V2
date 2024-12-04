@@ -33,6 +33,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
 
     private final TimetableFrameService frameServiceV2;
     private final TimetableLectureService lectureServiceV2;
+    private final TimetableLectureService timetableLectureService;
 
     @PostMapping("/v2/timetables/frame")
     public ResponseEntity<TimetableFrameResponse> createTimetablesFrame(
@@ -54,11 +55,11 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     }
 
     @GetMapping("/v2/timetables/frames")
-    public ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
-        @RequestParam(name = "semester") String semester,
+    public ResponseEntity<Object> getTimetablesFrame(
+        @RequestParam(name = "semester", required = false) String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        List<TimetableFrameResponse> response = frameServiceV2.getTimetablesFrame(userId, semester);
+        Object response = frameServiceV2.getTimetablesFrame(userId, semester);
         return ResponseEntity.ok(response);
     }
 
@@ -133,5 +134,23 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     ) {
         lectureServiceV2.deleteTimetableLectureByFrameId(frameId, lectureId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/v2/timetables/lecture/rollback")
+    public ResponseEntity<TimetableLectureResponse> rollbackTimetableLecture(
+        @RequestParam(name = "timetable_lectures_id") List<Integer> timetableLecturesId,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        TimetableLectureResponse response = timetableLectureService.rollbackTimetableLecture(timetableLecturesId, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/v2/timetables/frame/rollback")
+    public ResponseEntity<TimetableLectureResponse> rollbackTimetableFrame(
+        @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        TimetableLectureResponse response = timetableLectureService.rollbackTimetableFrame(timetableFrameId, userId);
+        return ResponseEntity.ok(response);
     }
 }

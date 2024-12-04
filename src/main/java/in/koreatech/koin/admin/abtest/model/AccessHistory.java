@@ -69,6 +69,12 @@ public class AccessHistory extends BaseEntity {
         this.lastAccessedAt = lastAccessedAt;
     }
 
+    public static AccessHistory create() {
+        return AccessHistory.builder()
+            .lastAccessedAt(LocalDateTime.now())
+            .build();
+    }
+
     public void connectDevice(Device device) {
         this.device = device;
         device.setAccessHistory(this);

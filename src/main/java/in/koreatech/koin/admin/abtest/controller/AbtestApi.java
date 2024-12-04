@@ -18,6 +18,7 @@ import in.koreatech.koin.admin.abtest.dto.request.AbtestAdminAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.request.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.request.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.request.AbtestRequest;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestAccessHistoryResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestAssignResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestDevicesResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestResponse;
@@ -177,6 +178,20 @@ public interface AbtestApi {
         @Auth(permit = {ADMIN}) Integer adminId,
         @PathVariable(value = "id") Integer abtestId,
         @RequestBody @Valid AbtestAdminAssignRequest abtestAdminAssignRequest
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "(NORMAL) AB테스트 토큰(access_history_id) 발급")
+    @PostMapping("/assign/token")
+    ResponseEntity<AbtestAccessHistoryResponse> issueAccessHistoryId(
+        @UserAgent UserAgentInfo userAgentInfo,
+        @UserId Integer userId
     );
 
     @ApiResponses(

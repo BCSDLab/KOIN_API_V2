@@ -76,19 +76,19 @@ public record TimetableResponse(
                 .map(timeTableLecture -> {
                     if (timeTableLecture.getLecture() == null) {
                         return new InnerTimetableResponse(
-                            timeTableLecture.getId(),
-                            null,
-                            null,
-                            null,
-                            null,
-                            timeTableLecture.getClassPlace(),
-                            timeTableLecture.getMemo(),
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null
+                                timeTableLecture.getId(),
+                                null,
+                                null,
+                                null,
+                                parseIntegerClassTimesFromString(timeTableLecture.getClassTime()),
+                                timeTableLecture.getClassPlace(),
+                                timeTableLecture.getMemo(),
+                                null,
+                                timeTableLecture.getClassTitle(),
+                                null,
+                                null,
+                                timeTableLecture.getProfessor(),
+                                null
                         );
                     } else {
                         return new InnerTimetableResponse(

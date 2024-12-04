@@ -67,16 +67,24 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "timetable_lecture": [
                                 {
                                     "class_title": "커스텀생성1",
-                                    "class_time" : [200, 201],
-                                    "class_place" : "한기대",
+                                    "class_infos": [
+                                        {
+                                            "class_time" : [200, 201],
+                                            "class_place" : "한기대"
+                                        }
+                                    ],
                                     "professor" : "서정빈",
                                     "grades": "2",
                                     "memo" : "메모"
                                 },
                                 {
                                     "class_title": "커스텀생성2",
-                                    "class_time" : [202, 203],
-                                    "class_place" : "참빛관 편의점",
+                                    "class_infos": [
+                                        {
+                                            "class_time" : [202, 203],
+                                            "class_place" : "참빛관 편의점"
+                                        }
+                                    ],
                                     "professor" : "감사 서정빈",
                                     "grades": "1",
                                     "memo" : "메모"
@@ -97,8 +105,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": null,
                             "code": null,
                             "design_score": null,
-                            "class_time": [200, 201],
-                            "class_place": "한기대",
+                            "class_infos": [
+                              {
+                                "class_time": [200, 201],
+                                "class_place": "한기대"
+                              }
+                            ],
                             "memo": "메모",
                             "grades": "2",
                             "class_title": "커스텀생성1",
@@ -113,8 +125,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": null,
                             "code": null,
                             "design_score": null,
-                            "class_time": [202, 203],
-                            "class_place": "참빛관 편의점",
+                            "class_infos": [
+                              {
+                                "class_time": [202, 203],
+                                "class_place": "참빛관 편의점"
+                              }
+                            ],
                             "memo": "메모",
                             "grades": "1",
                             "class_title": "커스텀생성2",
@@ -144,8 +160,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                                 {
                                     "id": 1,
                                     "class_title": "커스텀바꿔요1",
-                                    "class_time" : [200, 201],
-                                    "class_place" : "한기대",
+                                    "class_infos": [
+                                        {
+                                            "class_time" : [200, 201],
+                                            "class_place" : "한기대"
+                                        }
+                                    ],
                                     "professor" : "서정빈",
                                     "grades" : "0",
                                     "memo" : "메모한당 히히"
@@ -153,8 +173,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                                 {
                                     "id": 2,
                                     "class_title": "커스텀바꿔요2",
-                                    "class_time" : [202, 203],
-                                    "class_place" : "참빛관 편의점",
+                                    "class_infos": [
+                                        {
+                                            "class_time" : [202, 203],
+                                            "class_place" : "참빛관 편의점"
+                                        }
+                                    ],
                                     "professor" : "알바 서정빈",
                                     "grades" : "0",
                                     "memo" : "메모한당 히히"
@@ -175,8 +199,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": null,
                             "code": null,
                             "design_score": null,
-                            "class_time": [200, 201],
-                            "class_place": "한기대",
+                            "class_infos": [
+                              {
+                                "class_time": [200, 201],
+                                "class_place": "한기대"
+                              }
+                            ],
                             "memo": "메모한당 히히",
                             "grades": "0",
                             "class_title": "커스텀바꿔요1",
@@ -191,8 +219,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": null,
                             "code": null,
                             "design_score": null,
-                            "class_time": [202, 203],
-                            "class_place": "참빛관 편의점",
+                            "class_infos": [
+                              {
+                                "class_time": [202, 203],
+                                "class_place": "참빛관 편의점"
+                              }
+                            ],
                             "memo": "메모한당 히히",
                             "grades": "0",
                             "class_title": "커스텀바꿔요2",
@@ -232,8 +264,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": "25",
                             "code": "ARB244",
                             "design_score": "0",
-                            "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
-                            "class_place": null,
+                            "class_infos": [
+                              {
+                                "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
+                                "class_place": null
+                              }
+                            ],
                             "memo": null,
                             "grades": "3",
                             "class_title": "건축구조의 이해 및 실습",
@@ -248,8 +284,12 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "regular_number": "22",
                             "code": "BSM590",
                             "design_score": "0",
-                            "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
-                            "class_place": null,
+                            "class_infos": [
+                              {
+                                "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
+                                "class_place": null
+                              }
+                            ],
                             "memo": null,
                             "grades": "3",
                             "class_title": "컴퓨팅사고",
@@ -318,6 +358,140 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void 시간표에서_삭제된_강의를_복구한다_V2() throws Exception {
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
+        TimetableFrame frame = timetableV2Fixture.시간표8(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+
+        List<Integer> timetableLecturesId = frame.getTimetableLectures().stream()
+            .map(TimetableLecture::getId)
+            .toList();
+
+        mockMvc.perform(
+            post("/v2/timetables/lecture/rollback")
+                .header("Authorization", "Bearer " + token)
+                .param("timetable_lectures_id", timetableLecturesId.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(",")))
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
+                    "timetable_frame_id": 1,
+                    "timetable": [
+                        {
+                            "id" : 1,
+                            "lecture_id" : 1,
+                            "regular_number": "25",
+                            "code": "ARB244",
+                            "design_score": "0",
+                            "class_infos": [
+                              {
+                                "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
+                                "class_place": null
+                              }
+                            ],
+                            "memo": null,
+                            "grades": "3",
+                            "class_title": "건축구조의 이해 및 실습",
+                            "lecture_class": "01",
+                            "target": "디자 1 건축",
+                            "professor": "황현식",
+                            "department": "디자인ㆍ건축공학부"
+                        },
+                        {
+                            "id": 2,
+                            "lecture_id": 2,
+                            "regular_number": "22",
+                            "code": "BSM590",
+                            "design_score": "0",
+                            "class_infos": [
+                              {
+                                "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
+                                "class_place": null
+                              }
+                            ],
+                            "memo": null,
+                            "grades": "3",
+                            "class_title": "컴퓨팅사고",
+                            "lecture_class": "06",
+                            "target": "기공1",
+                            "professor": "박한수,최준호",
+                            "department": "기계공학부"
+                        }
+                    ],
+                    "grades": 6,
+                    "total_grades": 6
+                }
+                """));
+    }
+
+    @Test
+    void 삭제된_시간표프레임과_그에_해당하는_강의를_복구한다_V2() throws Exception {
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
+        TimetableFrame frame = timetableV2Fixture.시간표7(user, semester, 건축구조의_이해_및_실습, HRD_개론);
+
+        mockMvc.perform(
+                post("/v2/timetables/frame/rollback")
+                    .header("Authorization", "Bearer " + token)
+                    .param("timetable_frame_id", String.valueOf(frame.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+                {
+                    "timetable_frame_id": 1,
+                    "timetable": [
+                        {
+                            "id" : 1,
+                            "lecture_id" : 1,
+                            "regular_number": "25",
+                            "code": "ARB244",
+                            "design_score": "0",
+                            "class_infos": [
+                              {
+                                "class_time": [200, 201, 202, 203, 204, 205, 206, 207],
+                                "class_place": null
+                              }
+                            ],
+                            "memo": null,
+                            "grades": "3",
+                            "class_title": "건축구조의 이해 및 실습",
+                            "lecture_class": "01",
+                            "target": "디자 1 건축",
+                            "professor": "황현식",
+                            "department": "디자인ㆍ건축공학부"
+                        },
+                        {
+                            "id": 2,
+                            "lecture_id": 2,
+                            "regular_number": "22",
+                            "code": "BSM590",
+                            "design_score": "0",
+                            "class_infos": [
+                              {
+                                "class_time": [12, 13, 14, 15, 210, 211, 212, 213],
+                                "class_place": null
+                              }
+                            ],
+                            "memo": null,
+                            "grades": "3",
+                            "class_title": "컴퓨팅사고",
+                            "lecture_class": "06",
+                            "target": "기공1",
+                            "professor": "박한수,최준호",
+                            "department": "기계공학부"
+                        }
+                    ],
+                    "grades": 6,
+                    "total_grades": 6
+                }
+                """));
     }
 
     /*@Test
