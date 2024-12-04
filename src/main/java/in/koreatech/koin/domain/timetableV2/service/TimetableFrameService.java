@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameVali
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequ
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFramesResponse;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -20,6 +22,8 @@ import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameCreator;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameUpdater;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -54,11 +58,20 @@ public class TimetableFrameService {
         return timetableFrameUpdater.updateTimetableFrame(frame, userId, request.timetableName(), request.isMain());
     }
 
-    public List<TimetableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
+    public Object getTimetablesFrame(Integer userId, String semesterRequest) {
+        if (semesterRequest == null) {
+            return getAllTimetablesFrame(userId);
+        }
+
         Semester semester = semesterRepositoryV2.getBySemester(semesterRequest);
         return timetableFrameRepositoryV2.findAllByUserIdAndSemesterId(userId, semester.getId()).stream()
             .map(TimetableFrameResponse::from)
             .toList();
+    }
+
+    public TimetableFramesResponse getAllTimetablesFrame(Integer userId) {
+        List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findAllByUserId(userId);
+        return TimetableFramesResponse.from(timetableFrames);
     }
 
     @Transactional

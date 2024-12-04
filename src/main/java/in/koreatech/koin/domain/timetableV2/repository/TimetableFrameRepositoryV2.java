@@ -79,7 +79,7 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
 
     void deleteById(Integer id);
 
-     List<TimetableFrame> findAllByUserAndSemester(User user, Semester semester);
+    List<TimetableFrame> findAllByUserAndSemester(User user, Semester semester);
 
     void deleteAllByUser(User user);
 
@@ -90,4 +90,7 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
         return findByIdWithDeleted(id)
             .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("id: " + id));
     }
+    void deleteAllByUserAndSemester(User user, Semester semester);
+
+    List<TimetableFrame> findAllByUserId(Integer userId);
 }

@@ -55,11 +55,11 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     }
 
     @GetMapping("/v2/timetables/frames")
-    public ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
-        @RequestParam(name = "semester") String semester,
+    public ResponseEntity<Object> getTimetablesFrame(
+        @RequestParam(name = "semester", required = false) String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        List<TimetableFrameResponse> response = frameServiceV2.getTimetablesFrame(userId, semester);
+        Object response = frameServiceV2.getTimetablesFrame(userId, semester);
         return ResponseEntity.ok(response);
     }
 
