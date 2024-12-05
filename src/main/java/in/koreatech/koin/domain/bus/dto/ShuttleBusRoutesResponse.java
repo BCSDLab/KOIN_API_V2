@@ -18,10 +18,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record ShuttleBusRoutesResponse(
     @Schema(description = "순환 노선 경로 목록")
     List<RouteRegion> shuttleRoutes,
+
     @Schema(description = "주중 노선 경로 목록")
     List<RouteRegion> commutingRoutes,
+
     @Schema(description = "주말 노선 경로 목록")
     List<RouteRegion> weekendRoutes,
+
     @Schema(description = "학기 정보")
     RouteSemester semesterInfo
 ) {

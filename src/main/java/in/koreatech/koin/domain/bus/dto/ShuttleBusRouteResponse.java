@@ -34,7 +34,7 @@ public record ShuttleBusRouteResponse(
 ) {
 
     @JsonNaming(SnakeCaseStrategy.class)
-    @Schema(description = "노드 정보 DTO")
+    @Schema(description = "노드 정보")
     private record NodeInfoResponse(
         @Schema(description = "노드 이름", example = "캠퍼스 정문")
         String name,
@@ -45,7 +45,7 @@ public record ShuttleBusRouteResponse(
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
-    @Schema(description = "경로 정보 DTO")
+    @Schema(description = "경로 정보")
     private record RouteInfoResponse(
         @Schema(description = "경로 이름", example = "1회")
         String name,
