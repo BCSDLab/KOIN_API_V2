@@ -2,6 +2,8 @@ package in.koreatech.koin.domain.shop.service;
 
 import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.REVIEW_PROMPT;
 
+import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
+import in.koreatech.koin.domain.benefit.repository.BenefitCategoryMapRepository;
 import in.koreatech.koin.domain.shop.cache.ShopsCacheService;
 import in.koreatech.koin.domain.shop.cache.dto.ShopsCache;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteria;
@@ -24,6 +26,8 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +47,7 @@ public class ShopService {
     private final ShopCustomRepository shopCustomRepository;
     private final NotificationSubscribeRepository notificationSubscribeRepository;
     private final ShopReviewNotificationRedisRepository shopReviewNotificationRedisRepository;
+    private final BenefitCategoryMapRepository benefitCategoryMapRepository;
 
     public ShopResponse getShop(Integer shopId) {
         Shop shop = shopRepository.getById(shopId);
@@ -63,9 +68,9 @@ public class ShopService {
     }
 
     public ShopsResponseV2 getShopsV2(
-        ShopsSortCriteria sortBy,
-        List<ShopsFilterCriteria> filterCriteria,
-        String query
+            ShopsSortCriteria sortBy,
+            List<ShopsFilterCriteria> filterCriteria,
+            String query
     ) {
         if (filterCriteria.contains(null)) {
             throw KoinIllegalArgumentException.withDetail("유효하지 않은 필터입니다.");
@@ -73,13 +78,27 @@ public class ShopService {
         ShopsCache shopCaches = shopsCache.findAllShopCache();
         LocalDateTime now = LocalDateTime.now(clock);
         Map<Integer, ShopInfo> shopInfoMap = shopCustomRepository.findAllShopInfo(now);
+        List<BenefitCategoryMap> benefitCategorys = benefitCategoryMapRepository.findAllWithFetchJoin();
+        Map<Integer, List<String>> benefitDetailMap = new HashMap<>(benefitCategorys.size());
+        benefitCategorys.forEach(benefitCategory -> {
+            int shopId = benefitCategory.getShop().getId();
+            String benefitDetail = benefitCategory.getDetail();
+            if (benefitDetailMap.containsKey(shopId)) {
+                benefitDetailMap.get(shopId).add(benefitDetail);
+            } else {
+                List<String> details = new ArrayList<>();
+                details.add(benefitDetail);
+                benefitDetailMap.put(shopId, details);
+            }
+        });
         return ShopsResponseV2.from(
-            shopCaches.shopCaches(),
-            shopInfoMap,
-            sortBy,
-            filterCriteria,
-            now,
-            query
+                shopCaches.shopCaches(),
+                shopInfoMap,
+                sortBy,
+                filterCriteria,
+                now,
+                query,
+                benefitDetailMap
         );
     }
 
