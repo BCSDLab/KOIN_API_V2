@@ -14,6 +14,7 @@ import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequ
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFramesResponse;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -57,18 +58,28 @@ public class TimetableFrameService {
         return timetableFrameUpdater.updateTimetableFrame(frame, userId, request.timetableName(), request.isMain());
     }
 
-    public List<TimetableFrameResponse> getTimetablesFrame(Integer userId, String semesterRequest) {
+    public Object getTimetablesFrame(Integer userId, String semesterRequest) {
+        if (semesterRequest == null) {
+            return getAllTimetablesFrame(userId);
+        }
+
         Semester semester = semesterRepositoryV2.getBySemester(semesterRequest);
         return timetableFrameRepositoryV2.findAllByUserIdAndSemesterId(userId, semester.getId()).stream()
             .map(TimetableFrameResponse::from)
             .toList();
     }
 
+    public TimetableFramesResponse getAllTimetablesFrame(Integer userId) {
+        List<TimetableFrame> timetableFrames = timetableFrameRepositoryV2.findAllByUserId(userId);
+        return TimetableFramesResponse.from(timetableFrames);
+    }
+
     @Transactional
     public void deleteAllTimetablesFrame(Integer userId, String semester) {
         User user = userRepository.getById(userId);
         Semester timetableSemester = semesterRepositoryV2.getBySemester(semester);
-        timetableFrameRepositoryV2.deleteAllByUserAndSemester(user, timetableSemester);
+        timetableFrameRepositoryV2.findAllByUserAndSemester(user, timetableSemester)
+            .forEach(TimetableFrame::delete);
     }
 
     @Transactional
@@ -76,13 +87,13 @@ public class TimetableFrameService {
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
         validateUserAuthorization(timetableFrame.getUser().getId(), userId);
 
-        deleteFrameAndUpdateMainStatusWithLock(frameId, userId, timetableFrame);
+        deleteFrameAndUpdateMainStatus(userId, timetableFrame);
     }
 
-    @ConcurrencyGuard(lockName = "deleteFrame")
-    private void deleteFrameAndUpdateMainStatusWithLock(Integer frameId, Integer userId, TimetableFrame frame) {
-        timetableFrameRepositoryV2.deleteById(frameId);
+    private void deleteFrameAndUpdateMainStatus(Integer userId, TimetableFrame frame) {
+        frame.delete();
         if (frame.isMain()) {
+            frame.updateMainFlag(false);
             TimetableFrame nextFrame = timetableFrameRepositoryV2.findNextFirstTimetableFrame(userId,
                 frame.getSemester().getId());
             if (nextFrame != null) {

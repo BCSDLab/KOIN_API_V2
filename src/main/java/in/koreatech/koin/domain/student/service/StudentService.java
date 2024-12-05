@@ -89,7 +89,7 @@ public class StudentService {
         User user = student.getUser();
 
         user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
-        user.updatePassword(passwordEncoder, request.password());
+        user.updateStudentPassword(passwordEncoder, request.password());
         student.updateInfo(request.studentNumber(), request.major());
 
         return StudentUpdateResponse.from(student);

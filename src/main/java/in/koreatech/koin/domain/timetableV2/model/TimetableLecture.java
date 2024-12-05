@@ -42,8 +42,8 @@ public class TimetableLecture extends BaseEntity {
     @Column(name = "class_time", columnDefinition = "TEXT")
     private String classTime;
 
-    @Size(max = 30)
-    @Column(name = "class_place", length = 30)
+    @Lob
+    @Column(name = "class_place", columnDefinition = "TEXT")
     private String classPlace;
 
     @Size(max = 30)
@@ -105,5 +105,13 @@ public class TimetableLecture extends BaseEntity {
         this.professor = request.professor();
         this.grades = grades;
         this.memo = request.memo();
+    }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
+
+    public void undelete() {
+        this.isDeleted = false;
     }
 }
