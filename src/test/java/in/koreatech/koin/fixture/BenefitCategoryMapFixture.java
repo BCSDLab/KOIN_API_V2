@@ -14,15 +14,23 @@ public class BenefitCategoryMapFixture {
     private final BenefitCategoryMapRepository benefitCategoryMapRepository;
 
     public BenefitCategoryMapFixture(
-        BenefitCategoryMapRepository benefitCategoryMapRepository
+            BenefitCategoryMapRepository benefitCategoryMapRepository
     ) {
         this.benefitCategoryMapRepository = benefitCategoryMapRepository;
     }
 
     public BenefitCategoryMap 혜택_추가(Shop shop, BenefitCategory benefitCategory) {
         return benefitCategoryMapRepository.save(BenefitCategoryMap.builder()
-            .shop(shop)
-            .benefitCategory(benefitCategory)
-            .build());
+                .shop(shop)
+                .benefitCategory(benefitCategory)
+                .build());
+    }
+
+    public BenefitCategoryMap 설명이_포함된_혜택_추가(Shop shop, BenefitCategory benefitCategory, String detail) {
+        return benefitCategoryMapRepository.save(BenefitCategoryMap.builder()
+                .shop(shop)
+                .benefitCategory(benefitCategory)
+                .detail(detail)
+                .build());
     }
 }

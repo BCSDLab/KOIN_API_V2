@@ -3,27 +3,22 @@ package in.koreatech.koin.domain.timetableV2.service;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateTimetableFrameUpdate;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
+import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameCreator;
+import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameUpdater;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
-import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameCreator;
-import in.koreatech.koin.domain.timetableV2.factory.TimetableFrameUpdater;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
-import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -73,13 +68,13 @@ public class TimetableFrameService {
 
     @Transactional
     public void deleteTimetablesFrame(Integer userId, Integer frameId) {
+        System.out.println("deleteFrame");
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getByIdWithLock(frameId);
         validateUserAuthorization(timetableFrame.getUser().getId(), userId);
 
         deleteFrameAndUpdateMainStatusWithLock(frameId, userId, timetableFrame);
     }
 
-    @ConcurrencyGuard(lockName = "deleteFrame")
     private void deleteFrameAndUpdateMainStatusWithLock(Integer frameId, Integer userId, TimetableFrame frame) {
         timetableFrameRepositoryV2.deleteById(frameId);
         if (frame.isMain()) {

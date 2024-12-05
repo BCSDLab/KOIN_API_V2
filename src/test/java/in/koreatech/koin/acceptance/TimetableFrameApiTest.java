@@ -7,6 +7,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -234,4 +239,45 @@ public class TimetableFrameApiTest extends AcceptanceTest {
         assertThat(timetableFrameRepositoryV2.findById(frame2.getId())).isNotPresent();
         assertThat(timetableFrameRepositoryV2.findById(frame3.getId())).isNotPresent();
     }
+
+    @Test
+    void 시간표를_동시에_프레임을_삭제한다() throws Exception {
+        TimetableFrame frame1 = timetableV2Fixture.시간표1(user, semester);
+        TimetableFrame frame2 = timetableV2Fixture.시간표1(user, semester);
+        TimetableFrame frame3 = timetableV2Fixture.시간표1(user, semester);
+        List<TimetableFrame> frames = List.of(frame1, frame2, frame3);
+        entityManager.flush();
+        CountDownLatch latch = new CountDownLatch(3);
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+
+        // 3개의 동시 요청 생성
+        for (int i = 0; i < 3; i++) {
+            int finalI = i;
+            executorService.submit(() -> {
+                try {
+                    mockMvc.perform(
+                            delete("/v2/timetables/frame")
+                                    .header("Authorization", "Bearer " + token)
+                                    .param("id", String.valueOf(frames.get(finalI).getId()))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                    ).andExpect(status().isNoContent());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        // 모든 스레드가 완료될 때까지 대기
+        latch.await(10, TimeUnit.SECONDS);
+        executorService.shutdown();
+        entityManager.clear();
+        entityManager.flush();
+        // 검증
+        assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isPresent();
+        assertThat(timetableFrameRepositoryV2.findById(frame2.getId())).isPresent();
+        assertThat(timetableFrameRepositoryV2.findById(frame3.getId())).isPresent();
+    }
+
 }
