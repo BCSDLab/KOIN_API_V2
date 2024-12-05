@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.bus.model.mongo;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -7,17 +9,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 @Document(collection = "shuttlebus_timetables")
-@JsonNaming(SnakeCaseStrategy.class)
 public class ShuttleBusRoute {
 
     @Id
@@ -42,8 +40,7 @@ public class ShuttleBusRoute {
     private List<RouteInfo> routeInfo;
 
     @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    @JsonNaming(SnakeCaseStrategy.class)
+    @NoArgsConstructor(access = PROTECTED)
     public static class NodeInfo {
 
         @Field("name")
@@ -54,8 +51,7 @@ public class ShuttleBusRoute {
     }
 
     @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    @JsonNaming(SnakeCaseStrategy.class)
+    @NoArgsConstructor(access = PROTECTED)
     public static class RouteInfo {
 
         @Field("name")

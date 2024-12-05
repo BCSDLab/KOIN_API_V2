@@ -15,13 +15,13 @@ import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
+import in.koreatech.koin.domain.bus.dto.ShuttleBusRouteResponse;
 import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
-import in.koreatech.koin.domain.bus.model.mongo.ShuttleBusRoute;
 import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
 import in.koreatech.koin.domain.bus.service.BusService;
 import in.koreatech.koin.domain.version.service.VersionService;
@@ -97,7 +97,7 @@ public class BusController implements BusApi {
     }
 
     @GetMapping("/timetable/shuttle")
-    public ResponseEntity<ShuttleBusRoute> getCityBusTimetable(@RequestParam String id) {
-        return ResponseEntity.ok().body(shuttleBusRepository.getById(id));
+    public ResponseEntity<ShuttleBusRouteResponse> getShuttleBusTimetable(@RequestParam String id) {
+        return ResponseEntity.ok().body(ShuttleBusRouteResponse.from(shuttleBusRepository.getById(id)));
     }
 }
