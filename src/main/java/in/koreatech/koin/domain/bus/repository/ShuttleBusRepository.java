@@ -11,7 +11,7 @@ import in.koreatech.koin.domain.bus.model.mongo.ShuttleBusRoute;
 
 public interface ShuttleBusRepository extends Repository<ShuttleBusRoute, ObjectId> {
 
-    List<ShuttleBusRoute> findAll();
+    List<ShuttleBusRoute> findBySemesterType(String semesterType);
 
     Optional<ShuttleBusRoute> findById(String id);
 

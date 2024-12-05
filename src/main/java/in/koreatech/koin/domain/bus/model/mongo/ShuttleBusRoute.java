@@ -21,6 +21,9 @@ public class ShuttleBusRoute {
     @Id
     private String id;
 
+    @Field("semester_type")
+    private String semesterType;
+
     @Field("region")
     private String region;
 

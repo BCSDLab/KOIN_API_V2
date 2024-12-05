@@ -24,6 +24,7 @@ import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
 import in.koreatech.koin.domain.bus.service.BusService;
+import in.koreatech.koin.domain.version.dto.VersionMessageResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import lombok.RequiredArgsConstructor;
 
@@ -91,9 +92,9 @@ public class BusController implements BusApi {
 
     @GetMapping("/courses/shuttle")
     public ResponseEntity<ShuttleBusRoutesResponse> getShuttleBusRoutes() {
+        VersionMessageResponse version = versionService.getVersionWithMessage("shuttle_bus_timetable");
         return ResponseEntity.ok()
-            .body(ShuttleBusRoutesResponse.of(shuttleBusRepository.findAll(),
-                versionService.getVersionWithMessage("shuttle_bus_timetable")));
+            .body(ShuttleBusRoutesResponse.of(shuttleBusRepository.findBySemesterType(version.title()), version));
     }
 
     @GetMapping("/timetable/shuttle")
