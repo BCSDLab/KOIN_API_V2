@@ -92,7 +92,7 @@ public class BusController implements BusApi {
     @GetMapping("/courses/shuttle")
     public ResponseEntity<ShuttleBusRoutesResponse> getShuttleBusRoutes() {
         return ResponseEntity.ok()
-            .body(ShuttleBusRoutesResponse.from(shuttleBusRepository.findAll(),
+            .body(ShuttleBusRoutesResponse.of(shuttleBusRepository.findAll(),
                 versionService.getVersionWithMessage("shuttle_bus_timetable")));
     }
 

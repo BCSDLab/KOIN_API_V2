@@ -51,7 +51,7 @@ public record ShuttleBusRoutesResponse(
     ) {
     }
 
-    public static ShuttleBusRoutesResponse from(List<ShuttleBusRoute> shuttleBusRoutes,
+    public static ShuttleBusRoutesResponse of(List<ShuttleBusRoute> shuttleBusRoutes,
         VersionMessageResponse versionMessageResponse) {
         Map<String, List<ShuttleBusRoute>> groupedByRouteType = shuttleBusRoutes.stream()
             .collect(Collectors.groupingBy(ShuttleBusRoute::getRouteType));
