@@ -11,9 +11,11 @@ public interface BenefitCategoryMapRepository extends Repository<BenefitCategory
 
     List<BenefitCategoryMap> findAllByBenefitCategoryId(Integer benefitCategoryId);
 
-    @Query("SELECT bcm FROM BenefitCategoryMap bcm " +
-            "JOIN FETCH bcm.shop s " +
-            "JOIN FETCH bcm.benefitCategory bc")
+    @Query("""
+            SELECT bcm FROM BenefitCategoryMap bcm
+            JOIN FETCH bcm.shop s
+            JOIN FETCH bcm.benefitCategory bc
+            """)
     List<BenefitCategoryMap> findAllWithFetchJoin();
 
     BenefitCategoryMap save(BenefitCategoryMap benefitCategoryMap);

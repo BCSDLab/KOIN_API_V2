@@ -107,9 +107,9 @@ public class ShopService {
 
         if (isSubscribeReviewNotification(studentId)) {
             ShopReviewNotification shopReviewNotification = ShopReviewNotification.builder()
-                .shopId(shopId)
-                .studentId(studentId)
-                .build();
+                    .shopId(shopId)
+                    .studentId(studentId)
+                    .build();
 
             double score = LocalDateTime.now(clock).plusHours(1).toEpochSecond(ZoneOffset.UTC);
             shopReviewNotificationRedisRepository.save(shopReviewNotification, score);
