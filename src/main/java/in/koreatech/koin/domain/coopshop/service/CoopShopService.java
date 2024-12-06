@@ -75,20 +75,20 @@ public class CoopShopService {
     }
 
     public DiningType getDiningType(){
-        if(LocalTime.now().isAfter(BREAKFAST.getStartTime().minusHours(1))
-            && LocalTime.now().isBefore(BREAKFAST.getEndTime())){
+        if(LocalTime.now(clock).isAfter(BREAKFAST.getStartTime().minusHours(1))
+            && LocalTime.now(clock).isBefore(BREAKFAST.getEndTime())){
             return BREAKFAST;
         }
-        if(LocalTime.now().isAfter(LUNCH.getStartTime().minusHours(1))
-            && LocalTime.now().isBefore(LUNCH.getEndTime())){
+        if(LocalTime.now(clock).isAfter(LUNCH.getStartTime().minusHours(1))
+            && LocalTime.now(clock).isBefore(LUNCH.getEndTime())){
             return LUNCH;
         }
-        if(LocalTime.now().isAfter(DINNER.getStartTime().minusHours(3))
-            && LocalTime.now().isBefore(DINNER.getEndTime())){
+        if(LocalTime.now(clock).isAfter(DINNER.getStartTime().minusHours(1))
+            && LocalTime.now(clock).isBefore(DINNER.getEndTime())){
             return DINNER;
         }
 
-        throw DiningTypeNotFoundException.withDetail("");
+        throw DiningTypeNotFoundException.withDetail(LocalTime.now() + "");
     }
 
     @Transactional
