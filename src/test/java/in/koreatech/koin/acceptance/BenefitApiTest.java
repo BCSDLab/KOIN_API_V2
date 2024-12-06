@@ -95,7 +95,7 @@ public class BenefitApiTest extends AcceptanceTest {
 
         성빈_학생 = userFixture.성빈_학생();
 
-        benefitCategoryMapFixture.혜택_추가(김밥천국, 배달비_무료);
+        benefitCategoryMapFixture.설명이_포함된_혜택_추가(김밥천국, 배달비_무료, "무료");
         benefitCategoryMapFixture.혜택_추가(마슬랜, 배달비_무료);
         benefitCategoryMapFixture.혜택_추가(영업중인_티바, 배달비_무료);
         benefitCategoryMapFixture.혜택_추가(영업중이_아닌_신전_떡볶이, 배달비_무료);
@@ -183,7 +183,8 @@ public class BenefitApiTest extends AcceptanceTest {
                           "is_event": false,
                           "is_open": true,
                           "average_rate": 5.0,
-                          "review_count": 1
+                          "review_count": 1,
+                          "benefit_details": ["무료"]
                         },
                         {
                           "category_ids": [],

@@ -9,7 +9,7 @@ import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 
 public interface BenefitCategoryMapRepository extends Repository<BenefitCategoryMap, Integer> {
 
-    List<BenefitCategoryMap> findAllByBenefitCategoryId(Integer benefitCategoryId);
+    List<BenefitCategoryMap> findByBenefitCategoryId(Integer benefitCategoryId);
 
     @Query("""
             SELECT bcm FROM BenefitCategoryMap bcm
