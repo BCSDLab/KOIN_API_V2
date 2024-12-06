@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ShopBenefitService {
-
     private final BenefitCategoryRepository benefitCategoryRepository;
     private final BenefitCategoryMapRepository benefitCategoryMapRepository;
     private final EventArticleRepository eventArticleRepository;
@@ -35,18 +34,18 @@ public class ShopBenefitService {
     }
 
     public BenefitShopsResponse getBenefitShops(Integer benefitId) {
-        List<BenefitCategoryMap> benefitCategoryMaps = benefitCategoryMapRepository
-            .findAllByBenefitCategoryId(benefitId);
+        List<BenefitCategoryMap> benefitCategoryMaps = benefitCategoryMapRepository.findAllByBenefitCategoryId(benefitId);
         LocalDateTime now = LocalDateTime.now(clock);
+
         List<InnerShopResponse> innerShopResponses = benefitCategoryMaps.stream()
             .map(benefitCategoryMap -> {
                 Shop shop = benefitCategoryMap.getShop();
+                String benefitDetail = benefitCategoryMap.getDetail();
                 boolean isDurationEvent = eventArticleRepository.isDurationEvent(shop.getId(), now.toLocalDate());
-                return InnerShopResponse.from(shop, isDurationEvent, shop.isOpen(now));
+                return InnerShopResponse.from(shop, isDurationEvent, shop.isOpen(now), List.of(benefitDetail));
             })
             .sorted(InnerShopResponse.getComparator())
             .toList();
-        BenefitShopsResponse shopsResponse = BenefitShopsResponse.from(innerShopResponses);
-        return shopsResponse;
+        return BenefitShopsResponse.from(innerShopResponses);
     }
 }
