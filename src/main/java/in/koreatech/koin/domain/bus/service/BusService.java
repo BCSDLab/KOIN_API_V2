@@ -244,7 +244,9 @@ public class BusService {
                 .filter(strategy -> strategy.support(request.busRouteType()))
                 .flatMap(strategy -> strategy.findSchedule(request).stream())
                 .filter(schedule -> schedule.departTime().isAfter(request.time()))
-                .sorted(Comparator.comparing(ScheduleInfo::departTime))
+                .sorted(Comparator.comparing(ScheduleInfo::departTime)
+                    .thenComparing(ScheduleInfo.compareBusType())
+                )
                 .toList();
         }
 

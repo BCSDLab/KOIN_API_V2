@@ -5,6 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,10 +58,10 @@ public record BusScheduleResponse(
         String busName,
         LocalTime departTime
     ) {
-        public static List<ScheduleInfo> toScheduleInfo(List<LocalTime> timetable, String busType, String busName) {
-            return timetable.stream()
-                .map(time -> new ScheduleInfo(busType, busName, time))
-                .collect(Collectors.toList());
+
+        public static Comparator<ScheduleInfo> compareBusType() {
+            List<String> priority = List.of("shuttle", "express", "city");
+            return Comparator.comparingInt(schedule -> priority.indexOf(schedule.busType));
         }
     }
 }
