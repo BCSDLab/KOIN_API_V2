@@ -26,13 +26,28 @@ public record ShuttleBusRoutesResponse(
     private record RouteRegion(
         @Schema(description = "지역 이름", example = "천안") String region,
         @Schema(description = "해당 지역의 경로 목록") List<RouteName> routes
-    ) {
+    ) implements Comparable<RouteRegion> {
+
+        @Override
+        public int compareTo(RouteRegion routeName) {
+            return Integer.compare(getPriority(this.region), getPriority(routeName.region));
+        }
+
+        private int getPriority(String region) {
+            return switch (region) {
+                case "천안" -> 1;
+                case "청주" -> 2;
+                case "서울" -> 3;
+                default -> 4;
+            };
+        }
 
         public static List<RouteRegion> mapCategories(List<ShuttleBusRoute> shuttleBusRoutes) {
             return shuttleBusRoutes.stream()
                 .collect(Collectors.groupingBy(ShuttleBusRoute::getRegion))
                 .entrySet().stream()
                 .map(entry -> new RouteRegion(entry.getKey(), RouteName.mapRouteNames(entry.getValue())))
+                .sorted()
                 .toList();
         }
     }
@@ -44,12 +59,26 @@ public record ShuttleBusRoutesResponse(
         @Schema(description = "노선 종류", example = "주말") String type,
         @Schema(description = "노선 이름", example = "대학원") String routeName,
         @Schema(description = "노선 부가 이름", example = "토요일") String subName
-    ) {
+    ) implements Comparable<RouteName> {
+
+        @Override
+        public int compareTo(RouteName routeName) {
+            return Integer.compare(getPriority(this.type), getPriority(routeName.type));
+        }
+
+        private int getPriority(String type) {
+            return switch (type) {
+                case "순환" -> 1;
+                case "주중" -> 2;
+                case "주말" -> 3;
+                default -> 4;
+            };
+        }
 
         public static List<RouteName> mapRouteNames(List<ShuttleBusRoute> routes) {
             return routes.stream()
-                .map(route -> new RouteName(route.getId(), route.getRouteType(), route.getRouteName(),
-                    route.getSubName()))
+                .map(route -> new RouteName(route.getId(), route.getRouteType(), route.getRouteName(), route.getSubName()))
+                .sorted()
                 .toList();
         }
     }
