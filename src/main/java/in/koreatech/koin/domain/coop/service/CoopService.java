@@ -114,7 +114,7 @@ public class CoopService {
         );
 
         boolean isOpened = coopShopService.getIsOpened(
-            LocalDateTime.of(nowDate, LocalTime.of(11,25))/*LocalDateTime.now(clock)*/, CoopShopType.CAFETERIA, diningType, true
+            LocalDateTime.now(clock), CoopShopType.CAFETERIA, diningType, true
         );
 
         String diningNotifyId = nowDate.toString() + diningType;
