@@ -129,6 +129,7 @@ public class CoopService {
         }
 
         if (LocalTime.now().isAfter(diningType.getStartTime().minusMinutes(10))
+            && LocalTime.now().isBefore(diningType.getStartTime())
             && !diningNotifyCacheRepository.existsById(diningNotifyId)
             && diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(nowDate, diningType)
         ) {

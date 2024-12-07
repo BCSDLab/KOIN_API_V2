@@ -518,11 +518,18 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
+    void 이미지가_모두_존재하지_않으면_알림이_발송되지_않는다() throws Exception {
+        coopService.sendDiningNotify();
+
+        forceVerify(() -> verify(coopEventListener, never()).onDiningImageUploadRequest(any()));
+        clear();
+        setUp();
+    }
+
+    @Test
     void 이미지가_모두_존재하고_오픈시간이고_Redis에_키가_있으면_알림이_발송되지_않는다() throws Exception {
         String diningNotifyId = LocalDate.now(clock).toString() + LUNCH;
         diningNotifyCacheRepository.save(DiningNotifyCache.from(diningNotifyId));
-        B코너_점심.setImageUrl("https://stage.koreatech.in/image.jpg");
-        diningRepository.save(B코너_점심);
         coopService.sendDiningNotify();
 
         forceVerify(() -> verify(coopEventListener, never()).onDiningImageUploadRequest(any()));
