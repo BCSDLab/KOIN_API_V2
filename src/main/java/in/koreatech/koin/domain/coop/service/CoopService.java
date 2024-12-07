@@ -102,18 +102,22 @@ public class CoopService {
 
     public void sendDiningNotify() {
         DiningType diningType = coopShopService.getDiningType();
-        LocalDate now = LocalDate.now(clock);
-        List<Dining> dinings = diningRepository.findAllByDateAndType(now, diningType);
+        LocalDate nowDate = LocalDate.now(clock);
+        List<Dining> dinings = diningRepository.findAllByDateAndType(nowDate, diningType);
 
         if (dinings.isEmpty()) {
             return;
         }
 
         boolean allImageExist = diningRepository.allExistsByDateAndTypeAndPlacesAndImageUrlIsNotNull(
-            now, diningType, placeFilters
+            nowDate, diningType, placeFilters
         );
-        boolean isOpened = coopShopService.getIsOpened(LocalDateTime.now(clock), CoopShopType.CAFETERIA, diningType, true);
-        String diningNotifyId = now.toString() + diningType;
+
+        boolean isOpened = coopShopService.getIsOpened(
+            LocalDateTime.of(nowDate, LocalTime.of(11,25))/*LocalDateTime.now(clock)*/, CoopShopType.CAFETERIA, diningType, true
+        );
+
+        String diningNotifyId = nowDate.toString() + diningType;
 
         if (isOpened && allImageExist) {
             if (alreadyNotify(diningNotifyId))
@@ -122,12 +126,13 @@ public class CoopService {
             if (!diningNotifyCacheRepository.existsById(diningNotifyId)) {
                 sendNotify(diningNotifyId, dinings);
             }
+        }
 
-            if (LocalTime.now().isAfter(diningType.getStartTime().minusMinutes(10))
-                && !diningNotifyCacheRepository.existsById(diningNotifyId)
-            ) {
-                sendNotify(diningNotifyId, dinings);
-            }
+        if (LocalTime.now().isAfter(diningType.getStartTime().minusMinutes(10))
+            && !diningNotifyCacheRepository.existsById(diningNotifyId)
+            && diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(nowDate, diningType)
+        ) {
+            sendNotify(diningNotifyId, dinings);
         }
     }
 
