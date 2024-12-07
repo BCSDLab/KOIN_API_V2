@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.coopshop.service;
 
+import static in.koreatech.koin.domain.dining.model.DiningType.*;
+
 import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -14,14 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
 import in.koreatech.koin.domain.coopshop.dto.CoopShopsResponse;
 import in.koreatech.koin.domain.coopshop.exception.CoopSemesterNotFoundException;
+import in.koreatech.koin.domain.coopshop.exception.DiningTypeNotFoundException;
 import in.koreatech.koin.domain.coopshop.model.CoopOpen;
 import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.model.DayType;
 import in.koreatech.koin.domain.coopshop.repository.CoopOpenRepository;
-import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopSemesterRepository;
+import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.domain.dining.model.DiningType;
 import lombok.RequiredArgsConstructor;
 
@@ -69,6 +72,23 @@ public class CoopShopService {
         } catch (DateTimeParseException e) {
             return false;
         }
+    }
+
+    public DiningType getDiningType(){
+        if(LocalTime.now(clock).isAfter(BREAKFAST.getStartTime().minusHours(1))
+            && LocalTime.now(clock).isBefore(BREAKFAST.getEndTime())){
+            return BREAKFAST;
+        }
+        if(LocalTime.now(clock).isAfter(LUNCH.getStartTime().minusHours(1))
+            && LocalTime.now(clock).isBefore(LUNCH.getEndTime())){
+            return LUNCH;
+        }
+        if(LocalTime.now(clock).isAfter(DINNER.getStartTime().minusHours(1))
+            && LocalTime.now(clock).isBefore(DINNER.getEndTime())){
+            return DINNER;
+        }
+
+        throw DiningTypeNotFoundException.withDetail(LocalTime.now() + "");
     }
 
     @Transactional

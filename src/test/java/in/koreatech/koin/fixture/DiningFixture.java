@@ -63,6 +63,7 @@ public class DiningFixture {
                 .kcal(881)
                 .menu("""
                     ["병아리콩밥", "(탕)소고기육개장", "땡초부추전", "누룽지탕"]""")
+                .imageUrl("https://stage.koreatech.in/image.jpg")
                 .likes(0)
                 .build()
         );
