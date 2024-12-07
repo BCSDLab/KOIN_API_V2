@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -19,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
@@ -37,6 +41,7 @@ import in.koreatech.koin.domain.bus.model.mongo.CityBusTimetable;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
+import in.koreatech.koin.domain.bus.service.route.BusRouteStrategy;
 import in.koreatech.koin.domain.bus.util.city.CityBusClient;
 import in.koreatech.koin.domain.bus.util.city.CityBusRouteClient;
 import in.koreatech.koin.domain.bus.util.express.ExpressBusService;
@@ -57,6 +62,7 @@ public class BusService {
     private final ExpressBusService expressBusService;
     private final CityBusRouteClient cityBusRouteClient;
     private final VersionService versionService;
+    private final List<BusRouteStrategy> busRouteStrategies;
 
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
@@ -228,5 +234,25 @@ public class BusService {
             .getByBusInfoNumberAndBusInfoArrival(busNumber, direction.getName());
 
         return CityBusTimetableResponse.from(timetable);
+    }
+
+    public BusScheduleResponse getBusSchedule(BusRouteCommand request) {
+        List<ScheduleInfo> scheduleInfoList = Collections.emptyList();
+
+        if (request.checkAvailableCourse()) {
+            scheduleInfoList = busRouteStrategies.stream()
+                .filter(strategy -> strategy.support(request.busRouteType()))
+                .flatMap(strategy -> strategy.findSchedule(request).stream())
+                .filter(schedule -> schedule.departTime().isAfter(request.time()))
+                .sorted(Comparator.comparing(ScheduleInfo::departTime)
+                    .thenComparing(ScheduleInfo.compareBusType())
+                )
+                .toList();
+        }
+
+        return new BusScheduleResponse(
+            request.depart(), request.arrive(), request.date(), request.time(),
+            scheduleInfoList
+        );
     }
 }

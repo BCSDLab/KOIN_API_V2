@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
+import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
@@ -81,5 +84,18 @@ public class BusController implements BusApi {
         List<SingleBusTimeResponse> singleBusTimeResponses = busService.searchTimetable(date, LocalTime.parse(time),
             depart, arrival);
         return ResponseEntity.ok().body(singleBusTimeResponses);
+    }
+
+    @GetMapping("/route")
+    public ResponseEntity<BusScheduleResponse> getBusRouteSchedule(
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+        @RequestParam String time,
+        @RequestParam(value = "bus_type") BusRouteType busRouteType,
+        @RequestParam BusStation depart,
+        @RequestParam BusStation arrival
+    ) {
+        BusRouteCommand request = new BusRouteCommand(depart, arrival, busRouteType, date, LocalTime.parse(time));
+        BusScheduleResponse busSchedule = busService.getBusSchedule(request);
+        return ResponseEntity.ok().body(busSchedule);
     }
 }

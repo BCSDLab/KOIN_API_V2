@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.bus.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,10 +11,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
+import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
@@ -90,4 +93,30 @@ public interface BusApi {
     @Operation(summary = "버스 노선 조회")
     @GetMapping("/courses")
     ResponseEntity<List<BusCourseResponse>> getBusCourses();
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(
+        summary = "버스 교통편 조회",
+        description = """
+            ### 버스 교통편 조회
+            - **시간** : 00:00 인 경우 해당 날짜의 모든 스케줄을 조회합니다.
+            - **날짜** : 요일을 기준으로 스케줄을 출력합니다. 공휴일 처리는 구현되어 있지 않습니다.
+            - **출발지 & 도착지** : 출발지와 도착지가 일치하는 경우 빈 리스트를 반환합니다. (천안역 -> 터미널) & (터미널 -> 천안역) 역시 빈 리스트를 반환합니다.
+            """
+    )
+    @GetMapping("/route")
+    ResponseEntity<BusScheduleResponse> getBusRouteSchedule(
+        @Parameter(description = "yyyy-MM-dd") @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+        @Parameter(description = "HH:mm") @RequestParam String time,
+        @Parameter(
+            description = "CITY, EXPRESS, SHUTTLE, ALL"
+        ) @RequestParam BusRouteType busRouteType,
+        @Parameter(description = "KOREATECH, TERMINAL, STATION") @RequestParam BusStation depart,
+        @Parameter(description = "KOREATECH, TERMINAL, STATION") @RequestParam BusStation arrival
+    );
 }
