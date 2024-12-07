@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculat
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +18,8 @@ import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureCreator;
 import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureUpdater;
-import in.koreatech.koin.global.auth.exception.AuthorizationException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,6 +27,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class TimetableLectureService {
 
+    @PersistenceContext
+    private EntityManager entityManager;
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final TimetableLectureCreator timetableLectureCreator;
@@ -59,7 +61,7 @@ public class TimetableLectureService {
         TimetableLecture timetableLecture = timetableLectureRepositoryV2.getById(timetableLectureId);
         TimetableFrame timetableFrame = timetableLecture.getTimetableFrame();
         validateUserAuthorization(timetableFrame.getUser().getId(), userId);
-        timetableLectureRepositoryV2.deleteById(timetableLectureId);
+        timetableLecture.delete();
     }
 
     private TimetableLectureResponse getTimetableLectureResponse(Integer userId, TimetableFrame timetableFrame) {
@@ -73,13 +75,39 @@ public class TimetableLectureService {
         request.stream()
             .map(timetableLectureRepositoryV2::getById)
             .peek(lecture -> validateUserAuthorization(lecture.getTimetableFrame().getUser().getId(), userId))
-            .forEach(lecture -> timetableLectureRepositoryV2.deleteById(lecture.getId()));
+            .forEach(TimetableLecture::delete);
     }
 
     @Transactional
     public void deleteTimetableLectureByFrameId(Integer frameId, Integer lectureId, Integer userId) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(frameId);
         validateUserAuthorization(frame.getUser().getId(), userId);
-        timetableLectureRepositoryV2.deleteByFrameIdAndLectureId(frameId, lectureId);
+        TimetableLecture timetableLecture = timetableLectureRepositoryV2.getByFrameIdAndLectureId(frameId, lectureId);
+        timetableLecture.delete();
+    }
+
+    @Transactional
+    public TimetableLectureResponse rollbackTimetableLecture(List<Integer> timetableLecturesId, Integer userId) {
+        timetableLecturesId.stream()
+            .map(timetableLectureRepositoryV2::getByIdWithDeleted)
+            .peek(lecture -> validateUserAuthorization(lecture.getTimetableFrame().getUser().getId(), userId))
+            .forEach(TimetableLecture::undelete);
+        entityManager.flush();
+        TimetableLecture timeTableLecture = timetableLectureRepositoryV2.getById(timetableLecturesId.get(0));
+        return getTimetableLectureResponse(userId, timeTableLecture.getTimetableFrame());
+    }
+
+    @Transactional
+    public TimetableLectureResponse rollbackTimetableFrame(Integer frameId, Integer userId) {
+        TimetableFrame timetableFrame = timetableFrameRepositoryV2.getByIdWithDeleted(frameId);
+        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
+        timetableFrame.undelete();
+
+        timetableLectureRepositoryV2.findAllByFrameIdWithDeleted(timetableFrame.getId()).stream()
+            .map(TimetableLecture::getId)
+            .map(timetableLectureRepositoryV2::getByIdWithDeleted)
+            .forEach(TimetableLecture::undelete);
+        entityManager.flush();
+        return getTimetableLectureResponse(userId, timetableFrame);
     }
 }

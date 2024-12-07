@@ -7,6 +7,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import in.koreatech.koin.domain.benefit.model.BenefitCategory;
+import in.koreatech.koin.fixture.BenefitCategoryFixture;
+import in.koreatech.koin.fixture.BenefitCategoryMapFixture;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -39,6 +42,12 @@ import in.koreatech.koin.fixture.UserFixture;
 @SuppressWarnings("NonAsciiCharacters")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ShopApiTest extends AcceptanceTest {
+
+    @Autowired
+    private BenefitCategoryFixture benefitCategoryFixture;
+
+    @Autowired
+    private BenefitCategoryMapFixture benefitCategoryMapFixture;
 
     @Autowired
     private UserFixture userFixture;
@@ -1896,5 +1905,65 @@ class ShopApiTest extends AcceptanceTest {
                                 .header("Authorization", "Bearer " + token_익명)
                 )
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void 리뷰를_조회하면_혜택_정보가_조회된다() throws Exception {
+        Shop 영업중인_티바 = shopFixture.영업중인_티바(owner);
+        shopReviewFixture.리뷰_4점(익명_학생, 영업중인_티바);
+
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+        shopReviewFixture.리뷰_4점(익명_학생, 마슬랜);
+        // 2024-01-15 12:00 월요일 기준
+        boolean 마슬랜_영업여부 = true;
+        boolean 티바_영업여부 = true;
+
+        BenefitCategory 최소주문금액_무료 = benefitCategoryFixture.최소주문금액_무료();
+        BenefitCategory 서비스_증정 = benefitCategoryFixture.서비스_증정();
+        benefitCategoryMapFixture.설명이_포함된_혜택_추가(영업중인_티바, 최소주문금액_무료, "무료");
+        benefitCategoryMapFixture.설명이_포함된_혜택_추가(영업중인_티바, 서비스_증정, "콜라");
+        mockMvc.perform(
+                        get("/v2/shops")
+                                .queryParam("sorter", "COUNT_DESC")
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().json(String.format("""
+                        {
+                            "count": 2,
+                            "shops": [
+                                {
+                                "category_ids": [
+                                       \s
+                                    ],
+                                    "delivery": true,
+                                    "id": 1,
+                                    "name": "마슬랜 치킨",
+                                    "pay_bank": true,
+                                    "pay_card": true,
+                                    "phone": "010-7574-1212",
+                                    "is_event": false,
+                                    "is_open": %s,
+                                    "average_rate": 4.0,
+                                    "review_count": 2,
+                                    "benefit_details": []
+                                },{
+                                    "category_ids": [
+                                       \s
+                                    ],
+                                    "delivery": true,
+                                    "id": 2,
+                                    "name": "티바",
+                                    "pay_bank": true,
+                                    "pay_card": true,
+                                    "phone": "010-7788-9900",
+                                    "is_event": false,
+                                    "is_open": %s,
+                                    "average_rate": 4.0,
+                                    "review_count": 1,
+                                    "benefit_details": ["무료", "콜라"]
+                                }
+                            ]
+                        }
+                        """, 티바_영업여부, 마슬랜_영업여부)));
     }
 }

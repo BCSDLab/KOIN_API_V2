@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.admin.benefit.dto.AdminBenefitCategoryResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminBenefitCategoriesResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryResponse;
@@ -36,9 +36,9 @@ public class AdminBenefitService {
     private final AdminBenefitCategoryMapRepository adminBenefitCategoryMapRepository;
     private final AdminShopRepository adminShopRepository;
 
-    public AdminBenefitCategoryResponse getBenefitCategories() {
+    public AdminBenefitCategoriesResponse getBenefitCategories() {
         List<BenefitCategory> categories = adminBenefitCategoryRepository.findAllByOrderByTitleAsc();
-        return AdminBenefitCategoryResponse.from(categories);
+        return AdminBenefitCategoriesResponse.from(categories);
     }
 
     @Transactional

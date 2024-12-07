@@ -9,13 +9,13 @@ import in.koreatech.koin.domain.benefit.model.BenefitCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
-public record AdminBenefitCategoryResponse(
+public record AdminBenefitCategoriesResponse(
     @Schema(description = "혜택 카테고리 리스트")
     List<InnerBenefitResponse> benefits
 ) {
 
-    public static AdminBenefitCategoryResponse from(List<BenefitCategory> benefitCategories) {
-        return new AdminBenefitCategoryResponse(
+    public static AdminBenefitCategoriesResponse from(List<BenefitCategory> benefitCategories) {
+        return new AdminBenefitCategoriesResponse(
             benefitCategories.stream().map(InnerBenefitResponse::from).toList()
         );
     }

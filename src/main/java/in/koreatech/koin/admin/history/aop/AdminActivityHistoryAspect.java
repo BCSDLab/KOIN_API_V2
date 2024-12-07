@@ -49,7 +49,8 @@ public class AdminActivityHistoryAspect {
         + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.refresh(..)) && "
         + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.createAdmin(..)) && "
         + "!execution(* in.koreatech.koin.admin.user.controller.AdminUserController.adminPasswordChange(..)) && "
-        + "!execution(* in.koreatech.koin.admin.abtest.controller.AbtestController.assignOrGetAbtestVariable(..))")
+        + "!execution(* in.koreatech.koin.admin.abtest.controller.AbtestController.assignOrGetAbtestVariable(..)) &&"
+        + "!execution(* in.koreatech.koin.admin.abtest.controller.AbtestController.issueAccessHistoryId(..))")
     private void excludeSpecificMethods() {
     }
 
