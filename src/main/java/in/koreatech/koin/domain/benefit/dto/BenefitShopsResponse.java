@@ -70,8 +70,8 @@ public record BenefitShopsResponse(
         @Schema(example = "10", description = "리뷰 개수", requiredMode = REQUIRED)
         long reviewCount,
 
-        @Schema(example = "['배달비 무료', '콜라 서비스']", description = "혜택 설명", requiredMode = NOT_REQUIRED)
-        List<String> benefitDetails
+        @Schema(example = "콜라 서비스", description = "혜택 설명", requiredMode = NOT_REQUIRED)
+        String benefitDetail
     ) {
 
         public static Comparator<InnerShopResponse> getComparator() {
@@ -85,7 +85,7 @@ public record BenefitShopsResponse(
             Shop shop,
             boolean isEvent,
             boolean isOpen,
-            List<String> benefitDetails
+            String benefitDetail
         ) {
             return new InnerShopResponse(
                 shop.getShopCategories().stream().map(shopCategoryMap ->
@@ -108,7 +108,7 @@ public record BenefitShopsResponse(
                 shop.getReviews().stream()
                     .filter(review -> !review.isDeleted())
                     .count(),
-                benefitDetails
+                benefitDetail
             );
         }
 

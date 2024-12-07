@@ -184,7 +184,7 @@ public class BenefitApiTest extends AcceptanceTest {
                           "is_open": true,
                           "average_rate": 5.0,
                           "review_count": 1,
-                          "benefit_details": ["무료"]
+                          "benefit_detail": "무료"
                         },
                         {
                           "category_ids": [],

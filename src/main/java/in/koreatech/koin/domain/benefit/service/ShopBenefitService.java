@@ -4,10 +4,7 @@ import static in.koreatech.koin.domain.benefit.dto.BenefitShopsResponse.InnerSho
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ShopBenefitService {
+
     private final BenefitCategoryRepository benefitCategoryRepository;
     private final BenefitCategoryMapRepository benefitCategoryMapRepository;
     private final EventArticleRepository eventArticleRepository;
@@ -40,22 +38,16 @@ public class ShopBenefitService {
         List<BenefitCategoryMap> benefitCategoryMaps = benefitCategoryMapRepository.findByBenefitCategoryId(benefitId);
         LocalDateTime now = LocalDateTime.now(clock);
 
-        Map<Integer, List<String>> benefitDetailMap = new HashMap<>();
-        benefitCategoryMaps.forEach(benefitCategoryMap -> {
-            int shopId = benefitCategoryMap.getShop().getId();
-            String detail = benefitCategoryMap.getDetail();
-            benefitDetailMap.computeIfAbsent(shopId, k -> new ArrayList<>()).add(detail);
-        });
-
         List<InnerShopResponse> innerShopResponses = benefitCategoryMaps.stream()
             .map(benefitCategoryMap -> {
                 Shop shop = benefitCategoryMap.getShop();
+                String benefitDetail = benefitCategoryMap.getDetail();
                 boolean isDurationEvent = eventArticleRepository.isDurationEvent(shop.getId(), now.toLocalDate());
                 return InnerShopResponse.from(
                     shop,
                     isDurationEvent,
                     shop.isOpen(now),
-                    benefitDetailMap.get(shop.getId())
+                    benefitDetail
                 );
             })
             .sorted(InnerShopResponse.getComparator())
@@ -63,5 +55,4 @@ public class ShopBenefitService {
 
         return BenefitShopsResponse.from(innerShopResponses);
     }
-
 }
