@@ -25,37 +25,17 @@ public record BusScheduleResponse(
     LocalDate departDate,
     @Schema(description = "출발 시간", example = "12:00", requiredMode = REQUIRED)
     LocalTime departTime,
-    @Schema(description = "교통편 조회 결과", example = """
-        [
-            {
-            	"bus_type" : "express",
-            	"route_name" : "대성티앤이",
-            	"depart_time" : "16:50"
-            },
-            {
-            	"bus_type" : "city",
-            	"route_name" : "400",
-            	"depart_time" : "16:56"
-            },
-            {
-            	"bus_type" : "city",
-            	"route_name" : "402",
-            	"depart_time" : "17:30"
-            },
-            {
-            	"bus_type" : "shuttle",
-            	"route_name" : "주중(20시 00분)",
-            	"depart_time" : "20:00"
-            }
-        ]
-        """, requiredMode = NOT_REQUIRED)
+    @Schema(description = "교통편 조회 결과", requiredMode = NOT_REQUIRED)
     List<ScheduleInfo> schedule
 
 ) {
     @JsonNaming(SnakeCaseStrategy.class)
     public record ScheduleInfo(
+        @Schema(description = "버스 타입 (shuttle, express, city)", example = "express", requiredMode = REQUIRED)
         String busType,
+        @Schema(description = "버스 이름 또는 노선명", example = "대성티앤이", requiredMode = REQUIRED)
         String busName,
+        @Schema(description = "버스 출발 시간", example = "16:50", requiredMode = REQUIRED)
         LocalTime departTime
     ) {
 

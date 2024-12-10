@@ -104,7 +104,7 @@ public interface BusApi {
         summary = "버스 교통편 조회",
         description = """
             ### 버스 교통편 조회
-            - **시간** : 00:00 인 경우 해당 날짜의 모든 스케줄을 조회합니다.
+            - **시간** : 13:00 인 경우 13시 이후 출발하는 버스의 시간표를 조회합니다. 00:00 인 경우 해당 날짜의 모든 스케줄을 조회합니다.
             - **날짜** : 요일을 기준으로 스케줄을 출력합니다. 공휴일 처리는 구현되어 있지 않습니다.
             - **출발지 & 도착지** : 출발지와 도착지가 일치하는 경우 빈 리스트를 반환합니다. (천안역 -> 터미널) & (터미널 -> 천안역) 역시 빈 리스트를 반환합니다.
             """
@@ -113,10 +113,8 @@ public interface BusApi {
     ResponseEntity<BusScheduleResponse> getBusRouteSchedule(
         @Parameter(description = "yyyy-MM-dd") @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
         @Parameter(description = "HH:mm") @RequestParam String time,
-        @Parameter(
-            description = "CITY, EXPRESS, SHUTTLE, ALL"
-        ) @RequestParam BusRouteType busRouteType,
-        @Parameter(description = "KOREATECH, TERMINAL, STATION") @RequestParam BusStation depart,
-        @Parameter(description = "KOREATECH, TERMINAL, STATION") @RequestParam BusStation arrival
+        @RequestParam BusRouteType busRouteType,
+        @RequestParam BusStation depart,
+        @RequestParam BusStation arrival
     );
 }
