@@ -265,7 +265,16 @@ public class AdminBenefitApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(String.format("""
                             {
-                              "shop_ids": [%d, %d]
+                              "shop_details": [
+                                {
+                                  "shop_id": %d,
+                                  "detail": "김밥혜택설명"
+                                },
+                                {
+                                  "shop_id": %d,
+                                  "detail": "마슬랜혜택설명"
+                                }
+                              ]
                             }
                         """, 김밥천국.getId(), 마슬랜.getId()))
             )
@@ -275,11 +284,13 @@ public class AdminBenefitApiTest extends AcceptanceTest {
                       "shops": [
                         {
                           "id": %d,
-                          "name": "김밥천국"
+                          "name": "김밥천국",
+                          "detail": "김밥혜택설명"
                         },
                         {
                           "id": %d,
-                          "name": "마슬랜 치킨"
+                          "name": "마슬랜 치킨",
+                          "detail": "마슬랜혜택설명"
                         }
                       ]
                     }
