@@ -67,6 +67,9 @@ public class CoopService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
+    public static final LocalDate LIMIT_DATE = LocalDate.of(2022, 11, 29);
+    private final int EXCEL_COLUMN_COUNT = 8;
+
     @Transactional
     public void changeSoldOut(SoldOutRequest soldOutRequest) {
         Dining dining = diningRepository.getById(soldOutRequest.menuId());
@@ -134,17 +137,17 @@ public class CoopService {
     }
 
     private void validateDates(LocalDate startDate, LocalDate endDate) {
-        LocalDate limitDate = LocalDate.of(2022, 11, 29);
+        //LocalDate limitDate = LocalDate.of(2022, 11, 29);
         LocalDate today = LocalDate.now();
 
-        if (startDate.isBefore(limitDate) || endDate.isBefore(limitDate)) {
+        if (startDate.isBefore(LIMIT_DATE) || endDate.isBefore(LIMIT_DATE)) {
             throw new DiningLimitDateException("2022/11/29 식단부터 다운받을 수 있어요.");
         }
         if (startDate.isAfter(today) || endDate.isAfter(today)) {
             throw new DiningNowDateException("오늘 날짜 이후 기간은 설정할 수 없어요.");
         }
         if (startDate.isAfter(endDate)) {
-            throw new StartDateAfterEndDateException("시작일은 종료일 이전으로 설정해주세요");
+            throw new StartDateAfterEndDateException("시작일은 종료일 이전으로 설정해주세요.");
         }
     }
 
@@ -183,7 +186,7 @@ public class CoopService {
     }
 
     private void addHeaderRow(Sheet sheet, CellStyle headerStyle) {
-        String[] headers = {"날짜", "타입", "코너", "칼로", "메뉴", "이미지", "품절 여부", "변경 여부"};
+        String[] headers = {"날짜", "타입", "코너", "칼로리", "메뉴", "이미지", "품절 여부", "변경 여부"};
         Row headerRow = sheet.createRow(0);
 
         for (int i = 0; i < headers.length; i++) {
@@ -200,7 +203,7 @@ public class CoopService {
             fillDiningRow(dining, row, commonStyle);
         });
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < EXCEL_COLUMN_COUNT; i++) {
             sheet.setColumnWidth(i, 6000);
         }
     }
