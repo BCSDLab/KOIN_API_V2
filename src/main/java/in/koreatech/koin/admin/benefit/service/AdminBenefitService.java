@@ -90,10 +90,7 @@ public class AdminBenefitService {
     public AdminBenefitShopsResponse getBenefitShops(Integer benefitId) {
         List<BenefitCategoryMap> benefitCategoryMaps =
             adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdOrderByShopName(benefitId);
-        List<Shop> shops = benefitCategoryMaps.stream()
-            .map(BenefitCategoryMap::getShop)
-            .toList();
-        return AdminBenefitShopsResponse.from(shops);
+        return AdminBenefitShopsResponse.from(benefitCategoryMaps);
     }
 
     @Transactional

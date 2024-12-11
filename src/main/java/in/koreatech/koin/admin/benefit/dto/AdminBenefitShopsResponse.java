@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -16,10 +17,10 @@ public record AdminBenefitShopsResponse(
     List<InnerShopResponse> shops
 ) {
 
-    public static AdminBenefitShopsResponse from(List<Shop> shops) {
+    public static AdminBenefitShopsResponse from(List<BenefitCategoryMap> benefitCategoryMaps) {
         return new AdminBenefitShopsResponse(
-            shops.size(),
-            shops.stream()
+            benefitCategoryMaps.size(),
+            benefitCategoryMaps.stream()
                 .map(InnerShopResponse::from)
                 .toList()
         );
@@ -30,13 +31,17 @@ public record AdminBenefitShopsResponse(
         Integer id,
 
         @Schema(example = "수신반점", description = "이름")
-        String name
+        String name,
+
+        @Schema(example = "4인 이상 픽업서비스", description = "혜택 문구 미리보기")
+        String detail
     ) {
 
-        public static InnerShopResponse from(Shop shop) {
+        public static InnerShopResponse from(BenefitCategoryMap benefitCategoryMap) {
             return new InnerShopResponse(
-                shop.getId(),
-                shop.getName()
+                benefitCategoryMap.getShop().getId(),
+                benefitCategoryMap.getShop().getName(),
+                benefitCategoryMap.getDetail()
             );
         }
     }
