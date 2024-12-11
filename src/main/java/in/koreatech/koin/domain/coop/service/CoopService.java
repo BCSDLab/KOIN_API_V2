@@ -22,8 +22,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.streaming.SXSSFCell;
-import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.context.ApplicationEventPublisher;
@@ -69,6 +67,7 @@ public class CoopService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
+    public static final LocalDate LIMIT_DATE = LocalDate.of(2022, 11, 29);
     private final int EXCEL_COLUMN_COUNT = 8;
 
     @Transactional
@@ -120,124 +119,118 @@ public class CoopService {
     }
 
     public ByteArrayInputStream generateDiningExcel(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
-        checkDate(startDate, endDate);
-
-        List<Dining> dinings;
-
-        if (isCafeteria) {
-            List<String> placeFilters = Arrays.asList("A코너", "B코너", "C코너");
-            dinings = diningRepository.findByDateBetweenAndPlaceIn(startDate, endDate, placeFilters);
-        } else {
-            dinings = diningRepository.findByDateBetween(startDate, endDate);
-        }
+        validateDates(startDate, endDate);
+        List<Dining> dinings = fetchDiningData(startDate, endDate, isCafeteria);
 
         try (SXSSFWorkbook workbook = new SXSSFWorkbook()) {
-            SXSSFSheet sheet = workbook.createSheet("식단 메뉴");
-            sheet.setRandomAccessWindowSize(100);
+            SXSSFSheet sheet = createSheet(workbook, "식단 메뉴");
+            CellStyle headerStyle = createHeaderStyle(workbook);
+            CellStyle commonStyle = createCommonStyle(workbook);
 
-            CellStyle headerStyle = makeHeaderStyle(workbook);
-            CellStyle commonStyle = makeCommonStyle(workbook);
-            createHeaderCell(sheet, headerStyle);
+            addHeaderRow(sheet, headerStyle);
+            addDiningDataToSheet(dinings, sheet, commonStyle);
 
-            ByteArrayInputStream result = putDiningData(dinings, sheet, commonStyle, workbook);
-
-            return result;
-
+            return writeWorkbookToStream(workbook);
         } catch (IOException e) {
             throw new RuntimeException("엑셀 파일 생성 중 오류가 발생했습니다.", e);
         }
     }
 
-    private static void checkDate(LocalDate startDate, LocalDate endDate) {
-        LocalDate limitDate = LocalDate.of(2022, 11, 29);
-        if (startDate.isBefore(limitDate) || endDate.isBefore(limitDate)) {
+    private void validateDates(LocalDate startDate, LocalDate endDate) {
+        LocalDate today = LocalDate.now();
+
+        if (startDate.isBefore(LIMIT_DATE) || endDate.isBefore(LIMIT_DATE)) {
             throw new DiningLimitDateException("2022/11/29 식단부터 다운받을 수 있어요.");
         }
-
-        LocalDate now = LocalDate.now();
-        if (startDate.isAfter(now) || endDate.isAfter(now)) {
+        if (startDate.isAfter(today) || endDate.isAfter(today)) {
             throw new DiningNowDateException("오늘 날짜 이후 기간은 설정할 수 없어요.");
         }
-
         if (startDate.isAfter(endDate)) {
             throw new StartDateAfterEndDateException("시작일은 종료일 이전으로 설정해주세요.");
         }
     }
 
-    private ByteArrayInputStream putDiningData(List<Dining> dinings, SXSSFSheet sheet, CellStyle commonStyle,
-        SXSSFWorkbook workbook) throws IOException {
-        AtomicInteger rowIdx = new AtomicInteger(1);
+    private List<Dining> fetchDiningData(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
+        if (isCafeteria) {
+            List<String> cafeteriaPlaces = Arrays.asList("A코너", "B코너", "C코너");
+            return diningRepository.findByDateBetweenAndPlaceIn(startDate, endDate, cafeteriaPlaces);
+        }
+        return diningRepository.findByDateBetween(startDate, endDate);
+    }
 
+    private SXSSFSheet createSheet(SXSSFWorkbook workbook, String sheetName) {
+        SXSSFSheet sheet = workbook.createSheet(sheetName);
+        sheet.setRandomAccessWindowSize(100);
+        return sheet;
+    }
+
+    private CellStyle createHeaderStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setColor(IndexedColors.WHITE.getIndex());
+        style.setFont(font);
+        style.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        return style;
+    }
+
+    private CellStyle createCommonStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setWrapText(true);
+        return style;
+    }
+
+    private void addHeaderRow(Sheet sheet, CellStyle headerStyle) {
+        String[] headers = {"날짜", "타입", "코너", "칼로리", "메뉴", "이미지", "품절 여부", "변경 여부"};
+        Row headerRow = sheet.createRow(0);
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+    }
+
+    private void addDiningDataToSheet(List<Dining> dinings, SXSSFSheet sheet, CellStyle commonStyle) {
+        AtomicInteger rowIndex = new AtomicInteger(1);
         dinings.forEach(dining -> {
-            SXSSFRow row = sheet.createRow(rowIdx.getAndIncrement());
-            row.createCell(0).setCellValue(dining.getDate().toString());
-            row.createCell(1).setCellValue(dining.getType().getDiningName());
-            row.createCell(2).setCellValue(dining.getPlace());
-            row.createCell(3).setCellValue(dining.getKcal() != null ? dining.getKcal() : 0);
-
-            String formattedMenu = dining.getMenu().toString()
-                .replaceAll("^\\[|\\]$", "")
-                .replaceAll(", ", "\n");
-
-            SXSSFCell menuCell = row.createCell(4);
-            menuCell.setCellValue(formattedMenu);
-
-            row.createCell(5).setCellValue(dining.getImageUrl());
-            row.createCell(6).setCellValue(
-                Optional.ofNullable(dining.getSoldOut()).map(Object::toString).orElse("")
-            );
-            row.createCell(7).setCellValue(Optional.ofNullable(dining.getIsChanged()).map(Object::toString).orElse(""));
-
-            for (int i = 0; i < EXCEL_COLUMN_COUNT; i++) {
-                row.getCell(i).setCellStyle(commonStyle);
-            }
+            Row row = sheet.createRow(rowIndex.getAndIncrement());
+            fillDiningRow(dining, row, commonStyle);
         });
 
         for (int i = 0; i < EXCEL_COLUMN_COUNT; i++) {
             sheet.setColumnWidth(i, 6000);
         }
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        workbook.close();
-        workbook.dispose();
-        return new ByteArrayInputStream(out.toByteArray());
     }
 
-    private void createHeaderCell(Sheet sheet, CellStyle headerStyle) {
-        Row headerRow = sheet.createRow(0);
-        headerRow.createCell(0).setCellValue("날짜");
-        headerRow.createCell(1).setCellValue("타입");
-        headerRow.createCell(2).setCellValue("코너");
-        headerRow.createCell(3).setCellValue("칼로리");
-        headerRow.createCell(4).setCellValue("메뉴");
-        headerRow.createCell(5).setCellValue("이미지");
-        headerRow.createCell(6).setCellValue("품절 여부");
-        headerRow.createCell(7).setCellValue("변경 여부");
+    private void fillDiningRow(Dining dining, Row row, CellStyle commonStyle) {
+        row.createCell(0).setCellValue(dining.getDate().toString());
+        row.createCell(1).setCellValue(dining.getType().getDiningName());
+        row.createCell(2).setCellValue(dining.getPlace());
+        row.createCell(3).setCellValue(Optional.ofNullable(dining.getKcal()).orElse(0));
+        row.createCell(4).setCellValue(formatMenu(dining.getMenu()));
+        row.createCell(5).setCellValue(dining.getImageUrl());
+        row.createCell(6).setCellValue(Optional.ofNullable(dining.getSoldOut()).map(Object::toString).orElse(""));
+        row.createCell(7).setCellValue(Optional.ofNullable(dining.getIsChanged()).map(Object::toString).orElse(""));
 
-        for (int i = 0; i < EXCEL_COLUMN_COUNT; i++) {
-            Cell cell = headerRow.getCell(i);
-            cell.setCellStyle(headerStyle);
+        for (int i = 0; i < 8; i++) {
+            row.getCell(i).setCellStyle(commonStyle);
         }
     }
 
-    private static CellStyle makeCommonStyle(Workbook workbook) {
-        CellStyle commonStyle = workbook.createCellStyle();
-        commonStyle.setAlignment(HorizontalAlignment.CENTER);
-        commonStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-        commonStyle.setWrapText(true);
-        return commonStyle;
+    private String formatMenu(List<String> menu) {
+        return String.join("\n", menu);
     }
 
-    private static CellStyle makeHeaderStyle(Workbook workbook) {
-        CellStyle headerStyle = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        font.setColor(IndexedColors.WHITE.getIndex());
-        headerStyle.setFont(font);
-        headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
-        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        headerStyle.setAlignment(HorizontalAlignment.CENTER);
-        return headerStyle;
+    private ByteArrayInputStream writeWorkbookToStream(SXSSFWorkbook workbook) throws IOException {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            workbook.write(out);
+            workbook.dispose();
+            return new ByteArrayInputStream(out.toByteArray());
+        }
     }
 }
