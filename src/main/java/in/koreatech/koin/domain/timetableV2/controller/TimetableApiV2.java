@@ -13,14 +13,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.timetableV2.dto.TimeTableLecturesDeleteRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameResponse;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateResponse;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureResponse;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -62,8 +61,8 @@ public interface TimetableApiV2 {
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/v2/timetables/frame/{id}")
     ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
+        @Valid @RequestBody TimetableFrameUpdateRequest request,
         @PathVariable(value = "id") Integer timetableFrameId,
-        @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -77,9 +76,9 @@ public interface TimetableApiV2 {
     )
     @Operation(summary = "시간표 프레임 조회")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/v2/timetables/frame")
-    ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
-        @RequestParam(name = "semester") String semester,
+    @GetMapping("/v2/timetables/frames")
+    ResponseEntity<Object> getTimetablesFrame(
+        @RequestParam(name = "semester", required = false) String semester,
         @Auth(permit = {STUDENT}) Integer userId
     );
 
@@ -109,7 +108,7 @@ public interface TimetableApiV2 {
     )
     @Operation(summary = "시간표 프레임 모두 삭제")
     @DeleteMapping("/v2/all/timetables/frame")
-    public ResponseEntity<Void> deleteAllTimetablesFrame(
+    ResponseEntity<Void> deleteAllTimetablesFrame(
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     );
@@ -122,7 +121,11 @@ public interface TimetableApiV2 {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "시간표에 강의 정보 추가")
+    @Operation(summary = "시간표에 강의 정보 추가",
+        description = """
+            lecture_id가 있는 경우 class_infos, professor은 null, grades는 '0'으로 입력해야합니다.\n
+            lecture_id가 없는 경우 class_infos, professor, grades을 선택적으로 입력합니다.
+            """)
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/v2/timetables/lecture")
     ResponseEntity<TimetableLectureResponse> createTimetableLecture(
@@ -205,6 +208,42 @@ public interface TimetableApiV2 {
     ResponseEntity<Void> deleteTimetableLectureByFrameId(
         @PathVariable(value = "frameId") Integer frameId,
         @PathVariable(value = "lectureId") Integer lectureId,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "삭제한 시간표 강의 복구")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/v2/timetables/lecture/rollback")
+    ResponseEntity<TimetableLectureResponse> rollbackTimetableLecture(
+        @RequestParam(name = "timetable_lectures_id") List<Integer> timetableLecturesId,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "삭제한 시간표 프레임과 강의 복구",
+        description = """
+            1. 삭제된 시간표 프레임: 삭제된 시간표 프레임과 그에 속한 강의 정보를 복구합니다. \n
+            2. 삭제되지 않은 시간표 프레임: 시간표 프레임에 속한 강의 정보를 복구합니다.
+            """)
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/v2/timetables/frame/rollback")
+    ResponseEntity<TimetableLectureResponse> rollbackTimetableFrame(
+        @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }

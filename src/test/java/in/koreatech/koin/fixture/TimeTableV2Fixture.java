@@ -171,4 +171,64 @@ public class TimeTableV2Fixture {
 
         return timetableFrameRepositoryV2.save(frame);
     }
+
+    public TimetableFrame 시간표7(User user, Semester semester, Lecture lecture1, Lecture lecture2) {
+        TimetableFrame frame = TimetableFrame.builder()
+            .user(user)
+            .isDeleted(true)
+            .semester(semester)
+            .name("시간표7")
+            .isMain(true)
+            .timetableLectures(new ArrayList<>())
+            .build();
+
+        TimetableLecture timetableLecture1 = TimetableLecture.builder()
+            .grades("0")
+            .isDeleted(true)
+            .lecture(lecture1)
+            .timetableFrame(frame)
+            .build();
+
+        TimetableLecture timetableLecture2 = TimetableLecture.builder()
+            .grades("0")
+            .isDeleted(true)
+            .lecture(lecture2)
+            .timetableFrame(frame)
+            .build();
+
+        frame.getTimetableLectures().add(timetableLecture1);
+        frame.getTimetableLectures().add(timetableLecture2);
+
+        return timetableFrameRepositoryV2.save(frame);
+    }
+
+    public TimetableFrame 시간표8(User user, Semester semester, Lecture lecture1, Lecture lecture2) {
+        TimetableFrame frame = TimetableFrame.builder()
+            .user(user)
+            .isDeleted(false)
+            .semester(semester)
+            .name("시간표7")
+            .isMain(true)
+            .timetableLectures(new ArrayList<>())
+            .build();
+
+        TimetableLecture timetableLecture1 = TimetableLecture.builder()
+            .grades("0")
+            .isDeleted(true)
+            .lecture(lecture1)
+            .timetableFrame(frame)
+            .build();
+
+        TimetableLecture timetableLecture2 = TimetableLecture.builder()
+            .grades("0")
+            .isDeleted(true)
+            .lecture(lecture2)
+            .timetableFrame(frame)
+            .build();
+
+        frame.getTimetableLectures().add(timetableLecture1);
+        frame.getTimetableLectures().add(timetableLecture2);
+
+        return timetableFrameRepositoryV2.save(frame);
+    }
 }

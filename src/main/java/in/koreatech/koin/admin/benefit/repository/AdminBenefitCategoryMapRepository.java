@@ -38,5 +38,4 @@ public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCat
         WHERE bcm.benefitCategory.id = :benefitId
         """)
     void deleteByBenefitCategoryId(@Param("benefitId") Integer benefitId);
-
 }

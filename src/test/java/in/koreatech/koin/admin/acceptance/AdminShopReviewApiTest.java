@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.admin.shop.repository.AdminShopReviewRepository;
+import in.koreatech.koin.admin.shop.repository.review.AdminShopReviewRepository;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;

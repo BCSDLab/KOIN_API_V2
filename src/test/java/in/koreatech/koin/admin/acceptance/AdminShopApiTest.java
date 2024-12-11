@@ -19,11 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.admin.shop.repository.AdminMenuCategoryRepository;
-import in.koreatech.koin.admin.shop.repository.AdminMenuRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopCategoryRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopParentCategoryRepository;
-import in.koreatech.koin.admin.shop.repository.AdminShopRepository;
+import in.koreatech.koin.admin.shop.repository.menu.AdminMenuCategoryRepository;
+import in.koreatech.koin.admin.shop.repository.menu.AdminMenuRepository;
+import in.koreatech.koin.admin.shop.repository.shop.AdminShopCategoryRepository;
+import in.koreatech.koin.admin.shop.repository.shop.AdminShopParentCategoryRepository;
+import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
 import in.koreatech.koin.admin.user.model.Admin;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.menu.Menu;

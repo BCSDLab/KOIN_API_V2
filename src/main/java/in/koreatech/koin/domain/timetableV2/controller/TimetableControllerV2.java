@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.timetableV2.dto.TimeTableLecturesDeleteRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameResponse;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableFrameUpdateResponse;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureCreateRequest;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureResponse;
-import in.koreatech.koin.domain.timetableV2.dto.TimetableLectureUpdateRequest;
-import in.koreatech.koin.domain.timetableV2.service.TimetableServiceV2;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameCreateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableFrameUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameUpdateResponse;
+import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
+import in.koreatech.koin.domain.timetableV2.service.TimetableFrameService;
+import in.koreatech.koin.domain.timetableV2.service.TimetableLectureService;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,35 +31,36 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TimetableControllerV2 implements TimetableApiV2 {
 
-    private final TimetableServiceV2 timetableServiceV2;
+    private final TimetableFrameService frameServiceV2;
+    private final TimetableLectureService lectureServiceV2;
+    private final TimetableLectureService timetableLectureService;
 
     @PostMapping("/v2/timetables/frame")
     public ResponseEntity<TimetableFrameResponse> createTimetablesFrame(
         @Valid @RequestBody TimetableFrameCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableFrameResponse response = timetableServiceV2.createTimetablesFrame(userId, request);
+        TimetableFrameResponse response = frameServiceV2.createTimetablesFrame(userId, request);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/v2/timetables/frame/{id}")
     public ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
+        @Valid @RequestBody TimetableFrameUpdateRequest request,
         @PathVariable(value = "id") Integer timetableFrameId,
-        @Valid @RequestBody TimetableFrameUpdateRequest timetableFrameUpdateRequest,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableFrameUpdateResponse timetableFrameUpdateResponse =
-            timetableServiceV2.updateTimetableFrame(timetableFrameId, timetableFrameUpdateRequest, userId);
-        return ResponseEntity.ok(timetableFrameUpdateResponse);
+        TimetableFrameUpdateResponse response = frameServiceV2.updateTimetableFrame(request, timetableFrameId, userId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/v2/timetables/frames")
-    public ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
-        @RequestParam(name = "semester") String semester,
+    public ResponseEntity<Object> getTimetablesFrame(
+        @RequestParam(name = "semester", required = false) String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        List<TimetableFrameResponse> timeTableFrameResponse = timetableServiceV2.getTimetablesFrame(userId, semester);
-        return ResponseEntity.ok(timeTableFrameResponse);
+        Object response = frameServiceV2.getTimetablesFrame(userId, semester);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/v2/timetables/frame")
@@ -67,7 +68,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @RequestParam(name = "id") Integer frameId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        timetableServiceV2.deleteTimetablesFrame(userId, frameId);
+        frameServiceV2.deleteTimetablesFrame(userId, frameId);
         return ResponseEntity.noContent().build();
     }
 
@@ -76,7 +77,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @RequestParam(name = "semester") String semester,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        timetableServiceV2.deleteAllTimetablesFrame(userId, semester);
+        frameServiceV2.deleteAllTimetablesFrame(userId, semester);
         return ResponseEntity.noContent().build();
     }
 
@@ -85,8 +86,8 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @Valid @RequestBody TimetableLectureCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableLectureResponse timeTableLectureResponse = timetableServiceV2.createTimetableLectures(userId, request);
-        return ResponseEntity.ok(timeTableLectureResponse);
+        TimetableLectureResponse response = lectureServiceV2.createTimetableLectures(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/v2/timetables/lecture")
@@ -94,9 +95,8 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @Valid @RequestBody TimetableLectureUpdateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableLectureResponse timetableLectureResponse = timetableServiceV2.updateTimetablesLectures(userId,
-            request);
-        return ResponseEntity.ok(timetableLectureResponse);
+        TimetableLectureResponse response = lectureServiceV2.updateTimetablesLectures(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/v2/timetables/lecture")
@@ -104,9 +104,8 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        TimetableLectureResponse timetableLectureResponse = timetableServiceV2.getTimetableLectures(userId,
-            timetableFrameId);
-        return ResponseEntity.ok(timetableLectureResponse);
+        TimetableLectureResponse response = lectureServiceV2.getTimetableLectures(userId, timetableFrameId);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/v2/timetables/lecture/{id}")
@@ -114,7 +113,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @PathVariable(value = "id") Integer timetableLectureId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        timetableServiceV2.deleteTimetableLecture(userId, timetableLectureId);
+        lectureServiceV2.deleteTimetableLecture(userId, timetableLectureId);
         return ResponseEntity.noContent().build();
     }
 
@@ -123,7 +122,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @RequestParam(name = "timetable_lecture_ids") List<Integer> request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        timetableServiceV2.deleteTimetableLectures(request, userId);
+        lectureServiceV2.deleteTimetableLectures(request, userId);
         return ResponseEntity.noContent().build();
     }
 
@@ -133,7 +132,25 @@ public class TimetableControllerV2 implements TimetableApiV2 {
         @PathVariable(value = "lectureId") Integer lectureId,
         @Auth(permit = {STUDENT}) Integer userId
     ) {
-        timetableServiceV2.deleteTimetableLectureByFrameId(frameId, lectureId, userId);
+        lectureServiceV2.deleteTimetableLectureByFrameId(frameId, lectureId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/v2/timetables/lecture/rollback")
+    public ResponseEntity<TimetableLectureResponse> rollbackTimetableLecture(
+        @RequestParam(name = "timetable_lectures_id") List<Integer> timetableLecturesId,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        TimetableLectureResponse response = timetableLectureService.rollbackTimetableLecture(timetableLecturesId, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/v2/timetables/frame/rollback")
+    public ResponseEntity<TimetableLectureResponse> rollbackTimetableFrame(
+        @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        TimetableLectureResponse response = timetableLectureService.rollbackTimetableFrame(timetableFrameId, userId);
+        return ResponseEntity.ok(response);
     }
 }

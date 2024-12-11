@@ -350,8 +350,8 @@ class TimetableApiTest extends AcceptanceTest {
         String token = userFixture.getToken(user);
         Semester semester = semesterFixture.semester("20192");
 
-       lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
-       lectureFixture.HRD_개론(semester.getSemester());
+        lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        lectureFixture.HRD_개론(semester.getSemester());
 
        timetableV2Fixture.시간표1(user, semester);
 

@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.shop.service;
 
-import static in.koreatech.koin.domain.shop.dto.review.ShopReviewReportRequest.InnerShopReviewReport;
+import static in.koreatech.koin.domain.shop.dto.review.request.ShopReviewReportRequest.InnerShopReviewReport;
 import static in.koreatech.koin.domain.shop.model.review.ReportStatus.UNHANDLED;
 
 import java.util.HashMap;
@@ -14,17 +14,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.shop.dto.review.CreateReviewRequest;
-import in.koreatech.koin.domain.shop.dto.review.ModifyReviewRequest;
+import in.koreatech.koin.domain.shop.dto.review.request.CreateReviewRequest;
+import in.koreatech.koin.domain.shop.dto.review.request.ModifyReviewRequest;
 import in.koreatech.koin.domain.shop.dto.review.ReviewsSortCriteria;
-import in.koreatech.koin.domain.shop.dto.review.ShopMyReviewsResponse;
-import in.koreatech.koin.domain.shop.dto.review.ShopReviewReportCategoryResponse;
-import in.koreatech.koin.domain.shop.dto.review.ShopReviewReportRequest;
-import in.koreatech.koin.domain.shop.dto.review.ShopReviewResponse;
-import in.koreatech.koin.domain.shop.dto.review.ShopReviewsResponse;
+import in.koreatech.koin.domain.shop.dto.review.response.ShopMyReviewsResponse;
+import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewReportCategoryResponse;
+import in.koreatech.koin.domain.shop.dto.review.request.ShopReviewReportRequest;
+import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewResponse;
+import in.koreatech.koin.domain.shop.dto.review.response.ShopReviewsResponse;
 import in.koreatech.koin.domain.shop.exception.ReviewNotFoundException;
-import in.koreatech.koin.domain.shop.model.event.dto.ReviewRegisterEvent;
-import in.koreatech.koin.domain.shop.model.event.dto.ReviewReportEvent;
+import in.koreatech.koin.domain.shop.model.dto.ReviewRegisterEvent;
+import in.koreatech.koin.domain.shop.model.dto.ReviewReportEvent;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
 import in.koreatech.koin.domain.shop.model.review.ShopReviewImage;

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.admin.benefit.dto.AdminBenefitCategoryResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminBenefitCategoriesResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryResponse;
@@ -36,10 +36,10 @@ public class AdminBenefitController implements AdminBenefitApi {
     private final AdminBenefitService adminBenefitService;
 
     @GetMapping("/categories")
-    public ResponseEntity<AdminBenefitCategoryResponse> getBenefitCategories(
+    public ResponseEntity<AdminBenefitCategoriesResponse> getBenefitCategories(
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminBenefitCategoryResponse response = adminBenefitService.getBenefitCategories();
+        AdminBenefitCategoriesResponse response = adminBenefitService.getBenefitCategories();
         return ResponseEntity.ok(response);
     }
 
