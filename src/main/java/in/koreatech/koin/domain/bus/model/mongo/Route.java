@@ -77,26 +77,14 @@ public class Route {
         return runningDays.contains(dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.US).toUpperCase());
     }
 
-    public boolean filterCircularRoutes() {
-        if (arrivalInfos.isEmpty()) {
-            return false;
-        }
-
-        String firstNodeName = arrivalInfos.get(0).getNodeName();
-        String lastNodeName = arrivalInfos.get(arrivalInfos.size() - 1).getNodeName();
-
-        return firstNodeName.equals(lastNodeName);
-    }
-
     public boolean filterDepartAndArriveNode(BusStation departNode, BusStation arriveNode) {
         boolean foundDepart = false;
 
         for (ArrivalNode node : arrivalInfos) {
-            if (!foundDepart && node.getNodeName().contains(departNode.getQueryName())) {
+            if (!foundDepart && node.getNodeName().contains(departNode.getQueryName())
+                && isValidTimeFormat(node.getArrivalTime())) {
                 foundDepart = true;
-            }
-
-            else if (foundDepart && node.getNodeName().contains(arriveNode.getQueryName())) {
+            } else if (foundDepart && node.getNodeName().contains(arriveNode.getQueryName())) {
                 return true;
             }
         }
@@ -122,6 +110,12 @@ public class Route {
             .filter(arrivalNode -> arrivalNode.getNodeName().contains(depart.getQueryName()))
             .findFirst()
             .orElseThrow(() -> new BusArrivalNodeNotFoundException(""));
+    }
+
+    private boolean isValidTimeFormat(String time) {
+        // HH:mm 형식의 정규식 (00:00부터 23:59까지 유효)
+        String timeRegex = "([01]\\d|2[0-3]):[0-5]\\d";
+        return time != null && time.matches(timeRegex);
     }
 
     @Builder
