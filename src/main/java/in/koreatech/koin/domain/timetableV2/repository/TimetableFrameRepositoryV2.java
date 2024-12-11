@@ -14,6 +14,7 @@ import in.koreatech.koin.domain.timetableV2.exception.TimetableFrameNotFoundExce
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.LockModeType;
+import jakarta.validation.constraints.NotNull;
 
 public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, Integer> {
 
@@ -93,4 +94,6 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
     void deleteAllByUserAndSemester(User user, Semester semester);
 
     List<TimetableFrame> findAllByUserId(Integer userId);
+
+    boolean existsByUserAndSemester(User user, Semester semester);
 }
