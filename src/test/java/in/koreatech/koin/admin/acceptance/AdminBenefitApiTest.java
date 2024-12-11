@@ -99,10 +99,10 @@ public class AdminBenefitApiTest extends AcceptanceTest {
         영업중인_티바 = shopFixture.영업중인_티바(현수_사장님);
         영업중이_아닌_신전_떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(현수_사장님);
 
-        benefitCategoryMapFixture.혜택_추가(김밥천국, 배달비_무료);
-        benefitCategoryMapFixture.혜택_추가(마슬랜, 배달비_무료);
-        benefitCategoryMapFixture.혜택_추가(영업중인_티바, 배달비_무료);
-        benefitCategoryMapFixture.혜택_추가(영업중이_아닌_신전_떡볶이, 배달비_무료);
+        benefitCategoryMapFixture.설명이_포함된_혜택_추가(김밥천국, 배달비_무료, "설명1");
+        benefitCategoryMapFixture.설명이_포함된_혜택_추가(마슬랜, 배달비_무료, "설명2");
+        benefitCategoryMapFixture.설명이_포함된_혜택_추가(영업중인_티바, 배달비_무료, "설명3");
+        benefitCategoryMapFixture.설명이_포함된_혜택_추가(영업중이_아닌_신전_떡볶이, 배달비_무료, "설명4");
 
         notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
         shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
@@ -234,19 +234,23 @@ public class AdminBenefitApiTest extends AcceptanceTest {
                       "shops": [
                         {
                           "id": %d,
-                          "name": "김밥천국"
+                          "name": "김밥천국",
+                          "detail": "설명1"
                         },
                         {
                           "id": %d,
-                          "name": "마슬랜 치킨"
+                          "name": "마슬랜 치킨",
+                          "detail": "설명2"
                         },
                         {
                           "id": %d,
-                          "name": "티바"
+                          "name": "티바",
+                          "detail": "설명3"
                         },
                         {
                           "id": %d,
-                          "name": "신전 떡볶이"
+                          "name": "신전 떡볶이",
+                          "detail": "설명4"
                         }
                       ]
                     }
