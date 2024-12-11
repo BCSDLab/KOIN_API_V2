@@ -4,14 +4,13 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import org.springframework.data.repository.query.Param;
 
-public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCategoryMap, Integer> {
-
-    void save(BenefitCategoryMap benefitCategoryMap);
+public interface AdminBenefitCategoryMapRepository extends CrudRepository<BenefitCategoryMap, Integer> {
 
     @Query("""
         SELECT bcm 

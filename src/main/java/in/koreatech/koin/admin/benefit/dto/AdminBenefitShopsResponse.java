@@ -33,7 +33,7 @@ public record AdminBenefitShopsResponse(
         @Schema(example = "수신반점", description = "이름")
         String name,
 
-        @Schema(example = "4인 이상 픽업서비스", description = "혜택 문구 미리보기")
+        @Schema(example = "4인 이상 픽업서비스", description = "혜택 미리보기 문구")
         String detail
     ) {
 

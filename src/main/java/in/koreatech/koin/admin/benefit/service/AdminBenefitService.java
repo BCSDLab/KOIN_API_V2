@@ -1,6 +1,7 @@
 package in.koreatech.koin.admin.benefit.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -98,16 +99,24 @@ public class AdminBenefitService {
         Integer benefitId,
         AdminCreateBenefitShopsRequest request
     ) {
-        List<Shop> shops = adminShopRepository.findAllByIdIn(request.shopIds());
         BenefitCategory benefitCategory = adminBenefitCategoryRepository.getById(benefitId);
-        for (Shop shop : shops) {
-            BenefitCategoryMap benefitCategoryMap = BenefitCategoryMap.builder()
+        Map<Integer, String> shopIdToDetail = request.shopDetails().stream()
+            .collect(Collectors.toMap(
+                AdminCreateBenefitShopsRequest.InnerBenefitShopsRequest::shopId,
+                AdminCreateBenefitShopsRequest.InnerBenefitShopsRequest::detail
+            ));
+        List<Shop> shops = adminShopRepository.findAllByIdIn(shopIdToDetail.keySet().stream().toList());
+
+        List<BenefitCategoryMap> benefitCategoryMaps = shops.stream()
+            .map(shop -> BenefitCategoryMap.builder()
                 .shop(shop)
                 .benefitCategory(benefitCategory)
-                .build();
-            adminBenefitCategoryMapRepository.save(benefitCategoryMap);
-        }
-        return AdminCreateBenefitShopsResponse.from(shops);
+                .detail(shopIdToDetail.get(shop.getId()))
+                .build()
+            )
+            .toList();
+        adminBenefitCategoryMapRepository.saveAll(benefitCategoryMaps);
+        return AdminCreateBenefitShopsResponse.from(benefitCategoryMaps);
     }
 
 
