@@ -137,7 +137,6 @@ public class CoopService {
     }
 
     private void validateDates(LocalDate startDate, LocalDate endDate) {
-        //LocalDate limitDate = LocalDate.of(2022, 11, 29);
         LocalDate today = LocalDate.now();
 
         if (startDate.isBefore(LIMIT_DATE) || endDate.isBefore(LIMIT_DATE)) {
