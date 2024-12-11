@@ -28,7 +28,7 @@ public record ShuttleBusTimetableResponse(
     @Schema(description = "정류장 정보 목록")
     List<NodeInfoResponse> nodeInfo,
 
-    @Schema(description = "노선 정보 목록")
+    @Schema(description = "회차 정보 목록")
     List<RouteInfoResponse> routeInfo
 ) {
 
@@ -44,7 +44,7 @@ public record ShuttleBusTimetableResponse(
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
-    @Schema(description = "노선 정보")
+    @Schema(description = "회차 정보")
     public record RouteInfoResponse(
         @Schema(description = "회차 이름", example = "1회")
         String name,

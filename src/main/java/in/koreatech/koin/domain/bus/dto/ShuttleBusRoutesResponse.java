@@ -11,11 +11,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonNaming(SnakeCaseStrategy.class)
 @Schema(description = "셔틀버스 경로 응답")
 public record ShuttleBusRoutesResponse(
-    @Schema(description = "노선 지역 분류 목록")
-    List<RouteRegion> routeRegions,
-
-    @Schema(description = "학기 정보")
-    RouteSemester semesterInfo
+    @Schema(description = "노선 지역 분류 목록") List<RouteRegion> routeRegions,
+    @Schema(description = "학기 정보") RouteSemester semesterInfo
 ) {
 
     @JsonNaming(SnakeCaseStrategy.class)
@@ -26,21 +23,7 @@ public record ShuttleBusRoutesResponse(
 
         @Schema(description = "해당 지역의 경로 목록")
         List<RouteName> routes
-    ) implements Comparable<RouteRegion> {
-
-        @Override
-        public int compareTo(RouteRegion routeName) {
-            return Integer.compare(getPriority(this.region), getPriority(routeName.region));
-        }
-
-        private int getPriority(String region) {
-            return switch (region) {
-                case "천안" -> 1;
-                case "청주" -> 2;
-                case "서울" -> 3;
-                default -> 4;
-            };
-        }
+    ) {
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
@@ -50,21 +33,7 @@ public record ShuttleBusRoutesResponse(
         @Schema(description = "노선 종류", example = "주말") String type,
         @Schema(description = "노선 이름", example = "대학원") String routeName,
         @Schema(description = "노선 부가 이름", example = "토요일") String subName
-    ) implements Comparable<RouteName> {
-
-        @Override
-        public int compareTo(RouteName routeName) {
-            return Integer.compare(getPriority(this.type), getPriority(routeName.type));
-        }
-
-        private int getPriority(String type) {
-            return switch (type) {
-                case "순환" -> 1;
-                case "주중" -> 2;
-                case "주말" -> 3;
-                default -> 4;
-            };
-        }
+    ) {
     }
 
     @JsonNaming(SnakeCaseStrategy.class)

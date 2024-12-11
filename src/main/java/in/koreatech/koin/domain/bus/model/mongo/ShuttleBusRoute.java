@@ -8,8 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import in.koreatech.koin.domain.bus.model.enums.ShuttleBusRegion;
+import in.koreatech.koin.domain.bus.model.enums.ShuttleRouteType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,10 +25,10 @@ public class ShuttleBusRoute {
     private String semesterType;
 
     @Field("region")
-    private String region;
+    private ShuttleBusRegion region;
 
     @Field("route_type")
-    private String routeType;
+    private ShuttleRouteType routeType;
 
     @Field("route_name")
     private String routeName;
@@ -61,7 +61,6 @@ public class ShuttleBusRoute {
         private String name;
 
         @Field("running_days")
-        @JsonIgnore
         private List<String> runningDays;
 
         @Field("arrival_time")

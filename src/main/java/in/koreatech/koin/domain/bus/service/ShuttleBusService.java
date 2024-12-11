@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.bus.service;
 import static in.koreatech.koin.domain.bus.dto.ShuttleBusTimetableResponse.NodeInfoResponse;
 import static in.koreatech.koin.domain.bus.dto.ShuttleBusTimetableResponse.RouteInfoResponse;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,8 @@ import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse.RouteName;
 import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse.RouteRegion;
 import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse.RouteSemester;
 import in.koreatech.koin.domain.bus.dto.ShuttleBusTimetableResponse;
+import in.koreatech.koin.domain.bus.model.enums.ShuttleBusRegion;
+import in.koreatech.koin.domain.bus.model.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.model.mongo.ShuttleBusRoute;
 import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
 import in.koreatech.koin.domain.version.dto.VersionMessageResponse;
@@ -46,15 +49,16 @@ public class ShuttleBusService {
         return shuttleBusRoutes.stream()
             .collect(Collectors.groupingBy(ShuttleBusRoute::getRegion))
             .entrySet().stream()
-            .map(entry -> new RouteRegion(entry.getKey(), mapRouteNames(entry.getValue())))
-            .sorted()
+            .map(entry -> new RouteRegion(entry.getKey().getLabel(), mapRouteNames(entry.getValue())))
+            .sorted(Comparator.comparingInt(o -> ShuttleBusRegion.getOrdinalByLabel(o.region())))
             .toList();
     }
 
     private List<RouteName> mapRouteNames(List<ShuttleBusRoute> routes) {
         return routes.stream()
-            .map(route -> new RouteName(route.getId(), route.getRouteType(), route.getRouteName(), route.getSubName()))
-            .sorted()
+            .map(route -> new RouteName(route.getId(), route.getRouteType().getLabel(), route.getRouteName(),
+                route.getSubName()))
+            .sorted(Comparator.comparingInt(o -> ShuttleRouteType.getOrdinalByLabel(o.type())))
             .toList();
     }
 
@@ -72,8 +76,8 @@ public class ShuttleBusService {
             .toList();
         return new ShuttleBusTimetableResponse(
             shuttleBusRoute.getId(),
-            shuttleBusRoute.getRegion(),
-            shuttleBusRoute.getRouteType(),
+            shuttleBusRoute.getRegion().getLabel(),
+            shuttleBusRoute.getRouteType().getLabel(),
             shuttleBusRoute.getRouteName(),
             shuttleBusRoute.getSubName(),
             nodeInfoResponses,
