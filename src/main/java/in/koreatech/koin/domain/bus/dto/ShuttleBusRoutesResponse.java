@@ -2,10 +2,16 @@ package in.koreatech.koin.domain.bus.dto;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.bus.model.enums.ShuttleBusRegion;
+import in.koreatech.koin.domain.bus.model.enums.ShuttleRouteType;
+import in.koreatech.koin.domain.bus.model.mongo.ShuttleBusRoute;
+import in.koreatech.koin.domain.version.dto.VersionMessageResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -42,5 +48,30 @@ public record ShuttleBusRoutesResponse(
         @Schema(description = "학기 이름", example = "정규학기") String name,
         @Schema(description = "학기 기간", example = "2024-09-02 ~ 2024-12-20") String term
     ) {
+    }
+
+    public static ShuttleBusRoutesResponse of(List<ShuttleBusRoute> shuttleBusRoutes,
+        VersionMessageResponse versionMessageResponse) {
+        List<RouteRegion> categories = mapCategories(shuttleBusRoutes);
+        RouteSemester routeSemester = new RouteSemester(versionMessageResponse.title(),
+            versionMessageResponse.content());
+        return new ShuttleBusRoutesResponse(categories, routeSemester);
+    }
+
+    private static List<RouteRegion> mapCategories(List<ShuttleBusRoute> shuttleBusRoutes) {
+        return shuttleBusRoutes.stream()
+            .collect(Collectors.groupingBy(ShuttleBusRoute::getRegion))
+            .entrySet().stream()
+            .map(entry -> new RouteRegion(entry.getKey().getLabel(), mapRouteNames(entry.getValue())))
+            .sorted(Comparator.comparingInt(o -> ShuttleBusRegion.getOrdinalByLabel(o.region())))
+            .toList();
+    }
+
+    private static List<RouteName> mapRouteNames(List<ShuttleBusRoute> routes) {
+        return routes.stream()
+            .map(route -> new RouteName(route.getId(), route.getRouteType().getLabel(), route.getRouteName(),
+                route.getSubName()))
+            .sorted(Comparator.comparingInt(o -> ShuttleRouteType.getOrdinalByLabel(o.type())))
+            .toList();
     }
 }

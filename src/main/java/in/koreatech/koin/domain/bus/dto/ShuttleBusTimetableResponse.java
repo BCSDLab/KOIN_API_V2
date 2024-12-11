@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.bus.model.mongo.ShuttleBusRoute;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
@@ -52,5 +53,23 @@ public record ShuttleBusTimetableResponse(
         @Schema(description = "도착 시간 목록", example = "[\"08:00\", \"09:00\"]")
         List<String> arrivalTime
     ) {
+    }
+
+    public static ShuttleBusTimetableResponse from(ShuttleBusRoute shuttleBusRoute) {
+        List<NodeInfoResponse> nodeInfoResponses = shuttleBusRoute.getNodeInfo().stream()
+            .map(node -> new NodeInfoResponse(node.getName(), node.getDetail()))
+            .toList();
+        List<RouteInfoResponse> routeInfoResponses = shuttleBusRoute.getRouteInfo().stream()
+            .map(route -> new RouteInfoResponse(route.getName(), route.getArrivalTime()))
+            .toList();
+        return new ShuttleBusTimetableResponse(
+            shuttleBusRoute.getId(),
+            shuttleBusRoute.getRegion().getLabel(),
+            shuttleBusRoute.getRouteType().getLabel(),
+            shuttleBusRoute.getRouteName(),
+            shuttleBusRoute.getSubName(),
+            nodeInfoResponses,
+            routeInfoResponses
+        );
     }
 }
