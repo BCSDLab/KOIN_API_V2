@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -12,8 +13,8 @@ import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.ShuttleBusRouteResponse;
 import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse;
+import in.koreatech.koin.domain.bus.dto.ShuttleBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
@@ -108,7 +109,7 @@ public interface BusApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "학교버스 시간표 조회")
-    @GetMapping("/timetable/shuttle")
-    ResponseEntity<ShuttleBusRouteResponse> getShuttleBusTimetable(@RequestParam String id);
+    @Operation(summary = "학교버스 특정 노선 시간표 조회", description = "id: 노선 id 값 (get /bus/courses/shuttle response 참조)")
+    @GetMapping("/timetable/shuttle/{id}")
+    ResponseEntity<ShuttleBusTimetableResponse> getShuttleBusTimetable(@PathVariable String id);
 }
