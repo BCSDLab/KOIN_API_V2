@@ -91,7 +91,7 @@ public class AdminBenefitController implements AdminBenefitApi {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("{id}/shops")
+    @PutMapping("/{id}/shops")
     public ResponseEntity<Void> modifyBenefitShops(
         @PathVariable("id") Integer benefitId,
         @RequestBody AdminModifyBenefitShopsRequest request,

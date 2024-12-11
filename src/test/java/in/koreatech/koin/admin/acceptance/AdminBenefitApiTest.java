@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
@@ -63,6 +66,9 @@ public class AdminBenefitApiTest extends AcceptanceTest {
 
     @Autowired
     ShopNotificationMessageFixture shopNotificationMessageFixture;
+
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     Admin admin;
     String token_admin;
@@ -295,6 +301,49 @@ public class AdminBenefitApiTest extends AcceptanceTest {
                       ]
                     }
                 """, 김밥천국.getId(), 마슬랜.getId())));
+    }
+
+    @Test
+    void 특정_혜택을_제공하는_상점들을_수정한다() throws Exception {
+        mockMvc.perform(
+                put("/admin/benefit/{id}/shops", 배달비_무료.getId())
+                    .header("Authorization", "Bearer " + token_admin)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(String.format("""
+                            {
+                              "shop_details": [
+                                {
+                                  "shop_id": %d,
+                                  "detail": "김밥새혜택설명"
+                                },
+                                {
+                                  "shop_id": %d,
+                                  "detail": "마슬랜새혜택설명"
+                                }
+                              ]
+                            }
+                        """, 김밥천국.getId(), 마슬랜.getId()))
+            )
+            .andExpect(status().isOk());
+
+        transactionTemplate.executeWithoutResult(status -> {
+            List<BenefitCategoryMap> updatedBenefit =
+                adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdAndShopIds(
+                배달비_무료.getId(),
+                List.of(김밥천국.getId(), 마슬랜.getId())
+            );
+
+            Map<Integer, String> details = updatedBenefit.stream()
+                .collect(Collectors.toMap(
+                    map -> map.getShop().getId(),
+                    BenefitCategoryMap::getDetail
+                ));
+
+            assertThat(details).isEqualTo(Map.of(
+                김밥천국.getId(), "김밥새혜택설명",
+                마슬랜.getId(), "마슬랜새혜택설명"
+            ));
+        });
     }
 
     @Test
