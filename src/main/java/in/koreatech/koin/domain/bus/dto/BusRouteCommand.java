@@ -16,9 +16,6 @@ public record BusRouteCommand(
 ) {
 
     public boolean checkAvailableCourse() {
-        if (depart == arrive) return false;
-        if (depart == BusStation.STATION && arrive == BusStation.TERMINAL) return false;
-        if (depart == BusStation.TERMINAL && arrive == BusStation.STATION) return false;
-        return true;
+        return depart != arrive;
     }
 }

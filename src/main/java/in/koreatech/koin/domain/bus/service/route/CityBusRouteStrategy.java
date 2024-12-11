@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.bus.service.route;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +28,9 @@ public class CityBusRouteStrategy implements BusRouteStrategy {
 
     @Override
     public List<ScheduleInfo> findSchedule(BusRouteCommand command) {
+        if (command.depart() == BusStation.STATION && command.arrive() == BusStation.TERMINAL)
+            return Collections.emptyList();
+
         return CITY_BUS_INFO.entrySet().stream()
             .map(entry -> getScheduleForRoute(entry.getKey(), command.depart(), entry.getValue()))
             .flatMap(route -> route.getScheduleInfo(command.date(), command.depart()).stream())
