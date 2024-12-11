@@ -26,12 +26,7 @@ public interface TimetableLectureRepositoryV2 extends Repository<TimetableLectur
 
     TimetableLecture save(TimetableLecture timetableLecture);
 
-    Optional<TimetableLecture> findByTimetableFrameIdAndLectureId(Integer frameId, Integer lectureId);
-
-    default TimetableLecture getByFrameIdAndLectureId(Integer frameId, Integer lectureId) {
-        return findByTimetableFrameIdAndLectureId(frameId, lectureId)
-            .orElseThrow(() -> TimetableLectureNotFoundException.withDetail("frameId: " + frameId + ", lectureId: " + lectureId));
-    }
+    List<TimetableLecture> findAllByTimetableFrameIdAndLectureId(Integer frameId, Integer lectureId);
 
     @Query(value = "SELECT * FROM timetable_lecture WHERE id = :id", nativeQuery = true)
     Optional<TimetableLecture> findByIdWithDeleted(@Param("id") Integer id);
