@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import org.springframework.data.repository.query.Param;
@@ -20,6 +19,16 @@ public interface AdminBenefitCategoryMapRepository extends CrudRepository<Benefi
         ORDER BY bcm.shop.name ASC
         """)
     List<BenefitCategoryMap> findAllByBenefitCategoryIdOrderByShopName(@Param("benefitId") Integer benefitId);
+
+    @Query("""
+        SELECT bcm
+        FROM BenefitCategoryMap bcm
+        WHERE bcm.benefitCategory.id = :benefitId AND bcm.shop.id IN :shopIds
+    """)
+    List<BenefitCategoryMap> findAllByBenefitCategoryIdAndShopIds(
+        @Param("benefitId") Integer benefitId,
+        @Param("shopIds") List<Integer> shopIds
+    );
 
     @Modifying
     @Query("""

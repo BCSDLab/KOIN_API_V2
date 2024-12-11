@@ -17,9 +17,11 @@ import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminDeleteShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.exception.BenefitDuplicationException;
 import in.koreatech.koin.admin.benefit.exception.BenefitLimitException;
+import in.koreatech.koin.admin.benefit.exception.BenefitShopNotFoundException;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
@@ -119,6 +121,28 @@ public class AdminBenefitService {
         return AdminCreateBenefitShopsResponse.from(benefitCategoryMaps);
     }
 
+    @Transactional
+    public void modifyBenefitShops(Integer benefitId, AdminModifyBenefitShopsRequest request) {
+        Map<Integer, String> shopIdToDetail = request.shopDetails().stream()
+            .collect(Collectors.toMap(
+                AdminModifyBenefitShopsRequest.InnerBenefitShopsRequest::shopId,
+                AdminModifyBenefitShopsRequest.InnerBenefitShopsRequest::detail
+            ));
+
+        List<BenefitCategoryMap> benefitCategoryMaps = adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdAndShopIds(
+            benefitId,
+            shopIdToDetail.keySet().stream().toList()
+        );
+        List<Integer> notFoundShopIds = shopIdToDetail.keySet().stream()
+            .filter(shopId -> benefitCategoryMaps.stream().noneMatch(map -> map.getShop().getId().equals(shopId)))
+            .toList();
+
+        if (!notFoundShopIds.isEmpty()) {
+            throw new BenefitShopNotFoundException("해당 혜택 카테고리에 존재하지 않는 상점이 포함되어 있습니다. shopId: " + notFoundShopIds);
+        }
+
+        benefitCategoryMaps.forEach(map -> map.modifyDetail(shopIdToDetail.get(map.getShop().getId())));
+    }
 
     @Transactional
     public void deleteBenefitShops(Integer benefitId, AdminDeleteShopsRequest request) {

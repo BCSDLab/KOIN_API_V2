@@ -23,6 +23,7 @@ import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminDeleteShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.service.AdminBenefitService;
 import in.koreatech.koin.global.auth.Auth;
@@ -88,6 +89,16 @@ public class AdminBenefitController implements AdminBenefitApi {
     ) {
         AdminCreateBenefitShopsResponse response = adminBenefitService.createBenefitShops(benefitId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PutMapping("{id}/shops")
+    public ResponseEntity<Void> modifyBenefitShops(
+        @PathVariable("id") Integer benefitId,
+        @RequestBody AdminModifyBenefitShopsRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    ) {
+        adminBenefitService.modifyBenefitShops(benefitId, request);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}/shops")
