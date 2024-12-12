@@ -46,15 +46,16 @@ public record ShuttleBusRoutesResponse(
     @Schema(description = "학기 정보")
     public record RouteSemester(
         @Schema(description = "학기 이름", example = "정규학기") String name,
-        @Schema(description = "학기 기간", example = "2024-09-02 ~ 2024-12-20") String term
+        @Schema(description = "학기 시작 날짜", example = "2024-09-02") String from,
+        @Schema(description = "학기 종료 날짜", example = "2024-12-20") String to
     ) {
     }
 
     public static ShuttleBusRoutesResponse of(List<ShuttleBusRoute> shuttleBusRoutes,
         VersionMessageResponse versionMessageResponse) {
         List<RouteRegion> categories = mapCategories(shuttleBusRoutes);
-        RouteSemester routeSemester = new RouteSemester(versionMessageResponse.title(),
-            versionMessageResponse.content());
+        String[] term = versionMessageResponse.content().split("~");
+        RouteSemester routeSemester = new RouteSemester(versionMessageResponse.title(), term[0].trim(), term[1].trim());
         return new ShuttleBusRoutesResponse(categories, routeSemester);
     }
 

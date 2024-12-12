@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ShuttleBusRegion {
-    CHEONAN_ASAN("천안&아산"),
+    CHEONAN_ASAN("천안·아산"),
     CHEONGJU("청주"),
     SEOUL("서울"),
-    DAEJEON_SEJONG("대전&세종"),
+    DAEJEON_SEJONG("대전·세종"),
     ;
 
     private final String label;

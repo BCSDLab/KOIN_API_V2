@@ -60,6 +60,9 @@ public class ShuttleBusRoute {
         @Field("name")
         private String name;
 
+        @Field("detail")
+        private String detail;
+
         @Field("running_days")
         private List<String> runningDays;
 

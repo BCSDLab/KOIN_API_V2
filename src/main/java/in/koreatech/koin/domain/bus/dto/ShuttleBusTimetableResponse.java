@@ -45,10 +45,13 @@ public record ShuttleBusTimetableResponse(
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
-    @Schema(description = "회차 정보")
+    @Schema(description = "노선 정보")
     public record RouteInfoResponse(
-        @Schema(description = "회차 이름", example = "1회")
+        @Schema(description = "노선 이름", example = "1회")
         String name,
+
+        @Schema(description = "노선 세부 정보", example = "등교")
+        String detail,
 
         @Schema(description = "도착 시간 목록", example = "[\"08:00\", \"09:00\"]")
         List<String> arrivalTime
@@ -60,7 +63,7 @@ public record ShuttleBusTimetableResponse(
             .map(node -> new NodeInfoResponse(node.getName(), node.getDetail()))
             .toList();
         List<RouteInfoResponse> routeInfoResponses = shuttleBusRoute.getRouteInfo().stream()
-            .map(route -> new RouteInfoResponse(route.getName(), route.getArrivalTime()))
+            .map(route -> new RouteInfoResponse(route.getName(), route.getDetail(), route.getArrivalTime()))
             .toList();
         return new ShuttleBusTimetableResponse(
             shuttleBusRoute.getId(),
