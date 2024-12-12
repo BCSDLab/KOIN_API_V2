@@ -16,6 +16,8 @@ public interface BusRepository extends Repository<BusCourse, String> {
 
     List<BusCourse> findByBusType(String busType);
 
+    List<BusCourse> findByBusTypeAndRegion(String busType, String region);
+
     Optional<BusCourse> findByBusTypeAndDirectionAndRegion(String busType, String direction, String region);
 
     default BusCourse getByBusTypeAndDirectionAndRegion(String busType, String direction, String region) {

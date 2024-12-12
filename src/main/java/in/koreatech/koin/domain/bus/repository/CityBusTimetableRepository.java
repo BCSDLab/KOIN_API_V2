@@ -15,6 +15,15 @@ public interface CityBusTimetableRepository extends Repository<CityBusTimetable,
 
     default CityBusTimetable getByBusInfoNumberAndBusInfoArrival(Long number, String arrivalNode) {
         return findByBusInfoNumberAndBusInfoArrival(number, arrivalNode)
-            .orElseThrow(() -> BusCacheNotFoundException.withDetail("number: " + number + ", direction: " + arrivalNode + " 기점 방향"));
+            .orElseThrow(() -> BusCacheNotFoundException.withDetail(
+                "number: " + number + ", direction: " + arrivalNode + " 기점 방향"));
+    }
+
+    Optional<CityBusTimetable> findByBusInfoNumberAndBusInfoDepart(Long number, String departNode);
+
+    default CityBusTimetable getByBusInfoNumberAndBusInfoDepart(Long number, String departNode) {
+        return findByBusInfoNumberAndBusInfoDepart(number, departNode)
+            .orElseThrow(() -> BusCacheNotFoundException.withDetail(
+                "number: " + number + ", direction: " + departNode + " 종점 방향"));
     }
 }

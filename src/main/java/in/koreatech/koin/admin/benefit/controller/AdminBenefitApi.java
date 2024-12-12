@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.admin.benefit.dto.AdminBenefitCategoryResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminBenefitCategoriesResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryResponse;
@@ -44,7 +44,7 @@ public interface AdminBenefitApi {
     )
     @Operation(summary = "상점 혜택 카테고리를 모두 조회한다.")
     @GetMapping("/categories")
-    ResponseEntity<AdminBenefitCategoryResponse> getBenefitCategories(
+    ResponseEntity<AdminBenefitCategoriesResponse> getBenefitCategories(
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
