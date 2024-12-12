@@ -35,12 +35,15 @@ import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.exception.DiningLimitDateException;
 import in.koreatech.koin.domain.coop.exception.DiningNowDateException;
+import in.koreatech.koin.domain.coop.exception.DuplicateExcelRequestException;
 import in.koreatech.koin.domain.coop.exception.StartDateAfterEndDateException;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.coop.model.DiningImageUploadEvent;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
+import in.koreatech.koin.domain.coop.model.ExcelDownloadCache;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
+import in.koreatech.koin.domain.coop.repository.ExcelDownloadCacheRepository;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.domain.dining.model.Dining;
@@ -61,6 +64,7 @@ public class CoopService {
     private final ApplicationEventPublisher eventPublisher;
     private final DiningRepository diningRepository;
     private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
+    private final ExcelDownloadCacheRepository excelDownloadCacheRepository;
     private final CoopRepository coopRepository;
     private final UserTokenRepository userTokenRepository;
     private final CoopShopService coopShopService;
@@ -119,6 +123,7 @@ public class CoopService {
     }
 
     public ByteArrayInputStream generateDiningExcel(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
+        checkDuplicateExcelRequest(startDate, endDate);
         validateDates(startDate, endDate);
         List<Dining> dinings = fetchDiningData(startDate, endDate, isCafeteria);
 
@@ -217,7 +222,7 @@ public class CoopService {
         row.createCell(6).setCellValue(Optional.ofNullable(dining.getSoldOut()).map(Object::toString).orElse(""));
         row.createCell(7).setCellValue(Optional.ofNullable(dining.getIsChanged()).map(Object::toString).orElse(""));
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < EXCEL_COLUMN_COUNT; i++) {
             row.getCell(i).setCellStyle(commonStyle);
         }
     }
@@ -232,5 +237,14 @@ public class CoopService {
             workbook.dispose();
             return new ByteArrayInputStream(out.toByteArray());
         }
+    }
+
+    private void checkDuplicateExcelRequest(LocalDate startDate, LocalDate endDate) {
+        boolean isCacheExist = excelDownloadCacheRepository.existsById(startDate.toString() + endDate.toString());
+
+        if (isCacheExist) {
+            throw DuplicateExcelRequestException.withDetail(startDate, endDate);
+        }
+        excelDownloadCacheRepository.save(ExcelDownloadCache.from(startDate.toString() + endDate.toString()));
     }
 }
