@@ -16,6 +16,7 @@ public class DuplicateExcelRequestException extends DuplicationException {
     }
 
     public static DuplicateExcelRequestException withDetail(LocalDate startDate, LocalDate endDate) {
-        return new DuplicateExcelRequestException(DEFAULT_MESSAGE, "startDate: '" + startDate + "'" + "endDate: " + endDate);
+        return new DuplicateExcelRequestException(DEFAULT_MESSAGE,
+            "startDate: '" + startDate + "'" + "endDate: " + endDate);
     }
 }
