@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
@@ -64,6 +67,9 @@ public class AdminBenefitApiTest extends AcceptanceTest {
     @Autowired
     ShopNotificationMessageFixture shopNotificationMessageFixture;
 
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+
     Admin admin;
     String token_admin;
     Owner 현수_사장님;
@@ -99,10 +105,10 @@ public class AdminBenefitApiTest extends AcceptanceTest {
         영업중인_티바 = shopFixture.영업중인_티바(현수_사장님);
         영업중이_아닌_신전_떡볶이 = shopFixture.영업중이_아닌_신전_떡볶이(현수_사장님);
 
-        benefitCategoryMapFixture.혜택_추가(김밥천국, 배달비_무료);
-        benefitCategoryMapFixture.혜택_추가(마슬랜, 배달비_무료);
-        benefitCategoryMapFixture.혜택_추가(영업중인_티바, 배달비_무료);
-        benefitCategoryMapFixture.혜택_추가(영업중이_아닌_신전_떡볶이, 배달비_무료);
+        benefitCategoryMapFixture.설명이_포함된_혜택_추가(김밥천국, 배달비_무료, "설명1");
+        benefitCategoryMapFixture.설명이_포함된_혜택_추가(마슬랜, 배달비_무료, "설명2");
+        benefitCategoryMapFixture.설명이_포함된_혜택_추가(영업중인_티바, 배달비_무료, "설명3");
+        benefitCategoryMapFixture.설명이_포함된_혜택_추가(영업중이_아닌_신전_떡볶이, 배달비_무료, "설명4");
 
         notificationMessage_가게 = shopNotificationMessageFixture.알림메시지_가게();
         shopParentCategory_가게 = shopParentCategoryFixture.상위_카테고리_가게(notificationMessage_가게);
@@ -234,19 +240,23 @@ public class AdminBenefitApiTest extends AcceptanceTest {
                       "shops": [
                         {
                           "id": %d,
-                          "name": "김밥천국"
+                          "name": "김밥천국",
+                          "detail": "설명1"
                         },
                         {
                           "id": %d,
-                          "name": "마슬랜 치킨"
+                          "name": "마슬랜 치킨",
+                          "detail": "설명2"
                         },
                         {
                           "id": %d,
-                          "name": "티바"
+                          "name": "티바",
+                          "detail": "설명3"
                         },
                         {
                           "id": %d,
-                          "name": "신전 떡볶이"
+                          "name": "신전 떡볶이",
+                          "detail": "설명4"
                         }
                       ]
                     }
@@ -261,7 +271,16 @@ public class AdminBenefitApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(String.format("""
                             {
-                              "shop_ids": [%d, %d]
+                              "shop_details": [
+                                {
+                                  "shop_id": %d,
+                                  "detail": "김밥혜택설명"
+                                },
+                                {
+                                  "shop_id": %d,
+                                  "detail": "마슬랜혜택설명"
+                                }
+                              ]
                             }
                         """, 김밥천국.getId(), 마슬랜.getId()))
             )
@@ -271,15 +290,60 @@ public class AdminBenefitApiTest extends AcceptanceTest {
                       "shops": [
                         {
                           "id": %d,
-                          "name": "김밥천국"
+                          "name": "김밥천국",
+                          "detail": "김밥혜택설명"
                         },
                         {
                           "id": %d,
-                          "name": "마슬랜 치킨"
+                          "name": "마슬랜 치킨",
+                          "detail": "마슬랜혜택설명"
                         }
                       ]
                     }
                 """, 김밥천국.getId(), 마슬랜.getId())));
+    }
+
+    @Test
+    void 특정_혜택을_제공하는_상점들을_수정한다() throws Exception {
+        mockMvc.perform(
+                put("/admin/benefit/{id}/shops", 배달비_무료.getId())
+                    .header("Authorization", "Bearer " + token_admin)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(String.format("""
+                            {
+                              "shop_details": [
+                                {
+                                  "shop_id": %d,
+                                  "detail": "김밥새혜택설명"
+                                },
+                                {
+                                  "shop_id": %d,
+                                  "detail": "마슬랜새혜택설명"
+                                }
+                              ]
+                            }
+                        """, 김밥천국.getId(), 마슬랜.getId()))
+            )
+            .andExpect(status().isOk());
+
+        transactionTemplate.executeWithoutResult(status -> {
+            List<BenefitCategoryMap> updatedBenefit =
+                adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdAndShopIds(
+                배달비_무료.getId(),
+                List.of(김밥천국.getId(), 마슬랜.getId())
+            );
+
+            Map<Integer, String> details = updatedBenefit.stream()
+                .collect(Collectors.toMap(
+                    map -> map.getShop().getId(),
+                    BenefitCategoryMap::getDetail
+                ));
+
+            assertThat(details).isEqualTo(Map.of(
+                김밥천국.getId(), "김밥새혜택설명",
+                마슬랜.getId(), "마슬랜새혜택설명"
+            ));
+        });
     }
 
     @Test

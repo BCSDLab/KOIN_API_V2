@@ -46,4 +46,8 @@ public class BenefitCategoryMap extends BaseEntity {
         this.benefitCategory = benefitCategory;
         this.detail = detail;
     }
+
+    public void modifyDetail(String detail) {
+        this.detail = detail;
+    }
 }
