@@ -15,21 +15,6 @@ import jakarta.validation.constraints.Size;
 
 @JsonNaming(SnakeCaseStrategy.class)
 public record AdminModifyBenefitShopsRequest(
-    @Schema(
-        description = "혜택문구 변경정보 리스트", example = """
-        [
-            {
-                "shopBenefitMapId": 1,
-                "detail": "배달비 무료"
-            },
-            {
-                "shopBenefitMapId": 2,
-                "detail": "최소주문금액 0원"
-            }
-        ]
-        """,
-        requiredMode = REQUIRED
-    )
     @NotNull(message = "혜택문구 변경정보 리스트는 필수입니다.")
     @NotBlankElement(message = "혜택문구 변경정보 리스트는 빈 요소가 존재할 수 없습니다.")
     List<InnerBenefitShopsRequest> modifyDetails
