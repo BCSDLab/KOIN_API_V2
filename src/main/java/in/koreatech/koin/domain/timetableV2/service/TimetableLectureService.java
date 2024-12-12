@@ -82,8 +82,7 @@ public class TimetableLectureService {
     public void deleteTimetableLectureByFrameId(Integer frameId, Integer lectureId, Integer userId) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(frameId);
         validateUserAuthorization(frame.getUser().getId(), userId);
-        TimetableLecture timetableLecture = timetableLectureRepositoryV2.getByFrameIdAndLectureId(frameId, lectureId);
-        timetableLecture.delete();
+        timetableLectureRepositoryV2.findAllByTimetableFrameIdAndLectureId(frameId, lectureId).forEach(TimetableLecture::delete);
     }
 
     @Transactional
