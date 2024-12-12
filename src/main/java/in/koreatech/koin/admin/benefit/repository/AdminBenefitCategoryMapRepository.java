@@ -11,6 +11,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface AdminBenefitCategoryMapRepository extends CrudRepository<BenefitCategoryMap, Integer> {
 
+    List<BenefitCategoryMap> findAllByIdIn(List<Integer> ids);
+
     @Query("""
         SELECT bcm 
         FROM BenefitCategoryMap bcm

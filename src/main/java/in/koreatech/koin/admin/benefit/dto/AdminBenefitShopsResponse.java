@@ -9,6 +9,7 @@ import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@JsonNaming(SnakeCaseStrategy.class)
 public record AdminBenefitShopsResponse(
     @Schema(example = "3", description = "상점 개수")
     Integer count,
@@ -26,7 +27,11 @@ public record AdminBenefitShopsResponse(
         );
     }
 
+    @JsonNaming(SnakeCaseStrategy.class)
     private record InnerShopResponse(
+        @Schema(example = "1", description = "상점혜택 매핑id")
+        Integer shopBenefitMapId,
+
         @Schema(example = "1", description = "고유 id")
         Integer id,
 
@@ -39,6 +44,7 @@ public record AdminBenefitShopsResponse(
 
         public static InnerShopResponse from(BenefitCategoryMap benefitCategoryMap) {
             return new InnerShopResponse(
+                benefitCategoryMap.getId(),
                 benefitCategoryMap.getShop().getId(),
                 benefitCategoryMap.getShop().getName(),
                 benefitCategoryMap.getDetail()

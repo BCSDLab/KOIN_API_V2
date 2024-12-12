@@ -138,9 +138,8 @@ public interface AdminBenefitApi {
         }
     )
     @Operation(summary = "특정 혜택을 제공하는 상점을 수정한다.")
-    @PutMapping("/{id}/shops")
+    @PutMapping
     ResponseEntity<Void> modifyBenefitShops(
-        @PathVariable("id") Integer benefitId,
         @RequestBody AdminModifyBenefitShopsRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );

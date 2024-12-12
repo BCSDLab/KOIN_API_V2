@@ -21,7 +21,7 @@ import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.exception.BenefitDuplicationException;
 import in.koreatech.koin.admin.benefit.exception.BenefitLimitException;
-import in.koreatech.koin.admin.benefit.exception.BenefitShopNotFoundException;
+import in.koreatech.koin.admin.benefit.exception.BenefitMapNotFoundException;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
@@ -122,26 +122,31 @@ public class AdminBenefitService {
     }
 
     @Transactional
-    public void modifyBenefitShops(Integer benefitId, AdminModifyBenefitShopsRequest request) {
-        Map<Integer, String> shopIdToDetail = request.shopDetails().stream()
+    public void modifyBenefitShops(AdminModifyBenefitShopsRequest request) {
+        Map<Integer, String> shopBenefitIdToDetail = request.modifyDetails().stream()
             .collect(Collectors.toMap(
-                AdminModifyBenefitShopsRequest.InnerBenefitShopsRequest::shopId,
+                AdminModifyBenefitShopsRequest.InnerBenefitShopsRequest::shopBenefitMapId,
                 AdminModifyBenefitShopsRequest.InnerBenefitShopsRequest::detail
             ));
 
-        List<BenefitCategoryMap> benefitCategoryMaps = adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdAndShopIds(
-            benefitId,
-            shopIdToDetail.keySet().stream().toList()
-        );
-        List<Integer> notFoundShopIds = shopIdToDetail.keySet().stream()
-            .filter(shopId -> benefitCategoryMaps.stream().noneMatch(map -> map.getShop().getId().equals(shopId)))
+        List<BenefitCategoryMap> benefitCategoryMaps =
+            adminBenefitCategoryMapRepository.findAllByIdIn(shopBenefitIdToDetail.keySet().stream().toList());
+
+        validateBenefitMapIds(shopBenefitIdToDetail, benefitCategoryMaps);
+        benefitCategoryMaps.forEach(map -> map.modifyDetail(shopBenefitIdToDetail.get(map.getId())));
+    }
+
+    private static void validateBenefitMapIds(
+        Map<Integer, String> shopBenefitIdToDetail,
+        List<BenefitCategoryMap> benefitCategoryMaps
+    ) {
+        List<Integer> notFoundMapIds = shopBenefitIdToDetail.keySet().stream()
+            .filter(mapId -> benefitCategoryMaps.stream().noneMatch(map -> map.getId().equals(mapId)))
             .toList();
 
-        if (!notFoundShopIds.isEmpty()) {
-            throw new BenefitShopNotFoundException("해당 혜택 카테고리에 존재하지 않는 상점이 포함되어 있습니다. shopId: " + notFoundShopIds);
+        if (!notFoundMapIds.isEmpty()) {
+            throw new BenefitMapNotFoundException("해당 혜택 카테고리에 존재하지 않는 상점이 포함되어 있습니다. shopBenefitMapId: " + notFoundMapIds);
         }
-
-        benefitCategoryMaps.forEach(map -> map.modifyDetail(shopIdToDetail.get(map.getShop().getId())));
     }
 
     @Transactional

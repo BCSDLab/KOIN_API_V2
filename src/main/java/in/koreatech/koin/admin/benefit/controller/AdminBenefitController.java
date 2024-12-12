@@ -91,13 +91,12 @@ public class AdminBenefitController implements AdminBenefitApi {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("/{id}/shops")
+    @PutMapping
     public ResponseEntity<Void> modifyBenefitShops(
-        @PathVariable("id") Integer benefitId,
         @RequestBody AdminModifyBenefitShopsRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        adminBenefitService.modifyBenefitShops(benefitId, request);
+        adminBenefitService.modifyBenefitShops(request);
         return ResponseEntity.ok().build();
     }
 

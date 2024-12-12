@@ -16,30 +16,30 @@ import jakarta.validation.constraints.Size;
 @JsonNaming(SnakeCaseStrategy.class)
 public record AdminModifyBenefitShopsRequest(
     @Schema(
-        description = "상점정보 리스트", example = """
+        description = "혜택문구 변경정보 리스트", example = """
         [
             {
-                "shop_id": 1,
+                "shopBenefitMapId": 1,
                 "detail": "배달비 무료"
             },
             {
-                "shop_id": 2,
+                "shopBenefitMapId": 2,
                 "detail": "최소주문금액 0원"
             }
         ]
         """,
         requiredMode = REQUIRED
     )
-    @NotNull(message = "상점정보 리스트는 필수입니다.")
-    @NotBlankElement(message = "상점정보 리스트는 빈 요소가 존재할 수 없습니다.")
-    List<InnerBenefitShopsRequest> shopDetails
+    @NotNull(message = "혜택문구 변경정보 리스트는 필수입니다.")
+    @NotBlankElement(message = "혜택문구 변경정보 리스트는 빈 요소가 존재할 수 없습니다.")
+    List<InnerBenefitShopsRequest> modifyDetails
 ) {
 
     @JsonNaming(SnakeCaseStrategy.class)
     public record InnerBenefitShopsRequest(
-        @Schema(description = "상점 고유 id", example = "2", requiredMode = REQUIRED)
-        @NotNull(message = "상점은 필수입니다.")
-        Integer shopId,
+        @Schema(description = "상점혜택 매핑id", example = "2", requiredMode = REQUIRED)
+        @NotNull(message = "상점혜택 매핑id는 필수입니다.")
+        Integer shopBenefitMapId,
 
         @Schema(description = "혜택 미리보기 문구", example = "4인 이상 픽업서비스", requiredMode = REQUIRED)
         @NotBlank(message = "혜택 미리보기 문구는 필수입니다.")
