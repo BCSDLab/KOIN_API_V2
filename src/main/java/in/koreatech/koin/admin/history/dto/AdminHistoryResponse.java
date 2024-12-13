@@ -40,8 +40,8 @@ public record AdminHistoryResponse(
     )
     String requestMessage,
 
-    @Schema(description = "요청 시간", example = "2019-08-16-23-01-52", requiredMode = REQUIRED)
-    @JsonFormat(pattern = "yyyy-MM-dd-HH-mm-ss")
+    @Schema(description = "요청 시간", example = "2019-08-16 23:01:52", requiredMode = REQUIRED)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime createdAt
 ) {
     public static AdminHistoryResponse from(AdminActivityHistory adminActivityHistory) {
@@ -49,8 +49,8 @@ public record AdminHistoryResponse(
             adminActivityHistory.getId(),
             adminActivityHistory.getDomainId(),
             adminActivityHistory.getAdmin().getUser().getName(),
-            DomainType.valueOf(adminActivityHistory.getDomainName()).getDescription(),
-            HttpMethodType.valueOf(adminActivityHistory.getRequestMethod()).getValue(),
+            adminActivityHistory.getDomainName().getDescription(),
+            adminActivityHistory.getRequestMethod().getValue(),
             adminActivityHistory.getRequestMessage(),
             adminActivityHistory.getCreatedAt()
         );
