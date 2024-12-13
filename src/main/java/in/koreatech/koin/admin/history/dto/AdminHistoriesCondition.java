@@ -1,18 +1,19 @@
 package in.koreatech.koin.admin.history.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import in.koreatech.koin.admin.history.enums.DomainType;
-import in.koreatech.koin.admin.history.enums.HttpMethodType;
-import io.swagger.v3.oas.annotations.media.Schema;
-
-import java.util.Objects;
-
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static in.koreatech.koin.global.model.Criteria.*;
 import static in.koreatech.koin.global.model.Criteria.Sort.CREATED_AT_ASC;
 import static in.koreatech.koin.global.model.Criteria.Sort.CREATED_AT_DESC;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static org.springframework.data.domain.Sort.Direction;
+
+import java.util.Objects;
+
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+import in.koreatech.koin.admin.history.enums.DomainType;
+import in.koreatech.koin.admin.history.enums.HttpMethodType;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record AdminHistoriesCondition(
