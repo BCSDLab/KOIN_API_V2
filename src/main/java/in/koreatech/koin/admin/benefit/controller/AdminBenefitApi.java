@@ -21,6 +21,7 @@ import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminDeleteShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -124,6 +125,22 @@ public interface AdminBenefitApi {
     ResponseEntity<AdminCreateBenefitShopsResponse> createBenefitShops(
         @PathVariable("id") Integer benefitId,
         @RequestBody AdminCreateBenefitShopsRequest request,
+        @Auth(permit = {ADMIN}) Integer adminId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "특정 혜택을 제공하는 상점을 수정한다.")
+    @PutMapping
+    ResponseEntity<Void> modifyBenefitShops(
+        @RequestBody AdminModifyBenefitShopsRequest request,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
