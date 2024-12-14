@@ -8,20 +8,13 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
+import in.koreatech.koin.domain.bus.dto.*;
+import in.koreatech.koin.domain.bus.repository.BusNoticeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
-import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
-import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotFoundException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
@@ -52,6 +45,7 @@ public class BusService {
 
     private final Clock clock;
     private final BusRepository busRepository;
+    private final BusNoticeRepository busNoticeRepository;
     private final CityBusTimetableRepository cityBusTimetableRepository;
     private final CityBusClient cityBusClient;
     private final ExpressBusService expressBusService;
@@ -228,5 +222,18 @@ public class BusService {
             .getByBusInfoNumberAndBusInfoArrival(busNumber, direction.getName());
 
         return CityBusTimetableResponse.from(timetable);
+    }
+
+    public BusNoticeResponse getNotice() {
+        Map<Object, Object> article = busNoticeRepository.getBusNotice();
+
+        if (article == null || article.isEmpty()) {
+            return null;
+        }
+
+        return BusNoticeResponse.of(
+                (Integer) article.get("id"),
+                (String) article.get("title")
+        );
     }
 }

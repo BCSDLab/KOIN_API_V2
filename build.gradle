@@ -29,6 +29,8 @@ dependencies {
     implementation 'com.mysql:mysql-connector-j'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'org.hibernate:hibernate-core:6.2.14.Final'
+
 
     implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
 

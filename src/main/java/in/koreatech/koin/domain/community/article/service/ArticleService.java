@@ -1,22 +1,5 @@
 package in.koreatech.koin.domain.community.article.service;
 
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
@@ -28,17 +11,31 @@ import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMa
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHit;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHitUser;
+import in.koreatech.koin.domain.community.article.model.redis.BusNoticeArticle;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,10 +47,10 @@ public class ArticleService {
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final int MAXIMUM_SEARCH_LENGTH = 100;
     private static final Sort ARTICLES_SORT = Sort.by(
-        Sort.Order.desc("id")
+            Sort.Order.desc("id")
     );
     private static final Sort NATIVE_ARTICLES_SORT = Sort.by(
-        Sort.Order.desc("id")
+            Sort.Order.desc("id")
     );
 
     private final ArticleRepository articleRepository;
@@ -64,6 +61,7 @@ public class ArticleService {
     private final HotArticleRepository hotArticleRepository;
     private final ArticleHitUserRepository articleHitUserRepository;
     private final Clock clock;
+    private final BusArticleRepository busArticleRepository;
 
     @Transactional
     public ArticleResponse getArticle(Integer boardId, Integer articleId, String publicIp) {
@@ -84,7 +82,7 @@ public class ArticleService {
             boardId = article.getBoard().getId();
         }
         if (!Objects.equals(boardId, article.getBoard().getId())
-            && (!article.getBoard().isNotice() || boardId != NOTICE_BOARD_ID)) {
+                && (!article.getBoard().isNotice() || boardId != NOTICE_BOARD_ID)) {
             throw ArticleBoardMisMatchException.withDetail("boardId: " + boardId + ", articleId: " + article.getId());
         }
         return boardRepository.getById(boardId);
@@ -105,22 +103,22 @@ public class ArticleService {
 
     public List<HotArticleItemResponse> getHotArticles() {
         List<Article> cacheList = hotArticleRepository.getHotArticles(HOT_ARTICLE_LIMIT).stream()
-            .map(articleRepository::getById)
-            .collect(Collectors.toList());
+                .map(articleRepository::getById)
+                .collect(Collectors.toList());
         if (cacheList.size() < HOT_ARTICLE_LIMIT) {
             List<Article> highestHitArticles = articleRepository.findMostHitArticles(
-                LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS), HOT_ARTICLE_LIMIT);
+                    LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS), HOT_ARTICLE_LIMIT);
             cacheList.addAll(highestHitArticles);
             return cacheList.stream().limit(HOT_ARTICLE_LIMIT)
-                .map(HotArticleItemResponse::from)
-                .toList();
+                    .map(HotArticleItemResponse::from)
+                    .toList();
         }
         return cacheList.stream().map(HotArticleItemResponse::from).toList();
     }
 
     @Transactional
     public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit,
-        String ipAddress) {
+                                           String ipAddress) {
         if (query.length() >= MAXIMUM_SEARCH_LENGTH) {
             throw new KoinIllegalArgumentException("검색어의 최대 길이를 초과했습니다.");
         }
@@ -164,28 +162,28 @@ public class ArticleService {
 
         for (String keywordStr : keywords) {
             ArticleSearchKeyword keyword = articleSearchKeywordRepository.findByKeyword(keywordStr)
-                .orElseGet(() -> {
-                    ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
-                        .keyword(keywordStr)
-                        .weight(1.0)
-                        .lastSearchedAt(LocalDateTime.now())
-                        .totalSearch(1)
-                        .build();
-                    articleSearchKeywordRepository.save(newKeyword);
-                    return newKeyword;
-                });
+                    .orElseGet(() -> {
+                        ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
+                                .keyword(keywordStr)
+                                .weight(1.0)
+                                .lastSearchedAt(LocalDateTime.now())
+                                .totalSearch(1)
+                                .build();
+                        articleSearchKeywordRepository.save(newKeyword);
+                        return newKeyword;
+                    });
 
             ArticleSearchKeywordIpMap map = articleSearchKeywordIpMapRepository.findByArticleSearchKeywordAndIpAddress(
-                    keyword, ipAddress)
-                .orElseGet(() -> {
-                    ArticleSearchKeywordIpMap newMap = ArticleSearchKeywordIpMap.builder()
-                        .articleSearchKeyword(keyword)
-                        .ipAddress(ipAddress)
-                        .searchCount(1)
-                        .build();
-                    articleSearchKeywordIpMapRepository.save(newMap);
-                    return newMap;
-                });
+                            keyword, ipAddress)
+                    .orElseGet(() -> {
+                        ArticleSearchKeywordIpMap newMap = ArticleSearchKeywordIpMap.builder()
+                                .articleSearchKeyword(keyword)
+                                .ipAddress(ipAddress)
+                                .searchCount(1)
+                                .build();
+                        articleSearchKeywordIpMapRepository.save(newMap);
+                        return newMap;
+                    });
 
             updateKeywordWeightAndCount(keyword, map);
         }
@@ -225,9 +223,9 @@ public class ArticleService {
         LocalDateTime before = now.minusHours(6).minusMinutes(30);
 
         List<ArticleSearchKeyword> keywordsToUpdate = articleSearchKeywordRepository.findByUpdatedAtBetween(
-            before, now);
+                before, now);
         List<ArticleSearchKeywordIpMap> ipMapsToUpdate = articleSearchKeywordIpMapRepository.findByUpdatedAtBetween(
-            before, now);
+                before, now);
 
         for (ArticleSearchKeyword keyword : keywordsToUpdate) {
             keyword.resetWeight();
@@ -243,14 +241,14 @@ public class ArticleService {
         List<ArticleHit> articleHits = articleHitRepository.findAll();
         articleHitRepository.deleteAll();
         List<Article> allArticles =
-            articleRepository.findAllByRegisteredAtIsAfter(LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS));
+                articleRepository.findAllByRegisteredAtIsAfter(LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS));
         articleHitRepository.saveAll(allArticles.stream().map(ArticleHit::from).toList());
 
         Map<Integer, Integer> articlesIdWithHit = new HashMap<>();
         for (Article article : allArticles) {
             Optional<ArticleHit> cache = articleHits.stream()
-                .filter(articleHit -> articleHit.getId().equals(article.getId()))
-                .findAny();
+                    .filter(articleHit -> articleHit.getId().equals(article.getId()))
+                    .findAny();
             int beforeArticleHit = cache.isPresent() ? cache.get().getHit() : 0;
             if (article.getTotalHit() - beforeArticleHit <= 0) {
                 continue;
@@ -258,5 +256,39 @@ public class ArticleService {
             articlesIdWithHit.put(article.getId(), article.getTotalHit() - beforeArticleHit);
         }
         hotArticleRepository.saveArticlesWithHitToRedis(articlesIdWithHit, HOT_ARTICLE_LIMIT);
+    }
+
+    @Transactional
+    public void updateBusNoticeArticle() {
+        List<Article> articles = articleRepository.findTop5OrderByCreatedAtDesc();
+        LocalDate latestDate = articles.get(0).getCreatedAt().toLocalDate();
+        List<Article> latestArticles = articles.stream()
+                .filter(article -> article.getCreatedAt().toLocalDate().isEqual(latestDate))
+                .toList();
+
+        if (latestArticles.size() >= 2) {
+            latestArticles = latestArticles.stream()
+                .sorted((first, second) -> {
+                    // title에 '사과'가 포함되면 후순위
+                    if (first.getTitle().contains("사과") && !second.getTitle().contains("사과")) {
+                        return 1;
+                    }
+                    if (!first.getTitle().contains("사과") && second.getTitle().contains("사과")) {
+                        return -1;
+                    }
+
+                    // title에 '긴급'이 포함되면 우선순위
+                    if (first.getTitle().contains("긴급") && !second.getTitle().contains("긴급")) {
+                        return -1;
+                    }
+                    if (!first.getTitle().contains("긴급") && second.getTitle().contains("긴급")) {
+                        return 1;
+                    }
+
+                    return 0;
+                })
+                .toList();
+        }
+        busArticleRepository.save(BusNoticeArticle.from(latestArticles.get(0)));
     }
 }

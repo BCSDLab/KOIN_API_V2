@@ -1,9 +1,13 @@
 package in.koreatech.koin.domain.bus.controller;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
-
+import in.koreatech.koin.domain.bus.dto.*;
+import in.koreatech.koin.domain.bus.model.BusTimetable;
+import in.koreatech.koin.domain.bus.model.enums.BusStation;
+import in.koreatech.koin.domain.bus.model.enums.BusType;
+import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
+import in.koreatech.koin.domain.bus.service.BusService;
+import in.koreatech.koin.domain.community.article.service.ArticleService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,17 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
-import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
-import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
-import in.koreatech.koin.domain.bus.model.BusTimetable;
-import in.koreatech.koin.domain.bus.model.enums.BusStation;
-import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
-import in.koreatech.koin.domain.bus.service.BusService;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class BusController implements BusApi {
 
     private final BusService busService;
+    private final ArticleService articleService;
 
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
@@ -81,5 +78,11 @@ public class BusController implements BusApi {
         List<SingleBusTimeResponse> singleBusTimeResponses = busService.searchTimetable(date, LocalTime.parse(time),
             depart, arrival);
         return ResponseEntity.ok().body(singleBusTimeResponses);
+    }
+
+    @GetMapping("/notice")
+    public ResponseEntity<BusNoticeResponse> getNotice() {
+        BusNoticeResponse busNoticeResponse = busService.getNotice();
+        return ResponseEntity.ok().body(busNoticeResponse);
     }
 }
