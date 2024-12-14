@@ -142,13 +142,12 @@ public interface BusApi {
     );
 
     @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200"),
-                    @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-            }
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
     )
     @Operation(summary = "버스 긴급 공지 조회")
     @GetMapping("/notice")
     ResponseEntity<BusNoticeResponse> getNotice();
-}
 }

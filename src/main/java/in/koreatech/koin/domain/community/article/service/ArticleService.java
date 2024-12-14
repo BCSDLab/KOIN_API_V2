@@ -47,10 +47,10 @@ public class ArticleService {
     private static final int HOT_ARTICLE_LIMIT = 10;
     private static final int MAXIMUM_SEARCH_LENGTH = 100;
     private static final Sort ARTICLES_SORT = Sort.by(
-            Sort.Order.desc("id")
+        Sort.Order.desc("id")
     );
     private static final Sort NATIVE_ARTICLES_SORT = Sort.by(
-            Sort.Order.desc("id")
+        Sort.Order.desc("id")
     );
 
     private final ArticleRepository articleRepository;
@@ -82,7 +82,7 @@ public class ArticleService {
             boardId = article.getBoard().getId();
         }
         if (!Objects.equals(boardId, article.getBoard().getId())
-                && (!article.getBoard().isNotice() || boardId != NOTICE_BOARD_ID)) {
+            && (!article.getBoard().isNotice() || boardId != NOTICE_BOARD_ID)) {
             throw ArticleBoardMisMatchException.withDetail("boardId: " + boardId + ", articleId: " + article.getId());
         }
         return boardRepository.getById(boardId);
@@ -103,22 +103,22 @@ public class ArticleService {
 
     public List<HotArticleItemResponse> getHotArticles() {
         List<Article> cacheList = hotArticleRepository.getHotArticles(HOT_ARTICLE_LIMIT).stream()
-                .map(articleRepository::getById)
-                .collect(Collectors.toList());
+            .map(articleRepository::getById)
+            .collect(Collectors.toList());
         if (cacheList.size() < HOT_ARTICLE_LIMIT) {
             List<Article> highestHitArticles = articleRepository.findMostHitArticles(
-                    LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS), HOT_ARTICLE_LIMIT);
+                LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS), HOT_ARTICLE_LIMIT);
             cacheList.addAll(highestHitArticles);
             return cacheList.stream().limit(HOT_ARTICLE_LIMIT)
-                    .map(HotArticleItemResponse::from)
-                    .toList();
+                .map(HotArticleItemResponse::from)
+                .toList();
         }
         return cacheList.stream().map(HotArticleItemResponse::from).toList();
     }
 
     @Transactional
     public ArticlesResponse searchArticles(String query, Integer boardId, Integer page, Integer limit,
-                                           String ipAddress) {
+        String ipAddress) {
         if (query.length() >= MAXIMUM_SEARCH_LENGTH) {
             throw new KoinIllegalArgumentException("검색어의 최대 길이를 초과했습니다.");
         }
@@ -162,28 +162,28 @@ public class ArticleService {
 
         for (String keywordStr : keywords) {
             ArticleSearchKeyword keyword = articleSearchKeywordRepository.findByKeyword(keywordStr)
-                    .orElseGet(() -> {
-                        ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
-                                .keyword(keywordStr)
-                                .weight(1.0)
-                                .lastSearchedAt(LocalDateTime.now())
-                                .totalSearch(1)
-                                .build();
-                        articleSearchKeywordRepository.save(newKeyword);
-                        return newKeyword;
-                    });
+                .orElseGet(() -> {
+                    ArticleSearchKeyword newKeyword = ArticleSearchKeyword.builder()
+                        .keyword(keywordStr)
+                        .weight(1.0)
+                        .lastSearchedAt(LocalDateTime.now())
+                        .totalSearch(1)
+                        .build();
+                    articleSearchKeywordRepository.save(newKeyword);
+                    return newKeyword;
+                });
 
             ArticleSearchKeywordIpMap map = articleSearchKeywordIpMapRepository.findByArticleSearchKeywordAndIpAddress(
-                            keyword, ipAddress)
-                    .orElseGet(() -> {
-                        ArticleSearchKeywordIpMap newMap = ArticleSearchKeywordIpMap.builder()
-                                .articleSearchKeyword(keyword)
-                                .ipAddress(ipAddress)
-                                .searchCount(1)
-                                .build();
-                        articleSearchKeywordIpMapRepository.save(newMap);
-                        return newMap;
-                    });
+                    keyword, ipAddress)
+                .orElseGet(() -> {
+                    ArticleSearchKeywordIpMap newMap = ArticleSearchKeywordIpMap.builder()
+                        .articleSearchKeyword(keyword)
+                        .ipAddress(ipAddress)
+                        .searchCount(1)
+                        .build();
+                    articleSearchKeywordIpMapRepository.save(newMap);
+                    return newMap;
+                });
 
             updateKeywordWeightAndCount(keyword, map);
         }
@@ -223,9 +223,9 @@ public class ArticleService {
         LocalDateTime before = now.minusHours(6).minusMinutes(30);
 
         List<ArticleSearchKeyword> keywordsToUpdate = articleSearchKeywordRepository.findByUpdatedAtBetween(
-                before, now);
+            before, now);
         List<ArticleSearchKeywordIpMap> ipMapsToUpdate = articleSearchKeywordIpMapRepository.findByUpdatedAtBetween(
-                before, now);
+            before, now);
 
         for (ArticleSearchKeyword keyword : keywordsToUpdate) {
             keyword.resetWeight();
@@ -241,14 +241,14 @@ public class ArticleService {
         List<ArticleHit> articleHits = articleHitRepository.findAll();
         articleHitRepository.deleteAll();
         List<Article> allArticles =
-                articleRepository.findAllByRegisteredAtIsAfter(LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS));
+            articleRepository.findAllByRegisteredAtIsAfter(LocalDate.now(clock).minusDays(HOT_ARTICLE_BEFORE_DAYS));
         articleHitRepository.saveAll(allArticles.stream().map(ArticleHit::from).toList());
 
         Map<Integer, Integer> articlesIdWithHit = new HashMap<>();
         for (Article article : allArticles) {
             Optional<ArticleHit> cache = articleHits.stream()
-                    .filter(articleHit -> articleHit.getId().equals(article.getId()))
-                    .findAny();
+                .filter(articleHit -> articleHit.getId().equals(article.getId()))
+                .findAny();
             int beforeArticleHit = cache.isPresent() ? cache.get().getHit() : 0;
             if (article.getTotalHit() - beforeArticleHit <= 0) {
                 continue;
@@ -263,8 +263,8 @@ public class ArticleService {
         List<Article> articles = articleRepository.findTop5OrderByCreatedAtDesc();
         LocalDate latestDate = articles.get(0).getCreatedAt().toLocalDate();
         List<Article> latestArticles = articles.stream()
-                .filter(article -> article.getCreatedAt().toLocalDate().isEqual(latestDate))
-                .toList();
+            .filter(article -> article.getCreatedAt().toLocalDate().isEqual(latestDate))
+            .toList();
 
         if (latestArticles.size() >= 2) {
             latestArticles = latestArticles.stream()
