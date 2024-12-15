@@ -281,24 +281,4 @@ public class CoopService {
             return new ByteArrayInputStream(out.toByteArray());
         }
     }
-
-    private static CellStyle makeCommonStyle(Workbook workbook) {
-        CellStyle commonStyle = workbook.createCellStyle();
-        commonStyle.setAlignment(HorizontalAlignment.CENTER);
-        commonStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-        commonStyle.setWrapText(true);
-        return commonStyle;
-    }
-
-    private static CellStyle makeHeaderStyle(Workbook workbook) {
-        CellStyle headerStyle = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        font.setColor(IndexedColors.WHITE.getIndex());
-        headerStyle.setFont(font);
-        headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
-        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        headerStyle.setAlignment(HorizontalAlignment.CENTER);
-        return headerStyle;
-    }
 }
