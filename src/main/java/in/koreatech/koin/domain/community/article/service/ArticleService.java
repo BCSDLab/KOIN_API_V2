@@ -1,22 +1,5 @@
 package in.koreatech.koin.domain.community.article.service;
 
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
@@ -28,17 +11,31 @@ import in.koreatech.koin.domain.community.article.model.ArticleSearchKeywordIpMa
 import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHit;
 import in.koreatech.koin.domain.community.article.model.redis.ArticleHitUser;
+import in.koreatech.koin.domain.community.article.model.redis.BusNoticeArticle;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,6 +61,7 @@ public class ArticleService {
     private final HotArticleRepository hotArticleRepository;
     private final ArticleHitUserRepository articleHitUserRepository;
     private final Clock clock;
+    private final BusArticleRepository busArticleRepository;
 
     @Transactional
     public ArticleResponse getArticle(Integer boardId, Integer articleId, String publicIp) {
@@ -258,5 +256,33 @@ public class ArticleService {
             articlesIdWithHit.put(article.getId(), article.getTotalHit() - beforeArticleHit);
         }
         hotArticleRepository.saveArticlesWithHitToRedis(articlesIdWithHit, HOT_ARTICLE_LIMIT);
+    }
+
+    @Transactional
+    public void updateBusNoticeArticle() {
+        List<Article> articles = articleRepository.findBusArticlesTop5OrderByCreatedAtDesc();
+        LocalDate latestDate = articles.get(0).getCreatedAt().toLocalDate();
+        List<Article> latestArticles = articles.stream()
+            .filter(article -> article.getCreatedAt().toLocalDate().isEqual(latestDate))
+            .toList();
+
+        if (latestArticles.size() >= 2) {
+            latestArticles = latestArticles.stream()
+                .sorted((first, second) -> {
+                    int firstWeight = 0;
+                    int secondWeight = 0;
+
+                    // 제목(title)에 "사과"가 들어가면 후순위, "긴급"이 포함되면 우선순위
+                    if (first.getTitle().contains("사과")) firstWeight++;
+                    if (first.getTitle().contains("긴급")) firstWeight--;
+
+                    if (second.getTitle().contains("사과")) secondWeight++;
+                    if (second.getTitle().contains("긴급")) secondWeight--;
+
+                    return Integer.compare(firstWeight, secondWeight);
+                })
+                .toList();
+        }
+        busArticleRepository.save(BusNoticeArticle.from(latestArticles.get(0)));
     }
 }
