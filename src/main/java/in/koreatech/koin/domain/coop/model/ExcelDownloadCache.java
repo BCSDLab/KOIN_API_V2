@@ -13,7 +13,7 @@ import lombok.Getter;
 @RedisHash(value = "excelDownload")
 public class ExcelDownloadCache {
 
-    private static final long CACHE_EXPIRE_MINUTES = 30L;
+    private static final long CACHE_EXPIRE_SECONDS = 30L;
 
     @Id
     private String id;
@@ -30,7 +30,7 @@ public class ExcelDownloadCache {
     public static ExcelDownloadCache from(String id) {
         return ExcelDownloadCache.builder()
             .id(id)
-            .expiration(CACHE_EXPIRE_MINUTES)
+            .expiration(CACHE_EXPIRE_SECONDS)
             .build();
     }
 }
