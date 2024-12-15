@@ -1,5 +1,7 @@
 package in.koreatech.koin.global.config.swagger;
 
+import static in.koreatech.koin.global.config.swagger.ApiPackage.*;
+
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -55,91 +57,55 @@ public class SwaggerConfig {
     public GroupedOpenApi loginOpenApi() {
         return GroupedOpenApi.builder()
             .group("0. Login API")
-            .pathsToMatch("/**/login")
+            .pathsToMatch(LOGIN_API.getPaths())
             .build();
     }
 
     @Bean
     public GroupedOpenApi adminApi() {
-        String packagePath = "in.koreatech.koin.admin";
-
         return GroupedOpenApi.builder()
             .group("1. Admin API")
-            .packagesToScan(packagePath)
+            .packagesToScan(ADMIN_API.getPaths())
             .build();
     }
 
     @Bean
     public GroupedOpenApi businessOpenApi() {
-        String[] packagePath = {
-            "in.koreatech.koin.domain.owner",
-            "in.koreatech.koin.domain.benefit",
-            "in.koreatech.koin.domain.ownershop",
-            "in.koreatech.koin.domain.shop",
-            "in.koreatech.koin.domain.land",
-        };
-
         return GroupedOpenApi.builder()
             .group("2. Business API")
-            .packagesToScan(packagePath)
+            .packagesToScan(BUSINESS_API.getPaths())
             .build();
     }
 
     @Bean
     public GroupedOpenApi campusOpenApi() {
-        String[] packagePath = {
-            "in.koreatech.koin.domain.bus",
-            "in.koreatech.koin.domain.community",
-            "in.koreatech.koin.domain.coop",
-            "in.koreatech.koin.domain.coopshop",
-            "in.koreatech.koin.domain.dining",
-            "in.koreatech.koin.domain.coop",
-        };
-
         return GroupedOpenApi.builder()
             .group("3. Campus API")
-            .packagesToScan(packagePath)
+            .packagesToScan(CAMPUS_API.getPaths())
             .build();
     }
 
     @Bean
     public GroupedOpenApi userOpenApi() {
-        String[] packagePath = {
-            "in.koreatech.koin.domain.user",
-            "in.koreatech.koin.domain.student",
-            "in.koreatech.koin.domain.timetable",
-            "in.koreatech.koin.domain.timetableV2",
-        };
-
         return GroupedOpenApi.builder()
             .group("4. User API")
-            .packagesToScan(packagePath)
+            .packagesToScan(USER_API.getPaths())
             .build();
     }
 
     @Bean
     public GroupedOpenApi abtestApi() {
-        String packagePath = "in.koreatech.koin.admin.abtest";
-
         return GroupedOpenApi.builder()
             .group("5. abTest API")
-            .packagesToScan(packagePath)
+            .packagesToScan(ABTEST_API.getPaths())
             .build();
     }
 
     @Bean
     public GroupedOpenApi bcsdApi() {
-        String[] packagePath = {
-            "in.koreatech.koin.domain.activity",
-            "in.koreatech.koin.domain.dept",
-            "in.koreatech.koin.domain.kakao",
-            "in.koreatech.koin.domain.member",
-            "in.koreatech.koin.domain.version",
-        };
-
         return GroupedOpenApi.builder()
             .group("6. bcsd API")
-            .packagesToScan(packagePath)
+            .packagesToScan(BCSD_API.getPaths())
             .build();
     }
 }
