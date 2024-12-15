@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.coop.model;
 
+import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisHash;
@@ -27,9 +28,9 @@ public class ExcelDownloadCache {
         this.expiration = expiration;
     }
 
-    public static ExcelDownloadCache from(String id) {
+    public static ExcelDownloadCache from(LocalDate startDate, LocalDate endDate) {
         return ExcelDownloadCache.builder()
-            .id(id)
+            .id(startDate.toString() + endDate.toString())
             .expiration(CACHE_EXPIRE_SECONDS)
             .build();
     }

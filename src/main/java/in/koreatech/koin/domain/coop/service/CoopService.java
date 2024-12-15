@@ -292,6 +292,6 @@ public class CoopService {
         if (isCacheExist) {
             throw DuplicateExcelRequestException.withDetail(startDate, endDate);
         }
-        excelDownloadCacheRepository.save(ExcelDownloadCache.from(startDate.toString() + endDate.toString()));
+        excelDownloadCacheRepository.save(ExcelDownloadCache.from(startDate, endDate));
     }
 }
