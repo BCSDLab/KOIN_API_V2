@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import in.koreatech.koin.domain.bus.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -139,4 +140,14 @@ public interface BusApi {
         @RequestParam BusStation depart,
         @RequestParam BusStation arrival
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "버스 긴급 공지 조회")
+    @GetMapping("/notice")
+    ResponseEntity<BusNoticeResponse> getNotice();
 }

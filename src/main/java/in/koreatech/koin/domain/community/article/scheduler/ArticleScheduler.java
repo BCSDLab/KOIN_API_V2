@@ -31,4 +31,13 @@ public class ArticleScheduler {
             log.error("많이 검색한 키워드 초기화 중에 오류가 발생했습니다.", e);
         }
     }
+
+    @Scheduled(cron = "0 0 * * * *")
+    public void getBusNoticeArticle() {
+        try {
+            articleService.updateBusNoticeArticle();
+        } catch (Exception e) {
+            log.error("버스 공지 게시글 조회 중에 오류가 발생했습니다.", e);
+        }
+    }
 }
