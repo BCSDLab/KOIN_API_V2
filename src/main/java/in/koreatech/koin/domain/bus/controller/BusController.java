@@ -25,7 +25,6 @@ public class BusController implements BusApi {
 
     private final BusService busService;
     private final ShuttleBusService shuttleBusService;
-    private final ArticleService articleService;
 
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(

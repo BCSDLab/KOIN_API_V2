@@ -260,7 +260,7 @@ public class ArticleService {
 
     @Transactional
     public void updateBusNoticeArticle() {
-        List<Article> articles = articleRepository.findTop5OrderByCreatedAtDesc();
+        List<Article> articles = articleRepository.findBusArticlesTop5OrderByCreatedAtDesc();
         LocalDate latestDate = articles.get(0).getCreatedAt().toLocalDate();
         List<Article> latestArticles = articles.stream()
             .filter(article -> article.getCreatedAt().toLocalDate().isEqual(latestDate))
@@ -269,23 +269,17 @@ public class ArticleService {
         if (latestArticles.size() >= 2) {
             latestArticles = latestArticles.stream()
                 .sorted((first, second) -> {
-                    // title에 '사과'가 포함되면 후순위
-                    if (first.getTitle().contains("사과") && !second.getTitle().contains("사과")) {
-                        return 1;
-                    }
-                    if (!first.getTitle().contains("사과") && second.getTitle().contains("사과")) {
-                        return -1;
-                    }
+                    int firstWeight = 0;
+                    int secondWeight = 0;
 
-                    // title에 '긴급'이 포함되면 우선순위
-                    if (first.getTitle().contains("긴급") && !second.getTitle().contains("긴급")) {
-                        return -1;
-                    }
-                    if (!first.getTitle().contains("긴급") && second.getTitle().contains("긴급")) {
-                        return 1;
-                    }
+                    // 제목(title)에 "사과"가 들어가면 후순위, "긴급"이 포함되면 우선순위
+                    if (first.getTitle().contains("사과")) firstWeight++;
+                    if (first.getTitle().contains("긴급")) firstWeight--;
 
-                    return 0;
+                    if (second.getTitle().contains("사과")) secondWeight++;
+                    if (second.getTitle().contains("긴급")) secondWeight--;
+
+                    return Integer.compare(firstWeight, secondWeight);
                 })
                 .toList();
         }
