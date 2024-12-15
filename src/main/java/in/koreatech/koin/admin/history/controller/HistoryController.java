@@ -1,6 +1,7 @@
 package in.koreatech.koin.admin.history.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+import static in.koreatech.koin.global.model.Criteria.Sort;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,8 +10,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.admin.history.dto.AdminHistoryResponse;
-import in.koreatech.koin.admin.history.dto.AdminHistorysCondition;
-import in.koreatech.koin.admin.history.dto.AdminHistorysResponse;
+import in.koreatech.koin.admin.history.dto.AdminHistoriesCondition;
+import in.koreatech.koin.admin.history.dto.AdminHistoriesResponse;
+import in.koreatech.koin.admin.history.enums.DomainType;
+import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import in.koreatech.koin.admin.history.service.HistoryService;
 import in.koreatech.koin.global.auth.Auth;
 import lombok.RequiredArgsConstructor;
@@ -21,19 +24,20 @@ public class HistoryController implements HistoryApi {
 
     private final HistoryService historyService;
 
-    @GetMapping("/admin/historys")
-    public ResponseEntity<AdminHistorysResponse> getHistorys(
+    @GetMapping("/admin/histories")
+    public ResponseEntity<AdminHistoriesResponse> getHistories(
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
-        @RequestParam(required = false) String requestMethod,
-        @RequestParam(required = false) String domainName,
+        @RequestParam(required = false) HttpMethodType requestMethod,
+        @RequestParam(required = false) DomainType domainName,
         @RequestParam(required = false) Integer domainId,
+        @RequestParam(required = false) Sort sort,
         @Auth(permit = {ADMIN}) Integer adminId
     ) {
-        AdminHistorysCondition adminHistorysCondition = new AdminHistorysCondition(page, limit, requestMethod,
-            domainName, domainId);
-        AdminHistorysResponse historys = historyService.getHistorys(adminHistorysCondition);
-        return ResponseEntity.ok(historys);
+        AdminHistoriesCondition adminHistoriesCondition = new AdminHistoriesCondition(page, limit, requestMethod,
+            domainName, domainId, sort);
+        AdminHistoriesResponse histories = historyService.getHistories(adminHistoriesCondition);
+        return ResponseEntity.ok(histories);
     }
 
     @GetMapping("/admin/history/{id}")

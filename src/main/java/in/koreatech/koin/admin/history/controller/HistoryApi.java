@@ -1,6 +1,7 @@
 package in.koreatech.koin.admin.history.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
+import static in.koreatech.koin.global.model.Criteria.Sort;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,7 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.admin.history.dto.AdminHistoryResponse;
-import in.koreatech.koin.admin.history.dto.AdminHistorysResponse;
+import in.koreatech.koin.admin.history.dto.AdminHistoriesResponse;
+import in.koreatech.koin.admin.history.enums.DomainType;
+import in.koreatech.koin.admin.history.enums.HttpMethodType;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,6 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Admin) History: 기록", description = "관리자 기록 관련 API")
 public interface HistoryApi {
+
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
@@ -29,13 +33,14 @@ public interface HistoryApi {
         }
     )
     @Operation(summary = "히스토리 리스트 조회")
-    @GetMapping("/admin/historys")
-    ResponseEntity<AdminHistorysResponse> getHistorys(
+    @GetMapping("/admin/histories")
+    ResponseEntity<AdminHistoriesResponse> getHistories(
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit,
-        @RequestParam(required = false) String requestMethod,
-        @RequestParam(required = false) String domainName,
+        @RequestParam(required = false) HttpMethodType requestMethod,
+        @RequestParam(required = false) DomainType domainName,
         @RequestParam(required = false) Integer domainId,
+        @RequestParam(required = false) Sort sort,
         @Auth(permit = {ADMIN}) Integer adminId
     );
 
