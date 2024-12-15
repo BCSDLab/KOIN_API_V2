@@ -63,49 +63,38 @@ public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi adminApi() {
-        return GroupedOpenApi.builder()
-            .group("1. Admin API")
-            .packagesToScan(ADMIN_API.getPaths())
-            .build();
+        return createGroupedOpenApi("1. Admin API", ADMIN_API.getPaths());
     }
 
     @Bean
     public GroupedOpenApi businessOpenApi() {
-        return GroupedOpenApi.builder()
-            .group("2. Business API")
-            .packagesToScan(BUSINESS_API.getPaths())
-            .build();
+        return createGroupedOpenApi("2. Business API", BUSINESS_API.getPaths());
     }
 
     @Bean
     public GroupedOpenApi campusOpenApi() {
-        return GroupedOpenApi.builder()
-            .group("3. Campus API")
-            .packagesToScan(CAMPUS_API.getPaths())
-            .build();
+        return createGroupedOpenApi("3. Campus API", CAMPUS_API.getPaths());
     }
 
     @Bean
     public GroupedOpenApi userOpenApi() {
-        return GroupedOpenApi.builder()
-            .group("4. User API")
-            .packagesToScan(USER_API.getPaths())
-            .build();
+        return createGroupedOpenApi("4. User API", USER_API.getPaths());
     }
 
     @Bean
     public GroupedOpenApi abtestApi() {
-        return GroupedOpenApi.builder()
-            .group("5. abTest API")
-            .packagesToScan(ABTEST_API.getPaths())
-            .build();
+        return createGroupedOpenApi("5. abTest API", ABTEST_API.getPaths());
     }
 
     @Bean
     public GroupedOpenApi bcsdApi() {
+        return createGroupedOpenApi("6. bcsd API", BCSD_API.getPaths());
+    }
+
+    private GroupedOpenApi createGroupedOpenApi(String groupName, String[] packagesPath) {
         return GroupedOpenApi.builder()
-            .group("6. bcsd API")
-            .packagesToScan(BCSD_API.getPaths())
+            .group(groupName)
+            .packagesToScan(packagesPath)
             .build();
     }
 }
