@@ -71,7 +71,7 @@ public class CoopService {
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-    List<String> placeFilters = Arrays.asList("A코너", "B코너", "C코너");
+    private final List<String> placeFilters = Arrays.asList("A코너", "B코너", "C코너");
 
     public static final LocalDate LIMIT_DATE = LocalDate.of(2022, 11, 29);
     private final int EXCEL_COLUMN_COUNT = 8;
