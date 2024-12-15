@@ -1,8 +1,5 @@
 package in.koreatech.koin.global.config.swagger;
 
-import static in.koreatech.koin.global.config.swagger.ApiPackage.*;
-
-import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
