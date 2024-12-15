@@ -38,7 +38,6 @@ public class SwaggerConfig {
         server.setUrl(serverUrl);
         return new OpenAPI()
             .openapi("3.1.0")
-            .components(new Components())
             .info(apiInfo())
             .addSecurityItem(securityRequirement)
             .components(components)
@@ -53,6 +52,24 @@ public class SwaggerConfig {
     }
 
     @Bean
+    public GroupedOpenApi loginOpenApi() {
+        return GroupedOpenApi.builder()
+            .group("0. Login API")
+            .pathsToMatch("/**/login")
+            .build();
+    }
+
+    @Bean
+    public GroupedOpenApi adminApi() {
+        String packagePath = "in.koreatech.koin.admin";
+
+        return GroupedOpenApi.builder()
+            .group("1. Admin API")
+            .packagesToScan(packagePath)
+            .build();
+    }
+
+    @Bean
     public GroupedOpenApi businessOpenApi() {
         String[] packagePath = {
             "in.koreatech.koin.domain.owner",
@@ -63,7 +80,7 @@ public class SwaggerConfig {
         };
 
         return GroupedOpenApi.builder()
-            .group("Business API")
+            .group("2. Business API")
             .packagesToScan(packagePath)
             .build();
     }
@@ -80,7 +97,7 @@ public class SwaggerConfig {
         };
 
         return GroupedOpenApi.builder()
-            .group("Campus API")
+            .group("3. Campus API")
             .packagesToScan(packagePath)
             .build();
     }
@@ -95,7 +112,7 @@ public class SwaggerConfig {
         };
 
         return GroupedOpenApi.builder()
-            .group("User API")
+            .group("4. User API")
             .packagesToScan(packagePath)
             .build();
     }
@@ -105,7 +122,7 @@ public class SwaggerConfig {
         String packagePath = "in.koreatech.koin.admin.abtest";
 
         return GroupedOpenApi.builder()
-            .group("abTest API")
+            .group("5. abTest API")
             .packagesToScan(packagePath)
             .build();
     }
@@ -121,17 +138,7 @@ public class SwaggerConfig {
         };
 
         return GroupedOpenApi.builder()
-            .group("bcsd API")
-            .packagesToScan(packagePath)
-            .build();
-    }
-
-    @Bean
-    public GroupedOpenApi adminApi() {
-        String packagePath = "in.koreatech.koin.admin";
-
-        return GroupedOpenApi.builder()
-            .group("admin API")
+            .group("6. bcsd API")
             .packagesToScan(packagePath)
             .build();
     }
