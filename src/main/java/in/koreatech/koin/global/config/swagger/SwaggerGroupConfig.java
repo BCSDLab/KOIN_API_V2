@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerGroupConfig {
 
     @Bean
-    public GroupedOpenApi loginOpenApi() {
+    public GroupedOpenApi loginApi() {
         return GroupedOpenApi.builder()
             .group("0. Login API")
             .pathsToMatch(LOGIN_API.getPaths())
@@ -23,17 +23,17 @@ public class SwaggerGroupConfig {
     }
 
     @Bean
-    public GroupedOpenApi businessOpenApi() {
+    public GroupedOpenApi businessApi() {
         return createGroupedOpenApi("2. Business API", BUSINESS_API.getPaths());
     }
 
     @Bean
-    public GroupedOpenApi campusOpenApi() {
+    public GroupedOpenApi campusApi() {
         return createGroupedOpenApi("3. Campus API", CAMPUS_API.getPaths());
     }
 
     @Bean
-    public GroupedOpenApi userOpenApi() {
+    public GroupedOpenApi userApi() {
         return createGroupedOpenApi("4. User API", USER_API.getPaths());
     }
 
