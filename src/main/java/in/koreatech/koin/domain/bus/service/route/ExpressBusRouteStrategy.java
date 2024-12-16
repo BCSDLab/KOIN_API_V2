@@ -21,7 +21,7 @@ public class ExpressBusRouteStrategy implements BusRouteStrategy {
 
     @Override
     public List<ScheduleInfo> findSchedule(BusRouteCommand command) {
-        if(validCourse(command.depart(), command.arrive())) return Collections.emptyList();
+        if(validRoute(command.depart(), command.arrive())) return Collections.emptyList();
         BusDirection direction = getRouteDirection(command.depart(), command.arrive());
 
         return getStaticExpressBusScheduleTimeList(direction).stream()
@@ -36,8 +36,8 @@ public class ExpressBusRouteStrategy implements BusRouteStrategy {
 
     private List<LocalTime> getStaticExpressBusScheduleTimeList(BusDirection direction) {
         return switch (direction) {
-            case NORTH -> ExpressBusSchedule.getExpressBusScheduleToKoreaTech();
-            case SOUTH -> ExpressBusSchedule.getExpressBusScheduleToTerminal();
+            case NORTH -> ExpressBusSchedule.KoreaTechToTerminal();
+            case SOUTH -> ExpressBusSchedule.TerminalToKoreaTech();
         };
     }
 
@@ -46,7 +46,7 @@ public class ExpressBusRouteStrategy implements BusRouteStrategy {
             ? BusDirection.NORTH : BusDirection.SOUTH;
     }
 
-    private boolean validCourse(BusStation depart, BusStation arrive) {
+    private boolean validRoute(BusStation depart, BusStation arrive) {
         return (depart == BusStation.STATION || arrive == BusStation.STATION);
     }
 }
