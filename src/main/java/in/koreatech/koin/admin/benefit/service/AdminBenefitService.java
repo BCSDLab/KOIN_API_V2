@@ -1,13 +1,14 @@
 package in.koreatech.koin.admin.benefit.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.admin.benefit.dto.AdminBenefitCategoryResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminBenefitCategoriesResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitCategoryResponse;
@@ -16,9 +17,11 @@ import in.koreatech.koin.admin.benefit.dto.AdminCreateBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.dto.AdminDeleteShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitCategoryResponse;
+import in.koreatech.koin.admin.benefit.dto.AdminModifyBenefitShopsRequest;
 import in.koreatech.koin.admin.benefit.dto.AdminSearchBenefitShopsResponse;
 import in.koreatech.koin.admin.benefit.exception.BenefitDuplicationException;
 import in.koreatech.koin.admin.benefit.exception.BenefitLimitException;
+import in.koreatech.koin.admin.benefit.exception.BenefitMapNotFoundException;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryMapRepository;
 import in.koreatech.koin.admin.benefit.repository.AdminBenefitCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
@@ -36,9 +39,9 @@ public class AdminBenefitService {
     private final AdminBenefitCategoryMapRepository adminBenefitCategoryMapRepository;
     private final AdminShopRepository adminShopRepository;
 
-    public AdminBenefitCategoryResponse getBenefitCategories() {
+    public AdminBenefitCategoriesResponse getBenefitCategories() {
         List<BenefitCategory> categories = adminBenefitCategoryRepository.findAllByOrderByTitleAsc();
-        return AdminBenefitCategoryResponse.from(categories);
+        return AdminBenefitCategoriesResponse.from(categories);
     }
 
     @Transactional
@@ -90,10 +93,7 @@ public class AdminBenefitService {
     public AdminBenefitShopsResponse getBenefitShops(Integer benefitId) {
         List<BenefitCategoryMap> benefitCategoryMaps =
             adminBenefitCategoryMapRepository.findAllByBenefitCategoryIdOrderByShopName(benefitId);
-        List<Shop> shops = benefitCategoryMaps.stream()
-            .map(BenefitCategoryMap::getShop)
-            .toList();
-        return AdminBenefitShopsResponse.from(shops);
+        return AdminBenefitShopsResponse.from(benefitCategoryMaps);
     }
 
     @Transactional
@@ -101,18 +101,53 @@ public class AdminBenefitService {
         Integer benefitId,
         AdminCreateBenefitShopsRequest request
     ) {
-        List<Shop> shops = adminShopRepository.findAllByIdIn(request.shopIds());
         BenefitCategory benefitCategory = adminBenefitCategoryRepository.getById(benefitId);
-        for (Shop shop : shops) {
-            BenefitCategoryMap benefitCategoryMap = BenefitCategoryMap.builder()
+        Map<Integer, String> shopIdToDetail = request.shopDetails().stream()
+            .collect(Collectors.toMap(
+                AdminCreateBenefitShopsRequest.InnerBenefitShopsRequest::shopId,
+                AdminCreateBenefitShopsRequest.InnerBenefitShopsRequest::detail
+            ));
+        List<Shop> shops = adminShopRepository.findAllByIdIn(shopIdToDetail.keySet().stream().toList());
+
+        List<BenefitCategoryMap> benefitCategoryMaps = shops.stream()
+            .map(shop -> BenefitCategoryMap.builder()
                 .shop(shop)
                 .benefitCategory(benefitCategory)
-                .build();
-            adminBenefitCategoryMapRepository.save(benefitCategoryMap);
-        }
-        return AdminCreateBenefitShopsResponse.from(shops);
+                .detail(shopIdToDetail.get(shop.getId()))
+                .build()
+            )
+            .toList();
+        adminBenefitCategoryMapRepository.saveAll(benefitCategoryMaps);
+        return AdminCreateBenefitShopsResponse.from(benefitCategoryMaps);
     }
 
+    @Transactional
+    public void modifyBenefitShops(AdminModifyBenefitShopsRequest request) {
+        Map<Integer, String> shopBenefitIdToDetail = request.modifyDetails().stream()
+            .collect(Collectors.toMap(
+                AdminModifyBenefitShopsRequest.InnerBenefitShopsRequest::shopBenefitMapId,
+                AdminModifyBenefitShopsRequest.InnerBenefitShopsRequest::detail
+            ));
+
+        List<BenefitCategoryMap> benefitCategoryMaps =
+            adminBenefitCategoryMapRepository.findAllByIdIn(shopBenefitIdToDetail.keySet().stream().toList());
+
+        validateBenefitMapIds(shopBenefitIdToDetail, benefitCategoryMaps);
+        benefitCategoryMaps.forEach(map -> map.modifyDetail(shopBenefitIdToDetail.get(map.getId())));
+    }
+
+    private static void validateBenefitMapIds(
+        Map<Integer, String> shopBenefitIdToDetail,
+        List<BenefitCategoryMap> benefitCategoryMaps
+    ) {
+        List<Integer> notFoundMapIds = shopBenefitIdToDetail.keySet().stream()
+            .filter(mapId -> benefitCategoryMaps.stream().noneMatch(map -> map.getId().equals(mapId)))
+            .toList();
+
+        if (!notFoundMapIds.isEmpty()) {
+            throw new BenefitMapNotFoundException("해당 혜택 카테고리에 존재하지 않는 상점이 포함되어 있습니다. shopBenefitMapId: " + notFoundMapIds);
+        }
+    }
 
     @Transactional
     public void deleteBenefitShops(Integer benefitId, AdminDeleteShopsRequest request) {

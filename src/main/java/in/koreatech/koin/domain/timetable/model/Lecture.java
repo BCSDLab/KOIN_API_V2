@@ -24,7 +24,7 @@ public class Lecture {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @Size(max = 255)
+    @Size(max = 100)
     @NotNull
     @Column(name = "semester_date", nullable = false)
     private String semester;
@@ -87,16 +87,23 @@ public class Lecture {
     private String classTime;
 
     @Builder
-    private Lecture(
-        String code, String semester,
-        String name, String grades, String lectureClass,
-        String regularNumber, String department,
-        String target, String professor,
-        String isEnglish, String designScore,
-        String isElearning, String classTime
+    public Lecture(
+        String semester,
+        String code,
+        String name,
+        String grades,
+        String lectureClass,
+        String regularNumber,
+        String department,
+        String target,
+        String professor,
+        String isEnglish,
+        String designScore,
+        String isElearning,
+        String classTime
     ) {
-        this.code = code;
         this.semester = semester;
+        this.code = code;
         this.name = name;
         this.grades = grades;
         this.lectureClass = lectureClass;

@@ -4,14 +4,14 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.CrudRepository;
 
 import in.koreatech.koin.domain.benefit.model.BenefitCategoryMap;
 import org.springframework.data.repository.query.Param;
 
-public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCategoryMap, Integer> {
+public interface AdminBenefitCategoryMapRepository extends CrudRepository<BenefitCategoryMap, Integer> {
 
-    void save(BenefitCategoryMap benefitCategoryMap);
+    List<BenefitCategoryMap> findAllByIdIn(List<Integer> ids);
 
     @Query("""
         SELECT bcm 
@@ -21,6 +21,16 @@ public interface AdminBenefitCategoryMapRepository extends Repository<BenefitCat
         ORDER BY bcm.shop.name ASC
         """)
     List<BenefitCategoryMap> findAllByBenefitCategoryIdOrderByShopName(@Param("benefitId") Integer benefitId);
+
+    @Query("""
+        SELECT bcm
+        FROM BenefitCategoryMap bcm
+        WHERE bcm.benefitCategory.id = :benefitId AND bcm.shop.id IN :shopIds
+    """)
+    List<BenefitCategoryMap> findAllByBenefitCategoryIdAndShopIds(
+        @Param("benefitId") Integer benefitId,
+        @Param("shopIds") List<Integer> shopIds
+    );
 
     @Modifying
     @Query("""
