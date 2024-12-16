@@ -12,12 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
+import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureCreator;
+import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureUpdater;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
-import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureCreator;
-import in.koreatech.koin.domain.timetableV2.factory.TimetableLectureUpdater;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class TimetableLectureService {
 
     @PersistenceContext
     private EntityManager entityManager;
+    private final UserRepository userRepository;
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final TimetableLectureCreator timetableLectureCreator;
@@ -101,6 +104,14 @@ public class TimetableLectureService {
     public TimetableLectureResponse rollbackTimetableFrame(Integer frameId, Integer userId) {
         TimetableFrame timetableFrame = timetableFrameRepositoryV2.getByIdWithDeleted(frameId);
         validateUserAuthorization(timetableFrame.getUser().getId(), userId);
+
+        User user = userRepository.getById(userId);
+        boolean hasTimetableFrame = timetableFrameRepositoryV2.existsByUserAndSemester(user,
+            timetableFrame.getSemester());
+
+        if (!hasTimetableFrame) {
+            timetableFrame.updateMainFlag(true);
+        }
         timetableFrame.undelete();
 
         timetableLectureRepositoryV2.findAllByFrameIdWithDeleted(timetableFrame.getId()).stream()
