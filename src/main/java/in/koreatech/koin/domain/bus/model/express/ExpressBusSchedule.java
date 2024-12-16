@@ -47,11 +47,11 @@ public final class ExpressBusSchedule {
         LocalTime.of(22, 5)
     );
 
-    public static List<LocalTime> getExpressBusScheduleToKoreaTech() {
+    public static List<LocalTime> TerminalToKoreaTech() {
         return KOREA_TECH_SCHEDULE;
     }
 
-    public static List<LocalTime> getExpressBusScheduleToTerminal() {
+    public static List<LocalTime> KoreaTechToTerminal() {
         return TERMINAL_SCHEDULE;
     }
 }
