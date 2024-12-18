@@ -1,4 +1,4 @@
-package in.koreatech.koin.global.config;
+package in.koreatech.koin.global.config.swagger;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -37,7 +37,6 @@ public class SwaggerConfig {
         server.setUrl(serverUrl);
         return new OpenAPI()
             .openapi("3.1.0")
-            .components(new Components())
             .info(apiInfo())
             .addSecurityItem(securityRequirement)
             .components(components)
