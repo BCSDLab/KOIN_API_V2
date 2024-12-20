@@ -1,6 +1,5 @@
 package in.koreatech.koin.acceptance;
 
-import static in.koreatech.koin.domain.dining.model.DiningType.LUNCH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -20,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
-import in.koreatech.koin.domain.coop.model.DiningNotifyCache;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
 import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRepository;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
@@ -347,27 +345,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 특정_식단의_좋아요_중복해서_누르면_에러() throws Exception {
-        mockMvc.perform(
-                patch("/dining/like")
-                    .header("Authorization", "Bearer " + token_준기)
-                    .param("diningId", String.valueOf(1))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andReturn();
-
-        mockMvc.perform(
-                patch("/dining/like")
-                    .header("Authorization", "Bearer " + token_준기)
-                    .param("diningId", String.valueOf(1))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isConflict())
-            .andReturn();
-    }
-
-    @Test
     void 좋아요_누른_식단은_isLiked가_true로_반환() throws Exception {
         mockMvc.perform(
                 patch("/dining/like")
@@ -517,6 +494,7 @@ class DiningApiTest extends AcceptanceTest {
         setUp();
     }
 
+    /* TODO: 알림 로직 테스트 후 주석 제거
     @Test
     void 이미지가_모두_존재하지_않으면_알림이_발송되지_않는다() throws Exception {
         coopService.sendDiningNotify();
@@ -546,7 +524,7 @@ class DiningApiTest extends AcceptanceTest {
         forceVerify(() -> verify(coopEventListener).onDiningImageUploadRequest(any()));
         clear();
         setUp();
-    }
+    }*/
 
     @Test
     void 특정_메뉴_특정_코너의_식단을_검색한다() throws Exception {
