@@ -35,12 +35,16 @@ import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.domain.coop.exception.DiningLimitDateException;
 import in.koreatech.koin.domain.coop.exception.DiningNowDateException;
+import in.koreatech.koin.domain.coop.exception.DuplicateExcelRequestException;
 import in.koreatech.koin.domain.coop.exception.StartDateAfterEndDateException;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.coop.model.DiningImageUploadEvent;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
+import in.koreatech.koin.domain.coop.model.ExcelDownloadCache;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
+import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRepository;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
+import in.koreatech.koin.domain.coop.repository.ExcelDownloadCacheRepository;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.domain.dining.model.Dining;
@@ -61,11 +65,14 @@ public class CoopService {
     private final ApplicationEventPublisher eventPublisher;
     private final DiningRepository diningRepository;
     private final DiningSoldOutCacheRepository diningSoldOutCacheRepository;
+    private final ExcelDownloadCacheRepository excelDownloadCacheRepository;
+    private final DiningNotifyCacheRepository diningNotifyCacheRepository;
     private final CoopRepository coopRepository;
     private final UserTokenRepository userTokenRepository;
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final List<String> placeFilters = Arrays.asList("A코너", "B코너", "C코너");
 
     public static final LocalDate LIMIT_DATE = LocalDate.of(2022, 11, 29);
     private final int EXCEL_COLUMN_COUNT = 8;
@@ -90,16 +97,67 @@ public class CoopService {
     @Transactional
     public void saveDiningImage(DiningImageRequest imageRequest) {
         Dining dining = diningRepository.getById(imageRequest.menuId());
+
         boolean isImageExist = diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(dining.getDate(),
             dining.getType());
-
         LocalDateTime now = LocalDateTime.now(clock);
         boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType(), true);
         if (isOpened && !isImageExist) {
             eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getId(), dining.getImageUrl()));
         }
+
         dining.setImageUrl(imageRequest.imageUrl());
     }
+
+    /* TODO: 알림 로직 테스트 후 주석 제거
+    public void sendDiningNotify() {
+        DiningType diningType = coopShopService.getDiningType();
+        LocalDate nowDate = LocalDate.now(clock);
+        List<Dining> dinings = diningRepository.findAllByDateAndType(nowDate, diningType);
+
+        if (dinings.isEmpty()) {
+            return;
+        }
+
+        boolean allImageExist = diningRepository.allExistsByDateAndTypeAndPlacesAndImageUrlIsNotNull(
+            nowDate, diningType, placeFilters
+        );
+
+        boolean isOpened = coopShopService.getIsOpened(
+            LocalDateTime.now(clock), CoopShopType.CAFETERIA, diningType, true
+        );
+
+        String diningNotifyId = nowDate.toString() + diningType;
+
+        if (isOpened && allImageExist) {
+            if (alreadyNotify(diningNotifyId))
+                return;
+
+            if (!diningNotifyCacheRepository.existsById(diningNotifyId)) {
+                sendNotify(diningNotifyId, dinings);
+            }
+        }
+
+        if (LocalTime.now().isAfter(diningType.getStartTime().minusMinutes(10))
+            && LocalTime.now().isBefore(diningType.getStartTime())
+            && !diningNotifyCacheRepository.existsById(diningNotifyId)
+            && diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(nowDate, diningType)
+        ) {
+            sendNotify(diningNotifyId, dinings);
+        }
+    }
+
+    private boolean alreadyNotify(String diningNotifyId) {
+        if (diningNotifyCacheRepository.existsById(diningNotifyId)) {
+            return true;
+        }
+        return false;
+    }
+
+    private void sendNotify(String diningNotifyId, List<Dining> dinings) {
+        diningNotifyCacheRepository.save(DiningNotifyCache.from(diningNotifyId));
+        eventPublisher.publishEvent(new DiningImageUploadEvent(dinings.get(0).getId(), dinings.get(0).getImageUrl()));
+    }*/
 
     @Transactional
     public CoopLoginResponse coopLogin(CoopLoginRequest request) {
@@ -119,6 +177,7 @@ public class CoopService {
     }
 
     public ByteArrayInputStream generateDiningExcel(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
+        checkDuplicateExcelRequest(startDate, endDate);
         validateDates(startDate, endDate);
         List<Dining> dinings = fetchDiningData(startDate, endDate, isCafeteria);
 
@@ -217,7 +276,7 @@ public class CoopService {
         row.createCell(6).setCellValue(Optional.ofNullable(dining.getSoldOut()).map(Object::toString).orElse(""));
         row.createCell(7).setCellValue(Optional.ofNullable(dining.getIsChanged()).map(Object::toString).orElse(""));
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < EXCEL_COLUMN_COUNT; i++) {
             row.getCell(i).setCellStyle(commonStyle);
         }
     }
@@ -232,5 +291,14 @@ public class CoopService {
             workbook.dispose();
             return new ByteArrayInputStream(out.toByteArray());
         }
+    }
+
+    private void checkDuplicateExcelRequest(LocalDate startDate, LocalDate endDate) {
+        boolean isCacheExist = excelDownloadCacheRepository.existsById(startDate.toString() + endDate.toString());
+
+        if (isCacheExist) {
+            throw DuplicateExcelRequestException.withDetail(startDate, endDate);
+        }
+        excelDownloadCacheRepository.save(ExcelDownloadCache.from(startDate, endDate));
     }
 }

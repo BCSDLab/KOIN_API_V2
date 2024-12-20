@@ -20,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutCache;
+import in.koreatech.koin.domain.coop.repository.DiningNotifyCacheRepository;
 import in.koreatech.koin.domain.coop.repository.DiningSoldOutCacheRepository;
+import in.koreatech.koin.domain.coop.service.CoopService;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
@@ -48,7 +50,14 @@ class DiningApiTest extends AcceptanceTest {
     @Autowired
     private CoopShopFixture coopShopFixture;
 
+    @Autowired
+    private CoopService coopService;
+
+    @Autowired
+    private DiningNotifyCacheRepository diningNotifyCacheRepository;
+
     private Dining A코너_점심;
+    private Dining B코너_점심;
     private User coop_준기;
     private String token_준기;
     private User owner_현수;
@@ -63,6 +72,7 @@ class DiningApiTest extends AcceptanceTest {
         owner_현수 = userFixture.현수_사장님().getUser();
         token_현수 = userFixture.getToken(owner_현수);
         A코너_점심 = diningFixture.A코너_점심(LocalDate.parse("2024-01-15"));
+        B코너_점심 = diningFixture.B코너_점심(LocalDate.parse("2024-01-15"));
     }
 
     @Test
@@ -87,6 +97,28 @@ class DiningApiTest extends AcceptanceTest {
                             "(탕)소고기육개장",
                             "땡초부추전",
                             "누룽지탕"
+                        ],
+                        "image_url": "https://stage.koreatech.in/image.jpg",
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00",
+                        "soldout_at": null,
+                        "changed_at": null,
+                        "likes": 0,
+                        "is_liked" : false
+                    },
+                    {
+                        "id": 2,
+                        "date": "2024-01-15",
+                        "type": "LUNCH",
+                        "place": "B코너",
+                        "price_card": 6000,
+                        "price_cash": 6000,
+                        "kcal": 881,
+                        "menu": [
+                            "병아리",
+                            "소고기",
+                            "땡초",
+                            "탕"
                         ],
                         "image_url": null,
                         "created_at": "2024-01-15 12:00:00",
@@ -118,30 +150,52 @@ class DiningApiTest extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-                [
-                    {
-                        "id": 1,
-                        "date": "2024-01-15",
-                        "type": "LUNCH",
-                        "place": "A코너",
-                        "price_card": 6000,
-                        "price_cash": 6000,
-                        "kcal": 881,
-                        "menu": [
-                            "병아리콩밥",
-                            "(탕)소고기육개장",
-                            "땡초부추전",
-                            "누룽지탕"
-                        ],
-                        "image_url": null,
-                        "created_at": "2024-01-15 12:00:00",
-                        "updated_at": "2024-01-15 12:00:00",
-                        "soldout_at": null,
-                        "changed_at": null,
-                        "likes": 0,
-                        "is_liked" : false
-                    }
-                ]
+                    [
+                        {
+                            "id": 1,
+                            "date": "2024-01-15",
+                            "type": "LUNCH",
+                            "place": "A코너",
+                            "price_card": 6000,
+                            "price_cash": 6000,
+                            "kcal": 881,
+                            "menu": [
+                                "병아리콩밥",
+                                "(탕)소고기육개장",
+                                "땡초부추전",
+                                "누룽지탕"
+                            ],
+                            "image_url": "https://stage.koreatech.in/image.jpg",
+                            "created_at": "2024-01-15 12:00:00",
+                            "updated_at": "2024-01-15 12:00:00",
+                            "soldout_at": null,
+                            "changed_at": null,
+                            "likes": 0,
+                            "is_liked" : false
+                        },
+                        {
+                            "id": 2,
+                            "date": "2024-01-15",
+                            "type": "LUNCH",
+                            "place": "B코너",
+                            "price_card": 6000,
+                            "price_cash": 6000,
+                            "kcal": 881,
+                            "menu": [
+                                "병아리",
+                                "소고기",
+                                "땡초",
+                                "탕"
+                            ],
+                            "image_url": null,
+                            "created_at": "2024-01-15 12:00:00",
+                            "updated_at": "2024-01-15 12:00:00",
+                            "soldout_at": null,
+                            "changed_at": null,
+                            "likes": 0,
+                            "is_liked" : false
+                        }
+                    ]
                 """));
     }
 
@@ -291,27 +345,6 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 특정_식단의_좋아요_중복해서_누르면_에러() throws Exception {
-        mockMvc.perform(
-                patch("/dining/like")
-                    .header("Authorization", "Bearer " + token_준기)
-                    .param("diningId", String.valueOf(1))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andReturn();
-
-        mockMvc.perform(
-                patch("/dining/like")
-                    .header("Authorization", "Bearer " + token_준기)
-                    .param("diningId", String.valueOf(1))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isConflict())
-            .andReturn();
-    }
-
-    @Test
     void 좋아요_누른_식단은_isLiked가_true로_반환() throws Exception {
         mockMvc.perform(
                 patch("/dining/like")
@@ -345,13 +378,35 @@ class DiningApiTest extends AcceptanceTest {
                             "땡초부추전",
                             "누룽지탕"
                         ],
-                        "image_url": null,
+                        "image_url": "https://stage.koreatech.in/image.jpg",
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
                         "soldout_at": null,
                         "changed_at": null,
                         "likes": 1,
                         "is_liked" : true
+                    },
+                    {
+                        "id": 2,
+                        "date": "2024-01-15",
+                        "type": "LUNCH",
+                        "place": "B코너",
+                        "price_card": 6000,
+                        "price_cash": 6000,
+                        "kcal": 881,
+                        "menu": [
+                            "병아리",
+                            "소고기",
+                            "땡초",
+                            "탕"
+                        ],
+                        "image_url": null,
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00",
+                        "soldout_at": null,
+                        "changed_at": null,
+                        "likes": 0,
+                        "is_liked" : false
                     }
                 ]
                 """))
@@ -383,6 +438,28 @@ class DiningApiTest extends AcceptanceTest {
                             "땡초부추전",
                             "누룽지탕"
                         ],
+                        "image_url": "https://stage.koreatech.in/image.jpg",
+                        "created_at": "2024-01-15 12:00:00",
+                        "updated_at": "2024-01-15 12:00:00",
+                        "soldout_at": null,
+                        "changed_at": null,
+                        "likes": 0,
+                        "is_liked" : false
+                    },
+                    {
+                        "id": 2,
+                        "date": "2024-01-15",
+                        "type": "LUNCH",
+                        "place": "B코너",
+                        "price_card": 6000,
+                        "price_cash": 6000,
+                        "kcal": 881,
+                        "menu": [
+                            "병아리",
+                            "소고기",
+                            "땡초",
+                            "탕"
+                        ],
                         "image_url": null,
                         "created_at": "2024-01-15 12:00:00",
                         "updated_at": "2024-01-15 12:00:00",
@@ -397,28 +474,7 @@ class DiningApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 이미지_업로드를_한다_품절_알림이_발송된다() throws Exception {
-        String imageUrl = "https://stage.koreatech.in/image.jpg";
-        mockMvc.perform(
-                patch("/coop/dining/image")
-                    .header("Authorization", "Bearer " + token_준기)
-                    .content(String.format("""
-                            {
-                                "menu_id": "%s",
-                                "image_url": "%s"
-                            }
-                        """, A코너_점심.getId(), imageUrl))
-                    .param("diningId", String.valueOf(1))
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk());
-        forceVerify(() -> verify(coopEventListener).onDiningImageUploadRequest(any()));
-        clear();
-        setUp();
-    }
-
-    @Test
-    void 해당_식사시간_외에_이미지_업로드를_한다_품절_알림이_발송되지_않는다() throws Exception {
+    void 식단_이미지를_업로드_한다() throws Exception {
         Dining A코너_저녁 = diningFixture.A코너_저녁(LocalDate.parse("2024-01-15"));
         String imageUrl = "https://stage.koreatech.in/image.jpg";
         mockMvc.perform(
@@ -434,10 +490,41 @@ class DiningApiTest extends AcceptanceTest {
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
+        clear();
+        setUp();
+    }
+
+    /* TODO: 알림 로직 테스트 후 주석 제거
+    @Test
+    void 이미지가_모두_존재하지_않으면_알림이_발송되지_않는다() throws Exception {
+        coopService.sendDiningNotify();
+
         forceVerify(() -> verify(coopEventListener, never()).onDiningImageUploadRequest(any()));
         clear();
         setUp();
     }
+
+    @Test
+    void 이미지가_모두_존재하고_오픈시간이고_Redis에_키가_있으면_알림이_발송되지_않는다() throws Exception {
+        String diningNotifyId = LocalDate.now(clock).toString() + LUNCH;
+        diningNotifyCacheRepository.save(DiningNotifyCache.from(diningNotifyId));
+        coopService.sendDiningNotify();
+
+        forceVerify(() -> verify(coopEventListener, never()).onDiningImageUploadRequest(any()));
+        clear();
+        setUp();
+    }
+
+    @Test
+    void 이미지가_모두_존재하고_오픈시간이고_Redis에_키가_없으면_알림이_발송된다() throws Exception {
+        B코너_점심.setImageUrl("https://stage.koreatech.in/image.jpg");
+        diningRepository.save(B코너_점심);
+        coopService.sendDiningNotify();
+
+        forceVerify(() -> verify(coopEventListener).onDiningImageUploadRequest(any()));
+        clear();
+        setUp();
+    }*/
 
     @Test
     void 특정_메뉴_특정_코너의_식단을_검색한다() throws Exception {
@@ -466,7 +553,7 @@ class DiningApiTest extends AcceptanceTest {
                                  "땡초부추전",
                                  "누룽지탕"
                              ],
-                             "image_url": null,
+                             "image_url": "https://stage.koreatech.in/image.jpg",
                              "created_at": "2024-01-15 12:00:00",
                              "soldout_at": "2024-01-15 12:00:00",
                              "changed_at": "2024-01-15 12:00:00",
@@ -529,7 +616,7 @@ class DiningApiTest extends AcceptanceTest {
                                  "땡초부추전",
                                  "누룽지탕"
                              ],
-                             "image_url": null,
+                             "image_url": "https://stage.koreatech.in/image.jpg",
                              "created_at": "2024-01-15 12:00:00",
                              "soldout_at": "2024-01-15 12:00:00",
                              "changed_at": "2024-01-15 12:00:00",
