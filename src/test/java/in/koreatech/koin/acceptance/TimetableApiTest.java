@@ -185,55 +185,6 @@ class TimetableApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 모든_학기를_조회한다() throws Exception {
-        semesterFixture.semester("20241");
-        semesterFixture.semester("20242");
-        semesterFixture.semester("2024-여름");
-        semesterFixture.semester("20231");
-        semesterFixture.semester("20232");
-        semesterFixture.semester("2023-여름");
-        semesterFixture.semester("2023-겨울");
-
-        mockMvc.perform(
-                get("/semesters")
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().json("""
-                [
-                    {
-                        "id": 2,
-                        "semester": "20242"
-                    },
-                    {
-                        "id": 3,
-                        "semester": "2024-여름"
-                    },
-                    {
-                        "id": 1,
-                        "semester": "20241"
-                    },
-                    {
-                        "id": 7,
-                        "semester": "2023-겨울"
-                    },
-                    {
-                        "id": 5,
-                        "semester": "20232"
-                    },
-                    {
-                        "id": 6,
-                        "semester": "2023-여름"
-                    },
-                    {
-                        "id": 4,
-                        "semester": "20231"
-                    }
-                ]
-                """));
-    }
-
-    @Test
     void 시간표를_조회한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
@@ -312,34 +263,6 @@ class TimetableApiTest extends AcceptanceTest {
                     ],
                     "grades": 0,
                     "total_grades": 0
-                }
-                """));
-    }
-
-    @Test
-    void 학생이_가진_시간표의_학기를_조회한다() throws Exception {
-        User user = userFixture.준호_학생().getUser();
-        String token = userFixture.getToken(user);
-        Semester semester1 = semesterFixture.semester("20192");
-        Semester semester2 = semesterFixture.semester("20201");
-        Lecture HRD_개론 = lectureFixture.HRD_개론(semester1.getSemester());
-        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester2.getSemester());
-        timetableV2Fixture.시간표6(user, semester1, HRD_개론, null);
-        timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null);
-
-        mockMvc.perform(
-                get("/semesters/check")
-                    .header("Authorization", "Bearer " + token)
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().json("""
-                {
-                    "user_id": 1,
-                    "semesters": [
-                      "20201",
-                      "20192"
-                    ]
                 }
                 """));
     }

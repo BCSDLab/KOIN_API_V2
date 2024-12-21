@@ -32,7 +32,6 @@ public class SemesterV3 {
     @Column(name = "year", nullable = false)
     private Integer year;
 
-    @Size(max = 20)
     @Enumerated(EnumType.STRING)
     @Column(name = "term", nullable = false, length = 20)
     private Term term;

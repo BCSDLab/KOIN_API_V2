@@ -65,7 +65,7 @@ public class TimetableFrameV3 extends BaseEntity {
     private boolean isDeleted = false;
 
     @OneToMany(mappedBy = "timetableFrameV3", orphanRemoval = true, cascade = ALL)
-    private List<TimetableLectureV3> timetableLectureV3;
+    private List<TimetableLectureV3> timetableLecturesV3;
 
     @Builder
     public TimetableFrameV3(
@@ -80,14 +80,14 @@ public class TimetableFrameV3 extends BaseEntity {
         this.semesterV3 = semesterV3;
         this.name = name;
         this.isMain = isMain;
-        this.timetableLectureV3 = timetableLectureV3;
+        this.timetableLecturesV3 = timetableLectureV3;
         this.isDeleted = isDeleted;
     }
 
     public void delete() {
         this.isDeleted = true;
-        if (timetableLectureV3 != null) {
-            timetableLectureV3.forEach(TimetableLectureV3::delete);
+        if (timetableLecturesV3 != null) {
+            timetableLecturesV3.forEach(TimetableLectureV3::delete);
         }
     }
 
