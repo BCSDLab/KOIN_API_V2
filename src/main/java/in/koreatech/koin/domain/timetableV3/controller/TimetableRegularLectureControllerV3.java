@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class TimetableLectureControllerV3 {
+public class TimetableRegularLectureControllerV3 {
 
     private final TimetableLectureServiceV3 timetableLectureV3;
 
