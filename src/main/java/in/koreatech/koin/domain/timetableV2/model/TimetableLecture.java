@@ -3,11 +3,16 @@ package in.koreatech.koin.domain.timetableV2.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetableV3.model.TimetableCustomLectureInformation;
 import in.koreatech.koin.global.domain.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,6 +21,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -71,6 +77,9 @@ public class TimetableLecture extends BaseEntity {
     @JoinColumn(name = "frame_id")
     private TimetableFrame timetableFrame;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "timetableLecture", orphanRemoval = true)
+    private List<TimetableCustomLectureInformation> timetableCustomLectureInformations = new ArrayList<>();
+
     @Builder
     public TimetableLecture(String classTitle, String classTime, String classPlace, String professor,
         String grades, String memo, boolean isDeleted, Lecture lecture, TimetableFrame timetableFrame) {
@@ -113,5 +122,12 @@ public class TimetableLecture extends BaseEntity {
 
     public void undelete() {
         this.isDeleted = false;
+    }
+
+    public void addTimetableCustomLectureInformation(
+        TimetableCustomLectureInformation timetableCustomLectureInformation
+    ) {
+        timetableCustomLectureInformations.add(timetableCustomLectureInformation);
+        timetableCustomLectureInformation.setTimetableLectureId(this);
     }
 }

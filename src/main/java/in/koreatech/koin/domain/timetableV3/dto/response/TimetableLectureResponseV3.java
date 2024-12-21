@@ -6,12 +6,15 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
+import in.koreatech.koin.domain.timetableV3.model.TimetableCustomLectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -83,7 +86,34 @@ public record TimetableLectureResponseV3(
             @Schema(description = "장소", example = "2공학관314", requiredMode = NOT_REQUIRED)
             String place
         ) {
+            private static final Integer DIVIDE_TIME_UNIT = 100;
 
+            public static List<LectureInfo> getCustomLectureInfo(
+                List<TimetableCustomLectureInformation> timetableCustomLectureInformations
+            ) {
+                return timetableCustomLectureInformations.stream()
+                    .map(timetableCustomLectureInformation -> new LectureInfo(
+                        calcWeek(timetableCustomLectureInformation.getStartTime()),
+                        timetableCustomLectureInformation.getStartTime(),
+                        timetableCustomLectureInformation.getEndTime(),
+                        getResponsePlace(timetableCustomLectureInformation.getPlace())
+                    ))
+                    .collect(Collectors.toList());
+            }
+
+            private static Integer calcWeek(Integer startTime) {
+                if (startTime != 0) {
+                    return startTime % DIVIDE_TIME_UNIT;
+                }
+                return 0;
+            }
+
+            private static String getResponsePlace(String place) {
+                if (Objects.isNull(place)) {
+                    return "";
+                }
+                return place;
+            }
         }
 
         public static List<InnerTimetableLectureResponseV3> from(List<TimetableLecture> timetableLectures) {
@@ -100,7 +130,7 @@ public record TimetableLectureResponseV3(
                         null,
                         null,
                         null,
-                        null,
+                        LectureInfo.getCustomLectureInfo(timetableLecture.getTimetableCustomLectureInformations()),
                         timetableLecture.getMemo(),
                         timetableLecture.getGrades(),
                         timetableLecture.getClassTitle(),
@@ -108,7 +138,7 @@ public record TimetableLectureResponseV3(
                         null,
                         timetableLecture.getProfessor(),
                         null
-                        );
+                    );
                 } else {
                     responseV3 = new InnerTimetableLectureResponseV3(
                         timetableLecture.getId(),
