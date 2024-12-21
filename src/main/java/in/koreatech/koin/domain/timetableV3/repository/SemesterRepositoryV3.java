@@ -9,4 +9,6 @@ import in.koreatech.koin.domain.timetableV3.model.SemesterV3;
 public interface SemesterRepositoryV3 extends Repository<SemesterV3, Integer> {
 
     List<SemesterV3> findAll();
+
+    SemesterV3 save(SemesterV3 semesterV3);
 }
