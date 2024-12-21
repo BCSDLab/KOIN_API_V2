@@ -40,13 +40,14 @@ public class Semester {
     @Column(name = "year", nullable = false)
     private Integer year;
 
-    @Size(max = 20)
     @Enumerated(EnumType.STRING)
     @Column(name = "term", nullable = false, length = 20)
     private Term term;
 
     @Builder
-    public Semester(String semester) {
+    public Semester(String semester, Integer year, Term term) {
         this.semester = semester;
+        this.year = year;
+        this.term = term;
     }
 }

@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.springframework.data.repository.Repository;
 
-import in.koreatech.koin.domain.timetableV3.model.SemesterV3;
+import in.koreatech.koin.domain.timetable.model.Semester;
 
-public interface SemesterRepositoryV3 extends Repository<SemesterV3, Integer> {
+public interface SemesterRepositoryV3 extends Repository<Semester, Integer> {
 
-    List<SemesterV3> findAll();
+    List<Semester> findAll();
 
-    SemesterV3 save(SemesterV3 semesterV3);
+    Semester save(Semester semester);
 }
