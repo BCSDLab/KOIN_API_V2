@@ -1,0 +1,31 @@
+package in.koreatech.koin.domain.timetableV3.controller;
+
+import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureCreateRequest;
+import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
+import in.koreatech.koin.domain.timetableV3.service.TimetableLectureServiceV3;
+import in.koreatech.koin.global.auth.Auth;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequiredArgsConstructor
+public class TimetableLectureControllerV3 {
+
+    private final TimetableLectureServiceV3 timetableLectureV3;
+
+    @PostMapping("/v3/timetables/lecture/regular")
+    ResponseEntity<TimetableLectureResponseV3> createTimetablesRegularLecture(
+        @Valid @RequestBody TimetableRegularLectureCreateRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        TimetableLectureResponseV3 response = timetableLectureV3.createTimetablesRegularLecture(request, userId);
+        return ResponseEntity.ok(response);
+    }
+}
