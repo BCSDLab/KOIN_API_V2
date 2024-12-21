@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "(Normal) Timetable: V3-시간표", description = "시간표 강의 정보를 관리한다")
+@Tag(name = "(Normal) Timetable: V3-시간표", description = "시간표 정규 강의 정보를 관리한다")
 public interface TimetableRegularLectureApiV3 {
 
     @ApiResponses(
