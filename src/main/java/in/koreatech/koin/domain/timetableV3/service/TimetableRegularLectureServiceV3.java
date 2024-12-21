@@ -30,7 +30,7 @@ public class TimetableRegularLectureServiceV3 {
     public TimetableLectureResponseV3 createTimetablesRegularLecture(
         TimetableRegularLectureCreateRequest request, Integer userId
     ) {
-        TimetableFrame frame = timetableFrameRepositoryV3.getById(userId);
+        TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
         Lecture lecture = lectureRepositoryV3.getById(request.lectureId());
         TimetableLecture timetableLecture = request.toTimetableLecture(frame, lecture);
