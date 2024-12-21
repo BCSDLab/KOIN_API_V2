@@ -57,7 +57,7 @@ public class TimetableFrameApiTest extends AcceptanceTest {
         clear();
         user = userFixture.준호_학생().getUser();
         token = userFixture.getToken(user);
-        semester = semesterFixture.semester("20192");
+        semester = semesterFixture.semester_2019년도_2학기();
     }
 
     @Test
@@ -236,8 +236,8 @@ public class TimetableFrameApiTest extends AcceptanceTest {
 
     @Test
     void 모든_학기의_시간표_프레임을_조회한다() throws Exception {
-        Semester semester1 = semesterFixture.semester("20241");
-        Semester semester2 = semesterFixture.semester("20242");
+        Semester semester1 = semesterFixture.semester_2024년도_1학기();
+        Semester semester2 = semesterFixture.semester_2024년도_2학기();
 
         timetableV2Fixture.시간표1(user, semester1);
         timetableV2Fixture.시간표2(user, semester1);

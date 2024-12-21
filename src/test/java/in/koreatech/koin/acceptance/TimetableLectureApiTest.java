@@ -51,7 +51,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
         clear();
         user = userFixture.준호_학생().getUser();
         token = userFixture.getToken(user);
-        semester = semesterFixture.semester("20192");
+        semester = semesterFixture.semester_2019년도_2학기();
     }
 
     @Test
