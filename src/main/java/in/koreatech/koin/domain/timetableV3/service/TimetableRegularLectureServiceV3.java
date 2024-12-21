@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class TimetableCustomLectureServiceV3 {
+public class TimetableRegularLectureServiceV3 {
 
     private final TimetableLectureRepositoryV3 timetableLectureRepositoryV3;
     private final TimetableFrameRepositoryV3 timetableFrameRepositoryV3;
