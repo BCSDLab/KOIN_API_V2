@@ -33,6 +33,15 @@ public class Semester {
     @Column(name = "semester", nullable = false, unique = true)
     private String semester;
 
+    @NotNull
+    @Column(name = "year", nullable = false)
+    private Integer year;
+
+    @Size(max = 20)
+    @NotNull
+    @Column(name = "term", nullable = false, length = 20)
+    private String term;
+
     @Builder
     public Semester(String semester) {
         this.semester = semester;
