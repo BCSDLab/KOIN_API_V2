@@ -14,12 +14,14 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.CourseTypeFixture;
 import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
 import in.koreatech.koin.fixture.TimeTableV2Fixture;
@@ -47,6 +49,9 @@ public class TimetableFrameApiTest extends AcceptanceTest {
 
     @Autowired
     private TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
+
+    @Autowired
+    private CourseTypeFixture courseTypeFixture;
 
     private User user;
     private String token;
@@ -165,8 +170,8 @@ public class TimetableFrameApiTest extends AcceptanceTest {
     @Test
     void 강의를_담고_있는_특정_시간표_frame을_삭제한다() throws Exception {
         Lecture lecture = lectureFixture.HRD_개론(semester.getSemester());
-
-        TimetableFrame frame1 = timetableV2Fixture.시간표5(user, semester, lecture);
+        CourseType courseType = courseTypeFixture.HRD_필수();
+        TimetableFrame frame1 = timetableV2Fixture.시간표5(user, semester, lecture, courseType);
 
         mockMvc.perform(
                 delete("/v2/timetables/frame")
