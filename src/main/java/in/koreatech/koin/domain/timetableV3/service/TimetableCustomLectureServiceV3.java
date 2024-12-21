@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureCreateRequest;
@@ -21,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class TimetableLectureServiceV3 {
+public class TimetableCustomLectureServiceV3 {
 
     private final TimetableLectureRepositoryV3 timetableLectureRepositoryV3;
     private final TimetableFrameRepositoryV3 timetableFrameRepositoryV3;

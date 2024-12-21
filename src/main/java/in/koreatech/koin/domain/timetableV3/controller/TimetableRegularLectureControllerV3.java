@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureCreateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
-import in.koreatech.koin.domain.timetableV3.service.TimetableLectureServiceV3;
+import in.koreatech.koin.domain.timetableV3.service.TimetableCustomLectureServiceV3;
 import in.koreatech.koin.global.auth.Auth;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TimetableRegularLectureControllerV3 {
 
-    private final TimetableLectureServiceV3 timetableLectureV3;
+    private final TimetableCustomLectureServiceV3 timetableLectureV3;
 
     @PostMapping("/v3/timetables/lecture/regular")
     ResponseEntity<TimetableLectureResponseV3> createTimetablesRegularLecture(
