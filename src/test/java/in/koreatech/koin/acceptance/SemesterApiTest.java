@@ -44,13 +44,13 @@ public class SemesterApiTest extends AcceptanceTest {
 
     @Test
     void 모든_학기를_조회한다() throws Exception {
-        semesterFixture.semester("20241");
-        semesterFixture.semester("20242");
-        semesterFixture.semester("2024-여름");
-        semesterFixture.semester("20231");
-        semesterFixture.semester("20232");
-        semesterFixture.semester("2023-여름");
-        semesterFixture.semester("2023-겨울");
+        semesterFixture.semester_2024년도_1학기();
+        semesterFixture.semester_2024년도_2학기();
+        semesterFixture.semester_2024년도_여름();
+        semesterFixture.semester_2023년도_1학기();
+        semesterFixture.semester_2023년도_2학기();
+        semesterFixture.semester_2023년도_여름();
+        semesterFixture.semester_2023년도_겨울();
 
         mockMvc.perform(
                 get("/semesters")
@@ -95,8 +95,8 @@ public class SemesterApiTest extends AcceptanceTest {
     void 학생이_가진_시간표의_학기를_조회한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
-        Semester semester1 = semesterFixture.semester("20192");
-        Semester semester2 = semesterFixture.semester("20201");
+        Semester semester1 = semesterFixture.semester_2019년도_2학기();
+        Semester semester2 = semesterFixture.semester_2020년도_1학기();
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester1.getSemester());
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester2.getSemester());
         timetableV2Fixture.시간표6(user, semester1, HRD_개론, null);
@@ -121,14 +121,14 @@ public class SemesterApiTest extends AcceptanceTest {
 
     @Test
     void 모든_학기를_조회한다_V3() throws Exception {
-        semesterFixture.semesterV3_2019년도_1학기();
-        semesterFixture.semesterV3_2019년도_2학기();
-        semesterFixture.semesterV3_2019년도_여름();
-        semesterFixture.semesterV3_2019년도_겨울();
-        semesterFixture.semesterV3_2020년도_1학기();
-        semesterFixture.semesterV3_2020년도_2학기();
-        semesterFixture.semesterV3_2020년도_여름();
-        semesterFixture.semesterV3_2020년도_겨울();
+        semesterFixture.semester_2019년도_1학기();
+        semesterFixture.semester_2019년도_2학기();
+        semesterFixture.semester_2019년도_여름();
+        semesterFixture.semester_2019년도_겨울();
+        semesterFixture.semester_2020년도_1학기();
+        semesterFixture.semester_2020년도_2학기();
+        semesterFixture.semester_2020년도_여름();
+        semesterFixture.semester_2020년도_겨울();
 
         mockMvc.perform(
                 get("/v3/semesters")
@@ -177,8 +177,8 @@ public class SemesterApiTest extends AcceptanceTest {
     void 학생이_가진_시간표의_학기를_조회한다_V3() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
-        Semester semester1 = semesterFixture.semesterV3_2019년도_2학기();
-        Semester semester2 = semesterFixture.semesterV3_2020년도_1학기();
+        Semester semester1 = semesterFixture.semester_2019년도_2학기();
+        Semester semester2 = semesterFixture.semester_2020년도_1학기();
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester1.getSemester());
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester2.getSemester());
         timetableV2Fixture.시간표6(user, semester1, HRD_개론, null);

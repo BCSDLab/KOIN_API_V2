@@ -48,8 +48,8 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 특정_학기_강의를_조회한다() throws Exception {
-        semesterFixture.semester("20192");
-        semesterFixture.semester("20201");
+        semesterFixture.semester_2019년도_2학기();
+        semesterFixture.semester_2020년도_1학기();
         String semester = "20201";
         lectureFixture.HRD_개론(semester);
         lectureFixture.건축구조의_이해_및_실습("20192");
@@ -85,7 +85,7 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 특정_학기_강의들을_조회한다() throws Exception {
-        semesterFixture.semester("20201");
+        semesterFixture.semester_2020년도_1학기();
         String semester = "20201";
         lectureFixture.HRD_개론(semester);
         lectureFixture.건축구조의_이해_및_실습(semester);
@@ -170,10 +170,10 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 계절학기를_조회하면_빈_리스트로_반환한다() throws Exception {
-        semesterFixture.semester("20241");
-        semesterFixture.semester("20242");
-        semesterFixture.semester("2024-여름");
-        semesterFixture.semester("2024-겨울");
+        semesterFixture.semester_2024년도_1학기();
+        semesterFixture.semester_2024년도_2학기();
+        semesterFixture.semester_2024년도_여름();
+        semesterFixture.semester_2024년도_겨울();
 
         mockMvc.perform(
                 get("/lectures")
@@ -188,7 +188,7 @@ class TimetableApiTest extends AcceptanceTest {
     void 시간표를_조회한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
-        Semester semester = semesterFixture.semester("20192");
+        Semester semester = semesterFixture.semester_2019년도_2학기();
 
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
@@ -247,7 +247,7 @@ class TimetableApiTest extends AcceptanceTest {
     void 시간표를_조회한다_시간표_프레임_없으면_생성() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
-        Semester semester = semesterFixture.semester("20192");
+        Semester semester = semesterFixture.semester_2019년도_2학기();
 
         mockMvc.perform(
                 get("/timetables")
@@ -271,7 +271,7 @@ class TimetableApiTest extends AcceptanceTest {
     void 시간표를_생성한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
-        Semester semester = semesterFixture.semester("20192");
+        Semester semester = semesterFixture.semester_2019년도_2학기();
 
         lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
         lectureFixture.HRD_개론(semester.getSemester());
@@ -364,7 +364,7 @@ class TimetableApiTest extends AcceptanceTest {
     void 시간표를_단일_생성한다_전체_반환() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
-        Semester semester = semesterFixture.semester("20192");
+        Semester semester = semesterFixture.semester_2019년도_2학기();
 
         lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
         lectureFixture.HRD_개론(semester.getSemester());
@@ -471,7 +471,7 @@ class TimetableApiTest extends AcceptanceTest {
     void 시간표를_삭제한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
-        Semester semester = semesterFixture.semester("20192");
+        Semester semester = semesterFixture.semester_2019년도_2학기();
 
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
