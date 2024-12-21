@@ -18,8 +18,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "(Normal) Timetable: V3-시간표", description = "시간표 정보를 관리한다")
-public interface TimetableApiV3 {
+@Tag(name = "(Normal) V3-Semester", description = "학기 정보를 관리한다")
+public interface SemesterApiV3 {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
