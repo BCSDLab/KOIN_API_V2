@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
