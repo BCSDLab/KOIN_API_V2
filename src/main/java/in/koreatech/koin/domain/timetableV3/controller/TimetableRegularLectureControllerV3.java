@@ -16,12 +16,12 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class TimetableRegularLectureControllerV3 {
+public class TimetableRegularLectureControllerV3 implements TimetableRegularLectureApiV3 {
 
     private final TimetableRegularLectureServiceV3 timetableLectureV3;
 
     @PostMapping("/v3/timetables/lecture/regular")
-    ResponseEntity<TimetableLectureResponseV3> createTimetablesRegularLecture(
+    public ResponseEntity<TimetableLectureResponseV3> createTimetablesRegularLecture(
         @Valid @RequestBody TimetableRegularLectureCreateRequest request,
         @Auth(permit = {STUDENT}) Integer userId
     ) {

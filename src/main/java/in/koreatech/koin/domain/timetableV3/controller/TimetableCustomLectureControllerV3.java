@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class TimetableCustomLectureControllerV3 {
+public class TimetableCustomLectureControllerV3 implements TimetableCustomLectureApiV3 {
 
     private final TimetableCustomLectureServiceV3 customLectureServiceV3;
 
