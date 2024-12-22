@@ -40,15 +40,7 @@ public record TimetableCustomLectureUpdateRequest(
 
         @Schema(description = "교수명", example = "교수명", requiredMode = NOT_REQUIRED)
         @Size(max = 30, message = "교수명의 최대 글자는 30글자 입니다.")
-        String professor,
-
-        @Schema(description = "학점", example = "3", requiredMode = NOT_REQUIRED)
-        @Size(max = 2, message = "학점은 두 글자 이상일 수 없습니다. (0~9)")
-        String grades,
-
-        @Schema(description = "메모", example = "메모", requiredMode = NOT_REQUIRED)
-        @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
-        String memo
+        String professor
     ) {
         @JsonNaming(value = SnakeCaseStrategy.class)
         public record LectureInfo(
