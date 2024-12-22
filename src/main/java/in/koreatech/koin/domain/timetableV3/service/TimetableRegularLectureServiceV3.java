@@ -11,6 +11,7 @@ import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureCreateRequest;
+import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.repository.LectureRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
@@ -43,5 +44,12 @@ public class TimetableRegularLectureServiceV3 {
         int grades = calculateGradesMainFrame(timetableFrame);
         int totalGrades = calculateTotalGrades(timetableFrameRepositoryV3.findByUserIdAndIsMainTrue(userId));
         return TimetableLectureResponseV3.of(timetableFrame, grades, totalGrades);
+    }
+
+    @Transactional
+    public TimetableLectureResponseV3 updateTimetablesRegularLecture(
+        TimetableRegularLectureUpdateRequest request, Integer userId
+    ) {
+        return null;
     }
 }

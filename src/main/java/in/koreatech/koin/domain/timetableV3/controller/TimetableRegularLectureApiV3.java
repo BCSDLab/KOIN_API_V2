@@ -4,9 +4,11 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureCreateRequest;
+import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,4 +40,20 @@ public interface TimetableRegularLectureApiV3 {
         @Auth(permit = {STUDENT}) Integer userId
     );
 
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "정규 강의 수정")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/v3/timetables/lecture/regular")
+    ResponseEntity<TimetableLectureResponseV3> updateTimetablesRegularLecture(
+        @Valid @RequestBody TimetableRegularLectureUpdateRequest request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
 }
