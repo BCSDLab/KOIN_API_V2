@@ -11,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
+import in.koreatech.koin.domain.timetableV3.controller.TimetableCustomLectureApiV3;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableCustomLectureCreateRequest;
+import in.koreatech.koin.domain.timetableV3.dto.request.TimetableCustomLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.model.TimetableCustomLectureInformation;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableCustomLectureRepositoryV3;
@@ -46,5 +48,12 @@ public class TimetableCustomLectureServiceV3 {
         int grades = calculateGradesMainFrame(timetableFrame);
         int totalGrades = calculateTotalGrades(timetableFrameRepositoryV3.findByUserIdAndIsMainTrue(userId));
         return TimetableLectureResponseV3.of(timetableFrame, grades, totalGrades);
+    }
+
+    @Transactional
+    public TimetableLectureResponseV3 updateTimetablesCustomLecture(
+        TimetableCustomLectureUpdateRequest request, Integer userId
+    ) {
+        return null;
     }
 }
