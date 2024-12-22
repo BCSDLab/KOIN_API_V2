@@ -59,6 +59,7 @@ public record TimetableCustomLectureCreateRequest(
             Integer endTime,
 
             @Schema(description = "장소", example = "2공학관314", requiredMode = NOT_REQUIRED)
+            @Size(max = 30, message = "강의 장소의 최대 글자는 30글자입니다.")
             String place
         ) {
 

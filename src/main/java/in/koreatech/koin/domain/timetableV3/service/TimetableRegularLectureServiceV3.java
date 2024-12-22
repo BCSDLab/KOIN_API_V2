@@ -34,6 +34,7 @@ public class TimetableRegularLectureServiceV3 {
         validateUserAuthorization(frame.getUser().getId(), userId);
         Lecture lecture = lectureRepositoryV3.getById(request.lectureId());
         TimetableLecture timetableLecture = request.toTimetableLecture(frame, lecture);
+        // TODO. Lecture 정규화 되면 강의 시간, 장소 로직 넣어야함
         timetableLectureRepositoryV3.save(timetableLecture);
         return getTimetableLectureResponse(userId, frame);
     }
