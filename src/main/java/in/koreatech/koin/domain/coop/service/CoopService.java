@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
@@ -313,8 +314,7 @@ public class CoopService {
         excelDownloadCacheRepository.save(ExcelDownloadCache.from(startDate, endDate));
     }
 
-    public File generateDiningImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria)
-        throws IOException {
+    public File generateDiningImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
         String bucketName = s3Utils.getBucketName();
         File parentDirectory = new File(RandomStringUtils.randomAlphanumeric(6));
         File localImageDirectory = new File(parentDirectory, "dining_images");
@@ -349,33 +349,39 @@ public class CoopService {
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     outputStream.write(buffer, 0, bytesRead);
                 }
+            } catch (IOException e) {
+                throw new KoinIllegalStateException("S3 객체 다운로드 중 문제가 발생했습니다. " + e.getMessage());
             }
         }
-        ZipFile zipFile = new ZipFile(zipFilePath);
-        zipFile.addFolder(localImageDirectory);
+        compress(zipFilePath, localImageDirectory);
         remove(localImageDirectory);
         return zipFilePath;
-        // TODO: 컨트롤러 리팩토링
         // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기
         // TODO: 파라미터로 들어온 값에 대응하기
         // TODO: 로그찍기 지우기
     }
 
     public void removeDiningImageCompress(File zipFilePath) {
-        new Thread(() -> {
-            try {
-                remove(zipFilePath.getParentFile());
-            } catch (IOException e) {
-                throw new KoinIllegalStateException("식단 압축 파일 제거 과정에서 에러가 발생했습니다. " + e.getMessage());
-            }
-        }).start();
+        new Thread(() -> remove(zipFilePath.getParentFile())).start();
     }
 
-    public static void remove(File file) throws IOException {
-        if (file.isDirectory()) {
-            removeDirectory(file);
-        } else {
-            removeFile(file);
+    private static void compress(File path, File localImageDirectory) {
+        try {
+            new ZipFile(path).addFolder(localImageDirectory);
+        } catch (ZipException e) {
+            throw new KoinIllegalStateException("이미지 파일 압축 중 문제가 발생했습니다. " + e.getMessage());
+        }
+    }
+
+    public static void remove(File file) {
+        try {
+            if (file.isDirectory()) {
+                removeDirectory(file);
+            } else {
+                removeFile(file);
+            }
+        } catch (IOException e) {
+            throw new KoinIllegalStateException("식단 압축 파일 제거 과정에서 에러가 발생했습니다. " + e.getMessage());
         }
     }
 
