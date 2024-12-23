@@ -1,7 +1,33 @@
 package in.koreatech.koin.domain.bus.service;
 
-import in.koreatech.koin.domain.bus.dto.*;
+import static in.koreatech.koin.domain.bus.model.enums.BusStation.getDirection;
+
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
+import in.koreatech.koin.domain.bus.dto.BusNoticeResponse;
+import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
+import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
+import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
+import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
+import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotFoundException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
@@ -26,14 +52,6 @@ import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.*;
-import java.time.format.TextStyle;
-import java.util.*;
-
-import static in.koreatech.koin.domain.bus.model.enums.BusStation.getDirection;
 
 @Service
 @Transactional(readOnly = true)
@@ -218,8 +236,7 @@ public class BusService {
     public CityBusTimetableResponse getCityBusTimetable(Long busNumber, CityBusDirection direction) {
         CityBusTimetable timetable = cityBusTimetableRepository
             .getByBusInfoNumberAndBusInfoArrival(busNumber, direction.getName());
-
-        return CityBusTimetableResponse.from(timetable);
+        return CityBusTimetableResponse.of(busNumber, direction, timetable);
     }
 
     public BusScheduleResponse getBusSchedule(BusRouteCommand request) {
@@ -250,8 +267,8 @@ public class BusService {
         }
 
         return BusNoticeResponse.of(
-                (Integer) article.get("id"),
-                (String) article.get("title")
+            (Integer)article.get("id"),
+            (String)article.get("title")
         );
     }
 }

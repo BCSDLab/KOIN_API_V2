@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
+import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -124,6 +126,19 @@ public class CityBusTimetable {
                     }
                     return schedule;
                 })
+                .collect(Collectors.toList());
+        }
+
+        public List<LocalTime> applyTimeOffset(Long busNumber, CityBusDirection direction) {
+            Map<Long, Map<CityBusDirection, Integer>> timeOffsets = Map.of(
+                400L, Map.of(CityBusDirection.종합터미널, ADDITIONAL_TIME_DEPART_TO_KOREATECH_400),
+                402L, Map.of(CityBusDirection.종합터미널, ADDITIONAL_TIME_DEPART_TO_KOREATECH_402),
+                405L, Map.of(CityBusDirection.종합터미널, ADDITIONAL_TIME_DEPART_TO_KOREATECH_405)
+            );
+            int offset = timeOffsets.getOrDefault(busNumber, Map.of())
+                .getOrDefault(direction, 0);
+            return departInfo.stream()
+                .map(time -> LocalTime.parse(time).plusMinutes(offset))
                 .collect(Collectors.toList());
         }
     }
