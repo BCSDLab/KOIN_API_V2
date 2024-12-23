@@ -2,7 +2,12 @@ package in.koreatech.koin.domain.coop.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,6 +34,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import net.lingala.zip4j.ZipFile;
+
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
@@ -58,7 +69,9 @@ import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -75,6 +88,7 @@ public class CoopService {
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final AmazonS3 s3Client;
     private final List<String> placeFilters = Arrays.asList("A코너", "B코너", "C코너");
 
     public static final LocalDate LIMIT_DATE = LocalDate.of(2022, 11, 29);
@@ -293,5 +307,78 @@ public class CoopService {
             throw DuplicateExcelRequestException.withDetail(startDate, endDate);
         }
         excelDownloadCacheRepository.save(ExcelDownloadCache.from(startDate, endDate));
+    }
+
+    public File generateDiningImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) throws
+        IOException {
+        File localDirectory = new File("s3-coop-images");
+        File zipFilePath = new File("s3-coop-images.zip");
+
+        String prefix = "upload/COOP/";
+        List<S3ObjectSummary> objectSummaries = s3Client.listObjects("ssg-test-bucket", prefix).getObjectSummaries();
+
+        if (!localDirectory.exists()) {
+            localDirectory.mkdirs();
+        }
+
+        if (zipFilePath.exists()) {
+            zipFilePath.delete();
+        }
+
+        for (S3ObjectSummary summary : objectSummaries) {
+            String key = summary.getKey(); // S3 키 (전체 경로)
+            // 폴더 경로는 무시
+            if (key.endsWith("/")) {
+                continue;
+            }
+            String fileName = new File(key).getName(); // 파일명만 추출
+
+            // 로컬 파일 경로를 최상위 경로로 설정
+            File localFile = new File(localDirectory, fileName);
+
+            // S3 객체 다운로드
+            try (S3Object s3Object = s3Client.getObject("ssg-test-bucket", key);
+                 InputStream inputStream = s3Object.getObjectContent();
+                 OutputStream outputStream = new FileOutputStream(localFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+            }
+        }
+        ZipFile zipFile = new ZipFile(zipFilePath);
+        zipFile.addFolder(localDirectory);
+        remove(localDirectory);
+        return zipFilePath;
+        // TODO: 랜덤값 앞에 넣어서 스레드세이프하게 하고
+        // TODO: controller에서 response 만들어두고 반환직전에 새로운 스레드로 압축파일 제거 기능 넣기
+        // TODO: 파라미터로 들어온 값에 대응하기
+        // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기
+    }
+
+    public static void remove(File file) throws IOException {
+        if (file.isDirectory()) {
+            removeDirectory(file);
+        } else {
+            removeFile(file);
+        }
+    }
+
+    public static void removeDirectory(File directory) throws IOException {
+        File[] files = directory.listFiles();
+        for (File file : files) {
+            remove(file);
+        }
+        removeFile(directory);
+
+    }
+
+    public static void removeFile(File file) throws IOException {
+        if (file.delete()) {
+            log.info("File [" + file.getName() + "] delete success");
+            return;
+        }
+        throw new FileNotFoundException("File [" + file.getName() + "] delete fail");
     }
 }
