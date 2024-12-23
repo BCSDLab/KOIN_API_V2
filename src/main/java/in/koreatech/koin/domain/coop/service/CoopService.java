@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.coop.service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -356,7 +355,18 @@ public class CoopService {
         compress(zipFilePath, localImageDirectory);
         remove(localImageDirectory);
         return zipFilePath;
-        // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기
+        // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기 (단일 코너에 여러 이미지가 존재할 수 있음. 어떻게 대응? 마지막 파일만 제공. 어떻게 판단? DB에 등록된 url과 매칭?
+        /**
+         * 구조를 바꿔야 할 것 같음
+         * 현재: s3에 등록된 모든 사진을 불러온다
+         * 변경: DB에 등록된 사진 중 파라미터에 대응하는 사진만 가져온다(url 기반 다운로드)
+         * 파라미터:
+         * - year (필수)
+         * - month (다중선택 가능)
+         * - 코너 (다중선택 가능)
+         */
+
+
         // TODO: 파라미터로 들어온 값에 대응하기
         // TODO: 로그찍기 지우기
     }
@@ -369,35 +379,17 @@ public class CoopService {
         try {
             new ZipFile(path).addFolder(localImageDirectory);
         } catch (ZipException e) {
-            throw new KoinIllegalStateException("이미지 파일 압축 중 문제가 발생했습니다. " + e.getMessage());
+            throw new KoinIllegalStateException("파일 압축 중 문제가 발생했습니다. " + e.getMessage());
         }
     }
 
-    public static void remove(File file) {
-        try {
-            if (file.isDirectory()) {
-                removeDirectory(file);
-            } else {
-                removeFile(file);
-            }
-        } catch (IOException e) {
-            throw new KoinIllegalStateException("식단 압축 파일 제거 과정에서 에러가 발생했습니다. " + e.getMessage());
-        }
-    }
-
-    public static void removeDirectory(File directory) throws IOException {
+    private void remove(File directory) {
         File[] files = directory.listFiles();
-        for (File file : files) {
-            remove(file);
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
         }
-        removeFile(directory);
-    }
-
-    public static void removeFile(File file) throws IOException {
-        if (file.delete()) {
-            log.info("File [" + file.getName() + "] delete success");
-            return;
-        }
-        throw new FileNotFoundException("File [" + file.getName() + "] delete fail");
+        directory.delete();
     }
 }
