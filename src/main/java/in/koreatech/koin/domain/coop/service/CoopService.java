@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -309,37 +310,36 @@ public class CoopService {
         excelDownloadCacheRepository.save(ExcelDownloadCache.from(startDate, endDate));
     }
 
-    public File generateDiningImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) throws
-        IOException {
-        File localDirectory = new File("s3-coop-images");
-        File zipFilePath = new File("s3-coop-images.zip");
-
-        String prefix = "upload/COOP/";
-        List<S3ObjectSummary> objectSummaries = s3Client.listObjects("ssg-test-bucket", prefix).getObjectSummaries();
-
-        if (!localDirectory.exists()) {
-            localDirectory.mkdirs();
+    public File generateDiningImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria)
+        throws IOException {
+        File parentDirectory = new File(RandomStringUtils.randomAlphanumeric(6));
+        File localImageDirectory = new File(parentDirectory, "dining_images");
+        File zipFilePath = new File(parentDirectory, "dining_images.zip");
+        if (!localImageDirectory.exists()) {
+            localImageDirectory.mkdirs();
         }
-
         if (zipFilePath.exists()) {
             zipFilePath.delete();
         }
 
+        List<S3ObjectSummary> objectSummaries = s3Client.listObjects("ssg-test-bucket", "upload/COOP/")
+            .getObjectSummaries();
+
         for (S3ObjectSummary summary : objectSummaries) {
             String key = summary.getKey(); // S3 키 (전체 경로)
-            // 폴더 경로는 무시
+            // 폴더 정보는 무시
             if (key.endsWith("/")) {
                 continue;
             }
             String fileName = new File(key).getName(); // 파일명만 추출
-
-            // 로컬 파일 경로를 최상위 경로로 설정
-            File localFile = new File(localDirectory, fileName);
+            File localFile = new File(localImageDirectory, fileName); // 다운로드 루트 경로에 모든 이미지 저장 예정
 
             // S3 객체 다운로드
-            try (S3Object s3Object = s3Client.getObject("ssg-test-bucket", key);
-                 InputStream inputStream = s3Object.getObjectContent();
-                 OutputStream outputStream = new FileOutputStream(localFile)) {
+            try (
+                S3Object s3Object = s3Client.getObject("ssg-test-bucket", key);
+                InputStream inputStream = s3Object.getObjectContent();
+                OutputStream outputStream = new FileOutputStream(localFile)
+            ) {
                 byte[] buffer = new byte[1024];
                 int bytesRead;
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
@@ -348,13 +348,15 @@ public class CoopService {
             }
         }
         ZipFile zipFile = new ZipFile(zipFilePath);
-        zipFile.addFolder(localDirectory);
-        remove(localDirectory);
+        zipFile.addFolder(localImageDirectory);
+        remove(localImageDirectory);
         return zipFilePath;
-        // TODO: 랜덤값 앞에 넣어서 스레드세이프하게 하고
-        // TODO: controller에서 response 만들어두고 반환직전에 새로운 스레드로 압축파일 제거 기능 넣기
+        // TODO: controller에서 response 만들어두고 반환직전에 새로운 스레드로 압축파일 제거 기능 넣기 (폴더통째로 지우기)
         // TODO: 파라미터로 들어온 값에 대응하기
         // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기
+        // TODO: 로그찍기도 지우기
+        // TODO: 설정파일에서 버킷명 불러오게 수정하기
+        // TODO: 컨트롤러 리팩토링
     }
 
     public static void remove(File file) throws IOException {
