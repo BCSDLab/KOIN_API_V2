@@ -116,9 +116,13 @@ public class CoopController implements CoopApi {
         headers.add("Expires", "0");
 
         // ResponseEntity 반환
-        return ResponseEntity.ok()
+        ResponseEntity<Resource> response = ResponseEntity.ok()
             .headers(headers)
             .contentLength(zipFile.length())
             .body(resource);
+
+        coopService.removeDiningImageCompress(zipFile);
+
+        return response;
     }
 }

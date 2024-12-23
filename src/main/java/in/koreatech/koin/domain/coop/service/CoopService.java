@@ -69,6 +69,7 @@ import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -351,12 +352,21 @@ public class CoopService {
         zipFile.addFolder(localImageDirectory);
         remove(localImageDirectory);
         return zipFilePath;
-        // TODO: controller에서 response 만들어두고 반환직전에 새로운 스레드로 압축파일 제거 기능 넣기 (폴더통째로 지우기)
         // TODO: 파라미터로 들어온 값에 대응하기
         // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기
         // TODO: 로그찍기도 지우기
         // TODO: 설정파일에서 버킷명 불러오게 수정하기
         // TODO: 컨트롤러 리팩토링
+    }
+
+    public void removeDiningImageCompress(File zipFilePath) {
+        new Thread(() -> {
+            try {
+                remove(zipFilePath.getParentFile());
+            } catch (IOException e) {
+                throw new KoinIllegalStateException("식단 압축 파일 제거 과정에서 에러가 발생했습니다. " + e.getMessage());
+            }
+        }).start();
     }
 
     public static void remove(File file) throws IOException {
@@ -373,7 +383,6 @@ public class CoopService {
             remove(file);
         }
         removeFile(directory);
-
     }
 
     public static void removeFile(File file) throws IOException {
