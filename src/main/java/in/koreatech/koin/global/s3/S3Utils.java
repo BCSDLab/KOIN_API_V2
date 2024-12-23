@@ -24,24 +24,24 @@ public class S3Utils {
 
     private static final int URL_EXPIRATION_MINUTE = 10;
 
-    private final Clock clock;
     private final String bucketName;
     private final String domainUrlPrefix;
     private final S3Presigner.Builder presignerBuilder;
     private final AmazonS3 s3Client;
+    private final Clock clock;
 
     public S3Utils(
+        @Value("${s3.bucket}") String bucketName,
+        @Value("${s3.custom_domain}") String domainUrlPrefix,
         S3Presigner.Builder presignerBuilder,
         AmazonS3 s3Client,
-        Clock clock,
-        @Value("${s3.bucket}") String bucketName,
-        @Value("${s3.custom_domain}") String domainUrlPrefix
+        Clock clock
     ) {
+        this.bucketName = bucketName;
+        this.domainUrlPrefix = domainUrlPrefix;
         this.presignerBuilder = presignerBuilder;
         this.s3Client = s3Client;
         this.clock = clock;
-        this.bucketName = bucketName;
-        this.domainUrlPrefix = domainUrlPrefix;
     }
 
     public UploadUrlResponse getUploadUrl(String uploadFilePath) {
@@ -70,5 +70,9 @@ public class S3Utils {
             new PutObjectRequest(bucketName, uploadFilePath, new ByteArrayInputStream(fileData), metaData)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
         return new UploadFileResponse(domainUrlPrefix + uploadFilePath);
+    }
+
+    public String getBucketName() {
+        return bucketName;
     }
 }

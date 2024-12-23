@@ -70,6 +70,7 @@ import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import in.koreatech.koin.global.s3.S3Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -91,6 +92,7 @@ public class CoopService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final AmazonS3 s3Client;
+    private final S3Utils s3Utils;
     private final List<String> placeFilters = Arrays.asList("A코너", "B코너", "C코너");
 
     public static final LocalDate LIMIT_DATE = LocalDate.of(2022, 11, 29);
@@ -313,6 +315,7 @@ public class CoopService {
 
     public File generateDiningImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria)
         throws IOException {
+        String bucketName = s3Utils.getBucketName();
         File parentDirectory = new File(RandomStringUtils.randomAlphanumeric(6));
         File localImageDirectory = new File(parentDirectory, "dining_images");
         File zipFilePath = new File(parentDirectory, "dining_images.zip");
@@ -323,7 +326,7 @@ public class CoopService {
             zipFilePath.delete();
         }
 
-        List<S3ObjectSummary> objectSummaries = s3Client.listObjects("ssg-test-bucket", "upload/COOP/")
+        List<S3ObjectSummary> objectSummaries = s3Client.listObjects(bucketName, "upload/COOP/")
             .getObjectSummaries();
 
         for (S3ObjectSummary summary : objectSummaries) {
@@ -337,7 +340,7 @@ public class CoopService {
 
             // S3 객체 다운로드
             try (
-                S3Object s3Object = s3Client.getObject("ssg-test-bucket", key);
+                S3Object s3Object = s3Client.getObject(bucketName, key);
                 InputStream inputStream = s3Object.getObjectContent();
                 OutputStream outputStream = new FileOutputStream(localFile)
             ) {
@@ -352,11 +355,10 @@ public class CoopService {
         zipFile.addFolder(localImageDirectory);
         remove(localImageDirectory);
         return zipFilePath;
-        // TODO: 파라미터로 들어온 값에 대응하기
-        // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기
-        // TODO: 로그찍기도 지우기
-        // TODO: 설정파일에서 버킷명 불러오게 수정하기
         // TODO: 컨트롤러 리팩토링
+        // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기
+        // TODO: 파라미터로 들어온 값에 대응하기
+        // TODO: 로그찍기 지우기
     }
 
     public void removeDiningImageCompress(File zipFilePath) {
