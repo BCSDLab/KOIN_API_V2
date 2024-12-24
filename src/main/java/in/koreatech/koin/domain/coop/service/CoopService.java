@@ -40,7 +40,6 @@ import net.lingala.zip4j.exception.ZipException;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
@@ -317,44 +316,27 @@ public class CoopService {
         String bucketName = s3Utils.getBucketName();
         File parentDirectory = new File(RandomStringUtils.randomAlphanumeric(6));
         File localImageDirectory = new File(parentDirectory, "dining_images");
-        File zipFilePath = new File(parentDirectory, "dining_images.zip");
-        if (!localImageDirectory.exists()) {
-            localImageDirectory.mkdirs();
-        }
-        if (zipFilePath.exists()) {
-            zipFilePath.delete();
-        }
+        File zipFile = new File(parentDirectory, "dining_images.zip");
+        preprocessPath(localImageDirectory, zipFile);
 
-        List<S3ObjectSummary> objectSummaries = s3Client.listObjects(bucketName, "upload/COOP/")
-            .getObjectSummaries();
+        List<String> imageUrls = List.of(
+            "https://static.koreatech.in/upload/COOP/2024/12/17/e9125577-07c8-42e3-ab0e-9a7432876064/20241217-162842"
+                + ".png",
+            "https://static.koreatech.in/upload/COOP/2024/12/18/e9125577-07c8-42e3-ab0e-9a7432876065/20241218-162842"
+                + ".png"
+        );
+        // 이미지 다운로드
+        for (String imageUrl : imageUrls) {
+            // URL에서 S3 키 추출
+            String s3Key = extractS3KeyFromUrl(imageUrl);
 
-        for (S3ObjectSummary summary : objectSummaries) {
-            String key = summary.getKey(); // S3 키 (전체 경로)
-            // 폴더 정보는 무시
-            if (key.endsWith("/")) {
-                continue;
-            }
-            String fileName = new File(key).getName(); // 파일명만 추출
-            File localFile = new File(localImageDirectory, fileName); // 다운로드 루트 경로에 모든 이미지 저장 예정
-
-            // S3 객체 다운로드
-            try (
-                S3Object s3Object = s3Client.getObject(bucketName, key);
-                InputStream inputStream = s3Object.getObjectContent();
-                OutputStream outputStream = new FileOutputStream(localFile)
-            ) {
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                }
-            } catch (IOException e) {
-                throw new KoinIllegalStateException("S3 객체 다운로드 중 문제가 발생했습니다. " + e.getMessage());
-            }
+            // S3에서 이미지 다운로드
+            File localFile = new File(localImageDirectory, new File(s3Key).getName());
+            downloadS3Object(bucketName, s3Key, localFile);
         }
-        compress(zipFilePath, localImageDirectory);
+        compress(zipFile, localImageDirectory);
         remove(localImageDirectory);
-        return zipFilePath;
+        return zipFile;
         // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기 (단일 코너에 여러 이미지가 존재할 수 있음. 어떻게 대응? 마지막 파일만 제공. 어떻게 판단? DB에 등록된 url과 매칭?
         /**
          * 구조를 바꿔야 할 것 같음
@@ -366,9 +348,38 @@ public class CoopService {
          * - 코너 (다중선택 가능)
          */
 
-
         // TODO: 파라미터로 들어온 값에 대응하기
         // TODO: 로그찍기 지우기
+    }
+
+    private String extractS3KeyFromUrl(String imageUrl) {
+        // URL format: https://<bucket-name>/<key(경로+파일명)>
+        // URL example: https://static.koreatech.in/upload/COOP/2024/12/23/03da9c2b-a5eb-4441-9d2b-0e4a35393805/1000000000.jpg
+        String cdnPath = "static.koreatech.in";
+        return imageUrl.substring(imageUrl.indexOf(cdnPath) + cdnPath.length() + 1);
+    }
+
+    private void preprocessPath(File localImageDirectory, File zipFilePath) {
+        if (!localImageDirectory.exists()) {
+            localImageDirectory.mkdirs();
+        }
+        if (zipFilePath.exists()) {
+            zipFilePath.delete();
+        }
+    }
+
+    private void downloadS3Object(String bucketName, String s3Key, File localFile) {
+        try (S3Object s3Object = s3Client.getObject(bucketName, s3Key);
+             InputStream inputStream = s3Object.getObjectContent();
+             OutputStream outputStream = new FileOutputStream(localFile)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            throw new KoinIllegalStateException("S3 객체 다운로드 중 문제가 발생했습니다. " + e.getMessage());
+        }
     }
 
     public void removeDiningImageCompress(File zipFilePath) {
