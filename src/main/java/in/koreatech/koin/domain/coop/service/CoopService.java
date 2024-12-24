@@ -326,7 +326,7 @@ public class CoopService {
 
     private File generateZipFileOf(List<Dining> dinings) {
         String bucketName = s3Utils.getBucketName();
-        File parentDirectory = new File(RandomStringUtils.randomAlphanumeric(6));
+        File parentDirectory = new File("image-download", RandomStringUtils.randomAlphanumeric(6));
         File localImageDirectory = new File(parentDirectory, "dining_images");
         File zipFile = new File(parentDirectory, "dining_images.zip");
         preprocessPath(localImageDirectory, zipFile);
