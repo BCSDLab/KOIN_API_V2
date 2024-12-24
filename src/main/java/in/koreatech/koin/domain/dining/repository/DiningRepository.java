@@ -38,6 +38,8 @@ public interface DiningRepository extends Repository<Dining, Integer> {
 
     List<Dining> findByDateBetweenAndPlaceIn(LocalDate startDate, LocalDate endDate, List<String> placeFilters);
 
+    List<Dining> findByDateBetweenAndImageUrlIsNotNull(LocalDate startDate, LocalDate endDate);
+
     Optional<List<Dining>> findByDate(LocalDate now);
 
     default List<Dining> getByDate(LocalDate now){

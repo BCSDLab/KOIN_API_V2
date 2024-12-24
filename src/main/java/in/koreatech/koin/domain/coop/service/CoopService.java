@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -315,46 +313,42 @@ public class CoopService {
     }
 
     public File generateDiningImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
+        validateDates(startDate, endDate);
+        List<Dining> dinings = // fetchDiningData(startDate, endDate, isCafeteria); <- image url 필터링을 sql 단에서 걸려면 재사용이 불가능
+            diningRepository.findByDateBetweenAndImageUrlIsNotNull(startDate, endDate);
+        // filterDinings(dinings); <- 코너나 식사시간에 따라 필터링
+
+        return generateZipFileOf(dinings);
+        // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기. DB 정보 기반으로 적용
+        // TODO: 파라미터로 들어온 값에 대응하기
+        // TODO: 로그찍기 지우기
+    }
+
+    private File generateZipFileOf(List<Dining> dinings) {
         String bucketName = s3Utils.getBucketName();
         File parentDirectory = new File(RandomStringUtils.randomAlphanumeric(6));
         File localImageDirectory = new File(parentDirectory, "dining_images");
         File zipFile = new File(parentDirectory, "dining_images.zip");
         preprocessPath(localImageDirectory, zipFile);
 
-        List<String> imageUrls = List.of(
-            "https://static.koreatech.in/upload/COOP/2024/12/17/e9125577-07c8-42e3-ab0e-9a7432876064/20241217-162842"
-                + ".png",
-            "https://static.koreatech.in/upload/COOP/2024/12/18/e9125577-07c8-42e3-ab0e-9a7432876065/20241218-162842"
-                + ".png"
-        );
-        // 이미지 다운로드
-        for (String imageUrl : imageUrls) {
-            String s3Key = extractS3KeyFromUrl(imageUrl);
-            File localFile = new File(localImageDirectory, convertFileName(s3Key));
+        for (Dining dining : dinings) {
+            if (dining.getImageUrl().isEmpty()) {
+                continue;
+            }
+            String s3Key = extractS3KeyFromUrl(dining.getImageUrl());
+            File localFile = new File(localImageDirectory, convertFileName(dining, s3Key));
             downloadS3Object(bucketName, s3Key, localFile);
         }
         compress(zipFile, localImageDirectory);
         remove(localImageDirectory);
         return zipFile;
-    // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기. DB 정보 기반으로 적용
-        /**
-         * 파라미터:
-         * - year (필수)
-         * - month (다중선택 가능)
-         * - 코너 (다중선택 가능)
-         */
-
-        // TODO: 파라미터로 들어온 값에 대응하기
-        // TODO: 로그찍기 지우기
     }
 
-    private String convertFileName(String s3Key) {
+    private String convertFileName(Dining dining, String s3Key) {
         String extension = s3Key.substring(s3Key.lastIndexOf("."));
-        Matcher matcher = Pattern.compile("/(\\d{4})/(\\d{2})/(\\d{2})/").matcher(s3Key);
-        if (matcher.find()) {
-            return matcher.group(1) + "-" + matcher.group(2) + "-" + matcher.group(3) + extension;
-        }
-        throw new KoinIllegalStateException("파일명 변환 중 문제가 발생했습니다.");
+        LocalDate date = dining.getDate();
+        return date.getYear() + "-" + date.getMonthValue() + "-" + date.getDayOfMonth() + "-"
+            + dining.getType().getDiningName() + "-" + dining.getPlace() + extension;
     }
 
     private String extractS3KeyFromUrl(String imageUrl) {
