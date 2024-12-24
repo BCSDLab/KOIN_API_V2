@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -327,21 +329,15 @@ public class CoopService {
         );
         // 이미지 다운로드
         for (String imageUrl : imageUrls) {
-            // URL에서 S3 키 추출
             String s3Key = extractS3KeyFromUrl(imageUrl);
-
-            // S3에서 이미지 다운로드
-            File localFile = new File(localImageDirectory, new File(s3Key).getName());
+            File localFile = new File(localImageDirectory, convertFileName(s3Key));
             downloadS3Object(bucketName, s3Key, localFile);
         }
         compress(zipFile, localImageDirectory);
         remove(localImageDirectory);
         return zipFile;
-        // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기 (단일 코너에 여러 이미지가 존재할 수 있음. 어떻게 대응? 마지막 파일만 제공. 어떻게 판단? DB에 등록된 url과 매칭?
+    // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기. DB 정보 기반으로 적용
         /**
-         * 구조를 바꿔야 할 것 같음
-         * 현재: s3에 등록된 모든 사진을 불러온다
-         * 변경: DB에 등록된 사진 중 파라미터에 대응하는 사진만 가져온다(url 기반 다운로드)
          * 파라미터:
          * - year (필수)
          * - month (다중선택 가능)
@@ -350,6 +346,15 @@ public class CoopService {
 
         // TODO: 파라미터로 들어온 값에 대응하기
         // TODO: 로그찍기 지우기
+    }
+
+    private String convertFileName(String s3Key) {
+        String extension = s3Key.substring(s3Key.lastIndexOf("."));
+        Matcher matcher = Pattern.compile("/(\\d{4})/(\\d{2})/(\\d{2})/").matcher(s3Key);
+        if (matcher.find()) {
+            return matcher.group(1) + "-" + matcher.group(2) + "-" + matcher.group(3) + extension;
+        }
+        throw new KoinIllegalStateException("파일명 변환 중 문제가 발생했습니다.");
     }
 
     private String extractS3KeyFromUrl(String imageUrl) {
