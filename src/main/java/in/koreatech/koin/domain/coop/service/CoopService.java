@@ -71,9 +71,7 @@ import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import in.koreatech.koin.global.s3.S3Utils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -319,9 +317,6 @@ public class CoopService {
         // filterDinings(dinings); <- 코너나 식사시간에 따라 필터링
 
         return generateZipFileOf(dinings);
-        // TODO: 파일명을 날짜-식사시간-코너명으로 바꾸기. DB 정보 기반으로 적용
-        // TODO: 파라미터로 들어온 값에 대응하기
-        // TODO: 로그찍기 지우기
     }
 
     private File generateZipFileOf(List<Dining> dinings) {
@@ -335,7 +330,7 @@ public class CoopService {
             if (dining.getImageUrl().isEmpty()) {
                 continue;
             }
-            String s3Key = extractS3KeyFromUrl(dining.getImageUrl());
+            String s3Key = extractS3KeyFrom(dining.getImageUrl());
             File localFile = new File(localImageDirectory, convertFileName(dining, s3Key));
             downloadS3Object(bucketName, s3Key, localFile);
         }
@@ -351,7 +346,7 @@ public class CoopService {
             + dining.getType().getDiningName() + "-" + dining.getPlace() + extension;
     }
 
-    private String extractS3KeyFromUrl(String imageUrl) {
+    private String extractS3KeyFrom(String imageUrl) {
         // URL format: https://<bucket-name>/<key(경로+파일명)>
         // URL example: https://static.koreatech.in/upload/COOP/2024/12/23/03da9c2b-a5eb-4441-9d2b-0e4a35393805/1000000000.jpg
         String cdnPath = "static.koreatech.in";
