@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.timetableV2.exception;
+package in.koreatech.koin.domain.graduation.exception;
 
 import in.koreatech.koin.global.exception.DataNotFoundException;
 
