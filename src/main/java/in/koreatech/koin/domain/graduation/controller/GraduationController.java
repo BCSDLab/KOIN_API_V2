@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.AbstractController;
 
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.user.model.UserType;
@@ -22,7 +21,7 @@ public class GraduationController implements GraduationApi {
 
     @PostMapping("/graduation/excel/upload")
     public ResponseEntity<String> uploadStudentGradeExcelFile(
-        @RequestParam(value = "file", required = false) MultipartFile file,
+        @RequestParam(value = "file") MultipartFile file,
         @Auth(permit = {UserType.STUDENT}) Integer userId
     ) {
         try {

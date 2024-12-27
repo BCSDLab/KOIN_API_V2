@@ -13,8 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.amazonaws.services.dynamodbv2.xspec.M;
-
 import in.koreatech.koin.domain.graduation.dto.ExcelStudentData;
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
@@ -43,10 +41,10 @@ public class GraduationService {
     private static final String UNSATISFACTORY = "U";
 
     private final CourseTypeRepository courseTypeRepository;
-    private final LectureRepositoryV2 lectureRepositoryV2;
-    private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final UserRepository userRepository;
     private final SemesterRepositoryV2 semesterRepositoryV2;
+    private final LectureRepositoryV2 lectureRepositoryV2;
+    private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
 
     @Transactional
