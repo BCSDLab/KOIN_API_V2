@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.graduation.repository.DetectGraduationCalculatio
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.repository.StudentCourseCalculationRepository;
 import in.koreatech.koin.domain.student.exception.DepartmentNotFoundException;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +54,33 @@ public class GraduationService {
             .isChanged(false)
             .build();
         detectGraduationCalculationRepository.save(detectGraduationCalculation);
+    }
+
+    @Transactional
+    public void resetStudentCourseCalculation(Student student, Department newDepartment) {
+        // 기존 학생 졸업요건 계산 정보 삭제
+        studentCourseCalculationRepository.findByUserId(student.getUser().getId())
+            .ifPresent(studentCourseCalculation -> {
+                studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
+            });
+        // 학번에 맞는 이수요건 정보 조회
+        List<StandardGraduationRequirements> requirementsList =
+            standardGraduationRequirementsRepository.findAllByDepartmentAndYear(
+                newDepartment, student.getStudentNumber().substring(0, 4));
+        // 학생 졸업요건 계산 정보 초기화
+        requirementsList.forEach(requirement ->
+            studentCourseCalculationRepository.save(
+                StudentCourseCalculation.builder()
+                    .completedGrades(0)
+                    .user(student.getUser())
+                    .standardGraduationRequirements(requirement)
+                    .build()
+            )
+        );
+        // DetectGraduationCalculation 정보 업데이트
+        detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
+            .ifPresent(detectGraduationCalculation -> {
+                detectGraduationCalculation.updatedIsChanged(true);
+            });
     }
 }
