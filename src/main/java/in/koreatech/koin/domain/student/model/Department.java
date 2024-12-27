@@ -1,4 +1,4 @@
-package in.koreatech.koin.domain.graduation.model;
+package in.koreatech.koin.domain.student.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -31,7 +31,7 @@ public class Department extends BaseEntity {
     private String name;
 
     @Builder
-    private Department(String name) {
+    public Department(String name) {
         this.name = name;
     }
 }

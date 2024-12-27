@@ -8,7 +8,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -35,8 +38,9 @@ public class Student {
     @Column(name = "student_number", length = 20)
     private String studentNumber;
 
-    @Column(name = "major", length = 50)
-    private String department;
+    @JoinColumn(name = "department_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Department department;
 
     @Column(name = "identity", columnDefinition = "SMALLINT")
     @Enumerated(EnumType.ORDINAL)
@@ -53,7 +57,7 @@ public class Student {
     private Student(
         String anonymousNickname,
         String studentNumber,
-        String department,
+        Department department,
         UserIdentity userIdentity,
         boolean isGraduated,
         User user
@@ -66,7 +70,7 @@ public class Student {
         this.user = user;
     }
 
-    public void updateInfo(String studentNumber, String department) {
+    public void updateInfo(String studentNumber, Department department) {
         this.studentNumber = studentNumber;
         this.department = department;
     }

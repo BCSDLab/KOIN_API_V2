@@ -21,9 +21,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 import in.koreatech.koin.AcceptanceTest;
 import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.model.Admin;
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserGender;
+import in.koreatech.koin.fixture.DepartmentFixture;
 import in.koreatech.koin.fixture.UserFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -39,6 +41,9 @@ public class AdminStudentApiTest extends AcceptanceTest {
 
     @Autowired
     private UserFixture userFixture;
+
+    @Autowired
+    private DepartmentFixture departmentFixture;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -84,10 +89,11 @@ public class AdminStudentApiTest extends AcceptanceTest {
     @Test
     void 관리자가_학생_리스트를_페이지_수와_limits으로_조회한다_페이지네이션() throws Exception {
         for (int i = 0; i < 11; i++) {
+            Department department = departmentFixture.컴퓨터공학부();
             Student student = Student.builder()
                 .studentNumber("2019136135")
                 .anonymousNickname("익명" + i)
-                .department("컴퓨터공학부")
+                .department(department)
                 .userIdentity(UNDERGRADUATE)
                 .isGraduated(false)
                 .user(
