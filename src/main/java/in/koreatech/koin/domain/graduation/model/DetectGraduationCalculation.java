@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,6 +36,15 @@ public class DetectGraduationCalculation {
     @NotNull
     @Column(name = "is_changed", columnDefinition = "TINYINT")
     private boolean isChanged = false;
+
+    @Builder
+    private DetectGraduationCalculation(
+        User user,
+        boolean isChanged
+    ) {
+        this.user = user;
+        this.isChanged = isChanged;
+    }
 
     public void updatedIsChanged(boolean isChanged) {
         this.isChanged = isChanged;

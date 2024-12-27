@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.graduation.model.DetectGraduationCalculation;
 import in.koreatech.koin.domain.graduation.model.StandardGraduationRequirements;
 import in.koreatech.koin.domain.graduation.model.StudentCourseCalculation;
+import in.koreatech.koin.domain.graduation.repository.DetectGraduationCalculationRepository;
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.repository.StudentCourseCalculationRepository;
 import in.koreatech.koin.domain.student.exception.DepartmentNotFoundException;
@@ -22,6 +24,7 @@ public class GraduationService {
     private final StudentRepository studentRepository;
     private final StudentCourseCalculationRepository studentCourseCalculationRepository;
     private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
+    private final DetectGraduationCalculationRepository detectGraduationCalculationRepository;
 
     @Transactional
     public void createStudentCourseCalculation(Integer userId) {
@@ -34,16 +37,21 @@ public class GraduationService {
             DepartmentNotFoundException.withDetail("학번을 추가하세요.");
         }
 
-        List<StandardGraduationRequirements> StandardGraduationRequirementsList = standardGraduationRequirementsRepository.
-            findAllByDepartmentAndYear(student.getDepartment(), student.getStudentNumber().substring(0, 4));
-        for (StandardGraduationRequirements standardGraduationRequirements : StandardGraduationRequirementsList) {
-            StudentCourseCalculation studentCourseCalculation = StudentCourseCalculation.builder()
+        List<StandardGraduationRequirements> requirementsList =
+            standardGraduationRequirementsRepository.findAllByDepartmentAndYear(
+                student.getDepartment(), student.getStudentNumber().substring(0, 4));
+
+        requirementsList.forEach(requirement -> studentCourseCalculationRepository.save(
+            StudentCourseCalculation.builder()
                 .completedGrades(0)
                 .user(student.getUser())
-                .standardGraduationRequirements(standardGraduationRequirements)
-                .build();
-            studentCourseCalculationRepository.save(studentCourseCalculation);
-        }
+                .standardGraduationRequirements(requirement)
+                .build()));
 
+        DetectGraduationCalculation detectGraduationCalculation = DetectGraduationCalculation.builder()
+            .user(student.getUser())
+            .isChanged(false)
+            .build();
+        detectGraduationCalculationRepository.save(detectGraduationCalculation);
     }
 }

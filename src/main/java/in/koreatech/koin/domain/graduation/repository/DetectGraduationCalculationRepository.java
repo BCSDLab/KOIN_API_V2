@@ -9,5 +9,7 @@ import in.koreatech.koin.domain.graduation.model.DetectGraduationCalculation;
 public interface DetectGraduationCalculationRepository extends Repository<DetectGraduationCalculation, Integer> {
 
     Optional<DetectGraduationCalculation> findByUserId(Integer userId);
+
+    void save(DetectGraduationCalculation detectGraduationCalculation);
 }
 
