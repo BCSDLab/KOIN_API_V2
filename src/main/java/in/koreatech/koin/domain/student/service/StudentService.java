@@ -3,9 +3,11 @@ import java.time.Clock;
 import java.util.Optional;
 import java.util.UUID;
 
+import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.model.StudentEmailRequestEvent;
 import in.koreatech.koin.domain.student.model.StudentRegisterEvent;
+import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.model.*;
 import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
@@ -51,6 +53,7 @@ public class StudentService {
     private final UserTokenRepository userTokenRepository;
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
+    private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
@@ -88,9 +91,10 @@ public class StudentService {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
 
+        Department newDepartment = departmentRepository.getByName(request.major());
         user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updateStudentPassword(passwordEncoder, request.password());
-        student.updateInfo(request.studentNumber(), request.major());
+        student.updateInfo(request.studentNumber(), newDepartment);
 
         return StudentUpdateResponse.from(student);
     }
@@ -104,7 +108,8 @@ public class StudentService {
             modelAndView.addObject("errorMessage", "토큰이 유효하지 않습니다.");
             return modelAndView;
         }
-        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder);
+        Department department = departmentRepository.getByName(studentTemporaryStatus.get().getDepartment());
+        Student student = studentTemporaryStatus.get().toStudent(passwordEncoder, department);
         studentRepository.save(student);
         userRepository.save(student.getUser());
         studentRedisRepository.deleteById(student.getUser().getEmail());
