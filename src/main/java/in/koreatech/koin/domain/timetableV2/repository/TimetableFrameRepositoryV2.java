@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV2.repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,5 +73,10 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
 
     void deleteAllByUserAndSemester(User user, Semester semester);
 
-    List<TimetableFrame> findAllByUserId(Integer userId);
+    Optional<List<TimetableFrame>> findAllByUserId(Integer userId);
+
+    default List<TimetableFrame> getAllByUserId(Integer userId) {
+        return findAllByUserId(userId)
+            .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("userId: " + userId));
+    };
 }

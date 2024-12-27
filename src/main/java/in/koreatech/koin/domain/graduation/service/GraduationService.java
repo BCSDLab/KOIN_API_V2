@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -89,7 +90,7 @@ public class GraduationService {
     }
 
     private List<Catalog> getCatalogListForStudent(Student student, String studentYear) {
-        List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.findAllByUserId(student.getId()).stream()
+        List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.getAllByUserId(student.getId()).stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
             .toList();
 
@@ -105,12 +106,12 @@ public class GraduationService {
     }
 
     private Map<Integer, Integer> calculateCourseTypeCredits(List<Catalog> catalogList) {
-        return catalogList.stream()
-            .collect(Collectors.toMap(
-                catalog -> catalog.getCourseType().getId(),
-                Catalog::getCredit,
-                Integer::sum
-            ));
+        Map<Integer, Integer> courseTypeCreditsMap = new HashMap<>();
+        for (Catalog catalog : catalogList) {
+            int courseTypeId = catalog.getCourseType().getId();
+            courseTypeCreditsMap.put(courseTypeId, courseTypeCreditsMap.getOrDefault(courseTypeId, 0) + catalog.getCredit());
+        }
+        return courseTypeCreditsMap;
     }
 
     private List<StandardGraduationRequirements> getGraduationRequirements(List<Catalog> catalogList, String studentYear) {
@@ -145,6 +146,10 @@ public class GraduationService {
 
     private int updateStudentCourseCalculation(Integer userId, Student student, StandardGraduationRequirements requirement,
         Map<Integer, Integer> courseTypeCreditsMap) {
+        if (requirement.getCourseType() == null) {
+            throw new IllegalStateException("CourseType이 null입니다.");
+        }
+
         int completedGrades = courseTypeCreditsMap.getOrDefault(requirement.getCourseType().getId(), 0);
 
         StudentCourseCalculation existingCalculation = studentCourseCalculationRepository

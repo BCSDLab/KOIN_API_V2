@@ -16,23 +16,21 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 @RestController
 @RequiredArgsConstructor
-public class GraduationController implements GraduationApi{
+public class GraduationController implements GraduationApi {
 
     private final GraduationService graduationService;
 
     @PostMapping("/graduation/agree")
     public ResponseEntity<Void> createStudentCourseCalculation(
-            @Auth(permit = {STUDENT}) Integer userId)
-    {
+        @Auth(permit = {STUDENT}) Integer userId) {
         graduationService.createStudentCourseCalculation(userId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/graduation/course/calculation")
     public ResponseEntity<GraduationCourseCalculationResponse> getGraduationCourseCalculation(
-        @Auth(permit = {STUDENT}) Integer userId)
-    {
+        @Auth(permit = {STUDENT}) Integer userId) {
         GraduationCourseCalculationResponse response = graduationService.getGraduationCourseCalculationResponse(userId);
         return ResponseEntity.ok(response);
     }
-    }
+}
