@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import in.koreatech.koin.domain.graduation.dto.ExcelStudentData;
+import in.koreatech.koin.domain.graduation.model.GradeExcelData;
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
 import in.koreatech.koin.domain.graduation.exception.ExcelFileCheckException;
@@ -58,17 +58,17 @@ public class GraduationService {
             String currentSemester = "default";
 
             for (Row row : sheet) {
-                ExcelStudentData data = extractStudentData(row);
+                GradeExcelData data = extractExcelData(row);
                 if (row.getRowNum() == 0 || skipRow(data))
                     continue;
 
-                if (data.excelClassTitle().equals(TOTAL))
+                if (data.classTitle().equals(TOTAL))
                     break;
 
-                String semester = getKoinSemester(data.excelSemester(), data.excelYear());
-                CourseType courseType = courseTypeRepository.findByName(data.excelCourseType()).orElse(null);
+                String semester = getKoinSemester(data.semester(), data.year());
+                CourseType courseType = courseTypeRepository.findByName(data.courseType()).orElse(null);
                 Lecture lecture = lectureRepositoryV2.findBySemesterAndCodeAndLectureClass(semester,
-                    data.excelCode(), data.excelLectureClass()).orElse(null);
+                    data.code(), data.lectureClass()).orElse(null);
 
                 if (!currentSemester.equals(semester)) {
                     currentSemester = semester;
@@ -76,12 +76,10 @@ public class GraduationService {
                 }
 
                 TimetableLecture timetableLecture = TimetableLecture.builder()
-                    .classTitle(data.excelClassTitle())
+                    .classTitle(data.classTitle())
                     .classTime(lecture != null ? lecture.getClassTime() : null)
-                    .classPlace(null)
-                    .professor(data.excelProfessor())
-                    .grades(data.excelCredit())
-                    .memo(null)
+                    .professor(data.professor())
+                    .grades(data.credit())
                     .isDeleted(false)
                     .lecture(lecture)
                     .timetableFrame(graduationFrame)
@@ -107,13 +105,17 @@ public class GraduationService {
         TimetableFrame graduationFrame = TimetableFrame.builder()
             .user(user)
             .semester(saveSemester)
-            .name("졸업학점 계산용 테이블")
+            .name("Graduation Frame")
             .isDeleted(false)
             .isMain(true)
             .build();
         timetableFrameRepositoryV2.save(graduationFrame);
 
         return graduationFrame;
+    }
+
+    private GradeExcelData extractExcelData(Row row) {
+        return GradeExcelData.fromRow(row);
     }
 
     private void checkFiletype(MultipartFile file) {
@@ -133,36 +135,10 @@ public class GraduationService {
         }
     }
 
-    private ExcelStudentData extractStudentData(Row row) {
-        return new ExcelStudentData(
-            getCellValueAsString(row.getCell(1)),
-            getCellValueAsString(row.getCell(2)),
-            getCellValueAsString(row.getCell(4)),
-            getCellValueAsString(row.getCell(5)),
-            getCellValueAsString(row.getCell(6)),
-            getCellValueAsString(row.getCell(7)),
-            getCellValueAsString(row.getCell(8)),
-            getCellValueAsString(row.getCell(9)),
-            getCellValueAsString(row.getCell(10)),
-            getCellValueAsString(row.getCell(11))
-        );
-    }
-
-    private boolean skipRow(ExcelStudentData excelStudentData) {
-        return excelStudentData.excelClassTitle().equals(MIDDLE_TOTAL) ||
-               excelStudentData.excelRetakeStatus().equals(RETAKE) ||
-               excelStudentData.excelGrade().equals(UNSATISFACTORY);
-    }
-
-    private String getCellValueAsString(Cell cell) {
-        if (cell == null) {
-            return "";
-        }
-        return switch (cell.getCellType()) {
-            case STRING -> cell.getStringCellValue();
-            case NUMERIC -> String.valueOf((int)cell.getNumericCellValue());
-            default -> "";
-        };
+    private boolean skipRow(GradeExcelData gradeExcelData) {
+        return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
+               gradeExcelData.retakeStatus().equals(RETAKE) ||
+               gradeExcelData.grade().equals(UNSATISFACTORY);
     }
 
     private String getKoinSemester(String semester, String year) {
