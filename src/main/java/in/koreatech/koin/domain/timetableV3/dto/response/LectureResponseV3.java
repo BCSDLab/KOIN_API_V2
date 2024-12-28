@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -66,39 +67,22 @@ public record LectureResponseV3(
         @Schema(description = "종료 시간", example = "115", requiredMode = REQUIRED)
         Integer endTime
     ) {
-        public static List<LectureInfo> of(String classTime) {
-            List<Integer> classTimes = convertList(classTime);
-            if (classTimes.isEmpty()) {
-                return List.of();
-            }
-
+        public static List<LectureInfo> of(List<LectureInformation> lectureInformations) {
             List<LectureInfo> response = new ArrayList<>();
-            int size = classTimes.size();
-            Integer startTime = classTimes.get(0);
-            Integer prevTime = classTimes.get(0);
 
-            for (int index = 1; index < size; index++) {
-                if (prevTime + 1 != classTimes.get(index)) {
-                    response.add(new LectureInfo(startTime / 100, startTime, prevTime));
-                    startTime = classTimes.get(index);
-                }
-                prevTime = classTimes.get(index);
+            for (LectureInformation lectureInformation : lectureInformations) {
+                response.add(new LectureInfo(
+                    lectureInformation.getStarTime() / 100,
+                    lectureInformation.getStarTime(),
+                    lectureInformation.getEndTime())
+                );
             }
-            response.add(new LectureInfo(startTime / 100, startTime, prevTime));
 
             return response;
         }
-
-        public static List<Integer> convertList(String classTime) {
-            return Stream.of(classTime.replaceAll("[\\[\\]]", "").split(","))
-                .map(String::strip)
-                .filter(time -> !time.isEmpty())
-                .map(Integer::parseInt)
-                .toList();
-        }
     }
 
-    public static LectureResponseV3 of(Lecture lecture) {
+    public static LectureResponseV3 from(Lecture lecture, List<LectureInformation> lectureInformations) {
         return new LectureResponseV3(
             lecture.getId(),
             lecture.getCode(),
@@ -112,7 +96,7 @@ public record LectureResponseV3(
             lecture.getIsEnglish(),
             lecture.getDesignScore(),
             lecture.getIsElearning(),
-            LectureInfo.of(lecture.getClassTime())
+            LectureInfo.of(lectureInformations)
         );
     }
 }
