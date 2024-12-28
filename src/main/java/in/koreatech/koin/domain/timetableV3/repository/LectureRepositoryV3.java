@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
@@ -15,4 +16,6 @@ public interface LectureRepositoryV3 extends Repository<Lecture, Integer> {
         return findById(id)
             .orElseThrow(() -> LectureNotFoundException.withDetail("lecture_id: " + id));
     }
+
+    List<Lecture> findBySemester(String semesterDate);
 }
