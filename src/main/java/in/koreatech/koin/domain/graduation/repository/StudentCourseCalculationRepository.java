@@ -13,4 +13,6 @@ public interface StudentCourseCalculationRepository extends JpaRepository<Studen
     Optional<StudentCourseCalculation> findByUserId(Integer userId);
 
     void deleteAllByUserId(Integer userId);
+
+    StudentCourseCalculation findByUserIdAndStandardGraduationRequirementsId(Integer userId, Integer id);
 }
