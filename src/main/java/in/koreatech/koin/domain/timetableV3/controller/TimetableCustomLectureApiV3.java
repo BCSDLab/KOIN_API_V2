@@ -3,7 +3,6 @@ package in.koreatech.koin.domain.timetableV3.controller;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
