@@ -19,11 +19,14 @@ import in.koreatech.koin.domain.graduation.repository.DetectGraduationCalculatio
 import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
 import in.koreatech.koin.domain.graduation.repository.StudentCourseCalculationRepository;
 import in.koreatech.koin.domain.student.exception.DepartmentNotFoundException;
+import in.koreatech.koin.domain.student.exception.StudentNumberNotFoundException;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -99,7 +102,7 @@ public class GraduationService {
     public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
         // 학생 정보와 학과 검증
         Student student = getValidatedStudent(userId);
-        String studentYear = student.getStudentNumber().substring(0, 4);
+        String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
 
         // 시간표와 대학 요람 데이터 가져오기
         List<Catalog> catalogList = getCatalogListForStudent(student, studentYear);
@@ -108,7 +111,8 @@ public class GraduationService {
         Map<Integer, Integer> courseTypeCreditsMap = calculateCourseTypeCredits(catalogList);
 
         // GraduationRequirements 리스트 조회
-        List<StandardGraduationRequirements> graduationRequirements = getGraduationRequirements(catalogList, studentYear);
+        List<StandardGraduationRequirements> graduationRequirements = getGraduationRequirements(catalogList,
+            studentYear);
 
         // 계산 로직 및 응답 생성
         List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = processGraduationCalculations(
@@ -122,10 +126,10 @@ public class GraduationService {
         Student student = studentRepository.getById(userId);
 
         if (student.getDepartment() == null) {
-            DepartmentNotFoundException.withDetail("학과를 추가하세요.");
+            throw new DepartmentNotFoundException("학과를 추가하세요.");
         }
         if (student.getStudentNumber() == null) {
-            DepartmentNotFoundException.withDetail("학번을 추가하세요.");
+            throw new StudentNumberNotFoundException("학번을 추가하세요.");
         }
         return student;
     }
@@ -136,13 +140,17 @@ public class GraduationService {
             .toList();
 
         List<Catalog> catalogList = new ArrayList<>();
-        timetableLectures.stream()
-            .map(timetableLecture -> timetableLecture.getLecture().getName())
-            .forEach(lectureName -> {
+        timetableLectures.forEach(timetableLecture -> {
+            String lectureName = timetableLecture.getLecture() != null
+                ? timetableLecture.getLecture().getName()
+                : timetableLecture.getClassTitle();
+
+            if (lectureName != null) {
                 List<Catalog> catalogs = catalogRepository.findByLectureNameAndYearAndDepartment(
                     lectureName, studentYear, student.getDepartment());
                 catalogList.addAll(catalogs);
-            });
+            }
+        });
         return catalogList;
     }
 
@@ -150,12 +158,14 @@ public class GraduationService {
         Map<Integer, Integer> courseTypeCreditsMap = new HashMap<>();
         for (Catalog catalog : catalogList) {
             int courseTypeId = catalog.getCourseType().getId();
-            courseTypeCreditsMap.put(courseTypeId, courseTypeCreditsMap.getOrDefault(courseTypeId, 0) + catalog.getCredit());
+            courseTypeCreditsMap.put(courseTypeId,
+                courseTypeCreditsMap.getOrDefault(courseTypeId, 0) + catalog.getCredit());
         }
         return courseTypeCreditsMap;
     }
 
-    private List<StandardGraduationRequirements> getGraduationRequirements(List<Catalog> catalogList, String studentYear) {
+    private List<StandardGraduationRequirements> getGraduationRequirements(List<Catalog> catalogList,
+        String studentYear) {
         return catalogList.stream()
             .map(catalog -> standardGraduationRequirementsRepository.findByDepartmentIdAndCourseTypeIdAndYear(
                 catalog.getDepartment().getId(),
@@ -172,20 +182,17 @@ public class GraduationService {
         Integer userId, Student student, List<StandardGraduationRequirements> graduationRequirements,
         Map<Integer, Integer> courseTypeCreditsMap) {
 
-        List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = new ArrayList<>();
-
-        for (StandardGraduationRequirements requirement : graduationRequirements) {
-            // 1. 학점 계산 및 저장
-            int completedGrades = updateStudentCourseCalculation(userId, student, requirement, courseTypeCreditsMap);
-
-            // 2. 응답 생성
-            GraduationCourseCalculationResponse.InnerCalculationResponse response = createCalculationResponse(requirement, completedGrades);
-            courseTypes.add(response);
-        }
-        return courseTypes;
+        return graduationRequirements.stream()
+            .map(requirement -> GraduationCourseCalculationResponse.InnerCalculationResponse.of(
+                requirement.getCourseType().getName(),
+                requirement.getRequiredGrades(),
+                updateStudentCourseCalculation(userId, student, requirement, courseTypeCreditsMap)
+            ))
+            .toList();
     }
 
-    private int updateStudentCourseCalculation(Integer userId, Student student, StandardGraduationRequirements requirement,
+    private int updateStudentCourseCalculation(Integer userId, Student student,
+        StandardGraduationRequirements requirement,
         Map<Integer, Integer> courseTypeCreditsMap) {
         if (requirement.getCourseType() == null) {
             throw new IllegalStateException("CourseType이 null입니다.");
@@ -209,15 +216,5 @@ public class GraduationService {
         studentCourseCalculationRepository.save(newCalculation);
 
         return completedGrades;
-    }
-
-    private GraduationCourseCalculationResponse.InnerCalculationResponse createCalculationResponse(
-        StandardGraduationRequirements requirement, int completedGrades) {
-
-        return GraduationCourseCalculationResponse.InnerCalculationResponse.of(
-            requirement.getCourseType().getName(),
-            requirement.getRequiredGrades(),
-            completedGrades
-        );
     }
 }

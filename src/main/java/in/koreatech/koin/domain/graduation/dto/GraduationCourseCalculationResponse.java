@@ -1,12 +1,19 @@
 package in.koreatech.koin.domain.graduation.dto;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
+
 import java.util.List;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record GraduationCourseCalculationResponse(
+
     List<InnerCalculationResponse> courseTypes
 ) {
 
-    public static record InnerCalculationResponse(String courseType, int requiredGrades, int grades) {
+    public record InnerCalculationResponse(String courseType, int requiredGrades, int grades) {
 
         public static InnerCalculationResponse of(String courseType, int requiredGrades, int grades) {
             return new InnerCalculationResponse(courseType, requiredGrades, grades);
