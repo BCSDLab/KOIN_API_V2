@@ -7,9 +7,7 @@ import org.springframework.stereotype.Component;
 import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
-import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
-import in.koreatech.koin.domain.student.repository.DepartmentRepository;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.timetable.model.Lecture;
@@ -27,7 +25,6 @@ public class TimetableLectureCreator {
     private final LectureRepositoryV2 lectureRepositoryV2;
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
     private final CatalogRepository catalogRepository;
-    private final DepartmentRepository departmentRepository;
     private final StudentRepository studentRepository;
 
     public void createTimetableLectures(TimetableLectureCreateRequest request, Integer userId, TimetableFrame frame) {
@@ -50,9 +47,8 @@ public class TimetableLectureCreator {
     private CourseType getCourseType(Integer userId, Lecture lecture) {
         Student student = studentRepository.getById(userId);
         String year = StudentUtil.parseStudentNumberYear(student.getStudentNumber()).toString();
-        Department department = departmentRepository.getByName(student.getDepartment().getName());
         String code = lecture.getCode();
-        Catalog catalog = catalogRepository.getByYearAndDepartmentAndCode(year, department, code);
+        Catalog catalog = catalogRepository.getByYearAndDepartmentAndCode(year, student.getDepartment(), code);
         return catalog.getCourseType();
     }
 
