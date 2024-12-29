@@ -195,7 +195,7 @@ public class GraduationService {
         StandardGraduationRequirements requirement,
         Map<Integer, Integer> courseTypeCreditsMap) {
         if (requirement.getCourseType() == null) {
-            throw new IllegalStateException("CourseType이 null입니다.");
+            throw new IllegalArgumentException("CourseType이 null입니다.");
         }
 
         int completedGrades = courseTypeCreditsMap.getOrDefault(requirement.getCourseType().getId(), 0);
