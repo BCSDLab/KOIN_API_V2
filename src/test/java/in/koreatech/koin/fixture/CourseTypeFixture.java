@@ -26,7 +26,7 @@ public class CourseTypeFixture {
     public CourseType HRD_필수() {
         return courseTypeRepository.save(
             CourseType.builder()
-                .name("MSC 필수")
+                .name("HRD 필수")
                 .build()
         );
     }

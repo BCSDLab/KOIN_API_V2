@@ -310,7 +310,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "target": "기공1",
                             "professor": "박한수,최준호",
                             "department": "기계공학부",
-                            "course_type": "MSC 필수"
+                            "course_type": "HRD 필수"
                         }
                     ],
                     "grades": 6,
