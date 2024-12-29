@@ -18,7 +18,7 @@ public class LectureServiceV3 {
     public List<LectureResponseV3> getLectures(String semesterDate) {
         List<Lecture> lectures = lectureRepositoryV3.findLecturesWithInformations(semesterDate);
         return lectures.stream()
-            .map(lecture -> LectureResponseV3.from(lecture, lecture.getLectureInformations()))
+            .map(lecture -> LectureResponseV3.of(lecture, lecture.getLectureInformations()))
             .toList();
     }
 }

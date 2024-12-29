@@ -6,7 +6,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -67,7 +66,7 @@ public record LectureResponseV3(
         @Schema(description = "종료 시간", example = "115", requiredMode = REQUIRED)
         Integer endTime
     ) {
-        public static List<LectureInfo> of(List<LectureInformation> lectureInformations) {
+        public static List<LectureInfo> from(List<LectureInformation> lectureInformations) {
             List<LectureInfo> response = new ArrayList<>();
 
             for (LectureInformation lectureInformation : lectureInformations) {
@@ -82,7 +81,7 @@ public record LectureResponseV3(
         }
     }
 
-    public static LectureResponseV3 from(Lecture lecture, List<LectureInformation> lectureInformations) {
+    public static LectureResponseV3 of(Lecture lecture, List<LectureInformation> lectureInformations) {
         return new LectureResponseV3(
             lecture.getId(),
             lecture.getCode(),
@@ -96,7 +95,7 @@ public record LectureResponseV3(
             lecture.getIsEnglish(),
             lecture.getDesignScore(),
             lecture.getIsElearning(),
-            LectureInfo.of(lectureInformations)
+            LectureInfo.from(lectureInformations)
         );
     }
 }
