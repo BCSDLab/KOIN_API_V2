@@ -52,7 +52,8 @@ public class GraduationService {
         checkFiletype(file);
 
         try (InputStream inputStream = file.getInputStream();
-             Workbook workbook = new HSSFWorkbook(inputStream)) {
+             Workbook workbook = new HSSFWorkbook(inputStream)
+        ) {
             Sheet sheet = workbook.getSheetAt(0);
             TimetableFrame graduationFrame = null;
             String currentSemester = "default";
