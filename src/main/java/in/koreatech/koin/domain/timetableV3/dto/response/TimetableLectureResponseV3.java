@@ -103,7 +103,7 @@ public record TimetableLectureResponseV3(
 
             private static Integer calcWeek(Integer startTime) {
                 if (startTime != 0) {
-                    return startTime % DIVIDE_TIME_UNIT;
+                    return startTime / DIVIDE_TIME_UNIT;
                 }
                 return 0;
             }

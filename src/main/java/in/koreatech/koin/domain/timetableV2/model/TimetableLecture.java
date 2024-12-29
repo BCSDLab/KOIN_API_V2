@@ -130,4 +130,9 @@ public class TimetableLecture extends BaseEntity {
         timetableCustomLectureInformations.add(timetableCustomLectureInformation);
         timetableCustomLectureInformation.setTimetableLectureId(this);
     }
+
+    public void customLectureUpdate(String classTitle, String professor) {
+        this.classTitle = classTitle;
+        this.professor = professor;
+    }
 }
