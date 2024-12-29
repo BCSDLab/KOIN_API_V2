@@ -6,7 +6,7 @@ import org.springframework.data.repository.Repository;
 
 import in.koreatech.koin.domain.graduation.exception.CatalogNotFoundException;
 import in.koreatech.koin.domain.graduation.model.Catalog;
-import in.koreatech.koin.domain.graduation.model.Department;
+import in.koreatech.koin.domain.student.model.Department;
 
 public interface CatalogRepository extends Repository<Catalog, Integer> {
     Optional<Catalog> findByYearAndDepartmentAndCode(String year, Department department, String code);
