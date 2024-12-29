@@ -69,7 +69,10 @@ public record TimetableLectureResponse(
         String professor,
 
         @Schema(description = "학부", example = "디자인ㆍ건축공학부", requiredMode = NOT_REQUIRED)
-        String department
+        String department,
+
+        @Schema(description = "이수 구분", example = "전공필수", requiredMode = NOT_REQUIRED)
+        String courseType
     ) {
         @JsonNaming(value = SnakeCaseStrategy.class)
         public record ClassInfo(
@@ -156,6 +159,7 @@ public record TimetableLectureResponse(
                         null,
                         null,
                         timetableLecture.getProfessor(),
+                        null,
                         null
                     );
                 } else {
@@ -172,7 +176,8 @@ public record TimetableLectureResponse(
                         lecture.getLectureClass(),
                         lecture.getTarget(),
                         getProfessor(timetableLecture, lecture),
-                        lecture.getDepartment()
+                        lecture.getDepartment(),
+                        timetableLecture.getCourseType().getName()
                     );
                 }
                 timetableLectureList.add(response);

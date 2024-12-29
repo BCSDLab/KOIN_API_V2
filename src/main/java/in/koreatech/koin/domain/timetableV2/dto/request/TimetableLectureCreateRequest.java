@@ -11,6 +11,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.exception.TimetableLectureClassTimeNullException;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
@@ -96,7 +97,8 @@ public record TimetableLectureCreateRequest(
             );
         }
 
-        public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame, Lecture lecture) {
+        public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame, Lecture lecture,
+            CourseType courseType) {
             return new TimetableLecture(
                 classTitle,
                 getClassTimeToString(),
@@ -107,7 +109,7 @@ public record TimetableLectureCreateRequest(
                 false,
                 lecture,
                 timetableFrame,
-                null
+                courseType
             );
         }
 
