@@ -4,6 +4,8 @@ import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculat
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +15,8 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureCreateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
+import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
+import in.koreatech.koin.domain.timetableV3.model.TimetableRegularLectureInformation;
 import in.koreatech.koin.domain.timetableV3.repository.LectureRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableLectureRepositoryV3;
@@ -35,7 +39,6 @@ public class TimetableRegularLectureServiceV3 {
         validateUserAuthorization(frame.getUser().getId(), userId);
         Lecture lecture = lectureRepositoryV3.getById(request.lectureId());
         TimetableLecture timetableLecture = request.toTimetableLecture(frame, lecture);
-        // TODO. Lecture 정규화 되면 강의 시간, 장소 로직 넣어야함
         timetableLectureRepositoryV3.save(timetableLecture);
         return getTimetableLectureResponse(userId, frame);
     }
@@ -50,6 +53,19 @@ public class TimetableRegularLectureServiceV3 {
     public TimetableLectureResponseV3 updateTimetablesRegularLecture(
         TimetableRegularLectureUpdateRequest request, Integer userId
     ) {
+        TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
+        validateUserAuthorization(frame.getUser().getId(), userId);
+        // TODO. 강의 장소 개수와 강의 시간 개수가 일치 하지 않으면 예외 던지기
+        TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());
+        if (!timetableLecture.getLecture().getName().equals(request.timetableLecture().classTitle())) {
+            timetableLecture.regularLectureUpdate(request.timetableLecture().classTitle());
+        }
+        timetableLecture.getTimetableRegularLectureInformations().clear();
+        List<TimetableRegularLectureInformation> timetableRegularLectureInformations = request.from(timetableLecture, timetableLecture.getLecture());
+        for (TimetableRegularLectureInformation timetableRegularLectureInformation : timetableRegularLectureInformations) {
+            timetableLecture.addTimetableRegularLectureInformation(timetableRegularLectureInformation);
+            
+        }
         return null;
     }
 }

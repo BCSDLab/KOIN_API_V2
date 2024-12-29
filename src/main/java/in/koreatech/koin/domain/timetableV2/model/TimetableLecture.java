@@ -10,7 +10,9 @@ import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
+import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
 import in.koreatech.koin.domain.timetableV3.model.TimetableCustomLectureInformation;
+import in.koreatech.koin.domain.timetableV3.model.TimetableRegularLectureInformation;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -80,6 +82,9 @@ public class TimetableLecture extends BaseEntity {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "timetableLecture", orphanRemoval = true)
     private List<TimetableCustomLectureInformation> timetableCustomLectureInformations = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "timetableLecture", orphanRemoval = true)
+    private List<TimetableRegularLectureInformation> timetableRegularLectureInformations = new ArrayList<>();
+
     @Builder
     public TimetableLecture(String classTitle, String classTime, String classPlace, String professor,
         String grades, String memo, boolean isDeleted, Lecture lecture, TimetableFrame timetableFrame) {
@@ -134,5 +139,16 @@ public class TimetableLecture extends BaseEntity {
     public void customLectureUpdate(String classTitle, String professor) {
         this.classTitle = classTitle;
         this.professor = professor;
+    }
+
+    public void addTimetableRegularLectureInformation(
+        TimetableRegularLectureInformation timetableRegularLectureInformation
+    ) {
+        timetableRegularLectureInformations.add(timetableRegularLectureInformation);
+        timetableRegularLectureInformation.setTimetableLectureId(this);
+    }
+
+    public void regularLectureUpdate(String classTitle) {
+        this.classTitle = classTitle;
     }
 }
