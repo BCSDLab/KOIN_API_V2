@@ -1,5 +1,4 @@
 package in.koreatech.koin.domain.timetableV2.model;
-
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
