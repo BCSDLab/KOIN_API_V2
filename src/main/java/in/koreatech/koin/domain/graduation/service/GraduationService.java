@@ -60,11 +60,13 @@ public class GraduationService {
 
             for (Row row : sheet) {
                 GradeExcelData data = extractExcelData(row);
-                if (row.getRowNum() == 0 || skipRow(data))
+                if (row.getRowNum() == 0 || skipRow(data)) {
                     continue;
+                }
 
-                if (data.classTitle().equals(TOTAL))
+                if (data.classTitle().equals(TOTAL)) {
                     break;
+                }
 
                 String semester = getKoinSemester(data.semester(), data.year());
                 CourseType courseType = courseTypeRepository.findByName(data.courseType()).orElse(null);
