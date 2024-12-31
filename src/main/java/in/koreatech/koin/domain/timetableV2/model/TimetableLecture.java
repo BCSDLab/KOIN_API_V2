@@ -79,10 +79,10 @@ public class TimetableLecture extends BaseEntity {
     @JoinColumn(name = "frame_id")
     private TimetableFrame timetableFrame;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "timetableLecture")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "timetableLecture", orphanRemoval = true)
     private List<TimetableCustomLectureInformation> timetableCustomLectureInformations = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "timetableLecture")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "timetableLecture", orphanRemoval = true)
     private List<TimetableRegularLectureInformation> timetableRegularLectureInformations = new ArrayList<>();
 
     @Builder

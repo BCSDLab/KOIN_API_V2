@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
+import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
 import in.koreatech.koin.domain.timetableV3.model.TimetableCustomLectureInformation;
 import in.koreatech.koin.domain.timetableV3.model.TimetableRegularLectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -88,6 +89,7 @@ public record TimetableLectureResponseV3(
             String place
         ) {
             private static final Integer DIVIDE_TIME_UNIT = 100;
+            private static final String EMPTY_PLACE = "";
 
             public static List<LectureInfo> getCustomLectureInfo(
                 List<TimetableCustomLectureInformation> timetableCustomLectureInformations
@@ -112,6 +114,18 @@ public record TimetableLectureResponseV3(
                         timetableRegularLectureInformation.getLectureInformation().getEndTime(),
                         getResponsePlace(timetableRegularLectureInformation.getPlace())
                     ))
+                    .collect(Collectors.toList());
+            }
+
+            public static List<LectureInfo> getLectureInfo(List<LectureInformation> lectureInformations) {
+                return lectureInformations.stream()
+                    .map(lectureInformation -> new LectureInfo(
+                            calcWeek(lectureInformation.getStarTime()),
+                            lectureInformation.getStarTime(),
+                            lectureInformation.getEndTime(),
+                            EMPTY_PLACE
+                        )
+                    )
                     .collect(Collectors.toList());
             }
 
@@ -160,7 +174,7 @@ public record TimetableLectureResponseV3(
                         lecture.getRegularNumber(),
                         lecture.getCode(),
                         lecture.getDesignScore(),
-                        LectureInfo.getRegularLectureInfo(timetableLecture.getTimetableRegularLectureInformations()),
+                        getLectureInfo(timetableLecture, lecture),
                         timetableLecture.getMemo(),
                         lecture.getGrades(),
                         timetableLecture.getClassTitle() == null ? lecture.getName() : timetableLecture.getClassTitle(),
@@ -173,6 +187,13 @@ public record TimetableLectureResponseV3(
                 InnerTimetableLectureResponses.add(responseV3);
             }
             return InnerTimetableLectureResponses;
+        }
+
+        public static List<LectureInfo> getLectureInfo(TimetableLecture timetableLecture, Lecture lecture) {
+            if (timetableLecture.getTimetableRegularLectureInformations().isEmpty()) {
+                return LectureInfo.getLectureInfo(lecture.getLectureInformations());
+            }
+            return LectureInfo.getRegularLectureInfo(timetableLecture.getTimetableRegularLectureInformations());
         }
     }
 

@@ -57,7 +57,9 @@ public class TimetableRegularLectureServiceV3 {
     ) {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
-        // TODO. 강의 장소 개수와 강의 시간 개수가 일치 하지 않으면 예외 던지기
+        /*
+        * TODO. 강의 장소 개수와 강의 시간 개수가 일치 하지 않으면 예외 던지기
+        *  TODO. Lecture id와 dto 내부의 lecutreId가 일치하지 않은 경우 예외 던지기*/
         TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());
         if (!timetableLecture.getLecture().getName().equals(request.timetableLecture().classTitle())) {
             timetableLecture.regularLectureUpdate(request.timetableLecture().classTitle());
