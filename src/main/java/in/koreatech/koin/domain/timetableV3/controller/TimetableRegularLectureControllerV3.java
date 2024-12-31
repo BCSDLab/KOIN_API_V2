@@ -31,6 +31,7 @@ public class TimetableRegularLectureControllerV3 implements TimetableRegularLect
         return ResponseEntity.ok(response);
     }
 
+    // TODO. 업데이트 된 정규 강의 데이터 수기로 옮기기 (프로시저로 못 옮김)
     @PutMapping("/v3/timetables/lecture/regular")
     public ResponseEntity<TimetableLectureResponseV3> updateTimetablesRegularLecture(
         @Valid @RequestBody TimetableRegularLectureUpdateRequest request,
