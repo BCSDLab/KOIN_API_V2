@@ -4,15 +4,10 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
-import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
-import in.koreatech.koin.domain.timetableV3.model.TimetableRegularLectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -56,18 +51,5 @@ public record TimetableRegularLectureUpdateRequest(
         ) {
 
         }
-    }
-    public List<TimetableRegularLectureInformation> from(TimetableLecture timetableLecture, Lecture lecture) {
-        List<LectureInformation> lectureInformations = lecture.getLectureInformations();
-        List<TimetableRegularLectureInformation> response = new ArrayList<>();
-        for (int index = 0; index < lectureInformations.size(); index++) {
-            response.add(TimetableRegularLectureInformation.builder()
-                .lectureInformation(lectureInformations.get(index))
-                .timetableLecture(timetableLecture)
-                .place(this.timetableLecture.classPlaces.get(index).classPlace)
-                .build()
-            );
-        }
-        return response;
     }
 }

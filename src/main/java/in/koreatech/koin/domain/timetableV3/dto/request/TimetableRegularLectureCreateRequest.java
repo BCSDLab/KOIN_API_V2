@@ -25,6 +25,7 @@ public record TimetableRegularLectureCreateRequest(
         return TimetableLecture.builder()
             .lecture(lecture)
             .timetableFrame(frame)
+            .grades("0")
             .build();
     }
 }

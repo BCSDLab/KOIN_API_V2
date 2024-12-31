@@ -50,6 +50,9 @@ public class TimetableRegularLectureInformation {
 
     public void setTimetableLectureId(TimetableLecture timetableLecture) {
         this.timetableLecture = timetableLecture;
+        if (!timetableLecture.getTimetableRegularLectureInformations().contains(this)) {
+            timetableLecture.getTimetableRegularLectureInformations().add(this);
+        }
     }
 
     public void setLectureInformationId(LectureInformation lectureInformation) {

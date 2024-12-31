@@ -15,6 +15,7 @@ import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV3.model.TimetableCustomLectureInformation;
+import in.koreatech.koin.domain.timetableV3.model.TimetableRegularLectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -101,6 +102,19 @@ public record TimetableLectureResponseV3(
                     .collect(Collectors.toList());
             }
 
+            public static List<LectureInfo> getRegularLectureInfo(
+                List<TimetableRegularLectureInformation> timetableRegularLectureInformations
+            ) {
+                return timetableRegularLectureInformations.stream()
+                    .map(timetableRegularLectureInformation -> new LectureInfo(
+                        calcWeek(timetableRegularLectureInformation.getLectureInformation().getStarTime()),
+                        timetableRegularLectureInformation.getLectureInformation().getStarTime(),
+                        timetableRegularLectureInformation.getLectureInformation().getEndTime(),
+                        getResponsePlace(timetableRegularLectureInformation.getPlace())
+                    ))
+                    .collect(Collectors.toList());
+            }
+
             private static Integer calcWeek(Integer startTime) {
                 if (startTime != 0) {
                     return startTime / DIVIDE_TIME_UNIT;
@@ -146,7 +160,7 @@ public record TimetableLectureResponseV3(
                         lecture.getRegularNumber(),
                         lecture.getCode(),
                         lecture.getDesignScore(),
-                        null,
+                        LectureInfo.getRegularLectureInfo(timetableLecture.getTimetableRegularLectureInformations()),
                         timetableLecture.getMemo(),
                         lecture.getGrades(),
                         timetableLecture.getClassTitle() == null ? lecture.getName() : timetableLecture.getClassTitle(),

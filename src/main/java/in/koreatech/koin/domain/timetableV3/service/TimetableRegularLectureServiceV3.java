@@ -3,7 +3,9 @@ package in.koreatech.koin.domain.timetableV3.service;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGradesMainFrame;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
+import static in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureUpdateRequest.InnerTimeTableRegularLectureRequest.ClassPlace;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -60,12 +62,23 @@ public class TimetableRegularLectureServiceV3 {
         if (!timetableLecture.getLecture().getName().equals(request.timetableLecture().classTitle())) {
             timetableLecture.regularLectureUpdate(request.timetableLecture().classTitle());
         }
+
         timetableLecture.getTimetableRegularLectureInformations().clear();
-        List<TimetableRegularLectureInformation> timetableRegularLectureInformations = request.from(timetableLecture, timetableLecture.getLecture());
-        for (TimetableRegularLectureInformation timetableRegularLectureInformation : timetableRegularLectureInformations) {
-            timetableLecture.addTimetableRegularLectureInformation(timetableRegularLectureInformation);
-            
+        List<LectureInformation> lectureInformations = timetableLecture.getLecture().getLectureInformations();
+        List<ClassPlace> classPlaces = request.timetableLecture().classPlaces();
+
+        for (int index = 0; index < lectureInformations.size(); index++) {
+            TimetableRegularLectureInformation timetableRegularLectureInformation = TimetableRegularLectureInformation.builder()
+                .timetableLecture(timetableLecture)
+                .lectureInformation(lectureInformations.get(index))
+                .place(classPlaces.get(index).classPlace())
+                .build();
+
+            timetableRegularLectureInformation.setLectureInformationId(lectureInformations.get(index));
+            timetableRegularLectureInformation.setTimetableLectureId(timetableLecture);
         }
-        return null;
+
+        timetableLectureRepositoryV3.save(timetableLecture);
+        return getTimetableLectureResponse(userId, frame);
     }
 }
