@@ -15,9 +15,7 @@ import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
-import in.koreatech.koin.domain.timetableV3.model.TimetableCustomLectureInformation;
 import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
-import in.koreatech.koin.domain.timetableV3.model.TimetableRegularLectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)

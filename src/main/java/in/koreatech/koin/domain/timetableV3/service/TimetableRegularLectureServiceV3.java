@@ -18,7 +18,6 @@ import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureU
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
 import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
-import in.koreatech.koin.domain.timetableV3.model.TimetableRegularLectureInformation;
 import in.koreatech.koin.domain.timetableV3.repository.LectureRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableLectureRepositoryV3;
@@ -65,7 +64,7 @@ public class TimetableRegularLectureServiceV3 {
             timetableLecture.regularLectureUpdate(request.timetableLecture().classTitle());
         }
 
-        timetableLecture.getTimetableRegularLectureInformations().clear();
+        timetableLecture.getTimetableLectureInformations().clear();
         List<LectureInformation> lectureInformations = timetableLecture.getLecture().getLectureInformations();
         List<ClassPlace> classPlaces = request.timetableLecture().classPlaces();
 

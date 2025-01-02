@@ -6,7 +6,6 @@ import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameVali
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.timetableV2.dto.response.TimetableLectureResponse;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
