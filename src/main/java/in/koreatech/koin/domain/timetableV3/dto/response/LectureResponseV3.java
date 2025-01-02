@@ -5,12 +5,14 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -66,22 +68,58 @@ public record LectureResponseV3(
         @Schema(description = "종료 시간", example = "115", requiredMode = REQUIRED)
         Integer endTime
     ) {
-        public static List<LectureInfo> from(List<LectureInformation> lectureInformations) {
+        private static final Integer DIVIDE_TIME_UNIT = 100;
+
+        public static List<LectureInfo> from(String classTime) {
+            List<Integer> classTimes = parseToIntegerList(classTime);
             List<LectureInfo> response = new ArrayList<>();
 
-            for (LectureInformation lectureInformation : lectureInformations) {
-                response.add(new LectureInfo(
-                    lectureInformation.getStarTime() / 100,
-                    lectureInformation.getStarTime(),
-                    lectureInformation.getEndTime())
-                );
-            }
+            if (!classTimes.isEmpty()) {
+                Integer prevTime = null;
+                Integer startTime = null;
+                Integer endTime = null;
 
+                for (Integer time : classTimes) {
+                    if (Objects.isNull(prevTime) || time != prevTime + 1) {
+                        addLectureInfo(response, startTime, endTime);
+                        startTime = time;
+                    }
+                    endTime = time;
+                    prevTime = time;
+                }
+
+                addLectureInfo(response, startTime, endTime);
+            }
             return response;
+        }
+
+        private static void addLectureInfo(List<LectureInfo> response, Integer startTime, Integer endTime) {
+            if (!Objects.isNull(startTime)) {
+                response.add(new LectureInfo(
+                    calcWeek(startTime),
+                    startTime,
+                    endTime
+                ));
+            }
+        }
+
+        private static Integer calcWeek(Integer startTime) {
+            if (startTime != 0) {
+                return startTime / DIVIDE_TIME_UNIT;
+            }
+            return 0;
+        }
+
+        private static List<Integer> parseToIntegerList(String classTime) {
+            return Stream.of(classTime.replaceAll("[\\[\\]]", "").split(","))
+                .map(String::strip)
+                .filter(time -> !time.isEmpty())
+                .map(Integer::parseInt)
+                .toList();
         }
     }
 
-    public static LectureResponseV3 of(Lecture lecture, List<LectureInformation> lectureInformations) {
+    public static LectureResponseV3 from(Lecture lecture) {
         return new LectureResponseV3(
             lecture.getId(),
             lecture.getCode(),
@@ -95,7 +133,7 @@ public record LectureResponseV3(
             lecture.getIsEnglish(),
             lecture.getDesignScore(),
             lecture.getIsElearning(),
-            LectureInfo.from(lectureInformations)
+            LectureInfo.from(lecture.getClassTime())
         );
     }
 }

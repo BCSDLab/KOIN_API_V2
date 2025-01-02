@@ -20,12 +20,4 @@ public interface LectureRepositoryV3 extends Repository<Lecture, Integer> {
     }
 
     List<Lecture> findBySemester(String semesterDate);
-
-    @Query("""
-        SELECT l
-        FROM Lecture l
-        LEFT JOIN FETCH l.lectureInformations
-        WHERE l.semester = :semesterDate
-        """)
-    List<Lecture> findLecturesWithInformations(@Param("semesterDate") String semesterDate);
 }
