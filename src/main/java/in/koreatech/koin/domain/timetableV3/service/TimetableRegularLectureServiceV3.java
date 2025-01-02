@@ -5,7 +5,6 @@ import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculat
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 import static in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureUpdateRequest.InnerTimeTableRegularLectureRequest.ClassPlace;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -18,6 +17,7 @@ import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureC
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
+import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
 import in.koreatech.koin.domain.timetableV3.model.TimetableRegularLectureInformation;
 import in.koreatech.koin.domain.timetableV3.repository.LectureRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
@@ -58,8 +58,8 @@ public class TimetableRegularLectureServiceV3 {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
         /*
-        * TODO. 강의 장소 개수와 강의 시간 개수가 일치 하지 않으면 예외 던지기
-        *  TODO. Lecture id와 dto 내부의 lecutreId가 일치하지 않은 경우 예외 던지기*/
+         * TODO. 강의 장소 개수와 강의 시간 개수가 일치 하지 않으면 예외 던지기
+         *  TODO. Lecture id와 dto 내부의 lecutreId가 일치하지 않은 경우 예외 던지기*/
         TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());
         if (!timetableLecture.getLecture().getName().equals(request.timetableLecture().classTitle())) {
             timetableLecture.regularLectureUpdate(request.timetableLecture().classTitle());
@@ -70,17 +70,48 @@ public class TimetableRegularLectureServiceV3 {
         List<ClassPlace> classPlaces = request.timetableLecture().classPlaces();
 
         for (int index = 0; index < lectureInformations.size(); index++) {
-            TimetableRegularLectureInformation timetableRegularLectureInformation = TimetableRegularLectureInformation.builder()
-                .timetableLecture(timetableLecture)
-                .lectureInformation(lectureInformations.get(index))
+            TimetableLectureInformation timetableLectureInformation = TimetableLectureInformation.builder()
                 .place(classPlaces.get(index).classPlace())
                 .build();
 
-            timetableRegularLectureInformation.setLectureInformationId(lectureInformations.get(index));
-            timetableRegularLectureInformation.setTimetableLectureId(timetableLecture);
+            timetableLecture.addTimetableLectureInformation(timetableLectureInformation);
+            timetableLectureInformation.setLectureInformationId(lectureInformations.get(index));
         }
 
         timetableLectureRepositoryV3.save(timetableLecture);
         return getTimetableLectureResponse(userId, frame);
     }
+
+    // @Transactional
+    // public TimetableLectureResponseV3 updateTimetablesRegularLecture(
+    //     TimetableRegularLectureUpdateRequest request, Integer userId
+    // ) {
+    //     TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
+    //     validateUserAuthorization(frame.getUser().getId(), userId);
+    //     /*
+    //      * TODO. 강의 장소 개수와 강의 시간 개수가 일치 하지 않으면 예외 던지기
+    //      *  TODO. Lecture id와 dto 내부의 lecutreId가 일치하지 않은 경우 예외 던지기*/
+    //     TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());
+    //     if (!timetableLecture.getLecture().getName().equals(request.timetableLecture().classTitle())) {
+    //         timetableLecture.regularLectureUpdate(request.timetableLecture().classTitle());
+    //     }
+    //
+    //     timetableLecture.getTimetableRegularLectureInformations().clear();
+    //     List<LectureInformation> lectureInformations = timetableLecture.getLecture().getLectureInformations();
+    //     List<ClassPlace> classPlaces = request.timetableLecture().classPlaces();
+    //
+    //     for (int index = 0; index < lectureInformations.size(); index++) {
+    //         TimetableRegularLectureInformation timetableRegularLectureInformation = TimetableRegularLectureInformation.builder()
+    //             .timetableLecture(timetableLecture)
+    //             .lectureInformation(lectureInformations.get(index))
+    //             .place(classPlaces.get(index).classPlace())
+    //             .build();
+    //
+    //         timetableRegularLectureInformation.setLectureInformationId(lectureInformations.get(index));
+    //         timetableRegularLectureInformation.setTimetableLectureId(timetableLecture);
+    //     }
+    //
+    //     timetableLectureRepositoryV3.save(timetableLecture);
+    //     return getTimetableLectureResponse(userId, frame);
+    // }
 }

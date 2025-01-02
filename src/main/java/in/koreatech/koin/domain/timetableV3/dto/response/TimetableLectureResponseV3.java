@@ -16,6 +16,7 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
 import in.koreatech.koin.domain.timetableV3.model.TimetableCustomLectureInformation;
+import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
 import in.koreatech.koin.domain.timetableV3.model.TimetableRegularLectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -92,9 +93,9 @@ public record TimetableLectureResponseV3(
             private static final String EMPTY_PLACE = "";
 
             public static List<LectureInfo> getCustomLectureInfo(
-                List<TimetableCustomLectureInformation> timetableCustomLectureInformations
+                List<TimetableLectureInformation> timetableLectureInformations
             ) {
-                return timetableCustomLectureInformations.stream()
+                return timetableLectureInformations.stream()
                     .map(timetableCustomLectureInformation -> new LectureInfo(
                         calcWeek(timetableCustomLectureInformation.getStartTime()),
                         timetableCustomLectureInformation.getStartTime(),
@@ -105,9 +106,9 @@ public record TimetableLectureResponseV3(
             }
 
             public static List<LectureInfo> getRegularLectureInfo(
-                List<TimetableRegularLectureInformation> timetableRegularLectureInformations
+                List<TimetableLectureInformation> timetableLectureInformations
             ) {
-                return timetableRegularLectureInformations.stream()
+                return timetableLectureInformations.stream()
                     .map(timetableRegularLectureInformation -> new LectureInfo(
                         calcWeek(timetableRegularLectureInformation.getLectureInformation().getStarTime()),
                         timetableRegularLectureInformation.getLectureInformation().getStarTime(),
@@ -158,7 +159,7 @@ public record TimetableLectureResponseV3(
                         null,
                         null,
                         null,
-                        LectureInfo.getCustomLectureInfo(timetableLecture.getTimetableCustomLectureInformations()),
+                        LectureInfo.getCustomLectureInfo(timetableLecture.getTimetableLectureInformations()),
                         timetableLecture.getMemo(),
                         timetableLecture.getGrades(),
                         timetableLecture.getClassTitle(),
@@ -190,10 +191,10 @@ public record TimetableLectureResponseV3(
         }
 
         public static List<LectureInfo> getLectureInfo(TimetableLecture timetableLecture, Lecture lecture) {
-            if (timetableLecture.getTimetableRegularLectureInformations().isEmpty()) {
+            if (timetableLecture.getTimetableLectureInformations().isEmpty()) {
                 return LectureInfo.getLectureInfo(lecture.getLectureInformations());
             }
-            return LectureInfo.getRegularLectureInfo(timetableLecture.getTimetableRegularLectureInformations());
+            return LectureInfo.getRegularLectureInfo(timetableLecture.getTimetableLectureInformations());
         }
     }
 

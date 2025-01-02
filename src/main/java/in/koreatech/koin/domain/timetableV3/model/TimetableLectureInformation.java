@@ -59,4 +59,12 @@ public class TimetableLectureInformation {
         this.lectureInformation = lectureInformation;
         this.timetableLecture = timetableLecture;
     }
+
+    public void setTimetableLectureId(TimetableLecture timetableLecture) {
+        this.timetableLecture = timetableLecture;
+    }
+
+    public void setLectureInformationId(LectureInformation lectureInformation) {
+        this.lectureInformation = lectureInformation;
+    }
 }

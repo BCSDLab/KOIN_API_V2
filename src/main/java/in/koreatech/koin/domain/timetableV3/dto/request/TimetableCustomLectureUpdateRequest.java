@@ -5,9 +5,11 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -56,5 +58,16 @@ public record TimetableCustomLectureUpdateRequest(
         ) {
 
         }
+    }
+
+    public List<TimetableLectureInformation> toTimetableLectureInformations() {
+        return timetableLecture.lectureInfos.stream()
+            .map(lectureInfo -> TimetableLectureInformation.builder()
+                .startTime(lectureInfo.startTime)
+                .endTime(lectureInfo.endTime)
+                .place(lectureInfo.place)
+                .build()
+            )
+            .collect(Collectors.toList());
     }
 }

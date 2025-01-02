@@ -12,6 +12,7 @@ import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
 import in.koreatech.koin.domain.timetableV3.model.TimetableCustomLectureInformation;
+import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
 import in.koreatech.koin.domain.timetableV3.model.TimetableRegularLectureInformation;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.CascadeType;
@@ -85,6 +86,9 @@ public class TimetableLecture extends BaseEntity {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "timetableLecture", orphanRemoval = true)
     private List<TimetableRegularLectureInformation> timetableRegularLectureInformations = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "timetableLecture", orphanRemoval = true)
+    private List<TimetableLectureInformation> timetableLectureInformations = new ArrayList<>();
+
     @Builder
     public TimetableLecture(String classTitle, String classTime, String classPlace, String professor,
         String grades, String memo, boolean isDeleted, Lecture lecture, TimetableFrame timetableFrame) {
@@ -127,6 +131,11 @@ public class TimetableLecture extends BaseEntity {
 
     public void undelete() {
         this.isDeleted = false;
+    }
+
+    public void addTimetableLectureInformation(TimetableLectureInformation timetableLectureInformation) {
+        this.timetableLectureInformations.add(timetableLectureInformation);
+        timetableLectureInformation.setTimetableLectureId(this);
     }
 
     public void addTimetableCustomLectureInformation(

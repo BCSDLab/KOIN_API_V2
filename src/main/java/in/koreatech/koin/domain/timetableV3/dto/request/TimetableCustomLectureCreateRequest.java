@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
-import in.koreatech.koin.domain.timetableV3.model.TimetableCustomLectureInformation;
+import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -76,9 +76,9 @@ public record TimetableCustomLectureCreateRequest(
             .build();
     }
 
-    public List<TimetableCustomLectureInformation> toTimetableCustomLectureInformations() {
+    public List<TimetableLectureInformation> toTimetableLectureInformations() {
         return timetableLecture.lectureInfos.stream()
-            .map(lectureInfo -> TimetableCustomLectureInformation.builder()
+            .map(lectureInfo -> TimetableLectureInformation.builder()
                 .startTime(lectureInfo.startTime)
                 .endTime(lectureInfo.endTime)
                 .place(lectureInfo.place)
