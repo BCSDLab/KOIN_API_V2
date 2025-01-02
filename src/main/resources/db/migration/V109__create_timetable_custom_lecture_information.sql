@@ -1,4 +1,4 @@
-CREATE TABLE `koin`.`timetable_custom_lecture_information` (
+CREATE TABLE IF NOT EXISTS `koin`.`timetable_custom_lecture_information` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '고유 id',
     `timetable_lecture_id` INT UNSIGNED NOT NULL COMMENT 'timetableLecture id',
     `start_time` INT UNSIGNED NOT NULL COMMENT '시작 시간',

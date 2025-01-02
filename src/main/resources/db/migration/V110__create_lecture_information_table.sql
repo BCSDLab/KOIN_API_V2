@@ -1,4 +1,4 @@
-CREATE TABLE `koin`.`lecture_information`(
+CREATE TABLE IF NOT EXISTS `koin`.`lecture_information`(
     `id`         int UNSIGNED NOT NULL AUTO_INCREMENT,
     `lecture_id` int UNSIGNED NOT NULL,
     `start_time` int NULL,
