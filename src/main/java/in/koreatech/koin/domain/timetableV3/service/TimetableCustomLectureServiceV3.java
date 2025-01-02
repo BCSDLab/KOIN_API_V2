@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.timetableV3.service;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGradesMainFrame;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
+import static in.koreatech.koin.domain.timetableV3.validation.TimetableLectureValidate.checkDuplicateTimetableLectureTime;
 
 import java.util.List;
 
@@ -35,6 +36,7 @@ public class TimetableCustomLectureServiceV3 {
         validateUserAuthorization(frame.getUser().getId(), userId);
         TimetableLecture timetableLecture = request.toTimetableLecture(frame);
         List<TimetableLectureInformation> timetableLectureInformations = request.toTimetableLectureInformations();
+        checkDuplicateTimetableLectureTime(frame.getTimetableLectures(), timetableLectureInformations);
         for (TimetableLectureInformation timetableLectureInformation : timetableLectureInformations) {
             timetableLecture.addTimetableLectureInformation(timetableLectureInformation);
         }
@@ -63,6 +65,7 @@ public class TimetableCustomLectureServiceV3 {
 
         timetableLecture.getTimetableLectureInformations().clear();
         List<TimetableLectureInformation> timetableLectureInformations = request.toTimetableLectureInformations();
+        checkDuplicateTimetableLectureTime(frame.getTimetableLectures(), timetableLectureInformations);
         for (TimetableLectureInformation timetableLectureInformation : timetableLectureInformations) {
             timetableLecture.addTimetableLectureInformation(timetableLectureInformation);
         }
