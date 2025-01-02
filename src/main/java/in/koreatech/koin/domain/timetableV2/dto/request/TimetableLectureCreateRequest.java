@@ -97,7 +97,8 @@ public record TimetableLectureCreateRequest(
             );
         }
 
-        public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame, Lecture lecture, CourseType courseType) {
+        public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame, Lecture lecture,
+            CourseType courseType) {
             return new TimetableLecture(
                 classTitle,
                 getClassTimeToString(),

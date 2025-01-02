@@ -1,5 +1,4 @@
 package in.koreatech.koin.domain.timetableV2.model;
-
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
@@ -73,7 +72,7 @@ public class TimetableLecture extends BaseEntity {
     @JoinColumn(name = "frame_id")
     private TimetableFrame timetableFrame;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_type_id")
     private CourseType courseType;
 
