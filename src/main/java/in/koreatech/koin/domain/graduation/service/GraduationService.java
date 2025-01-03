@@ -101,6 +101,13 @@ public class GraduationService {
 
     @Transactional
     public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
+        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 GraduationCalculation 정보가 존재하지 않습니다."));
+
+        if (!detectGraduationCalculation.isChanged()) {
+            return GraduationCourseCalculationResponse.of(List.of());
+        }
+
         // 학생 정보와 학과 검증
         Student student = getValidatedStudent(userId);
         String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
@@ -119,6 +126,8 @@ public class GraduationService {
         List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = processGraduationCalculations(
             userId, student, graduationRequirements, courseTypeCreditsMap
         );
+
+        detectGraduationCalculation.updatedIsChanged(false);
 
         return GraduationCourseCalculationResponse.of(courseTypes);
     }
