@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.timetableV3.dto.response;
 
-import static in.koreatech.koin.domain.timetableV3.utils.ClassPlaceUtils.parseToStringList;
 import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.calcWeek;
 import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.parseToIntegerList;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
@@ -10,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -114,7 +114,14 @@ public record LectureInfoResponse(
         }
         return parseToStringList(classPlace);
     }
-    
+
+    // 문자열 강의 장소 리스트로 변환
+    private static List<String> parseToStringList(String classPlace) {
+        return Stream.of(classPlace.split(","))
+            .map(String::strip)
+            .toList();
+    }
+
     private static void addLectureInfo(
         List<LectureInfoResponse> response, Integer startTime, Integer endTime, String classPlace
     ) {

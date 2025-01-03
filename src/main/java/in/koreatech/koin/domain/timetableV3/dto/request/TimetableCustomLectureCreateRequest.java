@@ -1,11 +1,10 @@
 package in.koreatech.koin.domain.timetableV3.dto.request;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import static in.koreatech.koin.domain.timetableV3.utils.ClassPlaceUtils.joinClassPlaces;
-import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.joinClassTimes;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -51,6 +50,34 @@ public record TimetableCustomLectureCreateRequest(
         String memo
     ) {
 
+        // 커스텀 강의 장소 역정규화
+        public String joinClassPlaces() {
+            StringBuilder classPlaces = new StringBuilder();
+            for (int index = 0; index < lectureInfos.size(); index++) {
+                if (index > 0) {
+                    classPlaces.append(", ");
+                }
+                classPlaces.append(lectureInfos.get(index).place());
+            }
+            return classPlaces.toString();
+        }
+
+        // 커스텀 강의 시간 역정규화
+        public String joinClassTimes() {
+            List<Integer> classTimes = new ArrayList<>();
+
+            for (int index = 0; index < lectureInfos.size(); index++) {
+                if (index > 0) classTimes.add(-1);
+
+                int startTime = lectureInfos.get(index).startTime();
+                int endTime = lectureInfos.get(index).endTime();
+
+                while (startTime <= endTime) {
+                    classTimes.add(startTime++);
+                }
+            }
+            return classTimes.toString();
+        }
     }
 
     public TimetableLecture toTimetableLecture(TimetableFrame frame) {
@@ -59,8 +86,8 @@ public record TimetableCustomLectureCreateRequest(
             .professor(timetableLecture.professor)
             .grades(timetableLecture.grades)
             .memo(timetableLecture.memo)
-            .classTime(joinClassTimes(timetableLecture.lectureInfos))
-            .classPlace(joinClassPlaces(timetableLecture.lectureInfos))
+            .classTime(timetableLecture.joinClassTimes())
+            .classPlace(timetableLecture.joinClassPlaces())
             .timetableFrame(frame)
             .build();
     }

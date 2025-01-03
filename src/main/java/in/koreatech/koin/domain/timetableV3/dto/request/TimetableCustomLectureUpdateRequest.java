@@ -4,6 +4,7 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -43,6 +44,34 @@ public record TimetableCustomLectureUpdateRequest(
         String professor
     ) {
 
+        // 커스텀 강의 장소 역정규화
+        public String joinClassPlaces() {
+            StringBuilder classPlaces = new StringBuilder();
+            for (int index = 0; index < lectureInfos.size(); index++) {
+                if (index > 0) {
+                    classPlaces.append(", ");
+                }
+                classPlaces.append(lectureInfos.get(index).place());
+            }
+            return classPlaces.toString();
+        }
+
+        // 커스텀 강의 시간 역정규화
+        public String joinClassTimes() {
+            List<Integer> classTimes = new ArrayList<>();
+
+            for (int index = 0; index < lectureInfos.size(); index++) {
+                if (index > 0) classTimes.add(-1);
+
+                int startTime = lectureInfos.get(index).startTime();
+                int endTime = lectureInfos.get(index).endTime();
+
+                while (startTime <= endTime) {
+                    classTimes.add(startTime++);
+                }
+            }
+            return classTimes.toString();
+        }
     }
 
 }

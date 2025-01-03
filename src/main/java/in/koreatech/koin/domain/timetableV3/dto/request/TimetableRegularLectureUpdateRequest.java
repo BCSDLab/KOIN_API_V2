@@ -51,5 +51,16 @@ public record TimetableRegularLectureUpdateRequest(
         ) {
 
         }
+
+        public String classPlacesToString() {
+            StringBuilder classPlaceSegment = new StringBuilder();
+            for (int index = 0; index < classPlaces.size(); index++) {
+                if (index > 0) {
+                    classPlaceSegment.append(", ");
+                }
+                classPlaceSegment.append(classPlaces.get(index).classPlace());
+            }
+            return classPlaceSegment.toString();
+        }
     }
 }

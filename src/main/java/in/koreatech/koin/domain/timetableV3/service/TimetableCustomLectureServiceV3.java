@@ -3,8 +3,6 @@ package in.koreatech.koin.domain.timetableV3.service;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGradesMainFrame;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
-import static in.koreatech.koin.domain.timetableV3.utils.ClassPlaceUtils.joinClassPlaces;
-import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.joinClassTimes;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,8 +46,8 @@ public class TimetableCustomLectureServiceV3 {
         timetableLecture.customLectureUpdate(
             request.timetableLecture().classTitle(),
             request.timetableLecture().professor(),
-            joinClassTimes(request.timetableLecture().lectureInfos()),
-            joinClassPlaces(request.timetableLecture().lectureInfos())
+            request.timetableLecture().joinClassTimes(),
+            request.timetableLecture().joinClassPlaces()
         );
 
         timetableLectureRepositoryV3.save(timetableLecture);
