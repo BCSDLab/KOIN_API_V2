@@ -46,7 +46,7 @@ public record TimetableLectureResponseV3(
         String designScore,
 
         @Schema(description = "강의 정보", requiredMode = NOT_REQUIRED)
-        List<ResponseLectureInfo> lectureInfos,
+        List<LectureInfoResponse> lectureInfos,
 
         @Schema(description = "메모", example = "null", requiredMode = NOT_REQUIRED)
         String memo,
@@ -83,7 +83,7 @@ public record TimetableLectureResponseV3(
                         null,
                         null,
                         null,
-                        ResponseLectureInfo.getCustomLectureInfo(timetableLecture.getClassTime(),
+                        LectureInfoResponse.getCustomLectureInfo(timetableLecture.getClassTime(),
                             timetableLecture.getClassPlace()),
                         timetableLecture.getMemo(),
                         timetableLecture.getGrades(),
@@ -100,7 +100,7 @@ public record TimetableLectureResponseV3(
                         lecture.getRegularNumber(),
                         lecture.getCode(),
                         lecture.getDesignScore(),
-                        ResponseLectureInfo.getRegularLectureInfo(lecture.getClassTime(),
+                        LectureInfoResponse.getRegularLectureInfo(lecture.getClassTime(),
                             timetableLecture.getClassPlace()),
                         timetableLecture.getMemo(),
                         lecture.getGrades(),

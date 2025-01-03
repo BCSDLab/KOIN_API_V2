@@ -6,7 +6,7 @@ import static lombok.AccessLevel.PRIVATE;
 import java.util.List;
 import java.util.stream.Stream;
 
-import in.koreatech.koin.domain.timetableV3.dto.request.RequestLectureInfo;
+import in.koreatech.koin.domain.timetableV3.dto.request.LectureInfoRequest;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
@@ -33,7 +33,7 @@ public class ClassPlaceUtils {
     }
 
     // 커스텀 강의 장소 조인
-    public static String joinClassPlaces(List<RequestLectureInfo> lectureInfos) {
+    public static String joinClassPlaces(List<LectureInfoRequest> lectureInfos) {
         StringBuilder classPlaces = new StringBuilder();
         for (int index = 0; index < lectureInfos.size(); index++) {
             if (index > 0) {

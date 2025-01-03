@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record RequestLectureInfo(
+public record LectureInfoRequest(
     @Schema(description = "시작 시간", example = "112", requiredMode = REQUIRED)
     Integer startTime,
 

@@ -36,7 +36,7 @@ public record TimetableCustomLectureUpdateRequest(
 
         @Valid
         @Schema(description = "커스텀 강의 시간 정보", requiredMode = REQUIRED)
-        List<RequestLectureInfo> lectureInfos,
+        List<LectureInfoRequest> lectureInfos,
 
         @Schema(description = "교수명", example = "교수명", requiredMode = NOT_REQUIRED)
         @Size(max = 30, message = "교수명의 최대 글자는 30글자 입니다.")

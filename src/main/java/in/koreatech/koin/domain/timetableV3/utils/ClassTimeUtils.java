@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import in.koreatech.koin.domain.timetableV3.dto.request.RequestLectureInfo;
+import in.koreatech.koin.domain.timetableV3.dto.request.LectureInfoRequest;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
@@ -33,7 +33,7 @@ public class ClassTimeUtils {
     }
 
     // 커스텀 강의 시간 조인
-    public static String joinClassTimes(List<RequestLectureInfo> lectureInfos) {
+    public static String joinClassTimes(List<LectureInfoRequest> lectureInfos) {
         List<Integer> classTimes = new ArrayList<>();
 
         for (int index = 0; index < lectureInfos.size(); index++) {

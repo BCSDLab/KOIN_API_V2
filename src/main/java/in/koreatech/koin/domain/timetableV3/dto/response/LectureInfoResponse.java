@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record ResponseLectureInfo(
+public record LectureInfoResponse(
     @Schema(description = "요일 id", example = "0", requiredMode = REQUIRED)
     Integer week,
 
@@ -32,9 +32,9 @@ public record ResponseLectureInfo(
 ) {
     private static final String EMPTY_PLACE = "";
 
-    public static List<ResponseLectureInfo> getRegularLectureInfo(String classTime, String classPlace) {
+    public static List<LectureInfoResponse> getRegularLectureInfo(String classTime, String classPlace) {
         List<Integer> classTimes = parseToIntegerList(classTime);
-        List<ResponseLectureInfo> response = new ArrayList<>();
+        List<LectureInfoResponse> response = new ArrayList<>();
 
         // 온라인 강의인 경우
         if (classTimes.isEmpty()) {
@@ -75,14 +75,14 @@ public record ResponseLectureInfo(
     }
 
     private static void addLectureInfo(
-        List<ResponseLectureInfo> response, Integer startTime, Integer endTime, String classPlace
+        List<LectureInfoResponse> response, Integer startTime, Integer endTime, String classPlace
     ) {
-        response.add(new ResponseLectureInfo(calcWeek(startTime), startTime, endTime, classPlace));
+        response.add(new LectureInfoResponse(calcWeek(startTime), startTime, endTime, classPlace));
     }
 
-    public static List<ResponseLectureInfo> getCustomLectureInfo(String classTime, String classPlace) {
+    public static List<LectureInfoResponse> getCustomLectureInfo(String classTime, String classPlace) {
         List<Integer> classTimes = parseToIntegerList(classTime);
-        List<ResponseLectureInfo> response = new ArrayList<>();
+        List<LectureInfoResponse> response = new ArrayList<>();
 
         List<String> classPlaces = getClassPlaces(classPlace, classTimes);
 
