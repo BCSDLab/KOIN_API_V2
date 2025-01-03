@@ -32,7 +32,7 @@ public record LectureInfoResponse(
 ) {
     private static final String EMPTY_PLACE = "";
 
-    // 역정규화 된 정유 강의 정보 정규화 하는 메소드
+    // 역정규화 된 정규 강의 정보를 정규화 하는 메소드
     public static List<LectureInfoResponse> getRegularLectureInfo(String classTime, String classPlace) {
         List<Integer> classTimes = parseToIntegerList(classTime);
         List<LectureInfoResponse> response = new ArrayList<>();
@@ -66,7 +66,7 @@ public record LectureInfoResponse(
         return response;
     }
 
-    // 역정규화 된 커스텀 강의 정부 정규화 하는 메소드
+    // 역정규화 된 커스텀 강의 정보를 정규화 하는 메소드
     public static List<LectureInfoResponse> getCustomLectureInfo(String classTime, String classPlace) {
         List<Integer> classTimes = parseToIntegerList(classTime);
         List<LectureInfoResponse> response = new ArrayList<>();

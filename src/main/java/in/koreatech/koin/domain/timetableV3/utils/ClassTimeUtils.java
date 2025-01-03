@@ -32,7 +32,7 @@ public class ClassTimeUtils {
         return 0;
     }
 
-    // 커스텀 강의 시간 조인
+    // 커스텀 강의 시간 역정규화
     public static String joinClassTimes(List<LectureInfoRequest> lectureInfos) {
         List<Integer> classTimes = new ArrayList<>();
 

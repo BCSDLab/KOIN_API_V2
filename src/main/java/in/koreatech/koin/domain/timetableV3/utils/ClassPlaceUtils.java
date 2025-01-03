@@ -20,7 +20,7 @@ public class ClassPlaceUtils {
             .toList();
     }
 
-    // 정규 강의 장소 조인
+    // 정규 강의 장소 역정규화
     public static String parseToString(List<ClassPlace> classPlaces) {
         StringBuilder classPlaceSegment = new StringBuilder();
         for (int index = 0; index < classPlaces.size(); index++) {
@@ -32,7 +32,7 @@ public class ClassPlaceUtils {
         return classPlaceSegment.toString();
     }
 
-    // 커스텀 강의 장소 조인
+    // 커스텀 강의 장소 역정규화
     public static String joinClassPlaces(List<LectureInfoRequest> lectureInfos) {
         StringBuilder classPlaces = new StringBuilder();
         for (int index = 0; index < lectureInfos.size(); index++) {
