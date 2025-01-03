@@ -1,17 +1,17 @@
 package in.koreatech.koin.domain.timetableV3.dto.request;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static in.koreatech.koin.domain.timetableV3.utils.ClassPlaceUtils.joinClassPlaces;
+import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.joinClassTimes;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
-import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -50,20 +50,7 @@ public record TimetableCustomLectureCreateRequest(
         @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
         String memo
     ) {
-        @JsonNaming(value = SnakeCaseStrategy.class)
-        public record LectureInfo(
-            @Schema(description = "시작 시간", example = "112", requiredMode = REQUIRED)
-            Integer startTime,
 
-            @Schema(description = "종료 시간", example = "115", requiredMode = REQUIRED)
-            Integer endTime,
-
-            @Schema(description = "장소", example = "2공학관314", requiredMode = NOT_REQUIRED)
-            @Size(max = 30, message = "강의 장소의 최대 글자는 30글자입니다.")
-            String place
-        ) {
-
-        }
     }
 
     public TimetableLecture toTimetableLecture(TimetableFrame frame) {
@@ -72,18 +59,9 @@ public record TimetableCustomLectureCreateRequest(
             .professor(timetableLecture.professor)
             .grades(timetableLecture.grades)
             .memo(timetableLecture.memo)
+            .classTime(joinClassTimes(timetableLecture.lectureInfos))
+            .classPlace(joinClassPlaces(timetableLecture.lectureInfos))
             .timetableFrame(frame)
             .build();
-    }
-
-    public List<TimetableLectureInformation> toTimetableLectureInformations() {
-        return timetableLecture.lectureInfos.stream()
-            .map(lectureInfo -> TimetableLectureInformation.builder()
-                .startTime(lectureInfo.startTime)
-                .endTime(lectureInfo.endTime)
-                .place(lectureInfo.place)
-                .build()
-            )
-            .collect(Collectors.toList());
     }
 }

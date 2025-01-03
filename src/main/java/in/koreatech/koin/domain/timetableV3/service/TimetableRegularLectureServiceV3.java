@@ -3,9 +3,7 @@ package in.koreatech.koin.domain.timetableV3.service;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGradesMainFrame;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
-import static in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureUpdateRequest.InnerTimeTableRegularLectureRequest.ClassPlace;
-
-import java.util.List;
+import static in.koreatech.koin.domain.timetableV3.utils.ClassPlaceUtils.parseToString;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,8 +14,6 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureCreateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableRegularLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
-import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
-import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
 import in.koreatech.koin.domain.timetableV3.repository.LectureRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableLectureRepositoryV3;
@@ -44,40 +40,28 @@ public class TimetableRegularLectureServiceV3 {
         return getTimetableLectureResponse(userId, frame);
     }
 
-    private TimetableLectureResponseV3 getTimetableLectureResponse(Integer userId, TimetableFrame timetableFrame) {
-        int grades = calculateGradesMainFrame(timetableFrame);
-        int totalGrades = calculateTotalGrades(timetableFrameRepositoryV3.findByUserIdAndIsMainTrue(userId));
-        return TimetableLectureResponseV3.of(timetableFrame, grades, totalGrades);
-    }
-
     @Transactional
     public TimetableLectureResponseV3 updateTimetablesRegularLecture(
         TimetableRegularLectureUpdateRequest request, Integer userId
     ) {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
-        /*
-         * TODO. 강의 장소 개수와 강의 시간 개수가 일치 하지 않으면 예외 던지기
-         *  TODO. Lecture id와 dto 내부의 lecutreId가 일치하지 않은 경우 예외 던지기*/
+
         TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());
         if (!timetableLecture.getLecture().getName().equals(request.timetableLecture().classTitle())) {
-            timetableLecture.regularLectureUpdate(request.timetableLecture().classTitle());
+            timetableLecture.regularLectureTitleUpdate(request.timetableLecture().classTitle());
         }
 
-        timetableLecture.getTimetableLectureInformations().clear();
-        List<LectureInformation> lectureInformations = timetableLecture.getLecture().getLectureInformations();
-        List<ClassPlace> classPlaces = request.timetableLecture().classPlaces();
-
-        for (int index = 0; index < lectureInformations.size(); index++) {
-            TimetableLectureInformation timetableLectureInformation = TimetableLectureInformation.builder()
-                .place(classPlaces.get(index).classPlace())
-                .build();
-
-            timetableLecture.addTimetableLectureInformation(timetableLectureInformation);
-            timetableLectureInformation.setLectureInformationId(lectureInformations.get(index));
-        }
+        String classPlace = parseToString(request.timetableLecture().classPlaces());
+        timetableLecture.regularLectureClassPlaceUpdate(classPlace);
 
         timetableLectureRepositoryV3.save(timetableLecture);
         return getTimetableLectureResponse(userId, frame);
+    }
+
+    private TimetableLectureResponseV3 getTimetableLectureResponse(Integer userId, TimetableFrame timetableFrame) {
+        int grades = calculateGradesMainFrame(timetableFrame);
+        int totalGrades = calculateTotalGrades(timetableFrameRepositoryV3.findByUserIdAndIsMainTrue(userId));
+        return TimetableLectureResponseV3.of(timetableFrame, grades, totalGrades);
     }
 }

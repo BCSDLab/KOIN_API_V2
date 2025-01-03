@@ -1,6 +1,9 @@
 package in.koreatech.koin.domain.timetableV3.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static in.koreatech.koin.domain.timetableV3.utils.ClassPlaceUtils.parseToStringList;
+import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.calcWeek;
+import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.parseToIntegerList;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -14,7 +17,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
-import in.koreatech.koin.domain.timetableV3.model.LectureInformation;
 import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -87,7 +89,6 @@ public record TimetableLectureResponseV3(
             @Schema(description = "장소", example = "2공학관314", requiredMode = NOT_REQUIRED)
             String place
         ) {
-            private static final Integer DIVIDE_TIME_UNIT = 100;
             private static final String EMPTY_PLACE = "";
 
             public static List<LectureInfo> getCustomLectureInfo(
@@ -103,36 +104,38 @@ public record TimetableLectureResponseV3(
                     .collect(Collectors.toList());
             }
 
-            public static List<LectureInfo> getRegularLectureInfo(
-                List<TimetableLectureInformation> timetableLectureInformations
-            ) {
-                return timetableLectureInformations.stream()
-                    .map(timetableRegularLectureInformation -> new LectureInfo(
-                        calcWeek(timetableRegularLectureInformation.getLectureInformation().getStarTime()),
-                        timetableRegularLectureInformation.getLectureInformation().getStarTime(),
-                        timetableRegularLectureInformation.getLectureInformation().getEndTime(),
-                        getResponsePlace(timetableRegularLectureInformation.getPlace())
-                    ))
-                    .collect(Collectors.toList());
-            }
+            public static List<LectureInfo> getRegularLectureInfo(String classTime, String classPlace) {
+                List<Integer> classTimes = parseToIntegerList(classTime);
+                List<String> classPlaces = parseToStringList(classPlace);
+                List<LectureInfo> response = new ArrayList<>();
+                int index = 0;
 
-            public static List<LectureInfo> getLectureInfo(List<LectureInformation> lectureInformations) {
-                return lectureInformations.stream()
-                    .map(lectureInformation -> new LectureInfo(
-                            calcWeek(lectureInformation.getStarTime()),
-                            lectureInformation.getStarTime(),
-                            lectureInformation.getEndTime(),
-                            EMPTY_PLACE
-                        )
-                    )
-                    .collect(Collectors.toList());
-            }
+                if (!classTimes.isEmpty()) {
+                    Integer prevTime = null;
+                    Integer startTime = null;
+                    Integer endTime = null;
 
-            private static Integer calcWeek(Integer startTime) {
-                if (startTime != 0) {
-                    return startTime / DIVIDE_TIME_UNIT;
+                    for (Integer time : classTimes) {
+                        if (Objects.isNull(prevTime) || time != prevTime + 1) {
+                            addLectureInfo(response, startTime, endTime, classPlaces.get(index));
+                            startTime = time;
+                            index++;
+                        }
+                        endTime = time;
+                        prevTime = time;
+                    }
+
+                    addLectureInfo(response, startTime, endTime, classPlaces.get(index));
                 }
-                return 0;
+                return response;
+            }
+
+            private static void addLectureInfo(
+                List<LectureInfo> response, Integer startTime, Integer endTime, String classPlace
+            ) {
+                if (!Objects.isNull(startTime)) {
+                    response.add(new LectureInfo(calcWeek(startTime), startTime, endTime, classPlace));
+                }
             }
 
             private static String getResponsePlace(String place) {
@@ -173,7 +176,7 @@ public record TimetableLectureResponseV3(
                         lecture.getRegularNumber(),
                         lecture.getCode(),
                         lecture.getDesignScore(),
-                        getLectureInfo(timetableLecture, lecture),
+                        LectureInfo.getRegularLectureInfo(lecture.getClassTime(), timetableLecture.getClassPlace()),
                         timetableLecture.getMemo(),
                         lecture.getGrades(),
                         timetableLecture.getClassTitle() == null ? lecture.getName() : timetableLecture.getClassTitle(),
@@ -186,13 +189,6 @@ public record TimetableLectureResponseV3(
                 InnerTimetableLectureResponses.add(responseV3);
             }
             return InnerTimetableLectureResponses;
-        }
-
-        public static List<LectureInfo> getLectureInfo(TimetableLecture timetableLecture, Lecture lecture) {
-            if (timetableLecture.getTimetableLectureInformations().isEmpty()) {
-                return LectureInfo.getLectureInfo(lecture.getLectureInformations());
-            }
-            return LectureInfo.getRegularLectureInfo(timetableLecture.getTimetableLectureInformations());
         }
     }
 

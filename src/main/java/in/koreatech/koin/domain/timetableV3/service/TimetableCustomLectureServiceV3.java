@@ -3,6 +3,8 @@ package in.koreatech.koin.domain.timetableV3.service;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateGradesMainFrame;
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
+import static in.koreatech.koin.domain.timetableV3.utils.ClassPlaceUtils.joinClassPlaces;
+import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.joinClassTimes;
 import static in.koreatech.koin.domain.timetableV3.validation.TimetableLectureValidate.checkDuplicateTimetableLectureTime;
 
 import java.util.List;
@@ -35,19 +37,8 @@ public class TimetableCustomLectureServiceV3 {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
         TimetableLecture timetableLecture = request.toTimetableLecture(frame);
-        List<TimetableLectureInformation> timetableLectureInformations = request.toTimetableLectureInformations();
-        checkDuplicateTimetableLectureTime(frame.getTimetableLectures(), timetableLectureInformations);
-        for (TimetableLectureInformation timetableLectureInformation : timetableLectureInformations) {
-            timetableLecture.addTimetableLectureInformation(timetableLectureInformation);
-        }
         timetableLectureRepositoryV3.save(timetableLecture);
         return getTimetableLectureResponse(userId, frame);
-    }
-
-    private TimetableLectureResponseV3 getTimetableLectureResponse(Integer userId, TimetableFrame timetableFrame) {
-        int grades = calculateGradesMainFrame(timetableFrame);
-        int totalGrades = calculateTotalGrades(timetableFrameRepositoryV3.findByUserIdAndIsMainTrue(userId));
-        return TimetableLectureResponseV3.of(timetableFrame, grades, totalGrades);
     }
 
     @Transactional
@@ -60,17 +51,18 @@ public class TimetableCustomLectureServiceV3 {
 
         timetableLecture.customLectureUpdate(
             request.timetableLecture().classTitle(),
-            request.timetableLecture().professor()
+            request.timetableLecture().professor(),
+            joinClassTimes(request.timetableLecture().lectureInfos()),
+            joinClassPlaces(request.timetableLecture().lectureInfos())
         );
-
-        timetableLecture.getTimetableLectureInformations().clear();
-        List<TimetableLectureInformation> timetableLectureInformations = request.toTimetableLectureInformations();
-        checkDuplicateTimetableLectureTime(frame.getTimetableLectures(), timetableLectureInformations);
-        for (TimetableLectureInformation timetableLectureInformation : timetableLectureInformations) {
-            timetableLecture.addTimetableLectureInformation(timetableLectureInformation);
-        }
 
         timetableLectureRepositoryV3.save(timetableLecture);
         return getTimetableLectureResponse(userId, frame);
+    }
+
+    private TimetableLectureResponseV3 getTimetableLectureResponse(Integer userId, TimetableFrame timetableFrame) {
+        int grades = calculateGradesMainFrame(timetableFrame);
+        int totalGrades = calculateTotalGrades(timetableFrameRepositoryV3.findByUserIdAndIsMainTrue(userId));
+        return TimetableLectureResponseV3.of(timetableFrame, grades, totalGrades);
     }
 }

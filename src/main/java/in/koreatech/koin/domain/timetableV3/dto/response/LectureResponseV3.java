@@ -1,14 +1,14 @@
 package in.koreatech.koin.domain.timetableV3.dto.response;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.calcWeek;
+import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.parseToIntegerList;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -68,8 +68,6 @@ public record LectureResponseV3(
         @Schema(description = "종료 시간", example = "115", requiredMode = REQUIRED)
         Integer endTime
     ) {
-        private static final Integer DIVIDE_TIME_UNIT = 100;
-
         public static List<LectureInfo> from(String classTime) {
             List<Integer> classTimes = parseToIntegerList(classTime);
             List<LectureInfo> response = new ArrayList<>();
@@ -101,21 +99,6 @@ public record LectureResponseV3(
                     endTime
                 ));
             }
-        }
-
-        private static Integer calcWeek(Integer startTime) {
-            if (startTime != 0) {
-                return startTime / DIVIDE_TIME_UNIT;
-            }
-            return 0;
-        }
-
-        private static List<Integer> parseToIntegerList(String classTime) {
-            return Stream.of(classTime.replaceAll("[\\[\\]]", "").split(","))
-                .map(String::strip)
-                .filter(time -> !time.isEmpty())
-                .map(Integer::parseInt)
-                .toList();
         }
     }
 

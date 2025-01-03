@@ -124,17 +124,18 @@ public class TimetableLecture extends BaseEntity {
         this.isDeleted = false;
     }
 
-    public void addTimetableLectureInformation(TimetableLectureInformation timetableLectureInformation) {
-        this.timetableLectureInformations.add(timetableLectureInformation);
-        timetableLectureInformation.setTimetableLectureId(this);
-    }
-
-    public void customLectureUpdate(String classTitle, String professor) {
+    public void customLectureUpdate(String classTitle, String professor, String classTime, String classPlace) {
         this.classTitle = classTitle;
         this.professor = professor;
+        this.classTime = classTime;
+        this.classPlace = classPlace;
     }
 
-    public void regularLectureUpdate(String classTitle) {
+    public void regularLectureTitleUpdate(String classTitle) {
         this.classTitle = classTitle;
+    }
+
+    public void regularLectureClassPlaceUpdate(String classPlace) {
+        this.classPlace = classPlace;
     }
 }

@@ -4,6 +4,7 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,30 +45,7 @@ public record TimetableCustomLectureUpdateRequest(
         @Size(max = 30, message = "교수명의 최대 글자는 30글자 입니다.")
         String professor
     ) {
-        @JsonNaming(value = SnakeCaseStrategy.class)
-        public record LectureInfo(
-            @Schema(description = "시작 시간", example = "112", requiredMode = REQUIRED)
-            Integer startTime,
 
-            @Schema(description = "종료 시간", example = "115", requiredMode = REQUIRED)
-            Integer endTime,
-
-            @Schema(description = "장소", example = "2공학관314", requiredMode = NOT_REQUIRED)
-            @Size(max = 30, message = "강의 장소의 최대 글자는 30글자입니다.")
-            String place
-        ) {
-
-        }
     }
 
-    public List<TimetableLectureInformation> toTimetableLectureInformations() {
-        return timetableLecture.lectureInfos.stream()
-            .map(lectureInfo -> TimetableLectureInformation.builder()
-                .startTime(lectureInfo.startTime)
-                .endTime(lectureInfo.endTime)
-                .place(lectureInfo.place)
-                .build()
-            )
-            .collect(Collectors.toList());
-    }
 }
