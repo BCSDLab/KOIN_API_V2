@@ -15,7 +15,7 @@ public class ClassTimeUtils {
     private static final Integer DIVIDE_TIME_UNIT = 100;
     private static final Integer CLASSTIME_SEPARATOR = -1;
 
-    // 정규 강의 시간 리스트로 변환
+    // 문자열 강의 시간 리스트로 변환
     public static List<Integer> parseToIntegerList(String classTime) {
         return Stream.of(classTime.replaceAll("[\\[\\]]", "").split(","))
             .map(String::strip)

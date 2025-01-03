@@ -14,6 +14,7 @@ public class ClassPlaceUtils {
 
     private static final String CLASSPLACE_SEPARATOR = ", ";
 
+    // 문자열 강의 장소 리스트로 변환
     public static List<String> parseToStringList(String classPlace) {
         return Stream.of(classPlace.split(","))
             .map(String::strip)
