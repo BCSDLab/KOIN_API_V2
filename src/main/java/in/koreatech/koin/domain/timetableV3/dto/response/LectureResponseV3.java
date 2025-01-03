@@ -93,11 +93,7 @@ public record LectureResponseV3(
 
         private static void addLectureInfo(List<LectureInfo> response, Integer startTime, Integer endTime) {
             if (!Objects.isNull(startTime)) {
-                response.add(new LectureInfo(
-                    calcWeek(startTime),
-                    startTime,
-                    endTime
-                ));
+                response.add(new LectureInfo(calcWeek(startTime), startTime, endTime));
             }
         }
     }

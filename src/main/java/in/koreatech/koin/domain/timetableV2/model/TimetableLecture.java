@@ -3,16 +3,11 @@ package in.koreatech.koin.domain.timetableV2.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
 import in.koreatech.koin.global.domain.BaseEntity;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,7 +16,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -77,9 +71,6 @@ public class TimetableLecture extends BaseEntity {
     @JoinColumn(name = "frame_id")
     private TimetableFrame timetableFrame;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "timetableLecture", orphanRemoval = true)
-    private List<TimetableLectureInformation> timetableLectureInformations = new ArrayList<>();
-
     @Builder
     public TimetableLecture(String classTitle, String classTime, String classPlace, String professor,
         String grades, String memo, boolean isDeleted, Lecture lecture, TimetableFrame timetableFrame) {
@@ -131,11 +122,10 @@ public class TimetableLecture extends BaseEntity {
         this.classPlace = classPlace;
     }
 
-    public void regularLectureTitleUpdate(String classTitle) {
-        this.classTitle = classTitle;
-    }
-
-    public void regularLectureClassPlaceUpdate(String classPlace) {
+    public void regularLectureUpdate(String classTitle, String classPlace) {
+        if (!lecture.getName().equals(classTitle)) {
+            this.classTitle = classTitle;
+        }
         this.classPlace = classPlace;
     }
 }

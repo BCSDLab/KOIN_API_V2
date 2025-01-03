@@ -4,13 +4,10 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -39,7 +36,7 @@ public record TimetableCustomLectureUpdateRequest(
 
         @Valid
         @Schema(description = "커스텀 강의 시간 정보", requiredMode = REQUIRED)
-        List<LectureInfo> lectureInfos,
+        List<RequestLectureInfo> lectureInfos,
 
         @Schema(description = "교수명", example = "교수명", requiredMode = NOT_REQUIRED)
         @Size(max = 30, message = "교수명의 최대 글자는 30글자 입니다.")

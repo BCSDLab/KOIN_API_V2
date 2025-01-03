@@ -5,9 +5,6 @@ import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculat
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 import static in.koreatech.koin.domain.timetableV3.utils.ClassPlaceUtils.joinClassPlaces;
 import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.joinClassTimes;
-import static in.koreatech.koin.domain.timetableV3.validation.TimetableLectureValidate.checkDuplicateTimetableLectureTime;
-
-import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +14,6 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableCustomLectureCreateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableCustomLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
-import in.koreatech.koin.domain.timetableV3.model.TimetableLectureInformation;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableLectureRepositoryV3;
 import lombok.RequiredArgsConstructor;

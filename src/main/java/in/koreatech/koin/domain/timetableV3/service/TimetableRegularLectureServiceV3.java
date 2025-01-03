@@ -47,13 +47,11 @@ public class TimetableRegularLectureServiceV3 {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
 
-        TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());
-        if (!timetableLecture.getLecture().getName().equals(request.timetableLecture().classTitle())) {
-            timetableLecture.regularLectureTitleUpdate(request.timetableLecture().classTitle());
-        }
-
-        String classPlace = parseToString(request.timetableLecture().classPlaces());
-        timetableLecture.regularLectureClassPlaceUpdate(classPlace);
+        TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());;
+        timetableLecture.regularLectureUpdate(
+            request.timetableLecture().classTitle(),
+            parseToString(request.timetableLecture().classPlaces())
+        );
 
         timetableLectureRepositoryV3.save(timetableLecture);
         return getTimetableLectureResponse(userId, frame);
