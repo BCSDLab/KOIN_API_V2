@@ -41,7 +41,7 @@ public class TimetableLectureService {
     public TimetableLectureResponse createTimetableLectures(Integer userId, TimetableLectureCreateRequest request) {
         TimetableFrame frame = timetableFrameRepositoryV2.getById(request.timetableFrameId());
         validateUserAuthorization(frame.getUser().getId(), userId);
-        timetableLectureCreator.createTimetableLectures(request, userId, frame);
+        timetableLectureCreator.createTimetableLectures(request, frame);
         return getTimetableLectureResponse(userId, frame);
     }
 

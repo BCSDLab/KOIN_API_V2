@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.graduation.service;
 
-import static in.koreatech.koin.domain.student.util.StudentUtil.parseStudentNumberYear;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -11,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -45,10 +42,8 @@ import in.koreatech.koin.domain.graduation.exception.ExcelFileNotFoundException;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
-import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.LectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
-import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
@@ -64,18 +59,17 @@ public class GraduationService {
     private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
     private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final DetectGraduationCalculationRepository detectGraduationCalculationRepository;
-    private static final String MIDDLE_TOTAL = "소 계";
-    private static final String TOTAL = "합 계";
-    private static final String RETAKE = "Y";
-    private static final String UNSATISFACTORY = "U";
-
     private final CourseTypeRepository courseTypeRepository;
     private final UserRepository userRepository;
     private final SemesterRepositoryV2 semesterRepositoryV2;
     private final LectureRepositoryV2 lectureRepositoryV2;
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
-    private final TimetableFrameRepositoryV2 timetableFrameRepositoryV2;
     private final CatalogRepository catalogRepository;
+
+    private static final String MIDDLE_TOTAL = "소 계";
+    private static final String TOTAL = "합 계";
+    private static final String RETAKE = "Y";
+    private static final String UNSATISFACTORY = "U";
 
     @Transactional
     public void createStudentCourseCalculation(Integer userId) {
@@ -107,6 +101,39 @@ public class GraduationService {
             .ifPresent(detectGraduationCalculation -> {
                 detectGraduationCalculation.updatedIsChanged(true);
             });
+    }
+
+    @Transactional
+    public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
+        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 GraduationCalculation 정보가 존재하지 않습니다."));
+
+        if (!detectGraduationCalculation.isChanged()) {
+            return GraduationCourseCalculationResponse.of(List.of());
+        }
+
+        // 학생 정보와 학과 검증
+        Student student = getValidatedStudent(userId);
+        String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
+
+        // 시간표와 대학 요람 데이터 가져오기
+        List<Catalog> catalogList = getCatalogListForStudent(student, studentYear);
+
+        // courseTypeId와 학점 맵핑
+        Map<Integer, Integer> courseTypeCreditsMap = calculateCourseTypeCredits(catalogList);
+
+        // GraduationRequirements 리스트 조회
+        List<StandardGraduationRequirements> graduationRequirements = getGraduationRequirements(catalogList,
+            studentYear);
+
+        // 계산 로직 및 응답 생성
+        List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = processGraduationCalculations(
+            userId, student, graduationRequirements, courseTypeCreditsMap
+        );
+
+        detectGraduationCalculation.updatedIsChanged(false);
+
+        return GraduationCourseCalculationResponse.of(courseTypes);
     }
 
     @Transactional
@@ -237,39 +264,6 @@ public class GraduationService {
                     .build()
             )
         );
-    }
-
-    @Transactional
-    public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
-        DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 GraduationCalculation 정보가 존재하지 않습니다."));
-
-        if (!detectGraduationCalculation.isChanged()) {
-            return GraduationCourseCalculationResponse.of(List.of());
-        }
-
-        // 학생 정보와 학과 검증
-        Student student = getValidatedStudent(userId);
-        String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
-
-        // 시간표와 대학 요람 데이터 가져오기
-        List<Catalog> catalogList = getCatalogListForStudent(student, studentYear);
-
-        // courseTypeId와 학점 맵핑
-        Map<Integer, Integer> courseTypeCreditsMap = calculateCourseTypeCredits(catalogList);
-
-        // GraduationRequirements 리스트 조회
-        List<StandardGraduationRequirements> graduationRequirements = getGraduationRequirements(catalogList,
-            studentYear);
-
-        // 계산 로직 및 응답 생성
-        List<GraduationCourseCalculationResponse.InnerCalculationResponse> courseTypes = processGraduationCalculations(
-            userId, student, graduationRequirements, courseTypeCreditsMap
-        );
-
-        detectGraduationCalculation.updatedIsChanged(false);
-
-        return GraduationCourseCalculationResponse.of(courseTypes);
     }
 
     private Student getValidatedStudent(Integer userId) {

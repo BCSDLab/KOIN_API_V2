@@ -8,7 +8,6 @@ import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.global.domain.BaseEntity;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
