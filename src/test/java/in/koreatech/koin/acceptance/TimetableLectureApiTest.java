@@ -80,7 +80,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                                     ],
                                     "professor" : "서정빈",
                                     "grades": "2",
-                                    "memo" : "메모",
+                                    "memo" : "메모"
                                 },
                                 {
                                     "class_title": "커스텀생성2",
@@ -448,7 +448,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "target": "기공1",
                             "professor": "박한수,최준호",
                             "department": "기계공학부",
-                            "course_type": "MSC 필수"
+                            "course_type": "교양 필수"
                         }
                     ],
                     "grades": 6,
@@ -516,7 +516,7 @@ public class TimetableLectureApiTest extends AcceptanceTest {
                             "target": "기공1",
                             "professor": "박한수,최준호",
                             "department": "기계공학부",
-                            "course_type": "MSC 필수"
+                            "course_type": "교양 필수"
                         }
                     ],
                     "grades": 6,
