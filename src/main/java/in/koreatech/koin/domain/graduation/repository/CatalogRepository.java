@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.graduation.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
@@ -17,4 +18,6 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
             .orElseThrow(() -> CatalogNotFoundException.withDetail(
                 "year: " + year + ", department: " + department + ", code: " + code));
     }
+
+    List<Catalog> findByLectureNameAndYearAndDepartment(String lectureName, String studentYear, Department department);
 }

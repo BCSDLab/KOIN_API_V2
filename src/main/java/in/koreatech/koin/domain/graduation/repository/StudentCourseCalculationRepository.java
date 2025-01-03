@@ -13,4 +13,8 @@ public interface StudentCourseCalculationRepository extends Repository<StudentCo
     void deleteAllByUserId(Integer userId);
 
     void save(StudentCourseCalculation studentCourseCalculation);
+
+    StudentCourseCalculation findByUserIdAndStandardGraduationRequirementsId(Integer userId, Integer id);
+
+    void delete(StudentCourseCalculation existingCalculation);
 }

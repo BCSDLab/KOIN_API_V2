@@ -10,4 +10,6 @@ import in.koreatech.koin.domain.student.model.Department;
 public interface StandardGraduationRequirementsRepository extends Repository<StandardGraduationRequirements, Integer> {
 
     List<StandardGraduationRequirements> findAllByDepartmentAndYear(Department department, String year);
+
+    List<StandardGraduationRequirements> findByDepartmentIdAndCourseTypeIdAndYear(Integer id, Integer id1, String studentYear);
 }
