@@ -66,20 +66,6 @@ public record LectureInfoResponse(
         return response;
     }
 
-    // 정규 강의 장소 수정이 없을 경우 빈 장소를 주기 위한 리스트 반환
-    private static List<String> getClassPlaces(String classPlace, List<Integer> classTimes) {
-        if (Objects.isNull(classPlace) || classPlace.isBlank()) {
-            return Collections.nCopies(classTimes.size(), EMPTY_PLACE);
-        }
-        return parseToStringList(classPlace);
-    }
-
-    private static void addLectureInfo(
-        List<LectureInfoResponse> response, Integer startTime, Integer endTime, String classPlace
-    ) {
-        response.add(new LectureInfoResponse(calcWeek(startTime), startTime, endTime, classPlace));
-    }
-
     public static List<LectureInfoResponse> getCustomLectureInfo(String classTime, String classPlace) {
         List<Integer> classTimes = parseToIntegerList(classTime);
         List<LectureInfoResponse> response = new ArrayList<>();
@@ -118,5 +104,19 @@ public record LectureInfoResponse(
         }
 
         return response;
+    }
+
+    // 정규 강의 장소 수정이 없을 경우 빈 장소를 주기 위한 리스트 반환
+    private static List<String> getClassPlaces(String classPlace, List<Integer> classTimes) {
+        if (Objects.isNull(classPlace) || classPlace.isBlank()) {
+            return Collections.nCopies(classTimes.size(), EMPTY_PLACE);
+        }
+        return parseToStringList(classPlace);
+    }
+
+    private static void addLectureInfo(
+        List<LectureInfoResponse> response, Integer startTime, Integer endTime, String classPlace
+    ) {
+        response.add(new LectureInfoResponse(calcWeek(startTime), startTime, endTime, classPlace));
     }
 }
