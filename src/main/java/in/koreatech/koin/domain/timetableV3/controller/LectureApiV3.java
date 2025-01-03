@@ -25,7 +25,7 @@ public interface LectureApiV3 {
         }
     )
     @Operation(summary = "정규 강의 목록 조회")
-    @GetMapping("/lectures")
+    @GetMapping("/v3/lectures")
     ResponseEntity<List<LectureResponseV3>> getLectures(
         String semesterDate
     );
