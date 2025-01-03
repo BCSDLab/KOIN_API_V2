@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetableV3.dto.response.LectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.repository.LectureRepositoryV3;
 import lombok.RequiredArgsConstructor;
