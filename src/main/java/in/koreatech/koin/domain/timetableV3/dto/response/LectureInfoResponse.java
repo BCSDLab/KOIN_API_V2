@@ -32,6 +32,7 @@ public record LectureInfoResponse(
 ) {
     private static final String EMPTY_PLACE = "";
 
+    // 역정규화 된 정유 강의 정보 정규화 하는 메소드
     public static List<LectureInfoResponse> getRegularLectureInfo(String classTime, String classPlace) {
         List<Integer> classTimes = parseToIntegerList(classTime);
         List<LectureInfoResponse> response = new ArrayList<>();
@@ -55,7 +56,6 @@ public record LectureInfoResponse(
                 }
                 startTime = time;
             }
-
             endTime = time;
             prevTime = time;
         }
@@ -66,6 +66,7 @@ public record LectureInfoResponse(
         return response;
     }
 
+    // 역정규화 된 커스텀 강의 정부 정규화 하는 메소드
     public static List<LectureInfoResponse> getCustomLectureInfo(String classTime, String classPlace) {
         List<Integer> classTimes = parseToIntegerList(classTime);
         List<LectureInfoResponse> response = new ArrayList<>();
@@ -106,14 +107,14 @@ public record LectureInfoResponse(
         return response;
     }
 
-    // 정규 강의 장소 수정이 없을 경우 빈 장소를 주기 위한 리스트 반환
+    // 강의 장소가 null 혹은 빈 값인 경우 강의 장소를 공백으로 넘기기 위한 메소드
     private static List<String> getClassPlaces(String classPlace, List<Integer> classTimes) {
         if (Objects.isNull(classPlace) || classPlace.isBlank()) {
             return Collections.nCopies(classTimes.size(), EMPTY_PLACE);
         }
         return parseToStringList(classPlace);
     }
-
+    
     private static void addLectureInfo(
         List<LectureInfoResponse> response, Integer startTime, Integer endTime, String classPlace
     ) {

@@ -68,6 +68,7 @@ public record LectureResponseV3(
         @Schema(description = "종료 시간", example = "115", requiredMode = REQUIRED)
         Integer endTime
     ) {
+        // 역정규화된 정규 강의 정보를 정규화 하는 메소드
         public static List<LectureInfo> from(String classTime) {
             List<Integer> classTimes = parseToIntegerList(classTime);
             List<LectureInfo> response = new ArrayList<>();
@@ -79,22 +80,25 @@ public record LectureResponseV3(
 
                 for (Integer time : classTimes) {
                     if (Objects.isNull(prevTime) || time != prevTime + 1) {
-                        addLectureInfo(response, startTime, endTime);
+                        if (!Objects.isNull(startTime)) {
+                            addLectureInfo(response, startTime, endTime);
+                        }
                         startTime = time;
                     }
                     endTime = time;
                     prevTime = time;
                 }
 
+                if (!Objects.isNull(startTime)) {
+                    addLectureInfo(response, startTime, endTime);
+                }
                 addLectureInfo(response, startTime, endTime);
             }
             return response;
         }
 
         private static void addLectureInfo(List<LectureInfo> response, Integer startTime, Integer endTime) {
-            if (!Objects.isNull(startTime)) {
-                response.add(new LectureInfo(calcWeek(startTime), startTime, endTime));
-            }
+            response.add(new LectureInfo(calcWeek(startTime), startTime, endTime));
         }
     }
 
