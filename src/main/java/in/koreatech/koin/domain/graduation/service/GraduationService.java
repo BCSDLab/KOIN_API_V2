@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.graduation.service;
 
+import static in.koreatech.koin.domain.student.util.StudentUtil.parseStudentNumberYear;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,23 +47,10 @@ public class GraduationService {
     public void createStudentCourseCalculation(Integer userId) {
         Student student = studentRepository.getById(userId);
 
-        if (student.getDepartment() == null) {
-            DepartmentNotFoundException.withDetail("학과를 추가하세요.");
-        }
-        if (student.getStudentNumber() == null) {
-            DepartmentNotFoundException.withDetail("학번을 추가하세요.");
-        }
+        validateStudentField(student.getDepartment(), "학과를 추가하세요.");
+        validateStudentField(student.getStudentNumber(), "학번을 추가하세요.");
 
-        List<StandardGraduationRequirements> requirementsList =
-            standardGraduationRequirementsRepository.findAllByDepartmentAndYear(
-                student.getDepartment(), student.getStudentNumber().substring(0, 4));
-
-        requirementsList.forEach(requirement -> studentCourseCalculationRepository.save(
-            StudentCourseCalculation.builder()
-                .completedGrades(0)
-                .user(student.getUser())
-                .standardGraduationRequirements(requirement)
-                .build()));
+        initializeStudentCourseCalculation(student, student.getDepartment());
 
         DetectGraduationCalculation detectGraduationCalculation = DetectGraduationCalculation.builder()
             .user(student.getUser())
@@ -77,10 +66,27 @@ public class GraduationService {
             .ifPresent(studentCourseCalculation -> {
                 studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
             });
+
+        initializeStudentCourseCalculation(student, newDepartment);
+
+        detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
+            .ifPresent(detectGraduationCalculation -> {
+                detectGraduationCalculation.updatedIsChanged(true);
+            });
+    }
+
+    private void validateStudentField(Object field, String message) {
+        if (field == null) {
+            throw DepartmentNotFoundException.withDetail(message);
+        }
+    }
+
+    private void initializeStudentCourseCalculation(Student student, Department department) {
         // 학번에 맞는 이수요건 정보 조회
         List<StandardGraduationRequirements> requirementsList =
             standardGraduationRequirementsRepository.findAllByDepartmentAndYear(
-                newDepartment, student.getStudentNumber().substring(0, 4));
+                department, student.getStudentNumber().substring(0, 4));
+
         // 학생 졸업요건 계산 정보 초기화
         requirementsList.forEach(requirement ->
             studentCourseCalculationRepository.save(
@@ -91,11 +97,6 @@ public class GraduationService {
                     .build()
             )
         );
-        // DetectGraduationCalculation 정보 업데이트
-        detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
-            .ifPresent(detectGraduationCalculation -> {
-                detectGraduationCalculation.updatedIsChanged(true);
-            });
     }
 
     @Transactional

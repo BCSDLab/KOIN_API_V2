@@ -6,6 +6,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.graduation.repository.DetectGraduationCalculationRepository;
+import in.koreatech.koin.global.auth.AuthContext;
 import lombok.RequiredArgsConstructor;
 
 @Aspect
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GraduationAspect {
 
+    private final AuthContext authContext;
     private final DetectGraduationCalculationRepository detectGraduationCalculationRepository;
 
     /**
@@ -27,8 +29,7 @@ public class GraduationAspect {
         "execution(* in.koreatech.koin.domain.timetableV2.controller.TimetableControllerV2.deleteTimetablesFrame(..))",
         returning = "result")
     public void afterTimetableLecture(JoinPoint joinPoint, Object result) {
-        Object[] args = joinPoint.getArgs();
-        Integer userId = (Integer) args[1];
+        Integer userId = authContext.getUserId();
 
         detectGraduationCalculationRepository.findByUserId(userId).ifPresent(detectGraduationCalculation -> {
             detectGraduationCalculation.updatedIsChanged(true);
