@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.timetableV3.dto.response.LectureResponseV3;
+import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.service.LectureServiceV3;
 import lombok.RequiredArgsConstructor;
 
@@ -17,12 +18,12 @@ public class LectureControllerV3 implements LectureApiV3 {
 
     private final LectureServiceV3 lectureServiceV3;
 
-    // TODO. Semester v3 올라가면 파라미터 변경하기
     @GetMapping("/v3/lectures")
     public ResponseEntity<List<LectureResponseV3>> getLectures(
-        @RequestParam(name = "semester_date") String semester
+        @RequestParam(name = "year") Integer year,
+        @RequestParam(name = "term") Term term
     ) {
-        List<LectureResponseV3> response = lectureServiceV3.getLectures(semester);
+        List<LectureResponseV3> response = lectureServiceV3.getLectures(year, term);
         return ResponseEntity.ok(response);
     }
 }
