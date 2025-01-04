@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.dto.response;
 
+import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.calcWeek;
 import static in.koreatech.koin.domain.timetableV3.utils.ClassTimeUtils.parseToIntegerList;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
@@ -11,12 +12,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record LectureInfoResponse(
     @Schema(description = "요일 id", example = "0", requiredMode = REQUIRED)
     Integer week,
@@ -51,12 +51,10 @@ public record LectureInfoResponse(
         for (int index = 1; index < classTimes.size(); index++) {
             if (classTimes.get(index) == endTime + 1) {
                 endTime = classTimes.get(index);
-            }
-            else {
+            } else {
                 if (classPlaceIndex + 1 > classPlaces.size()) {
                     addLectureInfo(response, startTime, endTime, EMPTY_PLACE);
-                }
-                else {
+                } else {
                     addLectureInfo(response, startTime, endTime, classPlaces.get(classPlaceIndex++));
                 }
                 startTime = classTimes.get(index);
@@ -66,8 +64,7 @@ public record LectureInfoResponse(
 
         if (classPlaceIndex + 1 > classPlaces.size()) {
             addLectureInfo(response, startTime, endTime, EMPTY_PLACE);
-        }
-        else {
+        } else {
             addLectureInfo(response, startTime, endTime, classPlaces.get(classPlaceIndex));
         }
         return response;
@@ -80,34 +77,33 @@ public record LectureInfoResponse(
 
         List<String> classPlaces = getClassPlaces(classPlace, classTimes);
 
-        Integer prevTime = null;
-        Integer startTime = null;
-        Integer endTime = null;
+        int startTime = classTimes.get(0);
+        int endTime = startTime;
         int placesIndex = 0;
 
-        for (int time : classTimes) {
-            if (Objects.isNull(prevTime)) {
+        for (int index = 1; index < classTimes.size(); index++) {
+            int time = classTimes.get(index);
+
+            if (endTime == -1) {
                 startTime = time;
+                endTime = startTime;
+                continue;
             }
 
-            if (!Objects.isNull(prevTime) && prevTime == -1) {
+            if (time == endTime + 1) {
+                endTime = time;
+            } else {
+                if (time == -1) {
+                    addLectureInfo(response, startTime, endTime, classPlaces.get(placesIndex++));
+                } else {
+                    addLectureInfo(response, startTime, endTime, classPlaces.get(placesIndex));
+                }
                 startTime = time;
-                prevTime = null;
-                endTime = null;
+                endTime = startTime;
             }
-
-            if (time == -1) {
-                addLectureInfo(response, startTime, endTime, classPlaces.get(placesIndex++));
-            } else if (!Objects.isNull(prevTime) && prevTime + 1 != time) {
-                addLectureInfo(response, startTime, endTime, classPlaces.get(placesIndex));
-                startTime = time;
-            }
-
-            endTime = time;
-            prevTime = time;
         }
 
-        if (!Objects.isNull(startTime) && prevTime != -1) {
+        if (endTime != -1) {
             addLectureInfo(response, startTime, endTime, classPlaces.get(placesIndex));
         }
 
