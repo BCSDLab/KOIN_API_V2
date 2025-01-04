@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.timetableV3.service;
 
+import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateTimetableFrameUpdate;
+
 import java.util.Comparator;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableFrameCreateRequestV3;
+import in.koreatech.koin.domain.timetableV3.dto.request.TimetableFrameUpdateRequestV3;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableFrameResponseV3;
 import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
@@ -53,5 +56,31 @@ public class TimetableFrameServiceV3 {
 
     private String getDefaultTimetableFrameName(int currentFrameCount) {
         return DEFAULT_TIMETABLE_FRAME_NAME + (currentFrameCount + 1);
+    }
+
+    @Transactional
+    public List<TimetableFrameResponseV3> updateTimetableFrame(
+        TimetableFrameUpdateRequestV3 request, Integer timetableFrameId, Integer userId
+    ) {
+        TimetableFrame frame = timetableFrameRepositoryV3.getById(timetableFrameId);
+        validateTimetableFrameUpdate(frame, request.isMain());
+        cancelIfMainTimetable(userId, frame.getSemester().getId(), request.isMain());
+        frame.updateTimetableFrame(frame.getSemester(), request.timetableName(), request.isMain());
+
+        List<TimetableFrame> frames = timetableFrameRepositoryV3.findByUserAndSemester(frame.getUser(), frame.getSemester());
+        frames.sort(Comparator.comparing(TimetableFrame::isMain).reversed()
+            .thenComparing(TimetableFrame::getId));
+
+        return frames.stream()
+            .map(TimetableFrameResponseV3::from)
+            .toList();
+    }
+
+    private void cancelIfMainTimetable(Integer userId, Integer semesterId, boolean isMain) {
+        if (isMain) {
+            TimetableFrame mainTimetableFrame = timetableFrameRepositoryV3.getMainTimetableByUserIdAndSemesterId(userId,
+                semesterId);
+            mainTimetableFrame.updateMainFlag(false);
+        }
     }
 }

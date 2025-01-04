@@ -5,10 +5,13 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableFrameCreateRequestV3;
+import in.koreatech.koin.domain.timetableV3.dto.request.TimetableFrameUpdateRequestV3;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableFrameResponseV3;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,6 +39,23 @@ public interface TimetableFrameApiV3 {
     @PostMapping("/v3/timetables/frame")
     ResponseEntity<List<TimetableFrameResponseV3>> createTimetablesFrame(
         @Valid @RequestBody TimetableFrameCreateRequestV3 request,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "시간표 프레임 수정")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PutMapping("/v3/timetables/frame/{id}")
+    ResponseEntity<List<TimetableFrameResponseV3>> updateTimetableFrame(
+        @Valid @RequestBody TimetableFrameUpdateRequestV3 request,
+        @PathVariable(value = "id") Integer timetableFrameId,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }
