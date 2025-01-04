@@ -52,7 +52,12 @@ public record LectureInfoResponse(
         for (Integer time : classTimes) {
             if (Objects.isNull(prevTime) || time != prevTime + 1) {
                 if (!Objects.isNull(startTime)) {
-                    addLectureInfo(response, startTime, endTime, classPlaces.get(index++));
+                    if (index + 1 > classPlaces.size()) {
+                        addLectureInfo(response, startTime, endTime, EMPTY_PLACE);
+                    }
+                    else {
+                        addLectureInfo(response, startTime, endTime, classPlaces.get(index++));
+                    }
                 }
                 startTime = time;
             }
@@ -61,7 +66,12 @@ public record LectureInfoResponse(
         }
 
         if (!Objects.isNull(startTime)) {
-            addLectureInfo(response, startTime, endTime, classPlaces.get(index));
+            if (index + 1 > classPlaces.size()) {
+                addLectureInfo(response, startTime, endTime, EMPTY_PLACE);
+            }
+            else {
+                addLectureInfo(response, startTime, endTime, classPlaces.get(index));
+            }
         }
         return response;
     }
