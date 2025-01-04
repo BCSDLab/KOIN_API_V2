@@ -5,6 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -52,15 +53,11 @@ public record TimetableRegularLectureUpdateRequest(
 
         }
 
+        // 정규 강의 장소 역정규화 메소드
         public String classPlacesToString() {
-            StringBuilder classPlaceSegment = new StringBuilder();
-            for (int index = 0; index < classPlaces.size(); index++) {
-                if (index > 0) {
-                    classPlaceSegment.append(", ");
-                }
-                classPlaceSegment.append(classPlaces.get(index).classPlace());
-            }
-            return classPlaceSegment.toString();
+            return classPlaces.stream()
+                .map(ClassPlace::classPlace)
+                .collect(Collectors.joining(", "));
         }
     }
 }
