@@ -24,6 +24,7 @@ update semester set year = 2023, term = 'WINTER' where semester = '2023-겨울';
 update semester set year = 2024, term = 'FIRST' where semester = '20241';
 update semester set year = 2024, term = 'SECOND' where semester = '20242';
 update semester set year = 2024, term = 'SUMMER' where semester = '2024-여름';
+update semester set year = 2024, term = 'WINTER' where semester = '2024-겨울';
 
 ALTER TABLE semester
     MODIFY COLUMN year INT UNSIGNED NOT NULL,
