@@ -44,34 +44,31 @@ public record LectureInfoResponse(
 
         List<String> classPlaces = getClassPlaces(classPlace, classTimes);
 
-        Integer prevTime = null;
-        Integer startTime = null;
-        Integer endTime = null;
-        int index = 0;
+        int startTime = classTimes.get(0);
+        int endTime = startTime;
+        int classPlaceIndex = 0;
 
-        for (Integer time : classTimes) {
-            if (Objects.isNull(prevTime) || time != prevTime + 1) {
-                if (!Objects.isNull(startTime)) {
-                    if (index + 1 > classPlaces.size()) {
-                        addLectureInfo(response, startTime, endTime, EMPTY_PLACE);
-                    }
-                    else {
-                        addLectureInfo(response, startTime, endTime, classPlaces.get(index++));
-                    }
-                }
-                startTime = time;
-            }
-            endTime = time;
-            prevTime = time;
-        }
-
-        if (!Objects.isNull(startTime)) {
-            if (index + 1 > classPlaces.size()) {
-                addLectureInfo(response, startTime, endTime, EMPTY_PLACE);
+        for (int index = 1; index < classTimes.size(); index++) {
+            if (classTimes.get(index) == endTime + 1) {
+                endTime = classTimes.get(index);
             }
             else {
-                addLectureInfo(response, startTime, endTime, classPlaces.get(index));
+                if (classPlaceIndex + 1 > classPlaces.size()) {
+                    addLectureInfo(response, startTime, endTime, EMPTY_PLACE);
+                }
+                else {
+                    addLectureInfo(response, startTime, endTime, classPlaces.get(classPlaceIndex++));
+                }
+                startTime = classTimes.get(index);
+                endTime = startTime;
             }
+        }
+
+        if (classPlaceIndex + 1 > classPlaces.size()) {
+            addLectureInfo(response, startTime, endTime, EMPTY_PLACE);
+        }
+        else {
+            addLectureInfo(response, startTime, endTime, classPlaces.get(classPlaceIndex));
         }
         return response;
     }

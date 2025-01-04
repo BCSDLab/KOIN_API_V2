@@ -74,24 +74,21 @@ public record LectureResponseV3(
             List<LectureInfo> response = new ArrayList<>();
 
             if (!classTimes.isEmpty()) {
-                Integer prevTime = null;
-                Integer startTime = null;
-                Integer endTime = null;
+                int startTime = classTimes.get(0);
+                int endTime = startTime;
 
-                for (Integer time : classTimes) {
-                    if (Objects.isNull(prevTime) || time != prevTime + 1) {
-                        if (!Objects.isNull(startTime)) {
-                            addLectureInfo(response, startTime, endTime);
-                        }
-                        startTime = time;
+                for (int index = 1; index < classTimes.size(); index++) {
+                    if (classTimes.get(index) == endTime + 1) {
+                        endTime = classTimes.get(index);
                     }
-                    endTime = time;
-                    prevTime = time;
+                    else {
+                        addLectureInfo(response, startTime, endTime);
+                        startTime = classTimes.get(index);
+                        endTime = startTime;
+                    }
                 }
 
-                if (!Objects.isNull(startTime)) {
-                    addLectureInfo(response, startTime, endTime);
-                }
+                addLectureInfo(response, startTime, endTime);
             }
             return response;
         }
