@@ -12,7 +12,9 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.fixture.LectureFixture;
+import in.koreatech.koin.fixture.SemesterFixture;
 
 @SuppressWarnings("NonAsciiCharacters")
 @Transactional
@@ -22,6 +24,9 @@ public class LectureApiTest extends AcceptanceTest {
     @Autowired
     private LectureFixture lectureFixture;
 
+    @Autowired
+    private SemesterFixture semesterFixture;
+
     @BeforeAll
     void setup() {
         clear();
@@ -29,12 +34,13 @@ public class LectureApiTest extends AcceptanceTest {
 
     @Test
     void 특정_학기_강의를_조회한다() throws Exception {
-        String semester = "20201";
-        lectureFixture.HRD_개론(semester);
+        Semester semester = semesterFixture.semester_2020년도_1학기();
+        lectureFixture.HRD_개론(semester.getSemester());
 
         mockMvc.perform(
                 get("/v3/lectures")
-                    .param("semester_date", semester)
+                    .param("year", String.valueOf(semester.getYear()))
+                    .param("term", String.valueOf(semester.getTerm()))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
