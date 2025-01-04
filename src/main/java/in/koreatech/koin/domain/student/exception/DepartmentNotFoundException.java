@@ -6,7 +6,7 @@ public class DepartmentNotFoundException extends DataNotFoundException {
 
     private static final String DEFAULT_MESSAGE = "존재하지 않는 학과입니다.";
 
-    protected DepartmentNotFoundException(String message) {
+    public DepartmentNotFoundException(String message) {
         super(message);
     }
 

@@ -4,6 +4,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserIdentity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -39,7 +40,7 @@ public class Student {
     private String studentNumber;
 
     @JoinColumn(name = "department_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Department department;
 
     @Column(name = "identity", columnDefinition = "SMALLINT")

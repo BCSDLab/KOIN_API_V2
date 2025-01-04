@@ -18,6 +18,22 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "(Normal) Graduation: 졸업학점 계산기", description = "졸업학점 계산기 정보를 관리한다")
 public interface GraduationApi {
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "졸업학점 계산 동의")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/graduation/agree")
+    ResponseEntity<Void> createStudentCourseCalculation(
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),

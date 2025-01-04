@@ -11,6 +11,8 @@ public interface DepartmentRepository extends Repository<Department, Integer> {
 
     Department save(Department department);
 
+    void saveAll(Iterable<Department> departments);
+
     Optional<Department> findByName(String name);
 
     default Department getByName(String name) {
