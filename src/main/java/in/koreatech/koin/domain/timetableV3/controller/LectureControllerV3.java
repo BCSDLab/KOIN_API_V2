@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.koreatech.koin.domain.timetableV3.dto.response.LectureResponseV3;
@@ -19,9 +20,9 @@ public class LectureControllerV3 implements LectureApiV3 {
     // TODO. Semester v3 올라가면 파라미터 변경하기
     @GetMapping("/v3/lectures")
     public ResponseEntity<List<LectureResponseV3>> getLectures(
-        String semesterDate
+        @RequestParam(name = "semester_date") String semester
     ) {
-        List<LectureResponseV3> response = lectureServiceV3.getLectures(semesterDate);
+        List<LectureResponseV3> response = lectureServiceV3.getLectures(semester);
         return ResponseEntity.ok(response);
     }
 }

@@ -92,7 +92,6 @@ public record LectureResponseV3(
                 if (!Objects.isNull(startTime)) {
                     addLectureInfo(response, startTime, endTime);
                 }
-                addLectureInfo(response, startTime, endTime);
             }
             return response;
         }

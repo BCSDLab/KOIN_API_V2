@@ -64,8 +64,8 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
                     .header("Authorization", "Bearer " + token)
                     .content("""
                         {
-                            "timetable_frame_id" : 1,
-                            "lecture_id" : 1
+                            "timetable_frame_id": 1,
+                            "lecture_id": 1
                         }
                         """)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -85,7 +85,8 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
                               {
                                 "week": 0,
                                 "start_time": 12,
-                                "end_time": 15
+                                "end_time": 15,
+                                "place": ""
                               },
                               {
                                 "week": 2,
