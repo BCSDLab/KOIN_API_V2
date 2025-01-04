@@ -40,7 +40,7 @@ public class LectureApiTest extends AcceptanceTest {
         mockMvc.perform(
                 get("/v3/lectures")
                     .param("year", String.valueOf(semester.getYear()))
-                    .param("term", String.valueOf(semester.getTerm()))
+                    .param("term", String.valueOf(semester.getTerm().getDescription()))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())

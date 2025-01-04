@@ -18,8 +18,8 @@ public class LectureServiceV3 {
     private final LectureRepositoryV3 lectureRepositoryV3;
     private final SemesterRepositoryV3 semesterRepositoryV3;
 
-    public List<LectureResponseV3> getLectures(Integer year, Term term) {
-        Semester semester = semesterRepositoryV3.getByYearAndTerm(year, term);
+    public List<LectureResponseV3> getLectures(Integer year, String term) {
+        Semester semester = semesterRepositoryV3.getByYearAndTerm(year, Term.fromDescription(term));
         return lectureRepositoryV3.findBySemester(semester.getSemester()).stream()
             .map(LectureResponseV3::from)
             .toList();
