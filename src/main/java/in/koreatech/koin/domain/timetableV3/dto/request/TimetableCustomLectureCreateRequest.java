@@ -6,6 +6,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -52,14 +53,9 @@ public record TimetableCustomLectureCreateRequest(
 
         // 커스텀 강의 장소 역정규화
         public String joinClassPlaces() {
-            StringBuilder classPlaces = new StringBuilder();
-            for (int index = 0; index < lectureInfos.size(); index++) {
-                if (index > 0) {
-                    classPlaces.append(", ");
-                }
-                classPlaces.append(lectureInfos.get(index).place());
-            }
-            return classPlaces.toString();
+            return lectureInfos.stream()
+                .map(LectureInfoRequest::place)
+                .collect(Collectors.joining(", "));
         }
 
         // 커스텀 강의 시간 역정규화
