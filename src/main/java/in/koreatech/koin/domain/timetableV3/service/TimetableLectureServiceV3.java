@@ -14,6 +14,8 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableLectureResponseV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableLectureRepositoryV3;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class TimetableLectureServiceV3 {
     private EntityManager entityManager;
     private final TimetableFrameRepositoryV3 timetableFrameRepositoryV3;
     private final TimetableLectureRepositoryV3 timetableLectureRepositoryV3;
+    private final UserRepository userRepository;
 
     public TimetableLectureResponseV3 getTimetableLecture(Integer timetableFrameId, Integer userId) {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(timetableFrameId);
@@ -48,5 +51,27 @@ public class TimetableLectureServiceV3 {
         entityManager.flush();
         TimetableLecture timeTableLecture = timetableLectureRepositoryV3.getById(timetableLecturesId.get(0));
         return getTimetableLectureResponse(userId, timeTableLecture.getTimetableFrame());
+    }
+
+    @Transactional
+    public TimetableLectureResponseV3 rollbackTimetableFrame(Integer frameId, Integer userId) {
+        TimetableFrame timetableFrame = timetableFrameRepositoryV3.getByIdWithDeleted(frameId);
+        validateUserAuthorization(timetableFrame.getUser().getId(), userId);
+
+        User user = userRepository.getById(userId);
+        boolean hasTimetableFrame = timetableFrameRepositoryV3.existsByUserAndSemester(user,
+            timetableFrame.getSemester());
+
+        if (!hasTimetableFrame) {
+            timetableFrame.updateMainFlag(true);
+        }
+        timetableFrame.undelete();
+
+        timetableLectureRepositoryV3.findAllByFrameIdWithDeleted(timetableFrame.getId()).stream()
+            .map(TimetableLecture::getId)
+            .map(timetableLectureRepositoryV3::getByIdWithDeleted)
+            .forEach(TimetableLecture::undelete);
+        entityManager.flush();
+        return getTimetableLectureResponse(userId, timetableFrame);
     }
 }

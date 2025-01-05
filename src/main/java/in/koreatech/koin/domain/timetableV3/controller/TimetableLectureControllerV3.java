@@ -38,4 +38,13 @@ public class TimetableLectureControllerV3 implements TimetableLectureApiV3 {
         TimetableLectureResponseV3 response = lectureServiceV3.rollbackTimetableLecture(timetableLecturesId, userId);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/v3/timetables/frame/rollback")
+    public ResponseEntity<TimetableLectureResponseV3> rollbackTimetableFrame(
+        @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        TimetableLectureResponseV3 response = lectureServiceV3.rollbackTimetableFrame(timetableFrameId, userId);
+        return ResponseEntity.ok(response);
+    }
 }
