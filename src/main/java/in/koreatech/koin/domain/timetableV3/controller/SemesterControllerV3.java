@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class SemesterControllerV3 {
+public class SemesterControllerV3 implements SemesterApiV3 {
 
     private final SemesterServiceV3 semesterServiceV3;
 

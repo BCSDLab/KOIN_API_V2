@@ -114,4 +114,18 @@ public class TimetableLecture extends BaseEntity {
     public void undelete() {
         this.isDeleted = false;
     }
+
+    public void updateCustomLecture(String classTitle, String professor, String classTime, String classPlace) {
+        this.classTitle = classTitle;
+        this.professor = professor;
+        this.classTime = classTime;
+        this.classPlace = classPlace;
+    }
+
+    public void updateRegularLecture(String classTitle, String classPlace) {
+        if (!lecture.getName().equals(classTitle)) {
+            this.classTitle = classTitle;
+        }
+        this.classPlace = classPlace;
+    }
 }

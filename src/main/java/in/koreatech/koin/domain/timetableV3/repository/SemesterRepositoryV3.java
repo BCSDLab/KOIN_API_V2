@@ -19,7 +19,6 @@ public interface SemesterRepositoryV3 extends Repository<Semester, Integer> {
 
     default Semester getByYearAndTerm(Integer year, Term term) {
         return findByYearAndTerm(year, term)
-            .orElseThrow(
-                () -> SemesterNotFoundException.withDetail("year : " + year + "term : " + term.getDescription()));
+            .orElseThrow(() -> SemesterNotFoundException.withDetail("year : " + year + "term : " + term.getDescription()));
     }
 }
