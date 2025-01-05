@@ -27,7 +27,7 @@ public record TimetableFramesResponseV3(
     @JsonNaming(SnakeCaseStrategy.class)
     public record InnerTimetableFrameResponse(
         @Schema(description = "학기", example = "2학기", requiredMode = REQUIRED)
-        String termName,
+        String term,
 
         @Schema(description = "timetableFrame 리스트", requiredMode = REQUIRED)
         List<TimetableFrameResponse> frames
