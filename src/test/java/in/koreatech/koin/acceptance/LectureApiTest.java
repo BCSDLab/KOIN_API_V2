@@ -61,12 +61,12 @@ public class LectureApiTest extends AcceptanceTest {
                         "is_elearning": "",
                         "lecture_infos": [
                           {
-                            "week": 0,
+                            "day": 0,
                             "start_time": 12,
                             "end_time": 15
                           },
                           {
-                            "week": 2,
+                            "day": 2,
                             "start_time": 210,
                             "end_time": 213
                           }
