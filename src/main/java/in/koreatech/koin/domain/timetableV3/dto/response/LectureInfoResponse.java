@@ -18,8 +18,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record LectureInfoResponse(
-    @Schema(description = "요일 id", example = "0", requiredMode = REQUIRED)
-    Integer week,
+    @Schema(description = "요일", example = "0", requiredMode = REQUIRED)
+    Integer day,
 
     @Schema(description = "시작 시간", example = "112", requiredMode = REQUIRED)
     Integer startTime,

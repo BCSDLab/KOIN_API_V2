@@ -8,7 +8,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -60,7 +59,7 @@ public record LectureResponseV3(
     @JsonNaming(value = SnakeCaseStrategy.class)
     public record LectureInfo(
         @Schema(description = "요일", example = "0", requiredMode = REQUIRED)
-        Integer week,
+        Integer day,
 
         @Schema(description = "시작 시간", example = "112", requiredMode = REQUIRED)
         Integer startTime,
@@ -80,8 +79,7 @@ public record LectureResponseV3(
                 for (int index = 1; index < classTimes.size(); index++) {
                     if (classTimes.get(index) == endTime + 1) {
                         endTime = classTimes.get(index);
-                    }
-                    else {
+                    } else {
                         addLectureInfo(response, startTime, endTime);
                         startTime = classTimes.get(index);
                         endTime = startTime;

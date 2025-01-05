@@ -48,7 +48,7 @@ public class TimetableRegularLectureServiceV3 {
         validateUserAuthorization(frame.getUser().getId(), userId);
 
         TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());;
-        timetableLecture.regularLectureUpdate(
+        timetableLecture.updateRegularLecture(
             request.timetableLecture().classTitle(),
             request.timetableLecture().classPlacesToString()
         );

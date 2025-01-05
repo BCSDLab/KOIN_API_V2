@@ -83,13 +83,13 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
                             "design_score": "0",
                             "lecture_infos": [
                               {
-                                "week": 0,
+                                "day": 0,
                                 "start_time": 12,
                                 "end_time": 15,
                                 "place": ""
                               },
                               {
-                                "week": 2,
+                                "day": 2,
                                 "start_time": 210,
                                 "end_time": 213,
                                 "place": ""
@@ -150,7 +150,7 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
                             "design_score": null,
                             "lecture_infos": [
                               {
-                                "week": 1,
+                                "day": 1,
                                 "start_time": 112,
                                 "end_time": 115,
                                 "place": "2공학관314"
@@ -202,7 +202,7 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
                             "design_score": "0",
                             "lecture_infos": [
                               {
-                                "week": 2,
+                                "day": 2,
                                 "start_time": 200,
                                 "end_time": 207,
                                 "place": ""
@@ -224,12 +224,12 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
                             "design_score": "0",
                             "lecture_infos": [
                               {
-                                "week": 0,
+                                "day": 0,
                                 "start_time": 12,
                                 "end_time": 15
                               },
                               {
-                                "week": 2,
+                                "day": 2,
                                 "start_time": 210,
                                 "end_time": 213,
                                 "place": ""
@@ -275,7 +275,7 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
                             "design_score": "0",
                             "lecture_infos": [
                               {
-                                "week": 2,
+                                "day": 2,
                                 "start_time": 200,
                                 "end_time": 207,
                                 "place": ""
@@ -297,12 +297,12 @@ public class TimetableLectureV3ApiTest extends AcceptanceTest {
                             "design_score": "0",
                             "lecture_infos": [
                               {
-                                "week": 0,
+                                "day": 0,
                                 "start_time": 12,
                                 "end_time": 15
                               },
                               {
-                                "week": 2,
+                                "day": 2,
                                 "start_time": 210,
                                 "end_time": 213,
                                 "place": ""

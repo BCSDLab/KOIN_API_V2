@@ -3,6 +3,7 @@ package in.koreatech.koin.domain.timetableV3.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetableV3.dto.response.LectureResponseV3;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class LectureServiceV3 {
 
     private final LectureRepositoryV3 lectureRepositoryV3;

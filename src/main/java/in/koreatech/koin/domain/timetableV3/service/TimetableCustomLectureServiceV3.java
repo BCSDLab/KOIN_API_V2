@@ -44,7 +44,7 @@ public class TimetableCustomLectureServiceV3 {
         validateUserAuthorization(frame.getUser().getId(), userId);
         TimetableLecture timetableLecture = timetableLectureRepositoryV3.getById(request.timetableLecture().id());
 
-        timetableLecture.customLectureUpdate(
+        timetableLecture.updateCustomLecture(
             request.timetableLecture().classTitle(),
             request.timetableLecture().professor(),
             request.timetableLecture().joinClassTimes(),

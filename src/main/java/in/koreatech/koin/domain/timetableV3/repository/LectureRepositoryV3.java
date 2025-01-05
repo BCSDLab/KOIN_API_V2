@@ -12,12 +12,12 @@ import io.lettuce.core.dynamic.annotation.Param;
 
 public interface LectureRepositoryV3 extends Repository<Lecture, Integer> {
 
+    List<Lecture> findBySemester(String semesterDate);
+
     Optional<Lecture> findById(Integer id);
 
     default Lecture getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> LectureNotFoundException.withDetail("lecture_id: " + id));
     }
-
-    List<Lecture> findBySemester(String semesterDate);
 }
