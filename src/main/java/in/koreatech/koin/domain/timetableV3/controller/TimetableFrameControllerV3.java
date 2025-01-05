@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,5 +65,15 @@ public class TimetableFrameControllerV3 implements TimetableFrameApiV3 {
     ) {
         List<TimetableFramesResponseV3> response = timetableFrameServiceV3.getTimetablesFrames(userId);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/v3/timetables/frames")
+    public ResponseEntity<Void> deleteTimetablesFrames(
+        @RequestParam(name = "year") Integer year,
+        @RequestParam(name = "term") String term,
+        @Auth(permit = {STUDENT}) Integer userId
+    ) {
+        timetableFrameServiceV3.deleteTimetablesFrames(year, term, userId);
+        return ResponseEntity.noContent().build();
     }
 }

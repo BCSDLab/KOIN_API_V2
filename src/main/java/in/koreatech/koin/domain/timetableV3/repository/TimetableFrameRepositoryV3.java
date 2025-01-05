@@ -57,4 +57,6 @@ public interface TimetableFrameRepositoryV3 extends Repository<TimetableFrame, I
     List<TimetableFrame> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
 
     List<TimetableFrame> findAllByUserId(Integer userId);
+
+    List<TimetableFrame> findAllByUserAndSemester(User user, Semester semester);
 }

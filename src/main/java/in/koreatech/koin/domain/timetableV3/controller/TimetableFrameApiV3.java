@@ -5,6 +5,7 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -91,6 +92,22 @@ public interface TimetableFrameApiV3 {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/v3/timetables/frames")
     ResponseEntity<List<TimetableFramesResponseV3>> getTimetablesFrames(
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "시간표 프레임 모두 삭제")
+    @DeleteMapping("/v3/timetables/frames")
+    ResponseEntity<Void> deleteTimetablesFrames(
+        @RequestParam(name = "year") Integer year,
+        @RequestParam(name = "term") String term,
         @Auth(permit = {STUDENT}) Integer userId
     );
 }

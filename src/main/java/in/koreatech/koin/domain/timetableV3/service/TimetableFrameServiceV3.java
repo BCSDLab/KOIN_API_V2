@@ -96,4 +96,12 @@ public class TimetableFrameServiceV3 {
         List<TimetableFrame> timetableFrames = timetableFrameRepositoryV3.findAllByUserId(userId);
         return TimetableFramesResponseV3.from(timetableFrames);
     }
+
+    @Transactional
+    public void deleteTimetablesFrames(Integer year, String term, Integer userId) {
+        User user = userRepository.getById(userId);
+        Semester timetableSemester = semesterRepositoryV3.getByYearAndTerm(year, Term.fromDescription(term));
+        timetableFrameRepositoryV3.findAllByUserAndSemester(user, timetableSemester)
+            .forEach(TimetableFrame::delete);
+    }
 }
