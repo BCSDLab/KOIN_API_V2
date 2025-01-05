@@ -53,4 +53,8 @@ public interface TimetableFrameRepositoryV3 extends Repository<TimetableFrame, I
             .orElseThrow(
                 () -> TimetableFrameNotFoundException.withDetail("userId: " + userId + ", semesterId: " + semesterId));
     }
+
+    List<TimetableFrame> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
+
+    List<TimetableFrame> findAllByUserId(Integer userId);
 }

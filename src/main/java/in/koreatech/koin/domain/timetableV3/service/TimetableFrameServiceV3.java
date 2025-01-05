@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.timetableV3.service;
 
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateTimetableFrameUpdate;
+import static in.koreatech.koin.domain.timetableV3.model.Term.fromDescription;
 
 import java.util.Comparator;
 import java.util.List;
@@ -13,6 +14,7 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableFrameCreateRequestV3;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableFrameUpdateRequestV3;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableFrameResponseV3;
+import in.koreatech.koin.domain.timetableV3.dto.response.TimetableFramesResponseV3;
 import in.koreatech.koin.domain.timetableV3.model.Term;
 import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
 import in.koreatech.koin.domain.timetableV3.repository.TimetableFrameRepositoryV3;
@@ -33,7 +35,7 @@ public class TimetableFrameServiceV3 {
 
     @Transactional
     public List<TimetableFrameResponseV3> createTimetablesFrame(TimetableFrameCreateRequestV3 request, Integer userId) {
-        Semester semester = semesterRepositoryV3.getByYearAndTerm(request.year(), Term.fromDescription(request.term()));
+        Semester semester = semesterRepositoryV3.getByYearAndTerm(request.year(), fromDescription(request.term()));
         User user = userRepository.getById(userId);
         int currentFrameCount = timetableFrameRepositoryV3.countByUserIdAndSemesterId(userId, semester.getId());
 
@@ -42,9 +44,7 @@ public class TimetableFrameServiceV3 {
         timetableFrameRepositoryV3.save(frame);
 
         List<TimetableFrame> frames = timetableFrameRepositoryV3.findByUserAndSemester(user, semester);
-        frames.sort(Comparator.comparing(TimetableFrame::isMain).reversed()
-            .thenComparing(TimetableFrame::getId));
-
+        frames.sort(Comparator.comparing(TimetableFrame::isMain).reversed().thenComparing(TimetableFrame::getId));
         return frames.stream()
             .map(TimetableFrameResponseV3::from)
             .toList();
@@ -67,10 +67,9 @@ public class TimetableFrameServiceV3 {
         cancelIfMainTimetable(userId, frame.getSemester().getId(), request.isMain());
         frame.updateTimetableFrame(frame.getSemester(), request.timetableName(), request.isMain());
 
-        List<TimetableFrame> frames = timetableFrameRepositoryV3.findByUserAndSemester(frame.getUser(), frame.getSemester());
-        frames.sort(Comparator.comparing(TimetableFrame::isMain).reversed()
-            .thenComparing(TimetableFrame::getId));
-
+        List<TimetableFrame> frames = timetableFrameRepositoryV3.findByUserAndSemester(frame.getUser(),
+            frame.getSemester());
+        frames.sort(Comparator.comparing(TimetableFrame::isMain).reversed().thenComparing(TimetableFrame::getId));
         return frames.stream()
             .map(TimetableFrameResponseV3::from)
             .toList();
@@ -82,5 +81,19 @@ public class TimetableFrameServiceV3 {
                 semesterId);
             mainTimetableFrame.updateMainFlag(false);
         }
+    }
+
+    public List<TimetableFrameResponseV3> getTimetablesFrame(Integer year, String term, Integer userId) {
+        Semester semester = semesterRepositoryV3.getByYearAndTerm(year, Term.fromDescription(term));
+        List<TimetableFrame> frames = timetableFrameRepositoryV3.findAllByUserIdAndSemesterId(userId, semester.getId());
+        frames.sort(Comparator.comparing(TimetableFrame::isMain).reversed().thenComparing(TimetableFrame::getId));
+        return frames.stream()
+            .map(TimetableFrameResponseV3::from)
+            .toList();
+    }
+
+    public List<TimetableFramesResponseV3> getTimetablesFrames(Integer userId) {
+        List<TimetableFrame> timetableFrames = timetableFrameRepositoryV3.findAllByUserId(userId);
+        return TimetableFramesResponseV3.from(timetableFrames);
     }
 }

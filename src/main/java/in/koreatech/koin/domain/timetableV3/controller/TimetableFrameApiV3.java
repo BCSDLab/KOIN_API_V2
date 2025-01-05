@@ -5,14 +5,17 @@ import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableFrameCreateRequestV3;
 import in.koreatech.koin.domain.timetableV3.dto.request.TimetableFrameUpdateRequestV3;
 import in.koreatech.koin.domain.timetableV3.dto.response.TimetableFrameResponseV3;
+import in.koreatech.koin.domain.timetableV3.dto.response.TimetableFramesResponseV3;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -56,6 +59,38 @@ public interface TimetableFrameApiV3 {
     ResponseEntity<List<TimetableFrameResponseV3>> updateTimetableFrame(
         @Valid @RequestBody TimetableFrameUpdateRequestV3 request,
         @PathVariable(value = "id") Integer timetableFrameId,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "시간표 프레임 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/v3/timetables/frame")
+    ResponseEntity<List<TimetableFrameResponseV3>> getTimetablesFrame(
+        @RequestParam(name = "year") Integer year,
+        @RequestParam(name = "term") String term,
+        @Auth(permit = {STUDENT}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "시간표 프레임 모두 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/v3/timetables/frames")
+    ResponseEntity<List<TimetableFramesResponseV3>> getTimetablesFrames(
         @Auth(permit = {STUDENT}) Integer userId
     );
 }
