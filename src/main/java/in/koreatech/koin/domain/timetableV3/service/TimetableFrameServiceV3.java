@@ -65,7 +65,7 @@ public class TimetableFrameServiceV3 {
         TimetableFrame frame = timetableFrameRepositoryV3.getById(timetableFrameId);
         validateTimetableFrameUpdate(frame, request.isMain());
         cancelIfMainTimetable(userId, frame.getSemester().getId(), request.isMain());
-        frame.updateTimetableFrame(frame.getSemester(), request.timetableName(), request.isMain());
+        frame.updateTimetableFrame(frame.getSemester(), request.name(), request.isMain());
 
         List<TimetableFrame> frames = timetableFrameRepositoryV3.findByUserAndSemester(frame.getUser(),
             frame.getSemester());
