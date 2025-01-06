@@ -13,8 +13,8 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record TimetableFrameCreateRequestV3(
-    @Schema(description = "학기 년도", example = "2019", requiredMode = REQUIRED)
-    @NotNull(message = "학기 년도를 입력해주세요")
+    @Schema(description = "년도", example = "2019", requiredMode = REQUIRED)
+    @NotNull(message = "년도를 입력해주세요")
     Integer year,
 
     @Schema(description = "년도", example = "2학기", requiredMode = REQUIRED)

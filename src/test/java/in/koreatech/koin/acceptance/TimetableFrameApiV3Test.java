@@ -64,7 +64,7 @@ public class TimetableFrameApiV3Test extends AcceptanceTest {
             [
                 {
                     "id": 1,
-                    "timetable_name": "시간표1",
+                    "name": "시간표1",
                     "is_main": true
                 }
             ]
@@ -81,7 +81,7 @@ public class TimetableFrameApiV3Test extends AcceptanceTest {
                     .header("Authorization", "Bearer " + token)
                     .content("""
                     {
-                        "timetable_name": "새로운 이름",
+                        "name": "새로운 이름",
                         "is_main": true
                     }
                     """
@@ -93,7 +93,7 @@ public class TimetableFrameApiV3Test extends AcceptanceTest {
             [
                 {
                     "id": 1,
-                    "timetable_name": "새로운 이름",
+                    "name": "새로운 이름",
                     "is_main": true
                 }
             ]
@@ -123,12 +123,12 @@ public class TimetableFrameApiV3Test extends AcceptanceTest {
                             "frames": [
                                 {
                                     "id": 1,
-                                    "timetable_name": "시간표1",
+                                    "name": "시간표1",
                                     "is_main": true
                                 },
                                 {
                                     "id": 2,
-                                    "timetable_name": "시간표2",
+                                    "name": "시간표2",
                                     "is_main": false
                                 }
                             ]
@@ -187,17 +187,17 @@ public class TimetableFrameApiV3Test extends AcceptanceTest {
                          "frames": [
                            {
                              "id": 3,
-                             "timetable_name": "시간표1",
+                             "name": "시간표1",
                              "is_main": true
                            },
                            {
                              "id": 4,
-                             "timetable_name": "시간표2",
+                             "name": "시간표2",
                              "is_main": false
                            },
                            {
                              "id": 5,
-                             "timetable_name": "시간표3",
+                             "name": "시간표3",
                              "is_main": false
                            }
                          ]
@@ -207,12 +207,12 @@ public class TimetableFrameApiV3Test extends AcceptanceTest {
                          "frames": [
                            {
                              "id": 1,
-                             "timetable_name": "시간표1",
+                             "name": "시간표1",
                              "is_main": true
                            },
                            {
                              "id": 2,
-                             "timetable_name": "시간표2",
+                             "name": "시간표2",
                              "is_main": false
                            }
                          ]
