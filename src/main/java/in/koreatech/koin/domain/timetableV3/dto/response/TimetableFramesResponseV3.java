@@ -11,7 +11,6 @@ import java.util.TreeMap;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.timetableV2.dto.response.TimetableFrameResponse;
 import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV3.model.Term;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,14 +29,15 @@ public record TimetableFramesResponseV3(
         String term,
 
         @Schema(description = "timetableFrame 리스트", requiredMode = REQUIRED)
-        List<TimetableFrameResponse> frames
+        List<TimetableFrameResponseV3> frames
     ) {
-        
+
     }
 
     public static List<TimetableFramesResponseV3> from(List<TimetableFrame> timetableFrameList) {
         List<TimetableFramesResponseV3> responseList = new ArrayList<>();
-        Map<Integer, Map<Term, List<TimetableFrameResponse>>> groupedByYearAndTerm = new TreeMap<>(Comparator.reverseOrder());
+        Map<Integer, Map<Term, List<TimetableFrameResponseV3>>> groupedByYearAndTerm = new TreeMap<>(
+            Comparator.reverseOrder());
 
         // 일차로 Term으로 그룹핑, 이후 year로 그룹핑
         for (TimetableFrame timetableFrame : timetableFrameList) {
@@ -46,25 +46,25 @@ public record TimetableFramesResponseV3(
 
             groupedByYearAndTerm.computeIfAbsent(year, k -> new TreeMap<>(Comparator.comparing(Term::getPriority)));
 
-            Map<Term, List<TimetableFrameResponse>> termMap = groupedByYearAndTerm.get(year);
+            Map<Term, List<TimetableFrameResponseV3>> termMap = groupedByYearAndTerm.get(year);
             termMap.computeIfAbsent(term, k -> new ArrayList<>());
-            termMap.get(term).add(TimetableFrameResponse.from(timetableFrame));
+            termMap.get(term).add(TimetableFrameResponseV3.from(timetableFrame));
         }
 
         // 메인 시간표가 멘 위로 그 다음은 id로 정렬
         groupedByYearAndTerm.values().forEach(termMap ->
             termMap.values().forEach(frameList ->
-                frameList.sort(Comparator.comparing(TimetableFrameResponse::isMain).reversed()
-                    .thenComparing(TimetableFrameResponse::id))
+                frameList.sort(Comparator.comparing(TimetableFrameResponseV3::isMain).reversed()
+                    .thenComparing(TimetableFrameResponseV3::id))
             )
         );
 
-        for (Map.Entry<Integer, Map<Term, List<TimetableFrameResponse>>> yearEntry : groupedByYearAndTerm.entrySet()) {
+        for (Map.Entry<Integer, Map<Term, List<TimetableFrameResponseV3>>> yearEntry : groupedByYearAndTerm.entrySet()) {
             List<InnerTimetableFrameResponse> termResponses = new ArrayList<>();
             int year = yearEntry.getKey();
-            Map<Term, List<TimetableFrameResponse>> termMap = yearEntry.getValue();
+            Map<Term, List<TimetableFrameResponseV3>> termMap = yearEntry.getValue();
 
-            for (Map.Entry<Term, List<TimetableFrameResponse>> termEntry : termMap.entrySet()) {
+            for (Map.Entry<Term, List<TimetableFrameResponseV3>> termEntry : termMap.entrySet()) {
                 Term term = termEntry.getKey();
                 termResponses.add(new InnerTimetableFrameResponse(term.getDescription(), termEntry.getValue()));
             }

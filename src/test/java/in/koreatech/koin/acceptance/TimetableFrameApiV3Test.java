@@ -51,24 +51,24 @@ public class TimetableFrameApiV3Test extends AcceptanceTest {
                 post("/v3/timetables/frame")
                     .header("Authorization", "Bearer " + token)
                     .content(String.format("""
-                    {
-                        "year": "%d",
-                        "term": "%s"
-                    }
-                    """, semester.getYear(), semester.getTerm().getDescription()
+                        {
+                            "year": "%d",
+                            "term": "%s"
+                        }
+                        """, semester.getYear(), semester.getTerm().getDescription()
                     ))
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-            [
-                {
-                    "id": 1,
-                    "name": "시간표1",
-                    "is_main": true
-                }
-            ]
-            """));
+                [
+                    {
+                        "id": 1,
+                        "name": "시간표1",
+                        "is_main": true
+                    }
+                ]
+                """));
     }
 
     @Test
@@ -80,33 +80,33 @@ public class TimetableFrameApiV3Test extends AcceptanceTest {
                 put("/v3/timetables/frame/{id}", frameId)
                     .header("Authorization", "Bearer " + token)
                     .content("""
-                    {
-                        "name": "새로운 이름",
-                        "is_main": true
-                    }
-                    """
+                        {
+                            "name": "새로운 이름",
+                            "is_main": true
+                        }
+                        """
                     )
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-            [
-                {
-                    "id": 1,
-                    "name": "새로운 이름",
-                    "is_main": true
-                }
-            ]
-            """));
+                [
+                    {
+                        "id": 1,
+                        "name": "새로운 이름",
+                        "is_main": true
+                    }
+                ]
+                """));
     }
 
     @Test
-    void 모든_시간표_frame을_조회한다() throws Exception {
+    void 특정_학기의_모든_시간표_frame을_조회한다() throws Exception {
         timetableV2Fixture.시간표1(user, semester);
         timetableV2Fixture.시간표2(user, semester);
 
         mockMvc.perform(
-                get("/v3/timetables/frames")
+                get("/v3/timetables/frame")
                     .header("Authorization", "Bearer " + token)
                     .param("year", String.valueOf(semester.getYear()))
                     .param("term", String.valueOf(semester.getTerm().getDescription()))
@@ -114,29 +114,19 @@ public class TimetableFrameApiV3Test extends AcceptanceTest {
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""
-            [
-                {
-                    "year": 2019,
-                    "timetable_frames": [
-                        {
-                            "term": "2학기",
-                            "frames": [
-                                {
-                                    "id": 1,
-                                    "name": "시간표1",
-                                    "is_main": true
-                                },
-                                {
-                                    "id": 2,
-                                    "name": "시간표2",
-                                    "is_main": false
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-            """));
+                [
+                    {
+                        "id": 1,
+                        "name": "시간표1",
+                        "is_main": true
+                    },
+                    {
+                        "id": 2,
+                        "name": "시간표2",
+                        "is_main": false
+                    }
+                ]
+                """));
     }
 
     @Test
