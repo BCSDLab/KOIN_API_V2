@@ -60,21 +60,22 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query(
         """
-        SELECT t FROM TimetableFrame t
-        WHERE t.user.id = :userId
-        AND t.semester.id = :semesterId
-        AND t.isMain = false
-        ORDER BY t.createdAt ASC
-        LIMIT 1
-        """)
-    TimetableFrame findNextFirstTimetableFrame(@Param("userId") Integer userId, @Param("semesterId") Integer semesterId);
+            SELECT t FROM TimetableFrame t
+            WHERE t.user.id = :userId
+            AND t.semester.id = :semesterId
+            AND t.isMain = false
+            ORDER BY t.createdAt ASC
+            LIMIT 1
+            """)
+    TimetableFrame findNextFirstTimetableFrame(@Param("userId") Integer userId,
+        @Param("semesterId") Integer semesterId);
 
     @Query(
         """
-        SELECT COUNT(t) FROM TimetableFrame t
-        WHERE t.user.id = :userId
-        AND t.semester.id = :semesterId
-        """)
+            SELECT COUNT(t) FROM TimetableFrame t
+            WHERE t.user.id = :userId
+            AND t.semester.id = :semesterId
+            """)
     int countByUserIdAndSemesterId(@Param("userId") Integer userId, @Param("semesterId") Integer semesterId);
 
     void deleteById(Integer id);
@@ -90,7 +91,10 @@ public interface TimetableFrameRepositoryV2 extends Repository<TimetableFrame, I
         return findByIdWithDeleted(id)
             .orElseThrow(() -> TimetableFrameNotFoundException.withDetail("id: " + id));
     }
+
     void deleteAllByUserAndSemester(User user, Semester semester);
 
     List<TimetableFrame> findAllByUserId(Integer userId);
+
+    boolean existsByUserAndSemester(User user, Semester semester);
 }

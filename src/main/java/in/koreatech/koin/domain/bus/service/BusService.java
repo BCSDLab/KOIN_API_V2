@@ -1,27 +1,7 @@
 package in.koreatech.koin.domain.bus.service;
 
-import static in.koreatech.koin.domain.bus.model.enums.BusStation.getDirection;
-
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
-import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
-import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
-import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
-import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
+import in.koreatech.koin.domain.bus.dto.*;
+import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotFoundException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
@@ -35,8 +15,10 @@ import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
 import in.koreatech.koin.domain.bus.model.mongo.CityBusTimetable;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
+import in.koreatech.koin.domain.bus.repository.BusNoticeRepository;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
+import in.koreatech.koin.domain.bus.service.route.BusRouteStrategy;
 import in.koreatech.koin.domain.bus.util.city.CityBusClient;
 import in.koreatech.koin.domain.bus.util.city.CityBusRouteClient;
 import in.koreatech.koin.domain.bus.util.express.ExpressBusService;
@@ -44,6 +26,14 @@ import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.*;
+import java.time.format.TextStyle;
+import java.util.*;
+
+import static in.koreatech.koin.domain.bus.model.enums.BusStation.getDirection;
 
 @Service
 @Transactional(readOnly = true)
@@ -52,11 +42,13 @@ public class BusService {
 
     private final Clock clock;
     private final BusRepository busRepository;
+    private final BusNoticeRepository busNoticeRepository;
     private final CityBusTimetableRepository cityBusTimetableRepository;
     private final CityBusClient cityBusClient;
     private final ExpressBusService expressBusService;
     private final CityBusRouteClient cityBusRouteClient;
     private final VersionService versionService;
+    private final List<BusRouteStrategy> busRouteStrategies;
 
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
@@ -228,5 +220,38 @@ public class BusService {
             .getByBusInfoNumberAndBusInfoArrival(busNumber, direction.getName());
 
         return CityBusTimetableResponse.from(timetable);
+    }
+
+    public BusScheduleResponse getBusSchedule(BusRouteCommand request) {
+        List<ScheduleInfo> scheduleInfoList = Collections.emptyList();
+
+        if (request.checkAvailableCourse()) {
+            scheduleInfoList = busRouteStrategies.stream()
+                .filter(strategy -> strategy.support(request.busRouteType()))
+                .flatMap(strategy -> strategy.findSchedule(request).stream())
+                .filter(schedule -> schedule.departTime().isAfter(request.time()))
+                .sorted(Comparator.comparing(ScheduleInfo::departTime)
+                    .thenComparing(ScheduleInfo.compareBusType())
+                )
+                .toList();
+        }
+
+        return new BusScheduleResponse(
+            request.depart(), request.arrive(), request.date(), request.time(),
+            scheduleInfoList
+        );
+    }
+
+    public BusNoticeResponse getNotice() {
+        Map<Object, Object> article = busNoticeRepository.getBusNotice();
+
+        if (article == null || article.isEmpty()) {
+            return null;
+        }
+
+        return BusNoticeResponse.of(
+                (Integer) article.get("id"),
+                (String) article.get("title")
+        );
     }
 }

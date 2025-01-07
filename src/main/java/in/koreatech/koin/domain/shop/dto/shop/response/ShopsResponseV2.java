@@ -42,7 +42,8 @@ public record ShopsResponseV2(
             ShopsSortCriteria sortBy,
             List<ShopsFilterCriteria> shopsFilterCriterias,
             LocalDateTime now,
-            String query
+            String query,
+            Map<Integer, List<String>> benefitDetail
     ) {
         List<InnerShopResponse> innerShopResponses = shops.stream()
                 .filter(queryPredicate(query))
@@ -53,7 +54,8 @@ public record ShopsResponseV2(
                             shopInfo.durationEvent(),
                             it.isOpen(now),
                             shopInfo.averageRate(),
-                            shopInfo.reviewCount()
+                            shopInfo.reviewCount(),
+                            benefitDetail.getOrDefault(it.id(), List.of())
                     );
                 })
                 .filter(ShopsFilterCriteria.createCombinedFilter(shopsFilterCriterias))
@@ -101,7 +103,10 @@ public record ShopsResponseV2(
             double averageRate,
 
             @Schema(example = "10", description = "리뷰 개수", requiredMode = REQUIRED)
-            long reviewCount
+            long reviewCount,
+
+            @Schema(example = "['배달비 무료', '콜라 서비스']", description = "혜택 설명", requiredMode = NOT_REQUIRED)
+            List<String> benefitDetails
     ) {
 
         @JsonNaming(value = SnakeCaseStrategy.class)
@@ -138,7 +143,8 @@ public record ShopsResponseV2(
                 Boolean isEvent,
                 Boolean isOpen,
                 Double averageRate,
-                Long reviewCount
+                Long reviewCount,
+                List<String> benefitDetails
         ) {
             return new InnerShopResponse(
                     shop.shopCategories().stream().map(ShopCategoryCache::id).toList(),
@@ -159,7 +165,8 @@ public record ShopsResponseV2(
                     isEvent,
                     isOpen,
                     averageRate,
-                    reviewCount
+                    reviewCount,
+                    benefitDetails
             );
         }
 

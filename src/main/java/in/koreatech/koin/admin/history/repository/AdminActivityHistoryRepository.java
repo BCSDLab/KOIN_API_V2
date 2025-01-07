@@ -8,11 +8,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-import in.koreatech.koin.admin.history.dto.AdminHistorysCondition;
+import in.koreatech.koin.admin.history.dto.AdminHistoriesCondition;
 import in.koreatech.koin.admin.history.exception.AdminActivityHistoryNotFoundException;
 import in.koreatech.koin.admin.history.model.AdminActivityHistory;
 
 public interface AdminActivityHistoryRepository extends Repository<AdminActivityHistory, Integer> {
+
     AdminActivityHistory save(AdminActivityHistory adminActivityHistory);
 
     Optional<AdminActivityHistory> findById(Integer id);
@@ -27,10 +28,10 @@ public interface AdminActivityHistoryRepository extends Repository<AdminActivity
 
     @Query("""
         SELECT a FROM AdminActivityHistory a WHERE
-        (:#{#condition.requestMethod} IS NULL OR a.requestMethod = :#{#condition.requestMethod}) AND
-        (:#{#condition.domainName} IS NULL OR a.domainName = :#{#condition.domainName}) AND
+        (:#{#condition.requestMethod?.name()} IS NULL OR a.requestMethod = :#{#condition.requestMethod}) AND
+        (:#{#condition.domainName?.name()} IS NULL OR a.domainName = :#{#condition.domainName}) AND
         (:#{#condition.domainId} IS NULL OR a.domainId = :#{#condition.domainId})
         """)
-    Page<AdminActivityHistory> findByConditions(@Param("condition") AdminHistorysCondition adminsCondition,
+    Page<AdminActivityHistory> findByConditions(@Param("condition") AdminHistoriesCondition adminsCondition,
         Pageable pageable);
 }
