@@ -33,4 +33,30 @@ public interface TimetableFrameRepositoryV3 extends Repository<TimetableFrame, I
     }
 
     boolean existsByUserAndSemester(User user, Semester semester);
+
+    @Query(
+        """
+            SELECT COUNT(t) FROM TimetableFrame t
+            WHERE t.user.id = :userId
+            AND t.semester.id = :semesterId
+            """)
+    int countByUserIdAndSemesterId(@Param("userId") Integer userId, @Param("semesterId") Integer semesterId);
+
+    void save(TimetableFrame timetableFrame);
+
+    List<TimetableFrame> findByUserAndSemester(User user, Semester semester);
+
+    Optional<TimetableFrame> findByUserIdAndSemesterIdAndIsMainTrue(Integer userId, Integer semesterId);
+
+    default TimetableFrame getMainTimetableByUserIdAndSemesterId(Integer userId, Integer semesterId) {
+        return findByUserIdAndSemesterIdAndIsMainTrue(userId, semesterId)
+            .orElseThrow(
+                () -> TimetableFrameNotFoundException.withDetail("userId: " + userId + ", semesterId: " + semesterId));
+    }
+
+    List<TimetableFrame> findAllByUserIdAndSemesterId(Integer userId, Integer semesterId);
+
+    List<TimetableFrame> findAllByUserId(Integer userId);
+
+    List<TimetableFrame> findAllByUserAndSemester(User user, Semester semester);
 }
