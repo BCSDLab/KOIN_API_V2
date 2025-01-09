@@ -4,6 +4,8 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,5 +26,11 @@ public record LectureInfoRequest(
     @Size(max = 30, message = "강의 장소의 최대 글자는 30글자입니다.")
     String place
 ) {
+    private static final String EMPTY_PLACE = "";
 
+    public LectureInfoRequest {
+        if (Objects.isNull(place)) {
+            place = EMPTY_PLACE;
+        }
+    }
 }
