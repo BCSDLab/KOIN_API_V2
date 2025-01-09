@@ -24,9 +24,9 @@ public interface CoopShopRepository extends Repository<CoopShop, Integer> {
             .orElseThrow(() -> CoopShopNotFoundException.withDetail("coopShopId : " + id));
     }
 
-    default CoopShop getByNameAndCoopSemesterId(CoopShopType name, Integer semesterId) {
-        return findByNameAndCoopSemesterId(name.getCoopShopName(), semesterId)
+    default CoopShop getByTypeAndCoopSemesterId(CoopShopType type, Integer semesterId) {
+        return findByNameAndCoopSemesterId(type.getCoopShopName(), semesterId)
             .orElseThrow(() -> CoopShopNotFoundException
-                .withDetail("coopShopName : " + name.getCoopShopName() + ", semesterId: " + semesterId));
+                .withDetail(String.format("coopShopName : %s, semesterId: %s", type.getCoopShopName(), semesterId)));
     }
 }

@@ -48,13 +48,19 @@ public class CoopShopService {
         return CoopShopResponse.from(coopShop);
     }
 
+    public CoopShopResponse getCoopShopByType(CoopShopType type) {
+        Integer semesterId = coopSemesterRepository.getByIsApplied(true).getId();
+        CoopShop coopShop = coopShopRepository.getByTypeAndCoopSemesterId(type, semesterId);
+        return CoopShopResponse.from(coopShop);
+    }
+
     public boolean getIsOpened(LocalDateTime now, CoopShopType coopShopType, DiningType type, Boolean isMinus) {
         try {
             DayType todayType =
                 (now.getDayOfWeek() == DayOfWeek.SATURDAY || now.getDayOfWeek() == DayOfWeek.SUNDAY)
                     ? DayType.WEEKEND : DayType.WEEKDAYS;
             CoopSemester semester = coopSemesterRepository.getByIsApplied(true);
-            CoopShop coopShop = coopShopRepository.getByNameAndCoopSemesterId(coopShopType, semester.getId());
+            CoopShop coopShop = coopShopRepository.getByTypeAndCoopSemesterId(coopShopType, semester.getId());
             CoopOpen open = coopOpenRepository
                 .getByCoopShopAndTypeAndDayOfWeek(coopShop, type.getDiningName(), todayType);
 
@@ -74,17 +80,17 @@ public class CoopShopService {
         }
     }
 
-    public DiningType getDiningType(){
-        if(LocalTime.now(clock).isAfter(BREAKFAST.getStartTime().minusHours(1))
-            && LocalTime.now(clock).isBefore(BREAKFAST.getEndTime())){
+    public DiningType getDiningType() {
+        if (LocalTime.now(clock).isAfter(BREAKFAST.getStartTime().minusHours(1))
+            && LocalTime.now(clock).isBefore(BREAKFAST.getEndTime())) {
             return BREAKFAST;
         }
-        if(LocalTime.now(clock).isAfter(LUNCH.getStartTime().minusHours(1))
-            && LocalTime.now(clock).isBefore(LUNCH.getEndTime())){
+        if (LocalTime.now(clock).isAfter(LUNCH.getStartTime().minusHours(1))
+            && LocalTime.now(clock).isBefore(LUNCH.getEndTime())) {
             return LUNCH;
         }
-        if(LocalTime.now(clock).isAfter(DINNER.getStartTime().minusHours(1))
-            && LocalTime.now(clock).isBefore(DINNER.getEndTime())){
+        if (LocalTime.now(clock).isAfter(DINNER.getStartTime().minusHours(1))
+            && LocalTime.now(clock).isBefore(DINNER.getEndTime())) {
             return DINNER;
         }
 
