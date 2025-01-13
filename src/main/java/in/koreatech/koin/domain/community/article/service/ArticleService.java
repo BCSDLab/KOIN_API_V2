@@ -42,7 +42,6 @@ import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRep
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
-import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
@@ -331,32 +330,32 @@ public class ArticleService {
     @Transactional
     public void createLostItemArticle(Integer userId, LostItemArticlesRequest requests) {
         Board lostItemBoard = boardRepository.getById(LOST_ITEM_BOARD_ID);
-        List<Integer> newArticles = new ArrayList<>();
+        List<Article> newArticles = new ArrayList<>();
         User user = userRepository.getById(userId);
         requests.articles()
             .forEach(article -> {
                     Article lostItemArticle = Article.createLostItemArticle(article, lostItemBoard, user);
                     articleRepository.save(lostItemArticle);
-                    newArticles.add(lostItemArticle.getId());
+                    newArticles.add(lostItemArticle);
                 }
             );
         sendKeywordNotification(newArticles);
     }
 
-    public void sendKeywordNotification(List<Integer> updateNotificationIds) {
-        if (!updateNotificationIds.isEmpty()) {
-            List<Article> articles = new ArrayList<>();
+    @Transactional
+    public void deleteLostItemArticle(Integer articleId) {
+        Optional<Article> foundArticle = articleRepository.findByIdAndIsDeleted(articleId, false);
+        if (foundArticle.isEmpty()) {
+            return;
+        }
+        foundArticle.get().delete();
+    }
 
-            for (Integer id : updateNotificationIds) {
-                articles.add(articleRepository.getById(id));
-            }
-
-            List<ArticleKeywordEvent> keywordEvents = matchKeyword(articles);
-
-            if (!keywordEvents.isEmpty()) {
-                for (ArticleKeywordEvent event : keywordEvents) {
-                    eventPublisher.publishEvent(event);
-                }
+    private void sendKeywordNotification(List<Article> articles) {
+        List<ArticleKeywordEvent> keywordEvents = matchKeyword(articles);
+        if (!keywordEvents.isEmpty()) {
+            for (ArticleKeywordEvent event : keywordEvents) {
+                eventPublisher.publishEvent(event);
             }
         }
     }
@@ -385,14 +384,5 @@ public class ArticleService {
         }
 
         return keywordEvents;
-    }
-
-    @Transactional
-    public void deleteLostItemArticle(Integer articleId) {
-        Optional<Article> foundArticle = articleRepository.findByIdAndIsDeleted(articleId, false);
-        if (foundArticle.isEmpty()) {
-            return;
-        }
-        foundArticle.get().delete();
     }
 }
