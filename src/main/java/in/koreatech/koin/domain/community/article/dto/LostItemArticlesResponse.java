@@ -5,9 +5,14 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.LostItemArticle;
+import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -28,6 +33,18 @@ public record LostItemArticlesResponse(
     Integer currentPage
 ) {
 
+    public static LostItemArticlesResponse of(Page<Article> pagedResult, Criteria criteria) {
+        return new LostItemArticlesResponse(
+            pagedResult.stream()
+                .map(InnerLostItemArticleResponse::from)
+                .toList(),
+            pagedResult.getTotalElements(),
+            pagedResult.getContent().size(),
+            pagedResult.getTotalPages(),
+            criteria.getPage() + 1
+        );
+    }
+
     @JsonNaming(value = SnakeCaseStrategy.class)
     private record InnerLostItemArticleResponse(
         @Schema(description = "게시글 id", example = "17368", requiredMode = REQUIRED)
@@ -40,7 +57,7 @@ public record LostItemArticlesResponse(
         String category,
 
         @Schema(description = "습득 장소", example = "학생회관 앞", requiredMode = REQUIRED)
-        String location,
+        String foundPlace,
 
         @Schema(description = "습득 날짜", example = "2025-01-01", requiredMode = REQUIRED)
         LocalDate foundDate,
@@ -51,16 +68,24 @@ public record LostItemArticlesResponse(
         @Schema(description = "작성자", example = "총학생회", requiredMode = REQUIRED)
         String author,
 
-        @Schema(description = "이전글 id", example = "17367")
-        Integer prevId,
-
-        @Schema(description = "다음글 id", example = "17369")
-        Integer nextId,
-
         @Schema(description = "등록일", example = "2025-01-10", requiredMode = REQUIRED)
         LocalDate registeredAt
     ) {
 
+        public static InnerLostItemArticleResponse from(Article article) {
+            LostItemArticle lostItemArticle = article.getLostItemArticle();
+
+            return new InnerLostItemArticleResponse(
+                article.getId(),
+                article.getBoard().getId(),
+                lostItemArticle.getCategory(),
+                lostItemArticle.getFoundPlace(),
+                lostItemArticle.getFoundDate(),
+                article.getContent(),
+                article.getAuthor(),
+                article.getRegisteredAt()
+            );
+        }
     }
 
 }

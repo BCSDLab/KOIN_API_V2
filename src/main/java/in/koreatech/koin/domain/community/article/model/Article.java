@@ -14,6 +14,7 @@ import java.util.Objects;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.admin.notice.dto.AdminNoticeRequest;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -232,7 +233,7 @@ public class Article extends BaseEntity {
     }
 
     public static Article createLostItemArticle(
-        LostItemArticlesRequest request,
+        LostItemArticleRequest request,
         Board lostItemBoard,
         User author
     ) {

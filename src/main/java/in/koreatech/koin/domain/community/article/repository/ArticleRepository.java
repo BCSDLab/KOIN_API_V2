@@ -25,6 +25,8 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Page<Article> findAllByIsNoticeIsTrue(Pageable pageable);
 
+    Optional<Article> findByIdAndIsDeleted(Integer articleId, boolean isDeleted);
+
     Optional<Article> findById(Integer articleId);
 
     List<Article> findAll(Pageable pageable);

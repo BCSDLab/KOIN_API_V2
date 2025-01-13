@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.community.article.model;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -33,18 +35,29 @@ public class LostItemImage {
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
+    @NotNull
+    @ColumnDefault("0")
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
+
     @Builder
     public LostItemImage(
         Integer id,
         LostItemArticle lostItemArticle,
-        String imageUrl
+        String imageUrl,
+        Boolean isDeleted
     ) {
         this.id = id;
         this.lostItemArticle = lostItemArticle;
         this.imageUrl = imageUrl;
+        this.isDeleted = isDeleted;
     }
 
     public void setArticle(LostItemArticle lostItemArticle) {
         this.lostItemArticle = lostItemArticle;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
     }
 }

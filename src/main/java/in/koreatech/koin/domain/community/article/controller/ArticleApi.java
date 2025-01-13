@@ -6,6 +6,7 @@ import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.ipaddress.IpAddress;
 import io.swagger.v3.oas.annotations.Operation;
@@ -99,33 +101,30 @@ public interface ArticleApi {
         @RequestParam Integer count
     );
 
-    // @ApiResponses(
-    //     value = {
-    //         @ApiResponse(responseCode = "200"),
-    //         @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-    //     }
-    // )
-    // @Operation(summary = "분실물 게시글 단건 조회")
-    // @GetMapping("/{id}")
-    // ResponseEntity<ArticleResponse> getLostItemArticle(
-    //     @RequestParam(required = false) Integer boardId,
-    //     @Parameter(in = PATH) @PathVariable("id") Integer articleId,
-    //     @IpAddress String ipAddress
-    // );
-    //
-    // @ApiResponses(
-    //     value = {
-    //         @ApiResponse(responseCode = "200"),
-    //         @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-    //     }
-    // )
-    // @Operation(summary = "분실물 게시글 목록 조회")
-    // @GetMapping("/lostitem")
-    // ResponseEntity<ArticlesResponse> getLostItemArticles(
-    //     @RequestParam Integer boardId,
-    //     @RequestParam(required = false) Integer page,
-    //     @RequestParam(required = false) Integer limit
-    // );
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "분실물 게시글 목록 조회")
+    @GetMapping("/lostitem")
+    ResponseEntity<LostItemArticlesResponse> getLostItemArticles(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "분실물 게시글 단건 조회")
+    @GetMapping("/{id}")
+    ResponseEntity<LostItemArticleResponse> getLostItemArticle(
+        @Parameter(in = PATH) @PathVariable("id") Integer articleId
+    );
 
     @ApiResponses(
         value = {
@@ -138,8 +137,24 @@ public interface ArticleApi {
     )
     @Operation(summary = "분실물 게시글 등록")
     @PostMapping("/lostitem")
-    ResponseEntity<LostItemArticleResponse> createLostItemArticle(
-        @Auth(permit = {COUNCIL, STUDENT, ADMIN}) Integer councilId,
+    ResponseEntity<Void> createLostItemArticle(
+        @Auth(permit = {COUNCIL}) Integer councilId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "422", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "분실물 게시글 삭제")
+    @DeleteMapping("/lostitem/{id}")
+    public ResponseEntity<Void> deleteLostItemArticle(
+        @PathVariable("id") Integer articleId,
+        @Auth(permit = {COUNCIL}) Integer councilId
     );
 }

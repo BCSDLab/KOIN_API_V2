@@ -102,5 +102,6 @@ public class LostItemArticle {
 
     public void delete() {
         this.isDeleted = true;
+        this.images.forEach(LostItemImage::delete);
     }
 }

@@ -23,7 +23,9 @@ import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
@@ -301,12 +303,41 @@ public class ArticleService {
         busArticleRepository.save(BusNoticeArticle.from(latestArticles.get(0)));
     }
 
+    public LostItemArticlesResponse getLostItemArticles(Integer page, Integer limit) {
+        Long total = articleRepository.countBy();
+        Criteria criteria = Criteria.of(page, limit, total.intValue());
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        Page<Article> articles = articleRepository.findAllByBoardId(LOST_ITEM_BOARD_ID, pageRequest);
+        return LostItemArticlesResponse.of(articles, criteria);
+    }
+
+    public LostItemArticleResponse getLostItemArticle(Integer articleId) {
+        Article article = articleRepository.getById(articleId);
+        Board board = getBoard(LOST_ITEM_BOARD_ID, article);
+        Article prevArticle = articleRepository.getPreviousArticle(board, article);
+        Article nextArticle = articleRepository.getNextArticle(board, article);
+        article.setPrevNextArticles(prevArticle, nextArticle);
+        return LostItemArticleResponse.from(article);
+    }
+
     @Transactional
-    public Article createLostItemArticle(Integer userId, LostItemArticlesRequest request) {
+    public void createLostItemArticle(Integer userId, LostItemArticlesRequest requests) {
         Board lostItemBoard = boardRepository.getById(LOST_ITEM_BOARD_ID);
         User user = userRepository.getById(userId);
-        Article lostItemArticle = Article.createLostItemArticle(request, lostItemBoard, user);
-        articleRepository.save(lostItemArticle);
-        return lostItemArticle;
+        requests.articles()
+            .forEach(article -> {
+                    Article lostItemArticle = Article.createLostItemArticle(article, lostItemBoard, user);
+                    articleRepository.save(lostItemArticle);
+                }
+            );
+    }
+
+    @Transactional
+    public void deleteLostItemArticle(Integer articleId) {
+        Optional<Article> foundArticle = articleRepository.findByIdAndIsDeleted(articleId, false);
+        if (foundArticle.isEmpty()) {
+            return;
+        }
+        foundArticle.get().delete();
     }
 }
