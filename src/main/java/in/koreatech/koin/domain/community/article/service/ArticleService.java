@@ -1,10 +1,9 @@
 package in.koreatech.koin.domain.community.article.service;
 
-import static in.koreatech.koin.domain.community.article.model.Board.LOST_ITEM_BOARD_ID;
-
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +42,10 @@ import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRep
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
+import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
@@ -54,6 +58,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class ArticleService {
 
+    public static final int LOST_ITEM_BOARD_ID = 14;
     public static final int NOTICE_BOARD_ID = 4;
     private static final int HOT_ARTICLE_BEFORE_DAYS = 30;
     private static final int HOT_ARTICLE_LIMIT = 10;
@@ -64,9 +69,12 @@ public class ArticleService {
     private static final Sort NATIVE_ARTICLES_SORT = Sort.by(
         Sort.Order.desc("id")
     );
+    private static final int KEYWORD_BATCH_SIZE = 100;
 
+    private final ApplicationEventPublisher eventPublisher;
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
+    private final ArticleKeywordRepository articleKeywordRepository;
     private final ArticleSearchKeywordIpMapRepository articleSearchKeywordIpMapRepository;
     private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
     private final ArticleHitRepository articleHitRepository;
@@ -323,13 +331,60 @@ public class ArticleService {
     @Transactional
     public void createLostItemArticle(Integer userId, LostItemArticlesRequest requests) {
         Board lostItemBoard = boardRepository.getById(LOST_ITEM_BOARD_ID);
+        List<Integer> newArticles = new ArrayList<>();
         User user = userRepository.getById(userId);
         requests.articles()
             .forEach(article -> {
                     Article lostItemArticle = Article.createLostItemArticle(article, lostItemBoard, user);
                     articleRepository.save(lostItemArticle);
+                    newArticles.add(lostItemArticle.getId());
                 }
             );
+        sendKeywordNotification(newArticles);
+    }
+
+    public void sendKeywordNotification(List<Integer> updateNotificationIds) {
+        if (!updateNotificationIds.isEmpty()) {
+            List<Article> articles = new ArrayList<>();
+
+            for (Integer id : updateNotificationIds) {
+                articles.add(articleRepository.getById(id));
+            }
+
+            List<ArticleKeywordEvent> keywordEvents = matchKeyword(articles);
+
+            if (!keywordEvents.isEmpty()) {
+                for (ArticleKeywordEvent event : keywordEvents) {
+                    eventPublisher.publishEvent(event);
+                }
+            }
+        }
+    }
+
+    private List<ArticleKeywordEvent> matchKeyword(List<Article> articles) {
+        List<ArticleKeywordEvent> keywordEvents = new ArrayList<>();
+        int offset = 0;
+
+        while (true) {
+            Pageable pageable = PageRequest.of(offset / KEYWORD_BATCH_SIZE, KEYWORD_BATCH_SIZE);
+            List<ArticleKeyword> keywords = articleKeywordRepository.findAll(pageable);
+
+            if (keywords.isEmpty()) {
+                break;
+            }
+
+            for (Article article : articles) {
+                String title = article.getTitle();
+                for (ArticleKeyword keyword : keywords) {
+                    if (title.contains(keyword.getKeyword())) {
+                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword, LOST_ITEM_BOARD_ID));
+                    }
+                }
+            }
+            offset += KEYWORD_BATCH_SIZE;
+        }
+
+        return keywordEvents;
     }
 
     @Transactional

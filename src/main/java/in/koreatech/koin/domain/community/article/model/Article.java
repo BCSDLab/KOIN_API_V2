@@ -238,7 +238,10 @@ public class Article extends BaseEntity {
         User author
     ) {
         List<LostItemImage> images = request.images().stream()
-            .map(image -> LostItemImage.builder().imageUrl(image).build())
+            .map(image -> LostItemImage.builder()
+                .imageUrl(image)
+                .isDeleted(false)
+                .build())
             .toList();
 
         LostItemArticle lostItemArticle = LostItemArticle.builder()

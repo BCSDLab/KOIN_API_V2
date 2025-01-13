@@ -28,7 +28,6 @@ import lombok.NoArgsConstructor;
 public class Board extends BaseEntity {
 
     public static final Integer KOIN_ADMIN_NOTICE_BOARD_ID = 9;
-    public static final Integer LOST_ITEM_BOARD_ID = 14;
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -64,6 +63,7 @@ public class Board extends BaseEntity {
 
     @Builder
     private Board(
+        Integer id,
         String name,
         boolean isAnonymous,
         Integer articleCount,
@@ -71,6 +71,7 @@ public class Board extends BaseEntity {
         boolean isNotice,
         Integer parentId
     ) {
+        this.id = id;
         this.name = name;
         this.isAnonymous = isAnonymous;
         this.articleCount = articleCount;

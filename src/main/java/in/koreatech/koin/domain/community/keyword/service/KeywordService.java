@@ -1,5 +1,8 @@
 package in.koreatech.koin.domain.community.keyword.service;
 
+import static in.koreatech.koin.domain.community.article.service.ArticleService.NOTICE_BOARD_ID;
+import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
 import in.koreatech.koin.domain.community.article.model.Article;
@@ -155,7 +159,7 @@ public class KeywordService {
                 String title = article.getTitle();
                 for (ArticleKeyword keyword : keywords) {
                     if (title.contains(keyword.getKeyword())) {
-                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword));
+                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword, NOTICE_BOARD_ID));
                     }
                 }
             }
