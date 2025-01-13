@@ -1,9 +1,29 @@
 package in.koreatech.koin.domain.community.article.service;
 
+import static in.koreatech.koin.domain.community.article.model.Board.LOST_ITEM_BOARD_ID;
+
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
@@ -20,22 +40,12 @@ import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRep
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +70,7 @@ public class ArticleService {
     private final ArticleHitRepository articleHitRepository;
     private final HotArticleRepository hotArticleRepository;
     private final ArticleHitUserRepository articleHitUserRepository;
+    private final UserRepository userRepository;
     private final Clock clock;
     private final BusArticleRepository busArticleRepository;
 
@@ -273,16 +284,29 @@ public class ArticleService {
                     int secondWeight = 0;
 
                     // 제목(title)에 "사과"가 들어가면 후순위, "긴급"이 포함되면 우선순위
-                    if (first.getTitle().contains("사과")) firstWeight++;
-                    if (first.getTitle().contains("긴급")) firstWeight--;
+                    if (first.getTitle().contains("사과"))
+                        firstWeight++;
+                    if (first.getTitle().contains("긴급"))
+                        firstWeight--;
 
-                    if (second.getTitle().contains("사과")) secondWeight++;
-                    if (second.getTitle().contains("긴급")) secondWeight--;
+                    if (second.getTitle().contains("사과"))
+                        secondWeight++;
+                    if (second.getTitle().contains("긴급"))
+                        secondWeight--;
 
                     return Integer.compare(firstWeight, secondWeight);
                 })
                 .toList();
         }
         busArticleRepository.save(BusNoticeArticle.from(latestArticles.get(0)));
+    }
+
+    @Transactional
+    public Article createLostItemArticle(Integer userId, LostItemArticlesRequest request) {
+        Board lostItemBoard = boardRepository.getById(LOST_ITEM_BOARD_ID);
+        User user = userRepository.getById(userId);
+        Article lostItemArticle = Article.createLostItemArticle(request, lostItemBoard, user);
+        articleRepository.save(lostItemArticle);
+        return lostItemArticle;
     }
 }

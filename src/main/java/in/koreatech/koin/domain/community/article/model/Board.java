@@ -28,6 +28,7 @@ import lombok.NoArgsConstructor;
 public class Board extends BaseEntity {
 
     public static final Integer KOIN_ADMIN_NOTICE_BOARD_ID = 9;
+    public static final Integer LOST_ITEM_BOARD_ID = 14;
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
