@@ -2,8 +2,10 @@ package in.koreatech.koin.domain.community.article.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.*;
 
+import java.net.URI;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -97,12 +99,12 @@ public class ArticleController implements ArticleApi {
     }
 
     @PostMapping("/lost-item")
-    public ResponseEntity<Void> createLostItemArticle(
+    public ResponseEntity<LostItemArticleResponse> createLostItemArticle(
         @Auth(permit = {COUNCIL}) Integer councilId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
     ) {
-        articleService.createLostItemArticle(councilId, lostItemArticlesRequest);
-        return ResponseEntity.ok().build();
+        LostItemArticleResponse response = articleService.createLostItemArticle(councilId, lostItemArticlesRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/lost-item/{id}")

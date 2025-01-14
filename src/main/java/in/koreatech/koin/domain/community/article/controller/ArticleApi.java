@@ -137,14 +137,14 @@ public interface ArticleApi {
     )
     @Operation(summary = "분실물 게시글 등록")
     @PostMapping("/lost-item")
-    ResponseEntity<Void> createLostItemArticle(
+    ResponseEntity<LostItemArticleResponse> createLostItemArticle(
         @Auth(permit = {COUNCIL}) Integer councilId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
     );
 
     @ApiResponses(
         value = {
-            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "204"),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),

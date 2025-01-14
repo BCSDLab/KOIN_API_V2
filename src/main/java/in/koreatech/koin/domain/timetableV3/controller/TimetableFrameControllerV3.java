@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class TimetableFrameControllerV3 implements TimetableFrameApiV3 {
     @PostMapping("/v3/timetables/frame")
     public ResponseEntity<List<TimetableFrameResponseV3>> createTimetablesFrame(
         @Valid @RequestBody TimetableFrameCreateRequestV3 request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         List<TimetableFrameResponseV3> response = timetableFrameServiceV3.createTimetablesFrame(request, userId);
         return ResponseEntity.ok(response);
@@ -42,7 +43,7 @@ public class TimetableFrameControllerV3 implements TimetableFrameApiV3 {
     public ResponseEntity<List<TimetableFrameResponseV3>> updateTimetableFrame(
         @Valid @RequestBody TimetableFrameUpdateRequestV3 request,
         @PathVariable(value = "id") Integer timetableFrameId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         List<TimetableFrameResponseV3> response = timetableFrameServiceV3.updateTimetableFrame(request,
             timetableFrameId, userId);
@@ -53,7 +54,7 @@ public class TimetableFrameControllerV3 implements TimetableFrameApiV3 {
     public ResponseEntity<List<TimetableFrameResponseV3>> getTimetablesFrame(
         @RequestParam(name = "year") Integer year,
         @RequestParam(name = "term") String term,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         List<TimetableFrameResponseV3> response = timetableFrameServiceV3.getTimetablesFrame(year, term, userId);
         return ResponseEntity.ok(response);
@@ -61,7 +62,7 @@ public class TimetableFrameControllerV3 implements TimetableFrameApiV3 {
 
     @GetMapping("/v3/timetables/frames")
     public ResponseEntity<List<TimetableFramesResponseV3>> getTimetablesFrames(
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         List<TimetableFramesResponseV3> response = timetableFrameServiceV3.getTimetablesFrames(userId);
         return ResponseEntity.ok(response);
@@ -71,7 +72,7 @@ public class TimetableFrameControllerV3 implements TimetableFrameApiV3 {
     public ResponseEntity<Void> deleteTimetablesFrames(
         @RequestParam(name = "year") Integer year,
         @RequestParam(name = "term") String term,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         timetableFrameServiceV3.deleteTimetablesFrames(year, term, userId);
         return ResponseEntity.noContent().build();
