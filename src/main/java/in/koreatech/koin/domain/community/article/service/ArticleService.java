@@ -4,6 +4,9 @@ import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.ArticleSearchKeyword;
@@ -20,10 +23,17 @@ import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRep
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +52,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ArticleService {
 
+    public static final int LOST_ITEM_BOARD_ID = 14;
     public static final int NOTICE_BOARD_ID = 4;
     private static final int HOT_ARTICLE_BEFORE_DAYS = 30;
     private static final int HOT_ARTICLE_LIMIT = 10;
@@ -52,14 +63,18 @@ public class ArticleService {
     private static final Sort NATIVE_ARTICLES_SORT = Sort.by(
         Sort.Order.desc("id")
     );
+    private static final int KEYWORD_BATCH_SIZE = 100;
 
+    private final ApplicationEventPublisher eventPublisher;
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
+    private final ArticleKeywordRepository articleKeywordRepository;
     private final ArticleSearchKeywordIpMapRepository articleSearchKeywordIpMapRepository;
     private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
     private final ArticleHitRepository articleHitRepository;
     private final HotArticleRepository hotArticleRepository;
     private final ArticleHitUserRepository articleHitUserRepository;
+    private final UserRepository userRepository;
     private final Clock clock;
     private final BusArticleRepository busArticleRepository;
 
@@ -284,5 +299,81 @@ public class ArticleService {
                 .toList();
         }
         busArticleRepository.save(BusNoticeArticle.from(latestArticles.get(0)));
+    }
+
+    public LostItemArticlesResponse getLostItemArticles(Integer page, Integer limit) {
+        Long total = articleRepository.countBy();
+        Criteria criteria = Criteria.of(page, limit, total.intValue());
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        Page<Article> articles = articleRepository.findAllByBoardId(LOST_ITEM_BOARD_ID, pageRequest);
+        return LostItemArticlesResponse.of(articles, criteria);
+    }
+
+    public LostItemArticleResponse getLostItemArticle(Integer articleId) {
+        Article article = articleRepository.getById(articleId);
+        Board board = getBoard(LOST_ITEM_BOARD_ID, article);
+        Article prevArticle = articleRepository.getPreviousArticle(board, article);
+        Article nextArticle = articleRepository.getNextArticle(board, article);
+        article.setPrevNextArticles(prevArticle, nextArticle);
+        return LostItemArticleResponse.from(article);
+    }
+
+    @Transactional
+    public void createLostItemArticle(Integer userId, LostItemArticlesRequest requests) {
+        Board lostItemBoard = boardRepository.getById(LOST_ITEM_BOARD_ID);
+        List<Article> newArticles = new ArrayList<>();
+        User user = userRepository.getById(userId);
+        requests.articles()
+            .forEach(article -> {
+                    Article lostItemArticle = Article.createLostItemArticle(article, lostItemBoard, user);
+                    articleRepository.save(lostItemArticle);
+                    newArticles.add(lostItemArticle);
+                }
+            );
+        sendKeywordNotification(newArticles);
+    }
+
+    @Transactional
+    public void deleteLostItemArticle(Integer articleId) {
+        Optional<Article> foundArticle = articleRepository.findById(articleId);
+        if (foundArticle.isEmpty()) {
+            return;
+        }
+        foundArticle.get().delete();
+    }
+
+    private void sendKeywordNotification(List<Article> articles) {
+        List<ArticleKeywordEvent> keywordEvents = matchKeyword(articles);
+        if (!keywordEvents.isEmpty()) {
+            for (ArticleKeywordEvent event : keywordEvents) {
+                eventPublisher.publishEvent(event);
+            }
+        }
+    }
+
+    private List<ArticleKeywordEvent> matchKeyword(List<Article> articles) {
+        List<ArticleKeywordEvent> keywordEvents = new ArrayList<>();
+        int offset = 0;
+
+        while (true) {
+            Pageable pageable = PageRequest.of(offset / KEYWORD_BATCH_SIZE, KEYWORD_BATCH_SIZE);
+            List<ArticleKeyword> keywords = articleKeywordRepository.findAll(pageable);
+
+            if (keywords.isEmpty()) {
+                break;
+            }
+
+            for (Article article : articles) {
+                String title = article.getTitle();
+                for (ArticleKeyword keyword : keywords) {
+                    if (title.contains(keyword.getKeyword())) {
+                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword));
+                    }
+                }
+            }
+            offset += KEYWORD_BATCH_SIZE;
+        }
+
+        return keywordEvents;
     }
 }
