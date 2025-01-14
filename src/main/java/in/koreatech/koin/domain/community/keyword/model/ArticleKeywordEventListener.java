@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.community.keyword.model;
 
-import static in.koreatech.koin.domain.community.article.service.ArticleService.LOST_ITEM_BOARD_ID;
 import static in.koreatech.koin.global.domain.notification.model.NotificationSubscribeType.ARTICLE_KEYWORD;
 import static in.koreatech.koin.global.fcm.MobileAppPath.KEYWORD;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
@@ -12,7 +11,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.keyword.service.KeywordService;
@@ -37,7 +35,7 @@ public class ArticleKeywordEventListener {
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onKeywordRequest(ArticleKeywordEvent event) {
-        Article article = articleRepository.getById(event.articleId());
+        String articleTitle = articleRepository.getTitleById(event.articleId());
 
         List<Notification> notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailType(ARTICLE_KEYWORD, null)
@@ -45,7 +43,7 @@ public class ArticleKeywordEventListener {
             .filter(this::hasDeviceToken)
             .filter(subscribe -> isKeywordRegistered(event, subscribe))
             .filter(subscribe -> isNewArticle(event, subscribe))
-            .map(subscribe -> createAndRecordNotification(event, article, subscribe))
+            .map(subscribe -> createAndRecordNotification(event, articleTitle, subscribe))
             .toList();
 
         notificationService.push(notifications);
@@ -70,28 +68,19 @@ public class ArticleKeywordEventListener {
 
     private Notification createAndRecordNotification(
         ArticleKeywordEvent event,
-        Article article,
+        String articleTitle,
         NotificationSubscribe subscribe
     ) {
         Integer userId = subscribe.getUser().getId();
         String keyword = event.keyword().getKeyword();
-        String title;
-        String message;
-
-        if (event.boardId() == LOST_ITEM_BOARD_ID) {
-            title = generateLostItemTitle(keyword);
-            message = article.getContent();
-        } else {
-            title = article.getTitle();
-            message = generateNoticeMessage(keyword);
-        }
+        String description = generateDescription(keyword);
 
         Notification notification = notificationFactory.generateKeywordNotification(
             KEYWORD,
             event.articleId(),
             keyword,
-            title,
-            message,
+            articleTitle,
+            description,
             subscribe.getUser()
         );
 
@@ -99,11 +88,7 @@ public class ArticleKeywordEventListener {
         return notification;
     }
 
-    private String generateNoticeMessage(String keyword) {
+    private String generateDescription(String keyword) {
         return "방금 등록된 %s 공지를 확인해보세요!".formatted(keyword);
-    }
-
-    private String generateLostItemTitle(String keyword) {
-        return "%s 분실물을 찾았어요!".formatted(keyword);
     }
 }

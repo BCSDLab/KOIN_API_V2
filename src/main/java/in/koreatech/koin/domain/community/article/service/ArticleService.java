@@ -367,7 +367,7 @@ public class ArticleService {
                 String title = article.getTitle();
                 for (ArticleKeyword keyword : keywords) {
                     if (title.contains(keyword.getKeyword())) {
-                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword, LOST_ITEM_BOARD_ID));
+                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword));
                     }
                 }
             }

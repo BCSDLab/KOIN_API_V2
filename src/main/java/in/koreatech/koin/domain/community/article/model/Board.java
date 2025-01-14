@@ -63,7 +63,6 @@ public class Board extends BaseEntity {
 
     @Builder
     private Board(
-        Integer id,
         String name,
         boolean isAnonymous,
         Integer articleCount,
@@ -71,7 +70,6 @@ public class Board extends BaseEntity {
         boolean isNotice,
         Integer parentId
     ) {
-        this.id = id;
         this.name = name;
         this.isAnonymous = isAnonymous;
         this.articleCount = articleCount;

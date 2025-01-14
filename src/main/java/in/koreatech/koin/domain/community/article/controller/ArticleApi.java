@@ -108,7 +108,7 @@ public interface ArticleApi {
         }
     )
     @Operation(summary = "분실물 게시글 목록 조회")
-    @GetMapping("/lostitem")
+    @GetMapping("/lost-item")
     ResponseEntity<LostItemArticlesResponse> getLostItemArticles(
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit
@@ -121,7 +121,7 @@ public interface ArticleApi {
         }
     )
     @Operation(summary = "분실물 게시글 단건 조회")
-    @GetMapping("/{id}")
+    @GetMapping("/lost-item/{id}")
     ResponseEntity<LostItemArticleResponse> getLostItemArticle(
         @Parameter(in = PATH) @PathVariable("id") Integer articleId
     );
@@ -136,7 +136,7 @@ public interface ArticleApi {
         }
     )
     @Operation(summary = "분실물 게시글 등록")
-    @PostMapping("/lostitem")
+    @PostMapping("/lost-item")
     ResponseEntity<Void> createLostItemArticle(
         @Auth(permit = {COUNCIL}) Integer councilId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
@@ -152,7 +152,7 @@ public interface ArticleApi {
         }
     )
     @Operation(summary = "분실물 게시글 삭제")
-    @DeleteMapping("/lostitem/{id}")
+    @DeleteMapping("/lost-item/{id}")
     public ResponseEntity<Void> deleteLostItemArticle(
         @PathVariable("id") Integer articleId,
         @Auth(permit = {COUNCIL}) Integer councilId

@@ -1,8 +1,5 @@
 package in.koreatech.koin.domain.community.keyword.service;
 
-import static in.koreatech.koin.domain.community.article.service.ArticleService.NOTICE_BOARD_ID;
-import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import in.koreatech.koin.domain.community.article.dto.ArticleKeywordResult;
 import in.koreatech.koin.domain.community.article.model.Article;
@@ -27,12 +23,12 @@ import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.UserNotificationStatus;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
@@ -119,7 +115,7 @@ public class KeywordService {
     public void sendKeywordNotification(KeywordNotificationRequest request) {
         List<Integer> updateNotificationIds = request.updateNotification();
 
-        if(!updateNotificationIds.isEmpty()) {
+        if (!updateNotificationIds.isEmpty()) {
             List<Article> articles = new ArrayList<>();
 
             for (Integer id : updateNotificationIds) {
@@ -159,7 +155,7 @@ public class KeywordService {
                 String title = article.getTitle();
                 for (ArticleKeyword keyword : keywords) {
                     if (title.contains(keyword.getKeyword())) {
-                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword, NOTICE_BOARD_ID));
+                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword));
                     }
                 }
             }
@@ -189,7 +185,7 @@ public class KeywordService {
             .toList();
 
         articleKeywordSuggestRepository.deleteAll();
-        for(ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
+        for (ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
             articleKeywordSuggestRepository.save(hotKeyword);
         }
     }

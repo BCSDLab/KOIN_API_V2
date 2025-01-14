@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.article.model;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,7 +98,13 @@ public class LostItemArticle {
     }
 
     public String generateTitle() {
-        return String.format("%s | %s | %s", this.category, this.foundPlace, this.foundDate);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yy.MM.dd");
+        return String.format(
+            "%s | %s | %s",
+            this.category,
+            this.foundPlace,
+            dateFormatter.format(this.foundDate)
+        );
     }
 
     public void delete() {
