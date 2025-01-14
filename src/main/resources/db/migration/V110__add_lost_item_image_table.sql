@@ -5,7 +5,7 @@ CREATE TABLE `lost_item_articles`
     `author_id`       INT UNSIGNED NULL comment '작성자 id',
     `category`        VARCHAR(255) NOT NULL comment '분실물 카테고리',
     `found_place`     VARCHAR(255) NOT NULL comment '습득 장소',
-    `found_date`      VARCHAR(255) NOT NULL comment '습득 날짜',
+    `found_date`      DATE NOT NULL comment '습득 날짜',
     `is_deleted`      TINYINT(1) NOT NULL DEFAULT 0 comment '게시글 삭제 여부',
     `created_at`      timestamp default CURRENT_TIMESTAMP not null comment '생성 일자',
     `updated_at`      timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '수정 일자',

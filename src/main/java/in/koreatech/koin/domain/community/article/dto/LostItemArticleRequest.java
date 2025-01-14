@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-
 public record LostItemArticleRequest(
     @Schema(description = "분실물 종류", example = "신분증", requiredMode = REQUIRED)
     String category,
