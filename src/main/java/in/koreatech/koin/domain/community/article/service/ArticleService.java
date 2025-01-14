@@ -319,7 +319,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public void createLostItemArticle(Integer userId, LostItemArticlesRequest requests) {
+    public LostItemArticleResponse createLostItemArticle(Integer userId, LostItemArticlesRequest requests) {
         Board lostItemBoard = boardRepository.getById(LOST_ITEM_BOARD_ID);
         List<Article> newArticles = new ArrayList<>();
         User user = userRepository.getById(userId);
@@ -331,6 +331,7 @@ public class ArticleService {
                 }
             );
         sendKeywordNotification(newArticles);
+        return LostItemArticleResponse.from(newArticles.get(0));
     }
 
     @Transactional
