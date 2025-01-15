@@ -1,8 +1,6 @@
 package in.koreatech.koin.domain.user.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.net.URI;
 
@@ -41,7 +39,7 @@ public class UserController implements UserApi {
 
     @PostMapping("/user/logout")
     public ResponseEntity<Void> logout(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
+        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         userService.logout(userId);
         return ResponseEntity.ok().build();
@@ -58,7 +56,7 @@ public class UserController implements UserApi {
 
     @GetMapping("/user/auth")
     public ResponseEntity<AuthResponse> getAuth(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
+        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         AuthResponse authResponse = userService.getAuth(userId);
         return ResponseEntity.ok().body(authResponse);
@@ -66,7 +64,7 @@ public class UserController implements UserApi {
 
     @DeleteMapping("/user")
     public ResponseEntity<Void> withdraw(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
+        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         userService.withdraw(userId);
         return ResponseEntity.noContent().build();
@@ -102,7 +100,7 @@ public class UserController implements UserApi {
     @PostMapping("/user/check/password")
     public ResponseEntity<Void> checkPassword(
         @Valid @RequestBody UserPasswordCheckRequest request,
-        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
+        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     ) {
         userValidationService.checkPassword(request, userId);
         return ResponseEntity.ok().build();

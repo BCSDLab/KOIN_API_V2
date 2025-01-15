@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public interface TimetableLectureApiV3 {
     @GetMapping("/v3/timetables/lecture")
     ResponseEntity<TimetableLectureResponseV3> getTimetableLecture(
         @RequestParam(value = "timetable_frame_id") Integer timetableFrameId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -51,7 +52,7 @@ public interface TimetableLectureApiV3 {
     @PostMapping("/v3/timetables/lecture/rollback")
     ResponseEntity<TimetableLectureResponseV3> rollbackTimetableLecture(
         @RequestParam(name = "timetable_lectures_id") List<Integer> timetableLecturesId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -71,6 +72,6 @@ public interface TimetableLectureApiV3 {
     @PostMapping("/v3/timetables/frame/rollback")
     ResponseEntity<TimetableLectureResponseV3> rollbackTimetableFrame(
         @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 }

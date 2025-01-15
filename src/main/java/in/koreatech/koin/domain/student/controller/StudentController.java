@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.student.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.net.URI;
@@ -40,7 +41,7 @@ public class StudentController implements StudentApi{
 
     @GetMapping("/user/student/me")
     public ResponseEntity<StudentResponse> getStudent(
-        @Auth(permit = STUDENT) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         StudentResponse studentResponse = studentService.getStudent(userId);
         return ResponseEntity.ok().body(studentResponse);
@@ -48,7 +49,7 @@ public class StudentController implements StudentApi{
 
     @PutMapping("/user/student/me")
     public ResponseEntity<StudentUpdateResponse> updateStudent(
-        @Auth(permit = STUDENT) Integer userId,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
         @Valid @RequestBody StudentUpdateRequest request
     ) {
         StudentUpdateResponse studentUpdateResponse = studentService.updateStudent(userId, request);
@@ -93,7 +94,7 @@ public class StudentController implements StudentApi{
     @PutMapping("/user/change/password")
     public ResponseEntity<Void> changePassword(
         @RequestBody UserPasswordChangeRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         studentService.changePassword(userId, request);
         return ResponseEntity.ok().build();

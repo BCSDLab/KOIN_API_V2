@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public interface TimetableFrameApiV3 {
     @PostMapping("/v3/timetables/frame")
     ResponseEntity<List<TimetableFrameResponseV3>> createTimetablesFrame(
         @Valid @RequestBody TimetableFrameCreateRequestV3 request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -60,7 +61,7 @@ public interface TimetableFrameApiV3 {
     ResponseEntity<List<TimetableFrameResponseV3>> updateTimetableFrame(
         @Valid @RequestBody TimetableFrameUpdateRequestV3 request,
         @PathVariable(value = "id") Integer timetableFrameId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -77,7 +78,7 @@ public interface TimetableFrameApiV3 {
     ResponseEntity<List<TimetableFrameResponseV3>> getTimetablesFrame(
         @RequestParam(name = "year") Integer year,
         @RequestParam(name = "term") String term,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -92,7 +93,7 @@ public interface TimetableFrameApiV3 {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/v3/timetables/frames")
     ResponseEntity<List<TimetableFramesResponseV3>> getTimetablesFrames(
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -108,6 +109,6 @@ public interface TimetableFrameApiV3 {
     ResponseEntity<Void> deleteTimetablesFrames(
         @RequestParam(name = "year") Integer year,
         @RequestParam(name = "term") String term,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 }

@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -50,7 +51,7 @@ public class ShopReviewController implements ShopReviewApi {
     public ResponseEntity<ShopMyReviewsResponse> getMyReviews(
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestParam(name = "sorter", defaultValue = "LATEST") ReviewsSortCriteria sortBy,
-        @Auth(permit = {STUDENT}) Integer studentId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer studentId
     ) {
         ShopMyReviewsResponse reviewsResponse = shopReviewService.getMyReviewsByShopId(shopId, studentId, sortBy);
         return ResponseEntity.ok(reviewsResponse);
@@ -60,7 +61,7 @@ public class ShopReviewController implements ShopReviewApi {
     public ResponseEntity<Void> createReview(
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestBody @Valid CreateReviewRequest createReviewRequest,
-        @Auth(permit = {STUDENT}) Integer studentId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer studentId
     ) {
         shopReviewService.createReview(createReviewRequest, studentId, shopId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -71,7 +72,7 @@ public class ShopReviewController implements ShopReviewApi {
         @Parameter(in = PATH) @PathVariable Integer reviewId,
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestBody @Valid ModifyReviewRequest modifyReviewRequest,
-        @Auth(permit = {STUDENT}) Integer studentId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer studentId
     ) {
         shopReviewService.modifyReview(modifyReviewRequest, reviewId, studentId);
         return ResponseEntity.noContent().build();
@@ -81,7 +82,7 @@ public class ShopReviewController implements ShopReviewApi {
     public ResponseEntity<Void> deleteReview(
         @Parameter(in = PATH) @PathVariable Integer reviewId,
         @Parameter(in = PATH) @PathVariable Integer shopId,
-        @Auth(permit = {STUDENT}) Integer studentId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer studentId
     ) {
         shopReviewService.deleteReview(reviewId, studentId);
         return ResponseEntity.noContent().build();
@@ -99,7 +100,7 @@ public class ShopReviewController implements ShopReviewApi {
         @Parameter(in = PATH) @PathVariable Integer reviewId,
         @Parameter(in = PATH) @PathVariable Integer shopId,
         @RequestBody @Valid ShopReviewReportRequest shopReviewReportRequest,
-        @Auth(permit = {STUDENT}) Integer studentId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer studentId
     ) {
         shopReviewService.reportReview(shopId, reviewId, studentId, shopReviewReportRequest);
         return ResponseEntity.noContent().build();

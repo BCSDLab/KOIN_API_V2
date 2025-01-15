@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class SemesterControllerV3 implements SemesterApiV3 {
 
     @GetMapping("/v3/semesters/check")
     public ResponseEntity<SemesterCheckResponseV3> getStudentSemesters(
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         SemesterCheckResponseV3 semesterCheckResponseV3 = semesterServiceV3.getStudentSemesters(userId);
         return ResponseEntity.ok(semesterCheckResponseV3);

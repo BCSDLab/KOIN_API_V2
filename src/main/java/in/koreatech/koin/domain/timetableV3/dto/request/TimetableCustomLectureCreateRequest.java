@@ -6,6 +6,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -50,6 +51,11 @@ public record TimetableCustomLectureCreateRequest(
         @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
         String memo
     ) {
+        public InnerTimeTableCustomLectureRequest {
+            if (Objects.isNull(grades)) {
+                grades = "0";
+            }
+        }
 
         // 커스텀 강의 장소 역정규화
         public String joinClassPlaces() {
