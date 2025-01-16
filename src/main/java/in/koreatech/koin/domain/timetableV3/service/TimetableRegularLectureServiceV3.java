@@ -51,9 +51,6 @@ public class TimetableRegularLectureServiceV3 {
     }
 
     private CourseType getCourseType(Integer userId, Lecture lecture) {
-        if (lecture == null) {
-            return null;
-        }
         Student student = studentRepository.getById(userId);
         if (Objects.isNull(student.getDepartment())) {
             return null;
