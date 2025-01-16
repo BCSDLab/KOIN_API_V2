@@ -54,9 +54,8 @@ public class TimetableLectureCreator {
         if (Objects.isNull(student.getDepartment())) {
             return null;
         }
-        String year = parseStudentNumberYear(student.getStudentNumber()).toString();
         String code = lecture.getCode();
-        Catalog catalog = catalogRepository.getByYearAndDepartmentAndCode(year, student.getDepartment(), code);
+        Catalog catalog = catalogRepository.getByYearAndDepartmentAndCode(student.getDepartment(), code);
         return catalog.getCourseType();
     }
 }
