@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.shop.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
@@ -120,6 +121,6 @@ public interface ShopApi {
     @PostMapping("/shops/{shopId}/call-notification")
     ResponseEntity<Void> createCallNotification(
             @Parameter(in = PATH) @PathVariable("shopId") Integer shopId,
-            @Auth(permit = {STUDENT}) Integer studentId
+            @Auth(permit = {STUDENT, COUNCIL}) Integer studentId
     );
 }

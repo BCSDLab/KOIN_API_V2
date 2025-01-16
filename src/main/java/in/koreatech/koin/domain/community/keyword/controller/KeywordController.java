@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.community.keyword.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,7 +31,7 @@ public class KeywordController implements KeywordApi{
     @PostMapping()
     public ResponseEntity<ArticleKeywordResponse> createKeyword(
         @Valid @RequestBody ArticleKeywordCreateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         ArticleKeywordResponse response = keywordService.createKeyword(userId, request);
         return ResponseEntity.ok(response);
@@ -41,7 +40,7 @@ public class KeywordController implements KeywordApi{
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteKeyword(
         @PathVariable(value = "id") Integer keywordUserMapId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         keywordService.deleteKeyword(userId, keywordUserMapId);
         return ResponseEntity.noContent().build();
@@ -49,7 +48,7 @@ public class KeywordController implements KeywordApi{
 
     @GetMapping("/me")
     public ResponseEntity<ArticleKeywordsResponse> getMyKeywords(
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         ArticleKeywordsResponse response = keywordService.getMyKeywords(userId);
         return ResponseEntity.ok(response);

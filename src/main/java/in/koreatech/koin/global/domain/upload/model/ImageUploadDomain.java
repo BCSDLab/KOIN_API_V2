@@ -17,6 +17,7 @@ public enum ImageUploadDomain {
     OWNERS,
     COOP,
     ADMIN,
+    LOST_ITEMS,
     ;
 
     public static ImageUploadDomain from(String domain) {

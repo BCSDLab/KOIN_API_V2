@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +50,6 @@ import in.koreatech.koin.domain.coop.exception.DuplicateExcelRequestException;
 import in.koreatech.koin.domain.coop.exception.StartDateAfterEndDateException;
 import in.koreatech.koin.domain.coop.model.Coop;
 import in.koreatech.koin.domain.coop.model.DiningImageUploadEvent;
-import in.koreatech.koin.domain.coop.model.DiningNotifyCache;
 import in.koreatech.koin.domain.coop.model.DiningSoldOutEvent;
 import in.koreatech.koin.domain.coop.model.ExcelDownloadCache;
 import in.koreatech.koin.domain.coop.repository.CoopRepository;
@@ -61,7 +59,6 @@ import in.koreatech.koin.domain.coop.repository.ExcelDownloadCacheRepository;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.service.CoopShopService;
 import in.koreatech.koin.domain.dining.model.Dining;
-import in.koreatech.koin.domain.dining.model.DiningType;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.model.UserToken;
@@ -115,9 +112,19 @@ public class CoopService {
     @Transactional
     public void saveDiningImage(DiningImageRequest imageRequest) {
         Dining dining = diningRepository.getById(imageRequest.menuId());
+
+        boolean isImageExist = diningRepository.existsByDateAndTypeAndImageUrlIsNotNull(dining.getDate(),
+            dining.getType());
+        LocalDateTime now = LocalDateTime.now(clock);
+        boolean isOpened = coopShopService.getIsOpened(now, CoopShopType.CAFETERIA, dining.getType(), true);
+        if (isOpened && !isImageExist) {
+            eventPublisher.publishEvent(new DiningImageUploadEvent(dining.getId(), dining.getImageUrl()));
+        }
+
         dining.setImageUrl(imageRequest.imageUrl());
     }
 
+    /* TODO: 알림 로직 테스트 후 주석 제거
     public void sendDiningNotify() {
         DiningType diningType = coopShopService.getDiningType();
         LocalDate nowDate = LocalDate.now(clock);
@@ -165,7 +172,7 @@ public class CoopService {
     private void sendNotify(String diningNotifyId, List<Dining> dinings) {
         diningNotifyCacheRepository.save(DiningNotifyCache.from(diningNotifyId));
         eventPublisher.publishEvent(new DiningImageUploadEvent(dinings.get(0).getId(), dinings.get(0).getImageUrl()));
-    }
+    }*/
 
     @Transactional
     public CoopLoginResponse coopLogin(CoopLoginRequest request) {
