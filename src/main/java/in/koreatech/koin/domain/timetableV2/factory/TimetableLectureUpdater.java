@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureUpdateRequest;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
@@ -31,7 +32,8 @@ public class TimetableLectureUpdater {
                 getClassPlaceToString(timetableRequest.classInfos()),
                 timetableRequest.professor(),
                 timetableRequest.grades(),
-                timetableRequest.memo()
+                timetableRequest.memo(),
+                timetableRequest.courseType()
             );
         }
     }

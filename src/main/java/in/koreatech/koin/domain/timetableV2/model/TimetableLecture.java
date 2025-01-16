@@ -92,9 +92,13 @@ public class TimetableLecture extends BaseEntity {
     }
 
     public void update(
-        String classTitle, String classTime,
-        String classPlace, String professor,
-        String grades, String memo
+        String classTitle,
+        String classTime,
+        String classPlace,
+        String professor,
+        String grades,
+        String memo,
+        CourseType courseType
     ) {
         this.classTitle = classTitle;
         this.classTime = classTime;
@@ -102,6 +106,7 @@ public class TimetableLecture extends BaseEntity {
         this.professor = professor;
         this.grades = grades;
         this.memo = memo;
+        this.courseType = courseType;
     }
 
     public void update(TimetableUpdateRequest.InnerTimetableRequest request) {

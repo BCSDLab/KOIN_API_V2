@@ -8,6 +8,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.graduation.model.CourseType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -15,7 +16,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record   TimetableLectureUpdateRequest(
+public record TimetableLectureUpdateRequest(
     @Schema(description = "시간표 프레임 id", example = "1", requiredMode = REQUIRED)
     @NotNull(message = "시간표 식별 번호를 입력해주세요.")
     Integer timetableFrameId,
@@ -52,7 +53,10 @@ public record   TimetableLectureUpdateRequest(
 
         @Schema(description = "memo", example = "메모메모", requiredMode = NOT_REQUIRED)
         @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
-        String memo
+        String memo,
+
+        @Schema(description = "이수 구분", example = "전공 선택", requiredMode = NOT_REQUIRED)
+        CourseType courseType
     ) {
         @JsonNaming(value = SnakeCaseStrategy.class)
         public record ClassInfo(
