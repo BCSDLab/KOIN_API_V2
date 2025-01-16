@@ -23,12 +23,12 @@ import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.UserNotificationStatus;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
@@ -115,7 +115,7 @@ public class KeywordService {
     public void sendKeywordNotification(KeywordNotificationRequest request) {
         List<Integer> updateNotificationIds = request.updateNotification();
 
-        if(!updateNotificationIds.isEmpty()) {
+        if (!updateNotificationIds.isEmpty()) {
             List<Article> articles = new ArrayList<>();
 
             for (Integer id : updateNotificationIds) {
@@ -185,7 +185,7 @@ public class KeywordService {
             .toList();
 
         articleKeywordSuggestRepository.deleteAll();
-        for(ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
+        for (ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
             articleKeywordSuggestRepository.save(hotKeyword);
         }
     }
