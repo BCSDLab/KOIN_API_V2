@@ -2,7 +2,6 @@
 CREATE TABLE if not exists `koin`.`catalog`
 (
     `id`             INT UNSIGNED NOT NULL AUTO_INCREMENT comment '고유 id',
-    `year`           VARCHAR(20)  NOT NULL comment '년도',
     `code`           VARCHAR(20)  NOT NULL comment '강의 코드',
     `lecture_name`   VARCHAR(255) NOT NULL comment '강의 이름',
     `department_id`  INT UNSIGNED NOT NULL comment '학과 id',
