@@ -183,7 +183,7 @@ public record TimetableLectureResponse(
                         lecture.getTarget(),
                         getProfessor(timetableLecture, lecture),
                         lecture.getDepartment(),
-                        timetableLecture.getCourseType().getName()
+                        getCourseType(timetableLecture)
                     );
                 }
                 timetableLectureList.add(response);
@@ -217,6 +217,13 @@ public record TimetableLectureResponse(
                 return lecture.getClassTime();
             }
             return timetableLecture.getClassTime();
+        }
+
+        public static String getCourseType(TimetableLecture timetableLecture) {
+            if (Objects.isNull(timetableLecture.getCourseType())) {
+                return null;
+            }
+            return timetableLecture.getCourseType().getName();
         }
     }
 
