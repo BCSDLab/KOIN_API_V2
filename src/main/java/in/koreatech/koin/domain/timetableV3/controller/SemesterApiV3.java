@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
@@ -42,6 +43,6 @@ public interface SemesterApiV3 {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/v3/semesters/check")
     ResponseEntity<SemesterCheckResponseV3> getStudentSemesters(
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 }

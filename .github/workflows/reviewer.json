@@ -31,16 +31,6 @@
       "team": "business"
     },
     {
-      "name": "윤용운",
-      "githubName": "YunYongWoon",
-      "team": "business"
-    },
-    {
-      "name": "장준영",
-      "githubName": "johnny19991006",
-      "team": "business"
-    },
-    {
       "name": "허준기",
       "githubName": "dradnats1012",
       "team": "campus"
@@ -58,6 +48,26 @@
     {
       "name": "송선권",
       "githubName": "songsunkook",
+      "team": "campus"
+    },
+    {
+      "name": "강인화",
+      "githubName": "kih1015",
+      "team": "campus"
+    },
+    {
+      "name": "김성현",
+      "githubName": "krSeonghyeon",
+      "team": "business"
+    },
+    {
+      "name": "신관규",
+      "githubName": "Soundbar91",
+      "team": "user"
+    },
+    {
+      "name": "김두현",
+      "githubName": "DHkimgit",
       "team": "campus"
     }
   ]

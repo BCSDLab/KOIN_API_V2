@@ -1,6 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.model;
 
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin.domain.timetableV3.exception.InvalidTermFormatException;
 import lombok.Getter;
 
 @Getter
@@ -24,6 +24,6 @@ public enum Term {
                 return term;
             }
         }
-        throw new KoinIllegalArgumentException("term 양식이 잘못됐습니다.");
+        throw new InvalidTermFormatException("term : " + description);
     }
 }
