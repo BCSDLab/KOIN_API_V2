@@ -319,9 +319,8 @@ public class CoopService {
 
     public File generateDiningImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
         validateDates(startDate, endDate);
-        List<Dining> dinings = fetchDiningDataForImageCompress(startDate, endDate, isCafeteria);
-            diningRepository.findByDateBetweenAndImageUrlIsNotNull(startDate, endDate);
-        return generateZipFileOf(dinings);
+        List<Dining> dining = fetchDiningDataForImageCompress(startDate, endDate, isCafeteria);
+        return generateZipFileOf(dining);
     }
 
     private List<Dining> fetchDiningDataForImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
