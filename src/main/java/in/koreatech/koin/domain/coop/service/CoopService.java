@@ -312,11 +312,18 @@ public class CoopService {
 
     public File generateDiningImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
         validateDates(startDate, endDate);
-        List<Dining> dinings = // fetchDiningData(startDate, endDate, isCafeteria); <- image url 필터링을 sql 단에서 걸려면 재사용이 불가능
+        List<Dining> dinings = fetchDiningDataForImageCompress(startDate, endDate, isCafeteria);
             diningRepository.findByDateBetweenAndImageUrlIsNotNull(startDate, endDate);
-        // filterDinings(dinings); <- 코너나 식사시간에 따라 필터링
-
         return generateZipFileOf(dinings);
+    }
+
+    private List<Dining> fetchDiningDataForImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
+        if (isCafeteria) {
+            List<String> cafeteriaPlaces = Arrays.asList("A코너", "B코너", "C코너");
+            return diningRepository.findByDateBetweenAndImageUrlIsNotNullAndPlaceIn(startDate, endDate,
+                cafeteriaPlaces);
+        }
+        return diningRepository.findByDateBetweenAndImageUrlIsNotNull(startDate, endDate);
     }
 
     private File generateZipFileOf(List<Dining> dinings) {

@@ -22,7 +22,6 @@ import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
 import in.koreatech.koin.domain.coop.dto.SoldOutRequest;
 import in.koreatech.koin.global.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -108,10 +107,8 @@ public interface CoopApi {
     @GetMapping("/dining/image")
     ResponseEntity<Resource> generateImageCompress(
         @Auth(permit = {COOP}) Integer userId,
-        @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2022-11-29")
         @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate startDate,
-        @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2023-01-10")
         @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate endDate,
         @RequestParam(name = "isCafeteria", defaultValue = "false") Boolean isCafeteria

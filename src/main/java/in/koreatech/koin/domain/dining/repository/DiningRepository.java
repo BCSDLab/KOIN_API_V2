@@ -40,14 +40,19 @@ public interface DiningRepository extends Repository<Dining, Integer> {
 
     List<Dining> findByDateBetweenAndImageUrlIsNotNull(LocalDate startDate, LocalDate endDate);
 
+    List<Dining> findByDateBetweenAndImageUrlIsNotNullAndPlaceIn(LocalDate startDate, LocalDate endDate,
+        List<String> placeFilters);
+
     Optional<List<Dining>> findByDate(LocalDate now);
 
-    default List<Dining> getByDate(LocalDate now){
+    default List<Dining> getByDate(LocalDate now) {
         return findByDate(now)
-            .orElseThrow(()-> MenuNotFoundException.withDetail("menuId: " + now));
+            .orElseThrow(() -> MenuNotFoundException.withDetail("menuId: " + now));
     }
 
-    @Query("SELECT COUNT(d) = (SELECT COUNT(d2) FROM Dining d2 WHERE d2.date = :date AND d2.type = :type AND d2.place IN :places) " +
-        "FROM Dining d WHERE d.date = :date AND d.type = :type AND d.place IN :places AND d.imageUrl IS NOT NULL")
+    @Query(
+        "SELECT COUNT(d) = (SELECT COUNT(d2) FROM Dining d2 WHERE d2.date = :date AND d2.type = :type AND d2.place IN :places) "
+            +
+            "FROM Dining d WHERE d.date = :date AND d.type = :type AND d.place IN :places AND d.imageUrl IS NOT NULL")
     boolean allExistsByDateAndTypeAndPlacesAndImageUrlIsNotNull(LocalDate date, DiningType type, List<String> places);
 }

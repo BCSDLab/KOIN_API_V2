@@ -86,7 +86,7 @@ public class CoopController implements CoopApi {
         @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2022-11-29")
         @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate startDate,
-        @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2023-01-10")
+        @Parameter(description = "종료일 (형식: yyyy-MM-dd)", example = "2023-01-10")
         @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate endDate,
         @RequestParam(name = "isCafeteria", defaultValue = "false") Boolean isCafeteria
