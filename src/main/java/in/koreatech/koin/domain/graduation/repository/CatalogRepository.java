@@ -13,7 +13,7 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
 
     Optional<Catalog> findByDepartmentAndCode(Department department, String code);
 
-    default Catalog getByYearAndDepartmentAndCode(Department department, String code) {
+    default Catalog getByDepartmentAndCode(Department department, String code) {
         return findByDepartmentAndCode(department, code)
             .orElseThrow(() -> CatalogNotFoundException.withDetail("department: " + department + ", code: " + code));
     }

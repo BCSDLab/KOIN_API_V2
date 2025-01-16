@@ -219,9 +219,9 @@ public record TimetableLectureResponse(
             return timetableLecture.getClassTime();
         }
 
-        public static String getCourseType(TimetableLecture timetableLecture) {
+        private static String getCourseType(TimetableLecture timetableLecture) {
             if (Objects.isNull(timetableLecture.getCourseType())) {
-                return null;
+                return "학부(전공)선택";
             }
             return timetableLecture.getCourseType().getName();
         }
