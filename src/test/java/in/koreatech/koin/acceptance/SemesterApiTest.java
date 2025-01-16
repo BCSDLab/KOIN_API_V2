@@ -12,9 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.AcceptanceTest;
+import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.fixture.CourseTypeFixture;
 import in.koreatech.koin.fixture.LectureFixture;
 import in.koreatech.koin.fixture.SemesterFixture;
 import in.koreatech.koin.fixture.TimeTableV2Fixture;
@@ -36,6 +38,9 @@ public class SemesterApiTest extends AcceptanceTest {
 
     @Autowired
     private TimeTableV2Fixture timetableV2Fixture;
+
+    @Autowired
+    private CourseTypeFixture courseTypeFixture;
 
     @BeforeAll
     void setup() {
@@ -99,8 +104,10 @@ public class SemesterApiTest extends AcceptanceTest {
         Semester semester2 = semesterFixture.semester_2020년도_1학기();
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester1.getSemester());
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester2.getSemester());
-        timetableV2Fixture.시간표6(user, semester1, HRD_개론, null);
-        timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null);
+        CourseType courseType1 = courseTypeFixture.HRD_필수();
+        CourseType courseType2 = courseTypeFixture.전공_필수();
+        timetableV2Fixture.시간표6(user, semester1, HRD_개론, null, courseType1, null);
+        timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null, courseType2, null);
 
         mockMvc.perform(
                 get("/semesters/check")
@@ -181,8 +188,10 @@ public class SemesterApiTest extends AcceptanceTest {
         Semester semester2 = semesterFixture.semester_2020년도_1학기();
         Lecture HRD_개론 = lectureFixture.HRD_개론(semester1.getSemester());
         Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester2.getSemester());
-        timetableV2Fixture.시간표6(user, semester1, HRD_개론, null);
-        timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null);
+        CourseType courseType1 = courseTypeFixture.HRD_필수();
+        CourseType courseType2 = courseTypeFixture.전공_필수();
+        timetableV2Fixture.시간표6(user, semester1, HRD_개론, null, courseType1, null);
+        timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null, courseType2, null);
 
         mockMvc.perform(
                 get("/v3/semesters/check")
