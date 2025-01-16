@@ -5,6 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -83,6 +84,11 @@ public record TimetableLectureResponse(
             String classPlace
         ) {
             public static List<ClassInfo> of(String classTime, String classPlace) {
+                // 온라인 강의인 경우
+                if (Objects.equals(classTime, "[]")) {
+                    return Collections.emptyList();
+                }
+
                 // 강의 장소가 없는 경우 강의 시간과 매핑을 못하기 때문에 바로 반환
                 if (classPlace == null) {
                     return List.of(new ClassInfo(parseClassTimes(classTime), null));
