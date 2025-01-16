@@ -166,7 +166,7 @@ public record TimetableLectureResponse(
                         null,
                         timetableLecture.getProfessor(),
                         null,
-                        null
+                        getCourseType(timetableLecture)
                     );
                 } else {
                     response = new InnerTimetableLectureResponse(
