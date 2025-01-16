@@ -56,9 +56,9 @@ public record CityBusTimetableResponse(
     @JsonNaming(SnakeCaseStrategy.class)
     public record BusInfo(Long number, String departNode, String arrivalNode) {
 
-        public static BusInfo of(Long busNumber, CityBusDirection direction) {
+        public static BusInfo of(Long number, CityBusDirection direction) {
             return new BusInfo(
-                busNumber,
+                number,
                 direction.getDepartNode(),
                 direction.getApartNode()
             );
