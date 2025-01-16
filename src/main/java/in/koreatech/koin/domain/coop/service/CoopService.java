@@ -355,15 +355,15 @@ public class CoopService {
     private String convertFileName(Dining dining, String s3Key) {
         String extension = s3Key.substring(s3Key.lastIndexOf("."));
         LocalDate date = dining.getDate();
+        // ex) 2024-12-17-점심-B코너.png
         return date.getYear() + "-" + date.getMonthValue() + "-" + date.getDayOfMonth() + "-"
             + dining.getType().getDiningName() + "-" + dining.getPlace() + extension;
     }
 
     private String extractS3KeyFrom(String imageUrl) {
         // URL format: https://<bucket-name>/<key(경로+파일명)>
-        // URL example: https://static.koreatech.in/upload/COOP/2024/12/23/03da9c2b-a5eb-4441-9d2b-0e4a35393805/1000000000.jpg
-        String cdnPath = "static.koreatech.in";
-        return imageUrl.substring(imageUrl.indexOf(cdnPath) + cdnPath.length() + 1);
+        String cdnPath = s3Utils.getDomainUrlPrefix();
+        return imageUrl.substring(imageUrl.indexOf(cdnPath) + cdnPath.length());
     }
 
     private void preprocessPath(File localImageDirectory, File zipFilePath) {

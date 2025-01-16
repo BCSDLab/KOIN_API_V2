@@ -75,4 +75,8 @@ public class S3Utils {
     public String getBucketName() {
         return bucketName;
     }
+
+    public String getDomainUrlPrefix() {
+        return domainUrlPrefix;
+    }
 }
