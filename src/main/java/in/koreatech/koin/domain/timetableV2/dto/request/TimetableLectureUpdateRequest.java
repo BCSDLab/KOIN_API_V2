@@ -53,10 +53,7 @@ public record TimetableLectureUpdateRequest(
 
         @Schema(description = "memo", example = "메모메모", requiredMode = NOT_REQUIRED)
         @Size(max = 200, message = "메모는 200자 이하로 입력해주세요.")
-        String memo,
-
-        @Schema(description = "이수 구분", example = "전공 선택", requiredMode = NOT_REQUIRED)
-        CourseType courseType
+        String memo
     ) {
         @JsonNaming(value = SnakeCaseStrategy.class)
         public record ClassInfo(

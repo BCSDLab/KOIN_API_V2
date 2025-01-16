@@ -1,4 +1,5 @@
 package in.koreatech.koin.domain.timetableV2.model;
+
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
@@ -97,8 +98,7 @@ public class TimetableLecture extends BaseEntity {
         String classPlace,
         String professor,
         String grades,
-        String memo,
-        CourseType courseType
+        String memo
     ) {
         this.classTitle = classTitle;
         this.classTime = classTime;
@@ -106,7 +106,6 @@ public class TimetableLecture extends BaseEntity {
         this.professor = professor;
         this.grades = grades;
         this.memo = memo;
-        this.courseType = courseType;
     }
 
     public void update(TimetableUpdateRequest.InnerTimetableRequest request) {

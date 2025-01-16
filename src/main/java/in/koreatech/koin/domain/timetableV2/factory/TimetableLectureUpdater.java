@@ -32,8 +32,7 @@ public class TimetableLectureUpdater {
                 getClassPlaceToString(timetableRequest.classInfos()),
                 timetableRequest.professor(),
                 timetableRequest.grades(),
-                timetableRequest.memo(),
-                timetableRequest.courseType()
+                timetableRequest.memo()
             );
         }
     }
