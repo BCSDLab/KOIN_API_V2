@@ -11,15 +11,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
-import in.koreatech.koin.admin.owner.repository.AdminOwnerShopRedisRepository;
-import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
 import in.koreatech.koin.admin.owner.dto.AdminNewOwnersResponse;
 import in.koreatech.koin.admin.owner.dto.AdminOwnerResponse;
 import in.koreatech.koin.admin.owner.dto.AdminOwnerUpdateRequest;
 import in.koreatech.koin.admin.owner.dto.AdminOwnerUpdateResponse;
 import in.koreatech.koin.admin.owner.dto.AdminOwnersResponse;
 import in.koreatech.koin.admin.owner.dto.OwnersCondition;
+import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
+import in.koreatech.koin.admin.owner.repository.AdminOwnerShopRedisRepository;
+import in.koreatech.koin.admin.shop.repository.shop.AdminShopRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
