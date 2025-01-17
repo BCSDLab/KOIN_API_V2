@@ -88,7 +88,7 @@ public class AdminOwnerService {
 
             if (ownerShopOptional.isPresent()) {
                 OwnerShop ownerShop = ownerShopOptional.get();
-                if (ownerShop.getShopId() != null) {
+                if (!Objects.isNull(ownerShop.getShopId())) {
                     shop = adminShopRepository.findById(ownerShop.getShopId()).orElse(null);
                 }
             }
