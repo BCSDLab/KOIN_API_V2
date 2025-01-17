@@ -2,6 +2,8 @@ package in.koreatech.koin.admin.owner.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +23,7 @@ import in.koreatech.koin.admin.owner.dto.OwnersCondition;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerIncludingShop;
+import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.shop.model.shop.Shop;
 import in.koreatech.koin.domain.user.model.UserType;
 import in.koreatech.koin.global.model.Criteria;
@@ -80,9 +83,15 @@ public class AdminOwnerService {
 
         List<OwnerIncludingShop> ownerIncludingShops = new ArrayList<>();
         for (Owner owner : result.getContent()) {
-            Shop shop = adminOwnerShopRedisRepository.findById(owner.getId())
-                .map(ownerShop -> adminShopRepository.findById(ownerShop.getShopId()).orElse(null))
-                .orElse(null);
+            Optional<OwnerShop> ownerShopOptional = adminOwnerShopRedisRepository.findById(owner.getId());
+            Shop shop = null;
+
+            if (ownerShopOptional.isPresent()) {
+                OwnerShop ownerShop = ownerShopOptional.get();
+                if (ownerShop.getShopId() != null) {
+                    shop = adminShopRepository.findById(ownerShop.getShopId()).orElse(null);
+                }
+            }
 
             OwnerIncludingShop ownerIncludingShop = OwnerIncludingShop.of(owner, shop);
             ownerIncludingShops.add(ownerIncludingShop);
