@@ -10,7 +10,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -22,21 +21,13 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(
-    name = "catalog",
-    indexes = @Index(name = "catalog_year_index", columnList = "year")
-)
+@Table(name = "catalog")
 @NoArgsConstructor(access = PROTECTED)
 public class Catalog extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
-
-    @NotNull
-    @Size(max = 20)
-    @Column(name = "year", nullable = false, length = 20)
-    private String year;
 
     @NotNull
     @Size(max = 20)
@@ -62,11 +53,12 @@ public class Catalog extends BaseEntity {
 
     @Builder
     private Catalog(
-        String year, String code,
-        String lectureName, Department department,
-        int credit, CourseType courseType
+        String code,
+        String lectureName,
+        Department department,
+        int credit,
+        CourseType courseType
     ) {
-        this.year = year;
         this.code = code;
         this.lectureName = lectureName;
         this.department = department;

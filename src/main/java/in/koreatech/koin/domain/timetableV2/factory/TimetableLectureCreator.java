@@ -1,7 +1,8 @@
 package in.koreatech.koin.domain.timetableV2.factory;
 
-import static in.koreatech.koin.domain.student.util.StudentUtil.parseStudentNumberYear;
 import static in.koreatech.koin.domain.timetableV2.dto.request.TimetableLectureCreateRequest.InnerTimeTableLectureRequest;
+
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
@@ -49,9 +50,14 @@ public class TimetableLectureCreator {
             return null;
         }
         Student student = studentRepository.getById(userId);
-        String year = parseStudentNumberYear(student.getStudentNumber()).toString();
+        if (Objects.isNull(student.getDepartment())) {
+            return null;
+        }
         String code = lecture.getCode();
-        Catalog catalog = catalogRepository.getByYearAndDepartmentAndCode(year, student.getDepartment(), code);
+        Catalog catalog = catalogRepository.getByDepartmentAndCode(student.getDepartment(), code);
+        if (Objects.isNull(catalog)) {
+            return null;
+        }
         return catalog.getCourseType();
     }
 }

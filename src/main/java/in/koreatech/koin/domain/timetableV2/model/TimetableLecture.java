@@ -1,4 +1,5 @@
 package in.koreatech.koin.domain.timetableV2.model;
+
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
@@ -92,9 +93,12 @@ public class TimetableLecture extends BaseEntity {
     }
 
     public void update(
-        String classTitle, String classTime,
-        String classPlace, String professor,
-        String grades, String memo
+        String classTitle,
+        String classTime,
+        String classPlace,
+        String professor,
+        String grades,
+        String memo
     ) {
         this.classTitle = classTitle;
         this.classTime = classTime;

@@ -166,7 +166,7 @@ public record TimetableLectureResponse(
                         null,
                         timetableLecture.getProfessor(),
                         null,
-                        null
+                        getCourseType(timetableLecture)
                     );
                 } else {
                     response = new InnerTimetableLectureResponse(
@@ -183,7 +183,7 @@ public record TimetableLectureResponse(
                         lecture.getTarget(),
                         getProfessor(timetableLecture, lecture),
                         lecture.getDepartment(),
-                        timetableLecture.getCourseType().getName()
+                        getCourseType(timetableLecture)
                     );
                 }
                 timetableLectureList.add(response);
@@ -217,6 +217,13 @@ public record TimetableLectureResponse(
                 return lecture.getClassTime();
             }
             return timetableLecture.getClassTime();
+        }
+
+        private static String getCourseType(TimetableLecture timetableLecture) {
+            if (Objects.isNull(timetableLecture.getCourseType())) {
+                return null;
+            }
+            return timetableLecture.getCourseType().getName();
         }
     }
 

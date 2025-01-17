@@ -15,7 +15,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
-public record   TimetableLectureUpdateRequest(
+public record TimetableLectureUpdateRequest(
     @Schema(description = "시간표 프레임 id", example = "1", requiredMode = REQUIRED)
     @NotNull(message = "시간표 식별 번호를 입력해주세요.")
     Integer timetableFrameId,
