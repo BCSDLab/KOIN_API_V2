@@ -5,6 +5,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import in.koreatech.koin.domain.graduation.model.Catalog;
+import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
+import in.koreatech.koin.domain.student.model.Student;
+import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.global.exception.RequestTooFastException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.OptimisticLockException;
@@ -40,6 +45,8 @@ public class TimetableService {
     private final SemesterRepositoryV2 semesterRepositoryV2;
     private final UserRepository userRepository;
     private final EntityManager entityManager;
+    private final StudentRepository studentRepository;
+    private final CatalogRepository catalogRepository;
 
     public List<LectureResponse> getLecturesBySemester(String semester) {
         semesterRepositoryV2.getBySemester(semester);
@@ -59,18 +66,33 @@ public class TimetableService {
         for (TimetableCreateRequest.InnerTimetableRequest timeTable : request.timetable()) {
             Lecture lecture = lectureRepositoryV2.getBySemesterAndCodeAndLectureClass(request.semester(),
                 timeTable.code(), timeTable.lectureClass());
+            CourseType courseType = getCourseType(userId, lecture);
             TimetableLecture timetableLecture = TimetableLecture.builder()
                 .classPlace(timeTable.classPlace())
                 .grades("0")
                 .memo(timeTable.memo())
                 .lecture(lecture)
                 .timetableFrame(timetableFrame)
+                .courseType(courseType)
                 .build();
 
             timetableLectures.add(timetableLectureRepositoryV2.save(timetableLecture));
         }
 
         return getTimetableResponse(userId, timetableFrame);
+    }
+
+    private CourseType getCourseType(Integer userId, Lecture lecture) {
+        Student student = studentRepository.getById(userId);
+        if (Objects.isNull(student.getDepartment())) {
+            return null;
+        }
+        String code = lecture.getCode();
+        Catalog catalog = catalogRepository.getByDepartmentAndCode(student.getDepartment(), code);
+        if (Objects.isNull(catalog)) {
+            return null;
+        }
+        return catalog.getCourseType();
     }
 
     @Transactional
