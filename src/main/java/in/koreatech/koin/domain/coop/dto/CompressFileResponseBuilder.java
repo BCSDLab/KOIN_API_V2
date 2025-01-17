@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -29,9 +31,12 @@ public class CompressFileResponseBuilder {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.add("Content-Disposition", "attachment; filename*=UTF-8''" + encodedFileName);
-        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Pragma", "no-cache");
-        headers.add("Expires", "0");
+
+        // 캐시 허용 헤더 설정
+        headers.add("Cache-Control", "public, max-age=3600");
+        headers.add("Pragma", "public");
+        headers.add("Expires", ZonedDateTime.now().plusSeconds(3600)
+            .format(DateTimeFormatter.RFC_1123_DATE_TIME));
 
         return ResponseEntity.ok()
             .headers(headers)
