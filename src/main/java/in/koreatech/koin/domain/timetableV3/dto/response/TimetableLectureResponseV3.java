@@ -124,7 +124,7 @@ public record TimetableLectureResponseV3(
 
         private static String getCourseType(TimetableLecture timetableLecture) {
             if (Objects.isNull(timetableLecture.getCourseType())) {
-                return "학부(전공)선택";
+                return null;
             }
             return timetableLecture.getCourseType().getName();
         }
