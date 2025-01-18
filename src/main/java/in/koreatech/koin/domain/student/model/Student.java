@@ -43,6 +43,10 @@ public class Student {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Department department;
 
+    @JoinColumn(name = "major_id")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Major major;
+
     @Column(name = "identity", columnDefinition = "SMALLINT")
     @Enumerated(EnumType.ORDINAL)
     private UserIdentity userIdentity;
