@@ -98,6 +98,9 @@ dependencies {
 
     //websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    //tsid generator
+    implementation('com.github.f4b6a3:tsid-creator:5.2.6')
 }
 
 clean {
