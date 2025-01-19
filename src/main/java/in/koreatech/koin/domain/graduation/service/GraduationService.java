@@ -117,7 +117,7 @@ public class GraduationService {
         String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
 
         // 시간표와 대학 요람 데이터 가져오기
-        List<Catalog> catalogList = getCatalogListForStudent(student, studentYear);
+        List<Catalog> catalogList = getCatalogListForStudent(student);
 
         // courseTypeId와 학점 맵핑
         Map<Integer, Integer> courseTypeCreditsMap = calculateCourseTypeCredits(catalogList);
@@ -278,7 +278,7 @@ public class GraduationService {
         return student;
     }
 
-    private List<Catalog> getCatalogListForStudent(Student student, String studentYear) {
+    private List<Catalog> getCatalogListForStudent(Student student) {
         List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.getAllByUserId(student.getId()).stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
             .toList();
@@ -290,8 +290,8 @@ public class GraduationService {
                 : timetableLecture.getClassTitle();
 
             if (lectureName != null) {
-                List<Catalog> catalogs = catalogRepository.findByLectureNameAndYearAndDepartment(
-                    lectureName, studentYear, student.getDepartment());
+                List<Catalog> catalogs = catalogRepository.findByLectureNameAndDepartment(
+                    lectureName, student.getDepartment());
                 catalogList.addAll(catalogs);
             }
         });

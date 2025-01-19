@@ -18,5 +18,5 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
             .orElseThrow(() -> CatalogNotFoundException.withDetail("department: " + department + ", code: " + code));
     }
 
-    List<Catalog> findByLectureNameAndYearAndDepartment(String lectureName, String studentYear, Department department);
+    List<Catalog> findByLectureNameAndDepartment(String lectureName, Department department);
 }
