@@ -45,6 +45,9 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.LectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
+import in.koreatech.koin.domain.timetableV3.model.Term;
+import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
+import in.koreatech.koin.domain.timetableV3.service.SemesterServiceV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -64,12 +67,14 @@ public class GraduationService {
     private final SemesterRepositoryV2 semesterRepositoryV2;
     private final LectureRepositoryV2 lectureRepositoryV2;
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
+    private final SemesterRepositoryV3 semesterRepositoryV3;
     private final CatalogRepository catalogRepository;
 
     private static final String MIDDLE_TOTAL = "소 계";
     private static final String TOTAL = "합 계";
     private static final String RETAKE = "Y";
     private static final String UNSATISFACTORY = "U";
+    private final SemesterServiceV3 semesterServiceV3;
 
     @Transactional
     public void createStudentCourseCalculation(Integer userId) {
@@ -376,10 +381,14 @@ public class GraduationService {
         return completedGrades;
     }
 
-    public CourseTypeLectureResponse getLectureByCourseType(String semester, String courseTypeName) {
+    public CourseTypeLectureResponse getLectureByCourseType(Integer year, String term, String courseTypeName) {
         CourseType courseType = courseTypeRepository.getByName(courseTypeName);
         List<Catalog> catalogs = catalogRepository.getAllByCourseTypeId(courseType.getId());
         List<String> codes = catalogs.stream().map(Catalog::getCode).toList();
+
+        Term parsedTerm = Term.fromDescription(term);
+        Semester foundSemester = semesterRepositoryV3.getByYearAndTerm(year, parsedTerm);
+        String semester = foundSemester.getSemester();
 
         List<Lecture> lectures = lectureRepositoryV2.findAllByCodesAndSemester(codes, semester)
             .orElseThrow(() -> new NotFoundSemesterAndCourseTypeException("학기나 이수구분을 찾을 수 없습니다."));

@@ -10,9 +10,12 @@ public record CourseTypeLectureResponse(
     String semester,
 
     @Schema(description = "이수구분 충족강의")
-    List<Lecture> lectures
+    List<LecturePortionResponse> lectures
 ) {
     public static CourseTypeLectureResponse of(String semester, List<Lecture> lectures) {
-        return new CourseTypeLectureResponse(semester, lectures);
+        List<LecturePortionResponse> lectureList = lectures.stream()
+            .map(LecturePortionResponse::from)
+            .toList();
+        return new CourseTypeLectureResponse(semester, lectureList);
     }
 }

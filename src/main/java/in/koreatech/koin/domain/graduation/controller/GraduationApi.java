@@ -64,7 +64,8 @@ public interface GraduationApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/graduation/course-type")
     ResponseEntity<CourseTypeLectureResponse> getCourseTypeLecture(
-        @RequestParam(name = "semester") String semester,
+        @RequestParam(name = "year") Integer year,
+        @RequestParam(name = "term") String term,
         @RequestParam(name = "name") String courseTypeName,
         @Auth(permit = {STUDENT}) Integer userId
     );
