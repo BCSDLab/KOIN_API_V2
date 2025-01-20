@@ -59,7 +59,7 @@ public interface ArticleApi {
     @Operation(summary = "게시글 목록 조회")
     @GetMapping("")
     ResponseEntity<ArticlesResponse> getArticles(
-        @RequestParam Integer boardId,
+        @RequestParam(required = false) Integer boardId,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit
     );
