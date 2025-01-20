@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.community.keyword.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.ADMIN;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,7 +39,7 @@ public interface KeywordApi {
     @PostMapping("/articles/keyword")
     ResponseEntity<ArticleKeywordResponse> createKeyword(
         @Valid @RequestBody ArticleKeywordCreateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -56,7 +55,7 @@ public interface KeywordApi {
     @DeleteMapping("/articles/keyword/{id}")
     ResponseEntity<Void> deleteKeyword(
         @PathVariable(value = "id") Integer keywordUserMapId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -68,7 +67,7 @@ public interface KeywordApi {
     @Operation(summary = "자신의 알림 키워드 전체 조회")
     @GetMapping("/articles/keyword/me")
     ResponseEntity<ArticleKeywordsResponse> getMyKeywords(
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(

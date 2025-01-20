@@ -14,6 +14,7 @@ import java.util.Objects;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.admin.notice.dto.AdminNoticeRequest;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleRequest;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
@@ -56,8 +57,7 @@ public class Article extends BaseEntity {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @NotNull
-    @Column(name = "content", nullable = false)
+    @Column(name = "content")
     private String content;
 
     @NotNull
@@ -81,6 +81,9 @@ public class Article extends BaseEntity {
 
     @OneToOne(mappedBy = "article", fetch = LAZY, cascade = ALL)
     private KoinArticle koinArticle;
+
+    @OneToOne(mappedBy = "article", fetch = LAZY, cascade = ALL)
+    private LostItemArticle lostItemArticle;
 
     @Transient
     private Integer prevId;
@@ -114,11 +117,15 @@ public class Article extends BaseEntity {
     @PostPersist
     @PostLoad
     public void updateAuthor() {
-        if (koreatechArticle == null && koinArticle == null) {
+        if (koreatechArticle == null && koinArticle == null && lostItemArticle == null) {
             return;
         }
         if (koreatechArticle != null) {
             author = koreatechArticle.getAuthor();
+            return;
+        }
+        if (lostItemArticle != null) {
+            author = lostItemArticle.getAuthor().getName();
             return;
         }
         if (Objects.equals(board.getId(), KOIN_ADMIN_NOTICE_BOARD_ID)) {
@@ -162,6 +169,9 @@ public class Article extends BaseEntity {
         if (this.koreatechArticle != null) {
             this.koreatechArticle.delete();
         }
+        if (this.lostItemArticle != null) {
+            this.lostItemArticle.delete();
+        }
     }
 
     public void updateKoinAdminArticle(String title, String content) {
@@ -180,7 +190,8 @@ public class Article extends BaseEntity {
         List<ArticleAttachment> attachments,
         boolean isNotice,
         KoreatechArticle koreatechArticle,
-        KoinArticle koinArticle
+        KoinArticle koinArticle,
+        LostItemArticle lostItemArticle
     ) {
         this.id = id;
         this.board = board;
@@ -192,6 +203,7 @@ public class Article extends BaseEntity {
         this.isNotice = isNotice;
         this.koreatechArticle = koreatechArticle;
         this.koinArticle = koinArticle;
+        this.lostItemArticle = lostItemArticle;
     }
 
     public static Article createKoinNoticeArticleByAdmin(
@@ -215,6 +227,43 @@ public class Article extends BaseEntity {
             .build();
 
         koinArticle.setArticle(article);
+        return article;
+    }
+
+    public static Article createLostItemArticle(
+        LostItemArticleRequest request,
+        Board lostItemBoard,
+        User author
+    ) {
+        List<LostItemImage> images = request.images().stream()
+            .map(image -> LostItemImage.builder()
+                .imageUrl(image)
+                .isDeleted(false)
+                .build())
+            .toList();
+
+        LostItemArticle lostItemArticle = LostItemArticle.builder()
+            .author(author)
+            .category(request.category())
+            .foundPlace(request.foundPlace())
+            .foundDate(request.foundDate())
+            .images(images)
+            .isDeleted(false)
+            .build();
+
+        images.stream().forEach(image -> image.setArticle(lostItemArticle));
+
+        Article article = Article.builder()
+            .board(lostItemBoard)
+            .title(lostItemArticle.generateTitle())
+            .content(request.content())
+            .koinArticle(null)
+            .koreatechArticle(null)
+            .lostItemArticle(lostItemArticle)
+            .isDeleted(false)
+            .build();
+
+        lostItemArticle.setArticle(article);
         return article;
     }
 }
