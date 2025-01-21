@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.global.socket.domain.chatroom.dto.ChatRoomListResponse;
+import in.koreatech.koin.global.socket.domain.chatroom.exception.SelfChatNotAllowedException;
 import in.koreatech.koin.global.socket.domain.chatroom.model.LostItemChatRoomInfoEntity;
 import in.koreatech.koin.global.socket.domain.chatroom.service.implement.ChatRoomInfoAppender;
 import in.koreatech.koin.global.socket.domain.chatroom.service.implement.ChatRoomInfoReader;
@@ -36,9 +37,13 @@ public class LostItemChatRoomInfoService {
         LostItemArticle lostItemArticle = lostItemArticleReader.readByArticleId(articleId);
         Integer articleAuthorId = lostItemArticle.getAuthor().getId();
 
+        checkSelfChat(ownerId, articleAuthorId);
+
         Integer nextChatRoomId = chatRoomInfoReader.getNextChatRoomId(articleId);
 
-        return chatRoomInfoAppender.save(articleId, nextChatRoomId, ownerId, articleAuthorId).getChatRoomId();
+        chatRoomInfoAppender.save(articleId, nextChatRoomId, ownerId, articleAuthorId);
+
+        return nextChatRoomId;
     }
 
     @Transactional
@@ -79,5 +84,11 @@ public class LostItemChatRoomInfoService {
     @Transactional
     public String getChatPartnerProfileImage(Integer articleId) {
         return lostItemArticleReader.readByArticleId(articleId).getAuthor().getProfileImageUrl();
+    }
+
+    private void checkSelfChat(Integer ownerId, Integer articleAuthorId) {
+        if (ownerId.equals(articleAuthorId)) {
+            throw new SelfChatNotAllowedException("사용자가 자신과 채팅방을 생성할 수 없습니다.");
+        }
     }
 }
