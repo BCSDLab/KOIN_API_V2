@@ -65,7 +65,7 @@ public class ChatRestController implements ChatRestApi {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/lost-item/")
+    @GetMapping("/lost-item")
     public ResponseEntity<List<ChatRoomListResponse>> getAllChatRoomInfo(
         @Auth(permit= {STUDENT, COUNCIL}) Integer studentId
     ) {

@@ -22,7 +22,9 @@ public class ChatMessageService {
     private final MessageUpdater messageUpdater;
 
     public void saveMessage(Integer articleId, Integer chatRoomId, Integer userId, Integer subscriptionCount, ChatMessageCommand message) {
-        ChatMessageEntity newMessage = ChatMessageEntity.create(articleId, chatRoomId, userId, subscriptionCount, message);
+        boolean isRead = determineIsRead(subscriptionCount);
+
+        ChatMessageEntity newMessage = ChatMessageEntity.create(articleId, chatRoomId, userId, isRead, message);
 
         // 메시지 TSID 생성
         messageHelper.generateMessageId(newMessage);
@@ -37,5 +39,9 @@ public class ChatMessageService {
 
         // 메시지 조회
         return messageReader.allMessages(articleId, chatRoomId);
+    }
+
+    private boolean determineIsRead(Integer subscriptionCount) {
+        return subscriptionCount == 2;
     }
 }

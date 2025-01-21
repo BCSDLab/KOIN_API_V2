@@ -33,9 +33,7 @@ public class ChatMessageEntity {
         this.id = id;
     }
 
-    public static ChatMessageEntity create(Integer articleId, Integer chatRoomId, Integer userId, Integer subscriptionCount, ChatMessageCommand message) {
-        boolean isRead = subscriptionCount == 2;
-
+    public static ChatMessageEntity create(Integer articleId, Integer chatRoomId, Integer userId, Boolean isRead, ChatMessageCommand message) {
         return ChatMessageEntity.builder()
             .articleId(articleId)
             .chatRoomId(chatRoomId)
