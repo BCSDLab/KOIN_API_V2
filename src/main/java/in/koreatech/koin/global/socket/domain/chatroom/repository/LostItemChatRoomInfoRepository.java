@@ -48,6 +48,18 @@ public class LostItemChatRoomInfoRepository {
         return mongoTemplate.find(query, LostItemChatRoomInfoEntity.class);
     }
 
+    public Optional<LostItemChatRoomInfoEntity> findByArticleIdAndChatRoomId(Integer articleId, Integer chatRoomId) {
+        Query query = Query.query(Criteria.where("article_id").is(articleId)
+            .and("chatroom_id").is(chatRoomId));
+
+        LostItemChatRoomInfoEntity result = mongoTemplate.findOne(query, LostItemChatRoomInfoEntity.class);
+        return Optional.ofNullable(result);
+    }
+
+    public LostItemChatRoomInfoEntity getByArticleIdAndChatRoomId(Integer articleId, Integer chatRoomId) {
+        return findByArticleIdAndChatRoomId(articleId, chatRoomId).orElseThrow();
+    }
+
     public void insertMessage(Integer articleId, Integer chatRoomId, ChatMessageEntity message) {
         Query query = Query.query(Criteria.where("article_id").is(articleId)
             .and("chatroom_id").is(chatRoomId));

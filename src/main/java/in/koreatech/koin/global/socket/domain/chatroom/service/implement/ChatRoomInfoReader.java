@@ -1,6 +1,8 @@
 package in.koreatech.koin.global.socket.domain.chatroom.service.implement;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -34,5 +36,14 @@ public class ChatRoomInfoReader {
             .mapToInt(LostItemChatRoomInfoEntity::getChatRoomId)
             .max()
             .orElse(0) + 1;
+    }
+
+    public Integer getPartnerId(Integer articleId, Integer chatRoomId, Integer userId) {
+        var chatRoomInfo = chatRoomInfoRepository.getByArticleIdAndChatRoomId(articleId, chatRoomId);
+
+        Map<Integer, Integer> partnerMap = new HashMap<>();
+        partnerMap.put(chatRoomInfo.getAuthorId(), chatRoomInfo.getOwnerId());
+        partnerMap.put(chatRoomInfo.getOwnerId(), chatRoomInfo.getAuthorId());
+        return partnerMap.get(userId);
     }
 }

@@ -99,6 +99,25 @@ public class NotificationFactory {
         );
     }
 
+    public Notification generateChatMessageNotification(
+        MobileAppPath path,
+        Integer articleId,
+        Integer chatRoomId,
+        String senderName,
+        String messageContent,
+        User target
+    ) {
+        return new Notification(
+            path,
+            generateChatMessageSchemeUri(path, articleId, chatRoomId),
+            String.format("%s님의 메시지", senderName),
+            messageContent,
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
+
     private String generateSchemeUri(MobileAppPath path, Integer eventId) {
         if (eventId == null) {
             return path.getPath();
@@ -117,5 +136,12 @@ public class NotificationFactory {
             return generateSchemeUri(path, eventId);
         }
         return String.format("%s?id=%d&keyword=%s", path.getPath(), eventId, keyword);
+    }
+
+    private String generateChatMessageSchemeUri(MobileAppPath path, Integer articleId, Integer chatRoomId) {
+        if (chatRoomId == null) {
+            return generateSchemeUri(path, articleId);
+        }
+        return String.format("%s?articleId=%d&chatRoomId=%d", path.getPath(), articleId, chatRoomId);
     }
 }

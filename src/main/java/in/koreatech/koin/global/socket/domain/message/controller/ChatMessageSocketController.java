@@ -10,6 +10,7 @@ import in.koreatech.koin.global.socket.config.auth.UserPrincipal;
 import in.koreatech.koin.global.socket.domain.message.dto.ChatMessageResponse;
 import in.koreatech.koin.global.socket.domain.message.model.ChatMessageCommand;
 import in.koreatech.koin.global.socket.domain.message.service.ChatMessageService;
+import in.koreatech.koin.global.socket.domain.message.service.MessageEventHandler;
 import in.koreatech.koin.global.socket.domain.message.util.WebSocketSessionTracker;
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class ChatMessageSocketController {
 
     private final ChatMessageService chatService;
+    private final MessageEventHandler messageEventHandler;
     private final WebSocketSessionTracker sessionTracker;
     private final SimpMessageSendingOperations simpMessageSendingOperations;
 
@@ -30,12 +32,14 @@ public class ChatMessageSocketController {
         ChatMessageCommand message
     ) {
         String destination = "/topic/chat/" + articleId + "/" + chatRoomId;
-        int subscriptionCount = sessionTracker.getSubscriptionCount(destination);
+        Integer subscriptionCount = sessionTracker.getSubscriptionCount(destination);
         Integer userId = principal.getUserId();
 
         chatService.saveMessage(articleId, chatRoomId, userId, subscriptionCount, message);
 
         var sendMessage = ChatMessageResponse.toResponse(message);
         simpMessageSendingOperations.convertAndSend("/topic/chat/" + articleId + "/" + chatRoomId, sendMessage);
+
+        messageEventHandler.onMessageReceived(articleId, chatRoomId, userId, message);
     }
 }
