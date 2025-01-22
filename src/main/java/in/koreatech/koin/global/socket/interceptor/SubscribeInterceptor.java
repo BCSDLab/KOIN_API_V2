@@ -42,7 +42,6 @@ public class SubscribeInterceptor implements ChannelInterceptor {
 
                 userSessionService.updateUserStatus(
                     principal.getUserId(),
-                    principal.getDeviceToken(),
                     subscribeDestination.articleId(),
                     subscribeDestination.chatRoomId()
                 );
