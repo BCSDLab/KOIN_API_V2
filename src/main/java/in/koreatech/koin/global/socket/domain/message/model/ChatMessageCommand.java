@@ -2,6 +2,9 @@ package in.koreatech.koin.global.socket.domain.message.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -10,6 +13,7 @@ import lombok.Builder;
  */
 @Builder
 @Schema(description = "채팅 메시지 객체")
+@JsonNaming(value = SnakeCaseStrategy.class)
 public record ChatMessageCommand(
     @Schema(description = "user 테이블 PK")
     Integer userId,

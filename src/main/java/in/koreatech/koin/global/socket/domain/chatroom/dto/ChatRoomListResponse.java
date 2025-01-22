@@ -12,7 +12,7 @@ import lombok.Builder;
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ChatRoomListResponse(
     @Schema(description = "분실물 게시글 제목", example = "전자제품 | 담헌실학관 401호 | 25.01.15")
-    String title,
+    String articleTitle,
 
     @Schema(description = "마지막 전송 메시지", example = "안녕하세요?")
     String recentMessageContent,
