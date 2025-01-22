@@ -16,51 +16,51 @@ public class UserSessionService {
 
     private final UserSessionRedisRepository userSessionRepository;
 
-    public void save(Integer userId, String deviceToken, UserSession value) {
-        userSessionRepository.save(userId, deviceToken, value);
+    public void save(Integer userId, UserSession value) {
+        userSessionRepository.save(userId, value);
     }
 
-    public Optional<UserSession> read(Integer userId, String deviceId) {
-        return userSessionRepository.findUserSession(userId, deviceId);
+    public Optional<UserSession> read(Integer userId) {
+        return userSessionRepository.findUserSession(userId);
     }
 
-    public boolean isExists(Integer userId, String deviceId) {
-        return userSessionRepository.exists(userId, deviceId);
+    public boolean isExists(Integer userId) {
+        return userSessionRepository.exists(userId);
     }
 
-    public UserSession updateUserStatus(Integer userId, String deviceToken, UserSessionStatus status) {
-        return updateUserStatus(userId, deviceToken, -1L, -1L, status);
+    public UserSession updateUserStatus(Integer userId, UserSessionStatus status) {
+        return updateUserStatus(userId, -1L, -1L, status);
     }
 
-    public UserSession updateUserStatus(Integer userId, String deviceToken, Long articleId, Long chatRoomId) {
-        return updateUserStatus(userId, deviceToken, articleId, chatRoomId, UserSessionStatus.ACTIVE_CHAT_ROOM);
+    public UserSession updateUserStatus(Integer userId, Long articleId, Long chatRoomId) {
+        return updateUserStatus(userId, articleId, chatRoomId, UserSessionStatus.ACTIVE_CHAT_ROOM);
     }
 
-    private UserSession updateUserStatus(Integer userId, String deviceToken, Long articleId, Long chatRoomId, UserSessionStatus status) {
-        UserSession userSession = userSessionRepository.findUserSession(userId, deviceToken)
+    private UserSession updateUserStatus(Integer userId, Long articleId, Long chatRoomId, UserSessionStatus status) {
+        UserSession userSession = userSessionRepository.findUserSession(userId)
             .orElseThrow(() -> new KoinIllegalArgumentException("웹소켓 사용자 세션 탐색 실패"));
 
         userSession.updateStatus(status, articleId, chatRoomId);
-        userSessionRepository.save(userId, deviceToken, userSession);
-        userSessionRepository.resetSessionTtl(userId, deviceToken);
+        userSessionRepository.save(userId, userSession);
+        userSessionRepository.resetSessionTtl(userId);
 
         return userSession;
     }
 
-    public Long getSessionTtl(Integer userId, String deviceToken) {
-        return userSessionRepository.getSessionTtl(userId, deviceToken);
+    public Long getSessionTtl(Integer userId) {
+        return userSessionRepository.getSessionTtl(userId);
     }
 
-    public void resetSessionTtl(Integer userId, String deviceToken) {
-        UserSession userSession = userSessionRepository.findUserSession(userId, deviceToken)
+    public void resetSessionTtl(Integer userId) {
+        UserSession userSession = userSessionRepository.findUserSession(userId)
             .orElseThrow(() -> new KoinIllegalArgumentException("웹소켓 사용자 세션 탐색 실패"));
 
         userSession.updateLastActiveAt();
-        userSessionRepository.save(userId, deviceToken, userSession);
-        userSessionRepository.resetSessionTtl(userId, deviceToken);
+        userSessionRepository.save(userId, userSession);
+        userSessionRepository.resetSessionTtl(userId);
     }
 
     public void delete(Integer userId, String deviceId) {
-        userSessionRepository.delete(userId, deviceId);
+        userSessionRepository.delete(userId);
     }
 }

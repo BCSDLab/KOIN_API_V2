@@ -65,12 +65,11 @@ public class ConnectInterceptor implements ChannelInterceptor {
                 accessor.setUser(principal);
 
                 // 사용자 세션 활성화
-                if (userSessionService.isExists(principal.getUserId(), principal.getDeviceToken())) {
-                    userSessionService.updateUserStatus(principal.getUserId(), principal.getDeviceToken(), UserSessionStatus.ACTIVE_APP);
+                if (userSessionService.isExists(principal.getUserId())) {
+                    userSessionService.updateUserStatus(principal.getUserId(), UserSessionStatus.ACTIVE_APP);
                 } else {
                     userSessionService.save(
                         principal.getUserId(),
-                        principal.getDeviceToken(),
                         UserSession.of(principal.getUserId(), principal.getDeviceToken())
                     );
                 }

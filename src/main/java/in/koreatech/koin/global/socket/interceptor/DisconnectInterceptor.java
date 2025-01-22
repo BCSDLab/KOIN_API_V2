@@ -44,7 +44,6 @@ public class DisconnectInterceptor implements ChannelInterceptor {
             if (principal != null) {
                 userSessionService.updateUserStatus(
                     principal.getUserId(),
-                    principal.getDeviceToken(),
                     UserSessionStatus.INACTIVE
                 );
             }

@@ -14,7 +14,6 @@ import in.koreatech.koin.global.socket.domain.session.model.UserSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class UserSessionRedisRepository {
@@ -25,68 +24,63 @@ public class UserSessionRedisRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public void save(Integer userId, String hashKey, UserSession value) {
+    public void save(Integer userId, UserSession value) {
         try {
             String key = createKey(userId);
             String serializedValue = serialize(value);
 
-            redisTemplate.opsForHash().put(key, hashKey, serializedValue);
-            redisTemplate.expire(key, TTL_SECONDS, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(key, serializedValue, TTL_SECONDS, TimeUnit.SECONDS);
         } catch (Exception e) {
-            log.error("웹소켓 사용자 세션 저장 실패 userId: {}", userId, e);
             throw new KoinIllegalStateException("웹소켓 사용자 세션 저장 실패");
         }
     }
 
-    public Optional<UserSession> findUserSession(Integer userId, String hashKey) {
+    public Optional<UserSession> findUserSession(Integer userId) {
         try {
-            Object value = redisTemplate.opsForHash().get(createKey(userId), hashKey);
+            String key = createKey(userId);
+            Object value = redisTemplate.opsForValue().get(key);
             return Optional.ofNullable(deserialize(value));
         } catch (Exception e) {
-            log.error("웹소켓 사용자 세션 탐색 실패 userId: {}", userId, e);
             throw new KoinIllegalStateException("웹소켓 사용자 세션 탐색 실패");
         }
     }
 
-    public Long getSessionTtl(Integer userId, String hashKey) {
+    public Long getSessionTtl(Integer userId) {
         try {
-            Long ttl = redisTemplate.getExpire(createKey(userId));
+            String key = createKey(userId);
+            Long ttl = redisTemplate.getExpire(key);
             return ttl != null ? ttl : -2L;
         } catch (Exception e) {
-            log.error("웹소켓 사용자 세션 ttl 탐색 실패 userId: {}", userId, e);
-            throw new KoinIllegalStateException("웹소켓 사용자 세션 ttl 탐색 실패");
+            throw new KoinIllegalStateException("웹소켓 사용자 세션 TTL 탐색 실패");
         }
     }
 
-    public boolean exists(Integer userId, String hashKey) {
+    public boolean exists(Integer userId) {
         try {
-            return Boolean.TRUE.equals(
-                redisTemplate.opsForHash().hasKey(createKey(userId), hashKey)
-            );
+            String key = createKey(userId);
+            return Boolean.TRUE.equals(redisTemplate.hasKey(key));
         } catch (Exception e) {
-            log.error("웹소켓 사용자 세션 탐색 실패 userId: {}", userId, e);
-            throw new KoinIllegalStateException("웹소켓 사용자 세션 탐색 실패");
+            throw new KoinIllegalStateException("웹소켓 사용자 세션 존재 여부 확인 실패");
         }
     }
 
-    public void resetSessionTtl(Integer userId, String hashKey) {
+    public void resetSessionTtl(Integer userId) {
         try {
-            redisTemplate.expire(createKey(userId), TTL_SECONDS, TimeUnit.SECONDS);
+            String key = createKey(userId);
+            redisTemplate.expire(key, TTL_SECONDS, TimeUnit.SECONDS);
         } catch (Exception e) {
-            log.error("웹소켓 사용자 세션 ttl 초기화 실패 userId: {}", userId, e);
-            throw new KoinIllegalStateException("웹소켓 사용자 세션 ttl 초기화 실패");
+            throw new KoinIllegalStateException("웹소켓 사용자 세션 TTL 초기화 실패");
         }
     }
 
-    public void delete(Integer userId, String hashKey) {
+    public void delete(Integer userId) {
         try {
-            redisTemplate.opsForHash().delete(createKey(userId), hashKey);
+            String key = createKey(userId);
+            redisTemplate.delete(key);
         } catch (Exception e) {
-            log.error("웹소켓 사용자 세션 삭제 실패 userId: {}", userId, e);
             throw new KoinIllegalStateException("웹소켓 사용자 세션 삭제 실패");
         }
     }
-
 
     private String createKey(Integer userId) {
         return "SocketSessionUserId:" + userId;
@@ -105,7 +99,7 @@ public class UserSessionRedisRepository {
         try {
             return objectMapper.readValue((String) value, UserSession.class);
         } catch (JsonProcessingException e) {
-            throw new KoinIllegalStateException("웹소켓 사용자 세션 역 직렬화 실패", e.getMessage());
+            throw new KoinIllegalStateException("웹소켓 사용자 세션 역직렬화 실패", e.getMessage());
         }
     }
 }

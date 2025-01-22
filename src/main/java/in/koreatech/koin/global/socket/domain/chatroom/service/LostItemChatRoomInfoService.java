@@ -66,7 +66,7 @@ public class LostItemChatRoomInfoService {
                 return ChatRoomListResponse.builder()
                     .articleId(entity.getArticleId())
                     .chatRoomId(entity.getChatRoomId())
-                    .title(articleSummary.getArticleTitle())
+                    .articleTitle(articleSummary.getArticleTitle())
                     .lostItemImageUrl(articleSummary.getItemImage())
                     .recentMessageContent(messageSummary.getLastMessageContent())
                     .unreadMessageCount(messageSummary.getUnreadCount())
