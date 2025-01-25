@@ -13,10 +13,19 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
 
     Optional<Catalog> findByDepartmentAndCode(Department department, String code);
 
+    // 이거 오류나요..
+    // List<Catalog> findByLectureNameAndYearAndDepartment(String lectureName, String studentYear, Department department);
+
+    Optional<List<Catalog>> findAllByCourseTypeId(Integer courseTypeId);
+
     default Catalog getByDepartmentAndCode(Department department, String code) {
         return findByDepartmentAndCode(department, code)
             .orElseThrow(() -> CatalogNotFoundException.withDetail("department: " + department + ", code: " + code));
     }
 
+    default List<Catalog> getAllByCourseTypeId(Integer courseTypeId) {
+        return findAllByCourseTypeId(courseTypeId)
+            .orElseThrow(() -> CatalogNotFoundException.withDetail("course_type_id" + courseTypeId));
+    }
     List<Catalog> findByLectureNameAndDepartment(String lectureName, Department department);
 }
