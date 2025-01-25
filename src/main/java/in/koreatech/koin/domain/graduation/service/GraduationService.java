@@ -27,7 +27,7 @@ import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirem
 import in.koreatech.koin.domain.graduation.repository.StudentCourseCalculationRepository;
 import in.koreatech.koin.domain.student.exception.DepartmentNotFoundException;
 import in.koreatech.koin.domain.student.exception.StudentNumberNotFoundException;
-import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetableV2.exception.NotFoundSemesterAndCourseTypeException;
@@ -80,10 +80,10 @@ public class GraduationService {
     public void createStudentCourseCalculation(Integer userId) {
         Student student = studentRepository.getById(userId);
 
-        validateStudentField(student.getDepartment(), "학과를 추가하세요.");
+        validateStudentField(student.getMajor(), "전공을 추가하세요.");
         validateStudentField(student.getStudentNumber(), "학번을 추가하세요.");
 
-        initializeStudentCourseCalculation(student, student.getDepartment());
+        initializeStudentCourseCalculation(student, student.getMajor());
 
         DetectGraduationCalculation detectGraduationCalculation = DetectGraduationCalculation.builder()
             .user(student.getUser())
@@ -93,14 +93,14 @@ public class GraduationService {
     }
 
     @Transactional
-    public void resetStudentCourseCalculation(Student student, Department newDepartment) {
+    public void resetStudentCourseCalculation(Student student, Major newMajor) {
         // 기존 학생 졸업요건 계산 정보 삭제
         studentCourseCalculationRepository.findByUserId(student.getUser().getId())
             .ifPresent(studentCourseCalculation -> {
                 studentCourseCalculationRepository.deleteAllByUserId(student.getUser().getId());
             });
 
-        initializeStudentCourseCalculation(student, newDepartment);
+        initializeStudentCourseCalculation(student, newMajor);
 
         detectGraduationCalculationRepository.findByUserId(student.getUser().getId())
             .ifPresent(detectGraduationCalculation -> {
@@ -123,7 +123,7 @@ public class GraduationService {
         String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
 
         // 시간표와 대학 요람 데이터 가져오기
-        List<Catalog> catalogList = getCatalogListForStudent(student, studentYear);
+        List<Catalog> catalogList = getCatalogListForStudent(student);
 
         // courseTypeId와 학점 맵핑
         Map<Integer, Integer> courseTypeCreditsMap = calculateCourseTypeCredits(catalogList);
@@ -265,11 +265,11 @@ public class GraduationService {
         }
     }
 
-    private void initializeStudentCourseCalculation(Student student, Department department) {
+    private void initializeStudentCourseCalculation(Student student, Major major) {
         // 학번에 맞는 이수요건 정보 조회
         List<StandardGraduationRequirements> requirementsList =
-            standardGraduationRequirementsRepository.findAllByDepartmentAndYear(
-                department, student.getStudentNumber().substring(0, 4));
+            standardGraduationRequirementsRepository.findAllByMajorAndYear(
+                major, student.getStudentNumber().substring(0, 4));
 
         // 학생 졸업요건 계산 정보 초기화
         requirementsList.forEach(requirement ->
@@ -308,8 +308,8 @@ public class GraduationService {
                 : timetableLecture.getClassTitle();
 
             if (lectureName != null) {
-                List<Catalog> catalogs = catalogRepository.findByLectureNameAndYearAndDepartment(
-                    lectureName, studentYear, student.getDepartment());
+                List<Catalog> catalogs = catalogRepository.findByLectureNameAndDepartment(
+                    lectureName, student.getDepartment());
                 catalogList.addAll(catalogs);
             }
         });
@@ -330,8 +330,8 @@ public class GraduationService {
     private List<StandardGraduationRequirements> getGraduationRequirements(List<Catalog> catalogList,
         String studentYear) {
         return catalogList.stream()
-            .map(catalog -> standardGraduationRequirementsRepository.findByDepartmentIdAndCourseTypeIdAndYear(
-                catalog.getDepartment().getId(),
+            .map(catalog -> standardGraduationRequirementsRepository.findByMajorIdAndCourseTypeIdAndYear(
+                catalog.getMajor().getId(),
                 catalog.getCourseType().getId(),
                 studentYear
             ))

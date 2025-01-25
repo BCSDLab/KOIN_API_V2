@@ -5,7 +5,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import org.hibernate.annotations.Where;
 
-import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,8 +46,8 @@ public class StandardGraduationRequirements extends BaseEntity {
     private boolean isDeleted = false;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "department_id", nullable = false)
-    private Department department;
+    @JoinColumn(name = "major_id", nullable = false)
+    private Major major;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "course_type_id")
@@ -56,13 +56,13 @@ public class StandardGraduationRequirements extends BaseEntity {
     @Builder
     private StandardGraduationRequirements(
         String year, int requiredGrades,
-        boolean isDeleted, Department department,
+        boolean isDeleted, Major major,
         CourseType courseType
     ) {
         this.year = year;
         this.requiredGrades = requiredGrades;
         this.isDeleted = isDeleted;
-        this.department = department;
+        this.major = major;
         this.courseType = courseType;
     }
 }
