@@ -330,8 +330,8 @@ public class GraduationService {
     private List<StandardGraduationRequirements> getGraduationRequirements(List<Catalog> catalogList,
         String studentYear) {
         return catalogList.stream()
-            .map(catalog -> standardGraduationRequirementsRepository.findByDepartmentIdAndCourseTypeIdAndYear(
-                catalog.getDepartment().getId(),
+            .map(catalog -> standardGraduationRequirementsRepository.findByMajorIdAndCourseTypeIdAndYear(
+                catalog.getMajor().getId(),
                 catalog.getCourseType().getId(),
                 studentYear
             ))

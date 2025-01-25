@@ -11,5 +11,5 @@ public interface StandardGraduationRequirementsRepository extends Repository<Sta
 
     List<StandardGraduationRequirements> findAllByMajorAndYear(Major major, String year);
 
-    List<StandardGraduationRequirements> findByDepartmentIdAndCourseTypeIdAndYear(Integer id, Integer id1, String studentYear);
+    List<StandardGraduationRequirements> findByMajorIdAndCourseTypeIdAndYear(Integer id, Integer id1, String studentYear);
 }
