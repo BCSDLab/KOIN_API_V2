@@ -2,7 +2,6 @@ package in.koreatech.koin.domain.graduation.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import in.koreatech.koin.domain.graduation.dto.CourseTypeLectureResponse;
 import in.koreatech.koin.domain.graduation.dto.GraduationCourseCalculationResponse;
 import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.DetectGraduationCalculation;
@@ -30,7 +30,7 @@ import in.koreatech.koin.domain.student.exception.StudentNumberNotFoundException
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
-import in.koreatech.koin.domain.student.util.StudentUtil;
+import in.koreatech.koin.domain.timetableV2.exception.NotFoundSemesterAndCourseTypeException;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
 
@@ -45,6 +45,9 @@ import in.koreatech.koin.domain.timetableV2.model.TimetableFrame;
 import in.koreatech.koin.domain.timetableV2.repository.LectureRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.SemesterRepositoryV2;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableLectureRepositoryV2;
+import in.koreatech.koin.domain.timetableV3.model.Term;
+import in.koreatech.koin.domain.timetableV3.repository.SemesterRepositoryV3;
+import in.koreatech.koin.domain.timetableV3.service.SemesterServiceV3;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -64,12 +67,14 @@ public class GraduationService {
     private final SemesterRepositoryV2 semesterRepositoryV2;
     private final LectureRepositoryV2 lectureRepositoryV2;
     private final TimetableLectureRepositoryV2 timetableLectureRepositoryV2;
+    private final SemesterRepositoryV3 semesterRepositoryV3;
     private final CatalogRepository catalogRepository;
 
     private static final String MIDDLE_TOTAL = "소 계";
     private static final String TOTAL = "합 계";
     private static final String RETAKE = "Y";
     private static final String UNSATISFACTORY = "U";
+    private final SemesterServiceV3 semesterServiceV3;
 
     @Transactional
     public void createStudentCourseCalculation(Integer userId) {
@@ -103,6 +108,7 @@ public class GraduationService {
             });
     }
 
+    /*
     @Transactional
     public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
         DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(userId)
@@ -135,6 +141,7 @@ public class GraduationService {
 
         return GraduationCourseCalculationResponse.of(courseTypes);
     }
+    */
 
     @Transactional
     public void readStudentGradeExcelFile(MultipartFile file, Integer userId) throws IOException {
@@ -158,7 +165,7 @@ public class GraduationService {
                 }
 
                 String semester = getKoinSemester(data.semester(), data.year());
-                CourseType courseType = courseTypeRepository.findByName(data.courseType()).orElse(null);
+                CourseType courseType = mappingCourseType(data.courseType());
                 Lecture lecture = lectureRepositoryV2.findBySemesterAndCodeAndLectureClass(semester,
                     data.code(), data.lectureClass()).orElse(null);
 
@@ -229,8 +236,8 @@ public class GraduationService {
 
     private boolean skipRow(GradeExcelData gradeExcelData) {
         return gradeExcelData.classTitle().equals(MIDDLE_TOTAL) ||
-            gradeExcelData.retakeStatus().equals(RETAKE) ||
-            gradeExcelData.grade().equals(UNSATISFACTORY);
+               gradeExcelData.retakeStatus().equals(RETAKE) ||
+               gradeExcelData.grade().equals(UNSATISFACTORY);
     }
 
     private String getKoinSemester(String semester, String year) {
@@ -245,6 +252,16 @@ public class GraduationService {
     private void validateStudentField(Object field, String message) {
         if (field == null) {
             throw DepartmentNotFoundException.withDetail(message);
+        }
+    }
+
+    public CourseType mappingCourseType(String courseTypeName) {
+        if ("전필".equals(courseTypeName)) {
+            return courseTypeRepository.getByName("학과(전공)필수");
+        } else if ("전선".equals(courseTypeName)) {
+            return courseTypeRepository.getByName("학과(전공)선택");
+        } else {
+            return courseTypeRepository.findByName(courseTypeName).orElse(null);
         }
     }
 
@@ -278,6 +295,7 @@ public class GraduationService {
         return student;
     }
 
+    /*
     private List<Catalog> getCatalogListForStudent(Student student, String studentYear) {
         List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.getAllByUserId(student.getId()).stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
@@ -297,6 +315,7 @@ public class GraduationService {
         });
         return catalogList;
     }
+    */
 
     private Map<Integer, Integer> calculateCourseTypeCredits(List<Catalog> catalogList) {
         Map<Integer, Integer> courseTypeCreditsMap = new HashMap<>();
@@ -360,5 +379,20 @@ public class GraduationService {
         studentCourseCalculationRepository.save(newCalculation);
 
         return completedGrades;
+    }
+
+    public CourseTypeLectureResponse getLectureByCourseType(Integer year, String term, String courseTypeName) {
+        CourseType courseType = courseTypeRepository.getByName(courseTypeName);
+        List<Catalog> catalogs = catalogRepository.getAllByCourseTypeId(courseType.getId());
+        List<String> codes = catalogs.stream().map(Catalog::getCode).toList();
+
+        Term parsedTerm = Term.fromDescription(term);
+        Semester foundSemester = semesterRepositoryV3.getByYearAndTerm(year, parsedTerm);
+        String semester = foundSemester.getSemester();
+
+        List<Lecture> lectures = lectureRepositoryV2.findAllByCodesAndSemester(codes, semester)
+            .orElseThrow(() -> new NotFoundSemesterAndCourseTypeException("학기나 이수구분을 찾을 수 없습니다."));
+
+        return CourseTypeLectureResponse.of(semester, lectures);
     }
 }

@@ -8,13 +8,13 @@ import in.koreatech.koin.domain.graduation.model.StudentCourseCalculation;
 
 public interface StudentCourseCalculationRepository extends Repository<StudentCourseCalculation, Integer> {
 
-    Optional<StudentCourseCalculation> findByUserId(Integer userId);
-
-    void deleteAllByUserId(Integer userId);
-
     void save(StudentCourseCalculation studentCourseCalculation);
+
+    Optional<StudentCourseCalculation> findByUserId(Integer userId);
 
     StudentCourseCalculation findByUserIdAndStandardGraduationRequirementsId(Integer userId, Integer id);
 
     void delete(StudentCourseCalculation existingCalculation);
+
+    void deleteAllByUserId(Integer userId);
 }
