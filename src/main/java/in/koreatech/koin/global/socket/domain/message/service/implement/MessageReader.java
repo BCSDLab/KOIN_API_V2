@@ -25,7 +25,7 @@ public class MessageReader {
             .toList();
     }
 
-    public ChatRoomSummary getChatRoomSummary(Integer articleId, Integer chatRoomId, Integer userId) {
+    public MessageSummary getMessageSummary(Integer articleId, Integer chatRoomId, Integer userId) {
         List<ChatMessageEntity> messages = chatMessageRepository.findByArticleIdAndChatRoomId(articleId, chatRoomId);
 
         if (messages.isEmpty()) {
@@ -52,7 +52,7 @@ public class MessageReader {
             .orElse(null);
 
 
-        return ChatRoomSummary.builder()
+        return MessageSummary.builder()
             .unreadCount(unreadCount)
             .lastMessageContent(lastMessageContent)
             .lastMessageTime(lastMessageTime)
@@ -61,7 +61,7 @@ public class MessageReader {
 
     @Getter
     @Builder
-    public static class ChatRoomSummary {
+    public static class MessageSummary {
         private Integer unreadCount;
         private String lastMessageContent;
         private LocalDateTime lastMessageTime;

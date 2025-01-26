@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class LostItemChatRoomInfoService {
 
     private final MessageReader messageReader;
@@ -46,7 +45,7 @@ public class LostItemChatRoomInfoService {
         return nextChatRoomId;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ChatRoomListResponse> getAllChatRoomInfo(Integer userId) {
         List<LostItemChatRoomInfoEntity> chatRoomInfoList = chatRoomInfoReader.readByUserId(userId);
 
@@ -56,8 +55,8 @@ public class LostItemChatRoomInfoService {
 
         return chatRoomInfoList.stream()
             .map(entity -> {
-                var messageSummary = messageReader.getChatRoomSummary(entity.getArticleId(), entity.getChatRoomId(), userId);
-                var articleSummary = lostItemArticleReader.getChatRoomSummary(entity.getArticleId());
+                var messageSummary = messageReader.getMessageSummary(entity.getArticleId(), entity.getChatRoomId(), userId);
+                var articleSummary = lostItemArticleReader.getArticleSummary(entity.getArticleId());
 
                 if (messageSummary == null) {
                     return null;
@@ -81,7 +80,7 @@ public class LostItemChatRoomInfoService {
         return lostItemArticleReader.getArticleTitle(articleId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public String getChatPartnerProfileImage(Integer articleId) {
         return lostItemArticleReader.readByArticleId(articleId).getAuthor().getProfileImageUrl();
     }

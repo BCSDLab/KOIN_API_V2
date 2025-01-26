@@ -24,14 +24,14 @@ public class LostItemArticleReader {
         return articleRepository.getTitleById(articleId);
     }
 
-    public ChatRoomSummary getChatRoomSummary(Integer articleId) {
+    public ArticleSummary getArticleSummary(Integer articleId) {
         LostItemArticle lostItemArticle = readByArticleId(articleId);
         String title = lostItemArticle.getArticle().getTitle();
         String imageUrl = (lostItemArticle.getImages() != null && !lostItemArticle.getImages().isEmpty())
             ? lostItemArticle.getImages().get(0).getImageUrl()
             : null;
 
-        return ChatRoomSummary.builder()
+        return ArticleSummary.builder()
             .articleTitle(title)
             .itemImage(imageUrl)
             .build();
@@ -39,7 +39,7 @@ public class LostItemArticleReader {
 
     @Getter
     @Builder
-    public static class ChatRoomSummary {
+    public static class ArticleSummary {
         private String articleTitle;
         private String itemImage;
     }
