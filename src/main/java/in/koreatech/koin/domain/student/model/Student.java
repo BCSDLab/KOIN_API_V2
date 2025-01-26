@@ -43,6 +43,10 @@ public class Student {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Department department;
 
+    @JoinColumn(name = "major_id")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Major major;
+
     @Column(name = "identity", columnDefinition = "SMALLINT")
     @Enumerated(EnumType.ORDINAL)
     private UserIdentity userIdentity;
@@ -74,5 +78,10 @@ public class Student {
     public void updateInfo(String studentNumber, Department department) {
         this.studentNumber = studentNumber;
         this.department = department;
+    }
+
+    public void updateInfo(String studentNumber, Major major) {
+        this.studentNumber = studentNumber;
+        this.major = major;
     }
 }

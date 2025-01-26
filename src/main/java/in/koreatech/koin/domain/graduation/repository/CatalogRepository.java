@@ -27,4 +27,5 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
         return findAllByCourseTypeId(courseTypeId)
             .orElseThrow(() -> CatalogNotFoundException.withDetail("course_type_id" + courseTypeId));
     }
+    List<Catalog> findByLectureNameAndDepartment(String lectureName, Department department);
 }

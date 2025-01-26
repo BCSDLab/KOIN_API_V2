@@ -1,21 +1,17 @@
 package in.koreatech.koin.domain.student.service;
 
 import java.time.Clock;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import in.koreatech.koin.domain.graduation.model.StandardGraduationRequirements;
-import in.koreatech.koin.domain.graduation.model.StudentCourseCalculation;
-import in.koreatech.koin.domain.graduation.repository.DetectGraduationCalculationRepository;
-import in.koreatech.koin.domain.graduation.repository.StandardGraduationRequirementsRepository;
-import in.koreatech.koin.domain.graduation.repository.StudentCourseCalculationRepository;
 import in.koreatech.koin.domain.graduation.service.GraduationService;
 import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.model.StudentEmailRequestEvent;
 import in.koreatech.koin.domain.student.model.StudentRegisterEvent;
 import in.koreatech.koin.domain.student.repository.DepartmentRepository;
+import in.koreatech.koin.domain.student.repository.MajorRepository;
 import in.koreatech.koin.domain.user.dto.UserPasswordChangeRequest;
 import in.koreatech.koin.domain.user.model.*;
 import in.koreatech.koin.domain.student.model.redis.StudentTemporaryStatus;
@@ -63,9 +59,7 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentRedisRepository studentRedisRepository;
     private final DepartmentRepository departmentRepository;
-    private final StudentCourseCalculationRepository studentCourseCalculationRepository;
-    private final StandardGraduationRequirementsRepository standardGraduationRequirementsRepository;
-    private final DetectGraduationCalculationRepository detectGraduationCalculationRepository;
+    private final MajorRepository majorRepository;
     private final GraduationService graduationService;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
@@ -104,15 +98,15 @@ public class StudentService {
         Student student = studentRepository.getById(userId);
         User user = student.getUser();
 
-        Department oldDepartment = student.getDepartment();
-        Department newDepartment = departmentRepository.getByName(request.major());
-        // 학부(학과) 변경 시 학생의 졸업 요건 계산 정보 초기화
-        if (isChangedDepartment(oldDepartment, newDepartment) && student.getStudentNumber() != null) {
-            graduationService.resetStudentCourseCalculation(student, newDepartment);
+        Major oldMajor = student.getMajor();
+        Major newMajor = majorRepository.getByName(request.major());
+        // 전공 변경 시 학생의 졸업 요건 계산 정보 초기화
+        if (isChangedMajor(oldMajor, newMajor) && student.getStudentNumber() != null) {
+            graduationService.resetStudentCourseCalculation(student, newMajor);
         }
         user.update(request.nickname(), request.name(), request.phoneNumber(), request.gender());
         user.updateStudentPassword(passwordEncoder, request.password());
-        student.updateInfo(request.studentNumber(), newDepartment);
+        student.updateInfo(request.studentNumber(), newMajor);
 
         return StudentUpdateResponse.from(student);
     }
@@ -169,7 +163,7 @@ public class StudentService {
         return modelAndView;
     }
 
-    private boolean isChangedDepartment(Department oldDepartment, Department newDepartment) {
-        return !oldDepartment.equals(newDepartment);
+    private boolean isChangedMajor(Major oldMajor, Major newMajor) {
+        return !oldMajor.equals(newMajor);
     }
 }

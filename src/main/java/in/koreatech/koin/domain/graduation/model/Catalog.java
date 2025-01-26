@@ -4,7 +4,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,8 +44,8 @@ public class Catalog extends BaseEntity {
     private int credit = 0;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "department_id", nullable = false)
-    private Department department;
+    @JoinColumn(name = "major_id", nullable = false)
+    private Major major;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "course_type_id", nullable = false)
@@ -61,6 +61,7 @@ public class Catalog extends BaseEntity {
         String code,
         String lectureName,
         int credit,
+        Major major,
         Department department,
         CourseType courseType,
         GeneralEducationArea generalEducationArea
@@ -69,6 +70,7 @@ public class Catalog extends BaseEntity {
         this.code = code;
         this.lectureName = lectureName;
         this.credit = credit;
+        this.major = major;
         this.department = department;
         this.courseType = courseType;
         this.generalEducationArea = generalEducationArea;
