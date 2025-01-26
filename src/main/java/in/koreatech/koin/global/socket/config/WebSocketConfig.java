@@ -10,6 +10,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import in.koreatech.koin.global.socket.interceptor.ConnectInterceptor;
 import in.koreatech.koin.global.socket.interceptor.DisconnectInterceptor;
 import in.koreatech.koin.global.socket.interceptor.SubscribeInterceptor;
+import in.koreatech.koin.global.socket.interceptor.UnsubscribeInterceptor;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -20,6 +21,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final ConnectInterceptor connectInterceptor;
     private final DisconnectInterceptor disconnectInterceptor;
     private final SubscribeInterceptor subscribeInterceptor;
+    private final UnsubscribeInterceptor unsubscribeInterceptor;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -36,6 +38,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(connectInterceptor, subscribeInterceptor, disconnectInterceptor);
+        registration.interceptors(connectInterceptor, subscribeInterceptor, unsubscribeInterceptor, disconnectInterceptor);
     }
 }
