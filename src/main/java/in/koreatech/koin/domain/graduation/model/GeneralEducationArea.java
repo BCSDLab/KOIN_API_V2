@@ -26,7 +26,8 @@ public class GeneralEducationArea {
     private String name;
 
     @Builder
-    public GeneralEducationArea(String name) {
+    private GeneralEducationArea(Integer id, String name) {
+        this.id = id;
         this.name = name;
     }
 }

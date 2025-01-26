@@ -4,6 +4,7 @@ import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculat
 import static in.koreatech.koin.domain.timetableV2.util.GradeCalculator.calculateTotalGrades;
 import static in.koreatech.koin.domain.timetableV2.validation.TimetableFrameValidate.validateUserAuthorization;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
@@ -13,6 +14,8 @@ import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
 import in.koreatech.koin.domain.graduation.repository.CourseTypeRepository;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.domain.timetable.model.Lecture;
@@ -54,15 +57,31 @@ public class TimetableRegularLectureServiceV3 {
 
     private CourseType getCourseType(Integer userId, Lecture lecture) {
         Student student = studentRepository.getById(userId);
-        if (Objects.isNull(student.getDepartment())) {
+        Department department = student.getDepartment();
+        if (Objects.isNull(department)) {
             return null;
         }
-        String code = lecture.getCode();
-        Catalog catalog = catalogRepository.getByDepartmentAndCode(student.getDepartment(), code);
-        if (Objects.isNull(catalog)) {
+        Major major = student.getMajor();
+        List<Catalog> catalogs = catalogRepository.getByCode(lecture.getCode());
+        if (catalogs.isEmpty()) {
             return null;
         }
-        return catalog.getCourseType();
+
+        if (!Objects.isNull(major)) {
+            for (Catalog catalog : catalogs) {
+                if (Objects.equals(catalog.getMajor(), major)) {
+                    return catalog.getCourseType();
+                }
+            }
+        }
+
+        for (Catalog catalog : catalogs) {
+            if (Objects.equals(catalog.getDepartment(), department)) {
+                return catalog.getCourseType();
+            }
+        }
+
+        return null;
     }
 
     @Transactional
