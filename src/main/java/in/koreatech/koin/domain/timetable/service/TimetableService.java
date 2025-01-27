@@ -91,7 +91,7 @@ public class TimetableService {
             return null;
         }
         Major major = student.getMajor();
-        List<Catalog> catalogs = catalogRepository.getByCode(lecture.getCode());
+        List<Catalog> catalogs = catalogRepository.findAllByCode(lecture.getCode());
         if (catalogs.isEmpty()) {
             return null;
         }

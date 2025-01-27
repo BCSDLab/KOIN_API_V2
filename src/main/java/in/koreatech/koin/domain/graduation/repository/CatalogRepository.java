@@ -11,7 +11,7 @@ import in.koreatech.koin.domain.student.model.Department;
 
 public interface CatalogRepository extends Repository<Catalog, Integer> {
 
-    List<Catalog> getByCode(String code);
+    List<Catalog> findAllByCode(String code);
 
     Optional<Catalog> findByDepartmentAndCode(Department department, String code);
 
