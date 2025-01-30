@@ -13,8 +13,9 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
 
     Optional<Catalog> findByDepartmentAndCode(Department department, String code);
 
-    // 이거 오류나요..
-    // List<Catalog> findByLectureNameAndYearAndDepartment(String lectureName, String studentYear, Department department);
+    List<Catalog> findByLectureNameAndMajorIdAndYear(String lectureName, Integer majorId, String year);
+
+    List<Catalog> findByLectureNameAndDepartmentIdAndYear(String lectureName, Integer departmentId, String year);
 
     Optional<List<Catalog>> findAllByCourseTypeId(Integer courseTypeId);
 

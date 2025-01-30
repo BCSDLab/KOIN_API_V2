@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.graduation.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import in.koreatech.koin.domain.student.exception.StudentNumberNotFoundException
 import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
+import in.koreatech.koin.domain.student.util.StudentUtil;
 import in.koreatech.koin.domain.timetableV2.exception.NotFoundSemesterAndCourseTypeException;
 import in.koreatech.koin.domain.timetableV2.model.TimetableLecture;
 import in.koreatech.koin.domain.timetableV2.repository.TimetableFrameRepositoryV2;
@@ -108,7 +110,6 @@ public class GraduationService {
             });
     }
 
-    /*
     @Transactional
     public GraduationCourseCalculationResponse getGraduationCourseCalculationResponse(Integer userId) {
         DetectGraduationCalculation detectGraduationCalculation = detectGraduationCalculationRepository.findByUserId(userId)
@@ -123,7 +124,7 @@ public class GraduationService {
         String studentYear = StudentUtil.parseStudentNumberYearAsString(student.getStudentNumber());
 
         // 시간표와 대학 요람 데이터 가져오기
-        List<Catalog> catalogList = getCatalogListForStudent(student);
+        List<Catalog> catalogList = getCatalogListForStudent(student, studentYear);
 
         // courseTypeId와 학점 맵핑
         Map<Integer, Integer> courseTypeCreditsMap = calculateCourseTypeCredits(catalogList);
@@ -141,7 +142,6 @@ public class GraduationService {
 
         return GraduationCourseCalculationResponse.of(courseTypes);
     }
-    */
 
     @Transactional
     public void readStudentGradeExcelFile(MultipartFile file, Integer userId) throws IOException {
@@ -295,7 +295,6 @@ public class GraduationService {
         return student;
     }
 
-    /*
     private List<Catalog> getCatalogListForStudent(Student student, String studentYear) {
         List<TimetableLecture> timetableLectures = timetableFrameRepositoryV2.getAllByUserId(student.getId()).stream()
             .flatMap(frame -> frame.getTimetableLectures().stream())
@@ -308,14 +307,21 @@ public class GraduationService {
                 : timetableLecture.getClassTitle();
 
             if (lectureName != null) {
-                List<Catalog> catalogs = catalogRepository.findByLectureNameAndDepartment(
-                    lectureName, student.getDepartment());
+                // 1. Major 기반 조회
+                List<Catalog> catalogs = catalogRepository.findByLectureNameAndMajorIdAndYear(
+                    lectureName, student.getMajor() != null ? student.getMajor().getId() : null, studentYear);
+
+                // 2. 전공에서 못 찾으면 Department 기반 조회
+                if (catalogs.isEmpty()) {
+                    catalogs = catalogRepository.findByLectureNameAndDepartmentIdAndYear(
+                        lectureName, student.getDepartment().getId(), studentYear);
+                }
+
                 catalogList.addAll(catalogs);
             }
         });
         return catalogList;
     }
-    */
 
     private Map<Integer, Integer> calculateCourseTypeCredits(List<Catalog> catalogList) {
         Map<Integer, Integer> courseTypeCreditsMap = new HashMap<>();
