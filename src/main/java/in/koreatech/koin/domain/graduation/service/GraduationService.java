@@ -307,11 +307,9 @@ public class GraduationService {
                 : timetableLecture.getClassTitle();
 
             if (lectureName != null) {
-                // 1. Major 기반 조회
                 List<Catalog> catalogs = catalogRepository.findByLectureNameAndMajorIdAndYear(
                     lectureName, student.getMajor() != null ? student.getMajor().getId() : null, studentYear);
 
-                // 2. 전공에서 못 찾으면 Department 기반 조회
                 if (catalogs.isEmpty()) {
                     catalogs = catalogRepository.findByLectureNameAndDepartmentIdAndYear(
                         lectureName, student.getDepartment().getId(), studentYear);
