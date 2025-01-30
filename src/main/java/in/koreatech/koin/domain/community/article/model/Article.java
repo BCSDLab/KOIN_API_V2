@@ -57,8 +57,7 @@ public class Article extends BaseEntity {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @NotNull
-    @Column(name = "content", nullable = false)
+    @Column(name = "content")
     private String content;
 
     @NotNull
@@ -246,7 +245,7 @@ public class Article extends BaseEntity {
         LostItemArticle lostItemArticle = LostItemArticle.builder()
             .author(author)
             .category(request.category())
-            .foundPlace(request.location())
+            .foundPlace(request.foundPlace())
             .foundDate(request.foundDate())
             .images(images)
             .isDeleted(false)

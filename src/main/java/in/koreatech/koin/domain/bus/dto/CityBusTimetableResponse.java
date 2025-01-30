@@ -5,11 +5,13 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.model.mongo.CityBusTimetable;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -51,41 +53,39 @@ public record CityBusTimetableResponse(
     List<BusTimetable> busTimetables
 ) {
 
-    public static CityBusTimetableResponse from(CityBusTimetable timetable) {
-        return new CityBusTimetableResponse(
-            timetable.getUpdatedAt(),
-            BusInfo.from(timetable.getBusInfo()),
-            timetable.getBusTimetables().stream()
-                .map(BusTimetable::from)
-                .toList()
-        );
-    }
-
     @JsonNaming(SnakeCaseStrategy.class)
-    public record BusInfo(
-        Long number,
-        String departNode,
-        String arrivalNode
-    ) {
-        public static BusInfo from(CityBusTimetable.BusInfo busInfo) {
+    public record BusInfo(Long number, String departNode, String arrivalNode) {
+
+        public static BusInfo of(Long number, CityBusDirection direction) {
             return new BusInfo(
-                busInfo.getNumber(),
-                busInfo.getDepart(),
-                busInfo.getArrival()
+                number,
+                direction.getDepartNode(),
+                direction.getApartNode()
             );
         }
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
-    public record BusTimetable(
-        String dayOfWeek,
-        List<String> departInfo
-    ) {
-        public static BusTimetable from(CityBusTimetable.BusTimetable timetable) {
+    public record BusTimetable(String dayOfWeek, List<String> departInfo) {
+
+        public static BusTimetable of(Long busNumber, CityBusDirection direction,
+            CityBusTimetable.BusTimetable timetable) {
             return new BusTimetable(
                 timetable.getDayOfWeek(),
-                timetable.getDepartInfo()
+                timetable.applyTimeOffset(busNumber, direction).stream()
+                    .map(LocalTime::toString)
+                    .toList()
             );
         }
+    }
+
+    public static CityBusTimetableResponse of(Long busNumber, CityBusDirection direction, CityBusTimetable timetable) {
+        return new CityBusTimetableResponse(
+            timetable.getUpdatedAt(),
+            BusInfo.of(busNumber, direction),
+            timetable.getBusTimetables().stream()
+                .map(busTimetable -> BusTimetable.of(busNumber, direction, busTimetable))
+                .toList()
+        );
     }
 }

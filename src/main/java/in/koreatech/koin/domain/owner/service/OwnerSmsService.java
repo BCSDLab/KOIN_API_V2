@@ -17,6 +17,7 @@ import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.owner.model.OwnerShop;
 import in.koreatech.koin.domain.owner.repository.OwnerRepository;
 import in.koreatech.koin.domain.owner.repository.OwnerShopRedisRepository;
+import in.koreatech.koin.domain.owner.repository.redis.OwnerVerificationStatusRepository;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
@@ -36,6 +37,7 @@ public class OwnerSmsService {
     private final UserRepository userRepository;
     private final OwnerRepository ownerRepository;
     private final OwnerShopRedisRepository ownerShopRedisRepository;
+    private final OwnerVerificationStatusRepository ownerInVerificationRedisRepository;
     private final OwnerValidator ownerValidator;
     private final OwnerUtilService ownerUtilService;
     private final OwnerVerificationService ownerVerificationService;
@@ -59,6 +61,7 @@ public class OwnerSmsService {
         OwnerShop.OwnerShopBuilder ownerShopBuilder = OwnerShop.builder().ownerId(saved.getId());
         ownerUtilService.setShopId(request.shopId(), ownerShopBuilder);
         ownerShopRedisRepository.save(ownerShopBuilder.build());
+        ownerInVerificationRedisRepository.deleteByVerify(saved.getUser().getPhoneNumber());
         ownerUtilService.sendSlackNotification(saved);
     }
 

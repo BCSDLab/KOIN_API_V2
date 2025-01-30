@@ -85,12 +85,13 @@ public class NotificationFactory {
         Integer eventKeywordId,
         String keyword,
         String title,
+        Integer boardId,
         String description,
         User target
     ) {
         return new Notification(
             path,
-            generateKeywordSchemeUri(path, eventKeywordId, keyword),
+            generateKeywordSchemeUri(path, eventKeywordId, keyword, boardId),
             title,
             description,
             null,
@@ -112,10 +113,10 @@ public class NotificationFactory {
         return place + result;
     }
 
-    private String generateKeywordSchemeUri(MobileAppPath path, Integer eventId, String keyword) {
+    private String generateKeywordSchemeUri(MobileAppPath path, Integer eventId, String keyword, Integer boardId) {
         if (keyword == null) {
             return generateSchemeUri(path, eventId);
         }
-        return String.format("%s?id=%d&keyword=%s", path.getPath(), eventId, keyword);
+        return String.format("%s?id=%d&keyword=%s&board-id=%s", path.getPath(), eventId, keyword, boardId);
     }
 }

@@ -23,9 +23,8 @@ import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRep
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
-import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
+import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
@@ -63,12 +62,10 @@ public class ArticleService {
     private static final Sort NATIVE_ARTICLES_SORT = Sort.by(
         Sort.Order.desc("id")
     );
-    private static final int KEYWORD_BATCH_SIZE = 100;
 
     private final ApplicationEventPublisher eventPublisher;
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
-    private final ArticleKeywordRepository articleKeywordRepository;
     private final ArticleSearchKeywordIpMapRepository articleSearchKeywordIpMapRepository;
     private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
     private final ArticleHitRepository articleHitRepository;
@@ -77,6 +74,7 @@ public class ArticleService {
     private final UserRepository userRepository;
     private final Clock clock;
     private final BusArticleRepository busArticleRepository;
+    private final KeywordExtractor keywordExtractor;
 
     @Transactional
     public ArticleResponse getArticle(Integer boardId, Integer articleId, String publicIp) {
@@ -85,29 +83,18 @@ public class ArticleService {
             article.increaseKoinHit();
             articleHitUserRepository.save(ArticleHitUser.of(articleId, publicIp));
         }
-        Board board = getBoard(boardId, article);
-        Article prevArticle = articleRepository.getPreviousArticle(board, article);
-        Article nextArticle = articleRepository.getNextArticle(board, article);
-        article.setPrevNextArticles(prevArticle, nextArticle);
+        setPrevNextArticle(boardId, article);
         return ArticleResponse.of(article);
-    }
-
-    private Board getBoard(Integer boardId, Article article) {
-        if (boardId == null) {
-            boardId = article.getBoard().getId();
-        }
-        if (!Objects.equals(boardId, article.getBoard().getId())
-            && (!article.getBoard().isNotice() || boardId != NOTICE_BOARD_ID)) {
-            throw ArticleBoardMisMatchException.withDetail("boardId: " + boardId + ", articleId: " + article.getId());
-        }
-        return boardRepository.getById(boardId);
     }
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit) {
         Long total = articleRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, total.intValue());
-        Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        if (boardId == null) {
+            Page<Article> articles = articleRepository.findAll(pageRequest);
+            return ArticlesResponse.of(articles, criteria);
+        }
         if (boardId == NOTICE_BOARD_ID) {
             Page<Article> articles = articleRepository.findAllByIsNoticeIsTrue(pageRequest);
             return ArticlesResponse.of(articles, criteria);
@@ -311,10 +298,7 @@ public class ArticleService {
 
     public LostItemArticleResponse getLostItemArticle(Integer articleId) {
         Article article = articleRepository.getById(articleId);
-        Board board = getBoard(LOST_ITEM_BOARD_ID, article);
-        Article prevArticle = articleRepository.getPreviousArticle(board, article);
-        Article nextArticle = articleRepository.getNextArticle(board, article);
-        article.setPrevNextArticles(prevArticle, nextArticle);
+        setPrevNextArticle(LOST_ITEM_BOARD_ID, article);
         return LostItemArticleResponse.from(article);
     }
 
@@ -343,38 +327,37 @@ public class ArticleService {
         foundArticle.get().delete();
     }
 
+    private void setPrevNextArticle(Integer boardId, Article article) {
+        Article prevArticle;
+        Article nextArticle;
+        if (boardId != null) {
+            Board board = getBoard(boardId, article);
+            prevArticle = articleRepository.getPreviousArticle(board, article);
+            nextArticle = articleRepository.getNextArticle(board, article);
+        } else {
+            prevArticle = articleRepository.getPreviousAllArticle(article);
+            nextArticle = articleRepository.getNextAllArticle(article);
+        }
+        article.setPrevNextArticles(prevArticle, nextArticle);
+    }
+
+    private Board getBoard(Integer boardId, Article article) {
+        if (boardId == null) {
+            boardId = article.getBoard().getId();
+        }
+        if (!Objects.equals(boardId, article.getBoard().getId())
+            && (!article.getBoard().isNotice() || boardId != NOTICE_BOARD_ID)) {
+            throw ArticleBoardMisMatchException.withDetail("boardId: " + boardId + ", articleId: " + article.getId());
+        }
+        return boardRepository.getById(boardId);
+    }
+
     private void sendKeywordNotification(List<Article> articles) {
-        List<ArticleKeywordEvent> keywordEvents = matchKeyword(articles);
+        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles);
         if (!keywordEvents.isEmpty()) {
             for (ArticleKeywordEvent event : keywordEvents) {
                 eventPublisher.publishEvent(event);
             }
         }
-    }
-
-    private List<ArticleKeywordEvent> matchKeyword(List<Article> articles) {
-        List<ArticleKeywordEvent> keywordEvents = new ArrayList<>();
-        int offset = 0;
-
-        while (true) {
-            Pageable pageable = PageRequest.of(offset / KEYWORD_BATCH_SIZE, KEYWORD_BATCH_SIZE);
-            List<ArticleKeyword> keywords = articleKeywordRepository.findAll(pageable);
-
-            if (keywords.isEmpty()) {
-                break;
-            }
-
-            for (Article article : articles) {
-                String title = article.getTitle();
-                for (ArticleKeyword keyword : keywords) {
-                    if (title.contains(keyword.getKeyword())) {
-                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword));
-                    }
-                }
-            }
-            offset += KEYWORD_BATCH_SIZE;
-        }
-
-        return keywordEvents;
     }
 }

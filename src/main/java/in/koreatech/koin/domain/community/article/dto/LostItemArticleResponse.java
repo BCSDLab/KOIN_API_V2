@@ -38,7 +38,7 @@ public record LostItemArticleResponse(
     String author,
 
     @Schema(description = "분실물 사진")
-    List<InnerLostItemImageResponse> image,
+    List<InnerLostItemImageResponse> images,
 
     @Schema(description = "이전글 id", example = "17367")
     Integer prevId,
