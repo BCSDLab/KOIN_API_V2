@@ -8,6 +8,8 @@ import java.util.Optional;
 import in.koreatech.koin.domain.graduation.model.Catalog;
 import in.koreatech.koin.domain.graduation.model.CourseType;
 import in.koreatech.koin.domain.graduation.repository.CatalogRepository;
+import in.koreatech.koin.domain.student.model.Department;
+import in.koreatech.koin.domain.student.model.Major;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.student.repository.StudentRepository;
 import in.koreatech.koin.global.exception.RequestTooFastException;
@@ -84,15 +86,31 @@ public class TimetableService {
 
     private CourseType getCourseType(Integer userId, Lecture lecture) {
         Student student = studentRepository.getById(userId);
-        if (Objects.isNull(student.getDepartment())) {
+        Department department = student.getDepartment();
+        if (Objects.isNull(department)) {
             return null;
         }
-        String code = lecture.getCode();
-        Catalog catalog = catalogRepository.getByDepartmentAndCode(student.getDepartment(), code);
-        if (Objects.isNull(catalog)) {
+        Major major = student.getMajor();
+        List<Catalog> catalogs = catalogRepository.findAllByCode(lecture.getCode());
+        if (catalogs.isEmpty()) {
             return null;
         }
-        return catalog.getCourseType();
+
+        if (!Objects.isNull(major)) {
+            for (Catalog catalog : catalogs) {
+                if (Objects.equals(catalog.getMajor(), major)) {
+                    return catalog.getCourseType();
+                }
+            }
+        }
+
+        for (Catalog catalog : catalogs) {
+            if (Objects.equals(catalog.getDepartment(), department)) {
+                return catalog.getCourseType();
+            }
+        }
+
+        return null;
     }
 
     @Transactional

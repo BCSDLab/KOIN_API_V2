@@ -11,6 +11,8 @@ import in.koreatech.koin.domain.student.model.Department;
 
 public interface CatalogRepository extends Repository<Catalog, Integer> {
 
+    List<Catalog> findAllByCode(String code);
+
     Optional<Catalog> findByDepartmentAndCode(Department department, String code);
 
     List<Catalog> findByLectureNameAndMajorIdAndYear(String lectureName, Integer majorId, String year);
@@ -28,5 +30,6 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
         return findAllByCourseTypeId(courseTypeId)
             .orElseThrow(() -> CatalogNotFoundException.withDetail("course_type_id" + courseTypeId));
     }
+
     List<Catalog> findByLectureNameAndDepartment(String lectureName, Department department);
 }
