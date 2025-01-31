@@ -5,5 +5,5 @@ CREATE TABLE if not exists `koin`.`general_education_area_course_type_map`
     `course_type_id` INT UNSIGNED NOT NULL comment '이수 구분 id',
     PRIMARY KEY (`id`),
     FOREIGN KEY (`general_education_area_id`) REFERENCES `general_education_area` (`id`),
-    FOREIGN KEY (`course_type_id`) REFERENCES `course_type` (`id`),
+    FOREIGN KEY (`course_type_id`) REFERENCES `course_type` (`id`)
 );
