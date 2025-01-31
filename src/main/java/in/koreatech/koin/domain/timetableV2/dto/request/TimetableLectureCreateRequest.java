@@ -82,35 +82,20 @@ public record TimetableLectureCreateRequest(
             }
         }
 
-        public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame) {
-            return new TimetableLecture(
-                classTitle,
-                getClassTimeToString(),
-                getClassPlaceToString(),
-                professor,
-                grades,
-                memo,
-                false,
-                null,
-                timetableFrame,
-                null
-            );
-        }
-
-        public TimetableLecture toTimetableLecture(TimetableFrame timetableFrame, Lecture lecture,
-            CourseType courseType) {
-            return new TimetableLecture(
-                classTitle,
-                getClassTimeToString(),
-                getClassPlaceToString(),
-                professor,
-                grades,
-                memo,
-                false,
-                lecture,
-                timetableFrame,
-                courseType
-            );
+        public TimetableLecture toTimetableLecture(
+            TimetableFrame timetableFrame, Lecture lecture, CourseType courseType
+        ) {
+            return TimetableLecture.builder()
+                .classTitle(classTitle)
+                .classTime(getClassTimeToString())
+                .classPlace(getClassPlaceToString())
+                .professor(professor)
+                .memo(memo)
+                .isDeleted(false)
+                .lecture(lecture)
+                .timetableFrame(timetableFrame)
+                .courseType(courseType)
+                .build();
         }
 
         private String getClassTimeToString() {
