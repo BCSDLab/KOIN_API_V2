@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.domain.community.article.dto.LostItemReportRequest;
 import in.koreatech.koin.domain.community.article.dto.LostItemReportRequest.InnerLostItemReport;
-import in.koreatech.koin.domain.community.article.exception.NotALostItemArticleException;
+import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.LostItemReport;
 import in.koreatech.koin.domain.community.article.model.dto.LostItemReportEvent;
@@ -21,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class LostItemReportService {
+
+    public static final int LOST_ITEM_BOARD_ID = 14;
 
     private final StudentRepository studentRepository;
     private final ArticleRepository articleRepository;
@@ -40,11 +42,12 @@ public class LostItemReportService {
     /**
      * 분실물 게시글인지 검증하는 메서드
      * @param article 검증할 게시글 객체
-     * @throws NotALostItemArticleException 분실물 게시글이 아닌 경우 발생하는 예외
+     * @throws ArticleBoardMisMatchException 분실물 게시글이 아닌 경우 발생하는 예외
      */
     private static void validateLostItemArticle(Article article) {
-        if (article.getLostItemArticle() == null) {
-            throw NotALostItemArticleException.withDetail("articleId: " + article.getId());
+        if (article.getBoard().getId() != LOST_ITEM_BOARD_ID) {
+            throw ArticleBoardMisMatchException.withDetail(
+                "boardId: " + article.getBoard().getId() + ", articleId: " + article.getId());
         }
     }
 
