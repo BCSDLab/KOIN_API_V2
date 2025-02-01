@@ -66,9 +66,11 @@ public class LostItemArticle {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @OneToMany(mappedBy = "lostItemArticle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LostItemReport> lostItemReports = new ArrayList<>();
+
     @Builder
     public LostItemArticle(
-        Integer id,
         Article article,
         User author,
         String category,
@@ -77,7 +79,6 @@ public class LostItemArticle {
         List<LostItemImage> images,
         Boolean isDeleted
     ) {
-        this.id = id;
         this.article = article;
         this.author = author;
         this.category = category;

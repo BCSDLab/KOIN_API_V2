@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
+import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -69,7 +70,10 @@ public record LostItemArticlesResponse(
         String author,
 
         @Schema(description = "등록일", example = "2025-01-10", requiredMode = REQUIRED)
-        LocalDate registeredAt
+        LocalDate registeredAt,
+
+        @Schema(description = "처리되지 않은 신고 존재 여부", example = "true", requiredMode = REQUIRED)
+        Boolean isReported
     ) {
 
         public static InnerLostItemArticleResponse from(Article article) {
@@ -83,9 +87,18 @@ public record LostItemArticlesResponse(
                 lostItemArticle.getFoundDate(),
                 article.getContent(),
                 article.getAuthor(),
-                article.getRegisteredAt()
+                article.getRegisteredAt(),
+                isReported(lostItemArticle)
             );
         }
-    }
 
+        /**
+         * 미처리된 신고가 존재한다면 블라인드합니다.
+         */
+        private static boolean isReported(LostItemArticle lostItemArticle) {
+            return lostItemArticle.getLostItemReports()
+                .stream()
+                .anyMatch(report -> report.getReportStatus() == ReportStatus.UNHANDLED);
+        }
+    }
 }

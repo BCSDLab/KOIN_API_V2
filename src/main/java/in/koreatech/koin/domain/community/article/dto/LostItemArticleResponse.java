@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
 import in.koreatech.koin.domain.community.article.model.LostItemImage;
+import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
@@ -50,7 +51,10 @@ public record LostItemArticleResponse(
     LocalDate registeredAt,
 
     @Schema(description = "수정일", example = "2025-01-10 16:53:22", requiredMode = REQUIRED)
-    LocalDateTime updatedAt
+    LocalDateTime updatedAt,
+
+    @Schema(description = "처리되지 않은 신고 존재 여부", example = "true", requiredMode = REQUIRED)
+    Boolean isReported
 ) {
 
     public static LostItemArticleResponse from(Article article) {
@@ -70,8 +74,18 @@ public record LostItemArticleResponse(
             article.getPrevId(),
             article.getNextId(),
             article.getRegisteredAt(),
-            article.getUpdatedAt()
+            article.getUpdatedAt(),
+            isReported(lostItemArticle)
         );
+    }
+
+    /**
+     * 미처리된 신고가 존재한다면 블라인드합니다.
+     */
+    private static boolean isReported(LostItemArticle lostItemArticle) {
+        return lostItemArticle.getLostItemReports()
+            .stream()
+            .anyMatch(report -> report.getReportStatus() == ReportStatus.UNHANDLED);
     }
 
     @JsonNaming(value = SnakeCaseStrategy.class)
