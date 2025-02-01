@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ColumnDefault;
 
 import in.koreatech.koin.domain.user.model.User;
@@ -66,6 +67,7 @@ public class LostItemArticle {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "lostItemArticle", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LostItemReport> lostItemReports = new ArrayList<>();
 
