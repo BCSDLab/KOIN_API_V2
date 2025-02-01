@@ -146,6 +146,7 @@ public class GraduationService {
     @Transactional
     public void readStudentGradeExcelFile(MultipartFile file, Integer userId) throws IOException {
         checkFiletype(file);
+        String studentYear = "2020";
 
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = new HSSFWorkbook(inputStream)
@@ -165,9 +166,25 @@ public class GraduationService {
                 }
 
                 String semester = getKoinSemester(data.semester(), data.year());
-                CourseType courseType = mappingCourseType(data.courseType());
                 Lecture lecture = lectureRepositoryV2.findBySemesterAndCodeAndLectureClass(semester,
                     data.code(), data.lectureClass()).orElse(null);
+                // 1차적으로는 general_area가 없다는 가정
+                CourseType courseType = null;
+                if (lecture != null) {
+                    // 1차 검색: lectureName + year로 조회
+                    Catalog catalog = catalogRepository.findFirstByLectureNameAndYearOrderByCreatedAtDesc(
+                        data.classTitle(), studentYear).orElse(null);
+
+                    // 2차 검색: catalog가 null이면 code + year로 다시 조회
+                    if (catalog == null) {
+                        catalog = catalogRepository.findFirstByCodeAndYearOrderByCreatedAtDesc(
+                            data.code(), data.year()).orElse(null);
+                    }
+
+                    if (catalog != null) {
+                        courseType = courseTypeRepository.findById(catalog.getCourseType().getId()).orElse(null);
+                    }
+                }
 
                 if (!currentSemester.equals(semester)) {
                     currentSemester = semester;

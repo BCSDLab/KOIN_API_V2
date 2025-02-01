@@ -15,6 +15,12 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
 
     Optional<Catalog> findByDepartmentAndCode(Department department, String code);
 
+    Optional<Catalog> findByCodeAndYear(String code, String year);
+
+    Optional<Catalog> findFirstByCodeAndYearOrderByCreatedAtDesc(String code, String year);
+
+    Optional<Catalog> findFirstByLectureNameAndYearOrderByCreatedAtDesc(String lectureName, String year);
+
     // 이거 오류나요..
     // List<Catalog> findByLectureNameAndYearAndDepartment(String lectureName, String studentYear, Department department);
 
@@ -28,6 +34,11 @@ public interface CatalogRepository extends Repository<Catalog, Integer> {
     default List<Catalog> getAllByCourseTypeId(Integer courseTypeId) {
         return findAllByCourseTypeId(courseTypeId)
             .orElseThrow(() -> CatalogNotFoundException.withDetail("course_type_id" + courseTypeId));
+    }
+
+    default Catalog getByAndCodeAndYear(String code, String year) {
+        return findByCodeAndYear(code, year)
+            .orElseThrow(() -> CatalogNotFoundException.withDetail("code: " + code + ", year: " + year));
     }
 
     List<Catalog> findByLectureNameAndDepartment(String lectureName, Department department);

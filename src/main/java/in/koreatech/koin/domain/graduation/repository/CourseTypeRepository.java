@@ -15,7 +15,7 @@ public interface CourseTypeRepository extends Repository<CourseType, Integer> {
 
     Optional<CourseType> findByName(String name);
 
-    default CourseType getCourseTypeById(Integer id) {
+    default CourseType getById(Integer id) {
         return findById(id)
             .orElseThrow(() -> CourseTypeNotFoundException.withDetail("course_type_id: " + id));
     }

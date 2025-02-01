@@ -31,6 +31,10 @@ public class Catalog extends BaseEntity {
     private Integer id;
 
     @NotNull
+    @Column(name = "year", nullable = false)
+    private String year;
+
+    @NotNull
     @Size(max = 20)
     @Column(name = "code", nullable = false, length = 20)
     private String code;
@@ -59,6 +63,7 @@ public class Catalog extends BaseEntity {
     @Builder
     private Catalog(
         Integer id,
+        String year,
         String code,
         String lectureName,
         int credit,
