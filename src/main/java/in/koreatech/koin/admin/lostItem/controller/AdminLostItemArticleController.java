@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class AdminLostItemArticleController {
+public class AdminLostItemArticleController implements AdminLostItemArticleApi{
 
     private final AdminLostItemArticleService adminLostItemArticleService;
 
