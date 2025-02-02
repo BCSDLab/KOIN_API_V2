@@ -118,7 +118,7 @@ public record AdminLostItemArticlesResponse(
             @Schema(example = "부적절한 내용", description = "신고 제목", requiredMode = REQUIRED)
             String title,
 
-            @Schema(example = "이 리뷰는 욕설을 포함하고 있습니다.", description = "신고 내용", requiredMode = REQUIRED)
+            @Schema(example = "이 게시글은 욕설을 포함하고 있습니다.", description = "신고 내용", requiredMode = REQUIRED)
             String content,
 
             @Schema(example = "user1234", description = "신고자 닉네임", requiredMode = REQUIRED)
