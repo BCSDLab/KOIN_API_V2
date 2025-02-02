@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record ChatRoomInfoResponse(
+
     @Schema(description = "분실물 게시글 ID", example = "14465")
     Integer articleId,
     @Schema(description = "채팅방 ID", example = "1")

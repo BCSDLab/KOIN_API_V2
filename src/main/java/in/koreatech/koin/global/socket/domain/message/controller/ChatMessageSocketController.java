@@ -24,7 +24,6 @@ public class ChatMessageSocketController {
     private final SimpMessageSendingOperations simpMessageSendingOperations;
 
     @MessageMapping("/chat/{articleId}/{chatRoomId}")
-    @SendTo("/topic/chat/{articleId}/{chatRoomId}")
     public void handleChatMessage(
         @DestinationVariable Integer articleId,
         @DestinationVariable Integer chatRoomId,
@@ -38,7 +37,7 @@ public class ChatMessageSocketController {
         chatService.saveMessage(articleId, chatRoomId, userId, subscriptionCount, message);
 
         var sendMessage = ChatMessageResponse.toResponse(message);
-        simpMessageSendingOperations.convertAndSend("/topic/chat/" + articleId + "/" + chatRoomId, sendMessage);
+        simpMessageSendingOperations.convertAndSend(destination, sendMessage);
 
         messageEventHandler.onMessageReceived(articleId, chatRoomId, userId, message);
     }

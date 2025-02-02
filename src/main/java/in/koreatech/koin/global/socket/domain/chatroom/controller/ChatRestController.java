@@ -30,7 +30,7 @@ public class ChatRestController implements ChatRestApi {
 
     @PostMapping("/lost-item/{articleId}")
     public ResponseEntity<ChatRoomInfoResponse> createLostItemChatRoom(
-        @Auth(permit= {STUDENT}) Integer studentId,
+        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId
     ) {
         Integer chatRoomId = chatRoomInfoService.createLostItemChatRoom(articleId, studentId);

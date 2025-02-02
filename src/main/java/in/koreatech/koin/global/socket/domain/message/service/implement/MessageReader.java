@@ -51,7 +51,6 @@ public class MessageReader {
             .map(ChatMessageEntity::getCreatedAt)
             .orElse(null);
 
-
         return MessageSummary.builder()
             .unreadCount(unreadCount)
             .lastMessageContent(lastMessageContent)

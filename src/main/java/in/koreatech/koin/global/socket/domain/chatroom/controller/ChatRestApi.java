@@ -61,7 +61,7 @@ public interface ChatRestApi {
     )
     @PostMapping("/lost-item/{articleId}")
     ResponseEntity<ChatRoomInfoResponse> createLostItemChatRoom(
-        @Auth(permit= {STUDENT}) Integer studentId,
+        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
         @PathVariable("articleId") Integer articleId
     );
 

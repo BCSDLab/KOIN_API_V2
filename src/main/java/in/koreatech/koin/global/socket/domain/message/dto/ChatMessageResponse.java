@@ -24,7 +24,12 @@ public record ChatMessageResponse(
 ) {
 
     public static ChatMessageResponse toResponse(ChatMessageCommand message) {
-        return new ChatMessageResponse(message.userId(), message.userNickname(), message.content(),
-            message.timestamp(), message.isImage());
+        return new ChatMessageResponse(
+            message.userId(),
+            message.userNickname(),
+            message.content(),
+            message.timestamp(),
+            message.isImage()
+        );
     }
 }
