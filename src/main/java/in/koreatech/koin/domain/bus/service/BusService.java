@@ -19,7 +19,6 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusNoticeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
@@ -225,12 +224,6 @@ public class BusService {
 
         VersionResponse version = versionService.getVersion(busType.getName() + "_bus_timetable");
         return new BusTimetableResponse(busTimetables, version.updatedAt());
-    }
-
-    public List<BusCourseResponse> getBusCourses() {
-        return busRepository.findAll().stream()
-            .map(BusCourseResponse::from)
-            .toList();
     }
 
     public CityBusTimetableResponse getCityBusTimetable(Long busNumber, CityBusDirection direction) {
