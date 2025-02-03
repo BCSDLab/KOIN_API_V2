@@ -39,10 +39,6 @@ public class CourseType extends BaseEntity {
     private String name;
 
     @NotNull
-    @Column(name = "year", nullable = false)
-    private Integer year;
-
-    @NotNull
     @Column(name = "is_deleted", columnDefinition = "TINYINT")
     private boolean isDeleted = false;
 
@@ -50,17 +46,8 @@ public class CourseType extends BaseEntity {
     private List<Catalog> catalog = new ArrayList<>();
 
     @Builder
-    private CourseType(
-        String name,
-        Integer id,
-        Integer year,
-        boolean isDeleted,
-        List<Catalog> catalog
-    ) {
+    private CourseType(String name, boolean isDeleted) {
         this.name = name;
-        this.id = id;
-        this.year = year;
         this.isDeleted = isDeleted;
-        this.catalog = catalog;
     }
 }
