@@ -93,22 +93,13 @@ public record AdminLostItemArticlesResponse(
                 article.getContent(),
                 article.getAuthor(),
                 article.getRegisteredAt(),
-                isReported(lostItemArticle),
+                lostItemArticle.isReported(),
                 lostItemArticle.getLostItemReports()
                     .stream()
                     .filter(report -> report.getReportStatus() == ReportStatus.UNHANDLED)
                     .map(InnerReportResponse::from)
                     .toList()
             );
-        }
-
-        /**
-         * 미처리된 신고가 존재하는지 확인합니다.
-         */
-        private static boolean isReported(LostItemArticle lostItemArticle) {
-            return lostItemArticle.getLostItemReports()
-                .stream()
-                .anyMatch(report -> report.getReportStatus() == ReportStatus.UNHANDLED);
         }
 
         public record InnerReportResponse(

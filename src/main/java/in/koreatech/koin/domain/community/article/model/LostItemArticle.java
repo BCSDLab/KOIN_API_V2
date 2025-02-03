@@ -8,6 +8,7 @@ import java.util.List;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ColumnDefault;
 
+import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -115,5 +116,14 @@ public class LostItemArticle {
     public void delete() {
         this.isDeleted = true;
         this.images.forEach(LostItemImage::delete);
+    }
+
+    /**
+     * 미처리된 신고가 존재하는지 확인합니다.
+     */
+    public boolean isReported() {
+        return this.getLostItemReports()
+            .stream()
+            .anyMatch(report -> report.getReportStatus() == ReportStatus.UNHANDLED);
     }
 }

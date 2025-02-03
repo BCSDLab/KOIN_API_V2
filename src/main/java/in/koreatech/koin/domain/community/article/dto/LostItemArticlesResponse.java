@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import in.koreatech.koin.domain.community.article.model.Article;
 import in.koreatech.koin.domain.community.article.model.LostItemArticle;
-import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.global.model.Criteria;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -78,7 +77,6 @@ public record LostItemArticlesResponse(
 
         public static InnerLostItemArticleResponse from(Article article) {
             LostItemArticle lostItemArticle = article.getLostItemArticle();
-
             return new InnerLostItemArticleResponse(
                 article.getId(),
                 article.getBoard().getId(),
@@ -88,17 +86,8 @@ public record LostItemArticlesResponse(
                 article.getContent(),
                 article.getAuthor(),
                 article.getRegisteredAt(),
-                isReported(lostItemArticle)
+                lostItemArticle.isReported()
             );
-        }
-
-        /**
-         * 미처리된 신고가 존재한다면 블라인드합니다.
-         */
-        private static boolean isReported(LostItemArticle lostItemArticle) {
-            return lostItemArticle.getLostItemReports()
-                .stream()
-                .anyMatch(report -> report.getReportStatus() == ReportStatus.UNHANDLED);
         }
     }
 }
