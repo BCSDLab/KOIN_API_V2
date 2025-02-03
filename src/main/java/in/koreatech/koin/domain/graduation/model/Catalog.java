@@ -56,10 +56,6 @@ public class Catalog extends BaseEntity {
     @JoinColumn(name = "course_type_id", nullable = false)
     private CourseType courseType;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "general_education_area_id")
-    private GeneralEducationArea generalEducationArea;
-
     @Builder
     private Catalog(
         Integer id,
@@ -68,8 +64,7 @@ public class Catalog extends BaseEntity {
         int credit,
         Major major,
         Department department,
-        CourseType courseType,
-        GeneralEducationArea generalEducationArea
+        CourseType courseType
     ) {
         this.id = id;
         this.code = code;
@@ -78,6 +73,5 @@ public class Catalog extends BaseEntity {
         this.major = major;
         this.department = department;
         this.courseType = courseType;
-        this.generalEducationArea = generalEducationArea;
     }
 }

@@ -6,6 +6,7 @@ import static lombok.AccessLevel.PROTECTED;
 import org.hibernate.annotations.Where;
 
 import in.koreatech.koin.domain.graduation.model.CourseType;
+import in.koreatech.koin.domain.graduation.model.GeneralEducationArea;
 import in.koreatech.koin.domain.timetable.dto.TimetableUpdateRequest;
 import in.koreatech.koin.domain.timetable.model.Lecture;
 import in.koreatech.koin.global.domain.BaseEntity;
@@ -76,10 +77,26 @@ public class TimetableLecture extends BaseEntity {
     @JoinColumn(name = "course_type_id")
     private CourseType courseType;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "general_education_area_id")
+    private GeneralEducationArea generalEducationArea;
+
     @Builder
-    public TimetableLecture(String classTitle, String classTime, String classPlace, String professor,
-        String grades, String memo, boolean isDeleted, Lecture lecture, TimetableFrame timetableFrame,
-        CourseType courseType) {
+    private TimetableLecture(
+        Integer id,
+        String classTitle,
+        String classTime,
+        String classPlace,
+        String professor,
+        String grades,
+        String memo,
+        boolean isDeleted,
+        Lecture lecture,
+        TimetableFrame timetableFrame,
+        CourseType courseType,
+        GeneralEducationArea generalEducationArea
+    ) {
+        this.id = id;
         this.classTitle = classTitle;
         this.classTime = classTime;
         this.classPlace = classPlace;
@@ -90,6 +107,7 @@ public class TimetableLecture extends BaseEntity {
         this.lecture = lecture;
         this.timetableFrame = timetableFrame;
         this.courseType = courseType;
+        this.generalEducationArea = generalEducationArea;
     }
 
     public void update(
