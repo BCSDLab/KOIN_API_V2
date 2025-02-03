@@ -46,8 +46,15 @@ public class CourseType extends BaseEntity {
     private List<Catalog> catalog = new ArrayList<>();
 
     @Builder
-    private CourseType(String name, boolean isDeleted) {
+    private CourseType(
+        Integer id,
+        String name,
+        boolean isDeleted,
+        List<Catalog> catalog
+    ) {
+        this.id = id;
         this.name = name;
         this.isDeleted = isDeleted;
+        this.catalog = catalog;
     }
 }
