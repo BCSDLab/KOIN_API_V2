@@ -25,11 +25,11 @@ public class GeneralEducationAreaCourseTypeMap {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "general_education_area_id")
+    @JoinColumn(name = "general_education_area_id", referencedColumnName = "id", nullable = false)
     private GeneralEducationArea generalEducationArea;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_type_id")
+    @JoinColumn(name = "course_type_id", referencedColumnName = "id", nullable = false)
     private CourseType courseType;
 
     @Builder
