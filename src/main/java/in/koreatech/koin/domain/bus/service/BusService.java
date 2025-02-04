@@ -4,13 +4,10 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -23,20 +20,18 @@ import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
 import in.koreatech.koin.domain.bus.dto.BusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
+import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse;
+import in.koreatech.koin.domain.bus.dto.ShuttleBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotFoundException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
-import in.koreatech.koin.domain.bus.model.SchoolBusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
-import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
-import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusNoticeRepository;
-import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.service.route.BusRouteStrategy;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
@@ -49,7 +44,6 @@ import lombok.RequiredArgsConstructor;
 public class BusService {
 
     private final Clock clock;
-    private final BusRepository busRepository;
     private final BusNoticeRepository busNoticeRepository;
     private final ExpressBusService expressBusService;
     private final VersionService versionService;
@@ -88,6 +82,7 @@ public class BusService {
         List<SingleBusTimeResponse> result = new ArrayList<>();
 
         LocalDateTime targetTime = LocalDateTime.of(date, time);
+
         for (BusType busType : BusType.values()) {
             SingleBusTimeResponse busTimeResponse = null;
 
@@ -101,32 +96,12 @@ public class BusService {
             }
 
             if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-                ZonedDateTime zonedAt = targetTime.atZone(clock.getZone());
-                Clock clockAt = Clock.fixed(zonedAt.toInstant(), zonedAt.getZone());
-
-                String todayName = targetTime.getDayOfWeek()
-                    .getDisplayName(TextStyle.SHORT, Locale.US)
-                    .toUpperCase();
-
-                LocalTime arrivalTime = busRepository.findByBusType(busType.getName()).stream()
-                    .filter(busCourse -> busCourse.getRegion().equals("천안"))
-                    .map(BusCourse::getRoutes)
-                    .flatMap(routes ->
-                        routes.stream()
-                            .filter(route -> route.getRunningDays().contains(todayName))
-                            .filter(route -> route.isRunning(clockAt))
-                            .filter(route -> route.isCorrectRoute(depart, arrival, clockAt))
-                            .flatMap(route ->
-                                route.getArrivalInfos().stream()
-                                    .filter(arrivalNode -> depart.getDisplayNames().contains(arrivalNode.getNodeName()))
-                            )
-                    )
-                    .min(Comparator.comparing(o -> LocalTime.parse(o.getArrivalTime())))
-                    .map(Route.ArrivalNode::getArrivalTime)
-                    .map(LocalTime::parse)
-                    .orElse(null);
-
-                busTimeResponse = new SingleBusTimeResponse(busType.getName(), arrivalTime);
+                busTimeResponse = shuttleBusService.searchShuttleBusTime(
+                    depart,
+                    arrival,
+                    busType,
+                    targetTime
+                );
             }
 
             if (busTimeResponse == null) {
@@ -165,16 +140,7 @@ public class BusService {
         }
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-            BusCourse busCourse = busRepository
-                .getByBusTypeAndDirectionAndRegion(busType.getName(), direction, region);
-
-            return busCourse.getRoutes().stream()
-                .map(route -> new SchoolBusTimetable(
-                    route.getRouteName(),
-                    route.getArrivalInfos().stream()
-                        .map(node -> new SchoolBusTimetable.ArrivalNode(
-                            node.getNodeName(), node.getArrivalTime())
-                        ).toList())).toList();
+            return shuttleBusService.getSchoolBusTimetables(busType, direction, region);
         }
 
         throw BusTypeNotFoundException.withDetail(busType.name());
@@ -226,5 +192,13 @@ public class BusService {
             (Integer)article.get("id"),
             (String)article.get("title")
         );
+    }
+
+    public ShuttleBusRoutesResponse getShuttleBusRoutes() {
+        return shuttleBusService.getShuttleBusRoutes();
+    }
+
+    public ShuttleBusTimetableResponse getShuttleBusTimetable(String id) {
+        return shuttleBusService.getShuttleBusTimetable(id);
     }
 }
