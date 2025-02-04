@@ -38,4 +38,12 @@ public interface LostItemArticleRepository extends Repository<LostItemArticle, I
         return findNoticeById(noticeId).orElseThrow(
             () -> ArticleNotFoundException.withDetail("articleId: " + noticeId));
     }
+
+    @Query(value = "SELECT * FROM lost_item_articles WHERE article_id = :articleId AND is_deleted = false", nativeQuery = true)
+    Optional<LostItemArticle> findByArticleId(@Param("articleId") Integer articleId);
+
+    default LostItemArticle getByArticleId(Integer articleId) {
+        return findByArticleId(articleId).orElseThrow(
+            () -> ArticleNotFoundException.withDetail("articleId: " + articleId));
+    }
 }
