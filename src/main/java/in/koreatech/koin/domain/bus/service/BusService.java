@@ -43,6 +43,7 @@ import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusNoticeRepository;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
 import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
+import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
 import in.koreatech.koin.domain.bus.service.route.BusRouteStrategy;
 import in.koreatech.koin.domain.bus.util.city.CityBusClient;
 import in.koreatech.koin.domain.bus.util.city.CityBusRouteClient;
@@ -66,6 +67,7 @@ public class BusService {
     private final CityBusRouteClient cityBusRouteClient;
     private final VersionService versionService;
     private final List<BusRouteStrategy> busRouteStrategies;
+    private final ShuttleBusRepository shuttleBusRepository;
 
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
@@ -97,6 +99,7 @@ public class BusService {
         }
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
+            List<BusCourse> newBusCourses = shuttleBusRepository.findByRouteType();
             List<BusCourse> busCourses = busRepository.findByBusType(busType.getName());
             var remainTimes = busCourses.stream()
                 .map(BusCourse::getRoutes)
@@ -113,6 +116,11 @@ public class BusService {
         }
 
         throw new KoinIllegalArgumentException("Invalid bus", "type: " + busType);
+    }
+
+    private String convertShuttleBusField() {
+
+        return null;
     }
 
     public List<SingleBusTimeResponse> searchTimetable(
