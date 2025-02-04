@@ -349,9 +349,7 @@ public class CoopService {
 
     private List<Dining> fetchDiningDataForImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
         if (isCafeteria) {
-            List<String> cafeteriaPlaces = Arrays.asList("A코너", "B코너", "C코너");
-            return diningRepository.findByDateBetweenAndImageUrlIsNotNullAndPlaceIn(startDate, endDate,
-                cafeteriaPlaces);
+            return diningRepository.findByDateBetweenAndImageUrlIsNotNullAndPlaceIn(startDate, endDate, placeFilters);
         }
         return diningRepository.findByDateBetweenAndImageUrlIsNotNull(startDate, endDate);
     }
