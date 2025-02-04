@@ -12,10 +12,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import in.koreatech.koin.domain.bus.exception.BusArrivalNodeNotFoundException;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
+import in.koreatech.koin.domain.bus.exception.BusArrivalNodeNotFoundException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -99,8 +99,38 @@ public class ShuttleBusRoute {
         return false;
     }
 
+    public boolean filterDepartAndArriveNodeReverse(BusStation departNode, BusStation arriveNode) {
+        boolean foundDepart = false;
+        for (int i = nodeInfo.size() - 1; i >= 0; i--) {
+            NodeInfo node = nodeInfo.get(i);
+            for (String nodeName : departNode.getDisplayNames()) {
+                if (!foundDepart && node.getName().contains(nodeName)) {
+                    foundDepart = true;
+                    break;
+                }
+            }
+            for (String nodeName : arriveNode.getDisplayNames()) {
+                if (foundDepart && node.getName().contains(nodeName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public int findDepartNodeIndexByStation(BusStation departNode) {
         for (int i = 0; i < nodeInfo.size(); i++) {
+            for (String nodeName : departNode.getDisplayNames()) {
+                if (nodeInfo.get(i).getName().contains(nodeName)) {
+                    return i;
+                }
+            }
+        }
+        throw new BusArrivalNodeNotFoundException("");
+    }
+
+    public int findDepartNodeIndexByStationReverse(BusStation departNode) {
+        for (int i = nodeInfo.size() - 1; i >= 0; i--) {
             for (String nodeName : departNode.getDisplayNames()) {
                 if (nodeInfo.get(i).getName().contains(nodeName)) {
                     return i;
