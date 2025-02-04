@@ -46,7 +46,6 @@ import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
 import in.koreatech.koin.domain.bus.service.route.BusRouteStrategy;
 import in.koreatech.koin.domain.bus.util.city.CityBusClient;
 import in.koreatech.koin.domain.bus.util.city.CityBusRouteClient;
-import in.koreatech.koin.domain.bus.util.express.ExpressBusService;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
