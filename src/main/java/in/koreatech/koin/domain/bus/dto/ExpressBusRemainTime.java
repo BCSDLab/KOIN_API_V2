@@ -4,7 +4,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalTime;
 
-import in.koreatech.koin.domain.bus.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 

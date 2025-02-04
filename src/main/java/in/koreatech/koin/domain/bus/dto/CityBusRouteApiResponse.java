@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.bus.dto;
 
 import java.util.List;
 
-import in.koreatech.koin.domain.bus.model.city.CityBusRoute;
+import in.koreatech.koin.domain.bus.service.city.model.CityBusRoute;
 
 public record CityBusRouteApiResponse(
     InnerResponse response
