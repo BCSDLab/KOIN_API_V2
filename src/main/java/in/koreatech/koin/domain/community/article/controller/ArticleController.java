@@ -93,26 +93,27 @@ public class ArticleController implements ArticleApi {
 
     @GetMapping("/lost-item/{id}")
     public ResponseEntity<LostItemArticleResponse> getLostItemArticle(
-        @PathVariable("id") Integer articleId
+        @PathVariable("id") Integer articleId,
+        @Auth(permit = {STUDENT, COUNCIL}, anonymous = true) Integer userId
     ) {
-        return ResponseEntity.ok().body(articleService.getLostItemArticle(articleId));
+        return ResponseEntity.ok().body(articleService.getLostItemArticle(articleId, userId));
     }
 
     @PostMapping("/lost-item")
     public ResponseEntity<LostItemArticleResponse> createLostItemArticle(
-        @Auth(permit = {COUNCIL}) Integer councilId,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer studentId,
         @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
     ) {
-        LostItemArticleResponse response = articleService.createLostItemArticle(councilId, lostItemArticlesRequest);
+        LostItemArticleResponse response = articleService.createLostItemArticle(studentId, lostItemArticlesRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/lost-item/{id}")
     public ResponseEntity<Void> deleteLostItemArticle(
         @PathVariable("id") Integer articleId,
-        @Auth(permit = {COUNCIL}) Integer councilId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
-        articleService.deleteLostItemArticle(articleId);
+        articleService.deleteLostItemArticle(articleId, userId);
         return ResponseEntity.noContent().build();
     }
 }

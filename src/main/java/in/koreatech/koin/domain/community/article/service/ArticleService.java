@@ -27,6 +27,7 @@ import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
 import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.model.User;
 import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
@@ -296,10 +297,15 @@ public class ArticleService {
         return LostItemArticlesResponse.of(articles, criteria);
     }
 
-    public LostItemArticleResponse getLostItemArticle(Integer articleId) {
+    public LostItemArticleResponse getLostItemArticle(Integer articleId, Integer userId) {
         Article article = articleRepository.getById(articleId);
+        User author = article.getLostItemArticle().getAuthor();
         setPrevNextArticle(LOST_ITEM_BOARD_ID, article);
-        return LostItemArticleResponse.from(article);
+        Boolean isMine = false;
+        if (author.getId().equals(userId)) {
+            isMine = true;
+        }
+        return LostItemArticleResponse.of(article, isMine);
     }
 
     @Transactional
@@ -315,16 +321,17 @@ public class ArticleService {
                 }
             );
         sendKeywordNotification(newArticles);
-        return LostItemArticleResponse.from(newArticles.get(0));
+        return LostItemArticleResponse.of(newArticles.get(0), true);
     }
 
     @Transactional
-    public void deleteLostItemArticle(Integer articleId) {
-        Optional<Article> foundArticle = articleRepository.findById(articleId);
-        if (foundArticle.isEmpty()) {
-            return;
+    public void deleteLostItemArticle(Integer articleId, Integer userId) {
+        Article foundArticle = articleRepository.getById(articleId);
+        User author = foundArticle.getLostItemArticle().getAuthor();
+        if (!Objects.equals(author.getId(), userId)) {
+            throw AuthorizationException.withDetail("userId: " + userId);
         }
-        foundArticle.get().delete();
+        foundArticle.delete();
     }
 
     private void setPrevNextArticle(Integer boardId, Article article) {

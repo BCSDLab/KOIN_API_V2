@@ -62,6 +62,10 @@ public class LostItemArticle {
     private List<LostItemImage> images = new ArrayList<>();
 
     @NotNull
+    @Column(name = "is_council", nullable = false)
+    private Boolean isCouncil = false;
+
+    @NotNull
     @ColumnDefault("0")
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
@@ -75,6 +79,7 @@ public class LostItemArticle {
         String foundPlace,
         LocalDate foundDate,
         List<LostItemImage> images,
+        Boolean isCouncil,
         Boolean isDeleted
     ) {
         this.id = id;
@@ -84,6 +89,7 @@ public class LostItemArticle {
         this.foundPlace = foundPlace;
         this.foundDate = foundDate;
         this.images = images;
+        this.isCouncil = isCouncil;
         this.isDeleted = isDeleted;
     }
 
@@ -97,6 +103,10 @@ public class LostItemArticle {
 
     public void setArticle(Article article) {
         this.article = article;
+    }
+
+    public void setIsCouncil() {
+        this.isCouncil = true;
     }
 
     public String generateTitle() {

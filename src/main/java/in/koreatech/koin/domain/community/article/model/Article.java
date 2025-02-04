@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.community.article.model;
 
 import static in.koreatech.koin.domain.community.article.model.Board.KOIN_ADMIN_NOTICE_BOARD_ID;
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static jakarta.persistence.CascadeType.*;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -250,6 +251,10 @@ public class Article extends BaseEntity {
             .images(images)
             .isDeleted(false)
             .build();
+
+        if (author.getUserType().equals(COUNCIL)) {
+            lostItemArticle.setIsCouncil();
+        }
 
         images.stream().forEach(image -> image.setArticle(lostItemArticle));
 
