@@ -24,7 +24,6 @@ import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse;
 import in.koreatech.koin.domain.bus.dto.ShuttleBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
-import in.koreatech.koin.domain.bus.exception.BusTypeNotFoundException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
@@ -35,7 +34,6 @@ import in.koreatech.koin.domain.bus.repository.BusNoticeRepository;
 import in.koreatech.koin.domain.bus.service.route.BusRouteStrategy;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -45,69 +43,44 @@ public class BusService {
 
     private final Clock clock;
     private final BusNoticeRepository busNoticeRepository;
-    private final ExpressBusService expressBusService;
     private final VersionService versionService;
     private final List<BusRouteStrategy> busRouteStrategies;
+    private final ExpressBusService expressBusService;
     private final CityBusService cityBusService;
     private final ShuttleBusService shuttleBusService;
 
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
-        // 출발지 == 도착지면 예외
-        validateBusCourse(depart, arrival);
+        checkDuplicateStations(depart, arrival);
 
-        if (busType == BusType.CITY) {
-            var remainTimes = cityBusService.getBusRemainTime(depart, arrival);
-            return toResponse(busType, remainTimes);
-        }
+        var remainTimes = switch (busType) {
+            case CITY -> cityBusService.getBusRemainTime(depart, arrival);
+            case EXPRESS -> expressBusService.getBusRemainTime(depart, arrival);
+            case SHUTTLE, COMMUTING -> shuttleBusService.getShuttleBusRemainTimes(busType, depart, arrival);
+        };
 
-        if (busType == BusType.EXPRESS) {
-            var remainTimes = expressBusService.getBusRemainTime(depart, arrival);
-            return toResponse(busType, remainTimes);
-        }
-
-        if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-            var remainTimes = shuttleBusService.getShuttleBusRemainTimes(busType, depart, arrival);
-            return toResponse(busType, remainTimes);
-        }
-
-        throw new KoinIllegalArgumentException("Invalid bus", "type: " + busType);
+        return toResponse(busType, remainTimes);
     }
 
     public List<SingleBusTimeResponse> searchTimetable(
         LocalDate date, LocalTime time,
         BusStation depart, BusStation arrival
     ) {
-        validateBusCourse(depart, arrival);
+        checkDuplicateStations(depart, arrival);
         List<SingleBusTimeResponse> result = new ArrayList<>();
 
         LocalDateTime targetTime = LocalDateTime.of(date, time);
 
         for (BusType busType : BusType.values()) {
-            SingleBusTimeResponse busTimeResponse = null;
+            SingleBusTimeResponse busTimeResponse = switch (busType) {
+                case EXPRESS -> expressBusService.searchBusTime(busType.getName(), depart, arrival, targetTime);
+                case SHUTTLE, COMMUTING -> shuttleBusService.searchShuttleBusTime(depart, arrival, busType, targetTime);
+                default -> null;
+            };
 
-            if (busType == BusType.EXPRESS) {
-                busTimeResponse = expressBusService.searchBusTime(
-                    busType.getName(),
-                    depart,
-                    arrival,
-                    targetTime
-                );
+            if (busTimeResponse != null) {
+                result.add(busTimeResponse);
             }
-
-            if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-                busTimeResponse = shuttleBusService.searchShuttleBusTime(
-                    depart,
-                    arrival,
-                    busType,
-                    targetTime
-                );
-            }
-
-            if (busTimeResponse == null) {
-                continue;
-            }
-            result.add(busTimeResponse);
         }
 
         return result;
@@ -124,26 +97,18 @@ public class BusService {
         );
     }
 
-    private void validateBusCourse(BusStation depart, BusStation arrival) {
+    private void checkDuplicateStations(BusStation depart, BusStation arrival) {
         if (depart.equals(arrival)) {
             throw BusIllegalStationException.withDetail("depart: " + depart.name() + ", arrival: " + arrival.name());
         }
     }
 
     public List<? extends BusTimetable> getBusTimetable(BusType busType, String direction, String region) {
-        if (busType == BusType.CITY) {
-            throw BusTypeNotSupportException.withDetail("busType: CITY");
-        }
-
-        if (busType == BusType.EXPRESS) {
-            return expressBusService.getExpressBusTimetable(direction);
-        }
-
-        if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-            return shuttleBusService.getSchoolBusTimetables(busType, direction, region);
-        }
-
-        throw BusTypeNotFoundException.withDetail(busType.name());
+        return switch (busType) {
+            case CITY -> throw BusTypeNotSupportException.withDetail("busType: CITY");
+            case EXPRESS -> expressBusService.getExpressBusTimetable(direction);
+            case SHUTTLE, COMMUTING -> shuttleBusService.getSchoolBusTimetables(busType, direction, region);
+        };
     }
 
     public BusTimetableResponse getBusTimetableWithUpdatedAt(BusType busType, String direction, String region) {
