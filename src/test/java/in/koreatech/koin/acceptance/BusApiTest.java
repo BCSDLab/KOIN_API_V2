@@ -1,11 +1,10 @@
 package in.koreatech.koin.acceptance;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -16,7 +15,6 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -37,7 +35,7 @@ import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
-import in.koreatech.koin.domain.bus.util.express.ExpressBusService;
+import in.koreatech.koin.domain.bus.util.BusCacheService;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
@@ -62,7 +60,7 @@ class BusApiTest extends AcceptanceTest {
     private ExpressBusCacheRepository expressBusCacheRepository;
 
     @Autowired
-    private ExpressBusService expressBusService;
+    private BusCacheService busCacheService;
 
     @BeforeAll
     void setUp() {
@@ -209,56 +207,6 @@ class BusApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 셔틀버스의_코스_정보들을_조회한다() throws Exception {
-        mockMvc.perform(
-                get("/bus/courses")
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.length()").value(1))
-            .andExpect(jsonPath("$[0].bus_type").value("shuttle"))
-            .andExpect(jsonPath("$[0].direction").value("from"))
-            .andExpect(jsonPath("$[0].region").value("천안"));
-    }
-
-    @Test
-    void 셔틀버스_시간표를_조회한다() throws Exception {
-        mockMvc.perform(
-                get("/bus/timetable")
-                    .param("bus_type", "shuttle")
-                    .param("direction", "from")
-                    .param("region", "천안")
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().json("""
-                      [
-                        {
-                            "route_name": "주중",
-                            "arrival_info": [
-                                {
-                                    "node_name": "한기대",
-                                    "arrival_time": "18:10"
-                                },
-                                {
-                                    "node_name": "신계초,운전리,연춘리",
-                                    "arrival_time": "정차"
-                                },
-                                {
-                                    "node_name": "천안역(학화호두과자)",
-                                    "arrival_time": "18:50"
-                                },
-                                {
-                                    "node_name": "터미널(신세계 앞 횡단보도)",
-                                    "arrival_time": "18:55"
-                                }
-                            ]
-                        }
-                    ]
-                """));
-    }
-
-    @Test
     void 셔틀버스_시간표를_조회한다_업데이트_시각_포함() throws Exception {
         Version version = Version.builder()
             .version("test_version")
@@ -314,7 +262,7 @@ class BusApiTest extends AcceptanceTest {
         doNothing().when(tmoneyExpressBusClient).storeRemainTime();
         doNothing().when(staticExpressBusClient).storeRemainTime();
 
-        expressBusService.storeRemainTimeByRatio();
+        busCacheService.storeRemainTimeByRatio();
 
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, never()).storeRemainTime();
@@ -329,7 +277,7 @@ class BusApiTest extends AcceptanceTest {
         doNothing().when(tmoneyExpressBusClient).storeRemainTime();
         doNothing().when(staticExpressBusClient).storeRemainTime();
 
-        expressBusService.storeRemainTimeByRatio();
+        busCacheService.storeRemainTimeByRatio();
 
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, times(1)).storeRemainTime();

@@ -12,11 +12,7 @@ public interface BusRepository extends Repository<BusCourse, String> {
 
     BusCourse save(BusCourse busCourse);
 
-    List<BusCourse> findAll();
-
     List<BusCourse> findByBusType(String busType);
-
-    List<BusCourse> findByBusTypeAndRegion(String busType, String region);
 
     Optional<BusCourse> findByBusTypeAndDirectionAndRegion(String busType, String direction, String region);
 

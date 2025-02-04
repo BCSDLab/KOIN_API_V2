@@ -27,7 +27,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Optional<Article> findById(Integer articleId);
 
-    List<Article> findAll(Pageable pageable);
+    Page<Article> findAll(Pageable pageable);
 
     Page<Article> findAllByBoardId(Integer boardId, PageRequest pageRequest);
 
@@ -76,6 +76,11 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     Optional<Article> findPreviousArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
 
     @Query(value = "SELECT * FROM new_articles a "
+        + "WHERE a.id < :articleId AND a.is_deleted = false "
+        + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
+    Optional<Article> findPreviousAllArticle(@Param("articleId") Integer articleId);
+
+    @Query(value = "SELECT * FROM new_articles a "
         + "WHERE a.id > :articleId AND a.is_notice = true AND a.is_deleted = false "
         + "ORDER BY a.id DESC LIMIT 1", nativeQuery = true)
     Optional<Article> findNextNoticeArticle(@Param("articleId") Integer articleId);
@@ -85,6 +90,11 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         + "ORDER BY a.id ASC LIMIT 1", nativeQuery = true)
     Optional<Article> findNextArticle(@Param("articleId") Integer articleId, @Param("boardId") Integer boardId);
 
+    @Query(value = "SELECT * FROM new_articles a "
+        + "WHERE a.id > :articleId AND a.is_deleted = false "
+        + "ORDER BY a.id ASC LIMIT 1", nativeQuery = true)
+    Optional<Article> findNextAllArticle(@Param("articleId") Integer articleId);
+
     default Article getPreviousArticle(Board board, Article article) {
         if (board.isNotice() && board.getId().equals(NOTICE_BOARD_ID)) {
             return findPreviousNoticeArticle(article.getId()).orElse(null);
@@ -92,11 +102,19 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         return findPreviousArticle(article.getId(), board.getId()).orElse(null);
     }
 
+    default Article getPreviousAllArticle(Article article) {
+        return findPreviousAllArticle(article.getId()).orElse(null);
+    }
+
     default Article getNextArticle(Board board, Article article) {
         if (board.isNotice() && board.getId().equals(NOTICE_BOARD_ID)) {
             return findNextNoticeArticle(article.getId()).orElse(null);
         }
         return findNextArticle(article.getId(), board.getId()).orElse(null);
+    }
+
+    default Article getNextAllArticle(Article article) {
+        return findNextAllArticle(article.getId()).orElse(null);
     }
 
     @Query(value = "SELECT a.* FROM new_articles a "
@@ -122,7 +140,7 @@ public interface ArticleRepository extends Repository<Article, Integer> {
     String getTitleById(@Param("id") Integer id);
 
     @Query(value = "SELECT * FROM new_articles a "
-            + "WHERE a.title REGEXP '통학버스|등교버스|셔틀버스|하교버스' AND a.is_notice = true "
-            + "ORDER BY a.created_at DESC LIMIT 5", nativeQuery = true)
+        + "WHERE a.title REGEXP '통학버스|등교버스|셔틀버스|하교버스' AND a.is_notice = true "
+        + "ORDER BY a.created_at DESC LIMIT 5", nativeQuery = true)
     List<Article> findBusArticlesTop5OrderByCreatedAtDesc();
 }

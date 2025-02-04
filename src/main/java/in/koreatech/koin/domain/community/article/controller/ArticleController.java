@@ -48,7 +48,7 @@ public class ArticleController implements ArticleApi {
 
     @GetMapping()
     public ResponseEntity<ArticlesResponse> getArticles(
-        @RequestParam Integer boardId,
+        @RequestParam(required = false) Integer boardId,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit
     ) {

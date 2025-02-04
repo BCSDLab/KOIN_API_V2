@@ -30,6 +30,7 @@ import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepos
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
+import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
@@ -42,7 +43,7 @@ import lombok.RequiredArgsConstructor;
 public class KeywordService {
 
     private static final int ARTICLE_KEYWORD_LIMIT = 10;
-    private static final int KEYWORD_BATCH_SIZE = 100;
+
 
     private final ApplicationEventPublisher eventPublisher;
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
@@ -51,6 +52,7 @@ public class KeywordService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final UserNotificationStatusRepository userNotificationStatusRepository;
+    private final KeywordExtractor keywordExtractor;
 
     @ConcurrencyGuard(lockName = "createKeyword")
     public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
@@ -122,7 +124,7 @@ public class KeywordService {
                 articles.add(articleRepository.getById(id));
             }
 
-            List<ArticleKeywordEvent> keywordEvents = matchKeyword(articles);
+            List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles);
 
             if (!keywordEvents.isEmpty()) {
                 for (ArticleKeywordEvent event : keywordEvents) {
@@ -137,32 +139,6 @@ public class KeywordService {
             throw new KoinIllegalArgumentException("키워드에 공백을 포함할 수 없습니다.");
         }
         return keyword.trim().toLowerCase();
-    }
-
-    private List<ArticleKeywordEvent> matchKeyword(List<Article> articles) {
-        List<ArticleKeywordEvent> keywordEvents = new ArrayList<>();
-        int offset = 0;
-
-        while (true) {
-            Pageable pageable = PageRequest.of(offset / KEYWORD_BATCH_SIZE, KEYWORD_BATCH_SIZE);
-            List<ArticleKeyword> keywords = articleKeywordRepository.findAll(pageable);
-
-            if (keywords.isEmpty()) {
-                break;
-            }
-
-            for (Article article : articles) {
-                String title = article.getTitle();
-                for (ArticleKeyword keyword : keywords) {
-                    if (title.contains(keyword.getKeyword())) {
-                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword));
-                    }
-                }
-            }
-            offset += KEYWORD_BATCH_SIZE;
-        }
-
-        return keywordEvents;
     }
 
     @Transactional
