@@ -62,6 +62,7 @@ public class LostItemArticle {
     private List<LostItemImage> images = new ArrayList<>();
 
     @NotNull
+    @ColumnDefault("0")
     @Column(name = "is_council", nullable = false)
     private Boolean isCouncil = false;
 

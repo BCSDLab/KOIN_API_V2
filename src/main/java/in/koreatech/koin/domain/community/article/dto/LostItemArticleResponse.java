@@ -70,7 +70,7 @@ public record LostItemArticleResponse(
             lostItemArticle.getFoundPlace(),
             lostItemArticle.getFoundDate(),
             article.getContent(),
-            lostItemArticle.getAuthor().getName(),
+            article.getAuthor(),
             lostItemArticle.getIsCouncil(),
             isMine,
             lostItemArticle.getImages().stream()

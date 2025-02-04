@@ -126,7 +126,7 @@ public class Article extends BaseEntity {
             return;
         }
         if (lostItemArticle != null) {
-            author = lostItemArticle.getAuthor().getName();
+            author = lostItemArticle.getAuthor().getNickname();
             return;
         }
         if (Objects.equals(board.getId(), KOIN_ADMIN_NOTICE_BOARD_ID)) {
@@ -249,6 +249,7 @@ public class Article extends BaseEntity {
             .foundPlace(request.foundPlace())
             .foundDate(request.foundDate())
             .images(images)
+            .isCouncil(false)
             .isDeleted(false)
             .build();
 
