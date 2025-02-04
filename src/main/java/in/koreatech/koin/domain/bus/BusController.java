@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusNoticeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
@@ -72,6 +73,11 @@ public class BusController implements BusApi {
         List<SingleBusTimeResponse> singleBusTimeResponses = busService.searchTimetable(date, LocalTime.parse(time),
             depart, arrival);
         return ResponseEntity.ok().body(singleBusTimeResponses);
+    }
+
+    @GetMapping("/courses")
+    public ResponseEntity<List<BusCourseResponse>> getBusCourses() {
+        return ResponseEntity.ok().body(busService.getBusCourses());
     }
 
     @GetMapping("/courses/shuttle")

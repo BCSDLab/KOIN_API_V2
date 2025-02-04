@@ -3,8 +3,7 @@ package in.koreatech.koin.acceptance;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -204,6 +203,19 @@ class BusApiTest extends AcceptanceTest {
                     "next_bus": null
                 }
                 """));
+    }
+
+    @Test
+    void 셔틀버스의_코스_정보들을_조회한다() throws Exception {
+        mockMvc.perform(
+                get("/bus/courses")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].bus_type").value("shuttle"))
+            .andExpect(jsonPath("$[0].direction").value("from"))
+            .andExpect(jsonPath("$[0].region").value("천안"));
     }
 
     @Test

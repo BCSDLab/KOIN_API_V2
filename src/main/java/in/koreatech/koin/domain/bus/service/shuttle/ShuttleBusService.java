@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -12,6 +13,7 @@ import java.util.Locale;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse;
 import in.koreatech.koin.domain.bus.dto.ShuttleBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
@@ -35,6 +37,12 @@ public class ShuttleBusService {
     private final VersionService versionService;
     private final BusRepository busRepository;
     private final Clock clock;
+
+    public List<BusCourseResponse> getBusCourses() {
+        return busRepository.findAll().stream()
+            .map(BusCourseResponse::from)
+            .toList();
+    }
 
     public ShuttleBusRoutesResponse getShuttleBusRoutes() {
         VersionMessageResponse version = versionService.getVersionWithMessage("shuttle_bus_timetable");

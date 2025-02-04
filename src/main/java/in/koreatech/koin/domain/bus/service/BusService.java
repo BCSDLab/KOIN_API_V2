@@ -13,6 +13,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusNoticeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
@@ -159,6 +160,10 @@ public class BusService {
             (Integer)article.get("id"),
             (String)article.get("title")
         );
+    }
+
+    public List<BusCourseResponse> getBusCourses() {
+        return shuttleBusService.getBusCourses();
     }
 
     public ShuttleBusRoutesResponse getShuttleBusRoutes() {

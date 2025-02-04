@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusNoticeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse;
@@ -77,6 +78,16 @@ public interface BusApi {
         @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation depart,
         @Parameter(description = "koreatech, station, terminal") @RequestParam BusStation arrival
     );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "버스 노선 조회")
+    @GetMapping("/courses")
+    ResponseEntity<List<BusCourseResponse>> getBusCourses();
 
     @ApiResponses(
         value = {
