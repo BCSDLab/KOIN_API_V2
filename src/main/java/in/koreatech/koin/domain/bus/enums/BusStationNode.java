@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.bus.enums;
 
+import static in.koreatech.koin.domain.bus.enums.BusDirection.*;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -12,10 +14,9 @@ import lombok.Getter;
  */
 @Getter
 public enum BusStationNode {
-    TERMINAL(Map.of(
-        BusDirection.NORTH, List.of("CAB285000686"), BusDirection.SOUTH, List.of("CAB285000685", "CAB285010125"))), // 종합터미널
-    KOREATECH(Map.of(BusDirection.NORTH, List.of("CAB285000406"), BusDirection.SOUTH, List.of("CAB285000405"))), // 코리아텍
-    STATION(Map.of(BusDirection.NORTH, List.of("CAB285000655"), BusDirection.SOUTH, List.of("CAB285000656"))), // 천안역 동부광장
+    TERMINAL(Map.of(NORTH, List.of("CAB285000686"), SOUTH, List.of("CAB285000685", "CAB285010125"))), // 종합터미널
+    KOREATECH(Map.of(NORTH, List.of("CAB285000406"), SOUTH, List.of("CAB285000405"))), // 코리아텍
+    STATION(Map.of(NORTH, List.of("CAB285000655"), SOUTH, List.of("CAB285000656"))), // 천안역 동부광장
     ;
 
     private final Map<BusDirection, List<String>> node;
