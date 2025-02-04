@@ -99,7 +99,7 @@ public class ShuttleBusRoute {
         return false;
     }
 
-    public int findArrivalNodeIndexByStation(BusStation departNode) {
+    public int findDepartNodeIndexByStation(BusStation departNode) {
         for (int i = 0; i < nodeInfo.size(); i++) {
             for (String nodeName : departNode.getDisplayNames()) {
                 if (nodeInfo.get(i).getName().contains(nodeName)) {
