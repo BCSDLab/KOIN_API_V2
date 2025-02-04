@@ -46,7 +46,7 @@ public class ShuttleBusRouteStrategy implements BusRouteStrategy {
             if (!route.filterRoutesByDayOfWeek(command.date())) {
                 continue;
             }
-            int departNodeIndex = shuttleBusRoute.findArrivalNodeIndexByStation(command.depart());
+            int departNodeIndex = shuttleBusRoute.findDepartNodeIndexByStation(command.depart());
             ScheduleInfo shuttleBusScheduleInfo = new ScheduleInfo("shuttle",
                 shuttleBusRoute.getRouteName(), LocalTime.parse(route.getArrivalTime().get(departNodeIndex)));
             list.add(shuttleBusScheduleInfo);
