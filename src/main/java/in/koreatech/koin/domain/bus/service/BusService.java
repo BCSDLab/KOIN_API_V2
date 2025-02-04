@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.bus.service;
 
-import static in.koreatech.koin.domain.bus.model.enums.BusStation.getDirection;
-
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,7 +12,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,19 +30,14 @@ import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.SchoolBusTimetable;
-import in.koreatech.koin.domain.bus.model.enums.BusDirection;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
-import in.koreatech.koin.domain.bus.model.mongo.CityBusTimetable;
 import in.koreatech.koin.domain.bus.model.mongo.Route;
 import in.koreatech.koin.domain.bus.repository.BusNoticeRepository;
 import in.koreatech.koin.domain.bus.repository.BusRepository;
-import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
 import in.koreatech.koin.domain.bus.service.route.BusRouteStrategy;
-import in.koreatech.koin.domain.bus.util.city.CityBusClient;
-import in.koreatech.koin.domain.bus.util.city.CityBusRouteClient;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
@@ -59,34 +51,19 @@ public class BusService {
     private final Clock clock;
     private final BusRepository busRepository;
     private final BusNoticeRepository busNoticeRepository;
-    private final CityBusTimetableRepository cityBusTimetableRepository;
-    private final CityBusClient cityBusClient;
     private final ExpressBusService expressBusService;
-    private final CityBusRouteClient cityBusRouteClient;
     private final VersionService versionService;
     private final List<BusRouteStrategy> busRouteStrategies;
+    private final CityBusService cityBusService;
+    private final ShuttleBusService shuttleBusService;
 
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
         // 출발지 == 도착지면 예외
         validateBusCourse(depart, arrival);
+
         if (busType == BusType.CITY) {
-            // 시내버스에서 상행, 하행 구분할때 사용하는 로직
-            BusDirection direction = getDirection(depart, arrival);
-
-            Set<Long> departAvailableBusNumbers = cityBusRouteClient.getAvailableCityBus(depart.getNodeId(direction));
-            Set<Long> arrivalAvailableBusNumbers = cityBusRouteClient.getAvailableCityBus(arrival.getNodeId(direction));
-
-            departAvailableBusNumbers.retainAll(arrivalAvailableBusNumbers);
-
-            var remainTimes = cityBusClient.getBusRemainTime(depart.getNodeId(direction));
-
-            remainTimes = remainTimes.stream()
-                .filter(remainTime ->
-                    departAvailableBusNumbers.contains(remainTime.getBusNumber())
-                )
-                .toList();
-
+            var remainTimes = cityBusService.getBusRemainTime(depart, arrival);
             return toResponse(busType, remainTimes);
         }
 
@@ -96,18 +73,7 @@ public class BusService {
         }
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-            List<BusCourse> busCourses = busRepository.findByBusType(busType.getName());
-            var remainTimes = busCourses.stream()
-                .map(BusCourse::getRoutes)
-                .flatMap(routes ->
-                    routes.stream()
-                        .filter(route -> route.isRunning(clock))
-                        .filter(route -> route.isCorrectRoute(depart, arrival, clock))
-                        .map(route -> route.getRemainTime(depart))
-                )
-                .distinct()
-                .sorted()
-                .toList();
+            var remainTimes = shuttleBusService.getShuttleBusRemainTimes(busType, depart, arrival);
             return toResponse(busType, remainTimes);
         }
 
@@ -226,9 +192,7 @@ public class BusService {
     }
 
     public CityBusTimetableResponse getCityBusTimetable(Long busNumber, CityBusDirection direction) {
-        CityBusTimetable timetable = cityBusTimetableRepository
-            .getByBusInfoNumberAndBusInfoArrival(busNumber, direction.getName());
-        return CityBusTimetableResponse.of(busNumber, direction, timetable);
+        return cityBusService.getCityBusTimetable(busNumber, direction);
     }
 
     public BusScheduleResponse getBusSchedule(BusRouteCommand request) {
