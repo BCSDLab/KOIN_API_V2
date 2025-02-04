@@ -99,7 +99,7 @@ public class BusService {
         }
 
         if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-            List<BusCourse> newBusCourses = shuttleBusRepository.findByRouteType();
+            //List<BusCourse> newBusCourses = shuttleBusRepository.findByRouteType();
             List<BusCourse> busCourses = busRepository.findByBusType(busType.getName());
             var remainTimes = busCourses.stream()
                 .map(BusCourse::getRoutes)
