@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse.InnerBusResponse;
-import in.koreatech.koin.domain.bus.model.enums.BusStation;
-import in.koreatech.koin.domain.bus.model.enums.BusType;
+import in.koreatech.koin.domain.bus.enums.BusStation;
+import in.koreatech.koin.domain.bus.enums.BusType;
 import in.koreatech.koin.domain.bus.service.BusService;
 import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.model.DiningType;
