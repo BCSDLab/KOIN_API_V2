@@ -6,7 +6,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-import in.koreatech.koin.domain.bus.exception.BusIllegalArrivalTime;
+import in.koreatech.koin.domain.bus.exception.BusIllegalArrivalTimeException;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -36,7 +36,7 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
             return builder()
                 .busArrivalTime(toLocalTime(arrivalTime))
                 .build();
-        } catch (BusIllegalArrivalTime e) {
+        } catch (BusIllegalArrivalTimeException e) {
             return builder()
                 .busArrivalTimeRaw(arrivalTime)
                 .build();
@@ -54,7 +54,7 @@ public class BusRemainTime implements Comparable<BusRemainTime> {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
             return LocalTime.parse(arrivalTime, formatter);
         } catch (Exception e) {
-            throw BusIllegalArrivalTime.withDetail("arrivalTime: " + arrivalTime);
+            throw BusIllegalArrivalTimeException.withDetail("arrivalTime: " + arrivalTime);
         }
     }
 
