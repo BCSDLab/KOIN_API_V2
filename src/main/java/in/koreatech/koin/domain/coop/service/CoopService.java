@@ -317,6 +317,30 @@ public class CoopService {
         excelDownloadCacheRepository.save(ExcelDownloadCache.from(startDate, endDate));
     }
 
+    /**
+     * 영양사 페이지 > 식단 이미지 압축파일 다운로드 기능
+     * 동작 과정
+     * 1. 요청한 기간 내에 이미지가 존재하는 식단 데이터를 조회한다.
+     * 2. 프로젝트 최상위 경로에 image-download/dining_images 폴더를 생성한다.
+     * 4. 식단 이미지를 S3에서 다운로드하여 dining_images 폴더에 저장한다.
+     * 5. dining_images 폴더를 dining_images.zip 파일로 압축한다.
+     * 6. dining_images 폴더를 제거하고 dining_images.zip 파일을 반환한다.
+     * 7. 압축파일 반환 전, 새로운 스레드를 생성하여 dining_images.zip 파일을 삭제한다.
+     *
+     * 문제 발생 가능한 부분
+     * (1) 4번 과정에서 서버 자원을 과하게 많이 사용할 수 있다.(물론 요청 이후에는 삭제되지만 요청 간 자원이 많이 사용된다)
+     * (2) 6, 7번 과정에서 파일 제거가 실패할 경우, 서버에 임시 파일이 남아있을 수 있다.
+     *
+     * 개선 가능 부분
+     * - (4)를 개선하기 위해 이미지 다운로드 시, 서버에 직접 다운받지 않고 S3에서 즉시 사용자에게 전송한다.
+     *   - 참고 자료) https://gksdudrb922.tistory.com/234
+     * - (2)를 개선하기 위해 파일 제거 실패 시, 재시도를 하거나 예외를 던지거나 스케줄링을 돌린다.
+     *
+     * @param startDate 시작일
+     * @param endDate 종료일
+     * @param isCafeteria 학식당 이미지만 다운로드할 것인가
+     * @return 식단 이미지 압축파일
+     */
     public File generateDiningImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
         validateDates(startDate, endDate);
         List<Dining> dining = fetchDiningDataForImageCompress(startDate, endDate, isCafeteria);
@@ -393,7 +417,7 @@ public class CoopService {
         new Thread(() -> remove(zipFilePath.getParentFile())).start();
     }
 
-    private static void compress(File path, File localImageDirectory) {
+    private void compress(File path, File localImageDirectory) {
         try {
             new ZipFile(path).addFolder(localImageDirectory);
         } catch (ZipException e) {
