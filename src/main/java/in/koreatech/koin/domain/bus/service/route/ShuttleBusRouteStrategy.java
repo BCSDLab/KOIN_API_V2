@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
 import in.koreatech.koin.domain.bus.dto.BusScheduleResponse.ScheduleInfo;
 import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
+import in.koreatech.koin.domain.bus.model.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.model.mongo.ShuttleBusRoute;
 import in.koreatech.koin.domain.bus.model.mongo.ShuttleBusRoute.RouteInfo;
 import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
@@ -33,9 +34,6 @@ public class ShuttleBusRouteStrategy implements BusRouteStrategy {
         List<ScheduleInfo> list = new ArrayList<>();
         for (ShuttleBusRoute shuttleBusRoute : shuttleBusRepository.findBySemesterTypeAndRegion(semesterType,
             CHEONAN_ASAN)) {
-            if (!shuttleBusRoute.filterDepartAndArriveNode(command.depart(), command.arrive())) {
-                continue;
-            }
             addSchedule(command, shuttleBusRoute, list);
         }
         return list;
@@ -43,13 +41,30 @@ public class ShuttleBusRouteStrategy implements BusRouteStrategy {
 
     private void addSchedule(BusRouteCommand command, ShuttleBusRoute shuttleBusRoute, List<ScheduleInfo> list) {
         for (RouteInfo route : shuttleBusRoute.getRouteInfo()) {
-            if (!route.filterRoutesByDayOfWeek(command.date())) {
-                continue;
+            // 노선방향이 반대인 경우
+            if (shuttleBusRoute.getRouteType() == ShuttleRouteType.WEEKDAYS && route.getName().equals("하교")) {
+                if (!shuttleBusRoute.filterDepartAndArriveNodeReverse(command.depart(), command.arrive())) {
+                    continue;
+                }
+                if (!route.filterRoutesByDayOfWeek(command.date())) {
+                    continue;
+                }
+                int departNodeIndex = shuttleBusRoute.findDepartNodeIndexByStationReverse(command.depart());
+                ScheduleInfo shuttleBusScheduleInfo = new ScheduleInfo("shuttle",
+                    shuttleBusRoute.getRouteName(), LocalTime.parse(route.getArrivalTime().get(departNodeIndex)));
+                list.add(shuttleBusScheduleInfo);
+            } else {
+                if (!shuttleBusRoute.filterDepartAndArriveNode(command.depart(), command.arrive())) {
+                    continue;
+                }
+                if (!route.filterRoutesByDayOfWeek(command.date())) {
+                    continue;
+                }
+                int departNodeIndex = shuttleBusRoute.findDepartNodeIndexByStation(command.depart());
+                ScheduleInfo shuttleBusScheduleInfo = new ScheduleInfo("shuttle",
+                    shuttleBusRoute.getRouteName(), LocalTime.parse(route.getArrivalTime().get(departNodeIndex)));
+                list.add(shuttleBusScheduleInfo);
             }
-            int departNodeIndex = shuttleBusRoute.findDepartNodeIndexByStation(command.depart());
-            ScheduleInfo shuttleBusScheduleInfo = new ScheduleInfo("shuttle",
-                shuttleBusRoute.getRouteName(), LocalTime.parse(route.getArrivalTime().get(departNodeIndex)));
-            list.add(shuttleBusScheduleInfo);
         }
     }
 
