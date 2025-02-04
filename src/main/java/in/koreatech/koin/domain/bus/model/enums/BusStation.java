@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 public enum BusStation {
-    KOREATECH(List.of("학교", "한기대", "코리아텍"), BusStationNode.KOREATECH, "한기대"),
+    KOREATECH(List.of("학교", "한기대", "코리아텍", "대학", "본교"), BusStationNode.KOREATECH, "한기대"),
     STATION(List.of("천안역", "천안역(학화호두과자)"), BusStationNode.STATION, "천안역"),
     TERMINAL(List.of("터미널", "터미널(신세계 앞 횡단보도)", "야우리"), BusStationNode.TERMINAL, "터미널"),
     ;
