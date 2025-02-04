@@ -35,7 +35,7 @@ import in.koreatech.koin.domain.bus.model.express.ExpressBusCacheInfo;
 import in.koreatech.koin.domain.bus.model.express.ExpressBusRoute;
 import in.koreatech.koin.domain.bus.repository.CityBusCacheRepository;
 import in.koreatech.koin.domain.bus.repository.ExpressBusCacheRepository;
-import in.koreatech.koin.domain.bus.util.express.ExpressBusService;
+import in.koreatech.koin.domain.bus.util.BusCacheService;
 import in.koreatech.koin.domain.version.model.Version;
 import in.koreatech.koin.domain.version.model.VersionType;
 import in.koreatech.koin.domain.version.repository.VersionRepository;
@@ -60,7 +60,7 @@ class BusApiTest extends AcceptanceTest {
     private ExpressBusCacheRepository expressBusCacheRepository;
 
     @Autowired
-    private ExpressBusService expressBusService;
+    private BusCacheService busCacheService;
 
     @BeforeAll
     void setUp() {
@@ -262,7 +262,7 @@ class BusApiTest extends AcceptanceTest {
         doNothing().when(tmoneyExpressBusClient).storeRemainTime();
         doNothing().when(staticExpressBusClient).storeRemainTime();
 
-        expressBusService.storeRemainTimeByRatio();
+        busCacheService.storeRemainTimeByRatio();
 
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, never()).storeRemainTime();
@@ -277,7 +277,7 @@ class BusApiTest extends AcceptanceTest {
         doNothing().when(tmoneyExpressBusClient).storeRemainTime();
         doNothing().when(staticExpressBusClient).storeRemainTime();
 
-        expressBusService.storeRemainTimeByRatio();
+        busCacheService.storeRemainTimeByRatio();
 
         verify(publicExpressBusClient, times(1)).storeRemainTime();
         verify(tmoneyExpressBusClient, times(1)).storeRemainTime();

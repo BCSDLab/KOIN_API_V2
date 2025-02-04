@@ -26,7 +26,6 @@ import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.service.BusService;
-import in.koreatech.koin.domain.bus.service.ShuttleBusService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -35,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 public class BusController implements BusApi {
 
     private final BusService busService;
-    private final ShuttleBusService shuttleBusService;
 
     @GetMapping
     public ResponseEntity<BusRemainTimeResponse> getBusRemainTime(
@@ -78,12 +76,12 @@ public class BusController implements BusApi {
 
     @GetMapping("/courses/shuttle")
     public ResponseEntity<ShuttleBusRoutesResponse> getShuttleBusRoutes() {
-        return ResponseEntity.ok().body(shuttleBusService.getShuttleBusRoutes());
+        return ResponseEntity.ok().body(busService.getShuttleBusRoutes());
     }
 
     @GetMapping("/timetable/shuttle/{id}")
     public ResponseEntity<ShuttleBusTimetableResponse> getShuttleBusTimetable(@PathVariable String id) {
-        return ResponseEntity.ok().body(shuttleBusService.getShuttleBusTimetable(id));
+        return ResponseEntity.ok().body(busService.getShuttleBusTimetable(id));
     }
 
     @GetMapping("/route")
