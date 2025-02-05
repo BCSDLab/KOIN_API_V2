@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.student.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
@@ -15,8 +16,14 @@ public interface DepartmentRepository extends Repository<Department, Integer> {
 
     Optional<Department> findByName(String name);
 
+    Optional<List<Department>> findAll();
+
     default Department getByName(String name) {
         return findByName(name)
             .orElseThrow(() -> DepartmentNotFoundException.withDetail("name: " + name));
+    }
+
+    default List<Department> getAll() {
+        return findAll().orElseThrow(() -> DepartmentNotFoundException.withDetail("all"));
     }
 }
