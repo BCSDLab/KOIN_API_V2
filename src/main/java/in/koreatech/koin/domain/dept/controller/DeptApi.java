@@ -48,6 +48,6 @@ public interface DeptApi {
         }
     )
     @Operation(summary = "학부/전공 목록 조회")
-    @GetMapping("/new/depts")
+    @GetMapping("/depts/major")
     ResponseEntity<List<DeptAndMajorResponse>> getAllDeptAndMajor();
 }
