@@ -64,11 +64,11 @@ class UploadServiceTest extends AcceptanceTest {
     void 이미지_확장자를_받아_이미지_이름을_UUID로_생성_후_Presigned_URL을_생성하여_반환한다() {
         // given
         S3Utils utils = new S3Utils(
+            "test-bucket",
+            "https://test-image.koreatech.in/",
             presigner,
             s3Client,
-            Clock.systemDefaultZone(),
-            "test-bucket",
-            "https://test-image.koreatech.in/"
+            Clock.systemDefaultZone()
         );
 
         // when

@@ -3,10 +3,12 @@ package in.koreatech.koin.domain.coop.controller;
 import static in.koreatech.koin.domain.user.model.UserType.COOP;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.net.URI;
 import java.time.LocalDate;
 
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import in.koreatech.koin.domain.coop.dto.CompressFileResponseBuilder;
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
 import in.koreatech.koin.domain.coop.dto.DiningImageRequest;
@@ -75,5 +78,22 @@ public class CoopController implements CoopApi {
     ) {
         ByteArrayInputStream excelFile = coopService.generateDiningExcel(startDate, endDate, isCafeteria);
         return ExcelResponseBuilder.buildExcelResponse(excelFile, startDate, endDate);
+    }
+
+    @GetMapping("/dining/image")
+    public ResponseEntity<Resource> generateImageCompress(
+        @Auth(permit = {COOP}) Integer userId,
+        @Parameter(description = "시작일 (형식: yyyy-MM-dd)", example = "2022-11-29")
+        @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        LocalDate startDate,
+        @Parameter(description = "종료일 (형식: yyyy-MM-dd)", example = "2023-01-10")
+        @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        LocalDate endDate,
+        @RequestParam(name = "isCafeteria", defaultValue = "false") Boolean isCafeteria
+    ) {
+        File zipFile = coopService.generateDiningImageCompress(startDate, endDate, isCafeteria);
+        ResponseEntity<Resource> response = CompressFileResponseBuilder.buildCompressFileResponse(zipFile);
+        coopService.removeDiningImageCompress(zipFile);
+        return response;
     }
 }
