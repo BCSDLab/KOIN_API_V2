@@ -31,8 +31,6 @@ import in.koreatech.koin.domain.bus.model.enums.BusStation;
 import in.koreatech.koin.domain.bus.model.enums.BusType;
 import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
 import in.koreatech.koin.domain.bus.repository.BusNoticeRepository;
-import in.koreatech.koin.domain.bus.repository.BusRepository;
-import in.koreatech.koin.domain.bus.repository.CityBusTimetableRepository;
 import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
 import in.koreatech.koin.domain.bus.service.route.BusRouteStrategy;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
@@ -64,31 +62,6 @@ public class BusService {
         };
 
         return toResponse(busType, remainTimes);
-    }
-
-        if (busType == BusType.SHUTTLE || busType == BusType.COMMUTING) {
-            //List<BusCourse> newBusCourses = shuttleBusRepository.findByRouteType();
-            List<BusCourse> busCourses = busRepository.findByBusType(busType.getName());
-            var remainTimes = busCourses.stream()
-                .map(BusCourse::getRoutes)
-                .flatMap(routes ->
-                    routes.stream()
-                        .filter(route -> route.isRunning(clock))
-                        .filter(route -> route.isCorrectRoute(depart, arrival, clock))
-                        .map(route -> route.getRemainTime(depart))
-                )
-                .distinct()
-                .sorted()
-                .toList();
-            return toResponse(busType, remainTimes);
-        }
-
-        throw new KoinIllegalArgumentException("Invalid bus", "type: " + busType);
-    }
-
-    private String convertShuttleBusField() {
-
-        return null;
     }
 
     public List<SingleBusTimeResponse> searchTimetable(
