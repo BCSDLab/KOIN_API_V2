@@ -36,7 +36,7 @@ public class DeptController implements DeptApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/new/depts")
+    @GetMapping("/depts/major")
     public ResponseEntity<List<DeptAndMajorResponse>> getAllDeptAndMajor() {
         List<DeptAndMajorResponse> response = deptService.getAllDepartmentsWithMajors();
         return ResponseEntity.ok(response);
