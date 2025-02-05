@@ -17,5 +17,4 @@ public interface DiningSoldOutCacheRepository extends Repository<DiningSoldOutCa
         return findById(diningPlace).orElseThrow(
             () -> DiningCacheNotFoundException.withDetail("diningSoldOutCache: " + diningPlace));
     }
-
 }
