@@ -50,7 +50,10 @@ public record LostItemArticleResponse(
     LocalDate registeredAt,
 
     @Schema(description = "수정일", example = "2025-01-10 16:53:22", requiredMode = REQUIRED)
-    LocalDateTime updatedAt
+    LocalDateTime updatedAt,
+
+    @Schema(description = "처리되지 않은 신고 존재 여부", example = "true", requiredMode = REQUIRED)
+    Boolean isReported
 ) {
 
     public static LostItemArticleResponse from(Article article) {
@@ -70,7 +73,8 @@ public record LostItemArticleResponse(
             article.getPrevId(),
             article.getNextId(),
             article.getRegisteredAt(),
-            article.getUpdatedAt()
+            article.getUpdatedAt(),
+            lostItemArticle.isReported()
         );
     }
 

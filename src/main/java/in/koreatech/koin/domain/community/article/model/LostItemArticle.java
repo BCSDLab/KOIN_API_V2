@@ -5,8 +5,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ColumnDefault;
 
+import in.koreatech.koin.domain.shop.model.review.ReportStatus;
 import in.koreatech.koin.domain.user.model.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -66,9 +68,12 @@ public class LostItemArticle {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @BatchSize(size = 100)
+    @OneToMany(mappedBy = "lostItemArticle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LostItemReport> lostItemReports = new ArrayList<>();
+
     @Builder
     public LostItemArticle(
-        Integer id,
         Article article,
         User author,
         String category,
@@ -77,7 +82,6 @@ public class LostItemArticle {
         List<LostItemImage> images,
         Boolean isDeleted
     ) {
-        this.id = id;
         this.article = article;
         this.author = author;
         this.category = category;
@@ -112,5 +116,14 @@ public class LostItemArticle {
     public void delete() {
         this.isDeleted = true;
         this.images.forEach(LostItemImage::delete);
+    }
+
+    /**
+     * 미처리된 신고가 존재하는지 확인합니다.
+     */
+    public boolean isReported() {
+        return this.getLostItemReports()
+            .stream()
+            .anyMatch(report -> report.getReportStatus() == ReportStatus.UNHANDLED);
     }
 }

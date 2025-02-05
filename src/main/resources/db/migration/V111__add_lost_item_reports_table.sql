@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS `lost_item_reports`
+(
+    id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    lost_id    INT UNSIGNED NOT NULL,
+    title      VARCHAR(50)  NOT NULL,
+    content    VARCHAR(255) NOT NULL,
+    user_id    INT UNSIGNED NOT NULL,
+    status     VARCHAR(25) DEFAULT 'UNHANDLED',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`lost_id`) REFERENCES `lost_item_articles` (`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+);
