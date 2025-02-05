@@ -23,7 +23,6 @@ public enum ExcelDiningPosition {
     DINNER_C_CORNER(DINNER, "C코너", getFirstPosition() + 32, getFirstPosition() + 40),
     DINNER_WELFARE(DINNER, "능수관", 0, getFirstPosition() + 44),
     DINNER_CAMPUS2(DINNER, "2캠퍼스", 0, getFirstPosition() + 46),
-
     ;
 
     private final DiningType diningType;
