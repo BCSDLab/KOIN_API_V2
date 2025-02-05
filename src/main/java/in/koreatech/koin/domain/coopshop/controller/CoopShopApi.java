@@ -41,9 +41,9 @@ public interface CoopShopApi {
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "특정 생협 매장 정보 조회")
-    @GetMapping("/{coopShopId}")
+    @Operation(summary = "특정 생협 매장 정보 고유 번호로 조회")
+    @GetMapping("/{coopNameId}")
     ResponseEntity<CoopShopResponse> getCoopShop(
-        @Parameter(in = PATH) @PathVariable("coopShopId") Integer coopShopId
+        @Parameter(in = PATH) @PathVariable("coopNameId") Integer coopNameId
     );
 }
