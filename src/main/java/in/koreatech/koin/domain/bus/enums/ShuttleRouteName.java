@@ -1,9 +1,10 @@
-package in.koreatech.koin.domain.bus.model.enums;
+package in.koreatech.koin.domain.bus.enums;
 
-import static in.koreatech.koin.domain.bus.model.enums.BusType.COMMUTING;
-import static in.koreatech.koin.domain.bus.model.enums.ShuttleBusRegion.*;
-import static in.koreatech.koin.domain.bus.model.enums.ShuttleRouteType.*;
+import static in.koreatech.koin.domain.bus.enums.BusType.COMMUTING;
+import static in.koreatech.koin.domain.bus.enums.ShuttleBusRegion.*;
+import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import in.koreatech.koin.domain.bus.exception.BusIllegalRegionException;
@@ -34,5 +35,15 @@ public enum ShuttleRouteName {
             }
         }
         throw BusIllegalRegionException.withDetail("displayName: " + regionName);
+    }
+
+    public static List<ShuttleRouteName> getRoutesByLegacy(BusType type) {
+        List<ShuttleRouteName> routes = new ArrayList<>();
+        for (ShuttleRouteName region : ShuttleRouteName.values()) {
+            if (region.getBusType().equals(type)) {
+                routes.add(region);
+            }
+        }
+        return routes;
     }
 }

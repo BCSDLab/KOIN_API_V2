@@ -1,14 +1,15 @@
 package in.koreatech.koin.domain.bus.service.shuttle;
 
-import static in.koreatech.koin.domain.bus.model.enums.BusType.COMMUTING;
-import static in.koreatech.koin.domain.bus.model.enums.BusType.SHUTTLE;
+import static in.koreatech.koin.domain.bus.enums.BusType.COMMUTING;
+import static in.koreatech.koin.domain.bus.enums.BusType.SHUTTLE;
+import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.WEEKDAYS;
+import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.WEEKEND;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
-import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -21,24 +22,16 @@ import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse;
 import in.koreatech.koin.domain.bus.dto.ShuttleBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
-import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
-import in.koreatech.koin.domain.bus.service.shuttle.model.SchoolBusTimetable;
+import in.koreatech.koin.domain.bus.enums.BusDirection;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.BusType;
+import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
+import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.service.shuttle.model.BusCourse;
 import in.koreatech.koin.domain.bus.service.shuttle.model.Route;
+import in.koreatech.koin.domain.bus.service.shuttle.model.SchoolBusTimetable;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
-import in.koreatech.koin.domain.bus.model.BusRemainTime;
-import in.koreatech.koin.domain.bus.model.SchoolBusTimetable;
-import in.koreatech.koin.domain.bus.model.enums.BusDirection;
-import in.koreatech.koin.domain.bus.model.enums.BusStation;
-import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.model.enums.ShuttleRouteName;
-import in.koreatech.koin.domain.bus.model.mongo.BusCourse;
-import in.koreatech.koin.domain.bus.model.mongo.Route;
-import in.koreatech.koin.domain.bus.model.mongo.ShuttleBusRoute;
-import in.koreatech.koin.domain.bus.repository.BusRepository;
-import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
+import in.koreatech.koin.domain.bus.enums.ShuttleRouteName;
 import in.koreatech.koin.domain.version.dto.VersionMessageResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +64,27 @@ public class ShuttleBusService {
     }
 
     public List<BusRemainTime> getShuttleBusRemainTimes(BusType busType, BusStation depart, BusStation arrival) {
+        // List<BusCourse> busCourses = new ArrayList<>();
+        // List<ShuttleBusRoute> routes = new ArrayList<>();
+        // if (busType.equals(SHUTTLE)) {
+        //     routes.addAll(shuttleBusRepository.findAllByBusType(WEEKDAYS));
+        // } else {
+        //     for(var type : List.of(WEEKEND, ShuttleRouteType.SHUTTLE)) {
+        //         routes.addAll(shuttleBusRepository.findAllByBusType(type));
+        //     }
+        // }
+        //
+        // List<ShuttleRouteName> routeNames = ShuttleRouteName.getRoutesByLegacy(busType);
+        //
+        // // ex) 통학-천안 다 가져오기
+        // List<ShuttleBusRoute> routes = routeNames.forEach(
+        //     routeName -> routeName.getRouteTypes().stream()
+        //     .map(routeType -> shuttleBusRepository.findAllByRegionAndRouteTypeAndSemesterType(
+        //         routeName.getBusRegion(), routeType, "방학기간"))
+        //     .flatMap(List::stream)
+        //     .toList()
+        // );
+
         List<BusCourse> busCourses = busRepository.findByBusType(busType.getName());
         return busCourses.stream()
             .map(BusCourse::getRoutes)
@@ -83,6 +97,10 @@ public class ShuttleBusService {
             .distinct()
             .sorted()
             .toList();
+    }
+
+    private Route busRouteConvertor(ShuttleBusRoute shuttleBusRoute) {
+        return null;
     }
 
     public List<SchoolBusTimetable> getSchoolBusTimetables(BusType busType, String direction, String region) {
@@ -133,7 +151,6 @@ public class ShuttleBusService {
                 }
                 timetableList.add(new SchoolBusTimetable(route.getRouteName(), arrivalNodes));
             }
-
         }
 
         return timetableList;

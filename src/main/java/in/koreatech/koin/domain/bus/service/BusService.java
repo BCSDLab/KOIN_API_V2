@@ -24,25 +24,17 @@ import in.koreatech.koin.domain.bus.dto.CityBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.ShuttleBusRoutesResponse;
 import in.koreatech.koin.domain.bus.dto.ShuttleBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
-import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
-import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
-import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
-import in.koreatech.koin.domain.bus.service.model.BusTimetable;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.BusType;
 import in.koreatech.koin.domain.bus.enums.CityBusDirection;
+import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
+import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
 import in.koreatech.koin.domain.bus.service.city.CityBusService;
 import in.koreatech.koin.domain.bus.service.express.ExpressBusService;
-import in.koreatech.koin.domain.bus.service.shuttle.ShuttleBusService;
+import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.service.model.BusTimetable;
 import in.koreatech.koin.domain.bus.service.model.route.BusRouteStrategy;
-import in.koreatech.koin.domain.bus.model.BusRemainTime;
-import in.koreatech.koin.domain.bus.model.BusTimetable;
-import in.koreatech.koin.domain.bus.model.enums.BusStation;
-import in.koreatech.koin.domain.bus.model.enums.BusType;
-import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
-import in.koreatech.koin.domain.bus.repository.BusNoticeRepository;
-import in.koreatech.koin.domain.bus.repository.ShuttleBusRepository;
-import in.koreatech.koin.domain.bus.service.route.BusRouteStrategy;
+import in.koreatech.koin.domain.bus.service.shuttle.ShuttleBusService;
 import in.koreatech.koin.domain.version.dto.VersionResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +51,6 @@ public class BusService {
     private final ExpressBusService expressBusService;
     private final CityBusService cityBusService;
     private final ShuttleBusService shuttleBusService;
-    private final ShuttleBusRepository shuttleBusRepository;
 
     @Transactional
     public BusRemainTimeResponse getBusRemainTime(BusType busType, BusStation depart, BusStation arrival) {
