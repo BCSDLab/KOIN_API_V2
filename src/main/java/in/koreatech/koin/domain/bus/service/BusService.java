@@ -13,6 +13,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.domain.bus.dto.BusCourseResponse;
 import in.koreatech.koin.domain.bus.dto.BusNoticeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRemainTimeResponse;
 import in.koreatech.koin.domain.bus.dto.BusRouteCommand;
@@ -25,6 +26,15 @@ import in.koreatech.koin.domain.bus.dto.ShuttleBusTimetableResponse;
 import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.exception.BusIllegalStationException;
 import in.koreatech.koin.domain.bus.exception.BusTypeNotSupportException;
+import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
+import in.koreatech.koin.domain.bus.service.model.BusTimetable;
+import in.koreatech.koin.domain.bus.enums.BusStation;
+import in.koreatech.koin.domain.bus.enums.BusType;
+import in.koreatech.koin.domain.bus.enums.CityBusDirection;
+import in.koreatech.koin.domain.bus.service.city.CityBusService;
+import in.koreatech.koin.domain.bus.service.express.ExpressBusService;
+import in.koreatech.koin.domain.bus.service.shuttle.ShuttleBusService;
+import in.koreatech.koin.domain.bus.service.model.route.BusRouteStrategy;
 import in.koreatech.koin.domain.bus.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.model.BusTimetable;
 import in.koreatech.koin.domain.bus.model.enums.BusStation;
@@ -159,6 +169,10 @@ public class BusService {
             (Integer)article.get("id"),
             (String)article.get("title")
         );
+    }
+
+    public List<BusCourseResponse> getBusCourses() {
+        return shuttleBusService.getBusCourses();
     }
 
     public ShuttleBusRoutesResponse getShuttleBusRoutes() {
