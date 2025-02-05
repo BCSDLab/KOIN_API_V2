@@ -25,13 +25,13 @@ import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.enums.BusDirection;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.BusType;
+import in.koreatech.koin.domain.bus.enums.ShuttleRouteName;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
 import in.koreatech.koin.domain.bus.service.shuttle.model.BusCourse;
 import in.koreatech.koin.domain.bus.service.shuttle.model.Route;
 import in.koreatech.koin.domain.bus.service.shuttle.model.SchoolBusTimetable;
 import in.koreatech.koin.domain.bus.service.shuttle.model.ShuttleBusRoute;
-import in.koreatech.koin.domain.bus.enums.ShuttleRouteName;
 import in.koreatech.koin.domain.version.dto.VersionMessageResponse;
 import in.koreatech.koin.domain.version.service.VersionService;
 import lombok.RequiredArgsConstructor;
@@ -64,30 +64,22 @@ public class ShuttleBusService {
     }
 
     public List<BusRemainTime> getShuttleBusRemainTimes(BusType busType, BusStation depart, BusStation arrival) {
-        // List<BusCourse> busCourses = new ArrayList<>();
-        // List<ShuttleBusRoute> routes = new ArrayList<>();
-        // if (busType.equals(SHUTTLE)) {
-        //     routes.addAll(shuttleBusRepository.findAllByBusType(WEEKDAYS));
-        // } else {
-        //     for(var type : List.of(WEEKEND, ShuttleRouteType.SHUTTLE)) {
-        //         routes.addAll(shuttleBusRepository.findAllByBusType(type));
-        //     }
-        // }
-        //
-        // List<ShuttleRouteName> routeNames = ShuttleRouteName.getRoutesByLegacy(busType);
-        //
-        // // ex) 통학-천안 다 가져오기
-        // List<ShuttleBusRoute> routes = routeNames.forEach(
-        //     routeName -> routeName.getRouteTypes().stream()
-        //     .map(routeType -> shuttleBusRepository.findAllByRegionAndRouteTypeAndSemesterType(
-        //         routeName.getBusRegion(), routeType, "방학기간"))
-        //     .flatMap(List::stream)
-        //     .toList()
-        // );
+        List<BusCourse> busCourses = new ArrayList<>();
+        List<ShuttleBusRoute> shuttleBusRoutes = new ArrayList<>();
+        if (busType.equals(COMMUTING)) {
+            shuttleBusRoutes.addAll(shuttleBusRepository.findAllByRouteType(WEEKDAYS));
+        } else {
+            for (var type : List.of(WEEKEND, ShuttleRouteType.SHUTTLE)) {
+                shuttleBusRoutes.addAll(shuttleBusRepository.findAllByRouteType(type));
+            }
+        }
 
-        List<BusCourse> busCourses = busRepository.findByBusType(busType.getName());
-        return busCourses.stream()
-            .map(BusCourse::getRoutes)
+        List<List<Route>> routess = new ArrayList<>();
+        for (ShuttleBusRoute shuttleBusRoute : shuttleBusRoutes) {
+            routess.add(busRouteConvertor(shuttleBusRoute));
+        }
+
+        return routess.stream()
             .flatMap(routes ->
                 routes.stream()
                     .filter(route -> route.isRunning(clock))
@@ -99,8 +91,29 @@ public class ShuttleBusService {
             .toList();
     }
 
-    private Route busRouteConvertor(ShuttleBusRoute shuttleBusRoute) {
-        return null;
+    private List<Route> busRouteConvertor(ShuttleBusRoute shuttleBusRoute) {
+        List<ShuttleBusRoute.RouteInfo> routeInfos = shuttleBusRoute.getRouteInfo();
+        List<Route> routes = new ArrayList<>();
+        for (var routeInfo : routeInfos) {
+            List<Route.ArrivalNode> arrivalNodes = new ArrayList<>();
+            List<String> arrivalTimes = routeInfo.getArrivalTime();
+
+            //TODO: 등교/하교별 다른 정렬 처리
+            for (int i = 0; i < arrivalTimes.size(); i++) {
+                arrivalNodes.add(Route.ArrivalNode.builder()
+                    .nodeName(shuttleBusRoute.getNodeInfo().get(i).getName())
+                    .arrivalTime(arrivalTimes.get(i))
+                    .build());
+            }
+            Route route = Route.builder()
+                .routeName(shuttleBusRoute.getRouteName())
+                .runningDays(routeInfo.getRunningDays())
+                .arrivalInfos(arrivalNodes)
+                .build();
+            routes.add(route);
+        }
+
+        return routes;
     }
 
     public List<SchoolBusTimetable> getSchoolBusTimetables(BusType busType, String direction, String region) {

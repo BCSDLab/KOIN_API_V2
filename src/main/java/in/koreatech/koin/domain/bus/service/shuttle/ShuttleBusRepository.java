@@ -20,7 +20,7 @@ public interface ShuttleBusRepository extends Repository<ShuttleBusRoute, Object
     List<ShuttleBusRoute> findAllByRegionAndRouteTypeAndSemesterType(ShuttleBusRegion region,
         ShuttleRouteType routeType, String semesterType);
 
-    List<ShuttleBusRoute> findAllByBusType(ShuttleRouteType busType);
+    List<ShuttleBusRoute> findAllByRouteType(ShuttleRouteType busType);
 
     Optional<ShuttleBusRoute> findById(String id);
 
