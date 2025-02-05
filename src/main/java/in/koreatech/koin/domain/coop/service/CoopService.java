@@ -2,7 +2,11 @@ package in.koreatech.koin.domain.coop.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,6 +19,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -33,6 +38,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.S3Object;
 
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
@@ -60,6 +71,8 @@ import in.koreatech.koin.domain.user.model.UserToken;
 import in.koreatech.koin.domain.user.repository.UserTokenRepository;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin.global.exception.KoinIllegalStateException;
+import in.koreatech.koin.global.s3.S3Utils;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -78,6 +91,9 @@ public class CoopService {
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final AmazonS3 s3Client;
+    private final S3Utils s3Utils;
+    private final List<String> placeFilters = Arrays.asList("A코너", "B코너", "C코너");
     private final List<String> cafeteriaPlaceFilters = Arrays.asList("A코너", "B코너", "C코너");
     private final List<String> allPlaceFilters = Arrays.asList("A코너", "B코너", "C코너", "능수관", "2캠퍼스");
 
@@ -433,5 +449,121 @@ public class CoopService {
 
     private CellStyle getCornerStyle(Workbook workbook) {
         return createCellStyle(workbook, new byte[] {(byte)252, (byte)237, (byte)186});
+    }
+
+    /**
+     * 영양사 페이지 > 식단 이미지 압축파일 다운로드 기능
+     * 동작 과정
+     * 1. 요청한 기간 내에 이미지가 존재하는 식단 데이터를 조회한다.
+     * 2. 프로젝트 최상위 경로에 image-download/dining_images 폴더를 생성한다.
+     * 4. 식단 이미지를 S3에서 다운로드하여 dining_images 폴더에 저장한다.
+     * 5. dining_images 폴더를 dining_images.zip 파일로 압축한다.
+     * 6. dining_images 폴더를 제거하고 dining_images.zip 파일을 반환한다.
+     * 7. 압축파일 반환 전, 새로운 스레드를 생성하여 dining_images.zip 파일을 삭제한다.
+     *
+     * 문제 발생 가능한 부분
+     * (1) 4번 과정에서 서버 자원을 과하게 많이 사용할 수 있다.(물론 요청 이후에는 삭제되지만 요청 간 자원이 많이 사용된다)
+     * (2) 6, 7번 과정에서 파일 제거가 실패할 경우, 서버에 임시 파일이 남아있을 수 있다.
+     *
+     * 개선 가능 부분
+     * - (4)를 개선하기 위해 이미지 다운로드 시, 서버에 직접 다운받지 않고 S3에서 즉시 사용자에게 전송한다.
+     *   - 참고 자료) https://gksdudrb922.tistory.com/234
+     * - (2)를 개선하기 위해 파일 제거 실패 시, 재시도를 하거나 예외를 던지거나 스케줄링을 돌린다.
+     *
+     * @param startDate 시작일
+     * @param endDate 종료일
+     * @param isCafeteria 학식당 이미지만 다운로드할 것인가
+     * @return 식단 이미지 압축파일
+     */
+    public File generateDiningImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
+        validateDates(startDate, endDate);
+        List<Dining> dining = fetchDiningDataForImageCompress(startDate, endDate, isCafeteria);
+        return generateZipFileOf(dining);
+    }
+
+    private List<Dining> fetchDiningDataForImageCompress(LocalDate startDate, LocalDate endDate, Boolean isCafeteria) {
+        if (isCafeteria) {
+            return diningRepository.findByDateBetweenAndImageUrlIsNotNullAndPlaceIn(startDate, endDate, placeFilters);
+        }
+        return diningRepository.findByDateBetweenAndImageUrlIsNotNull(startDate, endDate);
+    }
+
+    private File generateZipFileOf(List<Dining> dinings) {
+        String bucketName = s3Utils.getBucketName();
+        File parentDirectory = new File("image-download", RandomStringUtils.randomAlphanumeric(6));
+        File localImageDirectory = new File(parentDirectory, "dining_images");
+        File zipFile = new File(parentDirectory, "dining_images.zip");
+        preprocessPath(localImageDirectory, zipFile);
+
+        for (Dining dining : dinings) {
+            if (dining.getImageUrl().isEmpty()) {
+                continue;
+            }
+            String s3Key = extractS3KeyFrom(dining.getImageUrl());
+            File localFile = new File(localImageDirectory, convertFileName(dining, s3Key));
+            downloadS3Object(bucketName, s3Key, localFile);
+        }
+        compress(zipFile, localImageDirectory);
+        remove(localImageDirectory);
+        return zipFile;
+    }
+
+    private String convertFileName(Dining dining, String s3Key) {
+        String extension = s3Key.substring(s3Key.lastIndexOf("."));
+        LocalDate date = dining.getDate();
+        // ex) 2024-12-17-점심-B코너.png
+        return date.getYear() + "-" + date.getMonthValue() + "-" + date.getDayOfMonth() + "-"
+            + dining.getType().getDiningName() + "-" + dining.getPlace() + extension;
+    }
+
+    private String extractS3KeyFrom(String imageUrl) {
+        // URL format: https://<bucket-name>/<key(경로+파일명)>
+        String cdnPath = s3Utils.getDomainUrlPrefix();
+        return imageUrl.substring(imageUrl.indexOf(cdnPath) + cdnPath.length());
+    }
+
+    private void preprocessPath(File localImageDirectory, File zipFilePath) {
+        if (!localImageDirectory.exists()) {
+            localImageDirectory.mkdirs();
+        }
+        if (zipFilePath.exists()) {
+            zipFilePath.delete();
+        }
+    }
+
+    private void downloadS3Object(String bucketName, String s3Key, File localFile) {
+        try (S3Object s3Object = s3Client.getObject(bucketName, s3Key);
+             InputStream inputStream = s3Object.getObjectContent();
+             OutputStream outputStream = new FileOutputStream(localFile)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            throw new KoinIllegalStateException("S3 객체 다운로드 중 문제가 발생했습니다. " + e.getMessage());
+        }
+    }
+
+    public void removeDiningImageCompress(File zipFilePath) {
+        new Thread(() -> remove(zipFilePath.getParentFile())).start();
+    }
+
+    private void compress(File path, File localImageDirectory) {
+        try {
+            new ZipFile(path).addFolder(localImageDirectory);
+        } catch (ZipException e) {
+            throw new KoinIllegalStateException("파일 압축 중 문제가 발생했습니다. " + e.getMessage());
+        }
+    }
+
+    private void remove(File directory) {
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
+        }
+        directory.delete();
     }
 }

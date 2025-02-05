@@ -6,13 +6,13 @@ import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMI
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
 import in.koreatech.koin.domain.community.keyword.service.KeywordService;
@@ -37,7 +37,8 @@ public class ArticleKeywordEventListener {
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onKeywordRequest(ArticleKeywordEvent event) {
-        String articleTitle = articleRepository.getTitleById(event.articleId());
+        Article article = articleRepository.getById(event.articleId());
+        Board board = article.getBoard();
 
         List<Notification> notifications = notificationSubscribeRepository
             .findAllBySubscribeTypeAndDetailType(ARTICLE_KEYWORD, null)
@@ -45,7 +46,7 @@ public class ArticleKeywordEventListener {
             .filter(this::hasDeviceToken)
             .filter(subscribe -> isKeywordRegistered(event, subscribe))
             .filter(subscribe -> isNewArticle(event, subscribe))
-            .map(subscribe -> createAndRecordNotification(event, articleTitle, subscribe))
+            .map(subscribe -> createAndRecordNotification(article, board, event.keyword(), subscribe))
             .toList();
 
         notificationService.push(notifications);
@@ -69,24 +70,25 @@ public class ArticleKeywordEventListener {
     }
 
     private Notification createAndRecordNotification(
-        ArticleKeywordEvent event,
-        String articleTitle,
+        Article article,
+        Board board,
+        ArticleKeyword keyword,
         NotificationSubscribe subscribe
     ) {
         Integer userId = subscribe.getUser().getId();
-        String keyword = event.keyword().getKeyword();
-        String description = generateDescription(keyword);
+        String description = generateDescription(keyword.getKeyword());
 
         Notification notification = notificationFactory.generateKeywordNotification(
             KEYWORD,
-            event.articleId(),
-            keyword,
-            articleTitle,
+            article.getId(),
+            keyword.getKeyword(),
+            article.getTitle(),
+            board.getId(),
             description,
             subscribe.getUser()
         );
 
-        keywordService.updateLastNotifiedArticle(userId, event.articleId());
+        keywordService.updateLastNotifiedArticle(userId, article.getId());
         return notification;
     }
 

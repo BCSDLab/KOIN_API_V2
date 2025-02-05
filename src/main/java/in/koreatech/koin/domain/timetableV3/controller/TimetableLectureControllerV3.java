@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class TimetableLectureControllerV3 implements TimetableLectureApiV3 {
     @GetMapping("/v3/timetables/lecture")
     public ResponseEntity<TimetableLectureResponseV3> getTimetableLecture(
         @RequestParam(value = "timetable_frame_id") Integer timetableFrameId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableLectureResponseV3 response = lectureServiceV3.getTimetableLecture(timetableFrameId, userId);
         return ResponseEntity.ok(response);
@@ -33,7 +34,7 @@ public class TimetableLectureControllerV3 implements TimetableLectureApiV3 {
     @PostMapping("/v3/timetables/lecture/rollback")
     public ResponseEntity<TimetableLectureResponseV3> rollbackTimetableLecture(
         @RequestParam(name = "timetable_lectures_id") List<Integer> timetableLecturesId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableLectureResponseV3 response = lectureServiceV3.rollbackTimetableLecture(timetableLecturesId, userId);
         return ResponseEntity.ok(response);
@@ -42,7 +43,7 @@ public class TimetableLectureControllerV3 implements TimetableLectureApiV3 {
     @PostMapping("/v3/timetables/frame/rollback")
     public ResponseEntity<TimetableLectureResponseV3> rollbackTimetableFrame(
         @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableLectureResponseV3 response = lectureServiceV3.rollbackTimetableFrame(timetableFrameId, userId);
         return ResponseEntity.ok(response);

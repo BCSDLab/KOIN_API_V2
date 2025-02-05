@@ -2,7 +2,7 @@ package in.koreatech.koin.domain.bus.dto;
 
 import java.util.List;
 
-import in.koreatech.koin.domain.bus.model.express.TmoneyOpenApiExpressBusArrival;
+import in.koreatech.koin.domain.bus.service.express.model.TmoneyOpenApiExpressBusArrival;
 
 public record TmoneyOpenApiResponse(
     String code,

@@ -82,9 +82,11 @@ class ArticleApiTest extends AcceptanceTest {
 
     @Test
     void 공지사항_크롤링_게시글을_단건_조회한다() throws Exception {
+        Board noticeBoard = article3.getBoard();
         mockMvc.perform(
                 get("/articles/{articleId}", article3.getId())
                     .contentType(MediaType.APPLICATION_JSON)
+                    .param("boardId", noticeBoard.getId().toString())
             )
             .andExpect(status().isOk())
             .andExpect(content().json("""

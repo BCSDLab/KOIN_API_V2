@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV3.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class TimetableRegularLectureControllerV3 implements TimetableRegularLect
     @PostMapping("/v3/timetables/lecture/regular")
     public ResponseEntity<TimetableLectureResponseV3> createTimetablesRegularLecture(
         @Valid @RequestBody TimetableRegularLectureCreateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableLectureResponseV3 response = timetableLectureV3.createTimetablesRegularLecture(request, userId);
         return ResponseEntity.ok(response);
@@ -34,7 +35,7 @@ public class TimetableRegularLectureControllerV3 implements TimetableRegularLect
     @PutMapping("/v3/timetables/lecture/regular")
     public ResponseEntity<TimetableLectureResponseV3> updateTimetablesRegularLecture(
         @Valid @RequestBody TimetableRegularLectureUpdateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableLectureResponseV3 response = timetableLectureV3.updateTimetablesRegularLecture(request, userId);
         return ResponseEntity.ok(response);

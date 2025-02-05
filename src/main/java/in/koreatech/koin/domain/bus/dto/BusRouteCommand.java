@@ -3,8 +3,8 @@ package in.koreatech.koin.domain.bus.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import in.koreatech.koin.domain.bus.model.enums.BusRouteType;
-import in.koreatech.koin.domain.bus.model.enums.BusStation;
+import in.koreatech.koin.domain.bus.enums.BusRouteType;
+import in.koreatech.koin.domain.bus.enums.BusStation;
 
 public record BusRouteCommand(
 
