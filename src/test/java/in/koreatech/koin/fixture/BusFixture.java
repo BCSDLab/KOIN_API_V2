@@ -6,63 +6,64 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.domain.bus.service.shuttle.model.BusCourse;
 import in.koreatech.koin.domain.bus.service.city.model.CityBusTimetable;
-import in.koreatech.koin.domain.bus.service.shuttle.model.Route;
-import in.koreatech.koin.domain.bus.service.shuttle.BusRepository;
 import in.koreatech.koin.domain.bus.service.city.repository.CityBusTimetableRepository;
+import in.koreatech.koin.domain.bus.service.shuttle.ShuttleBusRepository;
 
 @Component
 @SuppressWarnings("NonAsciiCharacters")
 public final class BusFixture {
 
     @Autowired
-    private final BusRepository busRepository;
+    private final ShuttleBusRepository shuttleBusRepository;
 
     @Autowired
     private final CityBusTimetableRepository cityBusTimetableRepository;
 
-    public BusFixture(BusRepository busRepository, CityBusTimetableRepository cityBusTimetableRepository) {
-        this.busRepository = busRepository;
+    public BusFixture(
+        ShuttleBusRepository shuttleBusRepository,
+        CityBusTimetableRepository cityBusTimetableRepository
+    ) {
+        this.shuttleBusRepository = shuttleBusRepository;
         this.cityBusTimetableRepository = cityBusTimetableRepository;
     }
 
     public void 버스_시간표_등록() {
-        busRepository.save(
-            BusCourse.builder()
-                .busType("shuttle")
-                .region("천안")
-                .direction("from")
-                .routes(
-                    List.of(
-                        Route.builder()
-                            .routeName("주중")
-                            .runningDays(List.of("MON", "TUE", "WED", "THU", "FRI"))
-                            .arrivalInfos(
-                                List.of(
-                                    Route.ArrivalNode.builder()
-                                        .nodeName("한기대")
-                                        .arrivalTime("18:10")
-                                        .build(),
-                                    Route.ArrivalNode.builder()
-                                        .nodeName("신계초,운전리,연춘리")
-                                        .arrivalTime("정차")
-                                        .build(),
-                                    Route.ArrivalNode.builder()
-                                        .nodeName("천안역(학화호두과자)")
-                                        .arrivalTime("18:50")
-                                        .build(),
-                                    Route.ArrivalNode.builder()
-                                        .nodeName("터미널(신세계 앞 횡단보도)")
-                                        .arrivalTime("18:55")
-                                        .build()
-                                )
-                            )
-                            .build()
-                    )
-                )
-                .build()
-        );
+        // busRepository.save(
+        //     BusCourse.builder()
+        //         .busType("shuttle")
+        //         .region("천안")
+        //         .direction("from")
+        //         .routes(
+        //             List.of(
+        //                 Route.builder()
+        //                     .routeName("주중")
+        //                     .runningDays(List.of("MON", "TUE", "WED", "THU", "FRI"))
+        //                     .arrivalInfos(
+        //                         List.of(
+        //                             Route.ArrivalNode.builder()
+        //                                 .nodeName("한기대")
+        //                                 .arrivalTime("18:10")
+        //                                 .build(),
+        //                             Route.ArrivalNode.builder()
+        //                                 .nodeName("신계초,운전리,연춘리")
+        //                                 .arrivalTime("정차")
+        //                                 .build(),
+        //                             Route.ArrivalNode.builder()
+        //                                 .nodeName("천안역(학화호두과자)")
+        //                                 .arrivalTime("18:50")
+        //                                 .build(),
+        //                             Route.ArrivalNode.builder()
+        //                                 .nodeName("터미널(신세계 앞 횡단보도)")
+        //                                 .arrivalTime("18:55")
+        //                                 .build()
+        //                         )
+        //                     )
+        //                     .build()
+        //             )
+        //         )
+        //         .build()
+        // );
     }
 
     public void 시내버스_시간표_등록() {

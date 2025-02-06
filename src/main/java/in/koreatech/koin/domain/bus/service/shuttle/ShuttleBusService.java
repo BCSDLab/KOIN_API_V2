@@ -42,17 +42,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ShuttleBusService {
 
-    private final ShuttleBusRepository shuttleBusRepository;
     private final VersionService versionService;
-    private final BusRepository busRepository;
+    private final ShuttleBusRepository shuttleBusRepository;
     private final Clock clock;
 
     public List<BusCourseResponse> getBusCourses() {
         List<BusCourseResponse> courses = new ArrayList<>();
         for (var routeName : ShuttleRouteName.values()) {
             for (var direction : BusDirection.values()) {
-                courses.add(new BusCourseResponse(routeName.getBusType().toString().toLowerCase(), direction.getDirect(),
-                    routeName.getRegionName()));
+                courses.add(
+                    new BusCourseResponse(routeName.getBusType().toString().toLowerCase(), direction.getDirect(),
+                        routeName.getRegionName()));
             }
         }
         return courses;
