@@ -22,6 +22,11 @@ public class LostItemChatRoomUserBlockService {
     @Transactional
     public void blockUser(Integer articleId, Integer chatRoomId, Integer userId) {
         Integer otherUserId = findOtherUserId(articleId, chatRoomId, userId);
+
+        if (userBlockReader.readByBlockerUserIdAndBlockedUserId(userId, otherUserId).isPresent()) {
+            return;
+        }
+
         userBlockAppender.save(userId, otherUserId);
     }
 
