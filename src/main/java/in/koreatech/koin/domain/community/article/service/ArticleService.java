@@ -1,5 +1,24 @@
 package in.koreatech.koin.domain.community.article.service;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
@@ -32,20 +51,6 @@ import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
 import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
 import in.koreatech.koin.global.model.Criteria;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -276,11 +281,15 @@ public class ArticleService {
                     int secondWeight = 0;
 
                     // 제목(title)에 "사과"가 들어가면 후순위, "긴급"이 포함되면 우선순위
-                    if (first.getTitle().contains("사과")) firstWeight++;
-                    if (first.getTitle().contains("긴급")) firstWeight--;
+                    if (first.getTitle().contains("사과"))
+                        firstWeight++;
+                    if (first.getTitle().contains("긴급"))
+                        firstWeight--;
 
-                    if (second.getTitle().contains("사과")) secondWeight++;
-                    if (second.getTitle().contains("긴급")) secondWeight--;
+                    if (second.getTitle().contains("사과"))
+                        secondWeight++;
+                    if (second.getTitle().contains("긴급"))
+                        secondWeight--;
 
                     return Integer.compare(firstWeight, secondWeight);
                 })
@@ -299,27 +308,29 @@ public class ArticleService {
 
     public LostItemArticleResponse getLostItemArticle(Integer articleId, Integer userId) {
         Article article = articleRepository.getById(articleId);
-        User author = article.getLostItemArticle().getAuthor();
         setPrevNextArticle(LOST_ITEM_BOARD_ID, article);
-        Boolean isMine = false;
-        if (author.getId().equals(userId)) {
+
+        boolean isMine = false;
+        User author = article.getLostItemArticle().getAuthor();
+        if (Objects.equals(author.getId(), userId)) {
             isMine = true;
         }
+
         return LostItemArticleResponse.of(article, isMine);
     }
 
     @Transactional
     public LostItemArticleResponse createLostItemArticle(Integer userId, LostItemArticlesRequest requests) {
         Board lostItemBoard = boardRepository.getById(LOST_ITEM_BOARD_ID);
-        List<Article> newArticles = new ArrayList<>();
         User user = userRepository.getById(userId);
-        requests.articles()
-            .forEach(article -> {
-                    Article lostItemArticle = Article.createLostItemArticle(article, lostItemBoard, user);
-                    articleRepository.save(lostItemArticle);
-                    newArticles.add(lostItemArticle);
-                }
-            );
+        List<Article> newArticles = new ArrayList<>();
+
+        for (var article : requests.articles()) {
+            Article lostItemArticle = Article.createLostItemArticle(article, lostItemBoard, user);
+            articleRepository.save(lostItemArticle);
+            newArticles.add(lostItemArticle);
+        }
+
         sendKeywordNotification(newArticles);
         return LostItemArticleResponse.of(newArticles.get(0), true);
     }
