@@ -26,7 +26,6 @@ import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.enums.BusDirection;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.BusType;
-import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteName;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
@@ -49,9 +48,14 @@ public class ShuttleBusService {
     private final Clock clock;
 
     public List<BusCourseResponse> getBusCourses() {
-        return busRepository.findAll().stream()
-            .map(BusCourseResponse::from)
-            .toList();
+        List<BusCourseResponse> courses = new ArrayList<>();
+        for (var routeName : ShuttleRouteName.values()) {
+            for (var direction : BusDirection.values()) {
+                courses.add(new BusCourseResponse(routeName.getBusType().toString().toLowerCase(), direction.getDirect(),
+                    routeName.getRegionName()));
+            }
+        }
+        return courses;
     }
 
     public ShuttleBusRoutesResponse getShuttleBusRoutes() {
