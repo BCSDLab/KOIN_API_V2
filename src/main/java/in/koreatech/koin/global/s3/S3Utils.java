@@ -1,6 +1,11 @@
 package in.koreatech.koin.global.s3;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -12,9 +17,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 
 import in.koreatech.koin.global.domain.upload.dto.UploadFileResponse;
 import in.koreatech.koin.global.domain.upload.dto.UploadUrlResponse;
+import in.koreatech.koin.global.exception.KoinIllegalStateException;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
@@ -70,6 +77,20 @@ public class S3Utils {
             new PutObjectRequest(bucketName, uploadFilePath, new ByteArrayInputStream(fileData), metaData)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
         return new UploadFileResponse(domainUrlPrefix + uploadFilePath);
+    }
+
+    public void downloadS3Object(String bucketName, String s3Key, File localFile) {
+        try (S3Object s3Object = s3Client.getObject(bucketName, s3Key);
+             InputStream inputStream = s3Object.getObjectContent();
+             OutputStream outputStream = new FileOutputStream(localFile)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            throw new KoinIllegalStateException("S3 객체 다운로드 중 문제가 발생했습니다. " + e.getMessage());
+        }
     }
 
     public String getBucketName() {
