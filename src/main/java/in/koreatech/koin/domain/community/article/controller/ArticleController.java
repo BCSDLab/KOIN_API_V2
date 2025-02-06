@@ -84,10 +84,11 @@ public class ArticleController implements ArticleApi {
 
     @GetMapping("/lost-item")
     public ResponseEntity<LostItemArticlesResponse> getLostItemArticles(
+        @RequestParam(required = false) String type,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit
     ) {
-        LostItemArticlesResponse response = articleService.getLostItemArticles(page, limit);
+        LostItemArticlesResponse response = articleService.getLostItemArticles(type, page, limit);
         return ResponseEntity.ok().body(response);
     }
 

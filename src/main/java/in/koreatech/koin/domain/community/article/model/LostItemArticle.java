@@ -46,6 +46,10 @@ public class LostItemArticle {
     private User author;
 
     @NotNull
+    @Column(name = "type", nullable = false, columnDefinition = "LOST")
+    private String type;
+
+    @NotNull
     @Column(name = "category", nullable = false)
     private String category;
 
@@ -76,6 +80,7 @@ public class LostItemArticle {
         Integer id,
         Article article,
         User author,
+        String type,
         String category,
         String foundPlace,
         LocalDate foundDate,
@@ -86,6 +91,7 @@ public class LostItemArticle {
         this.id = id;
         this.article = article;
         this.author = author;
+        this.type = type;
         this.category = category;
         this.foundPlace = foundPlace;
         this.foundDate = foundDate;

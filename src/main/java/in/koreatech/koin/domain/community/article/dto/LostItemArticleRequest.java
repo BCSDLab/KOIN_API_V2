@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.community.article.dto;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDate;
@@ -14,6 +15,10 @@ import jakarta.validation.constraints.Size;
 
 @JsonNaming(value = SnakeCaseStrategy.class)
 public record LostItemArticleRequest(
+    @NotNull(message = "게시글 타입은 필수로 입력해야 합니다.")
+    @Schema(description = "게시글 타입", example = "LOST", requiredMode = NOT_REQUIRED)
+    String type,
+
     @NotNull(message = "분실물 종류는 필수로 입력해야 합니다.")
     @Schema(description = "분실물 종류", example = "신분증", requiredMode = REQUIRED)
     String category,

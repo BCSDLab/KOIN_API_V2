@@ -23,6 +23,9 @@ public record LostItemArticleResponse(
     @Schema(description = "게시판 id", example = "14", requiredMode = REQUIRED)
     Integer boardId,
 
+    @Schema(description = "게시글 타입", example = "LOST", requiredMode = NOT_REQUIRED)
+    String type,
+
     @Schema(description = "분실물 종류", example = "신분증", requiredMode = REQUIRED)
     String category,
 
@@ -66,6 +69,7 @@ public record LostItemArticleResponse(
         return new LostItemArticleResponse(
             article.getId(),
             article.getBoard().getId(),
+            lostItemArticle.getType(),
             lostItemArticle.getCategory(),
             lostItemArticle.getFoundPlace(),
             lostItemArticle.getFoundDate(),

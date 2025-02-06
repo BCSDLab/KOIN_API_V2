@@ -31,6 +31,8 @@ public interface ArticleRepository extends Repository<Article, Integer> {
 
     Page<Article> findAllByBoardId(Integer boardId, PageRequest pageRequest);
 
+    Page<Article> findAllByIdIn(List<Integer> articleIds, PageRequest pageRequest);
+
     default Article getById(Integer articleId) {
         Article found = findById(articleId).orElseThrow(
             () -> ArticleNotFoundException.withDetail("articleId: " + articleId));
@@ -41,6 +43,13 @@ public interface ArticleRepository extends Repository<Article, Integer> {
         }
         return found;
     }
+
+    @Query(
+        value = "SELECT a.* FROM new_articles a JOIN lost_item_articles la ON a.id = la.article_id WHERE la.type = :type",
+        countQuery = "SELECT COUNT(*) FROM new_articles a JOIN lost_item_articles la ON a.id = la.article_id WHERE la.type = :type",
+        nativeQuery = true
+    )
+    Page<Article> findAllByLostItemArticleType(@Param("type") String type, PageRequest pageRequest);
 
     @Query(
         value = "SELECT * FROM new_articles WHERE board_id = :boardId AND MATCH(title) AGAINST(CONCAT(:query, '*') IN BOOLEAN MODE) AND is_deleted = false",

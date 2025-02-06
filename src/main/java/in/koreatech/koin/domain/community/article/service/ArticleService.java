@@ -38,6 +38,7 @@ import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
 import in.koreatech.koin.domain.community.article.repository.BoardRepository;
+import in.koreatech.koin.domain.community.article.repository.LostItemArticleRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
 import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
@@ -71,6 +72,7 @@ public class ArticleService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final ArticleRepository articleRepository;
+    private final LostItemArticleRepository lostItemArticleRepository;
     private final BoardRepository boardRepository;
     private final ArticleSearchKeywordIpMapRepository articleSearchKeywordIpMapRepository;
     private final ArticleSearchKeywordRepository articleSearchKeywordRepository;
@@ -298,11 +300,18 @@ public class ArticleService {
         busArticleRepository.save(BusNoticeArticle.from(latestArticles.get(0)));
     }
 
-    public LostItemArticlesResponse getLostItemArticles(Integer page, Integer limit) {
+    public LostItemArticlesResponse getLostItemArticles(String type, Integer page, Integer limit) {
         Long total = articleRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, total.intValue());
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
-        Page<Article> articles = articleRepository.findAllByBoardId(LOST_ITEM_BOARD_ID, pageRequest);
+        Page<Article> articles;
+
+        if (type == null) {
+            articles = articleRepository.findAllByBoardId(LOST_ITEM_BOARD_ID, pageRequest);
+        } else {
+            articles = articleRepository.findAllByLostItemArticleType(type, pageRequest);
+        }
+
         return LostItemArticlesResponse.of(articles, criteria);
     }
 

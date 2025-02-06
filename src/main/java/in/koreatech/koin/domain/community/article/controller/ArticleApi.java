@@ -110,6 +110,7 @@ public interface ArticleApi {
     @Operation(summary = "분실물 게시글 목록 조회")
     @GetMapping("/lost-item")
     ResponseEntity<LostItemArticlesResponse> getLostItemArticles(
+        @RequestParam(required = false) String type,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit
     );
