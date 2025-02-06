@@ -528,8 +528,6 @@ public class CoopService {
         }
     }
 
-
-
     public void removeDiningImageCompress(File zipFilePath) {
         new Thread(() -> remove(zipFilePath.getParentFile())).start();
     }
