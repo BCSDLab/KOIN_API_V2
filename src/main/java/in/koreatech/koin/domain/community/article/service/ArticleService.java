@@ -283,15 +283,11 @@ public class ArticleService {
                     int secondWeight = 0;
 
                     // 제목(title)에 "사과"가 들어가면 후순위, "긴급"이 포함되면 우선순위
-                    if (first.getTitle().contains("사과"))
-                        firstWeight++;
-                    if (first.getTitle().contains("긴급"))
-                        firstWeight--;
+                    if (first.getTitle().contains("사과")) firstWeight++;
+                    if (first.getTitle().contains("긴급")) firstWeight--;
 
-                    if (second.getTitle().contains("사과"))
-                        secondWeight++;
-                    if (second.getTitle().contains("긴급"))
-                        secondWeight--;
+                    if (second.getTitle().contains("사과")) secondWeight++;
+                    if (second.getTitle().contains("긴급")) secondWeight--;
 
                     return Integer.compare(firstWeight, secondWeight);
                 })
