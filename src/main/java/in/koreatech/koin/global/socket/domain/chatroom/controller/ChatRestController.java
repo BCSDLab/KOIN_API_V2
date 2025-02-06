@@ -16,6 +16,7 @@ import in.koreatech.koin.global.auth.Auth;
 import in.koreatech.koin.global.socket.domain.chatroom.dto.ChatRoomInfoResponse;
 import in.koreatech.koin.global.socket.domain.chatroom.dto.ChatRoomListResponse;
 import in.koreatech.koin.global.socket.domain.chatroom.service.LostItemChatRoomInfoService;
+import in.koreatech.koin.global.socket.domain.chatroom.service.LostItemChatRoomUserBlockService;
 import in.koreatech.koin.global.socket.domain.message.dto.ChatMessageResponse;
 import in.koreatech.koin.global.socket.domain.message.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class ChatRestController implements ChatRestApi {
 
     private final LostItemChatRoomInfoService chatRoomInfoService;
+    private final LostItemChatRoomUserBlockService userBlockService;
     private final ChatMessageService chatMessageService;
 
     @PostMapping("/lost-item/{articleId}")
@@ -34,6 +36,7 @@ public class ChatRestController implements ChatRestApi {
         @PathVariable("articleId") Integer articleId
     ) {
         Integer chatRoomId = chatRoomInfoService.createLostItemChatRoom(articleId, studentId);
+        userBlockService.checkUserBlock(articleId, chatRoomId, studentId);
         String articleTitle = chatRoomInfoService.getArticleTitle(articleId);
         String chatPartnerProfileImage = chatRoomInfoService.getChatPartnerProfileImage(articleId);
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -46,11 +49,22 @@ public class ChatRestController implements ChatRestApi {
         @PathVariable("articleId") Integer articleId,
         @PathVariable("chatRoomId") Integer chatRoomId
     ) {
+        userBlockService.checkUserBlock(articleId, chatRoomId, studentId);
         String articleTitle = chatRoomInfoService.getArticleTitle(articleId);
         String chatPartnerProfileImage = chatRoomInfoService.getChatPartnerProfileImage(articleId);
         return ResponseEntity.ok(
             ChatRoomInfoResponse.from(articleId, chatRoomId, studentId, articleTitle, chatPartnerProfileImage)
         );
+    }
+
+    @PostMapping("/lost-item/{articleId}/{chatRoomId}/block")
+    public ResponseEntity<?> blockChatUser(
+        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @PathVariable("articleId") Integer articleId,
+        @PathVariable("chatRoomId") Integer chatRoomId
+    ) {
+        userBlockService.blockUser(articleId, chatRoomId, studentId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/lost-item/{articleId}/{chatRoomId}/messages")

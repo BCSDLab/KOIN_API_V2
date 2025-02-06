@@ -68,6 +68,32 @@ public interface ChatRestApi {
     @ApiResponses(
         value = {
             @ApiResponse(
+                responseCode = "201",
+                description = "사용자 차단 성공"
+            ),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "422", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(
+        summary = "채팅방 에서 사용자 차단",
+        description = """
+            ### articleId를 이용하여 사용자를 차단
+            - 서버에서 글쓴이의 ID를 조회하여 차단합니다.
+            """
+    )
+    @PostMapping("/lost-item/{articleId}/{chatRoomId}/block")
+    ResponseEntity<?> blockChatUser(
+        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @PathVariable("articleId") Integer articleId,
+        @PathVariable("chatRoomId") Integer chatRoomId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(
                 responseCode = "200",
                 description = "채팅방 정보 반환 성공",
                 content = @Content(
