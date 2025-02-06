@@ -493,7 +493,7 @@ public class CoopService {
 
         for (Dining dining : dinings) {
             if (dining.getImageUrl().isEmpty()
-                || !dining.getImageUrl().startsWith(bucketName)) {
+                || !dining.getImageUrl().startsWith(s3Utils.getDomainUrlPrefix())) {
                 continue;
             }
             String s3Key = extractS3KeyFrom(dining.getImageUrl());
