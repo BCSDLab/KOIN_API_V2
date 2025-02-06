@@ -22,9 +22,4 @@ public interface MajorRepository extends Repository<Major, Integer> {
         return findByName(name)
             .orElseThrow(() -> DepartmentNotFoundException.withDetail("name: " + name));
     }
-
-    default List<Major> getAllByDepartmentId(Integer departmentId) {
-        return findAllByDepartmentId(departmentId)
-            .orElseThrow(() -> DepartmentNotFoundException.withDetail("departmentId: " + departmentId));
-    }
 }

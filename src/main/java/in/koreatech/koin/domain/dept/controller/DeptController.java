@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import in.koreatech.koin.domain.dept.dto.DeptAndMajorResponse;
+import in.koreatech.koin.domain.dept.dto.DepartmentAndMajorResponse;
 import in.koreatech.koin.domain.dept.dto.DeptResponse;
 import in.koreatech.koin.domain.dept.dto.DeptsResponse;
 import in.koreatech.koin.domain.dept.service.DeptService;
@@ -37,8 +37,8 @@ public class DeptController implements DeptApi {
     }
 
     @GetMapping("/depts/major")
-    public ResponseEntity<List<DeptAndMajorResponse>> getAllDeptAndMajor() {
-        List<DeptAndMajorResponse> response = deptService.getAllDepartmentsWithMajors();
+    public ResponseEntity<List<DepartmentAndMajorResponse>> getAllDeptAndMajor() {
+        List<DepartmentAndMajorResponse> response = deptService.getAllDepartmentsWithMajors();
         return ResponseEntity.ok(response);
     }
 

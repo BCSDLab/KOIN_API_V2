@@ -6,7 +6,7 @@ import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Major;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record DeptAndMajorResponse(
+public record DepartmentAndMajorResponse(
     @Schema(description = "학과", example = "기계공학부")
     String department,
 
@@ -15,8 +15,8 @@ public record DeptAndMajorResponse(
         """)
     List<String> majors
 ) {
-    public static DeptAndMajorResponse of(Department department, List<Major> majorList) {
-        return new DeptAndMajorResponse(
+    public static DepartmentAndMajorResponse of(Department department, List<Major> majorList) {
+        return new DepartmentAndMajorResponse(
             department.getName(),
             majorList.stream().map(Major::getName).toList()
         );

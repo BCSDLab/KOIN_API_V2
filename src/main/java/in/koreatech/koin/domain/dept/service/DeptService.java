@@ -2,12 +2,13 @@ package in.koreatech.koin.domain.dept.service;
 
 import static in.koreatech.koin.domain.dept.model.Dept.NEW_ENERGY_MATERIALS_CHEMICAL_ENGINEERING;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import in.koreatech.koin.domain.dept.dto.DeptAndMajorResponse;
+import in.koreatech.koin.domain.dept.dto.DepartmentAndMajorResponse;
 import in.koreatech.koin.domain.dept.dto.DeptResponse;
 import in.koreatech.koin.domain.dept.dto.DeptsResponse;
 import in.koreatech.koin.domain.dept.model.Dept;
@@ -37,11 +38,12 @@ public class DeptService {
             .toList();
     }
 
-    public List<DeptAndMajorResponse> getAllDepartmentsWithMajors() {
-        List<Department> departments = departmentRepository.getAll();
+    public List<DepartmentAndMajorResponse> getAllDepartmentsWithMajors() {
+        List<Department> departments = departmentRepository.findAll().orElse(Collections.emptyList());
         return departments.stream().map(department -> {
-            List<Major> majors = majorRepository.getAllByDepartmentId(department.getId());
-            return DeptAndMajorResponse.of(department, majors);
+            List<Major> majors = majorRepository.findAllByDepartmentId(department.getId())
+                .orElse(Collections.emptyList());
+            return DepartmentAndMajorResponse.of(department, majors);
         }).toList();
     }
 }

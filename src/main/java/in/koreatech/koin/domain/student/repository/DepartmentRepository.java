@@ -22,8 +22,4 @@ public interface DepartmentRepository extends Repository<Department, Integer> {
         return findByName(name)
             .orElseThrow(() -> DepartmentNotFoundException.withDetail("name: " + name));
     }
-
-    default List<Department> getAll() {
-        return findAll().orElseThrow(() -> DepartmentNotFoundException.withDetail("all"));
-    }
 }
