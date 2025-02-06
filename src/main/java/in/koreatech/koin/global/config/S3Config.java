@@ -16,7 +16,7 @@ import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvide
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 /**
- * Key 기반 인증 방식은 취약하므로 IAM Role 기반 인증 방식을 사용한다. (InstanceProfileCredentialsProvider)
+ * Key 기반 인증 방식은 취약하므로 IAM Role 기반 인증 방식을 사용한다. (EC2ContainerCredentialsProviderWrapper)
  * EC2 인스턴스에 부여된 "EC2_to_S3" IAM Role을 통해 인증을 수행한다.
  */
 @Configuration
