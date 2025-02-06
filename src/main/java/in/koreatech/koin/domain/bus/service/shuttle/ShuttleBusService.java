@@ -127,11 +127,12 @@ public class ShuttleBusService {
 
         // 기존 요청으로 최신 db에 맞는 요청으로 변환
         ShuttleRouteName routeName = ShuttleRouteName.getRegionByLegacy(busType, region);
+        String semester = versionService.getVersionEntity("shuttle_bus_timetable").getTitle();
 
         // ex) 통학-천안 다 가져오기
-        List<ShuttleBusRoute> routes = routeName.getRouteTypes().stream()
+        List<ShuttleBusRoute> shuttleBusRoutes = routeName.getRouteTypes().stream()
             .map(routeType -> shuttleBusRepository.findAllByRegionAndRouteTypeAndSemesterType(
-                routeName.getBusRegion(), routeType, "방학기간"))
+                routeName.getBusRegion(), routeType, semester))
             .flatMap(List::stream)
             .toList();
 
@@ -139,24 +140,24 @@ public class ShuttleBusService {
         BusDirection busDirection = BusDirection.from(direction);
 
         // 등교/하교 필터링 필요
-        for (var route : routes) {
-            List<String> nodeInfo = route.getNodeInfo().stream()
+        for (var shuttleBusRoute : shuttleBusRoutes) {
+            List<String> nodeInfo = shuttleBusRoute.getNodeInfo().stream()
                 .map(ShuttleBusRoute.NodeInfo::getName)
                 .toList();
             List<ShuttleBusRoute.RouteInfo> routeInfos = new ArrayList<>();
 
             if (busType.equals(COMMUTING)) {
-                routeInfos.addAll(route.getRouteInfo().stream()
+                routeInfos.addAll(shuttleBusRoute.getRouteInfo().stream()
                     .filter(direct -> direct.getName().equals(busDirection.getName()))
                     .toList());
             }
             if (busType.equals(SHUTTLE)) {
-                if (route.getRouteName().contains("일학습병행대학")) {
-                    routeInfos.addAll(route.getRouteInfo().stream()
+                if (shuttleBusRoute.getRouteName().contains("일학습병행대학")) {
+                    routeInfos.addAll(shuttleBusRoute.getRouteInfo().stream()
                         .filter(direct -> direct.getName().equals(busDirection.getName()))
                         .toList());
                 } else {
-                    routeInfos.addAll(route.getRouteInfo().stream()
+                    routeInfos.addAll(shuttleBusRoute.getRouteInfo().stream()
                         .filter(direct -> (direct.getArrivalTime().get(0) == null) == busDirection.isNull())
                         .toList());
                 }
@@ -168,7 +169,7 @@ public class ShuttleBusService {
                     arrivalNodes.add(new SchoolBusTimetable.ArrivalNode(nodeInfo.get(i),
                         routeInfo.getArrivalTime().get(i)));
                 }
-                timetableList.add(new SchoolBusTimetable(route.getRouteName(), arrivalNodes));
+                timetableList.add(new SchoolBusTimetable(shuttleBusRoute.getRouteName(), arrivalNodes));
             }
         }
 
