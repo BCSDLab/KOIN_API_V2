@@ -21,6 +21,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,13 +42,14 @@ public class LostItemArticle {
     private Article article;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = true)
+    @JoinColumn(name = "author_id")
     private User author;
 
     @NotNull
     @Column(name = "category", nullable = false)
     private String category;
 
+    @Size(max = 255)
     @NotNull
     @Column(name = "found_place", nullable = false)
     private String foundPlace;

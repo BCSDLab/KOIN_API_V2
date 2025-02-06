@@ -48,7 +48,8 @@ public class SwaggerGroupConfig {
             "in.koreatech.koin.domain.community",
             "in.koreatech.koin.domain.coop",
             "in.koreatech.koin.domain.coopshop",
-            "in.koreatech.koin.domain.dining"
+            "in.koreatech.koin.domain.dining",
+            "in.koreatech.koin.global.socket.domain.chatroom"
         };
 
         return createGroupedOpenApi("3. Campus API", packagesPath);
@@ -83,7 +84,10 @@ public class SwaggerGroupConfig {
             "in.koreatech.koin.domain.dept",
             "in.koreatech.koin.domain.kakao",
             "in.koreatech.koin.domain.member",
-            "in.koreatech.koin.domain.version"
+            "in.koreatech.koin.domain.version",
+            "in.koreatech.koin.global.domain.upload",
+            "in.koreatech.koin.global.domain.test",
+            "in.koreatech.koin.global.domain.notification",
         };
 
         return createGroupedOpenApi("6. bcsd API", packagesPath);

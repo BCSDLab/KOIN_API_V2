@@ -26,7 +26,6 @@ public class OwnerUtilService {
     public void sendSlackNotification(Owner owner) {
         eventPublisher.publishEvent(new OwnerRegisterEvent(
                 owner.getUser().getName(),
-                owner.getUser().getEmail(),
                 owner.getId()
         ));
     }

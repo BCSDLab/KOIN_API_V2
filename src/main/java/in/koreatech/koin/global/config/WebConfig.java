@@ -10,8 +10,8 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import in.koreatech.koin.domain.bus.controller.BusStationEnumConverter;
-import in.koreatech.koin.domain.bus.controller.BusTypeEnumConverter;
+import in.koreatech.koin.domain.bus.converter.BusStationEnumConverter;
+import in.koreatech.koin.domain.bus.converter.BusTypeEnumConverter;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaConverter;
 import in.koreatech.koin.global.auth.AuthArgumentResolver;
 import in.koreatech.koin.global.auth.ExtractAuthenticationInterceptor;
