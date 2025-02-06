@@ -8,8 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.EC2ContainerCredentialsProviderWrapper;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -49,7 +48,8 @@ public class S3Config {
         return AmazonS3ClientBuilder.standard()
             .withRegion(Regions.AP_NORTHEAST_2)
             .withClientConfiguration(clientConfig)
-            .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+            //.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey))) // IAM user 사용
+            .withCredentials(new EC2ContainerCredentialsProviderWrapper()) // IAM Role 사용
             .build();
     }
 }
