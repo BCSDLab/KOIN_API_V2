@@ -109,8 +109,10 @@ public class LostItemChatRoomInfoService {
             otherUserId = articleAuthorId;
         }
 
-        boolean blockedByMe = userBlockReader.readByBlockerUserIdAndBlockedUserId(studentId, otherUserId).isPresent();
-        boolean blockedByOther = userBlockReader.readByBlockerUserIdAndBlockedUserId(otherUserId, studentId).isPresent();
+        boolean blockedByMe = userBlockReader.readByBlockerUserIdAndBlockedUserIdAndIsActive(
+            studentId, otherUserId, true).isPresent();
+        boolean blockedByOther = userBlockReader.readByBlockerUserIdAndBlockedUserIdAndIsActive(
+            otherUserId, studentId, true).isPresent();
 
         return blockedByMe || blockedByOther;
     }

@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import in.koreatech.koin.global.socket.domain.chatroom.model.LostItemChatUserBlockEntity;
@@ -20,16 +21,30 @@ public class LostItemChatUserBlockRepository {
         return mongoTemplate.save(entity);
     }
 
-    public Optional<LostItemChatUserBlockEntity> findByBlockerUserAndBlockedUser(
+    public Optional<LostItemChatUserBlockEntity> findByBlockerUserAndBlockedUserAndIsActive(
         Integer blockerUserId,
-        Integer blockedUserId
+        Integer blockedUserId,
+        Boolean isActive
     ) {
         Query query = Query.query(Criteria.where("blocker_user_id").is(blockerUserId)
             .and("blocked_user_id").is(blockedUserId)
-            .and("is_active").is(true)
+            .and("is_active").is(isActive)
         );
 
         LostItemChatUserBlockEntity result = mongoTemplate.findOne(query, LostItemChatUserBlockEntity.class);
         return Optional.ofNullable(result);
+    }
+
+    public void updateIsActiveByBlockerAndBlockedUser(
+        Integer blockerUserId,
+        Integer blockedUserId,
+        Boolean isActive
+    ) {
+        Query query = Query.query(Criteria.where("blocker_user_id").is(blockerUserId)
+            .and("blocked_user_id").is(blockedUserId));
+
+        Update update = new Update().set("is_active", isActive);
+
+        mongoTemplate.updateFirst(query, update, LostItemChatUserBlockEntity.class);
     }
 }

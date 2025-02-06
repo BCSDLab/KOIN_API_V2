@@ -14,9 +14,9 @@ public class UserBlockReader {
 
     private final LostItemChatUserBlockRepository userBlockRepository;
 
-    public Optional<LostItemChatUserBlockEntity> readByBlockerUserIdAndBlockedUserId(
-        Integer blockerUserId, Integer blockedUserId
+    public Optional<LostItemChatUserBlockEntity> readByBlockerUserIdAndBlockedUserIdAndIsActive(
+        Integer blockerUserId, Integer blockedUserId, Boolean isActive
     ) {
-        return userBlockRepository.findByBlockerUserAndBlockedUser(blockerUserId, blockedUserId);
+        return userBlockRepository.findByBlockerUserAndBlockedUserAndIsActive(blockerUserId, blockedUserId, isActive);
     }
 }

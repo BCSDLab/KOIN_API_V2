@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,6 +66,16 @@ public class ChatRestController implements ChatRestApi {
     ) {
         userBlockService.blockUser(articleId, chatRoomId, studentId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/lost-item/{articleId}/{chatRoomId}/unblock")
+    public ResponseEntity<?> unblockChatUser(
+        @Auth(permit= {STUDENT, COUNCIL}) Integer studentId,
+        @PathVariable("articleId") Integer articleId,
+        @PathVariable("chatRoomId") Integer chatRoomId
+    ) {
+        userBlockService.unBlockUser(articleId, chatRoomId, studentId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/lost-item/{articleId}/{chatRoomId}/messages")
