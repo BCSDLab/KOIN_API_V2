@@ -3,10 +3,7 @@ package in.koreatech.koin.domain.coop.service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,8 +15,8 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -43,7 +40,6 @@ import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.S3Object;
 
 import in.koreatech.koin.domain.coop.dto.CoopLoginRequest;
 import in.koreatech.koin.domain.coop.dto.CoopLoginResponse;
@@ -496,12 +492,13 @@ public class CoopService {
         preprocessPath(localImageDirectory, zipFile);
 
         for (Dining dining : dinings) {
-            if (dining.getImageUrl().isEmpty()) {
+            if (dining.getImageUrl().isEmpty()
+                || !dining.getImageUrl().startsWith(bucketName)) {
                 continue;
             }
             String s3Key = extractS3KeyFrom(dining.getImageUrl());
             File localFile = new File(localImageDirectory, convertFileName(dining, s3Key));
-            downloadS3Object(bucketName, s3Key, localFile);
+            s3Utils.downloadS3Object(bucketName, s3Key, localFile);
         }
         compress(zipFile, localImageDirectory);
         remove(localImageDirectory);
@@ -531,19 +528,7 @@ public class CoopService {
         }
     }
 
-    private void downloadS3Object(String bucketName, String s3Key, File localFile) {
-        try (S3Object s3Object = s3Client.getObject(bucketName, s3Key);
-             InputStream inputStream = s3Object.getObjectContent();
-             OutputStream outputStream = new FileOutputStream(localFile)) {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-        } catch (IOException e) {
-            throw new KoinIllegalStateException("S3 객체 다운로드 중 문제가 발생했습니다. " + e.getMessage());
-        }
-    }
+
 
     public void removeDiningImageCompress(File zipFilePath) {
         new Thread(() -> remove(zipFilePath.getParentFile())).start();
