@@ -2,6 +2,7 @@ package in.koreatech.koin.domain.bus.service.shuttle;
 
 import static in.koreatech.koin.domain.bus.enums.BusType.COMMUTING;
 import static in.koreatech.koin.domain.bus.enums.BusType.SHUTTLE;
+import static in.koreatech.koin.domain.bus.enums.ShuttleBusRegion.CHEONAN_ASAN;
 import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.WEEKDAYS;
 import static in.koreatech.koin.domain.bus.enums.ShuttleRouteType.WEEKEND;
 
@@ -25,6 +26,7 @@ import in.koreatech.koin.domain.bus.dto.SingleBusTimeResponse;
 import in.koreatech.koin.domain.bus.enums.BusDirection;
 import in.koreatech.koin.domain.bus.enums.BusStation;
 import in.koreatech.koin.domain.bus.enums.BusType;
+import in.koreatech.koin.domain.bus.enums.ShuttleBusRegion;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteName;
 import in.koreatech.koin.domain.bus.enums.ShuttleRouteType;
 import in.koreatech.koin.domain.bus.service.model.BusRemainTime;
@@ -179,9 +181,19 @@ public class ShuttleBusService {
             .getDisplayName(TextStyle.SHORT, Locale.US)
             .toUpperCase();
 
-        LocalTime arrivalTime = busRepository.findByBusType(busType.getName()).stream()
-            .filter(busCourse -> busCourse.getRegion().equals("천안"))
-            .map(BusCourse::getRoutes)
+        List<ShuttleBusRoute> busRoutes = new ArrayList<>();
+        if (busType.equals(COMMUTING)) {
+            busRoutes.addAll(shuttleBusRepository.findAllByRouteType(WEEKDAYS));
+        }
+        if (busType.equals(SHUTTLE)) {
+            for (var shuttleBusType : List.of(ShuttleRouteType.SHUTTLE, WEEKEND)) {
+                busRoutes.addAll(shuttleBusRepository.findAllByRouteType(shuttleBusType));
+            }
+        }
+
+        LocalTime arrivalTime = busRoutes.stream()
+            .filter(busRoute -> busRoute.getRegion().equals(CHEONAN_ASAN))
+            .map(this::busRouteConvertor)
             .flatMap(routes ->
                 routes.stream()
                     .filter(route -> route.getRunningDays().contains(todayName))
