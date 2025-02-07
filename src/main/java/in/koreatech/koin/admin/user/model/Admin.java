@@ -52,13 +52,24 @@ public class Admin {
     private boolean superAdmin = false;
 
     @Builder
-    public Admin(User user, TeamType teamType, TrackType trackType, boolean canCreateAdmin, boolean superAdmin) {
+    private Admin(
+        Integer id,
+        User user,
+        TeamType teamType,
+        TrackType trackType,
+        boolean canCreateAdmin,
+        boolean superAdmin
+    ) {
+        this.id = id;
         this.user = user;
         this.teamType = teamType;
         this.trackType = trackType;
         this.canCreateAdmin = canCreateAdmin;
         this.superAdmin = superAdmin;
     }
+
+    @Builder
+
 
     public void update(TeamType teamName, TrackType trackName) {
         this.teamType = teamName;
