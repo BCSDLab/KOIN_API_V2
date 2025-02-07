@@ -67,9 +67,7 @@ public class Admin {
         this.superAdmin = superAdmin;
     }
 
-    @Builder
-
-    public void update(TeamType teamName, TrackType trackName) {
+    public void updateTeamTrack(TeamType teamName, TrackType trackName) {
         this.teamType = teamName;
         this.trackType = trackName;
     }
