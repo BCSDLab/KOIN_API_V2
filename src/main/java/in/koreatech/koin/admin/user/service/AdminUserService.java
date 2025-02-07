@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
+import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.dto.AdminLoginRequest;
 import in.koreatech.koin.admin.user.dto.AdminLoginResponse;
 import in.koreatech.koin.admin.user.dto.AdminPasswordChangeRequest;
@@ -22,9 +24,7 @@ import in.koreatech.koin.admin.user.dto.AdminsCondition;
 import in.koreatech.koin.admin.user.dto.AdminsResponse;
 import in.koreatech.koin.admin.user.dto.CreateAdminRequest;
 import in.koreatech.koin.admin.user.model.Admin;
-import in.koreatech.koin.admin.owner.repository.AdminOwnerRepository;
 import in.koreatech.koin.admin.user.repository.AdminRepository;
-import in.koreatech.koin.admin.student.repository.AdminStudentRepository;
 import in.koreatech.koin.admin.user.repository.AdminTokenRepository;
 import in.koreatech.koin.admin.user.repository.AdminUserRepository;
 import in.koreatech.koin.admin.user.validation.AdminUserValidation;
@@ -154,7 +154,7 @@ public class AdminUserService {
             throw new AuthorizationException("슈퍼 어드민 권한이 없습니다.");
         }
 
-        adminRepository.getById(id).updatePermission(request);
+        adminRepository.getById(id).updatePermission(request.canCreateAdmin(), request.superAdmin());
     }
 
     @Transactional

@@ -66,8 +66,8 @@ public class Admin {
     }
 
     /* 어드민 권한이 추가 되면, 해당 메소드에도 추가해야 합니다. */
-    public void updatePermission(AdminPermissionUpdateRequest request) {
-        this.canCreateAdmin = request.canCreateAdmin();
-        this.superAdmin = request.superAdmin();
+    public void updatePermission(boolean canCreateAdmin, boolean superAdmin) {
+        this.canCreateAdmin = canCreateAdmin;
+        this.superAdmin = superAdmin;
     }
 }
