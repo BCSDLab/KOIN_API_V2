@@ -144,7 +144,7 @@ public class AdminUserService {
         User user = admin.getUser();
 
         user.updateName(request.name());
-        admin.update(request.teamType(), request.trackType());
+        admin.updateTeamTrack(request.teamType(), request.trackType());
     }
 
     @Transactional
