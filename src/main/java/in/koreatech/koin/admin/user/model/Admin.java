@@ -2,7 +2,6 @@ package in.koreatech.koin.admin.user.model;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import in.koreatech.koin.admin.user.dto.AdminPermissionUpdateRequest;
 import in.koreatech.koin.admin.user.enums.TeamType;
 import in.koreatech.koin.admin.user.enums.TrackType;
 import in.koreatech.koin.domain.user.model.User;
@@ -69,7 +68,6 @@ public class Admin {
     }
 
     @Builder
-
 
     public void update(TeamType teamName, TrackType trackName) {
         this.teamType = teamName;
