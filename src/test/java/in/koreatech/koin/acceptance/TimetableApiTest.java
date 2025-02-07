@@ -48,14 +48,15 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 특정_학기_강의를_조회한다() throws Exception {
-        Semester semester1 = semesterFixture.semester("20192");
-        Semester semester = semesterFixture.semester("20201");
+        semesterFixture.semester_2019년도_2학기();
+        semesterFixture.semester_2020년도_1학기();
+        String semester = "20201";
         lectureFixture.HRD_개론(semester);
-        lectureFixture.건축구조의_이해_및_실습(semester1);
+        lectureFixture.건축구조의_이해_및_실습("20192");
 
         mockMvc.perform(
                 get("/lectures")
-                    .param("semester_date", semester.getSemester())
+                    .param("semester_date", semester)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -84,14 +85,15 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 특정_학기_강의들을_조회한다() throws Exception {
-        Semester semester = semesterFixture.semester("20201");
+        semesterFixture.semester_2020년도_1학기();
+        String semester = "20201";
         lectureFixture.HRD_개론(semester);
         lectureFixture.건축구조의_이해_및_실습(semester);
         lectureFixture.재료역학(semester);
 
         mockMvc.perform(
                 get("/lectures")
-                    .param("semester_date", semester.getSemester())
+                    .param("semester_date", semester)
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -154,7 +156,7 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 존재하지_않는_학기를_조회하면_404() throws Exception {
-        Semester semester = semesterFixture.semester("20201");
+        String semester = "20201";
         lectureFixture.HRD_개론(semester);
         lectureFixture.건축구조의_이해_및_실습(semester);
 
@@ -168,10 +170,10 @@ class TimetableApiTest extends AcceptanceTest {
 
     @Test
     void 계절학기를_조회하면_빈_리스트로_반환한다() throws Exception {
-        semesterFixture.semester("20241");
-        semesterFixture.semester("20242");
-        semesterFixture.semester("2024-여름");
-        semesterFixture.semester("2024-겨울");
+        semesterFixture.semester_2024년도_1학기();
+        semesterFixture.semester_2024년도_2학기();
+        semesterFixture.semester_2024년도_여름();
+        semesterFixture.semester_2024년도_겨울();
 
         mockMvc.perform(
                 get("/lectures")
@@ -183,62 +185,13 @@ class TimetableApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 모든_학기를_조회한다() throws Exception {
-        semesterFixture.semester("20241");
-        semesterFixture.semester("20242");
-        semesterFixture.semester("2024-여름");
-        semesterFixture.semester("20231");
-        semesterFixture.semester("20232");
-        semesterFixture.semester("2023-여름");
-        semesterFixture.semester("2023-겨울");
-
-        mockMvc.perform(
-                get("/semesters")
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().json("""
-                [
-                    {
-                        "id": 2,
-                        "semester": "20242"
-                    },
-                    {
-                        "id": 3,
-                        "semester": "2024-여름"
-                    },
-                    {
-                        "id": 1,
-                        "semester": "20241"
-                    },
-                    {
-                        "id": 7,
-                        "semester": "2023-겨울"
-                    },
-                    {
-                        "id": 5,
-                        "semester": "20232"
-                    },
-                    {
-                        "id": 6,
-                        "semester": "2023-여름"
-                    },
-                    {
-                        "id": 4,
-                        "semester": "20231"
-                    }
-                ]
-                """));
-    }
-
-    @Test
     void 시간표를_조회한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
-        Semester semester = semesterFixture.semester("20192");
+        Semester semester = semesterFixture.semester_2019년도_2학기();
 
-        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester);
-        Lecture HRD_개론 = lectureFixture.HRD_개론(semester);
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
 
         timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
 
@@ -294,7 +247,7 @@ class TimetableApiTest extends AcceptanceTest {
     void 시간표를_조회한다_시간표_프레임_없으면_생성() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
-        Semester semester = semesterFixture.semester("20192");
+        Semester semester = semesterFixture.semester_2019년도_2학기();
 
         mockMvc.perform(
                 get("/timetables")
@@ -315,41 +268,13 @@ class TimetableApiTest extends AcceptanceTest {
     }
 
     @Test
-    void 학생이_가진_시간표의_학기를_조회한다() throws Exception {
-        User user = userFixture.준호_학생().getUser();
-        String token = userFixture.getToken(user);
-        Semester semester1 = semesterFixture.semester("20192");
-        Semester semester2 = semesterFixture.semester("20201");
-        Lecture HRD_개론 = lectureFixture.HRD_개론(semester1);
-        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester2);
-        timetableV2Fixture.시간표6(user, semester1, HRD_개론, null);
-        timetableV2Fixture.시간표6(user, semester2, 건축구조의_이해_및_실습, null);
-
-        mockMvc.perform(
-                get("/semesters/check")
-                    .header("Authorization", "Bearer " + token)
-                    .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().json("""
-                {
-                    "user_id": 1,
-                    "semesters": [
-                      "20201",
-                      "20192"
-                    ]
-                }
-                """));
-    }
-
-    @Test
     void 시간표를_생성한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
-        Semester semester = semesterFixture.semester("20192");
+        Semester semester = semesterFixture.semester_2019년도_2학기();
 
-       lectureFixture.건축구조의_이해_및_실습(semester);
-       lectureFixture.HRD_개론(semester);
+        lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        lectureFixture.HRD_개론(semester.getSemester());
 
        timetableV2Fixture.시간표1(user, semester);
 
@@ -439,10 +364,10 @@ class TimetableApiTest extends AcceptanceTest {
     void 시간표를_단일_생성한다_전체_반환() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
-        Semester semester = semesterFixture.semester("20192");
+        Semester semester = semesterFixture.semester_2019년도_2학기();
 
-        lectureFixture.건축구조의_이해_및_실습(semester);
-        lectureFixture.HRD_개론(semester);
+        lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        lectureFixture.HRD_개론(semester.getSemester());
 
         timetableV2Fixture.시간표1(user, semester);
 
@@ -546,10 +471,10 @@ class TimetableApiTest extends AcceptanceTest {
     void 시간표를_삭제한다() throws Exception {
         User user = userFixture.준호_학생().getUser();
         String token = userFixture.getToken(user);
-        Semester semester = semesterFixture.semester("20192");
+        Semester semester = semesterFixture.semester_2019년도_2학기();
 
-        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester);
-        Lecture HRD_개론 = lectureFixture.HRD_개론(semester);
+        Lecture 건축구조의_이해_및_실습 = lectureFixture.건축구조의_이해_및_실습(semester.getSemester());
+        Lecture HRD_개론 = lectureFixture.HRD_개론(semester.getSemester());
 
         timetableV2Fixture.시간표6(user, semester, 건축구조의_이해_및_실습, HRD_개론);
 

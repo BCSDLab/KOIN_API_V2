@@ -35,18 +35,24 @@ public class ShopBenefitService {
     }
 
     public BenefitShopsResponse getBenefitShops(Integer benefitId) {
-        List<BenefitCategoryMap> benefitCategoryMaps = benefitCategoryMapRepository
-            .findAllByBenefitCategoryId(benefitId);
+        List<BenefitCategoryMap> benefitCategoryMaps = benefitCategoryMapRepository.findByBenefitCategoryId(benefitId);
         LocalDateTime now = LocalDateTime.now(clock);
+
         List<InnerShopResponse> innerShopResponses = benefitCategoryMaps.stream()
             .map(benefitCategoryMap -> {
                 Shop shop = benefitCategoryMap.getShop();
+                String benefitDetail = benefitCategoryMap.getDetail();
                 boolean isDurationEvent = eventArticleRepository.isDurationEvent(shop.getId(), now.toLocalDate());
-                return InnerShopResponse.from(shop, isDurationEvent, shop.isOpen(now));
+                return InnerShopResponse.from(
+                    shop,
+                    isDurationEvent,
+                    shop.isOpen(now),
+                    benefitDetail
+                );
             })
             .sorted(InnerShopResponse.getComparator())
             .toList();
-        BenefitShopsResponse shopsResponse = BenefitShopsResponse.from(innerShopResponses);
-        return shopsResponse;
+
+        return BenefitShopsResponse.from(innerShopResponses);
     }
 }

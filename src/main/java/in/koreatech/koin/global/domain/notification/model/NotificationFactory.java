@@ -85,14 +85,34 @@ public class NotificationFactory {
         Integer eventKeywordId,
         String keyword,
         String title,
+        Integer boardId,
         String description,
         User target
     ) {
         return new Notification(
             path,
-            generateKeywordSchemeUri(path, eventKeywordId, keyword),
+            generateKeywordSchemeUri(path, eventKeywordId, keyword, boardId),
             title,
             description,
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
+
+    public Notification generateChatMessageNotification(
+        MobileAppPath path,
+        Integer articleId,
+        Integer chatRoomId,
+        String senderName,
+        String messageContent,
+        User target
+    ) {
+        return new Notification(
+            path,
+            generateChatMessageSchemeUri(path, articleId, chatRoomId),
+            String.format("%s님의 메시지", senderName),
+            messageContent,
             null,
             NotificationType.MESSAGE,
             target
@@ -112,10 +132,17 @@ public class NotificationFactory {
         return place + result;
     }
 
-    private String generateKeywordSchemeUri(MobileAppPath path, Integer eventId, String keyword) {
+    private String generateKeywordSchemeUri(MobileAppPath path, Integer eventId, String keyword, Integer boardId) {
         if (keyword == null) {
             return generateSchemeUri(path, eventId);
         }
-        return String.format("%s?id=%d&keyword=%s", path.getPath(), eventId, keyword);
+        return String.format("%s?id=%d&keyword=%s&board-id=%s", path.getPath(), eventId, keyword, boardId);
+    }
+
+    private String generateChatMessageSchemeUri(MobileAppPath path, Integer articleId, Integer chatRoomId) {
+        if (chatRoomId == null) {
+            return generateSchemeUri(path, articleId);
+        }
+        return String.format("%s?articleId=%d&chatRoomId=%d", path.getPath(), articleId, chatRoomId);
     }
 }

@@ -3,7 +3,6 @@ package in.koreatech.koin.acceptance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -58,7 +57,7 @@ public class TimetableFrameApiTest extends AcceptanceTest {
         clear();
         user = userFixture.준호_학생().getUser();
         token = userFixture.getToken(user);
-        semester = semesterFixture.semester("20192");
+        semester = semesterFixture.semester_2019년도_2학기();
     }
 
     @Test
@@ -165,7 +164,7 @@ public class TimetableFrameApiTest extends AcceptanceTest {
 
     @Test
     void 강의를_담고_있는_특정_시간표_frame을_삭제한다() throws Exception {
-        Lecture lecture = lectureFixture.HRD_개론(semester);
+        Lecture lecture = lectureFixture.HRD_개론(semester.getSemester());
 
         TimetableFrame frame1 = timetableV2Fixture.시간표5(user, semester, lecture);
 
@@ -177,8 +176,8 @@ public class TimetableFrameApiTest extends AcceptanceTest {
             )
             .andExpect(status().isNoContent());
 
-        assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isNotPresent();
-        assertThat(timetableLectureRepositoryV2.findById(frame1.getTimetableLectures().get(1).getId())).isNotPresent();
+        assertThat(frame1.isDeleted()).isTrue();
+        assertThat(frame1.getTimetableLectures().get(1).isDeleted()).isTrue();
     }
 
     @Test
@@ -194,7 +193,7 @@ public class TimetableFrameApiTest extends AcceptanceTest {
             )
             .andExpect(status().isNoContent());
 
-        assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isNotPresent();
+        assertThat(frame1.isDeleted()).isTrue();
 
         TimetableFrame reloadedFrame2 = timetableFrameRepositoryV2.findById(frame2.getId()).orElseThrow();
         assertThat(reloadedFrame2.isMain()).isTrue();
@@ -230,8 +229,63 @@ public class TimetableFrameApiTest extends AcceptanceTest {
             )
             .andExpect(status().isNoContent());
 
-        assertThat(timetableFrameRepositoryV2.findById(frame1.getId())).isNotPresent();
-        assertThat(timetableFrameRepositoryV2.findById(frame2.getId())).isNotPresent();
-        assertThat(timetableFrameRepositoryV2.findById(frame3.getId())).isNotPresent();
+        assertThat(frame1.isDeleted()).isTrue();
+        assertThat(frame2.isDeleted()).isTrue();
+        assertThat(frame3.isDeleted()).isTrue();
+    }
+
+    @Test
+    void 모든_학기의_시간표_프레임을_조회한다() throws Exception {
+        Semester semester1 = semesterFixture.semester_2024년도_1학기();
+        Semester semester2 = semesterFixture.semester_2024년도_2학기();
+
+        timetableV2Fixture.시간표1(user, semester1);
+        timetableV2Fixture.시간표2(user, semester1);
+
+        timetableV2Fixture.시간표1(user, semester2);
+        timetableV2Fixture.시간표2(user, semester2);
+        timetableV2Fixture.시간표3(user, semester2);
+
+        mockMvc.perform(
+                get("/v2/timetables/frames")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().json("""
+            {
+                "semesters": {
+                    "20241": [
+                        {
+                            "id": 1,
+                            "timetable_name": "시간표1",
+                            "is_main": true
+                        },
+                        {
+                            "id": 2,
+                            "timetable_name": "시간표2",
+                            "is_main": false
+                        }
+                    ],
+                    "20242": [
+                        {
+                            "id": 3,
+                            "timetable_name": "시간표1",
+                            "is_main": true
+                        },
+                        {
+                            "id": 4,
+                            "timetable_name": "시간표2",
+                            "is_main": false
+                        },
+                        {
+                            "id": 5,
+                            "timetable_name": "시간표3",
+                            "is_main": false
+                        }
+                    ]
+                }
+            }
+            """));
     }
 }

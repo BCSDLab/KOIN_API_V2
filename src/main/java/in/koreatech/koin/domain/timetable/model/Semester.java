@@ -6,8 +6,11 @@ import static lombok.AccessLevel.PROTECTED;
 import java.util.ArrayList;
 import java.util.List;
 
+import in.koreatech.koin.domain.timetableV3.model.Term;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -33,12 +36,18 @@ public class Semester {
     @Column(name = "semester", nullable = false, unique = true)
     private String semester;
 
-    @OneToMany(mappedBy = "semester")
-    private List<Lecture> lectures = new ArrayList<>();
+    @NotNull
+    @Column(name = "year", nullable = false)
+    private Integer year;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "term", nullable = false, length = 20)
+    private Term term;
 
     @Builder
-    private Semester(String semester, List<Lecture> lectures) {
+    public Semester(String semester, Integer year, Term term) {
         this.semester = semester;
-        this.lectures = lectures;
+        this.year = year;
+        this.term = term;
     }
 }

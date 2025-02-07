@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV2.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
@@ -33,11 +34,12 @@ public class TimetableControllerV2 implements TimetableApiV2 {
 
     private final TimetableFrameService frameServiceV2;
     private final TimetableLectureService lectureServiceV2;
+    private final TimetableLectureService timetableLectureService;
 
     @PostMapping("/v2/timetables/frame")
     public ResponseEntity<TimetableFrameResponse> createTimetablesFrame(
         @Valid @RequestBody TimetableFrameCreateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableFrameResponse response = frameServiceV2.createTimetablesFrame(userId, request);
         return ResponseEntity.ok(response);
@@ -47,25 +49,25 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     public ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
         @Valid @RequestBody TimetableFrameUpdateRequest request,
         @PathVariable(value = "id") Integer timetableFrameId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableFrameUpdateResponse response = frameServiceV2.updateTimetableFrame(request, timetableFrameId, userId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/v2/timetables/frames")
-    public ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
-        @RequestParam(name = "semester") String semester,
-        @Auth(permit = {STUDENT}) Integer userId
+    public ResponseEntity<Object> getTimetablesFrame(
+        @RequestParam(name = "semester", required = false) String semester,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
-        List<TimetableFrameResponse> response = frameServiceV2.getTimetablesFrame(userId, semester);
+        Object response = frameServiceV2.getTimetablesFrame(userId, semester);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/v2/timetables/frame")
     public ResponseEntity<Void> deleteTimetablesFrame(
         @RequestParam(name = "id") Integer frameId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         frameServiceV2.deleteTimetablesFrame(userId, frameId);
         return ResponseEntity.noContent().build();
@@ -74,7 +76,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     @DeleteMapping("/v2/all/timetables/frame")
     public ResponseEntity<Void> deleteAllTimetablesFrame(
         @RequestParam(name = "semester") String semester,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         frameServiceV2.deleteAllTimetablesFrame(userId, semester);
         return ResponseEntity.noContent().build();
@@ -83,7 +85,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     @PostMapping("/v2/timetables/lecture")
     public ResponseEntity<TimetableLectureResponse> createTimetableLecture(
         @Valid @RequestBody TimetableLectureCreateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableLectureResponse response = lectureServiceV2.createTimetableLectures(userId, request);
         return ResponseEntity.ok(response);
@@ -92,7 +94,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     @PutMapping("/v2/timetables/lecture")
     public ResponseEntity<TimetableLectureResponse> updateTimetableLecture(
         @Valid @RequestBody TimetableLectureUpdateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableLectureResponse response = lectureServiceV2.updateTimetablesLectures(userId, request);
         return ResponseEntity.ok(response);
@@ -101,7 +103,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     @GetMapping("/v2/timetables/lecture")
     public ResponseEntity<TimetableLectureResponse> getTimetableLecture(
         @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableLectureResponse response = lectureServiceV2.getTimetableLectures(userId, timetableFrameId);
         return ResponseEntity.ok(response);
@@ -110,7 +112,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     @DeleteMapping("/v2/timetables/lecture/{id}")
     public ResponseEntity<Void> deleteTimetableLecture(
         @PathVariable(value = "id") Integer timetableLectureId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         lectureServiceV2.deleteTimetableLecture(userId, timetableLectureId);
         return ResponseEntity.noContent().build();
@@ -119,7 +121,7 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     @DeleteMapping("/v2/timetables/lectures")
     public ResponseEntity<Void> deleteTimetableLectures(
         @RequestParam(name = "timetable_lecture_ids") List<Integer> request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         lectureServiceV2.deleteTimetableLectures(request, userId);
         return ResponseEntity.noContent().build();
@@ -129,9 +131,27 @@ public class TimetableControllerV2 implements TimetableApiV2 {
     public ResponseEntity<Void> deleteTimetableLectureByFrameId(
         @PathVariable(value = "frameId") Integer frameId,
         @PathVariable(value = "lectureId") Integer lectureId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         lectureServiceV2.deleteTimetableLectureByFrameId(frameId, lectureId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/v2/timetables/lecture/rollback")
+    public ResponseEntity<TimetableLectureResponse> rollbackTimetableLecture(
+        @RequestParam(name = "timetable_lectures_id") List<Integer> timetableLecturesId,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+    ) {
+        TimetableLectureResponse response = timetableLectureService.rollbackTimetableLecture(timetableLecturesId, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/v2/timetables/frame/rollback")
+    public ResponseEntity<TimetableLectureResponse> rollbackTimetableFrame(
+        @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+    ) {
+        TimetableLectureResponse response = timetableLectureService.rollbackTimetableFrame(timetableFrameId, userId);
+        return ResponseEntity.ok(response);
     }
 }

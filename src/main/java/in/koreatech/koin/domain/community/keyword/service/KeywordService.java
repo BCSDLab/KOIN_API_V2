@@ -24,13 +24,14 @@ import in.koreatech.koin.domain.community.keyword.exception.KeywordDuplicationEx
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.UserNotificationStatus;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
+import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
@@ -43,7 +44,7 @@ import lombok.RequiredArgsConstructor;
 public class KeywordService {
 
     private static final int ARTICLE_KEYWORD_LIMIT = 10;
-    private static final int KEYWORD_BATCH_SIZE = 100;
+
 
     private final ApplicationEventPublisher eventPublisher;
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
@@ -52,75 +53,32 @@ public class KeywordService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final UserNotificationStatusRepository userNotificationStatusRepository;
+    private final KeywordExtractor keywordExtractor;
 
-    @Transactional
+    @ConcurrencyGuard(lockName = "createKeyword")
     public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
         String keyword = validateAndGetKeyword(request.keyword());
-
-        validateKeywordLimit(userId);
-
-        ArticleKeyword existingKeyword = findOrRestoreKeyword(keyword);
-
-        ArticleKeywordUserMap userMap = findOrCreateKeywordMapping(existingKeyword, userId);
-
-        return new ArticleKeywordResponse(userMap.getId(), existingKeyword.getKeyword());
-    }
-
-    private void validateKeywordLimit(Integer userId) {
         if (articleKeywordUserMapRepository.countByUserId(userId) >= ARTICLE_KEYWORD_LIMIT) {
             throw KeywordLimitExceededException.withDetail("userId: " + userId);
         }
-    }
 
-    @ConcurrencyGuard(lockName = "createKeywordManagement")
-    private ArticleKeyword findOrRestoreKeyword(String keyword) {
-        return articleKeywordRepository.findByKeywordIncludingDeleted(keyword)
-            .map(keywordEntity -> {
-                if (keywordEntity.getIsDeleted()) {
-                    keywordEntity.restore();
-                }
-                return keywordEntity;
-            })
-            .orElseGet(() -> createNewKeyword(keyword));
-    }
+        ArticleKeyword existingKeyword = articleKeywordRepository.findByKeyword(keyword)
+            .orElseGet(() -> articleKeywordRepository.save(
+                ArticleKeyword.builder()
+                    .keyword(keyword)
+                    .lastUsedAt(LocalDateTime.now())
+                    .build()
+            ));
 
-    private ArticleKeyword createNewKeyword(String keyword) {
-        return articleKeywordRepository.save(
-            ArticleKeyword.builder()
-                .keyword(keyword)
-                .lastUsedAt(LocalDateTime.now())
-                .build()
-        );
-    }
-
-    @ConcurrencyGuard(lockName = "createKeywordMappingManagement")
-    private ArticleKeywordUserMap findOrCreateKeywordMapping(ArticleKeyword existingKeyword, Integer userId) {
-        return articleKeywordUserMapRepository.findByArticleKeywordIdAndUserIdIncludingDeleted(existingKeyword.getId(), userId)
-            .map(userMap -> {
-                if (!userMap.getIsDeleted()) {
-                    throw new KeywordDuplicationException("해당 키워드는 이미 등록되었습니다.");
-                }
-                userMap.restore();
-                return userMap;
-            })
-            .orElseGet(() -> createNewKeywordMapping(existingKeyword, userId));
-    }
-
-    private ArticleKeywordUserMap createNewKeywordMapping(ArticleKeyword keyword, Integer userId) {
         ArticleKeywordUserMap keywordUserMap = ArticleKeywordUserMap.builder()
             .user(userRepository.getById(userId))
-            .articleKeyword(keyword)
+            .articleKeyword(existingKeyword)
             .build();
 
-        keyword.addUserMap(keywordUserMap);
-        return articleKeywordUserMapRepository.save(keywordUserMap);
-    }
+        existingKeyword.addUserMap(keywordUserMap);
+        articleKeywordUserMapRepository.save(keywordUserMap);
 
-    private String validateAndGetKeyword(String keyword) {
-        if (keyword.contains(" ") || keyword.contains("\n")) {
-            throw new KoinIllegalArgumentException("키워드에 공백을 포함할 수 없습니다.");
-        }
-        return keyword.trim().toLowerCase();
+        return new ArticleKeywordResponse(keywordUserMap.getId(), existingKeyword.getKeyword());
     }
 
     @Transactional
@@ -130,11 +88,16 @@ public class KeywordService {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
 
-        articleKeywordUserMap.delete();
+        deleteMappingAndUnusedKeywordWithLock(keywordUserMapId, articleKeywordUserMap.getArticleKeyword().getId());
+    }
 
-        boolean isKeywordUsedByOthers = articleKeywordUserMapRepository.existsByArticleKeywordId(articleKeywordUserMap.getArticleKeyword().getId());
+    @ConcurrencyGuard(lockName = "deleteKeyword")
+    private void deleteMappingAndUnusedKeywordWithLock(Integer keywordUserMapId, Integer articleKeywordId) {
+        articleKeywordUserMapRepository.deleteById(keywordUserMapId);
+
+        boolean isKeywordUsedByOthers = articleKeywordUserMapRepository.existsByArticleKeywordId(articleKeywordId);
         if (!isKeywordUsedByOthers) {
-            articleKeywordUserMap.getArticleKeyword().delete();
+            articleKeywordRepository.deleteById(articleKeywordId);
         }
     }
 
@@ -155,14 +118,14 @@ public class KeywordService {
     public void sendKeywordNotification(KeywordNotificationRequest request) {
         List<Integer> updateNotificationIds = request.updateNotification();
 
-        if(!updateNotificationIds.isEmpty()) {
+        if (!updateNotificationIds.isEmpty()) {
             List<Article> articles = new ArrayList<>();
 
             for (Integer id : updateNotificationIds) {
                 articles.add(articleRepository.getById(id));
             }
 
-            List<ArticleKeywordEvent> keywordEvents = matchKeyword(articles);
+            List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles);
 
             if (!keywordEvents.isEmpty()) {
                 for (ArticleKeywordEvent event : keywordEvents) {
@@ -172,30 +135,11 @@ public class KeywordService {
         }
     }
 
-    private List<ArticleKeywordEvent> matchKeyword(List<Article> articles) {
-        List<ArticleKeywordEvent> keywordEvents = new ArrayList<>();
-        int offset = 0;
-
-        while (true) {
-            Pageable pageable = PageRequest.of(offset / KEYWORD_BATCH_SIZE, KEYWORD_BATCH_SIZE);
-            List<ArticleKeyword> keywords = articleKeywordRepository.findAll(pageable);
-
-            if (keywords.isEmpty()) {
-                break;
-            }
-
-            for (Article article : articles) {
-                String title = article.getTitle();
-                for (ArticleKeyword keyword : keywords) {
-                    if (title.contains(keyword.getKeyword())) {
-                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword));
-                    }
-                }
-            }
-            offset += KEYWORD_BATCH_SIZE;
+    private String validateAndGetKeyword(String keyword) {
+        if (keyword.contains(" ") || keyword.contains("\n")) {
+            throw new KoinIllegalArgumentException("키워드에 공백을 포함할 수 없습니다.");
         }
-
-        return keywordEvents;
+        return keyword.trim().toLowerCase();
     }
 
     @Transactional
@@ -218,7 +162,7 @@ public class KeywordService {
             .toList();
 
         articleKeywordSuggestRepository.deleteAll();
-        for(ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
+        for (ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
             articleKeywordSuggestRepository.save(hotKeyword);
         }
     }

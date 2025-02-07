@@ -3,7 +3,6 @@ package in.koreatech.koin.fixture;
 import org.springframework.stereotype.Component;
 
 import in.koreatech.koin.domain.timetable.model.Lecture;
-import in.koreatech.koin.domain.timetable.model.Semester;
 import in.koreatech.koin.domain.timetable.repository.LectureRepository;
 
 @Component
@@ -16,11 +15,10 @@ public class LectureFixture {
         this.lectureRepository = lectureRepository;
     }
 
-    public Lecture 건축구조의_이해_및_실습(Semester semester) {
+    public Lecture 건축구조의_이해_및_실습(String semester) {
         return lectureRepository.save(
             Lecture.builder()
                 .code("ARB244")
-                .semesterDate(semester.getSemester())
                 .semester(semester)
                 .name("건축구조의 이해 및 실습")
                 .grades("3")
@@ -37,11 +35,10 @@ public class LectureFixture {
         );
     }
 
-    public Lecture HRD_개론(Semester semester) {
+    public Lecture HRD_개론(String semester) {
         return lectureRepository.save(
             Lecture.builder()
                 .code("BSM590")
-                .semesterDate(semester.getSemester())
                 .semester(semester)
                 .name("컴퓨팅사고")
                 .grades("3")
@@ -58,11 +55,10 @@ public class LectureFixture {
         );
     }
 
-    public Lecture 재료역학(Semester semester) {
+    public Lecture 재료역학(String semester) {
         return lectureRepository.save(
             Lecture.builder()
                 .code("MEB311")
-                .semesterDate(semester.getSemester())
                 .semester(semester)
                 .name("재료역학")
                 .grades("3")
@@ -79,11 +75,10 @@ public class LectureFixture {
         );
     }
 
-    public Lecture 영어청해(Semester semester) {
+    public Lecture 영어청해(String semester) {
         return lectureRepository.save(
             Lecture.builder()
                 .code("LAN324")
-                .semesterDate(semester.getSemester())
                 .semester(semester)
                 .name("영어청해")
                 .grades("1")

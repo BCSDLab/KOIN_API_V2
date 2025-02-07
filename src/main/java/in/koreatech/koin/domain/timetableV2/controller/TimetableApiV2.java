@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetableV2.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public interface TimetableApiV2 {
     @PostMapping("/v2/timetables/frame")
     ResponseEntity<TimetableFrameResponse> createTimetablesFrame(
         @Valid @RequestBody TimetableFrameCreateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -63,7 +64,7 @@ public interface TimetableApiV2 {
     ResponseEntity<TimetableFrameUpdateResponse> updateTimetableFrame(
         @Valid @RequestBody TimetableFrameUpdateRequest request,
         @PathVariable(value = "id") Integer timetableFrameId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -76,10 +77,10 @@ public interface TimetableApiV2 {
     )
     @Operation(summary = "시간표 프레임 조회")
     @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/v2/timetables/frame")
-    ResponseEntity<List<TimetableFrameResponse>> getTimetablesFrame(
-        @RequestParam(name = "semester") String semester,
-        @Auth(permit = {STUDENT}) Integer userId
+    @GetMapping("/v2/timetables/frames")
+    ResponseEntity<Object> getTimetablesFrame(
+        @RequestParam(name = "semester", required = false) String semester,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -95,7 +96,7 @@ public interface TimetableApiV2 {
     @DeleteMapping("/v2/timetables/frame")
     ResponseEntity<Void> deleteTimetablesFrame(
         @RequestParam(name = "id") Integer frameId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -110,7 +111,7 @@ public interface TimetableApiV2 {
     @DeleteMapping("/v2/all/timetables/frame")
     ResponseEntity<Void> deleteAllTimetablesFrame(
         @RequestParam(name = "semester") String semester,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -130,7 +131,7 @@ public interface TimetableApiV2 {
     @PostMapping("/v2/timetables/lecture")
     ResponseEntity<TimetableLectureResponse> createTimetableLecture(
         @RequestBody TimetableLectureCreateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -146,7 +147,7 @@ public interface TimetableApiV2 {
     @PutMapping("/v2/timetables/lecture")
     ResponseEntity<TimetableLectureResponse> updateTimetableLecture(
         @RequestBody TimetableLectureUpdateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -162,7 +163,7 @@ public interface TimetableApiV2 {
     @GetMapping("/v2/timetables/lecture")
     ResponseEntity<TimetableLectureResponse> getTimetableLecture(
         @RequestParam(value = "timetable_frame_id") Integer timetableFrameId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -177,7 +178,7 @@ public interface TimetableApiV2 {
     @DeleteMapping("/v2/timetables/lecture/{id}")
     ResponseEntity<Void> deleteTimetableLecture(
         @PathVariable(value = "id") Integer timetableLectureId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -192,7 +193,7 @@ public interface TimetableApiV2 {
     @DeleteMapping("/v2/timetables/lectures")
     ResponseEntity<Void> deleteTimetableLectures(
         @RequestParam(name = "timetable_lecture_ids") List<Integer> request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -208,6 +209,42 @@ public interface TimetableApiV2 {
     ResponseEntity<Void> deleteTimetableLectureByFrameId(
         @PathVariable(value = "frameId") Integer frameId,
         @PathVariable(value = "lectureId") Integer lectureId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "삭제한 시간표 강의 복구")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/v2/timetables/lecture/rollback")
+    ResponseEntity<TimetableLectureResponse> rollbackTimetableLecture(
+        @RequestParam(name = "timetable_lectures_id") List<Integer> timetableLecturesId,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "삭제한 시간표 프레임과 강의 복구",
+        description = """
+            1. 삭제된 시간표 프레임: 삭제된 시간표 프레임과 그에 속한 강의 정보를 복구합니다. \n
+            2. 삭제되지 않은 시간표 프레임: 시간표 프레임에 속한 강의 정보를 복구합니다.
+            """)
+    @SecurityRequirement(name = "Jwt Authentication")
+    @PostMapping("/v2/timetables/frame/rollback")
+    ResponseEntity<TimetableLectureResponse> rollbackTimetableFrame(
+        @RequestParam(name = "timetable_frame_id") Integer timetableFrameId,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 }
