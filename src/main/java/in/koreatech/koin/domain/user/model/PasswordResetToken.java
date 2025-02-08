@@ -9,7 +9,7 @@ import org.springframework.data.redis.core.TimeToLive;
 import lombok.Getter;
 
 @Getter
-@RedisHash("resetToken")
+@RedisHash("passwordResetToken")
 public class PasswordResetToken {
 
     private static final int RESET_TOKEN_EXPIRE_HOUR = 1;
@@ -20,7 +20,7 @@ public class PasswordResetToken {
     private final String resetToken;
 
     @TimeToLive(unit = TimeUnit.HOURS)
-    private final int expiration;
+    private int expiration;
 
     private PasswordResetToken(String resetToken, Integer id) {
         this.resetToken = resetToken;
