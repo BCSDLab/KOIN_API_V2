@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.student.service;
 
-import java.time.Clock;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -57,7 +56,6 @@ public class StudentService {
     private final StudentRedisRepository studentRedisRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
-    private final Clock clock;
     private final UserPasswordResetTokenRepository passwordResetTokenRepository;
     private final UserPasswordResetTokenRepository userPasswordResetTokenRepository;
 
@@ -140,8 +138,8 @@ public class StudentService {
 
     @Transactional
     public void changePasswordSubmit(UserPasswordChangeSubmitRequest request, String resetToken) {
-        User authedUser = userRepository.getByResetToken(resetToken);
-        authedUser.validateResetToken();
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.getByResetToken(resetToken);
+        User authedUser = userRepository.getById(passwordResetToken.getId());
         authedUser.updatePassword(passwordEncoder, request.password());
     }
 

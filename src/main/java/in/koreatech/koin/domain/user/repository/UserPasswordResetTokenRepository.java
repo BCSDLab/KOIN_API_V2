@@ -18,5 +18,12 @@ public interface UserPasswordResetTokenRepository extends Repository<PasswordRes
             .orElseThrow(() -> new KoinIllegalArgumentException("Reset token이 존재하지 않습니다.", "userId: " + userId));
     }
 
+    Optional<PasswordResetToken> findByResetToken(String resetToken);
+
+    default PasswordResetToken getByResetToken(String resetToken) {
+        return findByResetToken(resetToken)
+            .orElseThrow(() -> new KoinIllegalArgumentException("Reset token이 존재하지 않습니다.", "resetToken: " + resetToken));
+    }
+
     void deleteById(Integer id);
 }
