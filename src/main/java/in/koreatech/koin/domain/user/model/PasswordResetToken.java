@@ -1,7 +1,5 @@
 package in.koreatech.koin.domain.user.model;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.annotation.Id;
@@ -24,17 +22,13 @@ public class PasswordResetToken {
     @TimeToLive(unit = TimeUnit.HOURS)
     private final int expiration;
 
-    private PasswordResetToken(String resetToken, int expiration, Integer id) {
+    private PasswordResetToken(String resetToken, Integer id) {
         this.resetToken = resetToken;
-        this.expiration = expiration;
+        this.expiration = RESET_TOKEN_EXPIRE_HOUR;
         this.id = id;
     }
 
-    public static PasswordResetToken from(Clock clock, Integer userId, String email) {
-        return new PasswordResetToken(
-            email + LocalDateTime.now(clock).plusHours(RESET_TOKEN_EXPIRE_HOUR),
-            RESET_TOKEN_EXPIRE_HOUR,
-            userId
-        );
+    public static PasswordResetToken from(String resetToken, Integer id) {
+        return new PasswordResetToken(resetToken, id);
     }
 }

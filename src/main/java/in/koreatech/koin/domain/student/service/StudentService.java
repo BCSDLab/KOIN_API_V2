@@ -121,9 +121,10 @@ public class StudentService {
     @Transactional
     public void findPassword(FindPasswordRequest request, String serverURL) {
         User user = userRepository.getByEmail(request.email());
-        PasswordResetToken token = PasswordResetToken.from(clock, user.getId(), user.getEmail());
-        PasswordResetToken save = userPasswordResetTokenRepository.save(token);
-        mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, save.getResetToken()));
+        String resetToken = UUID.randomUUID().toString();
+        PasswordResetToken token = PasswordResetToken.from(resetToken, user.getId());
+        userPasswordResetTokenRepository.save(token);
+        mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, resetToken));
     }
 
     public StudentResponse getStudent(Integer userId) {
