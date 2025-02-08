@@ -12,7 +12,9 @@ public enum TrackType {
     PL("PL"),
     DESIGN("Design"),
     IOS("iOS"),
-    DA("DA");
+    DA("DA"),
+    SECURITY("Security")
+    ;
 
     private final String value;
 

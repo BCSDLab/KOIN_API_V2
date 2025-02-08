@@ -11,8 +11,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import in.koreatech.koin.domain.bus.model.enums.CityBusDirection;
-import in.koreatech.koin.domain.bus.model.mongo.CityBusTimetable;
+import in.koreatech.koin.domain.bus.enums.CityBusDirection;
+import in.koreatech.koin.domain.bus.service.city.model.CityBusTimetable;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(SnakeCaseStrategy.class)
