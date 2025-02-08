@@ -11,13 +11,6 @@ public interface UserPasswordResetTokenRepository extends Repository<PasswordRes
 
     PasswordResetToken save(PasswordResetToken passwordResetToken);
 
-    Optional<PasswordResetToken> findById(Integer userId);
-
-    default PasswordResetToken getById(Integer userId) {
-        return findById(userId)
-            .orElseThrow(() -> new KoinIllegalArgumentException("Reset token이 존재하지 않습니다.", "userId: " + userId));
-    }
-
     Optional<PasswordResetToken> findByResetToken(String resetToken);
 
     default PasswordResetToken getByResetToken(String resetToken) {

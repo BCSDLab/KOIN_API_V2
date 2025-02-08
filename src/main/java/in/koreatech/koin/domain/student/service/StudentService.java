@@ -141,6 +141,7 @@ public class StudentService {
         PasswordResetToken passwordResetToken = passwordResetTokenRepository.getByResetToken(resetToken);
         User authedUser = userRepository.getById(passwordResetToken.getId());
         authedUser.updatePassword(passwordEncoder, request.password());
+        passwordResetTokenRepository.deleteById(passwordResetToken.getId());
     }
 
     public ModelAndView checkResetToken(String resetToken, String serverUrl) {
