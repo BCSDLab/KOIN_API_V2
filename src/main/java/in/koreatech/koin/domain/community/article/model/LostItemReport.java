@@ -48,7 +48,7 @@ public class LostItemReport extends BaseEntity {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private Student userId;
+    private Student student;
 
     @Builder
     public LostItemReport(
@@ -56,13 +56,13 @@ public class LostItemReport extends BaseEntity {
         String title,
         String content,
         ReportStatus reportStatus,
-        Student userId
+        Student student
     ) {
         this.lostItemArticle = lostItemArticle;
         this.title = title;
         this.content = content;
         this.reportStatus = reportStatus;
-        this.userId = userId;
+        this.student = student;
     }
 
     public void modifyReportStatus(ReportStatus reportStatus) {

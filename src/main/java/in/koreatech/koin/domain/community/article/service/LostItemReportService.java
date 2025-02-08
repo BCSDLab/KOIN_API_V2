@@ -53,7 +53,7 @@ public class LostItemReportService {
 
     private void saveReport(InnerLostItemReport reportRequest, Student student, Article article) {
         LostItemReport report = LostItemReport.builder()
-            .userId(student)
+            .student(student)
             .lostItemArticle(article.getLostItemArticle())
             .title(reportRequest.title())
             .reportStatus(UNHANDLED)

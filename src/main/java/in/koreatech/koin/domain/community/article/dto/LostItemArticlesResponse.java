@@ -33,10 +33,10 @@ public record LostItemArticlesResponse(
     Integer currentPage
 ) {
 
-    public static LostItemArticlesResponse of(Page<Article> pagedResult, Criteria criteria) {
+    public static LostItemArticlesResponse of(Page<Article> pagedResult, Criteria criteria, Integer userId) {
         return new LostItemArticlesResponse(
             pagedResult.stream()
-                .map(InnerLostItemArticleResponse::from)
+                .map((Article article) -> InnerLostItemArticleResponse.of(article, userId))
                 .toList(),
             pagedResult.getTotalElements(),
             pagedResult.getContent().size(),
@@ -75,7 +75,7 @@ public record LostItemArticlesResponse(
         Boolean isReported
     ) {
 
-        public static InnerLostItemArticleResponse from(Article article) {
+        public static InnerLostItemArticleResponse of(Article article, Integer userId) {
             LostItemArticle lostItemArticle = article.getLostItemArticle();
             return new InnerLostItemArticleResponse(
                 article.getId(),
@@ -86,7 +86,7 @@ public record LostItemArticlesResponse(
                 article.getContent(),
                 article.getAuthor(),
                 article.getRegisteredAt(),
-                lostItemArticle.isReported()
+                lostItemArticle.isReportedByUserId(userId)
             );
         }
     }

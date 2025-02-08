@@ -124,7 +124,7 @@ public record AdminLostItemArticlesResponse(
                     report.getId(),
                     report.getTitle(),
                     report.getContent(),
-                    report.getUserId().getUser().getNickname(),
+                    report.getStudent().getUser().getNickname(),
                     report.getReportStatus().name()
                 );
             }

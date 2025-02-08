@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ColumnDefault;
@@ -124,6 +125,16 @@ public class LostItemArticle {
     public boolean isReported() {
         return this.getLostItemReports()
             .stream()
+            .anyMatch(report -> report.getReportStatus() == ReportStatus.UNHANDLED);
+    }
+
+    /**
+     * 특정 사용자에 의해 미처리된 신고가 존재하는지 확인합니다.
+     */
+    public boolean isReportedByUserId(Integer userId) {
+        return this.getLostItemReports()
+            .stream()
+            .filter(report -> Objects.equals(report.getStudent().getId(), userId))
             .anyMatch(report -> report.getReportStatus() == ReportStatus.UNHANDLED);
     }
 }
