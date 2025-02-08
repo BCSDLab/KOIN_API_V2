@@ -83,14 +83,36 @@ public class NotificationFactory {
     public Notification generateKeywordNotification(
         MobileAppPath path,
         Integer eventKeywordId,
-        String keywordName,
+        String keyword,
+        String title,
+        Integer boardId,
+        String description,
         User target
     ) {
         return new Notification(
             path,
-            generateSchemeUri(path, eventKeywordId),
-            "공지사항이 등록됐어요!",
-            "%s 공지가 등록되었습니다.".formatted(keywordName),
+            generateKeywordSchemeUri(path, eventKeywordId, keyword, boardId),
+            title,
+            description,
+            null,
+            NotificationType.MESSAGE,
+            target
+        );
+    }
+
+    public Notification generateChatMessageNotification(
+        MobileAppPath path,
+        Integer articleId,
+        Integer chatRoomId,
+        String senderName,
+        String messageContent,
+        User target
+    ) {
+        return new Notification(
+            path,
+            generateChatMessageSchemeUri(path, articleId, chatRoomId),
+            String.format("%s님의 메시지", senderName),
+            messageContent,
             null,
             NotificationType.MESSAGE,
             target
@@ -108,5 +130,19 @@ public class NotificationFactory {
         char lastChar = place.charAt(place.length() - 1);
         String result = (lastChar - 0xAC00) % 28 > 0 ? firstPost : secondPost;
         return place + result;
+    }
+
+    private String generateKeywordSchemeUri(MobileAppPath path, Integer eventId, String keyword, Integer boardId) {
+        if (keyword == null) {
+            return generateSchemeUri(path, eventId);
+        }
+        return String.format("%s?id=%d&keyword=%s&board-id=%s", path.getPath(), eventId, keyword, boardId);
+    }
+
+    private String generateChatMessageSchemeUri(MobileAppPath path, Integer articleId, Integer chatRoomId) {
+        if (chatRoomId == null) {
+            return generateSchemeUri(path, articleId);
+        }
+        return String.format("%s?articleId=%d&chatRoomId=%d", path.getPath(), articleId, chatRoomId);
     }
 }

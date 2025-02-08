@@ -2,6 +2,9 @@ package in.koreatech.koin.domain.owner.model;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
+import in.koreatech.koin.domain.owner.model.dto.OwnerEmailRequestEvent;
+import in.koreatech.koin.domain.owner.model.dto.OwnerRegisterEvent;
+import in.koreatech.koin.domain.owner.model.dto.OwnerSmsRequestEvent;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -35,7 +38,7 @@ public class OwnerEventListener {
     @TransactionalEventListener(phase = AFTER_COMMIT)
     public void onOwnerPhoneRequest(OwnerSmsRequestEvent ownerPhoneRequestEvent) {
         var notification = slackNotificationFactory.generateOwnerPhoneVerificationRequestNotification(
-            ownerPhoneRequestEvent.phoneNumber());
+                ownerPhoneRequestEvent.phoneNumber());
         slackClient.sendMessage(notification);
     }
 
@@ -45,28 +48,18 @@ public class OwnerEventListener {
      * 추후 어드민에서 승인 시 상점 id를 기준으로 업데이트 수행
      */
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onOwnerRegister(OwnerRegisterEvent event) {
-        Owner owner = event.owner();
-        ownerInVerificationRedisRepository.deleteByVerify(owner.getUser().getEmail());
-        String shopsName = shopRepository.findAllByOwnerId(owner.getId())
-            .stream().map(Shop::getName).collect(Collectors.joining(", "));
+    public void onOwnerRegisterBySms(OwnerRegisterEvent event) {
         var notification = slackNotificationFactory.generateOwnerRegisterRequestNotification(
-            owner.getUser().getName(),
-            shopsName
+                event.ownerName(),
+                shopsName(event.ownerId())
         );
         slackClient.sendMessage(notification);
     }
 
-    @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onOwnerRegisterBySms(OwnerRegisterBySmsEvent event) {
-        Owner owner = event.owner();
-        ownerInVerificationRedisRepository.deleteByVerify(owner.getAccount());
-        String shopsName = shopRepository.findAllByOwnerId(owner.getId())
-            .stream().map(Shop::getName).collect(Collectors.joining(", "));
-        var notification = slackNotificationFactory.generateOwnerRegisterRequestNotification(
-            owner.getUser().getName(),
-            shopsName
-        );
-        slackClient.sendMessage(notification);
+    private String shopsName(Integer id) {
+        return shopRepository.findAllByOwnerId(id)
+                .stream()
+                .map(Shop::getName)
+                .collect(Collectors.joining(", "));
     }
 }

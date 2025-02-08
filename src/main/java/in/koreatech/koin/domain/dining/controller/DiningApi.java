@@ -1,7 +1,6 @@
 package in.koreatech.koin.domain.dining.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -45,14 +44,14 @@ public interface DiningApi {
     @Operation(summary = "식단 좋아요")
     @PatchMapping("/dining/like")
     ResponseEntity<Void> likeDining(
-        @Auth(permit = {STUDENT, COOP}) Integer userId,
+        @Auth(permit = {STUDENT, COOP, COUNCIL}) Integer userId,
         @RequestParam Integer diningId
     );
 
     @Operation(summary = "식단 좋아요 취소")
     @PatchMapping("/dining/like/cancel")
     ResponseEntity<Void> likeDiningCancel(
-        @Auth(permit = {STUDENT, COOP}) Integer userId,
+        @Auth(permit = {STUDENT, COOP, COUNCIL}) Integer userId,
         @RequestParam Integer diningId
     );
 

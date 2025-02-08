@@ -2,7 +2,7 @@ package in.koreatech.koin.fixture;
 
 import org.springframework.stereotype.Component;
 
-import in.koreatech.koin.admin.shop.repository.AdminShopNotificationMessageRepository;
+import in.koreatech.koin.admin.shop.repository.shop.AdminShopNotificationMessageRepository;
 import in.koreatech.koin.domain.shop.model.shop.ShopNotificationMessage;
 
 @Component

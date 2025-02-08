@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.coopshop.service;
 
+import static in.koreatech.koin.domain.dining.model.DiningType.*;
+
 import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -14,14 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 import in.koreatech.koin.domain.coopshop.dto.CoopShopResponse;
 import in.koreatech.koin.domain.coopshop.dto.CoopShopsResponse;
 import in.koreatech.koin.domain.coopshop.exception.CoopSemesterNotFoundException;
+import in.koreatech.koin.domain.coopshop.exception.DiningTypeNotFoundException;
+import in.koreatech.koin.domain.coopshop.model.CoopName;
 import in.koreatech.koin.domain.coopshop.model.CoopOpen;
 import in.koreatech.koin.domain.coopshop.model.CoopSemester;
 import in.koreatech.koin.domain.coopshop.model.CoopShop;
 import in.koreatech.koin.domain.coopshop.model.CoopShopType;
 import in.koreatech.koin.domain.coopshop.model.DayType;
+import in.koreatech.koin.domain.coopshop.repository.CoopNameRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopOpenRepository;
-import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.domain.coopshop.repository.CoopSemesterRepository;
+import in.koreatech.koin.domain.coopshop.repository.CoopShopRepository;
 import in.koreatech.koin.domain.dining.model.DiningType;
 import lombok.RequiredArgsConstructor;
 
@@ -34,14 +39,16 @@ public class CoopShopService {
     private final CoopShopRepository coopShopRepository;
     private final CoopOpenRepository coopOpenRepository;
     private final CoopSemesterRepository coopSemesterRepository;
+    private final CoopNameRepository coopNameRepository;
 
     public CoopShopsResponse getCoopShops() {
         CoopSemester coopSemester = coopSemesterRepository.getByIsApplied(true);
         return CoopShopsResponse.from(coopSemester);
     }
 
-    public CoopShopResponse getCoopShop(Integer id) {
-        CoopShop coopShop = coopShopRepository.getById(id);
+    public CoopShopResponse getCoopShop(Integer coopNameId) {
+        CoopSemester currentSemester = coopSemesterRepository.getByIsApplied(true);
+        CoopShop coopShop = coopShopRepository.getByCoopNameIdAndCoopSemester(coopNameId, currentSemester);
         return CoopShopResponse.from(coopShop);
     }
 
@@ -50,8 +57,9 @@ public class CoopShopService {
             DayType todayType =
                 (now.getDayOfWeek() == DayOfWeek.SATURDAY || now.getDayOfWeek() == DayOfWeek.SUNDAY)
                     ? DayType.WEEKEND : DayType.WEEKDAYS;
-            CoopSemester semester = coopSemesterRepository.getByIsApplied(true);
-            CoopShop coopShop = coopShopRepository.getByNameAndCoopSemesterId(coopShopType, semester.getId());
+            CoopSemester currentSemester = coopSemesterRepository.getByIsApplied(true);
+            CoopName coopName = coopNameRepository.getByName(coopShopType);
+            CoopShop coopShop = coopShopRepository.getByCoopNameIdAndCoopSemester(coopName.getId(), currentSemester);
             CoopOpen open = coopOpenRepository
                 .getByCoopShopAndTypeAndDayOfWeek(coopShop, type.getDiningName(), todayType);
 
@@ -69,6 +77,23 @@ public class CoopShopService {
         } catch (DateTimeParseException e) {
             return false;
         }
+    }
+
+    public DiningType getDiningType() {
+        if (LocalTime.now(clock).isAfter(BREAKFAST.getStartTime().minusHours(1))
+            && LocalTime.now(clock).isBefore(BREAKFAST.getEndTime())) {
+            return BREAKFAST;
+        }
+        if (LocalTime.now(clock).isAfter(LUNCH.getStartTime().minusHours(1))
+            && LocalTime.now(clock).isBefore(LUNCH.getEndTime())) {
+            return LUNCH;
+        }
+        if (LocalTime.now(clock).isAfter(DINNER.getStartTime().minusHours(1))
+            && LocalTime.now(clock).isBefore(DINNER.getEndTime())) {
+            return DINNER;
+        }
+
+        throw DiningTypeNotFoundException.withDetail(LocalTime.now() + "");
     }
 
     @Transactional

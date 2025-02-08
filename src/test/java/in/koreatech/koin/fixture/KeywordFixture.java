@@ -24,16 +24,21 @@ public class KeywordFixture {
     }
 
     public ArticleKeywordUserMap 키워드1(String keyword, User user) {
+        return 키워드1(keyword, user, false);
+    }
+
+    public ArticleKeywordUserMap 키워드1(String keyword, User user, boolean isFiltered) {
         ArticleKeyword articleKeyword = articleKeywordRepository.save(ArticleKeyword.builder()
             .keyword(keyword)
             .lastUsedAt(LocalDateTime.now())
+            .isFiltered(isFiltered)
             .build());
 
-        ArticleKeywordUserMap articleKeywordUserMap = ArticleKeywordUserMap.builder()
-            .articleKeyword(articleKeyword)
-            .user(user)
-            .build();
-
-        return articleKeywordUserMapRepository.save(articleKeywordUserMap);
+        return articleKeywordUserMapRepository.save(
+            ArticleKeywordUserMap.builder()
+                .articleKeyword(articleKeyword)
+                .user(user)
+                .build()
+        );
     }
 }

@@ -1,15 +1,7 @@
 package in.koreatech.koin.domain.user.controller;
 
-import static in.koreatech.koin.domain.user.model.UserType.COOP;
-import static in.koreatech.koin.domain.user.model.UserType.OWNER;
-import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.*;
 
-import in.koreatech.koin.domain.student.dto.StudentLoginRequest;
-import in.koreatech.koin.domain.student.dto.StudentLoginResponse;
-import in.koreatech.koin.domain.student.dto.StudentRegisterRequest;
-import in.koreatech.koin.domain.student.dto.StudentResponse;
-import in.koreatech.koin.domain.student.dto.StudentUpdateRequest;
-import in.koreatech.koin.domain.student.dto.StudentUpdateResponse;
 import in.koreatech.koin.domain.user.dto.*;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +9,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import in.koreatech.koin.global.auth.Auth;
-import in.koreatech.koin.global.host.ServerURL;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -33,21 +23,6 @@ import jakarta.validation.Valid;
 
 @Tag(name = "(Normal) User: 회원", description = "회원 관련 API")
 public interface UserApi {
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
-        }
-    )
-    @Operation(summary = "영양사 정보 조회")
-    @SecurityRequirement(name = "Jwt Authentication")
-    @GetMapping("/user/coop/me")
-    ResponseEntity<CoopResponse> getCoop(
-        @Auth(permit = COOP) Integer userId
-    );
 
     @ApiResponses(
         value = {
@@ -75,7 +50,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/user/logout")
     ResponseEntity<Void> logout(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
+        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -94,6 +69,21 @@ public interface UserApi {
 
     @ApiResponses(
         value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+        }
+    )
+    @Operation(summary = "사용자 권한 조회")
+    @GetMapping("/user/auth")
+    ResponseEntity<AuthResponse> getAuth(
+        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
+    );
+
+    @ApiResponses(
+        value = {
             @ApiResponse(responseCode = "204"),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
@@ -104,7 +94,7 @@ public interface UserApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @DeleteMapping("/user")
     ResponseEntity<Void> withdraw(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
+        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -144,21 +134,6 @@ public interface UserApi {
             @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
-        }
-    )
-    @Operation(summary = "사용자 권한 조회")
-    @GetMapping("/user/auth")
-    ResponseEntity<AuthResponse> getAuth(
-        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
-    );
-
-    @ApiResponses(
-        value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
         }
     )
     @Operation(summary = "비밀번호 검증")
@@ -166,7 +141,7 @@ public interface UserApi {
     @PostMapping("/user/check/password")
     ResponseEntity<Void> checkPassword(
         @Valid @RequestBody UserPasswordCheckRequest request,
-        @Auth(permit = {STUDENT, OWNER, COOP}) Integer userId
+        @Auth(permit = {STUDENT, OWNER, COOP, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -181,5 +156,21 @@ public interface UserApi {
     ResponseEntity<Void> checkLogin(
             @ParameterObject @ModelAttribute(value = "access_token")
             @Valid UserAccessTokenRequest request
+    );
+
+    // 추후 이동
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
+        }
+    )
+    @Operation(summary = "영양사 정보 조회")
+    @SecurityRequirement(name = "Jwt Authentication")
+    @GetMapping("/user/coop/me")
+    ResponseEntity<CoopResponse> getCoop(
+        @Auth(permit = COOP) Integer userId
     );
 }

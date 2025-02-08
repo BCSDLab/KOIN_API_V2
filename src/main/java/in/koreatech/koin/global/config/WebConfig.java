@@ -7,10 +7,11 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import in.koreatech.koin.domain.bus.controller.BusStationEnumConverter;
-import in.koreatech.koin.domain.bus.controller.BusTypeEnumConverter;
+import in.koreatech.koin.domain.bus.converter.BusStationEnumConverter;
+import in.koreatech.koin.domain.bus.converter.BusTypeEnumConverter;
 import in.koreatech.koin.domain.shop.dto.shop.ShopsFilterCriteriaConverter;
 import in.koreatech.koin.global.auth.AuthArgumentResolver;
 import in.koreatech.koin.global.auth.ExtractAuthenticationInterceptor;
@@ -77,5 +78,11 @@ public class WebConfig implements WebMvcConfigurer {
             .allowedHeaders("*")
             .allowCredentials(true)
             .maxAge(3600);
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/static/**")
+            .addResourceLocations("classpath:/static/");
     }
 }

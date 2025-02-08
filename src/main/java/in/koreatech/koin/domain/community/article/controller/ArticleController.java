@@ -1,10 +1,16 @@
 package in.koreatech.koin.domain.community.article.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
+
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,8 +19,14 @@ import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
 import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
 import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
 import in.koreatech.koin.domain.community.article.service.ArticleService;
+import in.koreatech.koin.global.auth.Auth;
+import in.koreatech.koin.global.auth.UserId;
 import in.koreatech.koin.global.ipaddress.IpAddress;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -36,7 +48,7 @@ public class ArticleController implements ArticleApi {
 
     @GetMapping()
     public ResponseEntity<ArticlesResponse> getArticles(
-        @RequestParam Integer boardId,
+        @RequestParam(required = false) Integer boardId,
         @RequestParam(required = false) Integer page,
         @RequestParam(required = false) Integer limit
     ) {
@@ -68,5 +80,40 @@ public class ArticleController implements ArticleApi {
     ) {
         ArticleHotKeywordResponse response = articleService.getArticlesHotKeyword(count);
         return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/lost-item")
+    public ResponseEntity<LostItemArticlesResponse> getLostItemArticles(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit,
+        @UserId Integer userId
+    ) {
+        LostItemArticlesResponse response = articleService.getLostItemArticles(page, limit, userId);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/lost-item/{id}")
+    public ResponseEntity<LostItemArticleResponse> getLostItemArticle(
+        @PathVariable("id") Integer articleId
+    ) {
+        return ResponseEntity.ok().body(articleService.getLostItemArticle(articleId));
+    }
+
+    @PostMapping("/lost-item")
+    public ResponseEntity<LostItemArticleResponse> createLostItemArticle(
+        @Auth(permit = {COUNCIL}) Integer councilId,
+        @RequestBody @Valid LostItemArticlesRequest lostItemArticlesRequest
+    ) {
+        LostItemArticleResponse response = articleService.createLostItemArticle(councilId, lostItemArticlesRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @DeleteMapping("/lost-item/{id}")
+    public ResponseEntity<Void> deleteLostItemArticle(
+        @PathVariable("id") Integer articleId,
+        @Auth(permit = {COUNCIL}) Integer councilId
+    ) {
+        articleService.deleteLostItemArticle(articleId);
+        return ResponseEntity.noContent().build();
     }
 }

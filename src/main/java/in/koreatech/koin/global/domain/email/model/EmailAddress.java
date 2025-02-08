@@ -21,13 +21,13 @@ public record EmailAddress(
 
     public void validateKoreatechEmail() {
         if (!domainForm().equals(KOREATECH_DOMAIN)) {
-            throw EmailAddressInvalidException.withDetail("email: " + email);
+            throw EmailAddressInvalidException.withDetail("account: " + email);
         }
     }
 
     public void validateAdminEmail() {
         if (!addressForm().matches(ADMIN_EMAIL_PATTERN)) {
-            throw new EmailAddressInvalidException("어드민 계정 양식에 맞지 않습니다", "email: " + email);
+            throw new EmailAddressInvalidException("어드민 계정 양식에 맞지 않습니다", "account: " + email);
         }
     }
 

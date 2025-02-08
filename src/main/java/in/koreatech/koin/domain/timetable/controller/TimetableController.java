@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetable.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
@@ -48,7 +49,7 @@ public class TimetableController implements TimetableApi {
 
     @GetMapping("/semesters/check")
     public ResponseEntity<SemesterCheckResponse> getStudentSemesters(
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         SemesterCheckResponse semesterCheckResponse = semesterService.getStudentSemesters(userId);
         return ResponseEntity.ok(semesterCheckResponse);
@@ -57,7 +58,7 @@ public class TimetableController implements TimetableApi {
     @GetMapping("/timetables")
     public ResponseEntity<TimetableResponse> getTimetables(
         @RequestParam(name = "semester") String semester,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableResponse timetableResponse = timetableService.getTimetables(userId, semester);
         return ResponseEntity.ok(timetableResponse);
@@ -66,7 +67,7 @@ public class TimetableController implements TimetableApi {
     @PostMapping("/timetables")
     public ResponseEntity<TimetableResponse> createTimetables(
         @Valid @RequestBody TimetableCreateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableResponse timeTableResponse = timetableService.createTimetables(userId, request);
         return ResponseEntity.ok(timeTableResponse);
@@ -75,7 +76,7 @@ public class TimetableController implements TimetableApi {
     @PutMapping("/timetables")
     public ResponseEntity<TimetableResponse> updateTimetable(
         @Valid @RequestBody TimetableUpdateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         TimetableResponse timetableResponse = timetableService.updateTimetables(userId, request);
         return ResponseEntity.ok(timetableResponse);
@@ -84,10 +85,9 @@ public class TimetableController implements TimetableApi {
     @DeleteMapping("/timetable")
     public ResponseEntity<Void> deleteTimetableById(
         @RequestParam(name = "id") Integer timetableId,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     ) {
         timetableService.deleteTimetableLecture(userId, timetableId);
         return ResponseEntity.ok().build();
     }
-
 }

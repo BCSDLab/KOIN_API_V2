@@ -233,7 +233,7 @@ class OwnerApiTest extends AcceptanceTest {
                                 .isEqualTo("https://static.koreatech.in/testimage.png");
                             softly.assertThat(owner.getUser().isAuthed()).isFalse();
                             softly.assertThat(owner.getUser().isDeleted()).isFalse();
-                            forceVerify(() -> verify(ownerEventListener).onOwnerRegister(any()));
+                            forceVerify(() -> verify(ownerEventListener).onOwnerRegisterBySms(any()));
                             clear();
                         }
                     );
@@ -257,7 +257,6 @@ class OwnerApiTest extends AcceptanceTest {
                                    "name": "최준호",
                                    "password": "a0240120305812krlakdsflsa;1235",
                                    "phone_number": "01012341234",
-                                   "shop_id": null,
                                    "shop_name": "기분좋은 뷔짱"
                                 }
                             """)
@@ -302,7 +301,7 @@ class OwnerApiTest extends AcceptanceTest {
                                      }
                                    ],
                                    "company_number": "012-34-56789",
-                                   "email": "helloworld@koreatech.ac.kr",
+                                   "account": "helloworld@koreatech.ac.kr",
                                    "name": "최준호",
                                    "password": "a0240120305812krlakdsflsa;1235",
                                    "phone_number": "010-0000-0000",
@@ -328,7 +327,7 @@ class OwnerApiTest extends AcceptanceTest {
                                      }
                                    ],
                                    "company_number": "8121-34-56789",
-                                   "email": "helloworld@koreatech.ac.kr",
+                                   "account": "helloworld@koreatech.ac.kr",
                                    "name": "최준호",
                                    "password": "a0240120305812krlakdsflsa;1235",
                                    "phone_number": "01000000000",
@@ -354,7 +353,7 @@ class OwnerApiTest extends AcceptanceTest {
                                      }
                                    ],
                                    "company_number": "011-34-56789",
-                                   "email": "helloworld@koreatech.ac.kr",
+                                   "account": "helloworld@koreatech.ac.kr",
                                    "name": "",
                                    "password": "a0240120305812krlakdsflsa;1235",
                                    "phone_number": "01000000000",

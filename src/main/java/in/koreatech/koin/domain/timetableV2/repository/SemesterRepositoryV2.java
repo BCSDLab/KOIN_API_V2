@@ -1,6 +1,5 @@
 package in.koreatech.koin.domain.timetableV2.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;

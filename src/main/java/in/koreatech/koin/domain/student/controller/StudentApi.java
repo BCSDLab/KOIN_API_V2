@@ -1,6 +1,7 @@
 package in.koreatech.koin.domain.student.controller;
 
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,11 +39,11 @@ public interface StudentApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "회원 정보 조회")
+    @Operation(summary = "학생 정보 조회")
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/user/student/me")
     ResponseEntity<StudentResponse> getStudent(
-        @Auth(permit = STUDENT) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -54,11 +55,11 @@ public interface StudentApi {
             @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "회원 정보 수정")
+    @Operation(summary = "학생 정보 수정")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/user/student/me")
     ResponseEntity<StudentUpdateResponse> updateStudent(
-        @Auth(permit = STUDENT) Integer userId,
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId,
         @Valid StudentUpdateRequest studentUpdateRequest
     );
 
@@ -120,6 +121,6 @@ public interface StudentApi {
     @PutMapping("/user/change/password")
     ResponseEntity<Void> changePassword(
         @RequestBody UserPasswordChangeRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 }

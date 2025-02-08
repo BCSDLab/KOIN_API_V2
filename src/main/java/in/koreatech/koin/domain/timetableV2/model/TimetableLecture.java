@@ -42,8 +42,8 @@ public class TimetableLecture extends BaseEntity {
     @Column(name = "class_time", columnDefinition = "TEXT")
     private String classTime;
 
-    @Size(max = 30)
-    @Column(name = "class_place", length = 30)
+    @Lob
+    @Column(name = "class_place", columnDefinition = "TEXT")
     private String classPlace;
 
     @Size(max = 30)
@@ -85,8 +85,11 @@ public class TimetableLecture extends BaseEntity {
         this.timetableFrame = timetableFrame;
     }
 
-    public void update(String classTitle, String classTime, String classPlace, String professor,
-        String grades, String memo) {
+    public void update(
+        String classTitle, String classTime,
+        String classPlace, String professor,
+        String grades, String memo
+    ) {
         this.classTitle = classTitle;
         this.classTime = classTime;
         this.classPlace = classPlace;
@@ -102,5 +105,27 @@ public class TimetableLecture extends BaseEntity {
         this.professor = request.professor();
         this.grades = grades;
         this.memo = request.memo();
+    }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
+
+    public void undelete() {
+        this.isDeleted = false;
+    }
+
+    public void updateCustomLecture(String classTitle, String professor, String classTime, String classPlace) {
+        this.classTitle = classTitle;
+        this.professor = professor;
+        this.classTime = classTime;
+        this.classPlace = classPlace;
+    }
+
+    public void updateRegularLecture(String classTitle, String classPlace) {
+        if (!lecture.getName().equals(classTitle)) {
+            this.classTitle = classTitle;
+        }
+        this.classPlace = classPlace;
     }
 }

@@ -7,6 +7,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -67,7 +68,10 @@ public record BenefitShopsResponse(
         double averageRate,
 
         @Schema(example = "10", description = "리뷰 개수", requiredMode = REQUIRED)
-        long reviewCount
+        long reviewCount,
+
+        @Schema(example = "콜라 서비스", description = "혜택 설명", requiredMode = NOT_REQUIRED)
+        String benefitDetail
     ) {
 
         public static Comparator<InnerShopResponse> getComparator() {
@@ -80,7 +84,8 @@ public record BenefitShopsResponse(
         public static InnerShopResponse from(
             Shop shop,
             boolean isEvent,
-            boolean isOpen
+            boolean isOpen,
+            String benefitDetail
         ) {
             return new InnerShopResponse(
                 shop.getShopCategories().stream().map(shopCategoryMap ->
@@ -102,7 +107,8 @@ public record BenefitShopsResponse(
                     .orElse(0.0) * 10) / 10.0,
                 shop.getReviews().stream()
                     .filter(review -> !review.isDeleted())
-                    .count()
+                    .count(),
+                benefitDetail
             );
         }
 

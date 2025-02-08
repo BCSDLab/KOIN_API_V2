@@ -2,10 +2,8 @@ package in.koreatech.koin.domain.community.keyword.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,11 +23,14 @@ import in.koreatech.koin.domain.community.keyword.dto.KeywordNotificationRequest
 import in.koreatech.koin.domain.community.keyword.exception.KeywordLimitExceededException;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeyword;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
-import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
 import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordSuggestCache;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordUserMap;
+import in.koreatech.koin.domain.community.keyword.model.UserNotificationStatus;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordRepository;
-import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
 import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordSuggestRepository;
+import in.koreatech.koin.domain.community.keyword.repository.ArticleKeywordUserMapRepository;
+import in.koreatech.koin.domain.community.keyword.repository.UserNotificationStatusRepository;
+import in.koreatech.koin.domain.community.util.KeywordExtractor;
 import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.global.auth.exception.AuthorizationException;
 import in.koreatech.koin.global.concurrent.ConcurrencyGuard;
@@ -42,7 +43,7 @@ import lombok.RequiredArgsConstructor;
 public class KeywordService {
 
     private static final int ARTICLE_KEYWORD_LIMIT = 10;
-    private static final int KEYWORD_BATCH_SIZE = 100;
+
 
     private final ApplicationEventPublisher eventPublisher;
     private final ArticleKeywordUserMapRepository articleKeywordUserMapRepository;
@@ -50,8 +51,10 @@ public class KeywordService {
     private final ArticleKeywordSuggestRepository articleKeywordSuggestRepository;
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
+    private final UserNotificationStatusRepository userNotificationStatusRepository;
+    private final KeywordExtractor keywordExtractor;
 
-    @ConcurrencyGuard(lockName = "createKeyword", waitTime = 7, leaseTime = 5)
+    @ConcurrencyGuard(lockName = "createKeyword")
     public ArticleKeywordResponse createKeyword(Integer userId, ArticleKeywordCreateRequest request) {
         String keyword = validateAndGetKeyword(request.keyword());
         if (articleKeywordUserMapRepository.countByUserId(userId) >= ARTICLE_KEYWORD_LIMIT) {
@@ -77,19 +80,23 @@ public class KeywordService {
         return new ArticleKeywordResponse(keywordUserMap.getId(), existingKeyword.getKeyword());
     }
 
-    @ConcurrencyGuard(lockName = "deleteKeyword")
+    @Transactional
     public void deleteKeyword(Integer userId, Integer keywordUserMapId) {
         ArticleKeywordUserMap articleKeywordUserMap = articleKeywordUserMapRepository.getById(keywordUserMapId);
         if (!Objects.equals(articleKeywordUserMap.getUser().getId(), userId)) {
             throw AuthorizationException.withDetail("userId: " + userId);
         }
 
+        deleteMappingAndUnusedKeywordWithLock(keywordUserMapId, articleKeywordUserMap.getArticleKeyword().getId());
+    }
+
+    @ConcurrencyGuard(lockName = "deleteKeyword")
+    private void deleteMappingAndUnusedKeywordWithLock(Integer keywordUserMapId, Integer articleKeywordId) {
         articleKeywordUserMapRepository.deleteById(keywordUserMapId);
 
-        boolean isKeywordUsedByOthers = articleKeywordUserMapRepository.existsByArticleKeywordId(
-            articleKeywordUserMap.getArticleKeyword().getId());
+        boolean isKeywordUsedByOthers = articleKeywordUserMapRepository.existsByArticleKeywordId(articleKeywordId);
         if (!isKeywordUsedByOthers) {
-            articleKeywordRepository.deleteById(articleKeywordUserMap.getArticleKeyword().getId());
+            articleKeywordRepository.deleteById(articleKeywordId);
         }
     }
 
@@ -99,9 +106,8 @@ public class KeywordService {
     }
 
     public ArticleKeywordsSuggestionResponse suggestKeywords() {
-        List<ArticleKeywordSuggestCache> hotKeywords = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc();
-
-        List<String> suggestions = hotKeywords.stream()
+        List<String> suggestions = articleKeywordSuggestRepository.findTop15ByOrderByCountDesc()
+            .stream()
             .map(ArticleKeywordSuggestCache::getKeyword)
             .collect(Collectors.toList());
 
@@ -111,14 +117,14 @@ public class KeywordService {
     public void sendKeywordNotification(KeywordNotificationRequest request) {
         List<Integer> updateNotificationIds = request.updateNotification();
 
-        if(!updateNotificationIds.isEmpty()) {
+        if (!updateNotificationIds.isEmpty()) {
             List<Article> articles = new ArrayList<>();
 
             for (Integer id : updateNotificationIds) {
                 articles.add(articleRepository.getById(id));
             }
 
-            List<ArticleKeywordEvent> keywordEvents = matchKeyword(articles);
+            List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles);
 
             if (!keywordEvents.isEmpty()) {
                 for (ArticleKeywordEvent event : keywordEvents) {
@@ -135,41 +141,17 @@ public class KeywordService {
         return keyword.trim().toLowerCase();
     }
 
-    private List<ArticleKeywordEvent> matchKeyword(List<Article> articles) {
-        List<ArticleKeywordEvent> keywordEvents = new ArrayList<>();
-        int offset = 0;
-
-        while (true) {
-            Pageable pageable = PageRequest.of(offset / KEYWORD_BATCH_SIZE, KEYWORD_BATCH_SIZE);
-            List<ArticleKeyword> keywords = articleKeywordRepository.findAll(pageable);
-
-            if (keywords.isEmpty()) {
-                break;
-            }
-
-            for (Article article : articles) {
-                String title = article.getTitle();
-                for (ArticleKeyword keyword : keywords) {
-                    if (title.contains(keyword.getKeyword())) {
-                        keywordEvents.add(new ArticleKeywordEvent(article.getId(), keyword));
-                    }
-                }
-            }
-            offset += KEYWORD_BATCH_SIZE;
-        }
-
-        return keywordEvents;
-    }
-
     @Transactional
     public void fetchTopKeywordsFromLastWeek() {
         Pageable top15 = PageRequest.of(0, 15);
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
-        List<ArticleKeywordResult> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeek(oneWeekAgo, top15);
 
-        if(topKeywords.size() < 15) {
-            topKeywords = articleKeywordRepository.findTop15Keywords(top15);
+        List<ArticleKeywordResult> topKeywords = articleKeywordRepository.findTopKeywordsInLastWeekExcludingFiltered(oneWeekAgo, top15);
+
+        if (topKeywords.size() < 15) {
+            topKeywords = articleKeywordRepository.findTop15KeywordsExcludingFiltered(top15);
         }
+
         List<ArticleKeywordSuggestCache> hotKeywords = topKeywords.stream()
             .map(result -> ArticleKeywordSuggestCache.builder()
                 .hotKeywordId(result.hotKeywordId())
@@ -179,9 +161,18 @@ public class KeywordService {
             .toList();
 
         articleKeywordSuggestRepository.deleteAll();
-
-        for(ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
+        for (ArticleKeywordSuggestCache hotKeyword : hotKeywords) {
             articleKeywordSuggestRepository.save(hotKeyword);
         }
+    }
+
+    @Transactional
+    public void updateLastNotifiedArticle(Integer userId, Integer articleId) {
+        UserNotificationStatus status = userNotificationStatusRepository.findByUserId(userId)
+            .orElseGet(() -> new UserNotificationStatus(userId, articleId));
+
+        status.updateLastNotifiedArticleId(articleId);
+
+        userNotificationStatusRepository.save(status);
     }
 }

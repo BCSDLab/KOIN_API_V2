@@ -1,14 +1,34 @@
 package in.koreatech.koin.domain.community.article.service;
 
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
+import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
+import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticleResponse;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticlesRequest;
+import in.koreatech.koin.domain.community.article.dto.LostItemArticlesResponse;
+import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
+import in.koreatech.koin.domain.community.article.model.Article;
+import in.koreatech.koin.domain.community.article.model.Board;
+import in.koreatech.koin.domain.community.article.model.SearchLogEvent;
+import in.koreatech.koin.domain.community.article.model.redis.ArticleHit;
+import in.koreatech.koin.domain.community.article.model.redis.ArticleHitUser;
+import in.koreatech.koin.domain.community.article.model.redis.BusNoticeArticle;
+import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
+import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
+import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
+import in.koreatech.koin.domain.community.article.repository.BoardRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.BusArticleRepository;
+import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
+import in.koreatech.koin.domain.community.keyword.model.ArticleKeywordEvent;
+import in.koreatech.koin.domain.community.util.KeywordExtractor;
+import in.koreatech.koin.domain.user.model.User;
+import in.koreatech.koin.domain.user.repository.UserRepository;
+import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
+import in.koreatech.koin.global.model.Criteria;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -18,32 +38,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import in.koreatech.koin.domain.community.article.dto.ArticleHotKeywordResponse;
-import in.koreatech.koin.domain.community.article.dto.ArticleResponse;
-import in.koreatech.koin.domain.community.article.dto.ArticlesResponse;
-import in.koreatech.koin.domain.community.article.dto.HotArticleItemResponse;
-import in.koreatech.koin.domain.community.article.exception.ArticleBoardMisMatchException;
-import in.koreatech.koin.domain.community.article.model.Article;
-import in.koreatech.koin.domain.community.article.model.Board;
-import in.koreatech.koin.domain.community.article.model.SearchLogEvent;
-import in.koreatech.koin.domain.community.article.model.redis.ArticleHit;
-import in.koreatech.koin.domain.community.article.model.redis.ArticleHitUser;
-import in.koreatech.koin.domain.community.article.repository.ArticleRepository;
-import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordIpMapRepository;
-import in.koreatech.koin.domain.community.article.repository.ArticleSearchKeywordRepository;
-import in.koreatech.koin.domain.community.article.repository.BoardRepository;
-import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitRepository;
-import in.koreatech.koin.domain.community.article.repository.redis.ArticleHitUserRepository;
-import in.koreatech.koin.domain.community.article.repository.redis.HotArticleRepository;
-import in.koreatech.koin.global.exception.KoinIllegalArgumentException;
-import in.koreatech.koin.global.model.Criteria;
-import lombok.RequiredArgsConstructor;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ArticleService {
 
+    public static final int LOST_ITEM_BOARD_ID = 14;
     public static final int NOTICE_BOARD_ID = 4;
     private static final int HOT_ARTICLE_BEFORE_DAYS = 30;
     private static final int HOT_ARTICLE_LIMIT = 10;
@@ -55,6 +61,7 @@ public class ArticleService {
         Sort.Order.desc("id")
     );
 
+    private final ApplicationEventPublisher eventPublisher;
     private final ArticleRepository articleRepository;
     private final BoardRepository boardRepository;
     private final ArticleSearchKeywordIpMapRepository articleSearchKeywordIpMapRepository;
@@ -62,8 +69,10 @@ public class ArticleService {
     private final ArticleHitRepository articleHitRepository;
     private final HotArticleRepository hotArticleRepository;
     private final ArticleHitUserRepository articleHitUserRepository;
+    private final UserRepository userRepository;
     private final Clock clock;
-    private final ApplicationEventPublisher eventPublisher;
+    private final BusArticleRepository busArticleRepository;
+    private final KeywordExtractor keywordExtractor;
 
     @Transactional
     public ArticleResponse getArticle(Integer boardId, Integer articleId, String publicIp) {
@@ -72,29 +81,18 @@ public class ArticleService {
             article.increaseKoinHit();
             articleHitUserRepository.save(ArticleHitUser.of(articleId, publicIp));
         }
-        Board board = getBoard(boardId, article);
-        Article prevArticle = articleRepository.getPreviousArticle(board, article);
-        Article nextArticle = articleRepository.getNextArticle(board, article);
-        article.setPrevNextArticles(prevArticle, nextArticle);
+        setPrevNextArticle(boardId, article);
         return ArticleResponse.of(article);
-    }
-
-    private Board getBoard(Integer boardId, Article article) {
-        if (boardId == null) {
-            boardId = article.getBoard().getId();
-        }
-        if (!Objects.equals(boardId, article.getBoard().getId())
-            && (!article.getBoard().isNotice() || boardId != NOTICE_BOARD_ID)) {
-            throw ArticleBoardMisMatchException.withDetail("boardId: " + boardId + ", articleId: " + article.getId());
-        }
-        return boardRepository.getById(boardId);
     }
 
     public ArticlesResponse getArticles(Integer boardId, Integer page, Integer limit) {
         Long total = articleRepository.countBy();
         Criteria criteria = Criteria.of(page, limit, total.intValue());
-        Board board = boardRepository.getById(boardId);
         PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        if (boardId == null) {
+            Page<Article> articles = articleRepository.findAll(pageRequest);
+            return ArticlesResponse.of(articles, criteria);
+        }
         if (boardId == NOTICE_BOARD_ID) {
             Page<Article> articles = articleRepository.findAllByIsNoticeIsTrue(pageRequest);
             return ArticlesResponse.of(articles, criteria);
@@ -174,5 +172,106 @@ public class ArticleService {
             articlesIdWithHit.put(article.getId(), article.getTotalHit() - beforeArticleHit);
         }
         hotArticleRepository.saveArticlesWithHitToRedis(articlesIdWithHit, HOT_ARTICLE_LIMIT);
+    }
+
+    @Transactional
+    public void updateBusNoticeArticle() {
+        List<Article> articles = articleRepository.findBusArticlesTop5OrderByCreatedAtDesc();
+        LocalDate latestDate = articles.get(0).getCreatedAt().toLocalDate();
+        List<Article> latestArticles = articles.stream()
+            .filter(article -> article.getCreatedAt().toLocalDate().isEqual(latestDate))
+            .toList();
+
+        if (latestArticles.size() >= 2) {
+            latestArticles = latestArticles.stream()
+                .sorted((first, second) -> {
+                    int firstWeight = 0;
+                    int secondWeight = 0;
+
+                    // 제목(title)에 "사과"가 들어가면 후순위, "긴급"이 포함되면 우선순위
+                    if (first.getTitle().contains("사과")) firstWeight++;
+                    if (first.getTitle().contains("긴급")) firstWeight--;
+
+                    if (second.getTitle().contains("사과")) secondWeight++;
+                    if (second.getTitle().contains("긴급")) secondWeight--;
+
+                    return Integer.compare(firstWeight, secondWeight);
+                })
+                .toList();
+        }
+        busArticleRepository.save(BusNoticeArticle.from(latestArticles.get(0)));
+    }
+
+    public LostItemArticlesResponse getLostItemArticles(Integer page, Integer limit, Integer userId) {
+        Long total = articleRepository.countBy();
+        Criteria criteria = Criteria.of(page, limit, total.intValue());
+        PageRequest pageRequest = PageRequest.of(criteria.getPage(), criteria.getLimit(), ARTICLES_SORT);
+        Page<Article> articles = articleRepository.findAllByBoardId(LOST_ITEM_BOARD_ID, pageRequest);
+        return LostItemArticlesResponse.of(articles, criteria, userId);
+    }
+
+    public LostItemArticleResponse getLostItemArticle(Integer articleId) {
+        Article article = articleRepository.getById(articleId);
+        setPrevNextArticle(LOST_ITEM_BOARD_ID, article);
+        return LostItemArticleResponse.from(article);
+    }
+
+    @Transactional
+    public LostItemArticleResponse createLostItemArticle(Integer userId, LostItemArticlesRequest requests) {
+        Board lostItemBoard = boardRepository.getById(LOST_ITEM_BOARD_ID);
+        List<Article> newArticles = new ArrayList<>();
+        User user = userRepository.getById(userId);
+        requests.articles()
+            .forEach(article -> {
+                    Article lostItemArticle = Article.createLostItemArticle(article, lostItemBoard, user);
+                    articleRepository.save(lostItemArticle);
+                    newArticles.add(lostItemArticle);
+                }
+            );
+        sendKeywordNotification(newArticles);
+        return LostItemArticleResponse.from(newArticles.get(0));
+    }
+
+    @Transactional
+    public void deleteLostItemArticle(Integer articleId) {
+        Optional<Article> foundArticle = articleRepository.findById(articleId);
+        if (foundArticle.isEmpty()) {
+            return;
+        }
+        foundArticle.get().delete();
+    }
+
+    private void setPrevNextArticle(Integer boardId, Article article) {
+        Article prevArticle;
+        Article nextArticle;
+        if (boardId != null) {
+            Board board = getBoard(boardId, article);
+            prevArticle = articleRepository.getPreviousArticle(board, article);
+            nextArticle = articleRepository.getNextArticle(board, article);
+        } else {
+            prevArticle = articleRepository.getPreviousAllArticle(article);
+            nextArticle = articleRepository.getNextAllArticle(article);
+        }
+        article.setPrevNextArticles(prevArticle, nextArticle);
+    }
+
+    private Board getBoard(Integer boardId, Article article) {
+        if (boardId == null) {
+            boardId = article.getBoard().getId();
+        }
+        if (!Objects.equals(boardId, article.getBoard().getId())
+            && (!article.getBoard().isNotice() || boardId != NOTICE_BOARD_ID)) {
+            throw ArticleBoardMisMatchException.withDetail("boardId: " + boardId + ", articleId: " + article.getId());
+        }
+        return boardRepository.getById(boardId);
+    }
+
+    private void sendKeywordNotification(List<Article> articles) {
+        List<ArticleKeywordEvent> keywordEvents = keywordExtractor.matchKeyword(articles);
+        if (!keywordEvents.isEmpty()) {
+            for (ArticleKeywordEvent event : keywordEvents) {
+                eventPublisher.publishEvent(event);
+            }
+        }
     }
 }

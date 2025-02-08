@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.timetable.controller;
 
+import static in.koreatech.koin.domain.user.model.UserType.COUNCIL;
 import static in.koreatech.koin.domain.user.model.UserType.STUDENT;
 
 import java.util.List;
@@ -66,7 +67,7 @@ public interface TimetableApi {
     @SecurityRequirement(name = "Jwt Authentication")
     @GetMapping("/semesters/check")
     ResponseEntity<SemesterCheckResponse> getStudentSemesters(
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -82,7 +83,7 @@ public interface TimetableApi {
     @GetMapping("/timetables")
     ResponseEntity<TimetableResponse> getTimetables(
         @RequestParam(value = "semester") String semester,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -98,7 +99,7 @@ public interface TimetableApi {
     @PostMapping("/timetables")
     ResponseEntity<TimetableResponse> createTimetables(
         @RequestBody TimetableCreateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -114,7 +115,7 @@ public interface TimetableApi {
     @PutMapping("/timetables")
     ResponseEntity<TimetableResponse> updateTimetable(
         @RequestBody TimetableUpdateRequest request,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 
     @ApiResponses(
@@ -130,6 +131,6 @@ public interface TimetableApi {
     @DeleteMapping("/timetable")
     ResponseEntity<Void> deleteTimetableById(
         @RequestParam(value = "id") Integer id,
-        @Auth(permit = {STUDENT}) Integer userId
+        @Auth(permit = {STUDENT, COUNCIL}) Integer userId
     );
 }

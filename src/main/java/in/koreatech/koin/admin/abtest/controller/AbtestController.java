@@ -19,6 +19,7 @@ import in.koreatech.koin.admin.abtest.dto.request.AbtestAdminAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.request.AbtestAssignRequest;
 import in.koreatech.koin.admin.abtest.dto.request.AbtestCloseRequest;
 import in.koreatech.koin.admin.abtest.dto.request.AbtestRequest;
+import in.koreatech.koin.admin.abtest.dto.response.AbtestAccessHistoryResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestAssignResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestDevicesResponse;
 import in.koreatech.koin.admin.abtest.dto.response.AbtestResponse;
@@ -123,6 +124,15 @@ public class AbtestController implements AbtestApi {
     ) {
         abtestService.assignVariableByAdmin(abtestId, abtestAdminAssignRequest);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/assign/token")
+    public ResponseEntity<AbtestAccessHistoryResponse> issueAccessHistoryId(
+        @UserAgent UserAgentInfo userAgentInfo,
+        @UserId Integer userId
+    ) {
+        AbtestAccessHistoryResponse response = abtestService.issueAccessHistoryId(userAgentInfo, userId);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/assign")
