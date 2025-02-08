@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
+import org.springframework.data.redis.core.index.Indexed;
 
 import lombok.Getter;
 
@@ -17,6 +18,7 @@ public class PasswordResetToken {
     @Id
     private Integer id;
 
+    @Indexed
     private final String resetToken;
 
     @TimeToLive(unit = TimeUnit.HOURS)
