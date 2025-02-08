@@ -122,8 +122,7 @@ public class StudentService {
     public void findPassword(FindPasswordRequest request, String serverURL) {
         User user = userRepository.getByEmail(request.email());
         String resetToken = UUID.randomUUID().toString();
-        PasswordResetToken token = PasswordResetToken.from(resetToken, user.getId());
-        userPasswordResetTokenRepository.save(token);
+        userPasswordResetTokenRepository.save(PasswordResetToken.from(resetToken, user.getId()));
         mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, resetToken));
     }
 
