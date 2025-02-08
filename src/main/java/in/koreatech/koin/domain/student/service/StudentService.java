@@ -57,7 +57,6 @@ public class StudentService {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final UserPasswordResetTokenRepository passwordResetTokenRepository;
-    private final UserPasswordResetTokenRepository userPasswordResetTokenRepository;
 
     @Transactional
     public void studentRegister(StudentRegisterRequest request, String serverURL) {
@@ -120,7 +119,7 @@ public class StudentService {
     public void findPassword(FindPasswordRequest request, String serverURL) {
         User user = userRepository.getByEmail(request.email());
         String resetToken = UUID.randomUUID().toString();
-        userPasswordResetTokenRepository.save(PasswordResetToken.from(resetToken, user.getId()));
+        passwordResetTokenRepository.save(PasswordResetToken.from(resetToken, user.getId()));
         mailService.sendMail(request.email(), new StudentPasswordChangeData(serverURL, resetToken));
     }
 
