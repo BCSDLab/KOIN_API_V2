@@ -82,21 +82,9 @@ public class TimetableLecture extends BaseEntity {
     private GeneralEducationArea generalEducationArea;
 
     @Builder
-    private TimetableLecture(
-        Integer id,
-        String classTitle,
-        String classTime,
-        String classPlace,
-        String professor,
-        String grades,
-        String memo,
-        boolean isDeleted,
-        Lecture lecture,
-        TimetableFrame timetableFrame,
-        CourseType courseType,
-        GeneralEducationArea generalEducationArea
-    ) {
-        this.id = id;
+    public TimetableLecture(String classTitle, String classTime, String classPlace, String professor,
+        String grades, String memo, boolean isDeleted, Lecture lecture, TimetableFrame timetableFrame,
+        CourseType courseType, GeneralEducationArea generalEducationArea) {
         this.classTitle = classTitle;
         this.classTime = classTime;
         this.classPlace = classPlace;

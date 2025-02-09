@@ -1,5 +1,6 @@
 package in.koreatech.koin.domain.graduation.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
@@ -14,6 +15,8 @@ public interface CourseTypeRepository extends Repository<CourseType, Integer> {
     Optional<CourseType> findById(Integer id);
 
     Optional<CourseType> findByName(String name);
+
+    List<CourseType> findAll();
 
     default CourseType getById(Integer id) {
         return findById(id)

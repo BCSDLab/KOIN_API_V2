@@ -62,7 +62,6 @@ public class Catalog extends BaseEntity {
 
     @Builder
     private Catalog(
-        Integer id,
         String year,
         String code,
         String lectureName,
@@ -71,7 +70,7 @@ public class Catalog extends BaseEntity {
         Department department,
         CourseType courseType
     ) {
-        this.id = id;
+        this.year = year;
         this.code = code;
         this.lectureName = lectureName;
         this.credit = credit;
